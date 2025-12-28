@@ -590,7 +590,7 @@
         <div id="card-container" class="card-container"></div>
     </main>
     <footer class="footer">
-        <div id="f-left">SITUATION ROOM PROTOCOL | v64.2</div>
+        <div id="f-left">SITUATION ROOM PROTOCOL | v65.0</div>
         <div id="f-outcomes"
             style="font-size:0.55rem; opacity:0.5; flex:1; text-align:center; text-transform:uppercase; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
         </div>
@@ -601,6 +601,38 @@
     <script>
         window.DATA = null; let user = { id: null, name: null, pin: null, missions: {} };
         let currentMission = null; let refMode = "pre"; let refIdx = 0; let missionsAvailable = [];
+        let currentLayout = null;
+
+        // LAYOUT PRESETS LIBRARY
+        const LAYOUTS = {
+            classic: {
+                sidebarWidth: "200px",
+                sidebarPadding: "15px",
+                imageFlex: 1.1,
+                textFlex: 1,
+                textFontSize: "0.9rem",
+                textPadding: "20px",
+                textLineHeight: "1.5"
+            },
+            compact: {
+                sidebarWidth: "145px",
+                sidebarPadding: "10px",
+                imageFlex: 0.7,
+                textFlex: 1,
+                textFontSize: "0.8rem",
+                textPadding: "15px",
+                textLineHeight: "1.4"
+            },
+            immersive: {
+                sidebarWidth: "120px",
+                sidebarPadding: "8px",
+                imageFlex: 1.3,
+                textFlex: 1,
+                textFontSize: "0.85rem",
+                textPadding: "18px",
+                textLineHeight: "1.45"
+            }
+        };
 
         async function login() {
             const name = document.getElementById('username').value.trim();
@@ -729,6 +761,19 @@
 
             const outcomes = m.learningOutcomes || m.outcomes || [];
             document.getElementById('f-outcomes').innerText = outcomes.length > 0 ? "OBJECTIVES: " + outcomes.join(" | ") : "";
+
+            // APPLY LAYOUT PRESET
+            const layoutName = (t.layout || "compact").toLowerCase();
+            currentLayout = LAYOUTS[layoutName] || LAYOUTS.compact;
+            console.log("[LAYOUT] Applying preset: " + layoutName);
+
+            // Apply sidebar settings
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.style.width = currentLayout.sidebarWidth;
+                sidebar.style.minWidth = currentLayout.sidebarWidth;
+                sidebar.style.padding = currentLayout.sidebarPadding;
+            }
         }
 
         function renderGlossary() {
@@ -939,7 +984,7 @@ Provide a concise assessment (150 words). Format with markdown.`;
                 <div class="card active">
                     <div class="exhibit-frame">
                         <div id="exhibit-left" class="exhibit-left"></div>
-                        <div class="exhibit-right">
+                        <div id="exhibit-right" class="exhibit-right">
                             <div class="tab-bar">
                                 <div class="tab active" onclick="tab(this,'primary')">PRIMARY</div>
                                 <div class="tab" onclick="tab(this,'legal')">LEGAL</div>
@@ -950,6 +995,21 @@ Provide a concise assessment (150 words). Format with markdown.`;
                     </div>
                     <div id="interaction-z" class="interaction-block"></div>
                 </div>`;
+
+            // APPLY LAYOUT TO EXHIBIT PANELS
+            if (currentLayout) {
+                const left = document.getElementById('exhibit-left');
+                const right = document.getElementById('exhibit-right');
+                const tabScroll = document.getElementById('tab-scroll');
+                if (left) left.style.flex = currentLayout.imageFlex;
+                if (right) right.style.flex = currentLayout.textFlex;
+                if (tabScroll) {
+                    tabScroll.style.fontSize = currentLayout.textFontSize;
+                    tabScroll.style.padding = currentLayout.textPadding;
+                    tabScroll.style.lineHeight = currentLayout.textLineHeight;
+                }
+            }
+
             tab(document.querySelector('.tab'), 'primary');
             renderInteraction(s, i);
             save();
