@@ -319,6 +319,8 @@
             </select>
             <button class="btn" style="width:auto; padding:0 15px; font-size:0.6rem;"
                 onclick="fetchProgress()">REFRESH</button>
+            <button class="btn" style="width:auto; padding:0 15px; font-size:0.6rem; background:#0a0;"
+                onclick="analyzeAll()">ANALYZE ALL</button>
         </div>
         <div id="progress-list" style="max-height:500px; overflow-y:auto; border:1px solid #eee;"></div>
     </div>
@@ -615,6 +617,30 @@
             </div>`;
         });
         board.innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
+    }
+
+    // BATCH AI ANALYSIS
+    async function analyzeAll() {
+        const candidates = [];
+        allProgress.forEach(p => {
+            Object.keys(p.missionData || {}).forEach(mid => {
+                const st = p.missionData[mid];
+                if (st && st.preDone && !st.aiFeedback) candidates.push({ uid: p.id, mid: mid, name: p.name });
+            });
+        });
+        if (candidates.length === 0) return log("No students ready for AI analysis.", "info");
+        if (!confirm(`Generate AI feedback for ${candidates.length} student(s)? This may take 1-2 minutes.`)) return;
+
+        log(`Starting batch AI analysis for ${candidates.length} students...`);
+        let processed = 0;
+        for (const c of candidates) {
+            await runAI(c.uid, c.mid);
+            processed++;
+            log(`Progress: ${processed}/${candidates.length} (${c.name})`, "info");
+            if (processed < candidates.length) await new Promise(r => setTimeout(r, 4000)); // Rate limit: 15 RPM
+        }
+        log(`Batch complete. ${processed} students analyzed.`, "success");
+        fetchProgress();
     }
 </script>
 </body>
