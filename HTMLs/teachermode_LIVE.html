@@ -231,7 +231,8 @@
 
         .proj-class {
             font-size: 0.55rem;
-            opacity: 0.5;
+            color: #d2b48c;
+            opacity: 0.8;
             margin-bottom: 8px;
         }
 
@@ -260,10 +261,18 @@
 <div id="projector-view">
     <header class="proj-header">
         <h1>COMMAND PROGRESS BOARD</h1>
-        <div style="display:flex; gap:20px; align-items:center;">
-            <span id="proj-sync" style="font-size:0.8rem; color:#666; letter-spacing:2px;">[SYNCING]</span>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <select id="proj-class-filter" onchange="renderProjectorBoard()"
+                style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
+                <option value="ALL">ALL CLASSES</option>
+            </select>
+            <select id="proj-mission-filter" onchange="renderProjectorBoard()"
+                style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
+                <option value="ALL">ALL MISSIONS</option>
+            </select>
+            <span id="proj-sync" style="font-size:0.7rem; color:#888; letter-spacing:2px;">[SYNCING]</span>
             <button onclick="toggleProjector()"
-                style="background:#d2b48c; color:#000; border:none; padding:10px 20px; cursor:pointer; font-weight:bold; letter-spacing:1px;">EXIT
+                style="background:#d2b48c; color:#000; border:none; padding:8px 15px; cursor:pointer; font-weight:bold; letter-spacing:1px; font-size:0.7rem;">EXIT
                 PROJECTOR</button>
         </div>
     </header>
@@ -283,7 +292,7 @@
         <button onclick="toggleLibrary()"
             style="background:var(--accent); color:#fff; font-size:0.6rem; border:none; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📚
             OPEN COMMUNITY HUB</button>
-        <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER MODE // v63.6</div>
+        <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER MODE // v63.7</div>
     </div>
 </div>
 <h1 style="margin: 0 40px 30px 40px;">COMMAND CENTER // MISSION CONTROL</h1>
@@ -631,28 +640,67 @@
 
     function renderProjectorBoard() {
         const board = document.getElementById('proj-board');
+        const classFilter = document.getElementById('proj-class-filter');
+        const missionFilter = document.getElementById('proj-mission-filter');
         document.getElementById('proj-sync').innerText = "[LOG_ACTIVE]";
-        let h = "";
+
+        // Build entries list
         const entries = [];
+        const allClasses = new Set();
+        const allMissions = new Set();
+
         allProgress.forEach(p => {
             Object.keys(p.missionData || {}).forEach(mid => {
                 const st = p.missionData[mid];
-                if (st) entries.push({ name: p.name, class: p.class, mission: mid, steps: st.dec ? Object.keys(st.dec).length : 0, brief: st.preDone ? "READY" : "BRIEFING" });
+                if (st) {
+                    entries.push({ name: p.name, class: p.class, mission: mid, steps: st.dec ? Object.keys(st.dec).length : 0, brief: st.preDone ? "READY" : "BRIEFING" });
+                    allClasses.add(p.class);
+                    allMissions.add(mid);
+                }
             });
         });
-        entries.sort((a, b) => (a.class > b.class) ? 1 : (a.name > b.name) ? 1 : -1);
-        entries.forEach(e => {
+
+        // Populate filter dropdowns (preserve selection)
+        const currentClass = classFilter.value;
+        const currentMission = missionFilter.value;
+
+        classFilter.innerHTML = '<option value="ALL">ALL CLASSES</option>';
+        [...allClasses].sort().forEach(c => {
+            classFilter.innerHTML += `<option value="${c}" ${c === currentClass ? 'selected' : ''}>${c}</option>`;
+        });
+
+        missionFilter.innerHTML = '<option value="ALL">ALL MISSIONS</option>';
+        [...allMissions].sort().forEach(m => {
+            missionFilter.innerHTML += `<option value="${m}" ${m === currentMission ? 'selected' : ''}>${m}</option>`;
+        });
+
+        // Apply filters
+        let filtered = entries;
+        if (classFilter.value !== 'ALL') {
+            filtered = filtered.filter(e => e.class === classFilter.value);
+        }
+        if (missionFilter.value !== 'ALL') {
+            filtered = filtered.filter(e => e.mission === missionFilter.value);
+        }
+
+        // Sort and render
+        filtered.sort((a, b) => (a.class > b.class) ? 1 : (a.name > b.name) ? 1 : -1);
+
+        let h = "";
+        filtered.forEach(e => {
             const pct = (e.steps / 18) * 100;
             h += `<div class="proj-card ${e.steps > 0 ? 'active' : ''}">
                 <div class="proj-name">${e.name}</div>
                 <div class="proj-class">${e.class} // ${e.mission}</div>
                 <div class="proj-stats">
-                    <div><div style="opacity:0.5; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Exhibit</div><div style="font-size:0.75rem; color:#fff;">${e.steps}</div></div>
-                    <div><div style="opacity:0.5; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Status</div><div style="font-size:0.65rem; color:${e.brief === 'READY' ? '#0f0' : '#666'};">${e.brief}</div></div>
+                    <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Exhibit</div><div style="font-size:0.75rem; color:#fff;">${e.steps}</div></div>
+                    <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Status</div><div style="font-size:0.65rem; color:${e.brief === 'READY' ? '#0f0' : '#ff0'};">${e.brief}</div></div>
                 </div>
                 <div class="proj-bar"><div class="proj-fill" style="width:${pct}%"></div></div>
             </div>`;
         });
+
+        document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS]`;
         board.innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
     }
 
