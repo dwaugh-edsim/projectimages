@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.14 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.15 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -2009,6 +2009,7 @@ Provide a concise assessment (150 words). Format with markdown.`;
     }
 
     function renderMissions(missions) {
+        console.log("DEBUG: Missions Payload:", missions); // DEBUG INSPECTION
         const list = document.getElementById('library-list');
         if (!missions || missions.length === 0) {
             list.innerHTML = "<div style='color:#ccc; padding:20px; font-size:0.65rem;'>No missions in archive.</div>";
