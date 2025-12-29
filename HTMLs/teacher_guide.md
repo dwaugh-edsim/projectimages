@@ -62,6 +62,6 @@ The platform supports **AI-powered debrief analysis** using Google's Gemini API 
 | Requests/minute | 15 |
 | Requests/day | 1,500 |
 
-This is ample for classroom use (30 students × 3 analyses = 90 requests/period).
+This is ample for simulation use (30 students × 3 analyses = 90 requests/period).
 
-**Your classroom is now an Archive of Decision.** 🦾🏛️⚖️
+**Your terminal is now an Archive of Decision.** 🦾🏛️⚖️

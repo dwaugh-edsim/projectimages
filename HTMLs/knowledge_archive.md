@@ -1,6 +1,6 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.33 - synced with codebase)
+﻿# Situation Room: Knowledge Archive (v65.36 - synced with codebase)
 
-This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
+This document contains the universal HTML/JS shells used by the Situation Room.
 
 ### **TEMPLATE A: Code.gs (The Archive Brain)**
 ```javascript
@@ -991,7 +991,7 @@ function createJSON(o) { return ContentService.createTextOutput(JSON.stringify(o
                 <div><strong style="color:var(--accent);">SIM ENGINE:</strong> ${simVersion}</div>
                 <div><strong style="color:var(--accent);">CAPSULE VERSION:</strong> ${blobVersion}</div>
                 <div><strong style="color:var(--accent);">CAPSULE AUTHOR:</strong> ${blobAuthor}</div>
-                <div style="margin-top:10px; opacity:0.5; font-size:0.65rem;">code.gs: Managed by Classroom Sim Architect</div>
+                <div style="margin-top:10px; opacity:0.5; font-size:0.65rem;">PROTOCOLS: Managed by Situation Room</div>
                 <button class="btn" style="background:#400; color:#fff; border-color:#800; margin-top:15px; width:100%; font-size: 0.65rem;" onclick="resetAICache()">RESET AI CACHE</button>
             `;
             document.getElementById('version-content').innerHTML = h;
@@ -2047,7 +2047,7 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
             });
             const j = await res.json();
             if (j.status === "success") {
-                log(`Classroom AI for [${id}] updated.`, "success");
+                log(`Simulation AI for [${id}] updated.`, "success");
                 await fetchMissions();
             } else {
                 log(`Backend Error: ${j.message}`, "error");
