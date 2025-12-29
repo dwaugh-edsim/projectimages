@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.15 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.16 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1986,14 +1986,26 @@ Provide a concise assessment (150 words). Format with markdown.`;
     async function toggleAI(id, state) {
         log(`Updating AI Protocols for [${id}]...`);
         try {
-            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'toggle_ai', pin: PIN, id: id, state: state }) });
+            // SHOTGUN APPROACH: Send multiple property names to try and hit the correct backend handler
+            const res = await fetch(URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'toggle_ai',
+                    pin: PIN,
+                    id: id,
+                    state: state,       // boolean
+                    enabled: state,     // alias
+                    val: state ? 1 : 0  // numeric
+                })
+            });
             const j = await res.json();
             if (j.status === "success") {
-                log(`Classroom AI for [${id}] is now ${state ? "ACTIVE" : "OFFLINE"}.`, "success");
-                fetchMissions();
+                log(`Classroom AI for [${id}] updated.`, "success");
+                await fetchMissions();
             } else {
-                log(j.message, "error");
-                fetchMissions();
+                log(`Backend Error: ${j.message}`, "error");
+                alert("Remote toggle failed. Please update 'enableAIFeedback' in your .blob file and re-upload.");
+                fetchMissions(); // Revert
             }
         } catch (e) { log(e.message, "error"); fetchMissions(); }
     }
