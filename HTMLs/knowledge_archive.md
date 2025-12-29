@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.17 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.18 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1114,15 +1114,24 @@ Provide a concise assessment (150 words). Format with markdown.`;
                             throw new Error("No feedback returned");
                         }
                     } catch (err) {
-                        console.log("AI Service Unavailable, falling back to static debrief.", err);
-                        // RESET REQ FLAG so it retries next time the user loads this page
-                        user.state.aiRequested = false;
+                        console.log("AI Service Unavailable.", err);
+
+                        // LOCAL DEV BYPASS: If blocked by CORS (local file), simulate success for testing
+                        if (err.message.includes("Failed to fetch")) {
+                            user.state.aiFeedback = "***[OFFLINE SIMULATION]***\n\n" + staticContent + "\n\n*(Note: Live AI unavailable in local file mode. This is a static rendering.)*";
+                            user.state.aiRequested = true; // Mark as done
+                            save();
+                            renderDebrief(); // Recursive call to trigger typewriter UI
+                            return;
+                        }
+
+                        // Real Failure (Server Down/Other)
+                        user.state.aiRequested = false; // Reset for retry
                         save();
 
-                        // Show Static Fallback temporarily with Error Hint
                         h += `<div style="margin-top:20px; border-top:1px solid #333; padding-top:20px;">
                                 <h3 style="color:var(--accent); margin-top:0; font-size:0.7rem; letter-spacing:2px;">COMMAND DEBRIEF (SYSTEM OFFLINE)</h3>
-                                <div style="font-size:0.55rem; color:#666; margin-bottom:10px;">ERR: ${err.message || "CONNECTION_REFUSED"}</div>
+                                <div style="font-size:0.55rem; color:#666; margin-bottom:10px;">ERR: ${err.message}</div>
                                 <div style="font-family:var(--font-p); font-size:0.95rem; line-height:1.6; opacity:0.9;">${parseMD(staticContent)}</div>
                               </div>`;
                     }
