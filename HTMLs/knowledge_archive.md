@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.11 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.12 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1977,6 +1977,21 @@ Provide a concise assessment (150 words). Format with markdown.`;
                 fetchProgress();
             } else log(j.message, "error");
         } catch (e) { log(e.message, "error"); }
+    }
+
+    async function toggleAI(id, state) {
+        log(`Updating AI Protocols for [${id}]...`);
+        try {
+            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'toggle_ai', pin: PIN, id: id, state: state }) });
+            const j = await res.json();
+            if (j.status === "success") {
+                log(`Classroom AI for [${id}] is now ${state ? "ACTIVE" : "OFFLINE"}.`, "success");
+                fetchMissions();
+            } else {
+                log(j.message, "error");
+                fetchMissions();
+            }
+        } catch (e) { log(e.message, "error"); fetchMissions(); }
     }
 
     async function deleteMission(id) {

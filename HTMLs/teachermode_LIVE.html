@@ -570,6 +570,21 @@
         } catch (e) { log(e.message, "error"); }
     }
 
+    async function toggleAI(id, state) {
+        log(`Updating AI Protocols for [${id}]...`);
+        try {
+            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'toggle_ai', pin: PIN, id: id, state: state }) });
+            const j = await res.json();
+            if (j.status === "success") {
+                log(`Classroom AI for [${id}] is now ${state ? "ACTIVE" : "OFFLINE"}.`, "success");
+                fetchMissions();
+            } else {
+                log(j.message, "error");
+                fetchMissions();
+            }
+        } catch (e) { log(e.message, "error"); fetchMissions(); }
+    }
+
     async function deleteMission(id) {
         if (!confirm(`PERMANENT DELETION: Are you sure you want to scrub mission [${id}] from the record?`)) return;
         log(`DELETING CAPSULE [${id}]...`);
