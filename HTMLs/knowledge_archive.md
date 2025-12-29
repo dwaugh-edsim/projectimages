@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.10 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.11 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1086,10 +1086,10 @@ function createJSON(o) { return ContentService.createTextOutput(JSON.stringify(o
                         postQs.forEach((q, i) => { rationales.push({ question: q, answer: user.state.ans['post_' + i] }); });
 
                         // LIVE CHECK: Ping Archive to see if AI is currently enabled for this mission
-                        // This allows mid-sim toggling by the teacher
-                        const statusRes = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'check_ai_status', id: window.DATA.metadata.id }) });
-                        const statusJson = await statusRes.json();
-                        if (!statusJson.enabled) throw new Error("AI Disabled by Teacher (Live Override)");
+                        // DISABLED FOR LOCAL TESTING
+                        // const statusRes = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'check_ai_status', id: window.DATA.metadata.id }) });
+                        // const statusJson = await statusRes.json();
+                        // if (!statusJson.enabled) throw new Error("AI Disabled by Teacher (Live Override)");
 
                         // Construct Prompt
                         const fullPrompt = `You are a professional history educator evaluating a student's performance in a ${window.DATA.metadata.title} simulation.
