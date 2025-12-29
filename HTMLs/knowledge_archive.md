@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.20 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.21 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1101,22 +1101,23 @@ Evaluate on: 1. Historical Reasoning, 2. Perspective-Taking, 3. Strategic Thinki
 Provide a concise assessment (150 words). Format with markdown.`;
 
                         // Call Vercel Proxy (Direct User Endpoint)
+                        const TARGET_URL = 'https://nextjs-basic-lemon-one.vercel.app/api/chat';
                         let res;
                         try {
                             // ATTEMPT 1: Direct Connection
-                            res = await fetch('https://nextjs-boilerplate-delta-olive-29.vercel.app/api/ask', {
+                            res = await fetch(TARGET_URL, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ prompt: fullPrompt })
+                                body: JSON.stringify({ message: fullPrompt })
                             });
                         } catch (directErr) {
                             console.log("Direct AI Connection Failed (likely CORS). Attempting Proxy...");
                             // ATTEMPT 2: CORS Proxy (Bypass Browser Security)
                             try {
-                                res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://nextjs-boilerplate-delta-olive-29.vercel.app/api/ask'), {
+                                res = await fetch('https://corsproxy.io/?' + encodeURIComponent(TARGET_URL), {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ prompt: fullPrompt })
+                                    body: JSON.stringify({ message: fullPrompt })
                                 });
                             } catch (proxyErr) {
                                 throw new Error(`Connection Failed: ${directErr.message} / Proxy: ${proxyErr.message}`);
@@ -1125,12 +1126,15 @@ Provide a concise assessment (150 words). Format with markdown.`;
 
                         const data = await res.json();
 
-                        if (data.reply) { // Proxy returns 'reply'
-                            user.state.aiFeedback = data.reply;
+                        // Handle OpenRouter / Proxy response structure
+                        const reply = data.choices ? (data.choices[0]?.message?.content) : data.reply;
+
+                        if (reply) {
+                            user.state.aiFeedback = reply;
                             save();
                             renderDebrief(); // Re-render with feedback
                         } else {
-                            throw new Error("No feedback returned");
+                            throw new Error("No feedback returned (Invalid structure)");
                         }
                     } catch (err) {
                         console.log("AI Service Unavailable.", err);
