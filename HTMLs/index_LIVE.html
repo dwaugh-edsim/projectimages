@@ -551,14 +551,10 @@
             </div>
 
             <div id="lobby-step" style="width:420px; display:none; text-align:left;">
-                <h3
-                    style="color:var(--accent); letter-spacing:3px; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">
-                    ACTIVE DOSSIERS</h3>
-                <div id="mission-list"></div>
-                <div style="margin-top:30px; padding:25px; background:rgba(0,0,0,0.5); border:1px solid #333;">
+                <div style="padding:25px; background:rgba(0,0,0,0.5); border:1px solid #333;">
                     <p
-                        style="font-size:0.6rem; color:#666; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px; text-align:center;">
-                        Manual Capsule Injection</p>
+                        style="font-size:0.6rem; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:20px; text-align:center; font-weight:bold;">
+                        PROTOCOL: MISSION AUTHORIZATION REQUIRED</p>
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <input id="mission-code" placeholder="MISSION CODE"
                             style="flex:1; text-align:center; letter-spacing:5px; margin:0;">
@@ -608,7 +604,7 @@
     </main>
     <footer class="footer">
         <div id="f-left" style="cursor:pointer; pointer-events:auto;" onclick="showVersionInfo()">SITUATION ROOM
-            PROTOCOL | v65.36</div>
+            PROTOCOL | v65.38</div>
         <div id="f-outcomes-btn" style="cursor:pointer; pointer-events:auto; color:var(--accent); opacity:0.7;"
             onclick="toggleOutcomes()">[VIEW OUTCOMES]</div>
         <div id="f-right" style="pointer-events:auto;">OPEN-SOURCE LICENSE</div>
@@ -708,8 +704,6 @@
             const j = await res.json();
             if (j.status === "success") {
                 user = { id: j.id, name: cleanName, pin: pin, missions: j.missions, class: classCode };
-                const mRes = await fetch(API_URL + "?action=list_missions");
-                const mData = await mRes.json(); missionsAvailable = mData.missions;
                 showLobby();
             } else alert(j.message);
             document.getElementById('loading-screen').style.display = 'none';
@@ -717,15 +711,6 @@
 
         function showLobby() {
             document.getElementById('login-step').style.display = 'none'; document.getElementById('lobby-step').style.display = 'block';
-            let h = "";
-            missionsAvailable.forEach(m => {
-                const thumb = m.thumb || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop";
-                h += `<div class="mission-item" onclick="launch('${m.id}')">
-                    <div class="mission-thumb" style="background-image:url('${thumb}')"></div>
-                    <div><strong style="color:var(--accent);">${m.name}</strong><br><span style="font-size:0.6rem; color:#666;">AUTHORIZATION ID: ${m.id}</span></div>
-                </div>`;
-            });
-            document.getElementById('mission-list').innerHTML = h || "<p style='color:#444; font-size:0.7rem;'>No dossiers found.</p>";
         }
 
         async function joinMission() { const code = document.getElementById('mission-code').value.trim().toUpperCase(); if (code) launch(code); }
@@ -887,7 +872,7 @@
             const m = window.DATA ? window.DATA.metadata : {};
             const blobVersion = m.version || 'Unknown';
             const blobAuthor = m.author || 'Unknown';
-            const simVersion = 'v65.36';
+            const simVersion = 'v65.38';
             let h = `
                 <div><strong style="color:var(--accent);">SIM ENGINE:</strong> ${simVersion}</div>
                 <div><strong style="color:var(--accent);">CAPSULE VERSION:</strong> ${blobVersion}</div>
