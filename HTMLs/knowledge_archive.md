@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.12 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.13 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -2018,13 +2018,11 @@ Provide a concise assessment (150 words). Format with markdown.`;
                         <th style="padding:8px; width:50px;">VISUAL</th>
                         <th style="padding:8px;">ID</th>
                         <th style="padding:8px;">NAME</th>
-                        <th style="padding:8px; text-align:center;">AI</th>
+                    <th style="padding:8px; text-align:center;">AI Qs</th>
                         <th style="padding:8px; text-align:center;">ACTION</th>
                     </tr></thead><tbody>`;
 
         missions.forEach(m => {
-            const aiStatus = m.aiEnabled ? 'ON' : 'OFF';
-            const aiColor = m.aiEnabled ? 'green' : '#888';
             const thumb = m.thumb || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&auto=format&fit=crop";
 
             h += `<tr style="border-bottom:1px solid #eee;">
@@ -2034,9 +2032,8 @@ Provide a concise assessment (150 words). Format with markdown.`;
                     <td style="padding:8px; font-weight:bold;">${m.id}</td>
                     <td style="padding:8px;">${m.name}</td>
                     <td style="padding:8px; text-align:center;">
-                        <label style="cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                            <input type="checkbox" ${m.aiEnabled ? 'checked' : ''} onchange="toggleAI('${m.id}', this.checked)" style="cursor:pointer;">
-                            <span style="color:${aiColor}; font-weight:bold; font-size:0.6rem;">${aiStatus}</span>
+                        <label style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+                            <input type="checkbox" ${m.aiEnabled ? 'checked' : ''} onchange="toggleAI('${m.id}', this.checked)" style="cursor:pointer; transform:scale(1.2);">
                         </label>
                     </td>
                     <td style="padding:8px; text-align:center;">
