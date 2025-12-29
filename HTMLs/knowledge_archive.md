@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.5 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.6 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -869,7 +869,14 @@ function createJSON(o) { return ContentService.createTextOutput(JSON.stringify(o
                         const newTabs = {};
                         Object.keys(tRaw).forEach(k => {
                             const t = tRaw[k];
-                            newTabs[k.toLowerCase()] = { body: t.content || t.body || "", image: t.imageURL || t.image || "", credit: t.credit || 'FIELD RECORD', mediaType: t.mediaType, mediaURL: t.mediaURL };
+                            // FIX v65.6: Consolidate all media keys (video, videoURL, media) into mediaURL so they aren't lost
+                            newTabs[k.toLowerCase()] = {
+                                body: t.content || t.body || "",
+                                image: t.imageURL || t.image || "",
+                                credit: t.credit || 'FIELD RECORD',
+                                mediaType: t.mediaType,
+                                mediaURL: t.mediaURL || t.media_url || t.videoURL || t.video || t.media || ""
+                            };
                         });
                         s.tabs = newTabs;
                     } else if (Array.isArray(tRaw)) {
@@ -877,7 +884,13 @@ function createJSON(o) { return ContentService.createTextOutput(JSON.stringify(o
                         tRaw.forEach((t, idx) => {
                             const labels = ['primary', 'legal', 'intel'];
                             const key = t.label ? t.label.split(":")[0].trim().toLowerCase() : labels[idx] || `tab_${idx}`;
-                            newTabs[key] = { body: t.content || t.body || "", image: t.imageURL || t.image || "", credit: t.credit || 'FIELD RECORD', mediaType: t.mediaType, mediaURL: t.mediaURL };
+                            newTabs[key] = {
+                                body: t.content || t.body || "",
+                                image: t.imageURL || t.image || "",
+                                credit: t.credit || 'FIELD RECORD',
+                                mediaType: t.mediaType,
+                                mediaURL: t.mediaURL || t.media_url || t.videoURL || t.video || t.media || ""
+                            };
                         });
                         s.tabs = newTabs;
                     }
