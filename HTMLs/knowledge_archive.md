@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.18 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.19 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1084,6 +1084,9 @@ function createJSON(o) { return ContentService.createTextOutput(JSON.stringify(o
                         const rationales = window.DATA.reflections['pre'].map((q, i) => ({ question: q, answer: user.state.ans['pre_' + i] }));
                         const postQs = window.DATA.reflections['post'] || [];
                         postQs.forEach((q, i) => { rationales.push({ question: q, answer: user.state.ans['post_' + i] }); });
+
+                        // FIX: Ensure rationales is never empty
+                        if (rationales.length === 0) rationales.push({ question: "General Performance", answer: "Student provided no specific text rationales." });
 
                         // LIVE CHECK: Ping Archive to see if AI is currently enabled for this mission
                         // DISABLED FOR LOCAL TESTING
