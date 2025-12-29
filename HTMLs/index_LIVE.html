@@ -591,7 +591,7 @@
     </main>
     <footer class="footer">
         <div id="f-left" style="cursor:pointer; pointer-events:auto;" onclick="showVersionInfo()">SITUATION ROOM
-            PROTOCOL | v65.30</div>
+            PROTOCOL | v65.31</div>
         <div id="f-outcomes-btn" style="cursor:pointer; pointer-events:auto; color:var(--accent); opacity:0.7;"
             onclick="toggleOutcomes()">[VIEW OUTCOMES]</div>
         <div id="f-right" style="pointer-events:auto;">OPEN-SOURCE LICENSE</div>
@@ -809,7 +809,7 @@
             }
             const m = window.DATA.metadata || {};
             document.getElementById('m-header').innerText = m.title || "ARCHIVE LOG";
-            document.getElementById('f-left').innerHTML = `${m.title || currentMission} | SITUATION ROOM PROTOCOL v65.30`;
+            document.getElementById('f-left').innerHTML = `${m.title || currentMission} | SITUATION ROOM PROTOCOL v65.31`;
 
             // Populate the outcomes panel (popup) instead of inline text
             populateOutcomes();
@@ -870,7 +870,7 @@
             const m = window.DATA ? window.DATA.metadata : {};
             const blobVersion = m.version || 'Unknown';
             const blobAuthor = m.author || 'Unknown';
-            const simVersion = 'v65.30';
+            const simVersion = 'v65.31';
             let h = `
                 <div><strong style="color:var(--accent);">SIM ENGINE:</strong> ${simVersion}</div>
                 <div><strong style="color:var(--accent);">CAPSULE VERSION:</strong> ${blobVersion}</div>
@@ -1057,17 +1057,21 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                 const reply = data.choices ? (data.choices[0]?.message?.content) : data.reply;
 
                 if (reply) {
-                    user.state.aiFeedback = reply; save(); renderDebrief();
+                    user.state.aiFeedback = reply; save(); renderRef(); // Refresh entire panel to hide fallback
                 } else {
                     throw new Error("No feedback returned (Invalid structure). See log.");
                 }
             } catch (err) {
                 console.log("AI Service Unavailable.", err);
                 const d = document.getElementById('debrief-panel');
-                if (location.protocol === 'file:' && err.message.includes("Failed to fetch")) {
+
+                // Bypass for local development
+                if (location.protocol === 'file:') {
                     user.state.aiFeedback = "***[OFFLINE SIMULATION]***\n\n" + staticContent + "\n\n*(Note: Live AI unavailable in local file mode.)*";
-                    save(); renderDebrief(); return;
+                    save(); renderRef(); return;
                 }
+
+                // Real Network Error
                 user.state.aiRequested = false; save();
                 d.innerHTML += `
                     <div style="margin-top:20px; border-top:1px solid #333; padding-top:20px;">
@@ -1079,7 +1083,7 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                         <strong>ERROR:</strong> ${err.message}<br>
                         <strong>TARGET:</strong> https://nextjs-basic-lemon-one.vercel.app/api/chat<br>
                         <strong>PROTOCOL:</strong> ${location.protocol}<br>
-                        <strong>VER:</strong> v65.30<br>
+                        <strong>VER:</strong> v65.31<br>
                         <strong>STEPS:</strong> 1. UI Loaded. 2. Fetch Triggered. 3. ${err.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR'}.
                     </div>`;
             }
