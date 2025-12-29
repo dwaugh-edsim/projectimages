@@ -1,4 +1,4 @@
-﻿# Classroom Sim Architect: Knowledge Archive (v65.21 - synced with codebase)
+﻿# Classroom Sim Architect: Knowledge Archive (v65.22 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Classroom Sim Architect.
 
@@ -1134,7 +1134,9 @@ Provide a concise assessment (150 words). Format with markdown.`;
                             save();
                             renderDebrief(); // Re-render with feedback
                         } else {
-                            throw new Error("No feedback returned (Invalid structure)");
+                            // LOG DEBUG INFO
+                            console.warn("AI Structure Error:", data);
+                            throw new Error("No feedback returned (Invalid structure). See log.");
                         }
                     } catch (err) {
                         console.log("AI Service Unavailable.", err);
@@ -1156,6 +1158,11 @@ Provide a concise assessment (150 words). Format with markdown.`;
                                 <h3 style="color:var(--accent); margin-top:0; font-size:0.7rem; letter-spacing:2px;">COMMAND DEBRIEF (SYSTEM OFFLINE)</h3>
                                 <div style="font-size:0.55rem; color:#666; margin-bottom:10px;">ERR: ${err.message}</div>
                                 <div style="font-family:var(--font-p); font-size:0.95rem; line-height:1.6; opacity:0.9;">${parseMD(staticContent)}</div>
+                              </div>
+                              
+                              <div style="background:#111; padding:10px; font-family:monospace; font-size:0.6rem; color:#f00; margin-top:10px; border:1px solid #333; max-height:100px; overflow:auto;">
+                                <strong>DEBUG_LOG:</strong> ${err.message}<br>
+                                <strong>URL:</strong> https://nextjs-basic-lemon-one.vercel.app/api/chat
                               </div>`;
                     }
                 }
