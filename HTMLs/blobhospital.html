@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Blob Hospital – Surgical Interface (v65.51)</title>
+    <title>Blob Hospital – Surgical Interface (v65.62)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -402,10 +402,12 @@
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            border-radius: 2px;
+            border-radius: 4px;
+            /* [v65.62] UI Polish */
             font-size: 0.8rem;
-            transition: transform 0.1s;
+            transition: all 0.2s ease;
             position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .btn-label {
@@ -421,6 +423,7 @@
         .btn:hover {
             background: #00e6b8;
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .btn.secondary {
@@ -474,7 +477,8 @@
             font-family: 'JetBrains Mono';
             font-size: 0.55rem;
             cursor: pointer;
-            border-radius: 2px;
+            border-radius: 4px;
+            /* [v65.62] UI Polish */
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -591,7 +595,7 @@
             </div>
             <div
                 style="font-family:'JetBrains Mono'; font-size:0.55rem; opacity:0.5; margin-top:5px; letter-spacing:1px;">
-                SURGICAL INTERFACE v65.51</div>
+                SURGICAL INTERFACE v65.62</div>
             <div
                 style="font-family:'Oswald'; font-size:0.6rem; opacity:0.3; margin-top:3px; letter-spacing:2px; text-transform:uppercase;">
                 The Situation Room</div>
@@ -632,7 +636,7 @@
         </div>
         <div
             style="padding:10px; border-top: 1px solid var(--border); text-align:center; font-family:'JetBrains Mono'; font-size:0.5rem; opacity:0.3; line-height:1.4;">
-            <div>BLOB HOSPITAL v65.48</div>
+            <div>BLOB HOSPITAL v65.62</div>
             <div style="margin-top:3px;">OPEN SOURCE | THE SITUATION ROOM</div>
         </div>
     </div>
@@ -721,7 +725,7 @@
 
             <div style="text-align:right; display:flex; flex-direction:column; justify-content:center;">
                 <div class="dashboard-label" style="opacity:0.3; letter-spacing:1px; font-size:0.5rem;">
-                    DIAGNOSTIC FEED v65.51
+                    DIAGNOSTIC FEED v65.62
                 </div>
                 <div style="font-size:0.45rem; opacity:0.2; font-family:'JetBrains Mono'; margin-top:5px;">
                     SECURE JUNCTURE LINK ACTIVE
@@ -936,10 +940,93 @@
                 const label = isGlossary ? "Glossary Item" : "Question";
                 createListEditor(data, currentPath, label, isGlossary);
             } else if (currentPath === 'theme') {
-                createSharedInput("Accent Color", data.accent, "theme.accent");
-                createSharedInput("Header Font", data.fontH, "theme.fontH");
-                createSharedInput("Body Font", data.fontP, "theme.fontP");
+                // [v65.62] Custom Accent Color Picker
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                group.innerHTML = `<label>ACCENT COLOR</label>`;
+
+                const hexInput = document.createElement('input');
+                hexInput.type = 'text';
+                hexInput.value = data.accent;
+                hexInput.style.width = '120px';
+                hexInput.style.marginRight = '10px';
+
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.value = data.accent;
+                colorPicker.style.height = '30px';
+                colorPicker.style.width = '50px';
+                colorPicker.style.padding = '0';
+                colorPicker.style.border = 'none';
+                colorPicker.style.cursor = 'pointer';
+                colorPicker.style.background = 'transparent';
+
+                // Sync Logic
+                hexInput.onchange = (e) => {
+                    colorPicker.value = e.target.value;
+                    setNested(currentBlob, "theme.accent", e.target.value);
+                };
+                colorPicker.oninput = (e) => {
+                    hexInput.value = e.target.value;
+                    setNested(currentBlob, "theme.accent", e.target.value);
+                    // Live preview on sidebar dot if applicable
+                    const dot = document.querySelector('.heartbeat');
+                    if (dot) dot.style.background = e.target.value;
+                };
+
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.appendChild(hexInput);
+                wrapper.appendChild(colorPicker);
+                group.appendChild(wrapper);
+                editorView.appendChild(group);
+
+                createSharedInput("Header Font", data.fontH, "theme.fontH"); // Fallback hidden if needed, or replace
+                createSharedInput("Body Font", data.fontP, "theme.fontP");   // Fallback
+
+                // [v65.62] Font Selectors
+                const fonts = ["Inter", "Oswald", "JetBrains Mono", "Courier New", "Georgia", "Times New Roman", "Arial", "Roboto"];
+
+                const createFontSelect = (label, currentVal, path) => {
+                    const g = document.createElement('div');
+                    g.className = 'form-group';
+                    g.innerHTML = `<label>${label}</label>`;
+                    const sel = document.createElement('select');
+                    sel.style.background = '#111';
+                    sel.style.color = '#fff';
+                    sel.style.border = '1px solid #333';
+                    sel.style.padding = '8px';
+
+                    fonts.forEach(f => {
+                        const opt = document.createElement('option');
+                        opt.value = f;
+                        opt.innerText = f;
+                        if (currentVal.includes(f)) opt.selected = true;
+                        sel.appendChild(opt);
+                    });
+
+                    sel.onchange = (e) => {
+                        setNested(currentBlob, path, e.target.value);
+                    };
+                    g.appendChild(sel);
+                    editorView.appendChild(g);
+                };
+
+                createFontSelect("HEADER FONT (SELECT)", data.fontH, "theme.fontH");
+                createFontSelect("BODY FONT (SELECT)", data.fontP, "theme.fontP");
+
+                // Splash Hero with Preview
                 createSharedInput("Splash Hero URL", data.splashHeroURL, "theme.splashHeroURL");
+
+                if (data.splashHeroURL) {
+                    const heroPreview = document.createElement('div');
+                    heroPreview.style.marginTop = '10px';
+                    heroPreview.style.border = '1px solid #333';
+                    heroPreview.style.padding = '5px';
+                    heroPreview.innerHTML = `<label>SPLASH PREVIEW</label><img src="${data.splashHeroURL}" style="width:100%; max-height:200px; object-fit:cover; opacity:0.8;">`;
+                    editorView.appendChild(heroPreview);
+                }
             }
         }
 

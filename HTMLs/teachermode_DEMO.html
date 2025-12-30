@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="critical_crypto.js"></script>
     <style>
         :root {
             --bg: #f4f4f4;
@@ -101,17 +102,28 @@
             background: var(--accent);
             color: #fff;
             border: none;
-            padding: 15px 25px;
+            padding: 12px 24px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
             width: 100%;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            /* [v65.61] UI Polish */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 0.75rem;
         }
 
         .btn:hover {
-            background: #444;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         table {
@@ -273,7 +285,7 @@
             <button onclick="toggleProjector()"
                 style="background:#333; color:#d2b48c; font-size:0.6rem; border:1px solid #d2b48c; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📺
                 PROJECTOR VIEW</button>
-            <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER DEMO // v65.52</div>
+            <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER DEMO // v65.53</div>
         </div>
     </div>
     <h1 style="margin: 0 40px 30px 40px;">COMMAND CENTER // MISSION CONTROL (DEMO)</h1>
@@ -286,17 +298,88 @@
                 <div style="font-size:0.55rem; color:#666; font-weight:bold;">LIVE UPLOADS DISABLED IN DEMO</div>
             </div>
             <div style="margin-top:20px;">
-                <label>Mission ID</label><input disabled placeholder="DEMO_62">
-                <label>Public Name</label><input disabled placeholder="Operation Demo">
-                <button class="btn" style="padding:10px; font-size:0.75rem; opacity:0.3; cursor:not-allowed;">INITIALIZE
-                    ARCHIVE</button>
+                <label>Archive Access (Class PIN)</label>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input id="master-pin" type="password" placeholder="ENTER PIN" style="margin:0;">
+                    <button class="btn" style="width:auto; padding:0 15px;"
+                        onclick="deriveMasterKey()">DECIPHER</button>
+                </div>
+                <div id="crypto-status"
+                    style="font-size:0.5rem; color:#888; text-transform:uppercase; letter-spacing:1px;">LINK_DECRYPTED:
+                    NO</div>
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" id="dl-btn" style="padding:10px; font-size:0.75rem; background:#333;"
+                        onclick="downloadArchive()">DOWNLOAD ARCHIVE</button>
+                    <button class="btn" id="imp-btn"
+                        style="padding:10px; font-size:0.75rem; background:var(--accent); color:#000;"
+                        onclick="document.getElementById('import-file').click()">IMPORT FOR REVIEW</button>
+                    <input type="file" id="import-file" style="display:none" onchange="importArchive(this.files[0])"
+                        accept=".json">
+                </div>
+            </div>
+
+            <div id="grading-panel"
+                style="display:none; margin-top:30px; border-top:5px solid var(--accent); padding-top:20px;">
+                <h3 style="margin-top:0; letter-spacing:2px; font-size:0.8rem;">ASSESSMENT INTERFACE</h3>
+                <div
+                    style="background:#fff; border:1px solid #ddd; padding:20px; box-shadow:0 4px 6px rgba(0,0,0,0.05);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <strong id="grade-name" style="font-size:1.2rem;">STUDENT NAME</strong>
+                        <span id="grade-mission" style="color:#888; letter-spacing:1px;">MISSION_ID</span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div>
+                            <label>DECISION MATRIX</label>
+                            <div id="grade-dec"
+                                style="font-family:monospace; background:#f4f4f4; padding:10px; font-size:0.8rem; margin-bottom:15px;">
+                            </div>
+
+                            <label>FIELD ANALYSIS (RAT)</label>
+                            <div id="grade-rat"
+                                style="font-family:var(--font-p); background:#fff; border:1px solid #eee; padding:15px; font-size:0.9rem; margin-bottom:15px; border-left:3px solid var(--accent); font-style:italic;">
+                            </div>
+
+                            <label>POST-MISSION REFLECTION</label>
+                            <div id="grade-ans"
+                                style="font-family:var(--font-p); background:#fff; border:1px solid #eee; padding:15px; font-size:0.9rem;">
+                            </div>
+                        </div>
+
+                        <div style="background:#fafafa; border:1px solid #eee; padding:15px;">
+                            <label>RUBRIC ASSESSMENT</label>
+                            <div style="margin-bottom:10px; font-size:0.75rem; color:#666;">CRITERIA: Evidence Citation,
+                                Strategic Logic, Ethical Reasoning</div>
+
+                            <label>AI INITIAL SCORE</label>
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                                <div id="ai-score" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">
+                                    --/100</div>
+                                <div style="font-size:0.55rem; color:#888; text-transform:uppercase;">Based on keyword
+                                    density & sentiment</div>
+                            </div>
+
+                            <label>INSTRUCTOR GRADE</label>
+                            <input type="number" id="final-grade" placeholder="0-100"
+                                style="font-size:1.2rem; font-weight:bold;">
+
+                            <label>FEEDBACK</label>
+                            <textarea id="grade-feedback" placeholder="Enter instructor feedback..."
+                                style="height:80px;"></textarea>
+
+                            <button class="btn" style="background:var(--success);" onclick="saveGrade()">SUBMIT
+                                GRADE</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="panel">
             <div
                 style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #ddd; padding-bottom:10px; margin-bottom:20px;">
-                <h3 style="margin:0; letter-spacing:2px; font-size:0.8rem;">LIVE PROGRESS (STIMULATED)</h3>
+                <h3 style="margin:0; letter-spacing:2px; font-size:0.8rem;">LIVE PROGRESS (SIMULATED)</h3>
                 <div id="sync-tick" style="font-size:0.55rem; color:#888;">[SYNC_IDLE]</div>
             </div>
             <div style="margin-bottom:15px; display:flex; gap:10px;">
@@ -327,17 +410,119 @@
 
     <script>
         const allProgress = [
-            { id: "A01", name: "Agent Leo", class: "PER-01", missionData: { "CUBA_62": { preDone: true, dec: { 1: "D", 2: "Q", 3: "S", 4: "D", 5: "H" } }, "MIKMAW11": { preDone: true, dec: { 1: "L" } } } },
+            { id: "A01", name: "Agent Leo", class: "PER-01", missionData: { "CUBA_62": { preDone: true, dec: { 1: "D", 2: "Q", 3: "S", 4: "D", 5: "H" } } } },
             { id: "A02", name: "Agent Sarah", class: "PER-01", missionData: { "CUBA_62": { preDone: true, dec: { 1: "S", 2: "A", 3: "A", 4: "K", 5: "F" } } } },
-            { id: "A03", name: "Agent Mike", class: "PER-01", missionData: { "MIKMAW11": { preDone: true, dec: { 1: "T", 2: "F", 3: "M" } } } },
-            { id: "A04", name: "Agent Chen", class: "PER-02", missionData: { "CUBA_62": { preDone: true, dec: { 1: "D", 2: "Q", 3: "S" } } } },
-            { id: "A05", name: "Agent Rodriguez", class: "PER-02", missionData: { "CUBA_62": { preDone: true, dec: { 1: "D", 2: "Q", 3: "S", 4: "D", 5: "H", 6: "A" } } } },
-            { id: "A06", name: "Agent Thompson", class: "PER-02", missionData: { "MIKMAW11": { preDone: true, dec: { 1: "L", 2: "B", 3: "D", 4: "G" } } } },
-            { id: "A07", name: "Agent Gupta", class: "PER-03", missionData: { "CUBA_62": { preDone: true, dec: { 1: "S" } } } },
-            { id: "A08", name: "Agent Silva", class: "PER-03", missionData: { "MIKMAW11": { preDone: true, dec: { 1: "T", 2: "F" } } } },
-            { id: "A09", name: "Agent Kowalski", class: "PER-03", missionData: { "CUBA_62": { preDone: true, dec: { 1: "D", 2: "Q", 3: "S", 4: "D", 5: "H", 6: "S" } } } },
-            { id: "A10", name: "Agent Matrix", class: "PER-04", missionData: { "CUBA_62": { preDone: true, dec: { 1: "S", 2: "A", 3: "A" } }, "MIKMAW11": { preDone: true, dec: { 1: "L", 2: "B" } } } }
+            {
+                id: "A11_SECURED",
+                name: "Agent X (Secured)",
+                class: "PER-62",
+                encryptedState: "5XbCiSwM+EFeKJfu:/frn5Re+R5darzRxZtFzfjsANsto1vxm9Lylfj/TnvXyxL5+oV/uV6izQ/Qn1KM4NSiFGWXvO6Y+LB1B8q7B1T7GLi5mgh2SkCAbTjZTGy8decbhmLZBQZ4auFdYgp1cvFDyvIDips7y9mMSyOTswDPuS7U6wJ57CBpYKMZiLBPhoJs4voukh6Cnx5lzhOcR3j0Zn+DCuRdWtmsBmAOLpFgT2lAC8N72bsGCjzRtb/fGRf2z32NwD+Zxkgl3cB8K8B37JHUJrl0EttM1PUQemirPhB7hxpztNTc9As19WrKVxHr93/lVURGqcpKERz08/2jbXFtd4RpwWMDWRfewyfsKmWzM2TLP0KpDiGArFNRqFqkOdqzzf4Pgjy30Cw4lz3vvrBN1YvlYqv/djf0gECL9SFP7cPNNNOwT4QL+a73EO05X9pBG/s/6dll+bsCt6b4N3HoWvtzoRg/W/oMAvYZvkdDJBSEd"
+                // Simulated AES-GCM payload using PIN '1234' and Salt 'PER-62'
+            }
         ];
+
+        let masterKey = null;
+
+        async function deriveMasterKey() {
+            const pin = document.getElementById('master-pin').value;
+            if (!pin) return alert("Security PIN required.");
+
+            try {
+                // In teacher mode, we iterate through active classes or derive once for the primary class
+                // For demo, we assume the teacher is unlocking PER-62
+                masterKey = await CriticalCrypto.deriveKey(pin, "PER-62");
+                document.getElementById('crypto-status').innerText = "LINK_DECRYPTED: YES (PER-62)";
+                document.getElementById('crypto-status').style.color = "var(--success)";
+                log("Encryption Umbrella synchronized. PER-62 data available.", "success");
+                renderProgress();
+            } catch (e) {
+                alert("DECIPHER_ERROR: Master Key mismatch.");
+            }
+        }
+
+        async function downloadArchive() {
+            if (!masterKey) return alert("Establish DECRYPTED LINK before export.");
+
+            const decryptedData = [];
+            for (const p of allProgress) {
+                if (p.encryptedState) {
+                    try {
+                        const plain = await CriticalCrypto.decrypt(p.encryptedState, masterKey);
+                        decryptedData.push({ ...p, state: JSON.parse(plain), format: "DECRYPTED" });
+                    } catch (e) {
+                        decryptedData.push({ ...p, format: "LOCKED" });
+                    }
+                } else {
+                    decryptedData.push({ ...p, format: "PLAINTEXT" });
+                }
+            }
+
+            const blob = new Blob([JSON.stringify(decryptedData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `situation_room_archive_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            log("Archive download triggered.", "success");
+        }
+
+        function importArchive(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    log(`Archive imported: ${data.length} records found.`, "success");
+                    // Find a record to grade - preferably a decrypted one
+                    const target = data.find(p => p.format === "DECRYPTED" && p.state && p.state.rat) || data[0]; // fallback
+                    if (target) renderGradingInterface(target);
+                    else alert("No assessable records found in archive.");
+                } catch (err) {
+                    alert("IMPORT_ERROR: Invalid JSON format.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function renderGradingInterface(student) {
+            document.getElementById('grading-panel').style.display = 'block';
+            document.getElementById('grade-name').innerText = student.name;
+            document.getElementById('grade-mission').innerText = "CUBA_62"; // Default for demo
+
+            const state = student.state || {}; // Handle plaintext format difference if needed
+
+            // Format Decisions
+            let decH = "";
+            if (state.dec) Object.keys(state.dec).forEach(k => decH += `STEP ${k}: ${state.dec[k]} | `);
+            document.getElementById('grade-dec').innerText = decH || "NO DATA";
+
+            // Format RAT
+            let ratH = "";
+            if (state.rat) Object.keys(state.rat).forEach(k => ratH += `"${state.rat[k]}"\n\n`);
+            document.getElementById('grade-rat').innerText = ratH || "NO ANALYSIS SUBMITTED";
+
+            // Format Reflection
+            let ansH = "";
+            if (state.ans) Object.keys(state.ans).forEach(k => ansH += `${k}: ${state.ans[k]}\n`);
+            document.getElementById('grade-ans').innerText = ansH || "NO REFLECTION SUBMITTED";
+
+            // AI Simulation
+            const words = (ratH + ansH).split(/\s+/).length;
+            const score = Math.min(100, 60 + Math.floor(words / 2)); // Simple heuristic
+            document.getElementById('ai-score').innerText = `${score}/100`;
+            document.getElementById('final-grade').value = score;
+
+            // Scroll to grader
+            document.getElementById('grading-panel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveGrade() {
+            const g = document.getElementById('final-grade').value;
+            const f = document.getElementById('grade-feedback').value;
+            alert(`GRADE SUBMITTED: ${g}/100\nFEEDBACK LOGGED: "${f}"`);
+            document.getElementById('grading-panel').style.display = 'none';
+            log("Assessment saved to local register.", "success");
+        }
 
         function log(m, t = "info") {
             const c = document.getElementById('console');
