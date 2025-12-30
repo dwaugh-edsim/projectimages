@@ -879,7 +879,22 @@
 
         function formatText(text) {
             if (!text) return "";
+
+            // [v65.62] Media Resolver Logic
             let html = text
+                // 1. YouTube Embeds (Classic & Short URLs)
+                .replace(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/g,
+                    '<div class="video-container" style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; margin:10px 0;"><iframe style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" src="https://www.youtube.com/embed/$1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>')
+
+                // 2. PDF Embeds
+                .replace(/(https?:\/\/.*\.pdf)/gi,
+                    '<div class="pdf-container" style="height:500px; margin:10px 0;"><embed src="$1" type="application/pdf" width="100%" height="100%"></div>')
+
+                // 3. Direct Video Files (AVI, MP4, MOV) - Note: AVI support depends on browser/plugin
+                .replace(/(https?:\/\/.*\.(?:mp4|avi|mov|webm))/gi,
+                    '<video controls style="width:100%; max-height:400px; background:#000; margin:10px 0;"><source src="$1">Your browser does not support the video tag.</video>')
+
+                // Standard Markdown
                 .replace(/^### (.*$)/gim, '<h3>$1</h3>')
                 .replace(/^## (.*$)/gim, '<h2>$1</h2>')
                 .replace(/^# (.*$)/gim, '<h1>$1</h1>')
@@ -890,9 +905,8 @@
                 .replace(/\n\n/g, '<br><br>')
                 .replace(/\n/g, '<br>');
 
-            // Very basic <li> wrapping in <ul> if not already wrapped
+            // Basic List Wrapper
             if (html.includes('<li>') && !html.includes('<ul>')) {
-                // This is a crude fix for the demo
                 html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
             }
             return html;
