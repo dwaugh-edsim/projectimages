@@ -1,4 +1,4 @@
-﻿# Situation Room: Knowledge Archive (v65.44 - synced with codebase)
+﻿# Situation Room: Knowledge Archive (v65.45 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Situation Room.
 

@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Blob Hospital – Surgical Interface (v65.47)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Oswald:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --sidebar-bg: #111;
+            --text: #eee;
+            --accent: #00ffcc;
+            --font-p: 'Inter', sans-serif;
+            --font-h: 'Oswald', sans-serif;
+            --border: #0a2a2a;
+            /* MEDICAL BLUE BORDER */
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-p);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* MEDICAL OVERLAY EFFECTS */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.3;
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        .scanline-vfx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 204, 0.05), transparent);
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 255, 204, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 5px rgba(0, 255, 204, 0.2);
+            }
+        }
+
+        .heartbeat {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* SURGICAL THEATER SPLIT VIEW */
+        .surgical-theater {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .visual-monitor {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #050505;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .data-input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* TACTICAL TABS */
+        .tactical-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .t-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: #111;
+            border: 1px solid var(--border);
+            font-family: var(--font-h);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+
+        .t-tab:hover {
+            background: #1a1a1a;
+            opacity: 0.8;
+        }
+
+        .t-tab.active {
+            background: var(--accent);
+            color: #000;
+            opacity: 1;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+
+        /* ECG ANIMATION */
+        .ecg-container {
+            width: 100%;
+            height: 20px;
+            background: #050505;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .ecg-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1000%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+            background-size: 200px 100%;
+            mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><path d="M0 20 L40 20 L45 5 L50 35 L55 20 L100 20" stroke="white" stroke-width="1" fill="none"/></svg>');
+            animation: ecg-scroll 10s linear infinite;
+        }
+
+        @keyframes ecg-scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* GLITCH TEXT */
+        .glitch-text {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 2px;
+            text-shadow: -1px 0 #ff00c1;
+            background: var(--bg);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(10px, 9999px, 5px, 0);
+            }
+
+            10% {
+                clip: rect(20px, 9999px, 30px, 0);
+            }
+
+            20% {
+                clip: rect(40px, 9999px, 10px, 0);
+            }
+
+            30% {
+                clip: rect(60px, 9999px, 80px, 0);
+            }
+
+            100% {
+                clip: rect(80px, 9999px, 100px, 0);
+            }
+        }
+
+        /* SIDEBAR / NAVIGATOR */
+        .sidebar {
+            width: 210px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-family: var(--font-h);
+            font-size: 1rem;
+            margin: 0;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+            opacity: 0.7;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background: #1a1a1a;
+            border-color: #333;
+            opacity: 1;
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: #000;
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        .nav-group {
+            margin-top: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            opacity: 0.5;
+            padding-left: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* MAIN CONTENT AREA */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .toolbar {
+            padding: 15px 25px;
+            background: #0d0d0d;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .editor-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* QUILL STYLING OVERRIDES */
+        .ql-toolbar.ql-snow {
+            border: 1px solid var(--border) !important;
+            background: #111;
+        }
+
+        .ql-container.ql-snow {
+            border: 1px solid var(--border) !important;
+            background: #0d0d0d;
+            font-family: var(--font-p) !important;
+            font-size: 1rem !important;
+            color: var(--text) !important;
+        }
+
+        .ql-editor {
+            min-height: 300px;
+        }
+
+        /* INPUTS */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* LIST EDITOR */
+        .list-item {
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .list-item .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #400;
+            color: #fff;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        .list-item input,
+        .list-item textarea {
+            background: #0d0d0d;
+            border: 1px solid #222;
+        }
+
+        label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.4;
+        }
+
+        input[type="text"],
+        textarea.raw-input {
+            background: #111;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            font-family: var(--font-p);
+            border-radius: 4px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-family: var(--font-h);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        .btn-label {
+            font-size: 0.5rem;
+            opacity: 0.4;
+            font-family: var(--font-p);
+            text-transform: lowercase;
+            letter-spacing: 0;
+            margin-top: 2px;
+            font-weight: normal;
+        }
+
+        .btn:hover {
+            background: #00e6b8;
+            transform: translateY(-1px);
+        }
+
+        .btn.secondary {
+            background: #333;
+            color: #fff;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-top: 10px;
+            background: #050505;
+        }
+
+        /* DOSSIER DASHBOARD (BOTTOM MONITOR) */
+        .dossier-dashboard {
+            height: 60px;
+            background: #0d0d0d;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            gap: 20px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .dashboard-label {
+            font-family: var(--font-h);
+            font-size: 0.65rem;
+            color: var(--accent);
+            opacity: 0.5;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .dashboard-grid {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .dash-btn {
+            background: #111;
+            border: 1px solid #222;
+            color: #666;
+            padding: 6px 12px;
+            font-family: 'JetBrains Mono';
+            font-size: 0.55rem;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .dash-btn:hover {
+            background: #1a1a1a;
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .dash-btn.active {
+            background: #002211;
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+        }
+
+        .dash-btn-hint {
+            font-size: 0.45rem;
+            opacity: 0.4;
+            margin-top: 2px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .overlay.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 2px solid var(--accent);
+            padding: 40px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+        }
+
+        .modal h2 {
+            color: var(--accent);
+            font-family: var(--font-h);
+            margin-top: 0;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .modal p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .modal ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .modal .close-btn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div class="heartbeat" style="width:10px; height:10px; border-radius:50%; background:var(--accent);">
+                </div>
+                <h1 class="glitch-text" data-text="Blob Hospital">Blob Hospital</h1>
+            </div>
+            <div
+                style="font-family:'JetBrains Mono'; font-size:0.55rem; opacity:0.5; margin-top:5px; letter-spacing:1px;">
+                SURGICAL INTERFACE v65.48</div>
+            <div
+                style="font-family:'Oswald'; font-size:0.6rem; opacity:0.3; margin-top:3px; letter-spacing:2px; text-transform:uppercase;">
+                The Situation Room</div>
+        </div>
+        <div
+            style="padding:10px; border-bottom: 1px solid var(--border); display:flex; flex-direction:column; gap:5px;">
+            <input type="file" id="blob-file-input" accept=".blob" style="display:none;">
+            <button class="btn heartbeat"
+                style="width:100%; padding:6px 10px; font-size:0.65rem; display:flex; flex-direction:column; align-items:center; gap:2px;"
+                onclick="document.getElementById('blob-file-input').click()">
+                <span>ADMIT PATIENT</span>
+                <span style="font-size:0.45rem; opacity:0.4; text-transform:lowercase;">load</span>
+            </button>
+            <div style="display:flex; gap:5px;">
+                <a href="https://gemini.google.com/gem/1kNu9T5P5Wi2y47KGOeU-aFSs0w2wA9AC?usp=sharing" target="_blank"
+                    style="text-decoration:none; flex:1;">
+                    <button class="btn secondary"
+                        style="width:100%; background:#1a1a1a; color:var(--accent); padding:6px 10px; font-size:0.6rem; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <span>FERTILITY</span>
+                        <span style="font-size:0.45rem; opacity:0.4; text-transform:lowercase;">Gem</span>
+                    </button>
+                </a>
+                <button class="btn secondary"
+                    style="flex:1; background:#0a3a3a; color:var(--accent); padding:6px 10px; font-size:0.6rem; display:flex; flex-direction:column; align-items:center; gap:2px;"
+                    onclick="showMedSchool()">
+                    <span>MED SCHOOL</span>
+                    <span style="font-size:0.45rem; opacity:0.4; text-transform:lowercase;">help</span>
+                </button>
+            </div>
+
+        </div>
+        <div class="nav-tree" id="nav-tree">
+            <div
+                style="padding:40px 20px; text-align:center; opacity:0.3; font-size:0.75rem; font-family:'JetBrains Mono';">
+                ( ! ) NO PATIENT ADMITTED<br><br>
+                WAITING FOR .BLOB DATA...
+            </div>
+        </div>
+        <div
+            style="padding:10px; border-top: 1px solid var(--border); text-align:center; font-family:'JetBrains Mono'; font-size:0.5rem; opacity:0.3; line-height:1.4;">
+            <div>BLOB HOSPITAL v65.48</div>
+            <div style="margin-top:3px;">OPEN SOURCE | THE SITUATION ROOM</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="toolbar">
+            <div style="display:flex; flex-direction:column; gap:2px;">
+                <div id="path-indicator"
+                    style="font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--accent); font-weight:bold;">
+                    STANDBY</div>
+                <div id="patient-status"
+                    style="font-size:0.6rem; opacity:0.4; font-family:'JetBrains Mono'; letter-spacing:1px;">SCHEMA:
+                    NULL | STATUS: IDLE</div>
+            </div>
+            <div style="margin-left:auto; display:flex; gap:8px;">
+                <button class="btn secondary"
+                    style="background:#400; color:#fff; display:flex; flex-direction:column; align-items:center; padding:6px 12px;"
+                    onclick="defibrillate()">
+                    <span style="font-size:0.65rem;">DEFIBRILLATE (RESET)</span>
+                    <span class="btn-label" style="font-size:0.45rem;">clear session</span>
+                </button>
+                <button class="btn secondary"
+                    style="display:flex; flex-direction:column; align-items:center; padding:6px 12px;"
+                    onclick="exportBlob()">
+                    <span style="font-size:0.65rem;">DISCHARGE PATIENT</span>
+                    <span class="btn-label" style="font-size:0.45rem;">save as...</span>
+                </button>
+                <button class="btn heartbeat"
+                    style="display:flex; flex-direction:column; align-items:center; padding:6px 12px;"
+                    onclick="saveToLocal()">
+                    <span style="font-size:0.65rem;">STABILIZE VITALS</span>
+                    <span class="btn-label" style="font-size:0.45rem;">save</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="editor-container" id="editor-view">
+            <!-- Dynamic Content Based on Selection -->
+            <div
+                style="height:100%; display:flex; align-items:center; justify-content:center; opacity:0.1; font-family:'JetBrains Mono';">
+                <div style="text-align:center;">
+                    <div style="font-size:4rem; margin-bottom:15px; filter: grayscale(1);">🩺</div>
+                    <div style="letter-spacing:3px;">SYSTEM IDLE. AWAITING SURGICAL INPUT.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIAGNOSTIC DASHBOARD (BOTTOM COMMAND) -->
+        <div class="dossier-dashboard" style="height:100px; padding:10px 25px; gap:25px;">
+            <!-- TELEMETRY -->
+            <div style="width:200px; display:flex; flex-direction:column; gap:5px;">
+                <div class="dashboard-label">SYSTEM TELEMETRY:</div>
+                <div class="ecg-container" style="margin-bottom:0; border:1px solid #222;">
+                    <div class="ecg-wave"></div>
+                </div>
+                <div id="surgical-logs"
+                    style="height:45px; background:#050505; border:1px solid #222; padding:5px; font-family:'JetBrains Mono'; font-size:0.45rem; color:#0f0; overflow-y:auto; opacity:0.6; line-height:1.2; display:flex; flex-direction:column-reverse;">
+                    <div>> [INFO] BIOMETRIC SCANNER READY</div>
+                    <div>> [WARN] NO ACTIVE SIGNAL</div>
+                    <div>> MONITORING...</div>
+                </div>
+            </div>
+
+            <!-- DOSSIER -->
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <div class="dashboard-label">PATIENT DOSSIER (METADATA MODULES):</div>
+                <div class="dashboard-grid">
+                    <button class="dash-btn" onclick="selectPath('metadata')">
+                        <span>CORE ID</span>
+                        <span class="dash-btn-hint">Identity Specs</span>
+                    </button>
+                    <button class="dash-btn" onclick="selectPath('intelligenceGlossary')">
+                        <span>GLOSSARY</span>
+                        <span class="dash-btn-hint">Intel Terms</span>
+                    </button>
+                    <button class="dash-btn" onclick="selectPath('metadata.learningOutcomes')">
+                        <span>LEARNING</span>
+                        <span class="dash-btn-hint">Outcomes</span>
+                    </button>
+                    <button class="dash-btn" onclick="selectPath('metadata.version')">
+                        <span>SCHEMA</span>
+                        <span class="dash-btn-hint">Core Version</span>
+                    </button>
+                </div>
+            </div>
+
+            <div style="text-align:right; display:flex; flex-direction:column; justify-content:center;">
+                <div class="dashboard-label" style="opacity:0.3; letter-spacing:1px; font-size:0.5rem;">
+                    DIAGNOSTIC FEED v65.48
+                </div>
+                <div style="font-size:0.45rem; opacity:0.2; font-family:'JetBrains Mono'; margin-top:5px;">
+                    SECURE SURGICAL LINK ACTIVE
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scanline-vfx"></div>
+
+    <div class="overlay" id="loading-overlay">
+        <div class="modal">
+            <div style="font-size:1.5rem; margin-bottom:10px; color:var(--accent);">SYNCHRONIZING</div>
+            <div style="opacity:0.7;">Processing mission data...</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="med-school-modal">
+        <div class="modal">
+            <h2>🩺 MED SCHOOL</h2>
+            <p style="text-align:left;"><strong>Welcome to the Blob Hospital Surgical Interface.</strong></p>
+            <p style="text-align:left;">This tool is designed for <strong>quick edits and fine-tuning</strong> of
+                mission blobs generated by the Situation Room Gem. It is <em>not</em> for building blobs from scratch.
+            </p>
+
+            <p style="text-align:left; margin-top:20px;"><strong>Workflow:</strong></p>
+            <ul style="text-align:left;">
+                <li>Use the <strong>Fertility Ward</strong> to conceive new blobs via the Gem</li>
+                <li><strong>Admit</strong> the generated .blob file here</li>
+                <li>Navigate to specific sections (Dossier, Theatre, Neural Mapping)</li>
+                <li>Make precision edits to text, images, or metadata</li>
+                <li><strong>Discharge</strong> the patient (save as) when complete</li>
+            </ul>
+
+            <p style="text-align:left; margin-top:20px;"><strong>Key Features:</strong></p>
+            <ul style="text-align:left;">
+                <li><strong>Surgical Theater</strong>: Split-pane editor with tactical tabs (PRIMARY/LEGAL/INTEL)</li>
+                <li><strong>WYSIWYG Editing</strong>: Markdown ↔ HTML conversion via Quill</li>
+                <li><strong>Real-time Sync</strong>: Changes save to the in-memory blob instantly</li>
+                <li><strong>Session Persistence</strong>: Use "Stabilize Vitals" to save progress</li>
+            </ul>
+
+            <button class="btn close-btn" onclick="hideMedSchool()">UNDERSTOOD</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+
+    <script>
+        let currentBlob = null;
+        let currentPath = null;
+        let quill = null;
+        let turndownService = new TurndownService();
+
+        // Initialize Turndown to match our Markdown preferences
+        turndownService.addRule('bold', {
+            filter: ['strong', 'b'],
+            replacement: function (content) { return '**' + content + '**' }
+        });
+
+        const navTree = document.getElementById('nav-tree');
+        const editorView = document.getElementById('editor-view');
+        const pathIndicator = document.getElementById('path-indicator');
+
+        console.log('[INIT] navTree:', navTree);
+        console.log('[INIT] editorView:', editorView);
+        console.log('[INIT] pathIndicator:', pathIndicator);
+
+        // FILE LOADING
+        document.getElementById('blob-file-input').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    currentBlob = JSON.parse(event.target.result);
+                    buildNav();
+                    showOverlay(false);
+                } catch (err) {
+                    alert("FAILED TO PARSE .BLOB: " + err.message);
+                }
+            };
+            showOverlay(true);
+            reader.readAsText(file);
+        });
+
+        function showOverlay(show) {
+            document.getElementById('loading-overlay').classList.toggle('visible', show);
+        }
+
+        // NAVIGATION BUILDER
+        function buildNav() {
+            navTree.innerHTML = '';
+            logSurgical("PATIENT ADMITTED. ANALYZING SCHEMA...");
+
+            // Metadata (PATIENT DOSSIER) - now in top toolbar, skip in nav
+
+            // Slides (SURGICAL THEATRE)
+            addGroup("SURGICAL THEATRE");
+            currentBlob.slides.forEach((slide, sIdx) => {
+                const sName = slide.shortTitle || `Section ${sIdx + 1}`;
+                addItem(sName, `slides.${sIdx}`);
+            });
+
+            // Reflections (NEURAL MAPPING)
+            addGroup("NEURAL MAPPING");
+            addItem("Pre-Narrative", "reflections.pre_narrative");
+            addItem("Post-Narrative", "reflections.post_narrative");
+            addItem("Reflection Questions", "reflections.post");
+
+            addGroup("SYSTEM ASSETS");
+            addItem("Visual Theme", "theme");
+
+            updateStatus();
+        }
+
+        function logSurgical(msg) {
+            const logs = document.getElementById('surgical-logs');
+            const entry = document.createElement('div');
+            entry.innerText = `> ${msg}`;
+            logs.prepend(entry);
+            if (logs.children.length > 20) logs.lastElementChild.remove();
+        }
+
+        function updateStatus() {
+            if (!currentBlob) return;
+            const status = document.getElementById('patient-status');
+            const slideCount = currentBlob.slides ? currentBlob.slides.length : 0;
+            status.innerText = `SCHEMA: MISSION_BLOB | STATUS: ADMITTED | ASSETS: ${slideCount} SECTIONS`;
+        }
+
+        function addGroup(title) {
+            const div = document.createElement('div');
+            div.className = 'nav-group';
+            div.innerText = title;
+            navTree.appendChild(div);
+        }
+
+        function addItem(label, path, isHeader = false) {
+            const div = document.createElement('div');
+            div.className = 'nav-item' + (isHeader ? ' active-header' : '');
+            div.innerText = label;
+            div.onclick = () => selectPath(path);
+            div.dataset.path = path;
+            navTree.appendChild(div);
+        }
+
+        // EDITOR LOGIC
+        function selectPath(path) {
+            currentPath = path;
+            logSurgical(`ACCESSING: ${path}`);
+
+            // Update Nav Tree UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNav = document.querySelector(`.nav-item[data-path="${path}"]`);
+            if (activeNav) activeNav.classList.add('active');
+
+            // Update Dashboard UI
+            document.querySelectorAll('.dash-btn').forEach(el => el.classList.remove('active'));
+            // Match exactly or start with for nested metadata
+            document.querySelectorAll('.dash-btn').forEach(btn => {
+                const btnPath = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (btnPath === path) btn.classList.add('active');
+            });
+
+            pathIndicator.innerText = path.toUpperCase().replace(/\./g, ' > ');
+
+            renderEditor();
+        }
+
+        function getNested(obj, path) {
+            return path.split('.').reduce((prev, curr) => prev[curr], obj);
+        }
+
+        function setNested(obj, path, value) {
+            const parts = path.split('.');
+            let current = obj;
+            for (let i = 0; i < parts.length - 1; i++) {
+                current = current[parts[i]];
+            }
+            current[parts[parts.length - 1]] = value;
+        }
+
+        function renderEditor() {
+            console.log('[RENDER] Starting renderEditor for path:', currentPath);
+            editorView.innerHTML = '';
+            const data = getNested(currentBlob, currentPath);
+            console.log('[RENDER] Data retrieved:', data);
+
+            if (currentPath.startsWith('slides.')) {
+                console.log('[RENDER] Rendering Surgical Theater');
+                // Precision Surgical Theater (Tabbed Slide Editor)
+                renderSurgicalTheater(data);
+            } else if (currentPath === 'metadata') {
+                // Metadata Editor
+                createSharedInput("Mission ID", data.id, "metadata.id");
+                createSharedInput("Title", data.title, "metadata.title");
+                createSharedInput("Description", data.description, "metadata.description");
+                createSharedInput("Author", data.author, "metadata.author");
+                createSharedInput("Version", data.version, "metadata.version");
+
+                addGroupHeader("Learning Outcomes");
+                createListEditor(data.learningOutcomes, "metadata.learningOutcomes", "Outcome (String)");
+            } else if (typeof data === 'string') {
+                // Large Text Area (Narratives)
+                createQuillEditor(data, currentPath);
+            } else if (Array.isArray(data)) {
+                // Structured List Editor (Glossary / Questions)
+                const isGlossary = currentPath.includes('Glossary');
+                const label = isGlossary ? "Glossary Item" : "Question";
+                createListEditor(data, currentPath, label, isGlossary);
+            } else if (currentPath === 'theme') {
+                createSharedInput("Accent Color", data.accent, "theme.accent");
+                createSharedInput("Header Font", data.fontH, "theme.fontH");
+                createSharedInput("Body Font", data.fontP, "theme.fontP");
+                createSharedInput("Splash Hero URL", data.splashHeroURL, "theme.splashHeroURL");
+            }
+        }
+
+        function addGroupHeader(title) {
+            const h = document.createElement('h3');
+            h.style.color = 'var(--accent)';
+            h.style.fontSize = '0.8rem';
+            h.style.marginTop = '20px';
+            h.innerText = title;
+            editorView.appendChild(h);
+        }
+
+        function createListEditor(arr, path, itemLabel, isObject = false) {
+            const container = document.createElement('div');
+            container.style.marginTop = '10px';
+
+            arr.forEach((item, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'list-item';
+
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerText = 'DELETE';
+                removeBtn.onclick = () => {
+                    arr.splice(idx, 1);
+                    renderEditor();
+                };
+                itemDiv.appendChild(removeBtn);
+
+                if (isObject) {
+                    // Term/Definition Pair
+                    const tInput = document.createElement('input');
+                    tInput.type = 'text';
+                    tInput.placeholder = 'Term';
+                    tInput.value = item.term || "";
+                    tInput.onchange = (e) => { item.term = e.target.value; };
+
+                    const dArea = document.createElement('textarea');
+                    dArea.className = 'raw-input';
+                    dArea.placeholder = 'Definition';
+                    dArea.value = item.definition || "";
+                    dArea.onchange = (e) => { item.definition = e.target.value; };
+
+                    itemDiv.appendChild(tInput);
+                    itemDiv.appendChild(dArea);
+                } else {
+                    // Simple String
+                    const sArea = document.createElement('textarea');
+                    sArea.className = 'raw-input';
+                    sArea.value = item;
+                    sArea.onchange = (e) => { arr[idx] = e.target.value; };
+                    itemDiv.appendChild(sArea);
+                }
+                container.appendChild(itemDiv);
+            });
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn secondary';
+            addBtn.style.marginTop = '10px';
+            addBtn.innerText = `+ ADD ${itemLabel.toUpperCase()}`;
+            addBtn.onclick = () => {
+                arr.push(isObject ? { term: "", definition: "" } : "");
+                renderEditor();
+            };
+
+            editorView.appendChild(container);
+            editorView.appendChild(addBtn);
+        }
+
+        let activeTabKey = 'primary';
+
+        function renderSurgicalTheater(slide) {
+            console.log('[SURGICAL THEATER] Rendering slide:', slide);
+            // Defensive check: ensure tabs exist
+            if (!slide || !slide.tabs) {
+                console.error('[SURGICAL THEATER] ERROR: Missing tabs structure', slide);
+                editorView.innerHTML = '<div style="padding:40px; text-align:center; opacity:0.3;">ERROR: MALFORMED SLIDE DATA. NO TABS DETECTED.</div>';
+                logSurgical("ERROR: Slide missing tabs structure.");
+                return;
+            }
+
+            console.log('[SURGICAL THEATER] Creating theater layout');
+            const theater = document.createElement('div');
+            theater.className = 'surgical-theater';
+
+            // VISUAL MONITOR (LEFT)
+            const monitor = document.createElement('div');
+            monitor.className = 'visual-monitor';
+
+            const tabData = slide.tabs[activeTabKey] || slide.tabs.primary || {};
+
+            const imgLabel = document.createElement('label');
+            imgLabel.innerText = "VISUAL MONITOR / SENSOR DATA";
+            monitor.appendChild(imgLabel);
+
+            if (tabData.image) {
+                const img = document.createElement('img');
+                img.id = 'image-preview';
+                img.src = tabData.image;
+                monitor.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.style.height = '200px';
+                placeholder.style.background = '#111';
+                placeholder.style.display = 'flex';
+                placeholder.style.alignItems = 'center';
+                placeholder.style.justifyContent = 'center';
+                placeholder.style.fontSize = '0.7rem';
+                placeholder.style.opacity = '0.3';
+                placeholder.innerText = "NO VISUAL DATA SIGNAL";
+                monitor.appendChild(placeholder);
+            }
+
+            createSharedInput("Image URL", tabData.image || "", `tabs.${activeTabKey}.image`, currentPath, monitor);
+            createSharedInput("Asset Credit", tabData.credit || "", `tabs.${activeTabKey}.credit`, currentPath, monitor);
+            createSharedInput("Interaction Prompt", slide.interactionPrompt || "", "interactionPrompt", currentPath, monitor);
+
+            // DATA INPUT PANEL (RIGHT)
+            const inputPanel = document.createElement('div');
+            inputPanel.className = 'data-input-panel';
+
+            const tabsHeader = document.createElement('div');
+            tabsHeader.className = 'tactical-tabs';
+
+            // Only show tabs that actually exist
+            const availableTabs = Object.keys(slide.tabs);
+            ['primary', 'legal', 'intel'].forEach(key => {
+                if (availableTabs.includes(key)) {
+                    const btn = document.createElement('div');
+                    btn.className = `t-tab ${activeTabKey === key ? 'active' : ''}`;
+                    btn.innerText = key.toUpperCase();
+                    btn.onclick = () => { activeTabKey = key; renderEditor(); };
+                    tabsHeader.appendChild(btn);
+                }
+            });
+            inputPanel.appendChild(tabsHeader);
+
+            const quillWrap = document.createElement('div');
+            inputPanel.appendChild(quillWrap);
+            createQuillEditor(tabData.body || "", 'body', quillWrap);
+
+            theater.appendChild(monitor);
+            theater.appendChild(inputPanel);
+            editorView.appendChild(theater);
+        }
+
+        function createSharedInput(label, val, localPath, overrideRootPath = null, appendTo = null) {
+            const group = document.createElement('div');
+            group.className = 'form-group';
+            group.innerHTML = `<label>${label}</label>`;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = val;
+            input.onchange = (e) => {
+                const targetPath = overrideRootPath ? `${overrideRootPath}.${localPath}` : `${currentPath}.${localPath}`;
+                setNested(currentBlob, targetPath, e.target.value);
+                if (localPath.includes('image')) renderEditor(); // Refresh to show new image
+            };
+            group.appendChild(input);
+            if (appendTo) appendTo.appendChild(group);
+            else editorView.appendChild(group);
+        }
+
+        function createQuillEditor(mdContent, fieldName, appendTo = null) {
+            console.log('[QUILL] Creating editor for:', fieldName);
+            const group = document.createElement('div');
+            group.className = 'form-group';
+            group.innerHTML = `<label>${fieldName.toUpperCase()} MODULE (PRECISION EDIT)</label>`;
+
+            const editorDiv = document.createElement('div');
+            editorDiv.className = 'quill-editor-container';
+            group.appendChild(editorDiv);
+
+            if (appendTo) appendTo.appendChild(group);
+            else editorView.prepend(group);
+
+            // Re-apply path logic for internal slide tabs
+            const actualPath = currentPath.startsWith('slides.') ? `${currentPath}.tabs.${activeTabKey}.body` : currentPath;
+
+            console.log('[QUILL] Initializing Quill on element:', editorDiv);
+            quill = new Quill(editorDiv, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, false] }],
+                        ['bold', 'italic', 'underline'],
+                        ['link', 'blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }]
+                    ]
+                }
+            });
+
+            console.log('[QUILL] Setting content:', mdContent);
+            quill.root.innerHTML = marked.parse(mdContent || "");
+
+            quill.on('text-change', () => {
+                const html = quill.root.innerHTML;
+                const md = turndownService.turndown(html);
+                setNested(currentBlob, actualPath, md);
+            });
+            console.log('[QUILL] Editor created successfully');
+        }
+
+        // TOOLBAR ACTIONS
+        function defibrillate() {
+            if (confirm("WARNING: CLEARING ALL SURGICAL DATA. CLEAR VITALS?")) {
+                localStorage.removeItem('blobHospitalSession');
+                logSurgical("CRITICAL: DATA PURGED via DEFIBRILLATOR.");
+                location.reload();
+            }
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('blobHospitalSession', JSON.stringify(currentBlob));
+            logSurgical("VITALS STABILIZED. CACHE UPDATED.");
+            alert("VITALS STABILIZED (SESSION SAVED)");
+        }
+
+        function exportBlob() {
+            if (!currentBlob) return;
+            logSurgical("DISCHARGING PATIENT. COMPILING .BLOB...");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentBlob, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", (currentBlob.metadata.id || "mission") + ".blob");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // MED SCHOOL MODAL
+        function showMedSchool() {
+            document.getElementById('med-school-modal').classList.add('visible');
+        }
+
+        function hideMedSchool() {
+            document.getElementById('med-school-modal').classList.remove('visible');
+        }
+
+        // Load Session if exists
+        window.onload = () => {
+            const session = localStorage.getItem('blobHospitalSession');
+            if (session) {
+                currentBlob = JSON.parse(session);
+                buildNav();
+            }
+        };
+
+    </script>
+</body>
+
+</html>
