@@ -1,19 +1,20 @@
-# Teacher's Guide: Situation Room Ecosystem (v65.48)
+# Teacher's Guide: Critical Juncture Operations (v65.51)
 
-Welcome to the **Situation Room** — an advanced platform for rigorous historical investigations and administrative simulations. This guide explains how to create, test, and deploy mission-based learning experiences.
+Welcome to the **Situation Room** — a platform for high-stakes historical inquiry and "The Critical Moment Where Everything Hangs on a Decision." This guide explains how to architect, refine, and deploy watershed learning experiences.
 
 ---
 
 ## 🔍 Core Philosophy
-We replace traditional "games" with **Administrative Investigation**:
+We replace standard games with **Critical Juncture Operations**:
 
-- **Digital DBQ Framework**: Each mission is a structured Document-Based Question.
-- **Evidence-Driven Decisions**: Students analyze documents across three tabs:
+- **Watershed Navigation**: Each mission is a structured turning point in history.
+- **Decision-Driven Analysis**: Students must choose a path when everything hangs in the balance.
+- **Evidence Framework**:
   - **PRIMARY** (Historical sources)
   - **LEGAL** (Policies/laws)
   - **INTEL** (Analysis/intelligence)
-- **Mandatory Rationales**: Students cite specific evidence to justify every decision.
-- **Immersive Interface**: A tech-noir "Situation Room" design for focused inquiry.
+- **Mandatory Rationales**: Students cite specific documentary evidence to justify crossing the rubicon.
+- **Immersive Interface**: A tech-noir "Situation Room" design for maximum focus.
 
 ---
 
@@ -58,4 +59,4 @@ We replace traditional "games" with **Administrative Investigation**:
 
 ---
 
-**Your terminal is now an Archive of Decision. 🦾🏛️⚖️**
+**Your terminal is now an Archive of Decision. Everything hangs on the choice. 🦾🏛️⚔️📜**
