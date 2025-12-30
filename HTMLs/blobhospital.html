@@ -1280,6 +1280,31 @@
             // Re-apply path logic for internal slide tabs
             const actualPath = currentPath.startsWith('slides.') ? `${currentPath}.tabs.${activeTabKey}.body` : currentPath;
 
+            // [v65.62] Live Sim Preview Container
+            const previewLabel = document.createElement('div');
+            previewLabel.style.marginTop = '15px';
+            previewLabel.style.fontSize = '0.55rem';
+            previewLabel.style.opacity = '0.4';
+            previewLabel.style.fontFamily = 'JetBrains Mono';
+            previewLabel.innerText = "SIMULATION OUTPUT PREVIEW (LIVE):";
+
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'sim-preview';
+            previewDiv.style.border = '1px dashed #333';
+            previewDiv.style.padding = '15px';
+            previewDiv.style.marginTop = '5px';
+            previewDiv.style.background = '#050505';
+            previewDiv.style.minHeight = '50px';
+            previewDiv.style.opacity = '0.9';
+
+            if (appendTo) {
+                appendTo.appendChild(previewLabel);
+                appendTo.appendChild(previewDiv);
+            } else {
+                editorView.appendChild(previewLabel);
+                editorView.appendChild(previewDiv);
+            }
+
             console.log('[QUILL] Initializing Quill on element:', editorDiv);
             quill = new Quill(editorDiv, {
                 theme: 'snow',
@@ -1296,12 +1321,52 @@
             console.log('[QUILL] Setting content:', mdContent);
             quill.root.innerHTML = marked.parse(mdContent || "");
 
+            // Initial Preview Render
+            previewDiv.innerHTML = formatText(mdContent || "");
+
             quill.on('text-change', () => {
                 const html = quill.root.innerHTML;
                 const md = turndownService.turndown(html);
                 setNested(currentBlob, actualPath, md);
+
+                // Live Render Update
+                previewDiv.innerHTML = formatText(md);
             });
             console.log('[QUILL] Editor created successfully');
+        }
+
+        // [v65.62] Media Resolver Logic (Ported from simroom_DEMO.html)
+        function formatText(text) {
+            if (!text) return "";
+
+            let html = text
+                // 1. YouTube Embeds
+                .replace(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/g,
+                    '<div class="video-container" style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; margin:10px 0;"><iframe style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" src="https://www.youtube.com/embed/$1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>')
+
+                // 2. PDF Embeds
+                .replace(/(https?:\/\/.*\.pdf)/gi,
+                    '<div class="pdf-container" style="height:500px; margin:10px 0;"><embed src="$1" type="application/pdf" width="100%" height="100%"></div>')
+
+                // 3. Direct Video Files
+                .replace(/(https?:\/\/.*\.(?:mp4|avi|mov|webm))/gi,
+                    '<video controls style="width:100%; max-height:400px; background:#000; margin:10px 0;"><source src="$1">Your browser does not support the video tag.</video>')
+
+                // Standard Markdown
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/^\s*[\-\*]\s+(.*$)/gim, '<li>$1</li>')
+                .replace(/^\s*\d+\.\s+(.*$)/gim, '<li>$1</li>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+
+            if (html.includes('<li>') && !html.includes('<ul>')) {
+                html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+            }
+            return html;
         }
 
         // TOOLBAR ACTIONS
