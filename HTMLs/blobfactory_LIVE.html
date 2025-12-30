@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLOB FACTORY // FORGE JUNCTURE (v65.71)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: #111;
+            --accent: #ff0055;
+            /* ARCHITECT CRIMSON */
+            --accent-glow: rgba(255, 0, 85, 0.3);
+            --border: #222;
+            --text: #eee;
+            --font-p: 'Inter', sans-serif;
+            --font-h: 'Oswald', sans-serif;
+            --font-m: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-p);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* BACKGROUND EFFECTS */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(20, 20, 20, 0) 0%, rgba(0, 0, 0, 0.8) 100%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 100%, 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        header {
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-h);
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: #fff;
+            opacity: 0.5;
+        }
+
+        .ver {
+            font-family: var(--font-m);
+            font-size: 0.6rem;
+            opacity: 0.4;
+            letter-spacing: 2px;
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 2px;
+            background: var(--border);
+            overflow: hidden;
+            position: relative;
+            z-index: 20;
+        }
+
+        .forge-panel {
+            background: var(--bg);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .output-panel {
+            background: #080808;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .panel-label {
+            font-family: var(--font-m);
+            font-size: 0.6rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-family: var(--font-h);
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        p.desc {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            font-family: var(--font-p);
+            font-size: 0.9rem;
+            resize: none;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px 15px;
+            font-family: var(--font-m);
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .btn-forge {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-family: var(--font-h);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-forge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+
+        .btn-forge:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* CODE VIEWER */
+        #code-display {
+            flex: 1;
+            margin: 0;
+            padding: 30px;
+            font-family: var(--font-m);
+            font-size: 0.8rem;
+            color: #888;
+            overflow: auto;
+            white-space: pre-wrap;
+            background: #050505;
+        }
+
+        .status-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-family: var(--font-m);
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .toolbar {
+            padding: 15px 30px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 15px;
+            background: #0a0a0a;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            font-family: var(--font-m);
+            font-size: 0.65rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* HLJS-ish colors */
+        .key {
+            color: #f92672;
+        }
+
+        .string {
+            color: #e6db74;
+        }
+
+        .number {
+            color: #ae81ff;
+        }
+
+        #visual-preview {
+            width: 100%;
+            height: 150px;
+            background: #000;
+            border: 1px solid #222;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #visual-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+        }
+
+        #visual-preview .label {
+            position: absolute;
+            font-family: var(--font-h);
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 0 10px #000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">BLOB <span>FACTORY</span></div>
+        <div class="ver">JUNCTURE FORGE v65.71</div>
+    </header>
+
+    <main>
+        <div class="forge-panel">
+            <div class="input-group">
+                <div class="panel-label">Project Identity</div>
+                <input type="text" id="mission-name" placeholder="MISSION CODENAME (e.g. OPERATION CRENEL)">
+            </div>
+
+            <div class="input-group">
+                <div class="panel-label">Material Inputs</div>
+                <textarea id="raw-context" rows="12"
+                    placeholder="PASTE LEARNING OUTCOMES, COURSE CONTENT, OR SCENARIO REQUIREMENTS HERE..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <div class="panel-label">Complexity Tuning</div>
+                <select id="slide-count"
+                    style="background:#111; border:1px solid #333; color:#fff; padding:10px; font-family:var(--font-m); font-size:0.7rem;">
+                    <option value="5">5 SLIDES (SCOUT)</option>
+                    <option value="10" selected>10 SLIDES (STANDARD)</option>
+                    <option value="15">15 SLIDES (VETERAN)</option>
+                </select>
+            </div>
+
+            <button class="btn-forge" id="forge-btn" onclick="forgeMission()">Commence Forging</button>
+
+            <div class="input-group" style="margin-top:20px;">
+                <div class="panel-label">Sim Preview (Last Generated)</div>
+                <div id="visual-preview">
+                    <div class="label">NO DATA FORGED</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="output-panel">
+            <div class="status-overlay" id="status-overlay">
+                <div class="loader"></div>
+                <div class="loading-text" id="status-text">INITIALIZING FORGE...</div>
+            </div>
+
+            <pre id="code-display">// MISSION SOURCE CODE WILL APPEAR HERE...</pre>
+
+            <div class="toolbar" id="toolbar" style="display:none;">
+                <button class="btn-secondary" onclick="copyCode()">Copy to Clipboard</button>
+                <button class="btn-secondary" onclick="downloadBlob()"
+                    style="border-color:var(--accent); color:var(--accent);">Download .blob</button>
+                <button class="btn-secondary" onclick="openInHospital()">Refine in Hospital</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const PROXY_URL = 'https://nextjs-basic-lemon-one.vercel.app/api/chat';
+        let currentBlob = null;
+
+        /**
+         * BLOB FACTORY System Prompt.
+         * This defines the exact Situation Room schema for the LLM.
+         */
+        const ARCHITECT_SYSTEM_PROMPT = `
+You are the BLOB FACTORY COREGINE, a specialized Situation Room mission designer. 
+Your goal is to forge high-stakes, realistic simulations based on the student's learning outcomes.
+
+OUTPUT ONLY VALID JSON. NO TALKING. 
+
+SCHEMA REQUIREMENTS:
+- metadata: { title, id, author, thumb, description, simulationType }
+- slides: Array of objects.
+   - id: "s1", "s2", etc.
+   - type: "narrative" or "interaction"
+   - title: Dramatic title
+   - content: Markdown content. Use strong impact.
+   - mediaURL: String. Use Unsplash keyword URLs like "https://images.unsplash.com/photo-[ID]?q=80&w=1000&auto=format&fit=crop" OR a semantic keyword search like "https://source.unsplash.com/featured/?scifi,cyberpunk". Actually, use "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000" as a fallback but try to find unique photo IDs for the theme.
+   - intel: (optional) { primary, legal, intel } - text for slide-specific intel tabs.
+   - interactionPrompt: (for interactions) "Choose your path:"
+   - options: (for interactions) ["Option A", "Option B"]
+   - outcomes: (for interactions) ["Outcome A text", "Outcome B text"]
+
+MISSION STRUCTURE:
+1. Start with an urgent situation.
+2. Build complexity through data and "Intel".
+3. End with a significant "Interaction" that requires a critical choice.
+4. If the user provided specific outcomes, MAP EACH SLIDE TO AN OUTCOME.
+
+Simulation Type: "standard" unless "social_history" is requested.
+`;
+
+        async function forgeMission() {
+            const name = document.getElementById('mission-name').value.trim() || "UNNAMED OPERATION";
+            const context = document.getElementById('raw-context').value.trim();
+            const slides = document.getElementById('slide-count').value;
+
+            if (!context) return alert("MATERIAL INPUTS REQUIRED.");
+
+            document.getElementById('status-overlay').style.display = 'flex';
+            document.getElementById('status-text').innerText = "CALCULATING VARIABLES...";
+            document.getElementById('forge-btn').disabled = true;
+
+            const userPrompt = `
+Generate a MISSION BLOB for: ${name}
+Target Slide Count: ${slides}
+BASED ON THESE OUTCOMES/CONTEXT:
+${context}
+
+IMPORTANT: Ensure the JSON is well-formatted and includes a 'thumb' URL in metadata that matches the theme.
+`;
+
+            try {
+                const response = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system: ARCHITECT_SYSTEM_PROMPT,
+                        message: userPrompt
+                    })
+                });
+
+                const data = await response.json();
+                const reply = data.reply || data.choices[0].message.content;
+
+                // Attempt to parse out the JSON if the AI talked
+                let jsonStr = reply;
+                if (reply.includes("```json")) {
+                    jsonStr = reply.split("```json")[1].split("```")[0].trim();
+                } else if (reply.includes("```")) {
+                    jsonStr = reply.split("```")[1].split("```")[0].trim();
+                }
+
+                currentBlob = JSON.parse(jsonStr);
+
+                // Finalize UI
+                displayCode(currentBlob);
+                updatePreview(currentBlob);
+                document.getElementById('toolbar').style.display = 'flex';
+
+                gsap.from("#code-display", { opacity: 0, y: 20, duration: 1 });
+
+            } catch (err) {
+                console.error(err);
+                alert("FORGE FAILURE: Check console or proxy connection.");
+            } finally {
+                document.getElementById('status-overlay').style.display = 'none';
+                document.getElementById('forge-btn').disabled = false;
+            }
+        }
+
+        function displayCode(obj) {
+            const display = document.getElementById('code-display');
+            display.innerText = JSON.stringify(obj, null, 4);
+        }
+
+        function updatePreview(blob) {
+            const prev = document.getElementById('visual-preview');
+            const thumb = blob.metadata.thumb || "";
+            if (thumb) {
+                prev.innerHTML = `<img src="${thumb}"><div class="label">${blob.metadata.title}</div>`;
+            }
+        }
+
+        function copyCode() {
+            const code = document.getElementById('code-display').innerText;
+            navigator.clipboard.writeText(code);
+            alert("SOURCE COPIED TO CLIPBOARD.");
+        }
+
+        function downloadBlob() {
+            if (!currentBlob) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentBlob));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", (currentBlob.metadata.title || "mission") + ".blob");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function openInHospital() {
+            if (!currentBlob) return alert("FORGE A MISSION FIRST.");
+            localStorage.setItem('forge_transit', JSON.stringify(currentBlob));
+            window.location.href = 'blobhospital.html';
+        }
+    </script>
+</body>
+
+</html>

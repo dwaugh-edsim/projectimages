@@ -1,6 +1,9 @@
-﻿# Situation Room: Knowledge Archive (v65.45 - synced with codebase)
+﻿# Situation Room: Knowledge Archive (v65.69 - synced with codebase)
 
 This document contains the universal HTML/JS shells used by the Situation Room.
+
+> [!CAUTION]
+> **YouTube Embed Limitation**: YouTube embeds will **NOT work** when running HTML files via `file://` protocol (opening directly from hard drive). YouTube blocks this for security. **Solution**: Serve via HTTP using Python (`python -m http.server 8000`), VS Code Live Server, or GitHub Pages.
 
 ### **TEMPLATE A: Code.gs (The Archive Brain)**
 ```javascript
