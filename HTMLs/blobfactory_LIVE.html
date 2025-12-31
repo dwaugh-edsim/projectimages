@@ -219,19 +219,48 @@
             width: 100%;
             background: #111;
             border: 1px solid #333;
-            color: #eee;
-            padding: 10px;
-            font-family: var(--font-m);
+            color: #fff;
+            padding: 8px;
             font-size: 0.75rem;
             border-radius: 4px;
+        }
+
+        .quick-lab-entry {
+            background: rgba(40, 0, 20, 0.4);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-lab-entry input,
+        .quick-lab-entry textarea {
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            font-family: var(--font-m);
+        }
+
+        .btn-lab-admit {
+            width: 100%;
+            padding: 8px;
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            font-size: 0.7rem;
+            border: none;
             cursor: pointer;
-            transition: all 0.3s;
+            text-transform: uppercase;
         }
 
         .curriculum-selector select:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 10px rgba(0, 255, 157, 0.1);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
         }
 
         .outcome-item {
@@ -754,6 +783,18 @@
                 <div id="outcome-checklist" class="outcome-list" style="margin-top:10px;">
                     <p style="font-size:0.6rem; opacity:0.3; text-align:center;">SELECT COURSE TO LOAD OUTCOMES</p>
                 </div>
+
+                <div id="quick-custom-entry" class="quick-lab-entry" style="display:none;">
+                    <div class="panel-label" style="color:var(--accent); margin-bottom:10px;">Custom Lab Admission</div>
+                    <input type="text" id="quick-custom-name" placeholder="COURSE NAME (e.g. History 12)">
+                    <textarea id="quick-custom-outcomes" placeholder="PASTE OUTCOMES (ONE PER LINE)"></textarea>
+                    <button class="btn-lab-admit" onclick="admitQuickCustom()">Admit to Lab</button>
+                </div>
+
+                <button id="toggle-quick-add" onclick="toggleQuickAdd()"
+                    style="background:none; border:none; color:var(--accent); font-size:0.6rem; cursor:pointer; margin-top:10px; text-decoration:underline; width:100%; text-align:center; opacity:0.6;">
+                    + ADMIT NEW CUSTOM COURSE TO LAB
+                </button>
             </div>
 
             <textarea id="forge-input" rows="12" placeholder="ADDITIONAL COMMANDS / CONTEXT..."></textarea>
@@ -1067,14 +1108,11 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                 });
             }
 
-            // Add Custom option
-            const custom = getCustomOutcomes();
-            if (Object.keys(custom).length > 0) {
-                const opt = document.createElement('option');
-                opt.value = "CUSTOM_LAB";
-                opt.textContent = "CUSTOM (Teacher Lab)";
-                countrySelect.appendChild(opt);
-            }
+            // Always Add Custom option for discovery
+            const optCustom = document.createElement('option');
+            optCustom.value = "CUSTOM_LAB";
+            optCustom.textContent = "CUSTOM (Teacher Lab)";
+            countrySelect.appendChild(optCustom);
         }
 
         function updateRegions() {
@@ -1426,6 +1464,33 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             document.getElementById('custom-course-outcomes').value = "";
             initializeCurriculum();
             alert(`COURSE '${name}' ADMITTED TO LAB.`);
+        }
+
+        function toggleQuickAdd() {
+            const el = document.getElementById('quick-custom-entry');
+            const isShowing = el.style.display === 'block';
+            el.style.display = isShowing ? 'none' : 'block';
+            document.getElementById('toggle-quick-add').innerText = isShowing ? '+ ADMIT NEW CUSTOM COURSE TO LAB' : '- CANCEL ADMISSION';
+        }
+
+        function admitQuickCustom() {
+            const name = document.getElementById('quick-custom-name').value.trim();
+            const outcomesRaw = document.getElementById('quick-custom-outcomes').value.trim();
+            if (!name || !outcomesRaw) return alert("ADMISSION FAILED: NAME AND OUTCOMES REQUIRED.");
+
+            // Populate existing hidden settings form and trigger admission
+            document.getElementById('custom-course-name').value = name;
+            document.getElementById('custom-course-outcomes').value = outcomesRaw;
+            addCustomCourse();
+
+            // Reset and close
+            document.getElementById('quick-custom-name').value = "";
+            document.getElementById('quick-custom-outcomes').value = "";
+            toggleQuickAdd();
+
+            // Switch to Custom Lab automatically so they see it
+            document.getElementById('country-select').value = "CUSTOM_LAB";
+            updateRegions();
         }
 
         function deleteCustomCourse(name) {
