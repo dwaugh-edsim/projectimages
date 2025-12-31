@@ -443,7 +443,7 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.79</div>
+        <div class="ver">MASTER FORGE v65.80</div>
     </header>
 
     <div class="stepper">
@@ -498,7 +498,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.79 ONLINE.</strong><br>
+                    <strong>COREGINE v65.80 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -696,20 +696,19 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             document.getElementById('forge-input').value = "";
             showLoader(true, getLoadingMessage());
 
-            // Prepare history for AI
-            // Prepare history for AI (Xiaomi Stability Mode: No separate system role)
-            const messages = [];
-            history.forEach(m => messages.push({ role: m.role, content: m.content }));
-
-            const fullPrompt = `${MASTER_SYSTEM_PROMPT_CORE}\n${SYSTEM_PROMPTS[currentStep]}\n\nUSER INPUT: ${input}`;
-            messages.push({ role: "user", content: fullPrompt });
+            // Prepare history for AI (Xiaomi Total Stability: Collapse everything into 'message')
+            let context = `${MASTER_SYSTEM_PROMPT_CORE}\n${SYSTEM_PROMPTS[currentStep]}\n\n`;
+            history.forEach(m => {
+                context += `${m.role.toUpperCase()}: ${m.content}\n\n`;
+            });
+            context += `CURRENT USER INPUT: ${input}`;
 
             try {
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        messages: messages
+                        message: context
                     })
                 });
 
