@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLOB FACTORY // MASTER FORGE (v65.82)</title>
+    <title>BLOB FACTORY // MASTER FORGE (v65.83)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -468,7 +468,7 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.82</div>
+        <div class="ver">MASTER FORGE v65.83</div>
     </header>
 
     <div class="stepper">
@@ -511,8 +511,10 @@
             <textarea id="forge-input" rows="12" placeholder="ADDITIONAL COMMANDS / CONTEXT..."></textarea>
 
             <button class="btn-forge" id="forge-btn" onclick="processForgeStep()">Submit Command</button>
-            <button class="btn-secondary" id="reset-btn" onclick="resetForge()" style="margin-top:10px;">Reset
-                Core</button>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn-secondary" id="back-btn" onclick="goBack()" style="flex:1;">Back Step</button>
+                <button class="btn-secondary" id="reset-btn" onclick="resetForge()" style="flex:1;">Reset Core</button>
+            </div>
         </div>
 
         <div class="output-panel">
@@ -523,7 +525,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.82 ONLINE.</strong><br>
+                    <strong>COREGINE v65.83 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -658,7 +660,7 @@ OUTPUT ONLY THE JSON CODE BLOCK.`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.82), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.83), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 SCHEMA RULES:
@@ -785,6 +787,12 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             }
         }
 
+        function goBack() {
+            if (currentStep > 1) {
+                moveToStep(currentStep - 1);
+            }
+        }
+
         function moveToStep(step) {
             currentStep = step;
             document.querySelectorAll('.step').forEach((s, i) => {
@@ -810,13 +818,22 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             ];
             document.getElementById('forge-input').placeholder = placeholders[step - 1];
 
-            if (step === 4) {
+            // Show/Hide selector based on step
+            if (step === 1) {
+                document.querySelector('.curriculum-selector').style.display = 'flex';
+                document.getElementById('forge-input').disabled = false;
+            } else if (step === 4) {
                 document.getElementById('forge-input').placeholder = "FINAL VALIDATION IN PROGRESS...";
                 document.getElementById('forge-input').disabled = true;
                 document.getElementById('forge-btn').innerText = "FINALIZING BIRTH...";
                 document.getElementById('forge-btn').disabled = true;
                 // Auto-trigger step 4
                 processForgeStep();
+            } else {
+                document.querySelector('.curriculum-selector').style.display = 'none';
+                document.getElementById('forge-input').disabled = false;
+                document.getElementById('forge-btn').innerText = "FORGE";
+                document.getElementById('forge-btn').disabled = false;
             }
         }
 
