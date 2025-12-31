@@ -32,11 +32,9 @@ export default async function handler(req, res) {
       headers: {
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://github.com/dwaugh-edsim/projectimages",
-        "X-Title": "Blob Factory Master Forge",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-exp:free", // Extremely stable and free
+        model: "xiaomi/mimo-v2-flash:free", // Restored user's preferred model
         messages: finalMessages,
       }),
     });
