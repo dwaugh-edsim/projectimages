@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLOB FACTORY // MASTER FORGE (v65.83)</title>
+    <title>BLOB FACTORY // MASTER FORGE (v65.84)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -468,7 +468,7 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.83</div>
+        <div class="ver">MASTER FORGE v65.84</div>
     </header>
 
     <div class="stepper">
@@ -503,7 +503,14 @@
                 <select id="course-select" onchange="updateOutcomes()">
                     <option value="">-- SELECT COURSE --</option>
                 </select>
-                <div id="outcome-checklist" class="outcome-list">
+                <div class="panel-label" style="margin-top:10px;">Concept Level / Depth</div>
+                <select id="complexity-select">
+                    <option value="Standard / Average">Standard (Default)</option>
+                    <option value="Low / Foundational">Low (Simple Vocabulary)</option>
+                    <option value="Medium / Developed">Medium (Analytical)</option>
+                    <option value="High / Advanced">High (Complex Ethics/Nuance)</option>
+                </select>
+                <div id="outcome-checklist" class="outcome-list" style="margin-top:10px;">
                     <p style="font-size:0.6rem; opacity:0.3; text-align:center;">SELECT A COURSE TO LOAD OUTCOMES</p>
                 </div>
             </div>
@@ -525,7 +532,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.83 ONLINE.</strong><br>
+                    <strong>COREGINE v65.84 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -634,7 +641,8 @@
 
         const SYSTEM_PROMPTS = {
             1: `You are the BLOB FACTORY COREGINE. We are in PHASE 1: CONCEPT ARRIVE.
-Identify SCO + Ethical Audit. Propose 3 detailed Scenario Concepts based on the user's input and TARGET LEARNING OUTCOMES.
+Identify SCO + Ethical Audit. Propose 3 detailed Scenario Concepts based on the user's input, TARGET LEARNING OUTCOMES, and requested FORGE COMPLEXITY.
+Adjust narrative depth, vocabulary, and ethical nuance to match the grade level and complexity requested.
 Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 End your response with: "WHICH CONCEPT SHALL WE FORGE? (Select 1-3 or provide feedback)"`,
 
@@ -660,7 +668,7 @@ OUTPUT ONLY THE JSON CODE BLOCK.`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.83), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.84), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 SCHEMA RULES:
@@ -711,8 +719,9 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
 
             let input = rawInput;
             if (currentStep === 1) {
+                const complexity = document.getElementById('complexity-select').value;
                 if (course && checkedOutcomes.length > 0) {
-                    input = `COURSE: ${course}\nTARGET OUTCOMES:\n- ${checkedOutcomes.join('\n- ')}\n\nUSER CONTEXT: ${rawInput || "(Generic Concept Generation Based on Outcomes)"}`;
+                    input = `COURSE: ${course}\nFORGE COMPLEXITY: ${complexity}\nTARGET OUTCOMES:\n- ${checkedOutcomes.join('\n- ')}\n\nUSER CONTEXT: ${rawInput || "(Generic Concept Generation Based on Outcomes)"}`;
                 } else if (!rawInput) {
                     return alert("COMMAND INPUT REQUIRED OR SELECT COURSE/OUTCOMES.");
                 }
