@@ -36,12 +36,18 @@ export default async function handler(req, res) {
         "X-Title": "Blob Factory Master Forge",
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-1.5", // Extremely stable on OpenRouter
+        model: "google/gemini-2.0-flash-exp:free", // Extremely stable and free
         messages: finalMessages,
       }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      console.error("JSON parse error:", e);
+      return res.status(500).json({ error: "Upstream returned invalid JSON", details: e.message });
+    }
 
     // 6. Send the AI's response back to your frontend
     if (!data.choices || !data.choices[0]) {
