@@ -443,7 +443,7 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.78</div>
+        <div class="ver">MASTER FORGE v65.79</div>
     </header>
 
     <div class="stepper">
@@ -498,7 +498,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.78 ONLINE.</strong><br>
+                    <strong>COREGINE v65.79 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -633,7 +633,7 @@ OUTPUT ONLY THE JSON CODE BLOCK.`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.78), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.79), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 SCHEMA RULES:
@@ -697,9 +697,12 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             showLoader(true, getLoadingMessage());
 
             // Prepare history for AI
-            const messages = [{ role: "system", content: MASTER_SYSTEM_PROMPT_CORE + "\n" + SYSTEM_PROMPTS[currentStep] }];
+            // Prepare history for AI (Xiaomi Stability Mode: No separate system role)
+            const messages = [];
             history.forEach(m => messages.push({ role: m.role, content: m.content }));
-            messages.push({ role: "user", content: input });
+
+            const fullPrompt = `${MASTER_SYSTEM_PROMPT_CORE}\n${SYSTEM_PROMPTS[currentStep]}\n\nUSER INPUT: ${input}`;
+            messages.push({ role: "user", content: fullPrompt });
 
             try {
                 const response = await fetch(PROXY_URL, {
