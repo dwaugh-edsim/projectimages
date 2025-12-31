@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLOB FACTORY // MASTER FORGE (v65.92)</title>
+    <title>BLOB FACTORY // MASTER FORGE (v65.93)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -533,6 +533,63 @@
             border-color: var(--accent);
             color: #fff;
         }
+
+        /* HOSPITAL INTEGRATION */
+        #hospital-view {
+            display: none;
+            height: 100%;
+            grid-template-columns: 250px 1fr;
+            background: #0a0a0a;
+            border: 1px solid #1a3c3c;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .hospital-sidebar {
+            background: #111;
+            border-right: 1px solid #1a3c3c;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .hospital-main {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .surgical-tab {
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #111;
+            border: 1px solid #222;
+            font-family: var(--font-h);
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-align: left;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
+
+        .surgical-tab:hover,
+        .surgical-tab.active {
+            opacity: 1;
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+
+        .hospital-label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00ffcc;
+            opacity: 0.5;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -543,7 +600,7 @@
         <div style="display:flex; align-items:center; gap:20px;">
             <button class="btn-settings-toggle" onclick="toggleSettings()">CORE SETTINGS</button>
             <div style="text-align:right;">
-                <div class="ver">MASTER FORGE v65.92</div>
+                <div class="ver">MASTER FORGE v65.93</div>
                 <div id="header-model-status"
                     style="font-size:0.5rem; color:var(--accent); text-transform:uppercase; letter-spacing:1px; opacity:0.8; margin-top:2px;">
                     Brain: Xiaomi MiMo V2</div>
@@ -566,7 +623,15 @@
         </div>
         <div class="step" id="step-4">
             <div class="step-num">4</div>
+            <div class="step-label">Assets</div>
+        </div>
+        <div class="step" id="step-5">
+            <div class="step-num">5</div>
             <div class="step-label">Birth</div>
+        </div>
+        <div class="step" id="step-6">
+            <div class="step-num">6</div>
+            <div class="step-label">Review</div>
         </div>
     </div>
 
@@ -605,18 +670,38 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.92 ONLINE.</strong><br>
+                    <strong>COREGINE v65.93 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
 
-            <pre id="code-display"></pre>
+            <div id="code-display"></div>
+
+            <!-- HOSPITAL INTEGRATION PANEL -->
+            <div id="hospital-view">
+                <div class="hospital-sidebar" id="hospital-nav">
+                    <div class="hospital-label">Patient Nodes</div>
+                    <!-- Nodes will be injected here -->
+                </div>
+                <div class="hospital-main">
+                    <div class="hospital-label">Surgical Interface</div>
+                    <div id="hospital-editor-container">
+                        <div id="hospital-path"
+                            style="font-family:var(--font-m); font-size:0.8rem; margin-bottom:10px; color:#00ffcc;">[
+                            AWAITING SELECTION ]</div>
+                        <textarea id="hospital-raw-editor"
+                            style="width:100%; height:400px; background:#050505; color:#eee; border:1px solid #1a3c3c; padding:15px; font-family:var(--font-m); font-size:0.9rem;"></textarea>
+                        <button class="btn-forge" onclick="saveHospitalEdit()"
+                            style="margin-top:10px; background:#00ffcc; color:#000;">STABILIZE NODE</button>
+                    </div>
+                </div>
+            </div>
 
             <div class="toolbar" id="toolbar" style="display:none;">
                 <button class="btn-secondary" onclick="copyCode()">Copy to Clipboard</button>
-                <button class="btn-secondary" onclick="downloadBlob()"
-                    style="border-color:var(--accent); color:var(--accent);">Download .blob</button>
-                <button class="btn-secondary" onclick="openInHospital()">Refine in Hospital</button>
+                <button class="btn-secondary" onclick="downloadBlob()">Download .blob</button>
+                <button class="btn-secondary" onclick="openInHospital()"
+                    style="border-color:#00ffcc; color:#00ffcc;">Start Clinical Review</button>
             </div>
         </div>
     </main>
@@ -773,16 +858,27 @@ End your response with: "SHALL WE PROCEED TO FULL STORY DRAFTING?"`,
 Draft the FULL immersive prose for all 10 slides, including the sidebars (Intel, Legal, Primary tabs).
 Rules: High stakes, immersive, dramatic. Use standard sentence case. 200-400 words per slide.
 Identify the interaction choice and consequences.
-End your response with: "IS THE STORY COMPLETE? TYPE 'BIRTH' TO GENERATE THE FINAL BLOB."`,
+End your response with: "READY TO SECURE ASSETS?"`,
 
-            4: `We are in PHASE 4: BLOB BIRTH.
-Compile the confirmed story into a valid Situation Room JSON (.blob).
-Skip image sourcing - use placeholder keyword strings for mediaURL like "https://source.unsplash.com/featured/?keyword".
-OUTPUT ONLY THE JSON CODE BLOCK.`
+            4: `We are in PHASE 4: ASSET SECURE.
+Based on the story, propose a Visual Strategy for the mission.
+List each slide and its associated 'Unsplash Keyword' for the mediaURL.
+Keywords should be evocative and high-quality (e.g., 'cyberpunk city' vs 'city').
+End your response with: "SHALL WE COMMENCE BLOB BIRTH CONTENTION?"`,
+
+            5: `We are in PHASE 5: BLOB BIRTH.
+Compile the confirmed story and assets into a valid Situation Room JSON (.blob).
+Ensure all keywords from Phase 4 are formatted as "https://source.unsplash.com/featured/?keyword".
+OUTPUT ONLY THE JSON CODE BLOCK.`,
+
+            6: `We are in PHASE 6: CLINICAL REVIEW.
+The mission is forged. We are now entering the Hospital for surgical refinement.
+You are now the SURGEON AI.
+Ask the user: "WOULD YOU LIKE TO BEGIN THE CLINICAL REVIEW OR DOWNLOAD THE SOURCE?"`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.92), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.93), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 CONTEXT BASELINE:
@@ -910,12 +1006,12 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                 history.push({ role: "user", content: input });
                 history.push({ role: "assistant", content: reply });
 
-                if (currentStep === 4) { // Assuming currentStep === 4 implies isBirth for this context
+                if (currentStep === 5) {
                     handleBirth(reply);
                 } else {
                     addMessage(reply, 'ai');
 
-                    // Dynamic Guidance Update (v65.82)
+                    // Dynamic Guidance Update
                     if (currentStep === 1 && (reply.includes("PROPOSE") || reply.includes("WHICH CONCEPT"))) {
                         document.getElementById('stage-desc').innerText = "SELECT A CONCEPT (1-3) OR PROVIDE FEEDBACK.";
                         document.getElementById('forge-input').placeholder = "ENTER CHOICE (e.g., 'CONCEPT 2')...";
@@ -933,14 +1029,17 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
         }
 
         function checkForStepIncrement(input, reply) {
-            const up = input.toUpperCase();
-            if (currentStep === 1 && (reply.includes("CONCEPTION COMPLETE") || reply.includes("PROPOSE"))) {
-                // Wait for user to pick a number
-                if (/\d/.test(input)) moveToStep(2);
-            } else if (currentStep === 2 && (up.includes("PROCEED") || up.includes("YES") || up.includes("CONFIRM"))) {
+            const up = reply.toUpperCase();
+            if (currentStep === 1 && (up.includes("WHICH CONCEPT") || up.includes("FORGE?"))) {
+                // Stay until chosen
+            } else if (currentStep === 1 && (input.toUpperCase().includes("CONCEPT") || input.length <= 2)) {
+                moveToStep(2);
+            } else if (currentStep === 2 && up.includes("PROCEED")) {
                 moveToStep(3);
-            } else if (currentStep === 3 && (up.includes("BIRTH") || up.includes("COMPLETE"))) {
+            } else if (currentStep === 3 && up.includes("SECURE ASSETS")) {
                 moveToStep(4);
+            } else if (currentStep === 4 && up.includes("COMMENCE BLOB BIRTH")) {
+                moveToStep(5);
             }
         }
 
@@ -956,36 +1055,46 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                 s.classList.toggle('active', (i + 1) <= currentStep);
             });
 
-            const titles = ["CONCEPT ARRIVE", "DEEP SEARCH", "STORY CONFIRM", "BLOB BIRTH"];
+            const titles = ["CONCEPT ARRIVE", "DEEP SEARCH", "STORY CONFIRM", "ASSET SECURE", "BLOB BIRTH", "CLINICAL REVIEW"];
             const descs = [
                 "Lock in the historical mission context.",
                 "Expand the intel database and slide map.",
                 "Review and finalize the narrative prose.",
-                "Transmuting story into data."
+                "Establish visual language and media keywords.",
+                "Transmuting story into data.",
+                "Final surgical review and medical stabilization."
             ];
-
-            document.getElementById('stage-title').innerText = titles[step - 1];
-            document.getElementById('stage-desc').innerText = descs[step - 1];
 
             const placeholders = [
                 "DESCRIBE MISSION CONTEXT...",
                 "FEEDBACK ON OUTLINE / INTEL...",
                 "FINAL NARRATIVE ADJUSTMENTS...",
-                "TRANSMUTING..."
+                "FEEDBACK ON ASSET KEYWORDS...",
+                "BIRTHING...",
+                "REVIEWING..."
             ];
             document.getElementById('forge-input').placeholder = placeholders[step - 1];
+
+            document.getElementById('stage-title').innerText = titles[step - 1];
+            document.getElementById('stage-desc').innerText = descs[step - 1];
+
 
             // Show/Hide selector based on step
             if (step === 1) {
                 document.querySelector('.curriculum-selector').style.display = 'flex';
                 document.getElementById('forge-input').disabled = false;
-            } else if (step === 4) {
-                document.getElementById('forge-input').placeholder = "FINAL VALIDATION IN PROGRESS...";
+            } else if (step === 5) {
+                document.getElementById('forge-input').placeholder = "BIRTHING...";
                 document.getElementById('forge-input').disabled = true;
-                document.getElementById('forge-btn').innerText = "FINALIZING BIRTH...";
+                document.getElementById('forge-btn').innerText = "BIRTHING...";
                 document.getElementById('forge-btn').disabled = true;
-                // Auto-trigger step 4
+                // Auto-trigger step 5
                 processForgeStep();
+            } else if (step === 6) {
+                document.getElementById('forge-input').disabled = true;
+                document.getElementById('forge-btn').innerText = "SURGERY IN PROGRESS";
+                document.getElementById('forge-btn').disabled = true;
+                document.getElementById('stage-desc').innerText = "MISSION FORGED. READY FOR HOSPITAL REVIEW.";
             } else {
                 document.querySelector('.curriculum-selector').style.display = 'none';
                 document.getElementById('forge-input').disabled = false;
@@ -1009,8 +1118,8 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                 document.getElementById('code-display').innerText = JSON.stringify(accumulatedData, null, 4);
                 document.getElementById('toolbar').style.display = 'flex';
                 document.getElementById('status-text').innerText = "BIRTH SUCCESSFUL.";
-
                 gsap.from("#code-display", { opacity: 0, y: 20, duration: 1 });
+                moveToStep(6);
             } catch (e) {
                 addMessage("BIRTH DEFECT: JSON parsing failed. Please check the output manually below.", 'ai');
                 document.getElementById('code-display').style.display = 'block';
@@ -1034,10 +1143,12 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
 
         function getLoadingMessage() {
             const msgs = {
-                1: "PROPOSING SCENARIOS...",
-                2: "MINING INTEL DATA...",
+                1: "FORGING CONCEPTS...",
+                2: "DEEP SEARCHING HISTORY...",
                 3: "DRAFTING NARRATIVE...",
-                4: "COMPILING FINAL BLOB..."
+                4: "SECURING ASSETS...",
+                5: "INCUBATING BLOB...",
+                6: "PREPPING SURGERY..."
             };
             return msgs[currentStep];
         }
@@ -1066,10 +1177,88 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             downloadAnchorNode.remove();
         }
 
+        // HOSPITAL INTEGRATION LOGIC
+        let currentHospitalPath = null;
+
+        function initHospital() {
+            document.getElementById('hospital-view').style.display = 'grid';
+            document.getElementById('code-display').style.display = 'none';
+            renderHospitalNav();
+        }
+
+        function renderHospitalNav() {
+            const nav = document.getElementById('hospital-nav');
+            nav.innerHTML = '<div class="hospital-label">Patient Nodes</div>';
+
+            // Metadata
+            const meta = document.createElement('div');
+            meta.className = 'surgical-tab';
+            meta.innerText = 'CORE METADATA';
+            meta.onclick = () => selectHospitalNode('metadata');
+            nav.appendChild(meta);
+
+            // Slides
+            if (accumulatedData.slides) {
+                accumulatedData.slides.forEach((slide, idx) => {
+                    const s = document.createElement('div');
+                    s.className = 'surgical-tab';
+                    s.innerText = `SLIDE ${idx + 1}: ${slide.title}`;
+                    s.onclick = () => selectHospitalNode(`slides[${idx}]`);
+                    nav.appendChild(s);
+                });
+            }
+
+            // Glossary
+            const glos = document.createElement('div');
+            glos.className = 'surgical-tab';
+            glos.innerText = 'INTELLIGENCE GLOSSARY';
+            glos.onclick = () => selectHospitalNode('intelligenceGlossary');
+            nav.appendChild(glos);
+        }
+
+        function selectHospitalNode(path) {
+            currentHospitalPath = path;
+            document.getElementById('hospital-path').innerText = `NODE: ${path.toUpperCase()}`;
+
+            let data = null;
+            if (path === 'metadata') data = accumulatedData.metadata;
+            else if (path === 'intelligenceGlossary') data = accumulatedData.intelligenceGlossary;
+            else if (path.startsWith('slides[')) {
+                const idx = parseInt(path.match(/\d+/)[0]);
+                data = accumulatedData.slides[idx];
+            }
+
+            document.getElementById('hospital-raw-editor').value = JSON.stringify(data, null, 4);
+
+            // Highlight active tab
+            document.querySelectorAll('.surgical-tab').forEach(t => {
+                t.classList.toggle('active', t.innerText.includes(path.toUpperCase()) || (path.startsWith('slides') && t.innerText.includes(`SLIDE ${parseInt(path.match(/\d+/)[0]) + 1}`)));
+            });
+        }
+
+        function saveHospitalEdit() {
+            if (!currentHospitalPath) return;
+            try {
+                const newVal = JSON.parse(document.getElementById('hospital-raw-editor').value);
+
+                if (currentHospitalPath === 'metadata') accumulatedData.metadata = newVal;
+                else if (currentHospitalPath === 'intelligenceGlossary') accumulatedData.intelligenceGlossary = newVal;
+                else if (currentHospitalPath.startsWith('slides[')) {
+                    const idx = parseInt(currentHospitalPath.match(/\d+/)[0]);
+                    accumulatedData.slides[idx] = newVal;
+                }
+
+                alert("NODE STABILIZED.");
+                // Update code display if they switch back
+                document.getElementById('code-display').innerText = JSON.stringify(accumulatedData, null, 4);
+                renderHospitalNav();
+            } catch (e) {
+                alert("SURGICAL ERROR: Invalid JSON format.");
+            }
+        }
+
         function openInHospital() {
-            if (!accumulatedData) return alert("FORGE A MISSION FIRST.");
-            localStorage.setItem('forge_transit', JSON.stringify(accumulatedData));
-            window.location.href = 'blobhospital.html';
+            initHospital();
         }
     </script>
 </body>
