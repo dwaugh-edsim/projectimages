@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLOB FACTORY // MASTER FORGE (v65.81)</title>
+    <title>BLOB FACTORY // MASTER FORGE (v65.82)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -468,7 +468,7 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.81</div>
+        <div class="ver">MASTER FORGE v65.82</div>
     </header>
 
     <div class="stepper">
@@ -523,7 +523,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.81 ONLINE.</strong><br>
+                    <strong>COREGINE v65.82 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -658,7 +658,7 @@ OUTPUT ONLY THE JSON CODE BLOCK.`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.81), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.82), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 SCHEMA RULES:
@@ -751,12 +751,17 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                 history.push({ role: "user", content: input });
                 history.push({ role: "assistant", content: reply });
 
-                if (currentStep === 4) {
+                if (currentStep === 4) { // Assuming currentStep === 4 implies isBirth for this context
                     handleBirth(reply);
                 } else {
                     addMessage(reply, 'ai');
-                    // Logic to check if we should move to NEXT step based on AI response?
-                    // For now, assume step increment happens on user "confirm" or specific keywords
+
+                    // Dynamic Guidance Update (v65.82)
+                    if (currentStep === 1 && (reply.includes("PROPOSE") || reply.includes("WHICH CONCEPT"))) {
+                        document.getElementById('stage-desc').innerText = "SELECT A CONCEPT (1-3) OR PROVIDE FEEDBACK.";
+                        document.getElementById('forge-input').placeholder = "ENTER CHOICE (e.g., 'CONCEPT 2')...";
+                    }
+
                     checkForStepIncrement(input, reply);
                 }
 
@@ -796,6 +801,14 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
 
             document.getElementById('stage-title').innerText = titles[step - 1];
             document.getElementById('stage-desc').innerText = descs[step - 1];
+
+            const placeholders = [
+                "DESCRIBE MISSION CONTEXT...",
+                "FEEDBACK ON OUTLINE / INTEL...",
+                "FINAL NARRATIVE ADJUSTMENTS...",
+                "TRANSMUTING..."
+            ];
+            document.getElementById('forge-input').placeholder = placeholders[step - 1];
 
             if (step === 4) {
                 document.getElementById('forge-input').placeholder = "FINAL VALIDATION IN PROGRESS...";
