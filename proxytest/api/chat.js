@@ -20,11 +20,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 4. Get the message(s) from the frontend
-    const { message, messages } = req.body;
-
-    // Choose the best payload: 'messages' array takes priority for history, fallback to single 'message'
-    const finalMessages = Array.isArray(messages) ? messages : [{ role: "user", content: message }];
+    // 4. Get the message and model from the frontend
+    const { message, model } = req.body;
+    const finalModel = model || "xiaomi/mimo-v2-flash:free";
 
     // 5. Call OpenRouter with your SECRET key
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -36,8 +34,8 @@ export default async function handler(req, res) {
         "X-Title": "Blob Factory Master Forge",
       },
       body: JSON.stringify({
-        model: "xiaomi/mimo-v2-flash:free", // Restored user's preferred model
-        messages: finalMessages,
+        model: finalModel,
+        messages: [{ role: "user", content: message }],
       }),
     });
 

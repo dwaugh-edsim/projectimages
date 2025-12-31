@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLOB FACTORY // MASTER FORGE (v65.86)</title>
+    <title>BLOB FACTORY // MASTER FORGE (v65.87)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -461,6 +461,78 @@
             padding: 2px 5px;
             border-radius: 3px;
         }
+
+        /* SETTINGS MODAL */
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .settings-content {
+            background: #111;
+            border: 1px solid #333;
+            padding: 40px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .settings-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .settings-close:hover {
+            opacity: 1;
+        }
+
+        .settings-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .settings-item label {
+            font-family: var(--font-m);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-settings-toggle {
+            background: transparent;
+            border: 1px solid #333;
+            color: #888;
+            padding: 5px 12px;
+            font-family: var(--font-m);
+            font-size: 0.6rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .btn-settings-toggle:hover {
+            border-color: var(--accent);
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -468,7 +540,10 @@
 
     <header>
         <div class="logo">BLOB <span>FACTORY</span></div>
-        <div class="ver">MASTER FORGE v65.86</div>
+        <div style="display:flex; align-items:center; gap:20px;">
+            <button class="btn-settings-toggle" onclick="toggleSettings()">CORE SETTINGS</button>
+            <div class="ver">MASTER FORGE v65.87</div>
+        </div>
     </header>
 
     <div class="stepper">
@@ -503,15 +578,11 @@
                 <select id="course-select" onchange="updateOutcomes()">
                     <option value="">-- SELECT COURSE --</option>
                 </select>
-                <div class="panel-label" style="margin-top:10px;">Student Calibration (Offset)</div>
-                <select id="complexity-select">
-                    <option value="Medium / Grade-Level">Medium (Standard Grade-Level)</option>
-                    <option value="Low / Foundational">Low (Foundational Literacy)</option>
-                    <option value="High / Advanced">High (Advanced Narrative/Nuance)</option>
-                </select>
                 <div id="outcome-checklist" class="outcome-list" style="margin-top:10px;">
                     <p style="font-size:0.6rem; opacity:0.3; text-align:center;">SELECT A COURSE TO LOAD OUTCOMES</p>
                 </div>
+                <div class="panel-label" style="margin-top:10px; opacity:0.4;">Active Brain: <span id="model-indicator"
+                        style="color:var(--text);">Xiaomi</span></div>
             </div>
 
             <textarea id="forge-input" rows="12" placeholder="ADDITIONAL COMMANDS / CONTEXT..."></textarea>
@@ -531,7 +602,7 @@
 
             <div id="chat-display">
                 <div class="chat-msg msg-ai">
-                    <strong>COREGINE v65.86 ONLINE.</strong><br>
+                    <strong>COREGINE v65.87 ONLINE.</strong><br>
                     Please provide the initial mission parameters or learning outcomes to begin Phase 1: Concept Arrive.
                 </div>
             </div>
@@ -546,6 +617,38 @@
             </div>
         </div>
     </main>
+
+    <!-- SETTINGS MODAL -->
+    <div class="settings-overlay" id="settings-overlay">
+        <div class="settings-content">
+            <div class="settings-close" onclick="toggleSettings()">[CLOSE]</div>
+            <h2 style="margin-bottom:10px;">CORE SETTINGS</h2>
+
+            <div class="settings-item">
+                <label>AI MODEL ARCHITECT</label>
+                <select id="model-select">
+                    <option value="xiaomi/mimo-v2-flash:free">Xiaomi Mimo-v2 (Fast/Free)</option>
+                    <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (Smart/Free)</option>
+                    <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Classic/Free)</option>
+                    <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Light/Free)</option>
+                    <option value="openai/gpt-4o-mini">GPT-4o Mini (Advanced)</option>
+                </select>
+            </div>
+
+            <div class="settings-item">
+                <label>STUDENT CALIBRATION (OFFSET)</label>
+                <select id="complexity-select-settings" onchange="syncComplexity()">
+                    <option value="Medium / Grade-Level">Medium (Standard Grade-Level)</option>
+                    <option value="Low / Foundational">Low (Foundational Literacy)</option>
+                    <option value="High / Advanced">High (Advanced Narrative/Nuance)</option>
+                </select>
+                <p style="font-size:0.6rem; opacity:0.4; margin:0;">Adjusts the concepts relative to the course grade.
+                </p>
+            </div>
+
+            <button class="btn-forge" onclick="toggleSettings()" style="margin-top:10px;">CONFIRM PARAMETERS</button>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
@@ -674,7 +777,7 @@ OUTPUT ONLY THE JSON CODE BLOCK.`
         };
 
         const MASTER_SYSTEM_PROMPT_CORE = `
-You are the BLOB FACTORY COREGINE (v65.86), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v65.87), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 
 STYLE RULES:
@@ -722,15 +825,38 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
             }
         };
 
+        function toggleSettings() {
+            const overlay = document.getElementById('settings-overlay');
+            const isClosing = overlay.style.display === 'flex';
+            overlay.style.display = isClosing ? 'none' : 'flex';
+
+            if (isClosing) {
+                // Update indicator on close
+                const modelSel = document.getElementById('model-select');
+                const modelName = modelSel.options[modelSel.selectedIndex].text.split(' (')[0];
+                document.getElementById('model-indicator').innerText = modelName;
+            }
+        }
+
+        function syncComplexity() {
+            // Sync settings select to panel select
+            const settingsVal = document.getElementById('complexity-select-settings').value;
+            const panelSelect = document.getElementById('complexity-select');
+            if (panelSelect) panelSelect.value = settingsVal;
+        }
+
         async function processForgeStep() {
             let rawInputInput = document.getElementById('forge-input');
             let rawInput = rawInputInput ? rawInputInput.value.trim() : "";
             const course = document.getElementById('course-select').value;
             const checkedOutcomes = Array.from(document.querySelectorAll('#outcome-checklist input:checked')).map(v => v.value);
 
+            // Get current and model complexity
+            const complexity = document.getElementById('complexity-select-settings').value;
+            const model = document.getElementById('model-select').value;
+
             let input = rawInput;
             if (currentStep === 1) {
-                const complexity = document.getElementById('complexity-select').value;
                 if (course && checkedOutcomes.length > 0) {
                     input = `COURSE: ${course}\nFORGE COMPLEXITY: ${complexity}\nTARGET OUTCOMES:\n- ${checkedOutcomes.join('\n- ')}\n\nUSER CONTEXT: ${rawInput || "(Generic Concept Generation Based on Outcomes)"}`;
                 } else if (!rawInput) {
@@ -755,7 +881,8 @@ FORMATTING: Use Standard Sentence Case. NO ALL-CAPS paragraphs. No escaped newli
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: context
+                        message: context,
+                        model: model
                     })
                 });
 
