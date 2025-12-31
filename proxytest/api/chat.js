@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         "HTTP-Referer": "https://github.com/dwaugh-edsim/projectimages",
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini", // Upgraded model for better intelligence
+        model: "openai/gpt-3.5-turbo", // Switch to a more universal model
         messages: finalMessages,
       }),
     });
@@ -44,8 +44,8 @@ export default async function handler(req, res) {
 
     // 6. Send the AI's response back to your frontend
     if (!data.choices || !data.choices[0]) {
-      console.error("OpenRouter Error:", data);
-      return res.status(500).json({ error: "AI Response Malformed", details: data });
+      console.error("DEBUG PROXY ERROR:", JSON.stringify(data));
+      return res.status(200).json({ error: data.error || data, malformed: true });
     }
 
     return res.status(200).json(data);
