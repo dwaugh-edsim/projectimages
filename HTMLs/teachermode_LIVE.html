@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="critical_crypto.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleAuth()"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -446,6 +446,7 @@
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            transition: opacity 0.5s ease;
         }
 
         #login-card {
@@ -773,11 +774,33 @@
                 googleUser = JSON.parse(jsonPayload);
                 console.log("Authenticated as:", googleUser.name);
 
-                document.getElementById('auth-overlay').style.display = 'none';
+                // FADE OUT OVERLAY
+                const overlay = document.getElementById('auth-overlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+
                 log(`IDENTITY VERIFIED: Welcome, ${googleUser.name}`, "success");
             } catch (e) {
-                document.getElementById('auth-status').innerText = "AUTHENTICATION ERROR: Link Severed.";
                 document.getElementById('auth-status').style.color = "var(--err)";
+            }
+        }
+
+        function initGoogleAuth() {
+            log("GSI_ENGINE: Establishing Secure Identity Link...");
+            try {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleCredentialResponse
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-signin-container"),
+                    { theme: "outline", size: "large", width: 250 }
+                );
+            } catch (e) {
+                console.error("GSI Init Error:", e);
+                document.getElementById('auth-status').innerText = "GSI_INITIALIZATION_ERROR";
             }
         }
 
@@ -1430,6 +1453,12 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
         // FAILSAFE: Ensure UI renders even if handshake is slow
         window.onload = () => {
             log("BOOT SEQUENCE INITIATED...");
+
+            // Failsafe for Auth (in case script loaded before onload)
+            if (typeof google !== 'undefined' && google.accounts) {
+                initGoogleAuth();
+            }
+
             fetchMissions();
             setInterval(fetchProgress, 30000);
         };
