@@ -1034,21 +1034,22 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
                 // Merge Custom Lab
                 const custom = getCustomOutcomes();
                 if (Object.keys(custom).length > 0) {
-                    curriculumData.countries["CUSTOM_LAB"] = { "LOCAL": {} };
+                    if (!curriculumData["CUSTOM_LAB"]) curriculumData["CUSTOM_LAB"] = { "LOCAL": {} };
                     Object.keys(custom).forEach(name => {
-                        curriculumData.countries["CUSTOM_LAB"]["LOCAL"][name] = {
-                            code: "CUST",
-                            outcomes: custom[name]
-                        };
+                        curriculumData["CUSTOM_LAB"]["LOCAL"][name] = custom[name];
                     });
                 }
 
                 const cSel = document.getElementById('f-country');
                 cSel.innerHTML = '<option value="">-- SELECT COUNTRY --</option>';
-                Object.keys(curriculumData.countries).forEach(c => {
+                Object.keys(curriculumData).forEach(c => {
                     cSel.innerHTML += `<option value="${c}">${c}</option>`;
                 });
-            } catch (e) { console.error("Failed to load curriculum", e); }
+                log("Curriculum Hub synchronized.", "success");
+            } catch (e) {
+                console.error("Failed to load curriculum", e);
+                log("CURRICULUM_LOAD_FAILURE: Check network or file integrity.", "error");
+            }
         }
 
         function updateForgeRegions() {
@@ -1056,8 +1057,8 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
             const rSel = document.getElementById('f-region');
             rSel.innerHTML = '<option value="">-- SELECT REGION --</option>';
             rSel.style.display = country ? 'block' : 'none';
-            if (country) {
-                Object.keys(curriculumData.countries[country]).forEach(r => {
+            if (country && curriculumData[country]) {
+                Object.keys(curriculumData[country]).forEach(r => {
                     rSel.innerHTML += `<option value="${r}">${r}</option>`;
                 });
             }
@@ -1069,8 +1070,8 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
             const cSel = document.getElementById('f-course');
             cSel.innerHTML = '<option value="">-- SELECT COURSE --</option>';
             cSel.style.display = region ? 'block' : 'none';
-            if (region) {
-                const courses = curriculumData.countries[country][region];
+            if (region && curriculumData[country] && curriculumData[country][region]) {
+                const courses = curriculumData[country][region];
                 Object.keys(courses).forEach(c => {
                     cSel.innerHTML += `<option value="${c}">${c}</option>`;
                 });
@@ -1082,9 +1083,13 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
             const region = document.getElementById('f-region').value;
             const course = document.getElementById('f-course').value;
             const outDiv = document.getElementById('f-outcomes');
-            if (course) {
-                const data = curriculumData.countries[country][region][course];
-                outDiv.innerHTML = `<strong>${data.code}:</strong> ${data.outcomes.join("<br>• ")}`;
+            if (course && curriculumData[country] && curriculumData[country][region] && curriculumData[country][region][course]) {
+                const data = curriculumData[country][region][course];
+                if (Array.isArray(data)) {
+                    outDiv.innerHTML = `<strong>Selected Outcomes:</strong><br>• ${data.join("<br>• ")}`;
+                } else if (data.outcomes) {
+                    outDiv.innerHTML = `<strong>${data.code || 'Outcomes'}:</strong><br>• ${data.outcomes.join("<br>• ")}`;
+                }
             } else {
                 outDiv.innerHTML = "<p>SELECT COURSE TO LOAD OUTCOMES</p>";
             }
