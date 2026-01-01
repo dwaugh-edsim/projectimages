@@ -825,7 +825,7 @@
             <button onclick="toggleLibrary()"
                 style="background:none; color:#00ffcc; font-size:0.6rem; border:1px solid #00ffcc; padding:6px 15px; cursor:pointer; font-family:'Oswald',sans-serif; letter-spacing:1px;">📚
                 HUB</button>
-            <div style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">v66.473</div>
+            <div style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">v66.474</div>
         </div>
     </div>
     <h1 style="margin:30px 40px; font-size:1.5rem;">COMMAND CENTER // MISSION CONTROL</h1>
@@ -907,7 +907,7 @@
                 <div
                     style="font-family:'Oswald',sans-serif; font-size:1.2rem; color:var(--forge-accent); letter-spacing:4px;">
                     MISSION CREATE</div>
-                <div style="font-size:0.5rem; opacity:0.5; letter-spacing:2px; margin-top:5px;">v66.473</div>
+                <div style="font-size:0.5rem; opacity:0.5; letter-spacing:2px; margin-top:5px;">v66.474</div>
             </div>
             <div style="display:flex; gap:10px;">
                 <button onclick="resetForge()"
@@ -996,7 +996,8 @@
                         style="color:#00ffcc; font-family:'Oswald',sans-serif; font-size:0.9rem; letter-spacing:2px;">CHOOSE/ADD
                         COURSE OUTCOMES</label>
                     <div class="guidance-text" style="color:#888; font-style:italic; font-size:0.7rem; margin-top:3px;">
-                        Sync with regional outcomes to strictly align simulation goals.</div>
+                        Look for your class & outcomes here. The list is incomplete! Go ahead and add your own for your
+                        future reference.</div>
                     <div id="f-favorites-shelf"
                         style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px; display:none;">
                         <!-- Pinned favorites go here -->
@@ -1023,13 +1024,17 @@
 
                     <div id="custom-add-zone"
                         style="margin-top:15px; border-top:1px solid #333; padding-top:10px; display:none;">
+                        <input id="custom-country" placeholder="COUNTRY (e.g. Canada)"
+                            style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; margin-bottom:5px; padding:5px;">
+                        <input id="custom-region" placeholder="REGION (e.g. Nova Scotia)"
+                            style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; margin-bottom:5px; padding:5px;">
                         <input id="custom-course-name" placeholder="COURSE NAME"
                             style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; margin-bottom:5px; padding:5px;">
                         <textarea id="custom-outcomes-raw" placeholder="OUTCOMES (ONE PER LINE)"
                             style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; height:60px; padding:5px;"></textarea>
                         <button class="btn"
                             style="background:var(--forge-accent); font-size:0.6rem; padding:5px; width:100%; margin-top:5px;"
-                            onclick="saveCustomCourse()">SAVE TO CUSTOM LAB</button>
+                            onclick="saveCustomCourse()">SAVE TO LOCAL LAB</button>
                     </div>
                     <div style="text-align:center; margin-top:10px;">
                         <button id="custom-toggle-btn" onclick="toggleCustomAdd()"
@@ -1171,7 +1176,7 @@
         let forgeModel = "xiaomi/mimo-v2-flash:free";
 
         const FORGE_SYSTEM_CORE = `
-You are the BLOB FACTORY COREGINE (v66.473), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v66.474), the multi-stage mission architect.
 LANGUAGE PROTOCOL: STRICTLY ENGLISH ONLY. Do not use Chinese characters or any non-English script. Translate all internal logic or model defaults to English immediately.
 GOAL: Guide the user from a seed context to a fully realized educational .blob mission.
 STYLE: Punchy, active journalism. Short paragraphs (MAX 3-4 sentences).
@@ -1451,19 +1456,33 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
         }
 
         function saveCustomCourse() {
-            const name = document.getElementById('custom-course-name').value;
+            const country = document.getElementById('custom-country').value.trim() || "CUSTOM_LAB";
+            const region = document.getElementById('custom-region').value.trim() || "LOCAL";
+            const name = document.getElementById('custom-course-name').value.trim();
             const raw = document.getElementById('custom-outcomes-raw').value;
-            if (!name || !raw) return alert("MISSING PARAMETERS.");
+
+            if (!name || !raw) return alert("MISSING PARAMETERS: Course Name and Outcomes are required.");
 
             const custom = getCustomOutcomes();
-            custom[name] = raw.split("\n").map(o => o.trim()).filter(o => o.length > 0);
+
+            // Initialize structure if needed
+            if (!custom[country]) custom[country] = {};
+            if (!custom[country][region]) custom[country][region] = {};
+
+            // Save outcomes
+            custom[country][region][name] = raw.split("\n").map(o => o.trim()).filter(o => o.length > 0);
+
             localStorage.setItem('blob_custom_curriculum', JSON.stringify(custom));
 
+            // Clear inputs
             document.getElementById('custom-course-name').value = "";
             document.getElementById('custom-outcomes-raw').value = "";
+            document.getElementById('custom-country').value = "";
+            document.getElementById('custom-region').value = "";
+
             toggleCustomAdd();
             fetchCurriculum(); // Reload and merge
-            log(`Custom Course [${name}] admitted to local lab.`, "success");
+            log(`Custom Course [${name}] added to Local Lab under ${country}/${region}.`, "success");
         }
 
         function toggleCustomAdd() {
@@ -1479,14 +1498,25 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 const res = await fetch("curriculum.json?v=66.21");
                 curriculumData = await res.json();
 
-                // Merge Custom Lab
+                // Merge Custom Lab (Deep Merge)
                 const custom = getCustomOutcomes();
-                if (Object.keys(custom).length > 0) {
-                    if (!curriculumData["CUSTOM_LAB"]) curriculumData["CUSTOM_LAB"] = { "LOCAL": {} };
-                    Object.keys(custom).forEach(name => {
-                        curriculumData["CUSTOM_LAB"]["LOCAL"][name] = custom[name];
-                    });
-                }
+                Object.keys(custom).forEach(c => {
+                    // Check if it's a legacy flat course (array) or new hierarchy (object)
+                    if (Array.isArray(custom[c])) {
+                        // Legacy: Add to CUSTOM_LAB > LOCAL
+                        if (!curriculumData["CUSTOM_LAB"]) curriculumData["CUSTOM_LAB"] = { "LOCAL": {} };
+                        curriculumData["CUSTOM_LAB"]["LOCAL"][c] = custom[c];
+                    } else {
+                        // New Hierarchy: Merge Country
+                        if (!curriculumData[c]) curriculumData[c] = {};
+                        Object.keys(custom[c]).forEach(r => {
+                            // Merge Region
+                            if (!curriculumData[c][r]) curriculumData[c][r] = {};
+                            // Merge Courses
+                            Object.assign(curriculumData[c][r], custom[c][r]);
+                        });
+                    }
+                });
 
                 const cSel = document.getElementById('f-country');
                 cSel.innerHTML = '<option value="">-- SELECT COUNTRY --</option>';
