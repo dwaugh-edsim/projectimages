@@ -888,7 +888,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             2: "PHASE 2: DEEP SEARCH. Expand chosen concept into 10 Slide Titles and Intel data strategy. End with: 'SHALL WE PROCEED TO FULL STORY DRAFTING?'",
             3: "PHASE 3: STORY CONFIRM. Draft FULL immersive prose. REQUIRED: 200-400 words MINIMUM per slide section (Combined Slide Text + Intel data). Do not summarize; expand. End with: 'READY TO SECURE ASSETS?'",
             4: "PHASE 4: ASSET SECURE. Propose Visual Strategy. List each slide and 'Unsplash Keyword'. End with: 'SHALL WE COMMENCE BLOB BIRTH CONTENTION?'",
-            5: "PHASE 5: BLOB BIRTH. Compile into valid JSON .blob. OUTPUT ONLY THE JSON CODE BLOCK."
+            5: "PHASE 5: BLOB BIRTH. Compile the fully realized mission into a valid JSON .blob package. CRITICAL: Output the RAW JSON block ONLY. Start with '{' and end with '}'. No conversational text, no markdown fences, no padding. This is a machine-to-machine transfer."
         };
         // --- END FORGE CONFIG ---
         const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
@@ -1225,11 +1225,29 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         // --- BIRTH & HOSPITAL ---
         function birthMission() {
+            setForgeLoading(true, "STABILIZING BIOLOGICAL DATA...");
             const lastReply = forgeHistory.filter(m => m.role === 'assistant').pop()?.content;
-            if (!lastReply) return alert("NO BIOLOGICAL MATERIAL DETECTED.");
+            if (!lastReply) {
+                setForgeLoading(false);
+                return alert("NO BIOLOGICAL MATERIAL DETECTED.");
+            }
 
             try {
-                const jsonStr = lastReply.match(/\{[\s\S]*\}/)[0];
+                // RESILIENT PARSING: Strip markdown fences if present, then find the main JSON object
+                let cleanStr = lastReply.trim();
+                if (cleanStr.includes("```")) {
+                    // Try to extract content between fences
+                    const match = cleanStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+                    if (match) cleanStr = match[1].trim();
+                }
+
+                // Final isolation: Find the first { and last }
+                const start = cleanStr.indexOf('{');
+                const end = cleanStr.lastIndexOf('}');
+
+                if (start === -1 || end === -1) throw new Error("No JSON object found in AI response.");
+
+                const jsonStr = cleanStr.substring(start, end + 1);
                 accumulatedData = JSON.parse(jsonStr);
 
                 // INJECT AUTH DATA
@@ -1242,7 +1260,10 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 addForgeChat("ai", "!!! BIRTH SUCCESSFUL. Initiating clinical review in the Surgical Hospital.");
                 openHospital();
             } catch (e) {
-                addForgeChat("ai", "!! BIRTH TRAUMA: JSON parsing failed. Please ask the AI to re-output the JSON block.");
+                console.error("Birth Error:", e);
+                addForgeChat("ai", `!! BIRTH TRAUMA: Parser failed. [Detail: ${e.message}]. Please ask the AI to re-output the RAW JSON block starting with { and ending with }.`);
+            } finally {
+                setForgeLoading(false);
             }
         }
 
