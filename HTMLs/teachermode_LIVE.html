@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>MISSION CONTROL // SITUATION ROOM (v66.39)</title>
+    <title>MISSION CONTROL // SITUATION ROOM (v66.40)</title>
     <script>
         // --- BOOTSTRAP CONFIGURATION ---
         (function bootstrap() {
@@ -771,6 +771,11 @@
                     style="background:rgba(255,255,255,0.03); padding:15px; border-radius:4px; border:1px solid #222;">
                     <label>Curriculum Context</label>
                     <div class="guidance-text">Sync with regional outcomes to strictly align simulation goals.</div>
+                    <div id="f-favorites-shelf"
+                        style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:15px; border-bottom:1px solid #222; padding-bottom:10px; display:none;">
+                        <!-- Pinned favorites go here -->
+                    </div>
+
                     <select id="f-country" onchange="updateForgeRegions()"
                         style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px;">
                         <option value="">-- SELECT COUNTRY --</option>
@@ -778,9 +783,13 @@
                     <select id="f-region" onchange="updateForgeCourses()"
                         style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
                     </select>
-                    <select id="f-course" onchange="updateForgeOutcomes()"
-                        style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
-                    </select>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <select id="f-course" onchange="updateForgeOutcomes()"
+                            style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; flex:1; display:none;">
+                        </select>
+                        <button id="f-fav-btn" onclick="toggleFavorite()"
+                            style="background:transparent; border:1px solid #333; color:#444; padding:5px 10px; border-radius:3px; cursor:pointer; display:none;">⭐</button>
+                    </div>
                     <div id="f-outcomes"
                         style="max-height:400px; overflow-y:auto; font-size:0.65rem; color:#888; border-top:1px solid #222; padding-top:10px; margin-top:10px;">
                         <p style="text-align:center; opacity:0.4;">SELECT COURSE TO LOAD OUTCOMES</p>
@@ -923,7 +932,7 @@
         let forgeModel = "xiaomi/mimo-v2-flash:free";
 
         const FORGE_SYSTEM_CORE = `
-You are the BLOB FACTORY COREGINE (v66.39), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v66.40), the multi-stage mission architect.
 GOAL: Guide the user from a seed context to a fully realized educational .blob mission.
 STYLE: Punchy, active journalism. Short paragraphs (MAX 3-4 sentences).
 SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, legal, intel }, interactionPrompt, options, outcomes), intelligenceGlossary.
@@ -1246,7 +1255,8 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 });
                 log("Curriculum Hub synchronized.", "success");
 
-                // --- STICKY RESTORATION ---
+                // --- STICKY RESTORATION (v66.40 FIX) ---
+                window.isRestoringCurriculum = true;
                 const savedCountry = localStorage.getItem('TM_FORGE_COUNTRY');
                 if (savedCountry && curriculumData[savedCountry]) {
                     cSel.value = savedCountry;
@@ -1266,6 +1276,8 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                         }
                     }
                 }
+                window.isRestoringCurriculum = false;
+                renderFavorites();
             } catch (e) {
                 console.error("Failed to load curriculum", e);
                 log("CURRICULUM_LOAD_FAILURE: Check network or file integrity.", "error");
@@ -1274,9 +1286,11 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         function updateForgeRegions() {
             const country = document.getElementById('f-country').value;
-            localStorage.setItem('TM_FORGE_COUNTRY', country);
-            localStorage.removeItem('TM_FORGE_REGION');
-            localStorage.removeItem('TM_FORGE_COURSE');
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_COUNTRY', country);
+                localStorage.removeItem('TM_FORGE_REGION');
+                localStorage.removeItem('TM_FORGE_COURSE');
+            }
 
             const rSel = document.getElementById('f-region');
             rSel.innerHTML = '<option value="">-- SELECT REGION --</option>';
@@ -1287,19 +1301,26 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 });
             }
             // Clear children
-            document.getElementById('f-course').style.display = 'none';
-            document.getElementById('f-outcomes').innerHTML = "<p style='text-align:center; opacity:0.4;'>SELECT COURSE TO LOAD OUTCOMES</p>";
+            if (!window.isRestoringCurriculum) {
+                document.getElementById('f-course').style.display = 'none';
+                document.getElementById('f-fav-btn').style.display = 'none';
+                document.getElementById('f-outcomes').innerHTML = "<p style='text-align:center; opacity:0.4;'>SELECT COURSE TO LOAD OUTCOMES</p>";
+            }
         }
 
         function updateForgeCourses() {
             const country = document.getElementById('f-country').value;
             const region = document.getElementById('f-region').value;
-            localStorage.setItem('TM_FORGE_REGION', region);
-            localStorage.removeItem('TM_FORGE_COURSE');
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_REGION', region);
+                localStorage.removeItem('TM_FORGE_COURSE');
+            }
 
             const cSel = document.getElementById('f-course');
             cSel.innerHTML = '<option value="">-- SELECT COURSE --</option>';
             cSel.style.display = region ? 'block' : 'none';
+            document.getElementById('f-fav-btn').style.display = 'none';
+
             if (region && curriculumData[country] && curriculumData[country][region]) {
                 const courses = curriculumData[country][region];
                 Object.keys(courses).forEach(c => {
@@ -1307,17 +1328,26 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 });
             }
             // Clear child
-            document.getElementById('f-outcomes').innerHTML = "<p style='text-align:center; opacity:0.4;'>SELECT COURSE TO LOAD OUTCOMES</p>";
+            if (!window.isRestoringCurriculum) {
+                document.getElementById('f-outcomes').innerHTML = "<p style='text-align:center; opacity:0.4;'>SELECT COURSE TO LOAD OUTCOMES</p>";
+            }
         }
 
         function updateForgeOutcomes() {
             const country = document.getElementById('f-country').value;
             const region = document.getElementById('f-region').value;
             const course = document.getElementById('f-course').value;
-            localStorage.setItem('TM_FORGE_COURSE', course);
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_COURSE', course);
+            }
+
             const outDiv = document.getElementById('f-outcomes');
+            const favBtn = document.getElementById('f-fav-btn');
 
             if (course && curriculumData[country] && curriculumData[country][region] && curriculumData[country][region][course]) {
+                favBtn.style.display = 'block';
+                updateFavBtnStyle();
+
                 const data = curriculumData[country][region][course];
                 const list = Array.isArray(data) ? data : (data.outcomes || []);
 
@@ -1334,8 +1364,76 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 });
                 outDiv.innerHTML = h;
             } else {
+                favBtn.style.display = 'none';
                 outDiv.innerHTML = "<p style='text-align:center; opacity:0.4;'>SELECT COURSE TO LOAD OUTCOMES</p>";
             }
+        }
+
+        // --- FAVORITES SYSTEM ---
+        function getFavorites() {
+            const f = localStorage.getItem('TM_CURRICULUM_FAVORITES');
+            return f ? JSON.parse(f) : [];
+        }
+
+        function toggleFavorite() {
+            const country = document.getElementById('f-country').value;
+            const region = document.getElementById('f-region').value;
+            const course = document.getElementById('f-course').value;
+            if (!country || !region || !course) return;
+
+            let favs = getFavorites();
+            const id = `${country}|${region}|${course}`;
+            const idx = favs.findIndex(f => f.id === id);
+
+            if (idx > -1) {
+                favs.splice(idx, 1);
+            } else {
+                favs.push({ id, country, region, course });
+            }
+
+            localStorage.setItem('TM_CURRICULUM_FAVORITES', JSON.stringify(favs));
+            updateFavBtnStyle();
+            renderFavorites();
+        }
+
+        function updateFavBtnStyle() {
+            const country = document.getElementById('f-country').value;
+            const region = document.getElementById('f-region').value;
+            const course = document.getElementById('f-course').value;
+            const favs = getFavorites();
+            const isFav = favs.some(f => f.country === country && f.region === region && f.course === course);
+            const btn = document.getElementById('f-fav-btn');
+            btn.style.color = isFav ? '#ffcc00' : '#444';
+            btn.style.borderColor = isFav ? '#ffcc00' : '#333';
+        }
+
+        function renderFavorites() {
+            const favs = getFavorites();
+            const shelf = document.getElementById('f-favorites-shelf');
+            if (favs.length === 0) {
+                shelf.style.display = 'none';
+                return;
+            }
+            shelf.style.display = 'flex';
+            let h = "";
+            favs.forEach(f => {
+                h += `<button class="btn" onclick="jumpToFavorite('${f.country}', '${f.region}', '${f.course}')" 
+                        style="font-size:0.55rem; padding:4px 8px; background:rgba(255,204,0,0.1); border:1px solid #ffcc00; color:#ffcc00; white-space:nowrap; border-radius:15px;">
+                        ⭐ ${f.course}
+                      </button>`;
+            });
+            shelf.innerHTML = h;
+        }
+
+        function jumpToFavorite(c, r, crs) {
+            window.isRestoringCurriculum = true;
+            document.getElementById('f-country').value = c;
+            updateForgeRegions();
+            document.getElementById('f-region').value = r;
+            updateForgeCourses();
+            document.getElementById('f-course').value = crs;
+            updateForgeOutcomes();
+            window.isRestoringCurriculum = false;
         }
 
         function toggleAllOutcomes(state) {
