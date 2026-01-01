@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>MISSION CONTROL // SITUATION ROOM (v66.43)</title>
+    <title>MISSION CONTROL // SITUATION ROOM (v66.44)</title>
     <script>
         // --- BOOTSTRAP CONFIGURATION ---
         (function bootstrap() {
@@ -577,6 +577,82 @@
             border-radius: 8px;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
         }
+
+        /* LANDING SCREEN */
+        #landing-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, #050505 0%, #111 100%);
+            z-index: 4500;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .landing-logo {
+            font-family: var(--font-main);
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 10px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .landing-subtitle {
+            font-size: 0.8rem;
+            color: var(--forge-accent);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        .landing-actions {
+            display: flex;
+            gap: 40px;
+        }
+
+        .landing-btn {
+            width: 220px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .landing-btn:hover {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: var(--forge-accent);
+            transform: translateY(-5px);
+        }
+
+        .landing-btn .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .landing-btn .label {
+            font-size: 0.75rem;
+            color: #fff;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .landing-btn .desc {
+            font-size: 0.55rem;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+            max-width: 180px;
+        }
     </style>
 </head>
 
@@ -594,6 +670,24 @@
 
             <div id="auth-status" style="font-size:0.6rem; color:#666; margin-top:10px;">PENDING IDENTITY
                 VERIFICATION...</div>
+        </div>
+    </div>
+
+    <!-- LANDING SCREEN -->
+    <div id="landing-screen">
+        <div class="landing-logo">THE SITUATION ROOM</div>
+        <div class="landing-subtitle">teachermode</div>
+        <div class="landing-actions">
+            <div class="landing-btn" onclick="enterCreate()">
+                <div class="icon">✨</div>
+                <div class="label">Create Sim</div>
+                <div class="desc">Build a new mission from scratch using AI-assisted workflows.</div>
+            </div>
+            <div class="landing-btn" onclick="enterManage()">
+                <div class="icon">🛠️</div>
+                <div class="label">Deploy / Manage</div>
+                <div class="desc">Upload, monitor progress, and manage your existing simulations.</div>
+            </div>
         </div>
     </div>
 
@@ -916,17 +1010,27 @@
                 googleUser = JSON.parse(jsonPayload);
                 console.log("Authenticated as:", googleUser.name);
 
-                // FADE OUT OVERLAY
+                // FADE OUT OVERLAY AND SHOW LANDING
                 const overlay = document.getElementById('auth-overlay');
                 overlay.style.opacity = '0';
                 setTimeout(() => {
                     overlay.style.display = 'none';
+                    document.getElementById('landing-screen').style.display = 'flex';
                 }, 500);
 
                 log(`IDENTITY VERIFIED: Welcome, ${googleUser.name}`, "success");
             } catch (e) {
                 document.getElementById('auth-status').style.color = "var(--err)";
             }
+        }
+
+        function enterCreate() {
+            document.getElementById('landing-screen').style.display = 'none';
+            toggleForge();
+        }
+
+        function enterManage() {
+            document.getElementById('landing-screen').style.display = 'none';
         }
 
         function initGoogleAuth() {
@@ -955,7 +1059,7 @@
         let forgeModel = "xiaomi/mimo-v2-flash:free";
 
         const FORGE_SYSTEM_CORE = `
-You are the BLOB FACTORY COREGINE (v66.43), the multi-stage mission architect.
+You are the BLOB FACTORY COREGINE (v66.44), the multi-stage mission architect.
 GOAL: Guide the user from a seed context to a fully realized educational .blob mission.
 STYLE: Punchy, active journalism. Short paragraphs (MAX 3-4 sentences).
 SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, legal, intel }, interactionPrompt, options, outcomes), intelligenceGlossary.
