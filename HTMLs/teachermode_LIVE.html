@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="critical_crypto.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -433,889 +434,968 @@
             font-size: 0.65rem;
             width: 100%;
         }
+
+        /* --- AUTH OVERLAY --- */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        #login-card {
+            background: #111;
+            border: 1px solid #333;
+            padding: 40px;
+            text-align: center;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 
-<div id="projector-view">
-    <header class="proj-header">
-        <h1>COMMAND PROGRESS BOARD</h1>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <select id="proj-class-filter" onchange="renderProjectorBoard()"
-                style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
-                <option value="ALL">ALL CLASSES</option>
-            </select>
-            <select id="proj-mission-filter" onchange="renderProjectorBoard()"
-                style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
-                <option value="ALL">ALL MISSIONS</option>
-            </select>
-            <span id="proj-sync" style="font-size:0.7rem; color:#888; letter-spacing:2px;">[SYNCING]</span>
+<body>
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="auth-overlay">
+        <div id="login-card">
+            <h1 class="situation-room-logo" style="color:#fff; font-size:2.5rem; margin-bottom:10px;">
+                THE SITUATION ROOM</h1>
+            <div
+                style="font-size:0.6rem; color:var(--forge-accent); letter-spacing:3px; margin-bottom:30px; text-transform:uppercase;">
+                Teacher Authorization Required</div>
+
+            <div id="google-signin-container" style="display:flex; justify-content:center; margin-bottom:20px;"></div>
+
+            <div id="auth-status" style="font-size:0.6rem; color:#666; margin-top:10px;">PENDING IDENTITY
+                VERIFICATION...</div>
+        </div>
+    </div>
+
+    <div id="projector-view">
+        <header class="proj-header">
+            <h1>COMMAND PROGRESS BOARD</h1>
+            <div style="display:flex; gap:15px; align-items:center;">
+                <select id="proj-class-filter" onchange="renderProjectorBoard()"
+                    style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
+                    <option value="ALL">ALL CLASSES</option>
+                </select>
+                <select id="proj-mission-filter" onchange="renderProjectorBoard()"
+                    style="padding:8px 12px; font-family:inherit; font-size:0.7rem; background:#222; color:#d2b48c; border:1px solid #444;">
+                    <option value="ALL">ALL MISSIONS</option>
+                </select>
+                <span id="proj-sync" style="font-size:0.7rem; color:#888; letter-spacing:2px;">[SYNCING]</span>
+                <button onclick="toggleProjector()"
+                    style="background:#d2b48c; color:#000; border:none; padding:8px 15px; cursor:pointer; font-weight:bold; letter-spacing:1px; font-size:0.7rem;">EXIT
+                    PROJECTOR</button>
+            </div>
+        </header>
+        <div id="proj-board" class="proj-grid"></div>
+    </div>
+
+    <div id="status-bar">
+        <div><span id="s-light" class="status-light"></span> <span id="s-text"
+                style="letter-spacing: 2px;">VINTAGE_LINK_OFFLINE</span></div>
+        <div style="display:flex; gap:20px; align-items:center;">
             <button onclick="toggleProjector()"
-                style="background:#d2b48c; color:#000; border:none; padding:8px 15px; cursor:pointer; font-weight:bold; letter-spacing:1px; font-size:0.7rem;">EXIT
-                PROJECTOR</button>
+                style="background:#333; color:#d2b48c; font-size:0.6rem; border:1px solid #d2b48c; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📺
+                PROJECTOR VIEW</button>
+            <a href="projector.html" target="_blank"
+                style="color:var(--accent); font-size:0.6rem; text-decoration:none; border:1px solid var(--accent); padding:5px 10px; border-radius:3px;">NEW
+                WINDOW</a>
+            <button onclick="toggleForge()"
+                style="background:var(--forge-accent); color:#fff; font-size:0.6rem; border:none; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">🔥
+                MISSION FORGE</button>
+            <button onclick="toggleLibrary()"
+                style="background:var(--accent); color:#fff; font-size:0.6rem; border:none; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📚
+                OPEN COMMUNITY HUB</button>
+            <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER MODE // v66.21 [INTEGRATED FORGE]</div>
         </div>
-    </header>
-    <div id="proj-board" class="proj-grid"></div>
-</div>
-
-<div id="status-bar">
-    <div><span id="s-light" class="status-light"></span> <span id="s-text"
-            style="letter-spacing: 2px;">VINTAGE_LINK_OFFLINE</span></div>
-    <div style="display:flex; gap:20px; align-items:center;">
-        <button onclick="toggleProjector()"
-            style="background:#333; color:#d2b48c; font-size:0.6rem; border:1px solid #d2b48c; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📺
-            PROJECTOR VIEW</button>
-        <a href="projector.html" target="_blank"
-            style="color:var(--accent); font-size:0.6rem; text-decoration:none; border:1px solid var(--accent); padding:5px 10px; border-radius:3px;">NEW
-            WINDOW</a>
-        <button onclick="toggleForge()"
-            style="background:var(--forge-accent); color:#fff; font-size:0.6rem; border:none; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">🔥
-            MISSION FORGE</button>
-        <button onclick="toggleLibrary()"
-            style="background:var(--accent); color:#fff; font-size:0.6rem; border:none; padding:6px 15px; border-radius:3px; cursor:pointer; font-weight:bold; letter-spacing:1px;">📚
-            OPEN COMMUNITY HUB</button>
-        <div style="font-size: 0.7rem; opacity: 0.7;">TEACHER MODE // v66.21 [INTEGRATED FORGE]</div>
     </div>
-</div>
-<h1 style="margin: 0 40px 30px 40px;">COMMAND CENTER // MISSION CONTROL</h1>
-<div class="grid" style="grid-template-columns: 1fr 1.5fr 1fr; padding: 0 40px;">
-    <div class="panel">
-        <h3
-            style="margin-top:0; letter-spacing:2px; font-size:0.8rem; border-bottom:1px solid #ddd; padding-bottom:10px;">
-            CAPSULE INJECTION</h3>
-        <div id="upload-zone"
-            style="border:2px dashed #ccc; padding:20px; text-align:center; margin-bottom:20px; cursor:pointer;"
-            onclick="document.getElementById('file-input').click()">
-            <div style="font-size:1.5rem; margin-bottom:5px;">📁</div>
-            <div style="font-size:0.5rem; color:#666; font-weight:bold;">LOAD .BLOB CAPSULE</div>
-            <input type="file" id="file-input" accept=".blob" style="display:none" onchange="handleFile(this.files[0])">
-        </div>
-        <label>Mission ID</label><input id="m-id" placeholder="e.g. CUBA62">
-        <label>Public Name</label><input id="m-name" placeholder="Operation Anadyr">
-        <label>Raw Payload</label><textarea id="json-input" style="height: 60px; font-size:0.6rem;"
-            placeholder="..."></textarea>
-        <button class="btn" style="padding:10px; font-size:0.75rem;" onclick="upload()">INITIALIZE ARCHIVE</button>
-    </div>
-
-    <div class="panel">
-        <div
-            style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #ddd; padding-bottom:10px; margin-bottom:20px;">
-            <h3 style="margin:0; letter-spacing:2px; font-size:0.8rem;">LIVE PROGRESS BOARD</h3>
-            <div id="sync-tick" style="font-size:0.55rem; color:#888;">[SYNC_IDLE]</div>
-        </div>
-        <div style="margin-bottom:15px; display:flex; gap:10px;">
-            <select id="class-filter" style="flex:1; padding:8px; font-family:inherit; font-size:0.75rem;"
-                onchange="renderProgress()">
-                <option value="ALL">ALL CLASSES</option>
-            </select>
-            <button class="btn" style="width:auto; padding:0 15px; font-size:0.6rem;"
-                onclick="fetchProgress()">REFRESH</button>
-        </div>
-        <div id="progress-list" style="max-height:500px; overflow-y:auto; border:1px solid #eee;"></div>
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:20px;">
-        <div class="panel" style="flex:1;">
+    <h1 style="margin: 0 40px 30px 40px;">COMMAND CENTER // MISSION CONTROL</h1>
+    <div class="grid" style="grid-template-columns: 1fr 1.5fr 1fr; padding: 0 40px;">
+        <div class="panel">
             <h3
                 style="margin-top:0; letter-spacing:2px; font-size:0.8rem; border-bottom:1px solid #ddd; padding-bottom:10px;">
-                LIVE DIRECTORY</h3>
-            <div id="lib-log" style="font-size: 0.55rem; color: #888; margin-bottom: 10px;">Scanning...</div>
-            <div id="library-list"></div>
-        </div>
-        <div class="panel" style="padding:20px; background:var(--terminal); border-top:none;">
-            <h3 style="margin-top:0; color:#fff; font-size:0.6rem; letter-spacing:1px; opacity:0.6;">SYSTEM LOG</h3>
-            <div id="console" style="height:150px; overflow-y:auto; font-size:0.65rem; color:var(--term-txt);">
+                CAPSULE INJECTION</h3>
+            <div id="upload-zone"
+                style="border:2px dashed #ccc; padding:20px; text-align:center; margin-bottom:20px; cursor:pointer;"
+                onclick="document.getElementById('file-input').click()">
+                <div style="font-size:1.5rem; margin-bottom:5px;">📁</div>
+                <div style="font-size:0.5rem; color:#666; font-weight:bold;">LOAD .BLOB CAPSULE</div>
+                <input type="file" id="file-input" accept=".blob" style="display:none"
+                    onchange="handleFile(this.files[0])">
             </div>
+            <label>Mission ID</label><input id="m-id" placeholder="e.g. CUBA62">
+            <label>Public Name</label><input id="m-name" placeholder="Operation Anadyr">
+            <label>Raw Payload</label><textarea id="json-input" style="height: 60px; font-size:0.6rem;"
+                placeholder="..."></textarea>
+            <button class="btn" style="padding:10px; font-size:0.75rem;" onclick="upload()">INITIALIZE ARCHIVE</button>
         </div>
-    </div>
-</div>
 
-<div id="library-hub"
-    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:3000; padding:60px; overflow-y:auto;">
-    <div
-        style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:20px; margin-bottom:40px;">
-        <h1 style="margin:0; color:var(--accent); letter-spacing:5px; border-bottom:none;">COMMUNITY ARCHIVE HUB
-        </h1>
-        <button onclick="toggleLibrary()"
-            style="background:transparent; border:1px solid #666; color:#666; padding:10px 20px; cursor:pointer; font-family:inherit;">[CLOSE_HUB]</button>
-    </div>
-    <div id="hub-grid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
-        <div style="grid-column:1/-1; text-align:center; padding:100px; opacity:0.5; color:#fff;">LOADING MISSION
-            CATALOG...</div>
-    </div>
-</div>
-
-<div id="forge-overlay">
-    <header class="forge-header">
-        <div style="display:flex; align-items:center; gap:15px;">
-            <div style="font-family:var(--font-tech); font-size:1.2rem; color:var(--forge-accent); letter-spacing:4px;">
-                MISSION <span>FORGE</span></div>
-            <div id="forge-ver" style="font-size:0.5rem; opacity:0.4; letter-spacing:2px; margin-top:5px;">V2.0 //
-                INTEGRATED</div>
-        </div>
-        <button onclick="toggleForge()"
-            style="background:transparent; border:1px solid #444; color:#888; padding:8px 15px; cursor:pointer; font-family:inherit; font-size:0.7rem;">[CLOSE_FORGE]</button>
-    </header>
-
-    <div class="stepper">
-        <div class="step active" id="step-1">
-            <div class="step-num">1</div>
-            <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Concept</div>
-        </div>
-        <div class="step" id="step-2">
-            <div class="step-num">2</div>
-            <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Intel</div>
-        </div>
-        <div class="step" id="step-3">
-            <div class="step-num">3</div>
-            <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Story</div>
-        </div>
-        <div class="step" id="step-4">
-            <div class="step-num">4</div>
-            <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Assets</div>
-        </div>
-        <div class="step" id="step-5">
-            <div class="step-num">5</div>
-            <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Birth</div>
-        </div>
-    </div>
-
-    <main class="forge-main">
-        <div class="forge-panel">
-            <div style="margin-bottom:20px;">
-                <label style="color:var(--forge-accent);">Current Phase</label>
-                <h2 id="forge-title"
-                    style="margin:0; font-family:var(--font-tech); font-size:1.1rem; text-transform:uppercase; color:#fff;">
-                    Commence Conception</h2>
-                <p id="forge-desc" style="font-size:0.75rem; opacity:0.6; margin-top:5px;">Define the mission scope and
-                    learning outcomes.</p>
+        <div class="panel">
+            <div
+                style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #ddd; padding-bottom:10px; margin-bottom:20px;">
+                <h3 style="margin:0; letter-spacing:2px; font-size:0.8rem;">LIVE PROGRESS BOARD</h3>
+                <div id="sync-tick" style="font-size:0.55rem; color:#888;">[SYNC_IDLE]</div>
             </div>
-
-            <div class="forge-settings">
-                <div>
-                    <label>Intelligence Model</label>
-                    <select id="f-model" class="settings-select">
-                        <option value="xiaomi/mimo-v2-flash:free">Xiaomi MiMo V2 (Flash)</option>
-                        <option value="google/gemini-pro-1.5-exp">Gemini 1.5 Pro (Precision)</option>
-                        <option value="anthropic/claude-3-haiku">Claude 3 Haiku (Speed)</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Complexity</label>
-                    <select id="f-complexity" class="settings-select">
-                        <option value="Basic">Basic (Elementary)</option>
-                        <option value="Standard" selected>Standard (Middle/High)</option>
-                        <option value="Hardcore">Hardcore (Expert/Adult)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="curriculum-zone"
-                style="background:rgba(255,255,255,0.03); padding:15px; border-radius:4px; border:1px solid #222;">
-                <label>Curriculum Context</label>
-                <select id="f-country" onchange="updateForgeRegions()"
-                    style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px;">
-                    <option value="">-- SELECT COUNTRY --</option>
+            <div style="margin-bottom:15px; display:flex; gap:10px;">
+                <select id="class-filter" style="flex:1; padding:8px; font-family:inherit; font-size:0.75rem;"
+                    onchange="renderProgress()">
+                    <option value="ALL">ALL CLASSES</option>
                 </select>
-                <select id="f-region" onchange="updateForgeCourses()"
-                    style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
-                </select>
-                <select id="f-course" onchange="updateForgeOutcomes()"
-                    style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
-                </select>
-                <div id="f-outcomes"
-                    style="max-height:150px; overflow-y:auto; font-size:0.65rem; color:#888; border-top:1px solid #222; padding-top:10px; margin-top:10px;">
-                    <p style="text-align:center; opacity:0.4;">SELECT COURSE TO LOAD OUTCOMES</p>
-                </div>
-
-                <div id="custom-add-zone"
-                    style="margin-top:15px; border-top:1px solid #333; padding-top:10px; display:none;">
-                    <input id="custom-course-name" placeholder="COURSE NAME"
-                        style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; margin-bottom:5px; padding:5px;">
-                    <textarea id="custom-outcomes-raw" placeholder="OUTCOMES (ONE PER LINE)"
-                        style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; height:60px; padding:5px;"></textarea>
-                    <button class="btn"
-                        style="background:var(--forge-accent); font-size:0.6rem; padding:5px; width:100%; margin-top:5px;"
-                        onclick="saveCustomCourse()">SAVE TO CUSTOM LAB</button>
-                </div>
-                <div style="text-align:center; margin-top:10px;">
-                    <button id="custom-toggle-btn" onclick="toggleCustomAdd()"
-                        style="background:transparent; border:none; color:var(--forge-accent); font-size:0.55rem; cursor:pointer; text-decoration:underline;">+
-                        ADD CUSTOM COURSE</button>
-                </div>
+                <button class="btn" style="width:auto; padding:0 15px; font-size:0.6rem;"
+                    onclick="fetchProgress()">REFRESH</button>
             </div>
-
-            <textarea id="f-input"
-                style="flex:1; background:#111; border:1px solid #333; color:#fff; font-size:0.85rem; padding:15px; margin-top:10px;"
-                placeholder="ENTER COMMAND CONTEXT..."></textarea>
-
-            <div style="display:flex; gap:10px;">
-                <button class="btn" style="flex:1; background:#333; font-size:0.7rem; padding:12px;"
-                    onclick="forgeBack()">BACK</button>
-                <button class="btn" id="f-submit"
-                    style="flex:2; background:var(--forge-accent); font-size:0.7rem; padding:12px;"
-                    onclick="processForge()">SUBMIT COMMAND</button>
-            </div>
+            <div id="progress-list" style="max-height:500px; overflow-y:auto; border:1px solid #eee;"></div>
         </div>
 
-        <div class="forge-output">
-            <div id="forge-chat">
-                <div class="msg msg-ai">
-                    <strong>FORGE SYSTEM ONLINE.</strong><br>
-                    Welcome to the integrated conceive-birth-finetune machine. Select your curriculum target or provide
-                    a raw historical concept to begin.
+        <div style="display:flex; flex-direction:column; gap:20px;">
+            <div class="panel" style="flex:1;">
+                <h3
+                    style="margin-top:0; letter-spacing:2px; font-size:0.8rem; border-bottom:1px solid #ddd; padding-bottom:10px;">
+                    LIVE DIRECTORY</h3>
+                <div id="lib-log" style="font-size: 0.55rem; color: #888; margin-bottom: 10px;">Scanning...</div>
+                <div id="library-list"></div>
+            </div>
+            <div class="panel" style="padding:20px; background:var(--terminal); border-top:none;">
+                <h3 style="margin-top:0; color:#fff; font-size:0.6rem; letter-spacing:1px; opacity:0.6;">SYSTEM LOG</h3>
+                <div id="console" style="height:150px; overflow-y:auto; font-size:0.65rem; color:var(--term-txt);">
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- HOSPITAL INTERFACE -->
-            <div id="hospital-view">
-                <div class="hosp-sidebar" id="hosp-nav">
-                    <div
-                        style="font-size:0.6rem; color:var(--forge-accent); margin-bottom:15px; letter-spacing:1px; font-weight:bold;">
-                        SURGICAL NODES</div>
-                </div>
-                <div class="hosp-main">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                        <div id="hosp-path" style="font-family:var(--font-tech); font-size:0.7rem; color:#00ffcc;">NODE:
-                            SELECTION_REQUIRED</div>
-                        <button class="btn" onclick="saveHospEdit()"
-                            style="width:auto; padding:5px 15px; font-size:0.65rem; background:#00ffcc; color:#000;">STABILIZE
-                            NODE</button>
-                    </div>
-                    <textarea id="hosp-editor"
-                        style="flex:1; background:#050505; color:#eee; border:1px solid #222; font-family:var(--font-tech); font-size:0.8rem; padding:15px; resize:none;"></textarea>
-                    <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
-                        <button class="btn"
-                            style="width:auto; background:transparent; border:1px solid #444; color:#888; padding:10px 20px; font-size:0.7rem;"
-                            onclick="downloadBirthedBlob()">DOWNLOAD .BLOB SOURCE</button>
-                        <button class="btn"
-                            style="width:auto; background:#ffcc00; color:#000; padding:12px 30px; font-size:0.8rem;"
-                            onclick="finalizeForge()">FINALIZE & PUSH TO COMMAND CENTER</button>
-                    </div>
-                </div>
-            </div>
+    <div id="library-hub"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:3000; padding:60px; overflow-y:auto;">
+        <div
+            style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:20px; margin-bottom:40px;">
+            <h1 style="margin:0; color:var(--accent); letter-spacing:5px; border-bottom:none;">COMMUNITY ARCHIVE HUB
+            </h1>
+            <button onclick="toggleLibrary()"
+                style="background:transparent; border:1px solid #666; color:#666; padding:10px 20px; cursor:pointer; font-family:inherit;">[CLOSE_HUB]</button>
+        </div>
+        <div id="hub-grid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+            <div style="grid-column:1/-1; text-align:center; padding:100px; opacity:0.5; color:#fff;">LOADING MISSION
+                CATALOG...</div>
+        </div>
+    </div>
 
-            <div id="forge-loader"
-                style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.8); flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+    <div id="forge-overlay">
+        <header class="forge-header">
+            <div style="display:flex; align-items:center; gap:15px;">
                 <div
-                    style="width:30px; height:30px; border:2px solid var(--forge-accent); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;">
-                </div>
-                <div id="forge-loader-text"
-                    style="font-size:0.6rem; color:var(--forge-accent); margin-top:15px; letter-spacing:2px;">
-                    PROCESSING...</div>
+                    style="font-family:var(--font-tech); font-size:1.2rem; color:var(--forge-accent); letter-spacing:4px;">
+                    MISSION <span>FORGE</span></div>
+                <div id="forge-ver" style="font-size:0.5rem; opacity:0.4; letter-spacing:2px; margin-top:5px;">V2.0 //
+                    INTEGRATED</div>
+            </div>
+            <button onclick="toggleForge()"
+                style="background:transparent; border:1px solid #444; color:#888; padding:8px 15px; cursor:pointer; font-family:inherit; font-size:0.7rem;">[CLOSE_FORGE]</button>
+        </header>
+
+        <div class="stepper">
+            <div class="step active" id="step-1">
+                <div class="step-num">1</div>
+                <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Concept</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-num">2</div>
+                <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Intel</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-num">3</div>
+                <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Story</div>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-num">4</div>
+                <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Assets</div>
+            </div>
+            <div class="step" id="step-5">
+                <div class="step-num">5</div>
+                <div style="font-size:0.6rem; text-transform:uppercase; letter-spacing:1px;">Birth</div>
             </div>
         </div>
-    </main>
-</div>
-<script>
-    let allProgress = [];
 
-    // --- FORGE CONFIGURATION ---
-    const FORGE_PROXY = "https://nextjs-basic-lemon-one.vercel.app/api/chat";
-    let forgeStep = 1;
-    let forgeHistory = [];
-    let accumulatedData = {};
-    let curriculumData = {};
-    let forgeModel = "xiaomi/mimo-v2-flash:free";
+        <main class="forge-main">
+            <div class="forge-panel">
+                <div style="margin-bottom:20px;">
+                    <label style="color:var(--forge-accent);">Current Phase</label>
+                    <h2 id="forge-title"
+                        style="margin:0; font-family:var(--font-tech); font-size:1.1rem; text-transform:uppercase; color:#fff;">
+                        Commence Conception</h2>
+                    <p id="forge-desc" style="font-size:0.75rem; opacity:0.6; margin-top:5px;">Define the mission scope
+                        and
+                        learning outcomes.</p>
+                </div>
 
-    const FORGE_SYSTEM_CORE = `
+                <div class="forge-settings">
+                    <div>
+                        <label>Intelligence Model</label>
+                        <select id="f-model" class="settings-select">
+                            <option value="xiaomi/mimo-v2-flash:free">Xiaomi MiMo V2 Flash (Default)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">TNG: Deepseek R1T2 Chimera</option>
+                            <option value="z-ai/glm-4.5-air:free">Z.AI GLM 4.5 Air</option>
+                            <option value="allenai/olmo-3.1-32b-think:free">AllenAI Olmo 3.1</option>
+                            <option value="nvidia/nemotron-nano-9b-v2:free">NVidia Nemotron Nano 9b</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">Nex AGI Deepseek V3.1</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Google Gemini 2.0 Flash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Complexity</label>
+                        <select id="f-complexity" class="settings-select">
+                            <option value="Basic">Basic (Elementary)</option>
+                            <option value="Standard" selected>Standard (Middle/High)</option>
+                            <option value="Hardcore">Hardcore (Expert/Adult)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="curriculum-zone"
+                    style="background:rgba(255,255,255,0.03); padding:15px; border-radius:4px; border:1px solid #222;">
+                    <label>Curriculum Context</label>
+                    <select id="f-country" onchange="updateForgeRegions()"
+                        style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px;">
+                        <option value="">-- SELECT COUNTRY --</option>
+                    </select>
+                    <select id="f-region" onchange="updateForgeCourses()"
+                        style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
+                    </select>
+                    <select id="f-course" onchange="updateForgeOutcomes()"
+                        style="background:#000; border:1px solid #333; color:#fff; padding:8px; font-size:0.7rem; width:100%; margin-bottom:10px; display:none;">
+                    </select>
+                    <div id="f-outcomes"
+                        style="max-height:150px; overflow-y:auto; font-size:0.65rem; color:#888; border-top:1px solid #222; padding-top:10px; margin-top:10px;">
+                        <p style="text-align:center; opacity:0.4;">SELECT COURSE TO LOAD OUTCOMES</p>
+                    </div>
+
+                    <div id="custom-add-zone"
+                        style="margin-top:15px; border-top:1px solid #333; padding-top:10px; display:none;">
+                        <input id="custom-course-name" placeholder="COURSE NAME"
+                            style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; margin-bottom:5px; padding:5px;">
+                        <textarea id="custom-outcomes-raw" placeholder="OUTCOMES (ONE PER LINE)"
+                            style="background:#000; border:1px solid #444; color:#fff; font-size:0.65rem; width:100%; height:60px; padding:5px;"></textarea>
+                        <button class="btn"
+                            style="background:var(--forge-accent); font-size:0.6rem; padding:5px; width:100%; margin-top:5px;"
+                            onclick="saveCustomCourse()">SAVE TO CUSTOM LAB</button>
+                    </div>
+                    <div style="text-align:center; margin-top:10px;">
+                        <button id="custom-toggle-btn" onclick="toggleCustomAdd()"
+                            style="background:transparent; border:none; color:var(--forge-accent); font-size:0.55rem; cursor:pointer; text-decoration:underline;">+
+                            ADD CUSTOM COURSE</button>
+                    </div>
+                </div>
+
+                <textarea id="f-input"
+                    style="flex:1; background:#111; border:1px solid #333; color:#fff; font-size:0.85rem; padding:15px; margin-top:10px;"
+                    placeholder="ENTER COMMAND CONTEXT..."></textarea>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex:1; background:#333; font-size:0.7rem; padding:12px;"
+                        onclick="forgeBack()">BACK</button>
+                    <button class="btn" id="f-submit"
+                        style="flex:2; background:var(--forge-accent); font-size:0.7rem; padding:12px;"
+                        onclick="processForge()">SUBMIT COMMAND</button>
+                </div>
+            </div>
+
+            <div class="forge-output">
+                <div id="forge-chat">
+                    <div class="msg msg-ai">
+                        <strong>FORGE SYSTEM ONLINE.</strong><br>
+                        Welcome to the integrated conceive-birth-finetune machine. Select your curriculum target or
+                        provide
+                        a raw historical concept to begin.
+                    </div>
+                </div>
+
+                <!-- HOSPITAL INTERFACE -->
+                <div id="hospital-view">
+                    <div class="hosp-sidebar" id="hosp-nav">
+                        <div
+                            style="font-size:0.6rem; color:var(--forge-accent); margin-bottom:15px; letter-spacing:1px; font-weight:bold;">
+                            SURGICAL NODES</div>
+                    </div>
+                    <div class="hosp-main">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                            <div id="hosp-path" style="font-family:var(--font-tech); font-size:0.7rem; color:#00ffcc;">
+                                NODE:
+                                SELECTION_REQUIRED</div>
+                            <button class="btn" onclick="saveHospEdit()"
+                                style="width:auto; padding:5px 15px; font-size:0.65rem; background:#00ffcc; color:#000;">STABILIZE
+                                NODE</button>
+                        </div>
+                        <textarea id="hosp-editor"
+                            style="flex:1; background:#050505; color:#eee; border:1px solid #222; font-family:var(--font-tech); font-size:0.8rem; padding:15px; resize:none;"></textarea>
+                        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+                            <button class="btn"
+                                style="width:auto; background:transparent; border:1px solid #444; color:#888; padding:10px 20px; font-size:0.7rem;"
+                                onclick="downloadBirthedBlob()">DOWNLOAD .BLOB SOURCE</button>
+                            <button class="btn"
+                                style="width:auto; background:#ffcc00; color:#000; padding:12px 30px; font-size:0.8rem;"
+                                onclick="finalizeForge()">FINALIZE & PUSH TO COMMAND CENTER</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="forge-loader"
+                    style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.8); flex-direction:column; align-items:center; justify-content:center; z-index:10;">
+                    <div
+                        style="width:30px; height:30px; border:2px solid var(--forge-accent); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;">
+                    </div>
+                    <div id="forge-loader-text"
+                        style="font-size:0.6rem; color:var(--forge-accent); margin-top:15px; letter-spacing:2px;">
+                        PROCESSING...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        let allProgress = [];
+        let googleUser = null;
+        let GOOGLE_CLIENT_ID = "503537759984-imeg79p1djl1csnselh3jaqqofmi5gem.apps.googleusercontent.com";
+
+        function handleCredentialResponse(response) {
+            try {
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                googleUser = JSON.parse(jsonPayload);
+                console.log("Authenticated as:", googleUser.name);
+
+                document.getElementById('auth-overlay').style.display = 'none';
+                log(`IDENTITY VERIFIED: Welcome, ${googleUser.name}`, "success");
+            } catch (e) {
+                document.getElementById('auth-status').innerText = "AUTHENTICATION ERROR: Link Severed.";
+                document.getElementById('auth-status').style.color = "var(--err)";
+            }
+        }
+
+        // --- FORGE CONFIGURATION ---
+        const FORGE_PROXY = "https://nextjs-basic-lemon-one.vercel.app/api/chat";
+        let forgeStep = 1;
+        let forgeHistory = [];
+        let accumulatedData = {};
+        let curriculumData = {};
+        let forgeModel = "xiaomi/mimo-v2-flash:free";
+
+        const FORGE_SYSTEM_CORE = `
 You are the BLOB FACTORY COREGINE (v66.16), the multi-stage mission architect.
 GOAL: Guide the user from a seed concept to a fully realized .blob mission.
 STYLE: Punchy, active journalism. Short paragraphs (MAX 3-4 sentences).
 SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, legal, intel }, interactionPrompt, options, outcomes), intelligenceGlossary.
 `;
 
-    const FORGE_PROMPTS = {
-        1: "PHASE 1: CONCEPT ARRIVE. Identify SCO + Ethical Audit. Propose 3 detailed Scenario Concepts. Include 'THEMES TARGETING SELECTED OUTCOMES'. End with: 'WHICH CONCEPT SHALL WE FORGE?'",
-        2: "PHASE 2: DEEP SEARCH. Expand chosen concept into 10 Slide Titles and Intel data strategy. End with: 'SHALL WE PROCEED TO FULL STORY DRAFTING?'",
-        3: "PHASE 3: STORY CONFIRM. Draft FULL immersive prose (200-400 words) for all 10 slides and Intel tabs. End with: 'READY TO SECURE ASSETS?'",
-        4: "PHASE 4: ASSET SECURE. Propose Visual Strategy. List each slide and 'Unsplash Keyword'. End with: 'SHALL WE COMMENCE BLOB BIRTH CONTENTION?'",
-        5: "PHASE 5: BLOB BIRTH. Compile into valid JSON .blob. OUTPUT ONLY THE JSON CODE BLOCK."
-    };
-    // --- END FORGE CONFIG ---
-    const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(id); return response;
-    };
-
-    function log(m, t = "info") {
-        const c = document.getElementById('console'); const color = t === "success" ? "lime" : t === "error" ? "red" : "#0f0";
-        if (!c) return;
-        c.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
-        c.scrollTop = c.scrollHeight;
-    }
-    function setStatus(s, t) { document.getElementById('s-light').className = "status-light " + s; document.getElementById('s-text').innerText = t; }
-
-    // COMMUNITY HUB LOGIC
-    const LIB_URL = "https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json";
-    function toggleLibrary() {
-        const h = document.getElementById('library-hub');
-        const show = h.style.display === 'none';
-        h.style.display = show ? 'block' : 'none';
-        if (show) fetchLibrary();
-    }
-    // --- FORGE UI CONTROLS ---
-    function toggleForge() {
-        const f = document.getElementById('forge-overlay');
-        f.classList.toggle('active');
-        if (f.classList.contains('active')) {
-            if (!curriculumData.countries) fetchCurriculum();
-        }
-    }
-
-    function updateForgeUI() {
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById(`step-${forgeStep}`).classList.add('active');
-
-        const titles = {
-            1: "Commence Conception",
-            2: "Intelligence Framework",
-            3: "Narrative Drafting",
-            4: "Asset Procurement",
-            5: "Biological Birth"
+        const FORGE_PROMPTS = {
+            1: "PHASE 1: CONCEPT ARRIVE. Identify SCO + Ethical Audit. Propose 3 detailed Scenario Concepts. Include 'THEMES TARGETING SELECTED OUTCOMES'. End with: 'WHICH CONCEPT SHALL WE FORGE?'",
+            2: "PHASE 2: DEEP SEARCH. Expand chosen concept into 10 Slide Titles and Intel data strategy. End with: 'SHALL WE PROCEED TO FULL STORY DRAFTING?'",
+            3: "PHASE 3: STORY CONFIRM. Draft FULL immersive prose (200-400 words) for all 10 slides and Intel tabs. End with: 'READY TO SECURE ASSETS?'",
+            4: "PHASE 4: ASSET SECURE. Propose Visual Strategy. List each slide and 'Unsplash Keyword'. End with: 'SHALL WE COMMENCE BLOB BIRTH CONTENTION?'",
+            5: "PHASE 5: BLOB BIRTH. Compile into valid JSON .blob. OUTPUT ONLY THE JSON CODE BLOCK."
         };
-        const descs = {
-            1: "Define the mission scope and learning outcomes.",
-            2: "Establish the 10-slide architecture and technical data.",
-            3: "Generating full immersive prose and intelligence files.",
-            4: "Mapping visual keywords (Unsplash) for all nodes.",
-            5: "Compiling the final .blob mission package."
+        // --- END FORGE CONFIG ---
+        const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(url, { ...options, signal: controller.signal });
+            clearTimeout(id); return response;
         };
 
-        document.getElementById('forge-title').innerText = titles[forgeStep];
-        document.getElementById('forge-desc').innerText = descs[forgeStep];
-        document.getElementById('f-submit').innerText = forgeStep === 5 ? "BIRTH MISSION" : "SUBMIT COMMAND";
-
-        // Only show curriculum zone on step 1
-        document.getElementById('curriculum-zone').style.display = forgeStep === 1 ? 'block' : 'none';
-
-        if (forgeStep === 5) {
-            document.getElementById('f-submit').onclick = birthMission;
-        } else {
-            document.getElementById('f-submit').onclick = processForge;
+        function log(m, t = "info") {
+            const c = document.getElementById('console'); const color = t === "success" ? "lime" : t === "error" ? "red" : "#0f0";
+            if (!c) return;
+            c.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
+            c.scrollTop = c.scrollHeight;
         }
-    }
+        function setStatus(s, t) { document.getElementById('s-light').className = "status-light " + s; document.getElementById('s-text').innerText = t; }
 
-    function forgeBack() {
-        if (forgeStep > 1) {
-            forgeStep--;
-            updateForgeUI();
-            addForgeChat("ai", `Reverting to Phase ${forgeStep}. Command parameters preserved.`);
+        // COMMUNITY HUB LOGIC
+        const LIB_URL = "https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json";
+        function toggleLibrary() {
+            const h = document.getElementById('library-hub');
+            const show = h.style.display === 'none';
+            h.style.display = show ? 'block' : 'none';
+            if (show) fetchLibrary();
         }
-    }
+        // --- FORGE UI CONTROLS ---
+        function toggleForge() {
+            const f = document.getElementById('forge-overlay');
+            f.classList.toggle('active');
+            if (f.classList.contains('active')) {
+                if (!curriculumData.countries) fetchCurriculum();
+            }
+        }
 
-    function addForgeChat(side, msg) {
-        const c = document.getElementById('forge-chat');
-        const div = document.createElement('div');
-        div.className = `msg msg-${side}`;
-        div.innerHTML = typeof marked !== 'undefined' ? marked.parse(msg) : msg;
-        c.appendChild(div);
-        c.scrollTop = c.scrollHeight;
-    }
+        function updateForgeUI() {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${forgeStep}`).classList.add('active');
 
-    function setForgeLoading(show, txt = "PROCESSING...") {
-        const l = document.getElementById('forge-loader');
-        l.style.display = show ? 'flex' : 'none';
-        document.getElementById('forge-loader-text').innerText = txt;
-    }
-    // --- END UI CONTROLS ---
+            const titles = {
+                1: "Commence Conception",
+                2: "Intelligence Framework",
+                3: "Narrative Drafting",
+                4: "Asset Procurement",
+                5: "Biological Birth"
+            };
+            const descs = {
+                1: "Define the mission scope and learning outcomes.",
+                2: "Establish the 10-slide architecture and technical data.",
+                3: "Generating full immersive prose and intelligence files.",
+                4: "Mapping visual keywords (Unsplash) for all nodes.",
+                5: "Compiling the final .blob mission package."
+            };
 
-    async function fetchLibrary() {
-        try {
-            const res = await fetch(LIB_URL);
-            if (!res.ok) throw new Error("Catalog not found.");
-            const j = await res.json(); renderLibrary(j.capsules);
-        } catch (e) { document.getElementById('hub-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red; padding:100px;">CONNECTION_ERROR: Failed to fetch Community Archive.</div>`; }
-    }
-    function renderLibrary(caps) {
-        let h = "";
-        caps.forEach(c => {
-            h += `<div class="panel" style="border-top-color:#666;">
+            document.getElementById('forge-title').innerText = titles[forgeStep];
+            document.getElementById('forge-desc').innerText = descs[forgeStep];
+            document.getElementById('f-submit').innerText = forgeStep === 5 ? "BIRTH MISSION" : "SUBMIT COMMAND";
+
+            // Only show curriculum zone on step 1
+            document.getElementById('curriculum-zone').style.display = forgeStep === 1 ? 'block' : 'none';
+
+            if (forgeStep === 5) {
+                document.getElementById('f-submit').onclick = birthMission;
+            } else {
+                document.getElementById('f-submit').onclick = processForge;
+            }
+        }
+
+        function forgeBack() {
+            if (forgeStep > 1) {
+                forgeStep--;
+                updateForgeUI();
+                addForgeChat("ai", `Reverting to Phase ${forgeStep}. Command parameters preserved.`);
+            }
+        }
+
+        function addForgeChat(side, msg) {
+            const c = document.getElementById('forge-chat');
+            const div = document.createElement('div');
+            div.className = `msg msg-${side}`;
+            div.innerHTML = typeof marked !== 'undefined' ? marked.parse(msg) : msg;
+            c.appendChild(div);
+            c.scrollTop = c.scrollHeight;
+        }
+
+        function setForgeLoading(show, txt = "PROCESSING...") {
+            const l = document.getElementById('forge-loader');
+            l.style.display = show ? 'flex' : 'none';
+            document.getElementById('forge-loader-text').innerText = txt;
+        }
+        // --- END UI CONTROLS ---
+
+        async function fetchLibrary() {
+            try {
+                const res = await fetch(LIB_URL);
+                if (!res.ok) throw new Error("Catalog not found.");
+                const j = await res.json(); renderLibrary(j.capsules);
+            } catch (e) { document.getElementById('hub-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:red; padding:100px;">CONNECTION_ERROR: Failed to fetch Community Archive.</div>`; }
+        }
+        function renderLibrary(caps) {
+            let h = "";
+            caps.forEach(c => {
+                h += `<div class="panel" style="border-top-color:#666;">
                     <div style="height:150px; background-image:url('${c.thumb}'); background-size:cover; background-position:center; margin-bottom:15px; border-radius:4px; border:1px solid #333;"></div>
                     <h4 style="margin:0; letter-spacing:1px; font-size:0.85rem;">${c.title}</h4>
                     <div style="font-size:0.6rem; color:#888; margin-bottom:15px; text-transform:uppercase;">AUTHOR: ${c.author}</div>
                     <p style="font-size:0.7rem; height:45px; overflow:hidden; opacity:0.7; line-height:1.4;">${c.description}</p>
                     <button class="btn" onclick="importMission('${c.downloadUrl}', '${c.id}', '${c.title}')" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:8px; font-size:0.6rem; width:100%; margin-top:10px;">IMPORT TO ARCHIVE</button>
                 </div>`;
-        });
-        document.getElementById('hub-grid').innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.5; padding:100px; color:#fff;'>NO MISSIONS IN CATALOG.</div>";
-    }
-    async function importMission(url, id, name) {
-        log(`Syncing Remote Capsule [${id}]...`);
-        try {
-            const res = await fetch(url); const payload = await res.json();
-            const res2 = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'update_content', pin: PIN, id: id, name: name, payload: payload }) });
-            const j = await res2.json();
-            if (j.status === "success") { log(`Remote Capsule [${id}] committed to local record.`, "success"); fetchMissions(); alert(`Mission [${name}] successfully imported!`); }
-            else log(j.message, "error");
-        } catch (e) { log(`Import failed: ${e.message}`, "error"); }
-    }
-
-    // --- FORGE AI ENGINE ---
-    async function processForge() {
-        const input = document.getElementById('f-input').value;
-        if (!input && forgeStep === 1) return alert("Please provide starting context.");
-
-        const selectedModel = document.getElementById('f-model').value;
-        const selectedComplexity = document.getElementById('f-complexity').value;
-
-        setForgeLoading(true, `THINKING (PHASE ${forgeStep})...`);
-        addForgeChat("user", input || "(Proceed to next phase)");
-        document.getElementById('f-input').value = "";
-
-        let context = `${FORGE_SYSTEM_CORE}\n`;
-        context += `FORGE COMPLEXITY: ${selectedComplexity}\n`;
-        if (forgeStep === 1) {
-            const out = document.getElementById('f-outcomes').innerText;
-            context += `TARGET CURRICULUM: ${out}\n\n`;
-        }
-        context += `CURRENT PHASE: ${forgeStep}\nINSTRUCTION: ${FORGE_PROMPTS[forgeStep]}\n\nUSER INPUT: ${input}`;
-
-        forgeHistory.push({ role: "user", content: context });
-
-        try {
-            const res = await fetch(FORGE_PROXY, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: context, model: selectedModel })
             });
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-
-            addForgeChat("ai", reply);
-            forgeHistory.push({ role: "assistant", content: reply });
-
-            if (forgeStep < 5) {
-                forgeStep++;
-                updateForgeUI();
-            }
-        } catch (e) {
-            addForgeChat("ai", `!! ERROR: ${e.message}. Check Vercel Proxy connectivity.`);
-        } finally {
-            setForgeLoading(false);
+            document.getElementById('hub-grid').innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.5; padding:100px; color:#fff;'>NO MISSIONS IN CATALOG.</div>";
         }
-    }
+        async function importMission(url, id, name) {
+            log(`Syncing Remote Capsule [${id}]...`);
+            try {
+                const res = await fetch(url); const payload = await res.json();
+                const res2 = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'update_content', pin: PIN, id: id, name: name, payload: payload }) });
+                const j = await res2.json();
+                if (j.status === "success") { log(`Remote Capsule [${id}] committed to local record.`, "success"); fetchMissions(); alert(`Mission [${name}] successfully imported!`); }
+                else log(j.message, "error");
+            } catch (e) { log(`Import failed: ${e.message}`, "error"); }
+        }
 
-    function getForgeContext(userInput) {
-        // [DEPRECATED - MERGED INTO processForge for better parameter sync]
-    }
+        // --- FORGE AI ENGINE ---
+        async function processForge() {
+            const input = document.getElementById('f-input').value;
+            if (!input && forgeStep === 1) return alert("Please provide starting context.");
 
-    // --- CURRICULUM HUB ---
-    function getCustomOutcomes() {
-        const stored = localStorage.getItem('blob_custom_curriculum');
-        return stored ? JSON.parse(stored) : {};
-    }
+            const selectedModel = document.getElementById('f-model').value;
+            const selectedComplexity = document.getElementById('f-complexity').value;
 
-    function saveCustomCourse() {
-        const name = document.getElementById('custom-course-name').value;
-        const raw = document.getElementById('custom-outcomes-raw').value;
-        if (!name || !raw) return alert("MISSING PARAMETERS.");
+            setForgeLoading(true, `THINKING (PHASE ${forgeStep})...`);
+            addForgeChat("user", input || "(Proceed to next phase)");
+            document.getElementById('f-input').value = "";
 
-        const custom = getCustomOutcomes();
-        custom[name] = raw.split("\n").map(o => o.trim()).filter(o => o.length > 0);
-        localStorage.setItem('blob_custom_curriculum', JSON.stringify(custom));
+            let context = `${FORGE_SYSTEM_CORE}\n`;
+            context += `FORGE COMPLEXITY: ${selectedComplexity}\n`;
+            if (forgeStep === 1) {
+                const out = document.getElementById('f-outcomes').innerText;
+                context += `TARGET CURRICULUM: ${out}\n\n`;
+            }
+            context += `CURRENT PHASE: ${forgeStep}\nINSTRUCTION: ${FORGE_PROMPTS[forgeStep]}\n\nUSER INPUT: ${input}`;
 
-        document.getElementById('custom-course-name').value = "";
-        document.getElementById('custom-outcomes-raw').value = "";
-        toggleCustomAdd();
-        fetchCurriculum(); // Reload and merge
-        log(`Custom Course [${name}] admitted to local lab.`, "success");
-    }
+            forgeHistory.push({ role: "user", content: context });
 
-    function toggleCustomAdd() {
-        const zone = document.getElementById('custom-add-zone');
-        const btn = document.getElementById('custom-toggle-btn');
-        const show = zone.style.display === 'none';
-        zone.style.display = show ? 'block' : 'none';
-        btn.innerText = show ? "CANCEL" : "+ ADD CUSTOM COURSE";
-    }
+            try {
+                const res = await fetch(FORGE_PROXY, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: context, model: selectedModel })
+                });
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
 
-    async function fetchCurriculum() {
-        try {
-            const res = await fetch("https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/curriculum.json");
-            curriculumData = await res.json();
+                addForgeChat("ai", reply);
+                forgeHistory.push({ role: "assistant", content: reply });
 
-            // Merge Custom Lab
+                if (forgeStep < 5) {
+                    forgeStep++;
+                    updateForgeUI();
+                }
+            } catch (e) {
+                addForgeChat("ai", `!! ERROR: ${e.message}. Check Vercel Proxy connectivity.`);
+            } finally {
+                setForgeLoading(false);
+            }
+        }
+
+        function getForgeContext(userInput) {
+            // [DEPRECATED - MERGED INTO processForge for better parameter sync]
+        }
+
+        // --- CURRICULUM HUB ---
+        function getCustomOutcomes() {
+            const stored = localStorage.getItem('blob_custom_curriculum');
+            return stored ? JSON.parse(stored) : {};
+        }
+
+        function saveCustomCourse() {
+            const name = document.getElementById('custom-course-name').value;
+            const raw = document.getElementById('custom-outcomes-raw').value;
+            if (!name || !raw) return alert("MISSING PARAMETERS.");
+
             const custom = getCustomOutcomes();
-            if (Object.keys(custom).length > 0) {
-                curriculumData.countries["CUSTOM_LAB"] = { "LOCAL": {} };
-                Object.keys(custom).forEach(name => {
-                    curriculumData.countries["CUSTOM_LAB"]["LOCAL"][name] = {
-                        code: "CUST",
-                        outcomes: custom[name]
-                    };
+            custom[name] = raw.split("\n").map(o => o.trim()).filter(o => o.length > 0);
+            localStorage.setItem('blob_custom_curriculum', JSON.stringify(custom));
+
+            document.getElementById('custom-course-name').value = "";
+            document.getElementById('custom-outcomes-raw').value = "";
+            toggleCustomAdd();
+            fetchCurriculum(); // Reload and merge
+            log(`Custom Course [${name}] admitted to local lab.`, "success");
+        }
+
+        function toggleCustomAdd() {
+            const zone = document.getElementById('custom-add-zone');
+            const btn = document.getElementById('custom-toggle-btn');
+            const show = zone.style.display === 'none';
+            zone.style.display = show ? 'block' : 'none';
+            btn.innerText = show ? "CANCEL" : "+ ADD CUSTOM COURSE";
+        }
+
+        async function fetchCurriculum() {
+            try {
+                const res = await fetch("curriculum.json?v=66.21");
+                curriculumData = await res.json();
+
+                // Merge Custom Lab
+                const custom = getCustomOutcomes();
+                if (Object.keys(custom).length > 0) {
+                    curriculumData.countries["CUSTOM_LAB"] = { "LOCAL": {} };
+                    Object.keys(custom).forEach(name => {
+                        curriculumData.countries["CUSTOM_LAB"]["LOCAL"][name] = {
+                            code: "CUST",
+                            outcomes: custom[name]
+                        };
+                    });
+                }
+
+                const cSel = document.getElementById('f-country');
+                cSel.innerHTML = '<option value="">-- SELECT COUNTRY --</option>';
+                Object.keys(curriculumData.countries).forEach(c => {
+                    cSel.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            } catch (e) { console.error("Failed to load curriculum", e); }
+        }
+
+        function updateForgeRegions() {
+            const country = document.getElementById('f-country').value;
+            const rSel = document.getElementById('f-region');
+            rSel.innerHTML = '<option value="">-- SELECT REGION --</option>';
+            rSel.style.display = country ? 'block' : 'none';
+            if (country) {
+                Object.keys(curriculumData.countries[country]).forEach(r => {
+                    rSel.innerHTML += `<option value="${r}">${r}</option>`;
+                });
+            }
+        }
+
+        function updateForgeCourses() {
+            const country = document.getElementById('f-country').value;
+            const region = document.getElementById('f-region').value;
+            const cSel = document.getElementById('f-course');
+            cSel.innerHTML = '<option value="">-- SELECT COURSE --</option>';
+            cSel.style.display = region ? 'block' : 'none';
+            if (region) {
+                const courses = curriculumData.countries[country][region];
+                Object.keys(courses).forEach(c => {
+                    cSel.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            }
+        }
+
+        function updateForgeOutcomes() {
+            const country = document.getElementById('f-country').value;
+            const region = document.getElementById('f-region').value;
+            const course = document.getElementById('f-course').value;
+            const outDiv = document.getElementById('f-outcomes');
+            if (course) {
+                const data = curriculumData.countries[country][region][course];
+                outDiv.innerHTML = `<strong>${data.code}:</strong> ${data.outcomes.join("<br>• ")}`;
+            } else {
+                outDiv.innerHTML = "<p>SELECT COURSE TO LOAD OUTCOMES</p>";
+            }
+        }
+        // --- END CURRICULUM ---
+
+        // --- BIRTH & HOSPITAL ---
+        function birthMission() {
+            const lastReply = forgeHistory.filter(m => m.role === 'assistant').pop()?.content;
+            if (!lastReply) return alert("NO BIOLOGICAL MATERIAL DETECTED.");
+
+            try {
+                const jsonStr = lastReply.match(/\{[\s\S]*\}/)[0];
+                accumulatedData = JSON.parse(jsonStr);
+
+                // INJECT AUTH DATA
+                if (googleUser && accumulatedData.metadata) {
+                    accumulatedData.metadata.author = googleUser.name;
+                    accumulatedData.metadata.authorEmail = googleUser.email;
+                    log(`IDENTITY INJECTED: Mission authored by ${googleUser.name}`, "success");
+                }
+
+                addForgeChat("ai", "!!! BIRTH SUCCESSFUL. Initiating clinical review in the Surgical Hospital.");
+                openHospital();
+            } catch (e) {
+                addForgeChat("ai", "!! BIRTH TRAUMA: JSON parsing failed. Please ask the AI to re-output the JSON block.");
+            }
+        }
+
+        function openHospital() {
+            document.getElementById('forge-chat').style.display = 'none';
+            document.getElementById('hospital-view').style.display = 'grid';
+            renderHospNodes();
+        }
+
+        function renderHospNodes() {
+            const nav = document.getElementById('hosp-nav');
+            let h = '<div style="font-size:0.6rem; color:var(--forge-accent); margin-bottom:15px; letter-spacing:1px; font-weight:bold;">SURGICAL NODES</div>';
+
+            // Metadata Node
+            h += `<div class="hosp-tab" onclick="editHospNode('metadata')">METADATA</div>`;
+
+            // Slide Nodes
+            if (accumulatedData.slides) {
+                accumulatedData.slides.forEach((s, i) => {
+                    h += `<div class="hosp-tab" id="hosp-tab-${i}" onclick="editHospNode(${i})">SLIDE ${i + 1}: ${s.title.substring(0, 15)}...</div>`;
                 });
             }
 
-            const cSel = document.getElementById('f-country');
-            cSel.innerHTML = '<option value="">-- SELECT COUNTRY --</option>';
-            Object.keys(curriculumData.countries).forEach(c => {
-                cSel.innerHTML += `<option value="${c}">${c}</option>`;
-            });
-        } catch (e) { console.error("Failed to load curriculum", e); }
-    }
+            // Glossary Node
+            h += `<div class="hosp-tab" onclick="editHospNode('glossary')">INTELLIGENCE GLOSSARY</div>`;
 
-    function updateForgeRegions() {
-        const country = document.getElementById('f-country').value;
-        const rSel = document.getElementById('f-region');
-        rSel.innerHTML = '<option value="">-- SELECT REGION --</option>';
-        rSel.style.display = country ? 'block' : 'none';
-        if (country) {
-            Object.keys(curriculumData.countries[country]).forEach(r => {
-                rSel.innerHTML += `<option value="${r}">${r}</option>`;
-            });
-        }
-    }
-
-    function updateForgeCourses() {
-        const country = document.getElementById('f-country').value;
-        const region = document.getElementById('f-region').value;
-        const cSel = document.getElementById('f-course');
-        cSel.innerHTML = '<option value="">-- SELECT COURSE --</option>';
-        cSel.style.display = region ? 'block' : 'none';
-        if (region) {
-            const courses = curriculumData.countries[country][region];
-            Object.keys(courses).forEach(c => {
-                cSel.innerHTML += `<option value="${c}">${c}</option>`;
-            });
-        }
-    }
-
-    function updateForgeOutcomes() {
-        const country = document.getElementById('f-country').value;
-        const region = document.getElementById('f-region').value;
-        const course = document.getElementById('f-course').value;
-        const outDiv = document.getElementById('f-outcomes');
-        if (course) {
-            const data = curriculumData.countries[country][region][course];
-            outDiv.innerHTML = `<strong>${data.code}:</strong> ${data.outcomes.join("<br>• ")}`;
-        } else {
-            outDiv.innerHTML = "<p>SELECT COURSE TO LOAD OUTCOMES</p>";
-        }
-    }
-    // --- END CURRICULUM ---
-
-    // --- BIRTH & HOSPITAL ---
-    function birthMission() {
-        const lastReply = forgeHistory.filter(m => m.role === 'assistant').pop()?.content;
-        if (!lastReply) return alert("NO BIOLOGICAL MATERIAL DETECTED.");
-
-        try {
-            const jsonStr = lastReply.match(/\{[\s\S]*\}/)[0];
-            accumulatedData = JSON.parse(jsonStr);
-            addForgeChat("ai", "!!! BIRTH SUCCESSFUL. Initiating clinical review in the Surgical Hospital.");
-            openHospital();
-        } catch (e) {
-            addForgeChat("ai", "!! BIRTH TRAUMA: JSON parsing failed. Please ask the AI to re-output the JSON block.");
-        }
-    }
-
-    function openHospital() {
-        document.getElementById('forge-chat').style.display = 'none';
-        document.getElementById('hospital-view').style.display = 'grid';
-        renderHospNodes();
-    }
-
-    function renderHospNodes() {
-        const nav = document.getElementById('hosp-nav');
-        let h = '<div style="font-size:0.6rem; color:var(--forge-accent); margin-bottom:15px; letter-spacing:1px; font-weight:bold;">SURGICAL NODES</div>';
-
-        // Metadata Node
-        h += `<div class="hosp-tab" onclick="editHospNode('metadata')">METADATA</div>`;
-
-        // Slide Nodes
-        if (accumulatedData.slides) {
-            accumulatedData.slides.forEach((s, i) => {
-                h += `<div class="hosp-tab" id="hosp-tab-${i}" onclick="editHospNode(${i})">SLIDE ${i + 1}: ${s.title.substring(0, 15)}...</div>`;
-            });
+            nav.innerHTML = h;
         }
 
-        // Glossary Node
-        h += `<div class="hosp-tab" onclick="editHospNode('glossary')">INTELLIGENCE GLOSSARY</div>`;
+        let currentHospNode = null;
+        function editHospNode(idx) {
+            currentHospNode = idx;
+            document.querySelectorAll('.hosp-tab').forEach(t => t.classList.remove('active'));
 
-        nav.innerHTML = h;
-    }
+            const editor = document.getElementById('hosp-editor');
+            const path = document.getElementById('hosp-path');
 
-    let currentHospNode = null;
-    function editHospNode(idx) {
-        currentHospNode = idx;
-        document.querySelectorAll('.hosp-tab').forEach(t => t.classList.remove('active'));
-
-        const editor = document.getElementById('hosp-editor');
-        const path = document.getElementById('hosp-path');
-
-        if (idx === 'metadata') {
-            path.innerText = "NODE: METADATA";
-            editor.value = JSON.stringify(accumulatedData.metadata, null, 2);
-        } else if (idx === 'glossary') {
-            path.innerText = "NODE: GLOSSARY";
-            editor.value = JSON.stringify(accumulatedData.intelligenceGlossary || {}, null, 2);
-        } else {
-            path.innerText = `NODE: SLIDE_${idx + 1}`;
-            editor.value = JSON.stringify(accumulatedData.slides[idx], null, 2);
-            const tab = document.getElementById(`hosp-tab-${idx}`);
-            if (tab) tab.classList.add('active');
-        }
-    }
-
-    function saveHospEdit() {
-        const val = document.getElementById('hosp-editor').value;
-        try {
-            const parsed = JSON.parse(val);
-            if (currentHospNode === 'metadata') {
-                accumulatedData.metadata = parsed;
-            } else if (currentHospNode === 'glossary') {
-                accumulatedData.intelligenceGlossary = parsed;
+            if (idx === 'metadata') {
+                path.innerText = "NODE: METADATA";
+                editor.value = JSON.stringify(accumulatedData.metadata, null, 2);
+            } else if (idx === 'glossary') {
+                path.innerText = "NODE: GLOSSARY";
+                editor.value = JSON.stringify(accumulatedData.intelligenceGlossary || {}, null, 2);
             } else {
-                accumulatedData.slides[currentHospNode] = parsed;
+                path.innerText = `NODE: SLIDE_${idx + 1}`;
+                editor.value = JSON.stringify(accumulatedData.slides[idx], null, 2);
+                const tab = document.getElementById(`hosp-tab-${idx}`);
+                if (tab) tab.classList.add('active');
             }
-            log("Surgical Node Stabilized.", "success");
-            renderHospNodes();
-        } catch (e) { alert("Surgical Error: Invalid JSON in editor."); }
-    }
-
-    function downloadBirthedBlob() {
-        if (!accumulatedData) return;
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accumulatedData, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", (accumulatedData.metadata.id || "mission") + ".blob");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-        log("Local Source Download Initiated.", "success");
-    }
-
-    async function finalizeForge() {
-        if (!confirm("Confirm Mission Deployment to Command Center?")) return;
-
-        const id = accumulatedData.metadata.id.toUpperCase().replace(/\s/g, '');
-        const name = accumulatedData.metadata.title;
-
-        log(`Injecting Birthed Capsule [${id}]...`);
-        try {
-            const res = await fetch(URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'update_content',
-                    pin: PIN,
-                    id: id,
-                    name: name,
-                    payload: accumulatedData
-                })
-            });
-            const j = await res.json();
-            if (j.status === "success") {
-                log("INTEGRATED INJECTION SUCCESSFUL.", "success");
-                toggleForge();
-                fetchMissions();
-                alert(`Mission [${name}] is now LIVE.`);
-            } else log(j.message, "error");
-        } catch (e) { log(e.message, "error"); }
-    }
-    // --- END HOSPITAL ---
-
-    async function fetchMissions() {
-        log("Pinging Archive Server...");
-        try {
-            const res = await fetchWithTimeout(URL + "?action=list_missions");
-            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-            const j = await res.json();
-            if (j.status === "success") {
-                setStatus("online", "ENCRYPTED_LINK_ACTIVE");
-                renderMissions(j.missions); fetchProgress();
-                log("Handshake successful. Directory synchronized.", "success");
-            } else { throw new Error(j.message || "Unknown server error"); }
-        } catch (e) {
-            setStatus("offline", "CONNECTION_FAILURE");
-            log(`CRITICAL: ${e.message}`, "error");
-            log("HINT: Ensure the Apps Script URL and TEACHER_PIN are correctly configured.");
-            renderMissions([]); // Show empty table so UI isn't empty
         }
-    }
 
-    async function upload() {
-        const id = document.getElementById('m-id').value.toUpperCase().replace(/\s/g, ''), name = document.getElementById('m-name').value, raw = document.getElementById('json-input').value;
-        if (!id || !name || !raw) return log("ABORTED: Missing required parameters.", "error");
-        log(`Opening stream for Capsule [${id}]...`);
-        try {
-            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'update_content', pin: PIN, id: id, name: name, payload: JSON.parse(raw) }) });
-            const j = await res.json();
-            if (j.status === "success") {
-                log("CAPSULE COMMITTED TO RECORD.", "success");
-                document.getElementById('m-id').value = ""; document.getElementById('m-name').value = ""; document.getElementById('json-input').value = "";
-                fetchMissions();
-            } else log(j.message, "error");
-        } catch (e) { log(e.message, "error"); }
-    }
-
-    function handleFile(file) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
+        function saveHospEdit() {
+            const val = document.getElementById('hosp-editor').value;
             try {
-                const data = JSON.parse(e.target.result);
-                // SCHEMA v1.0 SUPPORT
-                const id = (data.metadata && data.metadata.id) ? data.metadata.id : data.missionId || "";
-                const name = (data.metadata && data.metadata.title) ? data.metadata.title : (data.meta && data.meta.title) ? data.meta.title : "";
-
-                document.getElementById('m-id').value = id;
-                document.getElementById('m-name').value = name;
-                document.getElementById('json-input').value = e.target.result;
-
-                log(`Capsule [${file.name}] loaded into staging.`, "success");
-                document.getElementById('upload-zone').style.borderColor = "var(--success)";
-            } catch (ex) { log("INVALID CAPSULE: Not a valid .blob/JSON file.", "error"); }
-        };
-        reader.readAsText(file);
-    }
-
-    async function fetchProgress() {
-        document.getElementById('sync-tick').innerText = "[SYNC_BUSY]";
-        try {
-            const res = await fetchWithTimeout(URL, { method: 'POST', body: JSON.stringify({ action: 'fetch_progress', pin: PIN }) });
-            const j = await res.json();
-            if (j.status === "success") {
-                allProgress = j.progress;
-                updateClassFilter(); renderProgress();
-                document.getElementById('sync-tick').innerText = "[SYNC_OK]";
-                setTimeout(() => document.getElementById('sync-tick').innerText = "[SYNC_IDLE]", 3000);
-            }
-        } catch (e) {
-            log("Progress sync failed: " + e.message, "error");
-            document.getElementById('sync-tick').innerText = "[SYNC_FAIL]";
+                const parsed = JSON.parse(val);
+                if (currentHospNode === 'metadata') {
+                    accumulatedData.metadata = parsed;
+                } else if (currentHospNode === 'glossary') {
+                    accumulatedData.intelligenceGlossary = parsed;
+                } else {
+                    accumulatedData.slides[currentHospNode] = parsed;
+                }
+                log("Surgical Node Stabilized.", "success");
+                renderHospNodes();
+            } catch (e) { alert("Surgical Error: Invalid JSON in editor."); }
         }
-    }
 
-    function updateClassFilter() {
-        const f = document.getElementById('class-filter'); const val = f.value;
-        const classes = [...new Set(allProgress.map(p => p.class))].sort();
-        let h = `<option value="ALL">ALL CLASSES</option>`;
-        classes.forEach(c => { h += `<option value="${c}">${c}</option>`; });
-        f.innerHTML = h; if (f.innerHTML.includes(val)) f.value = val;
-    }
+        function downloadBirthedBlob() {
+            if (!accumulatedData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accumulatedData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", (accumulatedData.metadata.id || "mission") + ".blob");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            log("Local Source Download Initiated.", "success");
+        }
 
-    function renderProgress() {
-        const filter = document.getElementById('class-filter').value;
-        const filtered = filter === "ALL" ? allProgress : allProgress.filter(p => p.class === filter);
-        let h = "";
-        filtered.forEach(p => {
-            const missions = Object.keys(p.missionData || {});
-            missions.forEach(mid => {
-                const st = p.missionData[mid]; if (!st) return;
-                const decs = st.dec ? Object.keys(st.dec).length : 0;
-                const pre = st.preDone ? "✓" : "×";
+        async function finalizeForge() {
+            if (!confirm("Confirm Mission Deployment to Command Center?")) return;
 
-                h += `<div style="padding:6px 10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            const id = accumulatedData.metadata.id.toUpperCase().replace(/\s/g, '');
+            const name = accumulatedData.metadata.title;
+
+            log(`Injecting Birthed Capsule [${id}]...`);
+            try {
+                const res = await fetch(URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'update_content',
+                        pin: PIN,
+                        id: id,
+                        name: name,
+                        payload: accumulatedData
+                    })
+                });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log("INTEGRATED INJECTION SUCCESSFUL.", "success");
+                    toggleForge();
+                    fetchMissions();
+                    alert(`Mission [${name}] is now LIVE.`);
+                } else log(j.message, "error");
+            } catch (e) { log(e.message, "error"); }
+        }
+        // --- END HOSPITAL ---
+
+        async function fetchMissions() {
+            log("Pinging Archive Server...");
+            try {
+                const res = await fetchWithTimeout(URL + "?action=list_missions");
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                const j = await res.json();
+                if (j.status === "success") {
+                    setStatus("online", "ENCRYPTED_LINK_ACTIVE");
+                    renderMissions(j.missions); fetchProgress();
+                    log("Handshake successful. Directory synchronized.", "success");
+                } else { throw new Error(j.message || "Unknown server error"); }
+            } catch (e) {
+                setStatus("offline", "CONNECTION_FAILURE");
+                log(`CRITICAL: ${e.message}`, "error");
+                log("HINT: Ensure the Apps Script URL and TEACHER_PIN are correctly configured.");
+                renderMissions([]); // Show empty table so UI isn't empty
+            }
+        }
+
+        async function upload() {
+            const id = document.getElementById('m-id').value.toUpperCase().replace(/\s/g, ''), name = document.getElementById('m-name').value, raw = document.getElementById('json-input').value;
+            if (!id || !name || !raw) return log("ABORTED: Missing required parameters.", "error");
+            log(`Opening stream for Capsule [${id}]...`);
+            try {
+                const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'update_content', pin: PIN, id: id, name: name, payload: JSON.parse(raw) }) });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log("CAPSULE COMMITTED TO RECORD.", "success");
+                    document.getElementById('m-id').value = ""; document.getElementById('m-name').value = ""; document.getElementById('json-input').value = "";
+                    fetchMissions();
+                } else log(j.message, "error");
+            } catch (e) { log(e.message, "error"); }
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // SCHEMA v1.0 SUPPORT
+                    const id = (data.metadata && data.metadata.id) ? data.metadata.id : data.missionId || "";
+                    const name = (data.metadata && data.metadata.title) ? data.metadata.title : (data.meta && data.meta.title) ? data.meta.title : "";
+
+                    document.getElementById('m-id').value = id;
+                    document.getElementById('m-name').value = name;
+                    document.getElementById('json-input').value = e.target.result;
+
+                    log(`Capsule [${file.name}] loaded into staging.`, "success");
+                    document.getElementById('upload-zone').style.borderColor = "var(--success)";
+                } catch (ex) { log("INVALID CAPSULE: Not a valid .blob/JSON file.", "error"); }
+            };
+            reader.readAsText(file);
+        }
+
+        async function fetchProgress() {
+            document.getElementById('sync-tick').innerText = "[SYNC_BUSY]";
+            try {
+                const res = await fetchWithTimeout(URL, { method: 'POST', body: JSON.stringify({ action: 'fetch_progress', pin: PIN }) });
+                const j = await res.json();
+                if (j.status === "success") {
+                    allProgress = j.progress;
+                    updateClassFilter(); renderProgress();
+                    document.getElementById('sync-tick').innerText = "[SYNC_OK]";
+                    setTimeout(() => document.getElementById('sync-tick').innerText = "[SYNC_IDLE]", 3000);
+                }
+            } catch (e) {
+                log("Progress sync failed: " + e.message, "error");
+                document.getElementById('sync-tick').innerText = "[SYNC_FAIL]";
+            }
+        }
+
+        function updateClassFilter() {
+            const f = document.getElementById('class-filter'); const val = f.value;
+            const classes = [...new Set(allProgress.map(p => p.class))].sort();
+            let h = `<option value="ALL">ALL CLASSES</option>`;
+            classes.forEach(c => { h += `<option value="${c}">${c}</option>`; });
+            f.innerHTML = h; if (f.innerHTML.includes(val)) f.value = val;
+        }
+
+        function renderProgress() {
+            const filter = document.getElementById('class-filter').value;
+            const filtered = filter === "ALL" ? allProgress : allProgress.filter(p => p.class === filter);
+            let h = "";
+            filtered.forEach(p => {
+                const missions = Object.keys(p.missionData || {});
+                missions.forEach(mid => {
+                    const st = p.missionData[mid]; if (!st) return;
+                    const decs = st.dec ? Object.keys(st.dec).length : 0;
+                    const pre = st.preDone ? "✓" : "×";
+
+                    h += `<div style="padding:6px 10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; gap:10px;">
                         <div style="flex:1; min-width:0;">
                             <div style="font-size:0.7rem; font-weight:bold;">${p.name} <span style="color:#888; font-weight:normal; font-size:0.65rem;">${p.class}</span></div>
                             <div style="color:#666; font-size:0.6rem; margin-top:2px;">MISSION: ${mid} | STEP: ${decs} | BRIEF: ${pre}</div>
                         </div>
                         <button class="btn" style="padding:5px 10px; font-size:0.6rem; background:#c00; color:#fff; white-space:nowrap; flex-shrink:0; width:auto !important;" onclick="deleteStudent('${p.id}', '${p.name}')">DELETE</button>
                       </div>`;
+                });
             });
-        });
-        document.getElementById('progress-list').innerHTML = h || "<p style='color:#ccc; padding:20px; font-size:0.65rem;'>No student data detected.</p>";
-    }
+            document.getElementById('progress-list').innerHTML = h || "<p style='color:#ccc; padding:20px; font-size:0.65rem;'>No student data detected.</p>";
+        }
 
-    async function deleteStudent(id, name) {
-        if (!confirm(`DELETE STUDENT: ${name}?\n\nThis will permanently remove all progress data. This action cannot be undone.`)) return;
-        log(`Deleting student [${name}]...`);
-        try {
-            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'delete_student', pin: PIN, id: id }) });
-            const j = await res.json();
-            if (j.status === "success") {
-                log(`Student [${name}] deleted.`, "success");
-                fetchProgress();
-            } else log(j.message, "error");
-        } catch (e) { log(e.message, "error"); }
-    }
+        async function deleteStudent(id, name) {
+            if (!confirm(`DELETE STUDENT: ${name}?\n\nThis will permanently remove all progress data. This action cannot be undone.`)) return;
+            log(`Deleting student [${name}]...`);
+            try {
+                const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'delete_student', pin: PIN, id: id }) });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log(`Student [${name}] deleted.`, "success");
+                    fetchProgress();
+                } else log(j.message, "error");
+            } catch (e) { log(e.message, "error"); }
+        }
 
-    async function runAI(uid, mid) {
-        log(`Initiating AI Analysis for Archive [${uid}]...`);
-        // Find student data
-        const student = allProgress.find(p => p.id === uid); if (!student) return log("User not found", "error");
-        const mData = student.missionData[mid]; if (!mData) return log("Mission data not found", "error");
+        async function runAI(uid, mid) {
+            log(`Initiating AI Analysis for Archive [${uid}]...`);
+            // Find student data
+            const student = allProgress.find(p => p.id === uid); if (!student) return log("User not found", "error");
+            const mData = student.missionData[mid]; if (!mData) return log("Mission data not found", "error");
 
-        try {
-            const res = await fetch(URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'generate_ai_feedback',
-                    pin: PIN,
-                    rationales: mData.rat,
-                    context: { title: mid }
-                })
-            });
-            const j = await res.json();
-            if (j.status === "success") {
-                log("AI Feedback generated successfully.", "success");
-                // Save feedback back to student state
-                mData.aiFeedback = j.feedback;
-                await fetch(URL, {
+            try {
+                const res = await fetch(URL, {
                     method: 'POST',
                     body: JSON.stringify({
-                        action: 'save_state',
-                        id: uid,
-                        missionId: mid,
-                        state: mData
+                        action: 'generate_ai_feedback',
+                        pin: PIN,
+                        rationales: mData.rat,
+                        context: { title: mid }
                     })
                 });
-                log("Feedback committed to student record.", "success");
-                fetchProgress();
-            } else log(j.message, "error");
-        } catch (e) { log(e.message, "error"); }
-    }
-
-    async function toggleAI(id, state) {
-        log(`Updating AI Protocols for [${id}]...`);
-        try {
-            // SHOTGUN APPROACH: Send multiple property names to try and hit the correct backend handler
-            const res = await fetch(URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'toggle_ai',
-                    pin: PIN,
-                    id: id,
-                    state: state,       // boolean
-                    enabled: state,     // alias
-                    val: state ? 1 : 0  // numeric
-                })
-            });
-            const j = await res.json();
-            if (j.status === "success") {
-                log(`Simulation AI for [${id}] updated.`, "success");
-                await fetchMissions();
-            } else {
-                log(`Backend Error: ${j.message}`, "error");
-                alert("Remote toggle failed. Please update 'enableAIFeedback' in your .blob file and re-upload.");
-                fetchMissions(); // Revert
-            }
-        } catch (e) { log(e.message, "error"); fetchMissions(); }
-    }
-
-    async function deleteMission(id) {
-        if (!confirm(`PERMANENT DELETION: Are you sure you want to scrub mission [${id}] from the record?`)) return;
-        log(`DELETING CAPSULE [${id}]...`);
-        try {
-            const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'delete_content', pin: PIN, id: id }) });
-            const j = await res.json();
-            if (j.status === "success") { log("CAPSULE DELETED.", "success"); fetchMissions(); } else log(j.message, "error");
-        } catch (e) { log(e.message, "error"); }
-    }
-
-    function renderMissions(missions) {
-        console.log("DEBUG: Missions Payload:", missions); // DEBUG INSPECTION
-        const list = document.getElementById('library-list');
-        if (!missions || missions.length === 0) {
-            list.innerHTML = "<div style='color:#ccc; padding:20px; font-size:0.65rem;'>No missions in archive.</div>";
-            document.getElementById('lib-log').innerText = "Archive empty.";
-            return;
+                const j = await res.json();
+                if (j.status === "success") {
+                    log("AI Feedback generated successfully.", "success");
+                    // Save feedback back to student state
+                    mData.aiFeedback = j.feedback;
+                    await fetch(URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'save_state',
+                            id: uid,
+                            missionId: mid,
+                            state: mData
+                        })
+                    });
+                    log("Feedback committed to student record.", "success");
+                    fetchProgress();
+                } else log(j.message, "error");
+            } catch (e) { log(e.message, "error"); }
         }
-        document.getElementById('lib-log').innerText = `${missions.length} mission(s) loaded.`;
 
-        let h = `<table style="width:100%; font-size:0.65rem; border-collapse:collapse;">
+        async function toggleAI(id, state) {
+            log(`Updating AI Protocols for [${id}]...`);
+            try {
+                // SHOTGUN APPROACH: Send multiple property names to try and hit the correct backend handler
+                const res = await fetch(URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'toggle_ai',
+                        pin: PIN,
+                        id: id,
+                        state: state,       // boolean
+                        enabled: state,     // alias
+                        val: state ? 1 : 0  // numeric
+                    })
+                });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log(`Simulation AI for [${id}] updated.`, "success");
+                    await fetchMissions();
+                } else {
+                    log(`Backend Error: ${j.message}`, "error");
+                    alert("Remote toggle failed. Please update 'enableAIFeedback' in your .blob file and re-upload.");
+                    fetchMissions(); // Revert
+                }
+            } catch (e) { log(e.message, "error"); fetchMissions(); }
+        }
+
+        async function deleteMission(id) {
+            if (!confirm(`PERMANENT DELETION: Are you sure you want to scrub mission [${id}] from the record?`)) return;
+            log(`DELETING CAPSULE [${id}]...`);
+            try {
+                const res = await fetch(URL, { method: 'POST', body: JSON.stringify({ action: 'delete_content', pin: PIN, id: id }) });
+                const j = await res.json();
+                if (j.status === "success") { log("CAPSULE DELETED.", "success"); fetchMissions(); } else log(j.message, "error");
+            } catch (e) { log(e.message, "error"); }
+        }
+
+        function renderMissions(missions) {
+            console.log("DEBUG: Missions Payload:", missions); // DEBUG INSPECTION
+            const list = document.getElementById('library-list');
+            if (!missions || missions.length === 0) {
+                list.innerHTML = "<div style='color:#ccc; padding:20px; font-size:0.65rem;'>No missions in archive.</div>";
+                document.getElementById('lib-log').innerText = "Archive empty.";
+                return;
+            }
+            document.getElementById('lib-log').innerText = `${missions.length} mission(s) loaded.`;
+
+            let h = `<table style="width:100%; font-size:0.65rem; border-collapse:collapse;">
                     <thead><tr style="border-bottom:1px solid #ddd; text-align:left;">
                         <th style="padding:8px; width:50px;">VISUAL</th>
                         <th style="padding:8px;">ID</th>
@@ -1324,10 +1404,10 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
                         <th style="padding:8px; text-align:center;">ACTION</th>
                     </tr></thead><tbody>`;
 
-        missions.forEach(m => {
-            const thumb = m.thumb || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&auto=format&fit=crop";
+            missions.forEach(m => {
+                const thumb = m.thumb || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&auto=format&fit=crop";
 
-            h += `<tr style="border-bottom:1px solid #eee;">
+                h += `<tr style="border-bottom:1px solid #eee;">
                     <td style="padding:8px;">
                         <div style="width:40px; height:25px; background-image:url('${thumb}'); background-size:cover; background-position:center; border-radius:2px; border:1px solid #ccc;"></div>
                     </td>
@@ -1342,77 +1422,77 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
                         <button class="btn-del" onclick="deleteMission('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:none; border:1px solid #c00; color:#c00; cursor:pointer;">DEL</button>
                     </td>
                   </tr>`;
-        });
-        h += `</tbody></table>`;
-        list.innerHTML = h;
-    }
-
-    // FAILSAFE: Ensure UI renders even if handshake is slow
-    window.onload = () => {
-        log("BOOT SEQUENCE INITIATED...");
-        fetchMissions();
-        setInterval(fetchProgress, 30000);
-    };
-
-    // PROJECTOR VIEW
-    function toggleProjector() {
-        const pv = document.getElementById('projector-view');
-        pv.classList.toggle('active');
-        if (pv.classList.contains('active')) renderProjectorBoard();
-    }
-
-    function renderProjectorBoard() {
-        const board = document.getElementById('proj-board');
-        const classFilter = document.getElementById('proj-class-filter');
-        const missionFilter = document.getElementById('proj-mission-filter');
-        document.getElementById('proj-sync').innerText = "[LOG_ACTIVE]";
-
-        // Build entries list
-        const entries = [];
-        const allClasses = new Set();
-        const allMissions = new Set();
-
-        allProgress.forEach(p => {
-            Object.keys(p.missionData || {}).forEach(mid => {
-                const st = p.missionData[mid];
-                if (st) {
-                    entries.push({ name: p.name, class: p.class, mission: mid, steps: st.dec ? Object.keys(st.dec).length : 0, brief: st.preDone ? "READY" : "BRIEFING" });
-                    allClasses.add(p.class);
-                    allMissions.add(mid);
-                }
             });
-        });
-
-        // Populate filter dropdowns (preserve selection)
-        const currentClass = classFilter.value;
-        const currentMission = missionFilter.value;
-
-        classFilter.innerHTML = '<option value="ALL">ALL CLASSES</option>';
-        [...allClasses].sort().forEach(c => {
-            classFilter.innerHTML += `<option value="${c}" ${c === currentClass ? 'selected' : ''}>${c}</option>`;
-        });
-
-        missionFilter.innerHTML = '<option value="ALL">ALL MISSIONS</option>';
-        [...allMissions].sort().forEach(m => {
-            missionFilter.innerHTML += `<option value="${m}" ${m === currentMission ? 'selected' : ''}>${m}</option>`;
-        });
-
-        // Apply filters
-        let filtered = entries;
-        if (classFilter.value !== 'ALL') {
-            filtered = filtered.filter(e => e.class === classFilter.value);
-        }
-        if (missionFilter.value !== 'ALL') {
-            filtered = filtered.filter(e => e.mission === missionFilter.value);
+            h += `</tbody></table>`;
+            list.innerHTML = h;
         }
 
-        // Sort and render
-        filtered.sort((a, b) => (a.class > b.class) ? 1 : (a.name > b.name) ? 1 : -1);
+        // FAILSAFE: Ensure UI renders even if handshake is slow
+        window.onload = () => {
+            log("BOOT SEQUENCE INITIATED...");
+            fetchMissions();
+            setInterval(fetchProgress, 30000);
+        };
 
-        let h = "";
-        filtered.forEach(e => {
-            const pct = (e.steps / 18) * 100;
-            h += `<div class="proj-card ${e.steps > 0 ? 'active' : ''}">
+        // PROJECTOR VIEW
+        function toggleProjector() {
+            const pv = document.getElementById('projector-view');
+            pv.classList.toggle('active');
+            if (pv.classList.contains('active')) renderProjectorBoard();
+        }
+
+        function renderProjectorBoard() {
+            const board = document.getElementById('proj-board');
+            const classFilter = document.getElementById('proj-class-filter');
+            const missionFilter = document.getElementById('proj-mission-filter');
+            document.getElementById('proj-sync').innerText = "[LOG_ACTIVE]";
+
+            // Build entries list
+            const entries = [];
+            const allClasses = new Set();
+            const allMissions = new Set();
+
+            allProgress.forEach(p => {
+                Object.keys(p.missionData || {}).forEach(mid => {
+                    const st = p.missionData[mid];
+                    if (st) {
+                        entries.push({ name: p.name, class: p.class, mission: mid, steps: st.dec ? Object.keys(st.dec).length : 0, brief: st.preDone ? "READY" : "BRIEFING" });
+                        allClasses.add(p.class);
+                        allMissions.add(mid);
+                    }
+                });
+            });
+
+            // Populate filter dropdowns (preserve selection)
+            const currentClass = classFilter.value;
+            const currentMission = missionFilter.value;
+
+            classFilter.innerHTML = '<option value="ALL">ALL CLASSES</option>';
+            [...allClasses].sort().forEach(c => {
+                classFilter.innerHTML += `<option value="${c}" ${c === currentClass ? 'selected' : ''}>${c}</option>`;
+            });
+
+            missionFilter.innerHTML = '<option value="ALL">ALL MISSIONS</option>';
+            [...allMissions].sort().forEach(m => {
+                missionFilter.innerHTML += `<option value="${m}" ${m === currentMission ? 'selected' : ''}>${m}</option>`;
+            });
+
+            // Apply filters
+            let filtered = entries;
+            if (classFilter.value !== 'ALL') {
+                filtered = filtered.filter(e => e.class === classFilter.value);
+            }
+            if (missionFilter.value !== 'ALL') {
+                filtered = filtered.filter(e => e.mission === missionFilter.value);
+            }
+
+            // Sort and render
+            filtered.sort((a, b) => (a.class > b.class) ? 1 : (a.name > b.name) ? 1 : -1);
+
+            let h = "";
+            filtered.forEach(e => {
+                const pct = (e.steps / 18) * 100;
+                h += `<div class="proj-card ${e.steps > 0 ? 'active' : ''}">
                 <div class="proj-name">${e.name}</div>
                 <div class="proj-class">${e.class} // ${e.mission}</div>
                 <div class="proj-stats">
@@ -1421,36 +1501,36 @@ SCHEMA: metadata, slides (id, type, title, content, mediaURL, intel: { primary, 
                 </div>
                 <div class="proj-bar"><div class="proj-fill" style="width:${pct}%"></div></div>
             </div>`;
-        });
-
-        document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS]`;
-        board.innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
-    }
-
-    // BATCH AI ANALYSIS
-    async function analyzeAll() {
-        const candidates = [];
-        allProgress.forEach(p => {
-            Object.keys(p.missionData || {}).forEach(mid => {
-                const st = p.missionData[mid];
-                if (st && st.preDone && !st.aiFeedback) candidates.push({ uid: p.id, mid: mid, name: p.name });
             });
-        });
-        if (candidates.length === 0) return log("No students ready for AI analysis.", "info");
-        if (!confirm(`Generate AI feedback for ${candidates.length} student(s)? This may take 1-2 minutes.`)) return;
 
-        log(`Starting batch AI analysis for ${candidates.length} students...`);
-        let processed = 0;
-        for (const c of candidates) {
-            await runAI(c.uid, c.mid);
-            processed++;
-            log(`Progress: ${processed}/${candidates.length} (${c.name})`, "info");
-            if (processed < candidates.length) await new Promise(r => setTimeout(r, 4000)); // Rate limit: 15 RPM
+            document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS]`;
+            board.innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
         }
-        log(`Batch complete. ${processed} students analyzed.`, "success");
-        fetchProgress();
-    }
-</script>
+
+        // BATCH AI ANALYSIS
+        async function analyzeAll() {
+            const candidates = [];
+            allProgress.forEach(p => {
+                Object.keys(p.missionData || {}).forEach(mid => {
+                    const st = p.missionData[mid];
+                    if (st && st.preDone && !st.aiFeedback) candidates.push({ uid: p.id, mid: mid, name: p.name });
+                });
+            });
+            if (candidates.length === 0) return log("No students ready for AI analysis.", "info");
+            if (!confirm(`Generate AI feedback for ${candidates.length} student(s)? This may take 1-2 minutes.`)) return;
+
+            log(`Starting batch AI analysis for ${candidates.length} students...`);
+            let processed = 0;
+            for (const c of candidates) {
+                await runAI(c.uid, c.mid);
+                processed++;
+                log(`Progress: ${processed}/${candidates.length} (${c.name})`, "info");
+                if (processed < candidates.length) await new Promise(r => setTimeout(r, 4000)); // Rate limit: 15 RPM
+            }
+            log(`Batch complete. ${processed} students analyzed.`, "success");
+            fetchProgress();
+        }
+    </script>
 </body>
 
 </html>
