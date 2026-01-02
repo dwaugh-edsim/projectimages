@@ -2497,7 +2497,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             // Slide Nodes
             if (accumulatedData.slides) {
                 accumulatedData.slides.forEach((s, i) => {
-                    h += `<div class="hosp-tab" id="hosp-tab-${i}" onclick="editHospNode(${i})">SLIDE ${i + 1}: ${(s.title || 'Untitled').substring(0, 15)}...</div>`;
+                    h += `<div class="hosp-tab" id="hosp-tab-${i}" onclick="editHospNode(${i})">SLIDE ${i + 1}: ${(s.shortTitle || s.title || 'Untitled').substring(0, 15)}...</div>`;
                 });
             }
 
@@ -2693,13 +2693,24 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             let h = `<h3 style="color:var(--forge-accent); margin-top:0;">INTELLIGENCE GLOSSARY</h3>`;
             h += `<div style="font-size:0.7rem; color:#666; margin-bottom:10px;">Define key terms for the AI context.</div>`;
 
-            // Render existing keys
-            Object.keys(data).forEach(key => {
-                h += `<div class="med-input" style="display:flex; justify-content:space-between;">
-                        <span style="color:var(--forge-accent);">${key}</span>
-                        <span style="color:#ccc;">${data[key]}</span>
-                       </div>`;
-            });
+            // Handle both array format [{term, definition}] and object format {key: value}
+            if (Array.isArray(data)) {
+                data.forEach((item, i) => {
+                    const term = item.term || item.key || `Item ${i + 1}`;
+                    const def = item.definition || item.value || item.description || JSON.stringify(item);
+                    h += `<div class="med-input" style="display:flex; justify-content:space-between; gap:10px;">
+                            <span style="color:var(--forge-accent); flex-shrink:0;">${term}</span>
+                            <span style="color:#ccc; text-align:right;">${def}</span>
+                           </div>`;
+                });
+            } else if (typeof data === 'object' && data !== null) {
+                Object.keys(data).forEach(key => {
+                    h += `<div class="med-input" style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--forge-accent);">${key}</span>
+                            <span style="color:#ccc;">${data[key]}</span>
+                           </div>`;
+                });
+            }
             h += `<div style="margin-top:10px; color:#888; font-size:0.7rem;">(Use RAW JSON mode to edit keys)</div>`;
             container.innerHTML = h;
         }
@@ -2717,14 +2728,17 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
             const tabData = slide.tabs[activeTabKey] || slide.tabs.primary || {};
 
+            // Support legacy data: image may be on slide root, not in tabs
+            const mediaUrl = tabData.image || slide.image || slide.video || "";
+
             // Media Preview Logic
             const imgLabel = document.createElement('label');
             imgLabel.className = 'med-label';
             imgLabel.innerText = `${activeTabKey.toUpperCase()} // VISUAL SENSOR FEED`;
             monitor.appendChild(imgLabel);
 
-            if (tabData.image) {
-                const url = tabData.image;
+            if (mediaUrl) {
+                const url = mediaUrl;
                 const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                 const isPDF = url.toLowerCase().endsWith('.pdf');
                 const isVideo = url.match(/\.(mp4|avi|mov|webm)$/i);
@@ -2754,10 +2768,10 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 monitor.appendChild(noSig);
             }
 
-            // Monitor Inputs
-            createSharedInput("Slide Title (Navigation)", slide.title || "", "title", slide, monitor);
+            // Monitor Inputs - use shortTitle as fallback
+            createSharedInput("Slide Title (Navigation)", slide.shortTitle || slide.title || "", "shortTitle", slide, monitor);
             createSharedInput("Tab Label", tabData.label || "", `tabs.${activeTabKey}.label`, slide, monitor);
-            createSharedInput("Image/Media URL", tabData.image || "", `tabs.${activeTabKey}.image`, slide, monitor, true); // True triggers re-render
+            createSharedInput("Image/Media URL", mediaUrl, `tabs.${activeTabKey}.image`, slide, monitor, true); // True triggers re-render
             createSharedInput("Interaction Prompt", slide.interactionPrompt || "", "interactionPrompt", slide, monitor);
 
             // --- RIGHT: DATA INPUT PANEL ---
