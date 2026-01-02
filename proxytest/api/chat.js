@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   try {
     // 4. Get the message and model from the frontend
     const { message, model } = req.body;
-    const finalModel = model || "xiaomi/mimo-v2-flash:free";
+    const finalModel = model || "ibm-granite/granite-4.0-h-micro";
 
     // 5. Call OpenRouter with your SECRET key
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
