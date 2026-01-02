@@ -2642,16 +2642,25 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         async function toggleAI(id, state) {
             log(`Updating AI Protocols for [${id}]...`);
+            const teacherId = (typeof googleUser !== 'undefined') ? googleUser.email : 'GUEST';
+
+            // OPTIMISTIC CACHE UPDATE: Prevent UI from "snapping back" if DB is slow
+            const cached = localStorage.getItem('TM_MISSION_CACHE');
+            if (cached) {
+                try {
+                    const missions = JSON.parse(cached);
+                    missions.forEach(m => { if (m.id === id) m.aiEnabled = state; });
+                    localStorage.setItem('TM_MISSION_CACHE', JSON.stringify(missions));
+                } catch (e) { }
+            }
 
             // --- 1. Supabase First (v72) ---
             if (SupabaseBridge.client) {
                 try {
-                    await SupabaseBridge.toggleAI(id, state);
+                    await SupabaseBridge.toggleAI(id, state, teacherId);
                     log(`Supabase AI Protocol Updated [${id}]: ${state ? 'ENABLED' : 'DISABLED'}`, "success");
-                    // Update local state and UI
-                    allProgress.forEach(m => { if (m.id === id) m.aiEnabled = state; });
-                    fetchMissions(); // Re-fetch missions to update UI
-                    return; // Avoid dual toggle for speed if Supabase works
+                    // We don't fetchMissions() immediately to avoid race conditions with optimistic cache
+                    return;
                 } catch (e) {
                     log(`Supabase Toggle Failed: ${e.message}`, "error");
                 }
@@ -2666,15 +2675,13 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 const j = await res.json();
                 if (j.status === "success") {
                     log(`Legacy AI Protocol Updated [${id}]`, "success");
-                    fetchMissions();
                 } else {
                     log(`Legacy Removal: ${j.message || 'Action restricted.'}`, "info");
-                    alert("Remote toggle failed. Please update 'enableAIFeedback' in your .blob file and re-upload.");
-                    fetchMissions();
+                    fetchMissions(); // Force revert UI
                 }
             } catch (e) {
                 log("Legacy Toggle Skipped.", "info");
-                fetchMissions(); // Revert UI if legacy fails
+                fetchMissions(); // Force revert UI
             }
         }
 

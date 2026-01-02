@@ -21,13 +21,16 @@ const SupabaseBridge = {
         return true;
     },
 
-    async toggleAI(missionId, enabled) {
+    async toggleAI(missionId, enabled, teacherId) {
         if (!this.client) return false;
-        const { error } = await this.client
+        let query = this.client
             .from('missions')
             .update({ ai_enabled: enabled, updated_at: new Date().toISOString() })
             .eq('mission_id', missionId);
 
+        if (teacherId) query = query.eq('teacher_id', teacherId);
+
+        const { error } = await query;
         if (error) throw error;
         return true;
     },
