@@ -1114,9 +1114,9 @@
         <div id="forge-overlay">
             <header class="forge-header">
                 <div style="display:flex; align-items:center; gap:20px;">
-                    style="font-family:'Oswald',sans-serif; font-size:1rem; color:#00ffcc; letter-spacing:3px;
-                    opacity:0.8;">SITUATION
-                    ROOM</span>
+                    <span
+                        style="font-family:'Oswald',sans-serif; font-size:1rem; color:#00ffcc; letter-spacing:3px; opacity:0.8;">SITUATION
+                        ROOM</span>
                     <span
                         style="color:#00ffcc; background: #c00; padding: 2px 10px; font-size: 0.6rem; font-weight: bold; border-radius: 3px; animation: blink 1s infinite;">v73
                         ACTIVE</span>
@@ -1140,6 +1140,10 @@
             </div>
             <div class="pipeline-controls">
                 <button onclick="resetPipeline()">↺ RESET DEFAULT</button>
+                <button onclick="document.getElementById('import-file').click()"
+                    style="border-color:#00ffcc; color:#00ffcc;">📁 IMPORT FROM DISK</button>
+                <input type="file" id="import-file" style="display:none" accept=".blob,.json"
+                    onchange="handleLocalImport(this)">
                 <button onclick="jumpToPhase(forgePipeline.length - 1)"
                     style="margin-left:auto; border-color:var(--accent); color:var(--accent);">SKIP TO BIRTH →</button>
             </div>
@@ -2339,6 +2343,58 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             } catch (e) { alert("Surgical Error: Invalid JSON in editor."); }
         }
 
+        // --- IMPORT MISSION ---
+        function handleLocalImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const payload = JSON.parse(e.target.result);
+                    loadMissionIntoForge(payload, "FILE IMPORT");
+                } catch (err) {
+                    log("Import Error: Invalid .blob or .json format", "error");
+                    alert("FAILED: The file provided is not a valid Mission Capsule.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function importMissionFromArchive(id) {
+            log(`Loading Archive Mission [${id}]...`);
+            const cachedMissions = JSON.parse(localStorage.getItem('TM_MISSION_CACHE') || "[]");
+            const m = cachedMissions.find(x => x.id === id);
+
+            if (m && m.payload) {
+                loadMissionIntoForge(m.payload, `ARCHIVE: ${m.name}`);
+                toggleLibrary(); // Close hub
+            } else {
+                log("Archive Error: Payload missing in cache.", "error");
+                alert("This mission is indexed but the data is not in your local cache. Try refreshing the archive.");
+            }
+        }
+
+        function loadMissionIntoForge(payload, sourceLabel) {
+            if (!payload.metadata || !payload.slides) {
+                log("Import Warning: Mission structure seems non-standard.", "error");
+            }
+
+            accumulatedData = payload;
+            log(`DECRYPTED: Mission Capsule loaded from ${sourceLabel}.`, "success");
+
+            // Jump to Birth Phase (Index 4 usually)
+            currentPipelineIdx = forgePipeline.indexOf('birth');
+            if (currentPipelineIdx === -1) currentPipelineIdx = forgePipeline.length - 1;
+
+            updateForgeUI();
+
+            // Auto-open Hospital if detected
+            if (payload.slides && payload.slides.length > 0) {
+                openHospital();
+                addForgeChat("ai", `!!! MISSION DATA RECOVERED [Source: ${sourceLabel}]. You are now in the Surgical Fine-Tuning mode. You can edit the JSON directly or re-birth the mission.`);
+            }
+        }
+
         function downloadBirthedBlob() {
             if (!accumulatedData) return;
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(accumulatedData, null, 2));
@@ -2781,7 +2837,9 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                         </label>
                     </td>
                     <td style="padding:8px; text-align:center;">
-                        ${publishBtn}<button class="btn-del" onclick="deleteMission('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:none; border:1px solid #c00; color:#c00; cursor:pointer;">DEL</button>
+                        ${publishBtn}
+                        <button onclick="importMissionFromArchive('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:#0088ff; color:#fff; border:none; cursor:pointer; margin-right:4px;">LOAD</button>
+                        <button class="btn-del" onclick="deleteMission('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:none; border:1px solid #c00; color:#c00; cursor:pointer;">DEL</button>
                     </td>
                   </tr>`;
             });
