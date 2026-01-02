@@ -21,6 +21,29 @@ const SupabaseBridge = {
         return true;
     },
 
+    async toggleAI(missionId, enabled) {
+        if (!this.client) return false;
+        const { error } = await this.client
+            .from('missions')
+            .update({ ai_enabled: enabled, updated_at: new Date().toISOString() })
+            .eq('mission_id', missionId);
+
+        if (error) throw error;
+        return true;
+    },
+
+    async fetchMissionStatus(missionId) {
+        if (!this.client) return null;
+        const { data, error } = await this.client
+            .from('missions')
+            .select('ai_enabled, is_public, updated_at')
+            .eq('mission_id', missionId)
+            .single();
+
+        if (error) return null;
+        return data; // returns {ai_enabled: true/false, is_public: true/false}
+    },
+
     // --- MISSION OPERATIONS ---
     async saveMission(missionId, name, payload, teacherId) {
         if (!this.client) return this.saveToLegacy(name, payload);
@@ -32,7 +55,9 @@ const SupabaseBridge = {
                 teacher_id: teacherId,
                 title: name,
                 blob_data: payload,
-                updated_at: new Date()
+                is_public: true,
+                ai_enabled: true, // v72 Default
+                updated_at: new Date().toISOString()
             })
             .select();
 
@@ -54,7 +79,8 @@ const SupabaseBridge = {
             id: m.mission_id,
             name: m.title,
             payload: m.blob_data,
-            updated: m.updated_at
+            updated: m.updated_at,
+            aiEnabled: m.ai_enabled !== false // Safeguard default true
         }));
     },
 
@@ -65,6 +91,54 @@ const SupabaseBridge = {
             .delete()
             .eq('mission_id', missionId)
             .eq('teacher_id', teacherId);
+
+        if (error) throw error;
+        return true;
+    },
+
+    // --- TELEMETRY / LOGGING OPERATIONS ---
+    async logSubmission(logData) {
+        if (!this.client) {
+            console.warn("SUPABASE_BRIDGE: No client initialized. Caching locally.");
+            return false;
+        }
+
+        const { data, error } = await this.client
+            .from('simulation_logs')
+            .insert({
+                student_name: logData.studentName,
+                class_period: logData.classPeriod,
+                mission_id: logData.missionId,
+                teacher_id: logData.teacherId,
+                decision_json: logData.decisionJson,
+                rationale: logData.rationale,
+                score: logData.score
+            })
+            .select();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async fetchLogs(teacherId, classCode) {
+        if (!this.client) return [];
+        let query = this.client.from('simulation_logs').select('*');
+
+        if (teacherId) query = query.eq('teacher_id', teacherId);
+        if (classCode) query = query.eq('class_period', classCode);
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+    },
+
+    async deleteLogs(studentName, classCode) {
+        if (!this.client) return false;
+        const { error } = await this.client
+            .from('simulation_logs')
+            .delete()
+            .eq('student_name', studentName)
+            .eq('class_period', classCode);
 
         if (error) throw error;
         return true;

@@ -16,6 +16,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
     <script src="critical_crypto.js"></script>
     <script src="social_history_sim_engine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_bridge.js"></script>
     <style>
         :root {
             --bg: #020202;
@@ -1176,6 +1178,27 @@
                 const r = await fetch(API_URL + "?action=fetch_content&id=" + id); const j = await r.json();
                 if (j.status === "error") throw new Error(j.message);
                 await processData(j, id);
+
+                // [Telemetry v72] Initialize Supabase Bridge from Mission Metadata
+                const sbUrl = window.DATA.metadata.sb_url;
+                const sbKey = window.DATA.metadata.sb_key;
+                if (sbUrl && sbKey) {
+                    SupabaseBridge.init(sbUrl, sbKey);
+                    console.log("[TELEMETRY] Supabase Link Operational (via Mission Metadata).");
+
+                    // [Remote Toggle v72] Sync AI status from Master Spreadsheet
+                    try {
+                        const status = await SupabaseBridge.fetchMissionStatus(id);
+                        if (status && status.ai_enabled !== undefined) {
+                            console.log(`[REMOTE_SYNC] AI Feedback Override: ${status.ai_enabled}`);
+                            if (!window.DATA.metadata) window.DATA.metadata = {};
+                            window.DATA.metadata.enableAIFeedback = status.ai_enabled;
+                        }
+                    } catch (e) {
+                        console.warn("[REMOTE_SYNC] Failed to fetch live AI status, falling back to blob default.");
+                    }
+                }
+
                 document.getElementById('loading-screen').style.display = 'none';
             } catch (e) { console.error(e); alert(e.message); document.getElementById('loading-screen').style.display = 'none'; }
         }
@@ -1191,7 +1214,7 @@
             }
             document.documentElement.style.setProperty('--font-h', hFont);
 
-            const simVer = 'v65.71';
+            const simVer = 'v72.SB';
             if (document.getElementById('splash-version')) document.getElementById('splash-version').innerText = simVer;
 
             const m = window.DATA.metadata || {};
@@ -1200,7 +1223,7 @@
                 s.style.backgroundSize = "cover"; s.style.backgroundPosition = "center";
             }
             document.getElementById('m-header').innerText = m.title || "ARCHIVE LOG";
-            document.getElementById('f-left').innerHTML = `${m.title || currentMission} | SITUATION ROOM PROTOCOL v65.71`;
+            document.getElementById('f-left').innerHTML = `${m.title || currentMission} | SITUATION ROOM PROTOCOL v72.SB`;
 
             // Populate the outcomes panel (popup) instead of inline text
             populateOutcomes();
@@ -1487,6 +1510,9 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                 if (qs.length > 0 && refIdx < qs.length) {
                     if (!a) return alert("Response required.");
                     user.state.ans[refMode + "_" + refIdx] = a;
+
+                    // [Telemetry v72] Log Reflection to Master Spreadsheet
+                    transmitTelemetry('REF_' + refIdx, a);
                 }
                 refIdx++;
                 if (refIdx < qs.length) { renderRef(); save(); }
@@ -1790,6 +1816,9 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                 user.state.simState = SocialHistorySim.state;
                 user.state.dec[i] = "ACTION_TAKEN";
 
+                // [Telemetry v72] Log AI Turn to Master Spreadsheet
+                transmitTelemetry(i, input);
+
                 save();
                 go(i);
             } catch (err) {
@@ -1806,6 +1835,9 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
             user.state.rat[i] = r; user.state.dec[i] = l;
             save(); renderNav(); go(i);
 
+            // [Telemetry v72] Log to Master Spreadsheet (Supabase)
+            transmitTelemetry(i, r);
+
             // HISTORICAL REVEAL LOGIC
             const s = window.DATA.slides[i];
             if (s.historicalOutcome) {
@@ -1813,6 +1845,47 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
             }
 
             if (i === window.DATA.slides.length - 1 && !s.historicalOutcome) setTimeout(() => startRef("post"), 1000);
+        }
+
+        async function transmitTelemetry(slideIndex, rationale) {
+            // [Telemetry v72] Dynamic Handshake
+            if (!SupabaseBridge.client) {
+                const sbUrl = window.DATA?.metadata?.sb_url;
+                const sbKey = window.DATA?.metadata?.sb_key;
+                if (sbUrl && sbKey) {
+                    SupabaseBridge.init(sbUrl, sbKey);
+                    console.log("[TELEMETRY] Master Spreadsheet Link Operational (via v72.SB Metadata).");
+                } else {
+                    console.warn("[TELEMETRY] Handshake Interrupted: Mission capsule requires v72.SB re-injection in Teacher Mode.");
+                    return;
+                }
+            }
+
+            try {
+                // Route to creator_email if present, else fallback to generic author
+                const targetTeacher = window.DATA.metadata.creator_email || window.DATA.metadata.author || "OFFLINE_GUEST";
+
+                const telemetryData = {
+                    studentName: user.name,
+                    classPeriod: user.class,
+                    missionId: currentMission,
+                    teacherId: targetTeacher,
+                    decisionJson: {
+                        slideIndex: slideIndex,
+                        stats: SocialHistorySim.state,
+                        inventory: SocialHistorySim.state.inventory,
+                        choice: user.state.dec[slideIndex]
+                    },
+                    rationale: rationale,
+                    score: SocialHistorySim.state.morale
+                };
+
+                console.log(`[TELEMETRY] Broadcasting to [${targetTeacher}]'s Master Spreadsheet...`);
+                await SupabaseBridge.logSubmission(telemetryData);
+                console.log("[TELEMETRY] Broadcast Successful.");
+            } catch (e) {
+                console.error("[TELEMETRY] Broadcast Failed:", e);
+            }
         }
 
         async function toggleHistoricalPanel(show, content) {

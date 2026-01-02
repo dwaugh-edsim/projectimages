@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>MISSION CONTROL // SITUATION ROOM (v66.47)</title>
+    <title>MISSION CONTROL // SITUATION ROOM (v72.SB)</title>
     <script>
         // --- BOOTSTRAP CONFIGURATION ---
         (function bootstrap() {
@@ -995,9 +995,12 @@
                 ROOM</span>
             <span style="color:#444;">|</span>
             <span id="s-light" class="status-light"></span>
-            <button id="sync-btn" onclick="syncManager.toggle()"
-                style="background:none; border:none; color:#666; font-family:'Oswald',sans-serif; font-size:0.65rem; letter-spacing:2px; cursor:pointer;">[
-                ☁️ LOCAL_ONLY ]</button>
+            <div id="sb-status"
+                style="font-family:'Oswald',sans-serif; font-size:0.65rem; color:#444; letter-spacing:1px; border:1px solid #333; padding:2px 6px; border-radius:3px;">
+                SB_OFFLINE</div>
+            <div id="cl-status"
+                style="font-family:'Oswald',sans-serif; font-size:0.65rem; color:#444; letter-spacing:1px; border:1px solid #333; padding:2px 6px; border-radius:3px;">
+                CL_LOCAL</div>
         </div>
         <div style="display:flex; gap:15px; align-items:center;">
             <button onclick="toggleProjector()"
@@ -1011,7 +1014,7 @@
             <button onclick="toggleLibrary()"
                 style="background:none; color:#00ffcc; font-size:0.6rem; border:1px solid #00ffcc; padding:6px 15px; cursor:pointer; font-family:'Oswald',sans-serif; letter-spacing:1px;">📚
                 HUB</button>
-            <div style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">v66.487</div>
+            <div style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">v72.SB.001</div>
         </div>
     </div>
     <div style="display:flex; align-items:center; margin:30px 40px; gap:20px;">
@@ -2414,6 +2417,12 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             const teacherId = (typeof googleUser !== 'undefined') ? googleUser.email : 'GUEST';
             const payload = JSON.parse(raw);
 
+            // [Telemetry v72] Inject logging target into mission metadata
+            if (!payload.metadata) payload.metadata = {};
+            payload.metadata.creator_email = teacherId;
+            payload.metadata.sb_url = localStorage.getItem('TM_SUPABASE_URL');
+            payload.metadata.sb_key = localStorage.getItem('TM_SUPABASE_KEY');
+
             // --- 1. Supabase First (V72) ---
             if (SupabaseBridge.client) {
                 try {
@@ -2473,17 +2482,56 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         async function fetchProgress() {
             document.getElementById('sync-tick').innerText = "[SYNC_BUSY]";
+
+            // --- 1. Supabase First (Telemetry v72) ---
+            if (SupabaseBridge.client) {
+                try {
+                    const teacherId = (typeof googleUser !== 'undefined') ? googleUser.email : 'GUEST';
+                    const logs = await SupabaseBridge.fetchLogs(teacherId);
+
+                    if (logs && logs.length > 0) {
+                        const normalized = {};
+                        logs.forEach(l => {
+                            const key = l.student_name + "_" + l.class_period;
+                            if (!normalized[key]) {
+                                normalized[key] = {
+                                    id: l.id,
+                                    name: l.student_name,
+                                    class: l.class_period || "UNKNOWN",
+                                    missionData: {}
+                                };
+                            }
+                            if (!normalized[key].missionData[l.mission_id]) {
+                                normalized[key].missionData[l.mission_id] = { dec: {}, rat: {}, preDone: true };
+                            }
+                            if (l.decision_json && typeof l.decision_json.slideIndex !== 'undefined') {
+                                normalized[key].missionData[l.mission_id].dec[l.decision_json.slideIndex] = "SB_RECORD";
+                                normalized[key].missionData[l.mission_id].rat[l.decision_json.slideIndex] = l.rationale;
+                            }
+                        });
+                        allProgress = Object.values(normalized);
+                        updateClassFilter(); renderProgress();
+                        document.getElementById('sync-tick').innerText = "[SYNC_SB_OK]";
+                        setTimeout(() => document.getElementById('sync-tick').innerText = "[SYNC_IDLE]", 3000);
+                        return; // Successfully used Supabase, skip legacy
+                    }
+                } catch (e) {
+                    log("Supabase Progress Fetch Failed: " + e.message, "error");
+                }
+            }
+
+            // --- 2. Google Sheets Fallback ---
             try {
                 const res = await fetchWithTimeout(TM_URL, { method: 'POST', body: JSON.stringify({ action: 'fetch_progress', pin: TM_PIN }) });
                 const j = await res.json();
                 if (j.status === "success") {
                     allProgress = j.progress;
                     updateClassFilter(); renderProgress();
-                    document.getElementById('sync-tick').innerText = "[SYNC_OK]";
+                    document.getElementById('sync-tick').innerText = "[SYNC_LEGACY_OK]";
                     setTimeout(() => document.getElementById('sync-tick').innerText = "[SYNC_IDLE]", 3000);
                 }
             } catch (e) {
-                log("Progress sync failed: " + e.message, "error");
+                log("Legacy progress sync failed: " + e.message, "error");
                 document.getElementById('sync-tick').innerText = "[SYNC_FAIL]";
             }
         }
@@ -2514,24 +2562,46 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                             <div style="font-size:0.7rem; font-weight:bold;">${displayName} <span style="color:#888; font-weight:normal; font-size:0.65rem;">${p.class}</span></div>
                             <div style="color:#666; font-size:0.6rem; margin-top:2px;">MISSION: ${mid} | STEP: ${decs} | BRIEF: ${pre}</div>
                         </div>
-                        <button class="btn" style="padding:5px 10px; font-size:0.6rem; background:#c00; color:#fff; white-space:nowrap; flex-shrink:0; width:auto !important;" onclick="deleteStudent('${p.id}', '${displayName}')">DEL</button>
+                         <button class="btn" style="padding:5px 10px; font-size:0.6rem; background:#c00; color:#fff; white-space:nowrap; flex-shrink:0; width:auto !important;" onclick="deleteStudent('${p.id}', '${displayName}', '${p.class}')">DEL</button>
                       </div>`;
                 });
             });
             document.getElementById('progress-list').innerHTML = h || "<p style='color:#ccc; padding:20px; font-size:0.65rem;'>No student data detected.</p>";
         }
 
-        async function deleteStudent(id, name) {
+        async function deleteStudent(id, name, classCode) {
             if (!confirm(`DELETE STUDENT: ${name}?\n\nThis will permanently remove all progress data. This action cannot be undone.`)) return;
-            log(`Deleting student [${name}]...`);
+            log(`Purging records for [${name}] class [${classCode}]...`);
+
+            // --- 1. Supabase First (Telemetry v72) ---
+            if (SupabaseBridge.client) {
+                try {
+                    const success = await SupabaseBridge.deleteLogs(name, classCode);
+                    if (success) log(`Supabase records purged for ${name}.`, "success");
+                } catch (e) {
+                    console.warn("Supabase Delete Failed:", e);
+                }
+            }
+
+            // --- 2. Google Sheets Fallback ---
             try {
-                const res = await fetch(TM_URL, { method: 'POST', body: JSON.stringify({ action: 'delete_student', pin: TM_PIN, id: id }) });
+                // NOTE: Legacy backend action might be 'delete_user' or 'delete_progress' 
+                // but we keep 'delete_student' and add a safety check
+                const res = await fetch(TM_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete_student', pin: TM_PIN, id: id, name: name, class: classCode })
+                });
                 const j = await res.json();
                 if (j.status === "success") {
-                    log(`Student [${name}] deleted.`, "success");
-                    fetchProgress();
-                } else log(j.message, "error");
-            } catch (e) { log(e.message, "error"); }
+                    log(`Legacy records purged for ${name}.`, "success");
+                } else {
+                    log(`Legacy Removal: ${j.message || 'Action restricted.'}`, "info");
+                }
+            } catch (e) {
+                log("Legacy Cleanup Skipped: Network restriction or expired endpoint.", "info");
+            }
+
+            setTimeout(fetchProgress, 500);
         }
 
         async function runAI(uid, mid) {
@@ -2572,29 +2642,40 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         async function toggleAI(id, state) {
             log(`Updating AI Protocols for [${id}]...`);
+
+            // --- 1. Supabase First (v72) ---
+            if (SupabaseBridge.client) {
+                try {
+                    await SupabaseBridge.toggleAI(id, state);
+                    log(`Supabase AI Protocol Updated [${id}]: ${state ? 'ENABLED' : 'DISABLED'}`, "success");
+                    // Update local state and UI
+                    allProgress.forEach(m => { if (m.id === id) m.aiEnabled = state; });
+                    fetchMissions(); // Re-fetch missions to update UI
+                    return; // Avoid dual toggle for speed if Supabase works
+                } catch (e) {
+                    log(`Supabase Toggle Failed: ${e.message}`, "error");
+                }
+            }
+
+            // --- 2. Legacy Fallback ---
             try {
-                // SHOTGUN APPROACH: Send multiple property names to try and hit the correct backend handler
                 const res = await fetch(TM_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'toggle_ai',
-                        pin: TM_PIN,
-                        id: id,
-                        state: state,       // boolean
-                        enabled: state,     // alias
-                        val: state ? 1 : 0  // numeric
-                    })
+                    body: JSON.stringify({ action: 'toggle_ai', pin: TM_PIN, id: id, state: state })
                 });
                 const j = await res.json();
                 if (j.status === "success") {
-                    log(`Simulation AI for [${id}] updated.`, "success");
-                    await fetchMissions();
+                    log(`Legacy AI Protocol Updated [${id}]`, "success");
+                    fetchMissions();
                 } else {
-                    log(`Backend Error: ${j.message}`, "error");
+                    log(`Legacy Removal: ${j.message || 'Action restricted.'}`, "info");
                     alert("Remote toggle failed. Please update 'enableAIFeedback' in your .blob file and re-upload.");
-                    fetchMissions(); // Revert
+                    fetchMissions();
                 }
-            } catch (e) { log(e.message, "error"); fetchMissions(); }
+            } catch (e) {
+                log("Legacy Toggle Skipped.", "info");
+                fetchMissions(); // Revert UI if legacy fails
+            }
         }
 
         async function deleteMission(id) {
@@ -2681,7 +2762,23 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
             // V72 Supabase Init
             if (SB_URL && SB_KEY) {
-                SupabaseBridge.init(SB_URL, SB_KEY);
+                const connected = SupabaseBridge.init(SB_URL, SB_KEY);
+                if (connected) {
+                    const sbIndicator = document.getElementById('sb-status');
+                    sbIndicator.innerText = "SB_LIVE";
+                    sbIndicator.style.color = "var(--accent)";
+                    sbIndicator.style.borderColor = "var(--accent)";
+                    sbIndicator.style.boxShadow = "0 0 10px var(--accent-dim)";
+                }
+            }
+
+            // Sync Status
+            const lastSync = localStorage.getItem('TM_LAST_SYNC');
+            if (lastSync) {
+                const cl = document.getElementById('cl-status');
+                cl.innerText = "CL_SYNCED";
+                cl.style.color = "#00ff88";
+                cl.style.borderColor = "#00ff88";
             }
 
             if (typeof google !== 'undefined' && google.accounts) {
