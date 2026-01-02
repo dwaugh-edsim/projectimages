@@ -1466,7 +1466,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             });
             document.getElementById('hub-grid').innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.5; padding:100px; color:#fff;'>NO MISSIONS IN CATALOG.</div>";
         }
-        async function publishToHub(id, title, thumb) {
+        async function publishToHub(id, title, thumb, description) {
             if (!confirm(`Publish "${title}" to Community Hub?`)) return;
             log(`Publishing [${id}] to Community Hub...`);
             try {
@@ -1480,7 +1480,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                         title: title,
                         author: googleUser ? googleUser.name : "Unknown",
                         thumb: thumb,
-                        description: ""
+                        description: description || "An interactive educational simulation."
                     })
                 });
                 const j = await res.json();
@@ -2242,7 +2242,8 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
             missions.forEach(m => {
                 const thumb = m.thumb || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&auto=format&fit=crop";
-                const publishBtn = isUserAdmin ? `<button onclick="publishToHub('${m.id}', '${m.name}', '${thumb}')" style="font-size:0.5rem; padding:3px 6px; background:#00ffcc; color:#000; border:none; cursor:pointer; margin-right:4px;">PUB</button>` : "";
+                const desc = (m.description || "").replace(/'/g, "\\'").substring(0, 200);
+                const publishBtn = isUserAdmin ? `<button onclick="publishToHub('${m.id}', '${m.name.replace(/'/g, "\\'")}', '${thumb}', '${desc}')" style="font-size:0.5rem; padding:3px 6px; background:#00ffcc; color:#000; border:none; cursor:pointer; margin-right:4px;">PUB</button>` : "";
 
                 h += `<tr style="border-bottom:1px solid #eee;">
                     <td style="padding:8px;">
