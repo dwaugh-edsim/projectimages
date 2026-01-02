@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SITUATION ROOM | Inquiry at Terminal Velocity</title>
+    <title>SITUATION ROOM | Critical Juncture Simulation Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Oswald:wght@700&family=JetBrains+Mono:wght@500&display=swap"
         rel="stylesheet">
@@ -13,11 +15,11 @@
             --bg: #050505;
             --accent: #00ffcc;
             --accent-dim: rgba(0, 255, 204, 0.1);
-            --border: #0a2a2a;
+            --secondary: #0a2a2a;
+            --blue-accent: #0088ff;
             --font-h: 'Oswald', sans-serif;
             --font-p: 'Inter', sans-serif;
             --font-m: 'JetBrains Mono', monospace;
-            --section-gap: 120px;
         }
 
         * {
@@ -32,7 +34,9 @@
             font-family: var(--font-p);
             line-height: 1.6;
             overflow-x: hidden;
-            scroll-behavior: smooth;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* MEDICAL SCANLINE OVERLAY */
@@ -51,283 +55,217 @@
             opacity: 0.5;
         }
 
-        h1,
-        h2,
-        h3 {
+        header {
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--secondary);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        h1 {
             font-family: var(--font-h);
+            font-size: 1.5rem;
+            margin: 0;
+            letter-spacing: 5px;
+            color: var(--accent);
             text-transform: uppercase;
+        }
+
+        .version-tag {
+            font-family: var(--font-m);
+            font-size: 0.7rem;
+            color: #666;
             letter-spacing: 2px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px;
+        .main-stage {
+            flex: 1;
+            display: flex;
+            position: relative;
         }
 
-        /* --- HERO SECTION --- */
-        .hero {
-            height: 100vh;
+        .split-pane {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            padding: 60px;
             position: relative;
-            text-align: center;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            border-right: 1px solid var(--secondary);
+            overflow: hidden;
+        }
+
+        .split-pane:last-child {
+            border-right: none;
+        }
+
+        /* STUDENT SIDE (LEFT) */
+        .student-pane {
+            background: radial-gradient(circle at center, #0a1010 0%, #050505 70%);
+        }
+
+        .student-pane:hover {
             background: radial-gradient(circle at center, #0a1a1a 0%, #050505 70%);
         }
 
-        .hero h1 {
-            font-size: 7rem;
-            margin: 0;
-            letter-spacing: 25px;
-            color: var(--accent);
-            text-shadow: 0 0 40px rgba(0, 255, 204, 0.4);
-            animation: glitch 5s infinite;
+        /* TEACHER SIDE (RIGHT) */
+        .teacher-pane {
+            background: radial-gradient(circle at center, #080a10 0%, #050505 70%);
         }
 
-        .hero p {
+        .teacher-pane:hover {
+            background: radial-gradient(circle at center, #0a0e1a 0%, #050505 70%);
+        }
+
+        .pane-content {
+            text-align: center;
+            max-width: 500px;
+            z-index: 10;
+        }
+
+        .role-tag {
             font-family: var(--font-m);
-            font-size: 1.1rem;
-            letter-spacing: 8px;
-            opacity: 0.7;
-            margin-top: 25px;
+            font-size: 0.8rem;
             text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.5);
         }
 
-        .hero-cta {
-            margin-top: 60px;
-            display: flex;
-            gap: 20px;
+        .student-pane .role-tag {
+            color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+        }
+
+        .teacher-pane .role-tag {
+            color: var(--blue-accent);
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 15px rgba(0, 136, 255, 0.1);
+        }
+
+        h2 {
+            font-family: var(--font-h);
+            font-size: 3.5rem;
+            margin: 0 0 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-weight: 300;
         }
 
         .btn {
-            background: none;
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            padding: 15px 35px;
-            font-family: var(--font-h);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
+            display: inline-block;
             text-decoration: none;
+            padding: 20px 50px;
+            font-family: var(--font-h);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: bold;
             transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            background: #000;
             position: relative;
-            overflow: hidden;
         }
 
-        .btn:hover {
+        /* BUTTON STYLES */
+        .btn-student {
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
+        }
+
+        .btn-student:hover {
             background: var(--accent);
             color: #000;
-            box-shadow: 0 0 30px var(--accent);
-        }
-
-        .btn.secondary {
-            border-color: #333;
-            color: #888;
-        }
-
-        .btn.secondary:hover {
-            border-color: #888;
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: none;
-        }
-
-        /* --- MANIFESTO SECTION --- */
-        .section-manifesto {
-            padding: var(--section-gap) 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .manifesto-header {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 80px;
-        }
-
-        .manifesto-header h2 {
-            font-size: 3rem;
-            color: #fff;
-            margin-bottom: 20px;
-        }
-
-        .manifesto-header p {
-            font-size: 1.2rem;
-            opacity: 0.7;
-            font-weight: 300;
-        }
-
-        .philosophy-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-        }
-
-        .p-card {
-            padding: 40px;
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
-            transition: transform 0.3s;
-        }
-
-        .p-card:hover {
-            transform: translateY(-10px);
-            background: rgba(0, 255, 204, 0.03);
-            border-color: var(--accent);
-        }
-
-        .p-card h3 {
-            color: var(--accent);
-            font-size: 1.4rem;
-            margin-top: 0;
-        }
-
-        .p-card p {
-            font-size: 0.9rem;
-            opacity: 0.5;
-        }
-
-        /* --- THE ARSENAL (TOOL CARDS) --- */
-        .section-arsenal {
-            padding: var(--section-gap) 0;
-            background: #080808;
-        }
-
-        .arsenal-header {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .arsenal-header p {
-            font-family: var(--font-m);
-            color: var(--accent);
-            font-size: 0.8rem;
-            margin-top: 10px;
-            opacity: 0.7;
-        }
-
-        .tool-showcase {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-bottom: 100px;
-        }
-
-        .tool-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .tool-tag {
-            font-family: var(--font-m);
-            font-size: 0.7rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-
-        .tool-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .tool-desc {
-            font-size: 1rem;
-            opacity: 0.6;
-            margin-bottom: 30px;
-            font-weight: 300;
-        }
-
-        .tool-visual {
-            background: #000;
-            border: 1px solid var(--border);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tool-visual img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-            transition: transform 0.5s;
-        }
-
-        .tool-visual:hover img {
+            box-shadow: 0 0 60px rgba(0, 255, 204, 0.4);
             transform: scale(1.05);
         }
 
-        .tool-visual::after {
-            content: "OPERATIONAL PREVIEW";
+        .btn-teacher {
+            color: var(--blue-accent);
+            border: 1px solid var(--blue-accent);
+            box-shadow: 0 0 30px rgba(0, 136, 255, 0.1);
+        }
+
+        .btn-teacher:hover {
+            background: var(--blue-accent);
+            color: #000;
+            box-shadow: 0 0 60px rgba(0, 136, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .features {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            opacity: 0.6;
+        }
+
+        .feature-item {
+            font-family: var(--font-m);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .student-pane .dot {
+            background: var(--accent);
+        }
+
+        .teacher-pane .dot {
+            background: var(--blue-accent);
+        }
+
+        .watermark {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             font-family: var(--font-m);
-            font-size: 0.5rem;
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            padding: 4px 8px;
-            color: var(--accent);
-            opacity: 0.5;
-        }
-
-        /* --- FOOTER --- */
-        .footer {
-            padding: 80px 0;
-            border-top: 1px solid var(--border);
-            background: #000;
-            text-align: center;
-        }
-
-        .footer p {
-            font-family: var(--font-m);
-            font-size: 0.7rem;
-            opacity: 0.3;
+            font-size: 0.6rem;
+            color: #444;
             letter-spacing: 2px;
-        }
-
-        @keyframes glitch {
-            0% {
-                transform: translate(0);
-            }
-
-            1% {
-                transform: translate(-2px, 2px);
-            }
-
-            2% {
-                transform: translate(2px, -2px);
-            }
-
-            3% {
-                transform: translate(0);
-            }
-
-            100% {
-                transform: translate(0);
-            }
+            z-index: 50;
         }
 
         @media (max-width: 900px) {
-
-            .philosophy-grid,
-            .tool-showcase {
-                grid-template-columns: 1fr;
+            .main-stage {
+                flex-direction: column;
             }
 
-            .hero h1 {
-                font-size: 3rem;
+            h2 {
+                font-size: 2.5rem;
             }
 
-            .tool-showcase:nth-child(even) .tool-visual {
-                order: -1;
+            .split-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--secondary);
+                padding: 40px 20px;
             }
         }
     </style>
@@ -335,142 +273,60 @@
 
 <body>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="container">
-            <h1>SITUATION ROOM</h1>
-            <p>Historical Critical Junctures: When Everything Hangs on a Decision</p>
-            <div class="hero-cta">
-                <a href="#arsenal" class="btn">Examine the Arsenal</a>
-                <a href="simroom_DEMO.html" class="btn secondary">Enter Simulation</a>
-            </div>
-        </div>
-    </section>
+    <header>
+        <h1>Situation Room</h1>
+        <div class="version-tag">SYSTEM v66.492 // ONLINE</div>
+    </header>
 
-    <!-- MANIFESTO -->
-    <section class="section-manifesto" id="manifesto">
-        <div class="container">
-            <div class="manifesto-header">
-                <h2>The Juncture Standard</h2>
-                <p>Forget standard "educational gaming." We operate at the **Critical Juncture**. Students don't just
-                    "play"—they analyze watershed moments, cross the rubicon of decision-making, and file rationale for
-                    the record.</p>
-            </div>
+    <div class="main-stage">
+        <!-- LEFT: STUDENT / OPERATIVE -->
+        <div class="split-pane student-pane">
+            <div class="pane-content">
+                <span class="role-tag">Field Operative</span>
+                <h2>The Simulation</h2>
+                <p>Deploy into historical critical junctures. Analyze high-fidelity intel, debate policy, and file
+                    rationale in the heat of the moment.</p>
+                <a href="simroom.html" class="btn btn-student">LAUNCH SIMULATION</a>
 
-            <div class="philosophy-grid">
-                <div class="p-card">
-                    <h3>Zero Hour Analysis</h3>
-                    <p>Every mission is a high-fidelity Turning Point. Students must reconcile conflicting evidence
-                        across multiple tactical feeds before the fever breaks.</p>
-                </div>
-                <div class="p-card">
-                    <h3>Triple-Tab Protocol</h3>
-                    <p>Intel is segmented into PRIMARY, LEGAL, and INTEL briefs. Facts must be balanced against policy
-                        and unverified whispers at the crossroads of history.</p>
-                </div>
-                <div class="p-card">
-                    <h3>Watershed Rationale</h3>
-                    <p>No decision is final without a 100-word rationale citing specific documentary evidence. In the
-                        Situation Room, accountability is the only path.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- THE ARSENAL -->
-    <section class="section-arsenal" id="arsenal">
-        <div class="container">
-            <div class="arsenal-header">
-                <h2>The Operational Suite</h2>
-                <p>[ v65.7171 ] CRITICAL JUNCTURE ECOSYSTEM</p>
-            </div>
-
-            <!-- TOOL 1: THE GEM -->
-            <div class="tool-showcase">
-                <div class="tool-content">
-                    <span class="tool-tag">Phase 01: Conception</span>
-                    <h3 class="tool-title">Blob Factory</h3>
-                    <p class="tool-desc">The AI architect of history. Feed it a crisis, an inflection point, or a moral
-                        crossroads, and watch it generate a full-intensity .blob mission in seconds. High-rigor data,
-                        curated by intelligence.</p>
-                    <div style="display:flex; gap:10px;">
-                        <a href="blobfactory_LIVE.html" class="btn secondary">Commence Forge</a>
-                        <a href="Gem instructions.md" class="btn secondary" style="opacity:0.6;">Engineer Brief</a>
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="dot"></div>Granite AI 4.0
+                    </div>
+                    <div class="feature-item">
+                        <div class="dot"></div>Real-time Debrief
+                    </div>
+                    <div class="feature-item">
+                        <div class="dot"></div>4K Immersion
                     </div>
                 </div>
-                <div class="tool-visual">
-                    <img src="../leo-sitroom2/images/googoo-ai.jpg" alt="The Gem AI Core">
-                </div>
             </div>
-
-            <!-- TOOL 2: TEACHER MODE -->
-            <div class="tool-showcase" style="direction: rtl;">
-                <div class="tool-content" style="direction: ltr;">
-                    <span class="tool-tag">Phase 02: Verification</span>
-                    <h3 class="tool-title">Teacher Mode</h3>
-                    <p class="tool-desc">The verification sandbox. Critical for vetting watershed evidence. Load your
-                        mission, walk the decision path, and ensure your historical documents are airtight before
-                        deployment.</p>
-                    <a href="teachermode_DEMO.html" class="btn secondary">Run Diagnostic</a>
-                </div>
-                <div class="tool-visual">
-                    <img src="../leo-sitroom2/images/leo-test-report.jpg" alt="Verification Diagnostic">
-                </div>
-            </div>
-
-            <!-- TOOL 3: BLOB HOSPITAL -->
-            <div class="tool-showcase">
-                <div class="tool-content">
-                    <span class="tool-tag">Phase 03: Precision Surgery</span>
-                    <h3 class="tool-title">Blob Hospital</h3>
-                    <p class="tool-desc">When a Juncture needs precision tuning, you admit it here. Surgical content
-                        editing, live image swaps, and metadata surgery—all without touching a single bracket of code.
-                    </p>
-                    <a href="blobhospital.html" class="btn secondary">Enter Surgery</a>
-                </div>
-                <div class="tool-visual">
-                    <img src="../leo-sitroom2/images/evidence-table-AI.jpg" alt="Surgical Interface Mockup">
-                </div>
-            </div>
-
-            <!-- TOOL 4: SIM ROOM -->
-            <div class="tool-showcase" style="direction: rtl;">
-                <div class="tool-content" style="direction: ltr;">
-                    <span class="tool-tag">Phase 04: Real-Time Juncture</span>
-                    <h3 class="tool-title">The Sim Room</h3>
-                    <p class="tool-desc">The zero hour. A high-fidelity "Situation Room" where students face the
-                        consequences of history. Secure logins, live decision feeds, and immersive visuals.</p>
-                    <a href="simroom_DEMO.html" class="btn">Deploy Personnel</a>
-                </div>
-                <div class="tool-visual">
-                    <img src="../leo-sitroom2/images/Leo-CBC-Splash-AI.jpg" alt="Command Center View">
-                </div>
-            </div>
-
-            <!-- DEMO BRIDGE -->
-            <div
-                style="margin-top: 150px; text-align: center; border: 1px solid var(--border); padding: 80px; background: rgba(0,255,204,0.02);">
-                <span class="tool-tag">Zero Hour Demo</span>
-                <h2 style="font-size: 3rem; margin-bottom: 20px;">Witness the Inflection</h2>
-                <p style="max-width: 600px; margin: 0 auto 40px; opacity: 0.6;">Ready to see the Situation Room in
-                    action? Take a walkthrough of our flagship Cuban Missile Crisis mission and see how high-stakes
-                    critical juncture analysis changes the learning game.</p>
-                <div style="display: flex; justify-content: center; gap: 20px;">
-                    <a href="simroom_DEMO.html" class="btn">Launch Live Demo</a>
-                    <a href="teacher_guide.md" class="btn secondary">View Documentation</a>
-                </div>
-            </div>
-
         </div>
-    </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container">
-            <a href="teacher_guide.md" class="btn">Read the Operations Manual</a>
-            <p style="margin-top: 50px;">ESTABLISHED 2025 | PROJECT IMAGES | THE SITUATION ROOM</p>
+        <!-- RIGHT: TEACHER / COMMAND -->
+        <div class="split-pane teacher-pane">
+            <div class="pane-content">
+                <span class="role-tag">Mission Control</span>
+                <h2>Mission Create</h2>
+                <p>The architect's interface. Conceive, Birth, and Finetune new historical scenarios powered by our
+                    generative engine.</p>
+                <a href="teachermode.html" class="btn btn-teacher">ENTER COMMAND</a>
+
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="dot"></div>AI Forge
+                    </div>
+                    <div class="feature-item">
+                        <div class="dot"></div>Hospital Mode
+                    </div>
+                    <div class="feature-item">
+                        <div class="dot"></div>Cloud Archives
+                    </div>
+                </div>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <div class="watermark">PROJECT IMAGES | ESTABLISHED 2025 | OPEN SOURCE EDUCATIONAL PROTOCOL</div>
 
 </body>
 
