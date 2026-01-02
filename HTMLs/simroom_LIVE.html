@@ -7,7 +7,8 @@
     <script>const API_URL = "https://script.google.com/macros/s/AKfycbzO2zyVLbC6ZCUEFTnhzkmV7ogDOyowZFRR7ZPwcidIPkSPDDX5mQaeuChCL7DiNwvo/exec";</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@700&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@700&family=JetBrains+Mono&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
@@ -16,13 +17,20 @@
     <script src="social_history_sim_engine.js"></script>
     <style>
         :root {
-            --bg: #0c0c0c;
-            --accent: #d2b48c;
+            --bg: #050505;
+            --accent: #00ffcc;
+            --accent-dim: rgba(0, 255, 204, 0.15);
             --text: #e0e0e0;
-            --card: #ffffff;
+            --card: rgba(10, 10, 10, 0.8);
             --font-p: 'Inter', sans-serif;
-            --font-h: 'Courier New', monospace;
+            --font-h: 'Oswald', sans-serif;
+            --font-tech: 'JetBrains Mono', monospace;
             --font-logo: 'Oswald', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
         body,
@@ -34,36 +42,63 @@
             font-family: var(--font-p);
         }
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
+        /* PREMIUM SCANLINE OVERLAY */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
+            animation: scanlineScroll 10s linear infinite;
+        }
+
+        @keyframes scanlineScroll {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 100px;
+            }
+        }
+
+        /* NARROW SCROLLBARS */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
         }
 
         .sidebar {
-            width: 145px;
-            min-width: 145px;
-            background: #000;
-            padding: 10px;
+            width: 180px;
+            min-width: 180px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px 15px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #333;
-        }
-
-        .nav-container {
-            flex: 1;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-
-        .nav-container::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .nav-container::-webkit-scrollbar-thumb {
-            background: var(--accent);
+            border-right: 1px solid rgba(0, 255, 204, 0.1);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            box-shadow: 20px 0 50px rgba(0, 0, 0, 0.8);
         }
 
         .main {
@@ -71,13 +106,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #111;
-            perspective: 1000px;
-            padding: 20px;
+            perspective: 2000px;
+            padding: 40px;
             position: relative;
             min-height: 100vh;
             overflow-y: auto;
             scroll-behavior: smooth;
+            background: radial-gradient(circle at 50% 10%, #0a1f1f 0%, #050505 80%);
         }
 
         .footer {
@@ -85,37 +120,123 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.95);
-            border-top: 1px solid #333;
-            padding: 10px 20px;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 100%);
+            border-top: 1px solid rgba(0, 255, 204, 0.05);
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             font-size: 0.6rem;
-            color: #666;
+            color: #444;
             z-index: 100;
             pointer-events: none;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* BLING: GLITCH EFFECT */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff0055;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #0055ff, 2px 2px #ff0055;
+            animation: glitch-anim2 1s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(31px, 9999px, 94px, 0);
+            }
+
+            100% {
+                clip: rect(62px, 9999px, 43px, 0);
+            }
+        }
+
+        @keyframes glitch-anim2 {
+            0% {
+                clip: rect(10px, 9999px, 85px, 0);
+            }
+
+            100% {
+                clip: rect(20px, 9999px, 30px, 0);
+            }
+        }
+
+        /* BLING: NEON PULSE */
+        .neon-pulse {
+            animation: neonPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes neonPulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 10px var(--accent-dim), 0 0 20px var(--accent-dim);
+            }
+
+            50% {
+                text-shadow: 0 0 20px var(--accent), 0 0 30px var(--accent);
+            }
         }
 
         .mission-header {
-            font-family: var(--font-p);
-            color: #fff;
+            font-family: var(--font-h);
+            color: var(--accent);
             font-size: 0.8rem;
             text-transform: uppercase;
-            margin-bottom: 5px;
-            border-left: 4px solid var(--accent);
-            padding-left: 10px;
-            line-height: 1.2;
-            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            border-left: 2px solid var(--accent);
+            padding-left: 15px;
+            line-height: 1;
+            letter-spacing: 4px;
             font-weight: 700;
+            opacity: 0.8;
         }
 
+        .situation-room-logo {
+            font-family: var(--font-logo);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: -3px;
+            display: inline-block;
+            line-height: 0.8;
+            transform: scaleY(1.3);
+            transform-origin: bottom;
+            text-shadow: 0 0 40px var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* HOLOGRAPHIC CARD */
         .card-container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1300px;
             display: flex;
             flex-direction: column;
-            margin: 0;
+            gap: 30px;
+            margin-bottom: 100px;
+            z-index: 10;
         }
 
         .card {
@@ -258,39 +379,46 @@
         }
 
         .btn {
-            background: #333;
-            color: #fff;
-            border: 1px solid #555;
-            padding: 10px;
+            background: none;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 20px 30px;
             cursor: pointer;
-            font-family: var(--font-p);
-            transition: 0.2s;
-            font-size: 0.7rem;
+            font-family: var(--font-h);
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 3px;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            font-size: 0.95rem;
         }
 
         .btn:hover {
-            background: #444;
-            border-color: var(--accent);
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 40px var(--accent-dim);
+            transform: translateY(-2px);
         }
 
         .btn.active {
             background: var(--accent) !important;
             color: #000 !important;
             font-weight: bold;
-            border-color: var(--accent);
+            box-shadow: 0 0 50px var(--accent-dim);
         }
 
         .btn.locked {
-            opacity: 0.3;
+            opacity: 0.2;
             cursor: not-allowed;
+            pointer-events: none;
         }
 
         .choice-row {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 20px;
+            margin-top: 30px;
         }
 
         .choice-row .btn {
@@ -305,6 +433,20 @@
             pointer-events: none;
         }
 
+        .watermark {
+            position: fixed;
+            bottom: 40px;
+            left: 20px;
+            font-size: 0.65rem;
+            color: var(--accent);
+            opacity: 0.2;
+            letter-spacing: 4px;
+            z-index: 100;
+            pointer-events: none;
+            text-transform: uppercase;
+            font-family: var(--font-tech);
+        }
+
         /* SCROLLABLE SPLASH */
         #splash {
             position: fixed;
@@ -316,21 +458,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 100px 20px 100px 20px;
+            justify-content: center;
+            padding: 40px 20px;
             overflow-y: auto;
         }
 
         #splash-overlay {
             position: fixed;
             inset: 0;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.9));
+            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.95) 100%);
             z-index: -1;
         }
 
         .splash-inner {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -340,98 +482,92 @@
 
         .briefing-dossier {
             width: 100%;
-            max-width: 800px;
-            background: rgba(10, 10, 10, 0.7);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: 5px solid var(--accent);
-            padding: 40px;
-            margin-top: 30px;
-            max-height: 45vh;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 4px solid var(--accent);
+            padding: 60px;
+            margin-top: 40px;
+            max-height: 50vh;
             overflow-y: auto;
-            scrollbar-width: thin;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8),
-                inset 0 0 40px rgba(255, 255, 255, 0.02);
-            color: #eee;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.9);
+            color: #ddd;
             font-family: var(--font-p);
             line-height: 1.8;
-            text-align: left;
-            position: relative;
+            font-size: 1.1rem;
         }
 
-        .briefing-dossier::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(rgba(255, 255, 255, 0) 0px,
-                    rgba(255, 255, 255, 0.02) 2px,
-                    rgba(255, 255, 255, 0) 4px);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .briefing-dossier::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .briefing-dossier::-webkit-scrollbar-thumb {
-            background: var(--accent);
-        }
-
-        #ref-modal {
-            display: none;
-            flex-direction: column;
-            align-items: center;
+        #login-step {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 60px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
             width: 100%;
+            max-width: 550px;
+            animation: fadeIn 1s ease;
+        }
+
+        #login-step input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 18px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        #login-step input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 20px var(--accent-dim);
+            outline: none;
         }
 
         #mission-title-big {
             font-family: var(--font-logo);
-            font-size: 4rem;
+            font-size: 5rem;
             text-transform: uppercase;
-            letter-spacing: 12px;
+            letter-spacing: 15px;
             font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 60px rgba(255, 255, 255, 0.1);
-            margin-bottom: 5px;
+            text-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            margin-bottom: 10px;
             text-align: center;
-            line-height: 1.1;
-            max-width: 1000px;
+            line-height: 1;
             opacity: 0;
-            transform: scale(1.1);
+            transform: translateY(20px);
         }
 
         #ref-title {
             color: var(--accent);
-            font-size: 1rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            opacity: 0.9;
+            letter-spacing: 6px;
+            margin-bottom: 40px;
             font-weight: bold;
-        }
-
-        #ref-q {
-            margin: 20px 0;
-            font-size: 1.1rem;
-            color: var(--accent);
-            font-weight: bold;
+            opacity: 0.8;
         }
 
         textarea {
-            background: #111;
+            background: rgba(255, 255, 255, 0.03);
             color: #fff;
-            border: 1px solid #444;
-            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
             width: 100%;
             font-family: var(--font-p);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             box-sizing: border-box;
             outline: none;
-            font-size: 0.9rem;
-            height: 80px;
-            line-height: 1.5;
+            font-size: 1.1rem;
+            height: 120px;
+            line-height: 1.6;
+            border-radius: 4px;
         }
 
         .word-count {
@@ -445,34 +581,39 @@
         .mission-item {
             display: flex;
             align-items: center;
-            background: #111;
-            border: 1px solid #333;
-            padding: 15px;
-            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
             cursor: pointer;
             width: 100%;
             box-sizing: border-box;
-            transition: 0.2s;
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            border-radius: 4px;
         }
 
         .mission-item:hover {
             border-color: var(--accent);
-            background: #1a1a1a;
+            background: rgba(0, 255, 204, 0.05);
+            transform: translateX(10px);
+            box-shadow: 0 0 30px var(--accent-dim);
         }
 
         .mission-thumb {
-            width: 52px;
-            height: 52px;
+            width: 100px;
+            height: 60px;
             border-radius: 4px;
             background-size: cover;
             background-position: center;
-            border: 1px solid #333;
-            margin-right: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-right: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: 0.3s;
         }
 
         .mission-item:hover .mission-thumb {
             border-color: var(--accent);
+            transform: scale(1.05);
         }
 
         #glossary-panel {
@@ -538,9 +679,10 @@
             text-transform: uppercase;
             letter-spacing: -2px;
             display: inline-block;
-            line-height: 0.9;
-            transform: scaleY(1.1);
+            line-height: 0.85;
+            transform: scaleY(1.2);
             transform-origin: bottom;
+            text-shadow: 0 0 30px var(--accent-dim);
         }
     </style>
 </head>
@@ -549,7 +691,8 @@
     <div class="watermark">SECURE CONNECTION // ENCRYPTED LINK Active</div>
     <div id="tsparticles"></div>
     <div id="loading-screen"
-        style="position:fixed; inset:0; background:#000; display:none; flex-direction:column; align-items:center; justify-content:center; color:var(--accent); z-index:1001; font-weight:bold; letter-spacing:5px;">
+        style="position:fixed; inset:0; background:#000; display:none; flex-direction:column; align-items:center; justify-content:center; color:var(--accent); z-index:1001; font-weight:bold; letter-spacing:8px; font-family:var(--font-h); font-size:1.5rem;"
+        class="neon-pulse">
         SYNCHRONIZING ARCHIVES...</div>
 
     <div id="glossary-panel">
@@ -564,46 +707,51 @@
 
     <div id="splash">
         <div id="splash-version"
-            style="position:fixed; top:10px; left:10px; font-size:0.5rem; color:var(--accent); opacity:0.3; letter-spacing:1px; z-index:1000; font-family:var(--font-p);">
-            v65.71</div>
+            style="position:fixed; top:20px; left:20px; font-size:0.75rem; color:var(--accent); opacity:0.4; letter-spacing:2px; z-index:1000; font-family:var(--font-tech);">
+            v66.492</div>
         <div id="splash-overlay"></div>
         <div class="splash-inner">
-            <div id="login-step" style="width:480px; text-align:center;">
-                <h1 class="situation-room-logo" style="color:var(--accent); font-size:4.5rem; margin-bottom:20px;">
+            <div id="login-step" style="width:100%; max-width:550px; text-align:center;">
+                <h1 class="situation-room-logo glitch neon-pulse" data-text="THE SITUATION ROOM"
+                    style="color:var(--accent); font-size:6.5rem; margin-bottom:40px;">
                     THE SITUATION ROOM</h1>
                 <p
-                    style="font-size:0.7rem; opacity:0.5; margin-bottom:30px; text-transform:uppercase; letter-spacing:2px;">
+                    style="font-size:0.9rem; opacity:0.6; margin-bottom:50px; text-transform:uppercase; letter-spacing:5px; font-weight:bold;">
                     Critical Juncture Authorization Required</p>
-                <input id="username" placeholder="NAME / CODENAME" style="font-family:var(--font-p);">
-                <input id="pin" type="password" placeholder="ACCESS PIN" style="font-family:var(--font-p);">
-                <input id="class-code" placeholder="CLASS CODE (e.g. PER-01)" style="font-family:var(--font-p);">
-                <button class="btn"
-                    style="text-align:center; background:var(--accent); color:#000; font-weight:bold; width:100%; margin-top:20px;"
-                    onclick="login()">AUTHORIZE ACCESS</button>
+                <input id="username" placeholder="NAME / CODENAME">
+                <input id="pin" type="password" placeholder="ACCESS PIN">
+                <input id="class-code" placeholder="CLASS CODE (e.g. PER-01)">
+                <button class="btn" style="width:100%; margin-top:20px;" onclick="login()">AUTHORIZE ACCESS</button>
                 <div
-                    style="margin-top:25px; font-size:0.6rem; opacity:0.3; text-transform:uppercase; letter-spacing:3px;">
+                    style="margin-top:50px; font-size:0.8rem; opacity:0.4; text-transform:uppercase; letter-spacing:6px; font-family:var(--font-h);">
                     "The Critical Moment Where Everything Hangs on a Decision"
                 </div>
             </div>
 
-            <div id="lobby-step" style="width:420px; display:none; text-align:left;">
+            <div id="lobby-step" style="width:100%; max-width:1000px; display:none; text-align:left;">
                 <h3
-                    style="color:var(--accent); letter-spacing:3px; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:20px;">
+                    style="color:var(--accent); font-family:var(--font-h); font-size:1.8rem; letter-spacing:5px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px; margin-bottom:40px; text-transform:uppercase;">
                     ACTIVE DOSSIERS</h3>
-                <div id="mission-list"></div>
-                <div style="margin-top:30px; padding:25px; background:rgba(0,0,0,0.5); border:1px solid #333;">
+                <div id="mission-list"
+                    style="display:grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap:20px;"></div>
+                <div
+                    style="margin-top:60px; padding:40px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); backdrop-filter:blur(10px);">
                     <p
-                        style="font-size:0.6rem; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:20px; text-align:center; font-weight:bold;">
+                        style="font-size:0.8rem; color:var(--accent); text-transform:uppercase; letter-spacing:4px; margin-bottom:30px; text-align:center; font-weight:bold; opacity:0.7;">
                         PROTOCOL: JUNCTURE AUTHORIZATION REQUIRED</p>
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <input id="mission-code" placeholder="MISSION CODE"
-                            style="flex:1; text-align:center; letter-spacing:5px; margin:0; font-family:var(--font-p);">
-                        <button class="btn" style="background:#fff; color:#000; width:auto; padding:0 20px;"
+                    <div style="display:flex; gap:20px; margin-bottom:20px;">
+                        <input id="mission-code" placeholder="ENTER MISSION CODE"
+                            style="flex:1; text-align:center; letter-spacing:8px; margin:0; font-family:var(--font-h); font-size:1.2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:4px;">
+                        <button class="btn"
+                            style="background:#fff; color:#000; width:auto; padding:0 40px; border:none;"
                             onclick="joinMission()">JOIN</button>
                     </div>
-                    <div style="border:1px dashed #444; padding:10px; text-align:center; cursor:pointer;"
+                    <div style="border:1px dashed rgba(255,255,255,0.2); padding:20px; text-align:center; cursor:pointer; border-radius:4px; transition:0.3s;"
+                        onmouseover="this.style.borderColor='var(--accent)'"
+                        onmouseout="this.style.borderColor='rgba(255,255,255,0.2)'"
                         onclick="document.getElementById('blob-input').click()">
-                        <span style="font-size:0.7rem; color:#888;">OR DROP .BLOB FILE HERE</span>
+                        <span style="font-size:0.8rem; color:#888; letter-spacing:2px;">OR UPLOAD SECURE CAPSULE
+                            (.BLOB)</span>
                         <input type="file" id="blob-input" accept=".blob" style="display:none"
                             onchange="ingest(this.files[0])">
                     </div>
@@ -613,17 +761,20 @@
             <div id="ref-modal">
                 <div id="mission-title-big">MISSION_ID</div>
                 <div id="ref-title">CROSSROADS BRIEFING</div>
-                <div class="briefing-dossier">
+                <div class="briefing-dossier"
+                    style="background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.05); border-top:5px solid var(--accent); border-radius:4px;">
                     <div id="debrief-panel"
-                        style="display:none; background:#000; padding:20px; border-left:4px solid var(--accent); margin-bottom:20px; font-size:0.8rem;">
+                        style="display:none; background:rgba(255,255,255,0.02); padding:30px; border-left:4px solid var(--accent); margin-bottom:30px; font-size:1rem; border-radius:4px;">
                     </div>
-                    <div id="ref-narrative"></div>
-                    <div id="ref-q" style="margin-top:20px; border-top:1px solid #333; padding-top:20px;"></div>
-                    <textarea id="ref-a" style="margin-top:10px;"></textarea>
-                    <div id="ref-wc" class="word-count"></div>
+                    <div id="ref-narrative" style="font-size:1.1rem; line-height:1.8;"></div>
+                    <div id="ref-q"
+                        style="margin-top:40px; border-top:1px solid rgba(255,255,255,0.1); padding-top:40px; font-family:var(--font-h); font-size:1.3rem; letter-spacing:2px;">
+                    </div>
+                    <textarea id="ref-a" style="margin-top:20px;" placeholder="ENTER RATIONALE..."></textarea>
+                    <div id="ref-wc" class="word-count" style="margin-bottom:0;"></div>
                 </div>
                 <button id="ref-btn" class="btn"
-                    style="background:var(--accent); color:#000; text-align:center; width:100%; max-width:400px; font-weight:bold; margin-top:30px; padding:20px; box-shadow:0 0 30px rgba(0,0,0,0.5);"
+                    style="background:var(--accent); color:#000; text-align:center; width:100%; max-width:500px; font-weight:bold; margin-top:50px; padding:25px; box-shadow:0 0 50px var(--accent-dim); border:none;"
                     onclick="nextRef()">CONFIRM AND LAUNCH</button>
             </div>
         </div>
@@ -678,11 +829,12 @@
         <div id="card-container" class="card-container"></div>
     </main>
     <footer class="footer">
-        <div id="f-left" style="cursor:pointer; pointer-events:auto;" onclick="showVersionInfo()">SITUATION ROOM
-            PROTOCOL | v65.51</div>
-        <div id="f-outcomes-btn" style="cursor:pointer; pointer-events:auto; color:var(--accent); opacity:0.7;"
-            onclick="toggleOutcomes()">[VIEW OUTCOMES]</div>
-        <div id="f-right" style="pointer-events:auto;">OPEN-SOURCE LICENSE</div>
+        <div id="f-left" style="cursor:pointer; pointer-events:auto; font-family:var(--font-tech);"
+            onclick="showVersionInfo()">SITUATION ROOM PROTOCOL | v66.492 [STABLE]</div>
+        <div id="f-outcomes-btn"
+            style="cursor:pointer; pointer-events:auto; color:var(--accent); text-shadow: 0 0 10px var(--accent-dim);"
+            onclick="toggleOutcomes()">[ACCESS COGNITIVE OUTCOMES]</div>
+        <div id="f-right" style="pointer-events:auto; font-family:var(--font-tech);">AUTHORIZATION: LEVEL 4</div>
     </footer>
 
     <!-- OUTCOMES PANEL -->
@@ -810,6 +962,10 @@
             document.getElementById('login-step').style.display = 'none';
             document.getElementById('lobby-step').style.display = 'block';
 
+            // BLING: Header Entry
+            gsap.from("#lobby-step h3", { opacity: 0, x: -50, duration: 1, ease: "power4.out" });
+            gsap.from("#lobby-step div:last-child", { opacity: 0, y: 50, duration: 1.2, delay: 0.3, ease: "power3.out" });
+
             // Fetch available missions from backend
             const mRes = await fetch(API_URL + "?action=list_missions");
             const mData = await mRes.json();
@@ -824,10 +980,15 @@
                 const thumb = m.thumb || "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop";
                 h += `<div class="mission-item" onclick="launch('${m.id}')">
                     <div class="mission-thumb" style="background-image:url('${thumb}')"></div>
-                    <div><strong style="color:var(--accent);">${m.name}</strong><br><span style="font-size:0.6rem; color:#666;">AUTHORIZATION ID: ${m.id}</span></div>
+                    <div style="flex:1;">
+                        <span style="font-size:0.55rem; color:var(--accent); text-transform:uppercase; letter-spacing:2px; font-weight:bold; opacity:0.6;">CLASSIFIED DOSSIER</span>
+                        <div style="color:#fff; font-family:var(--font-h); font-size:1.3rem; letter-spacing:1px; text-transform:uppercase; margin:4px 0;">${m.name}</div>
+                        <span style="font-size:0.6rem; color:#666; font-family:var(--font-tech); text-transform:uppercase;">SERIAL: ${m.id}</span>
+                    </div>
+                    <div style="font-family:var(--font-tech); font-size:0.6rem; color:var(--accent); opacity:0.4;">[ACCESS]</div>
                 </div>`;
             });
-            document.getElementById('mission-list').innerHTML = h || "<p style='color:#444; font-size:0.7rem; padding:20px; text-align:center;'>No dossiers found.</p>";
+            document.getElementById('mission-list').innerHTML = h || "<p style='color:#444; font-size:0.7rem; padding:40px; text-align:center;'>No dossiers found.</p>";
         }
 
         async function joinMission() { const code = document.getElementById('mission-code').value.trim().toUpperCase(); if (code) launch(code); }
@@ -1274,9 +1435,10 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                 const isLocked = i > 0 && (!user.state.dec || !user.state.dec[i - 1]);
                 const b = document.createElement('button');
                 b.className = "btn" + (isLocked ? " locked" : "");
-                b.style.marginBottom = "8px"; b.style.width = "100%"; b.style.textAlign = "left"; b.style.padding = "10px"; b.style.fontSize = "0.65rem";
-                if (user.state.dec && user.state.dec[i]) b.style.borderLeft = "4px solid var(--accent)";
-                b.innerHTML = `<span style="color:#fff; font-size:0.9em; text-transform:uppercase; letter-spacing:1px;">EXHIBIT 0${i + 1}</span><br><span style="white-space: normal; line-height: 1.2; display: block; margin-top: 3px; font-size: 0.7rem;">${s.shortTitle || 'UNTITLED'}</span>`;
+                b.style.marginBottom = "15px"; b.style.width = "100%"; b.style.textAlign = "left"; b.style.padding = "15px 12px"; b.style.fontSize = "0.6rem";
+                b.style.borderWidth = "0 0 0 1px";
+                if (user.state.dec && user.state.dec[i]) b.style.borderLeft = "3px solid var(--accent)";
+                b.innerHTML = `<span style="color:var(--accent); font-size:0.55rem; text-transform:uppercase; letter-spacing:2px; font-weight:bold; opacity:0.8;">EXHIBIT 0${i + 1}</span><br><span style="white-space: normal; line-height: 1.3; display: block; margin-top: 5px; font-size: 0.75rem; color:#fff; font-family:var(--font-h); letter-spacing:1px; text-transform:uppercase;">${s.shortTitle || 'UNTITLED'}</span>`;
                 if (!isLocked) b.onclick = () => go(i); c.appendChild(b); b.id = `btn-${i}`;
             });
         }
@@ -1620,7 +1782,45 @@ CRITICAL: At the end of your analysis, write exactly "[QUESTIONS]" and then gene
                 });
             }
         }
-        async function initParticles() { await tsParticles.load("tsparticles", { particles: { number: { value: 30 }, size: { value: 2 }, move: { speed: 0.5 }, opacity: { value: 0.3 } } }); }
+        async function initParticles() {
+            await tsParticles.load("tsparticles", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#00ffcc" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.2, random: true },
+                    size: { value: 1.5, random: true },
+                    links: { enable: true, distance: 150, color: "#00ffcc", opacity: 0.1, width: 1 },
+                    move: { enable: true, speed: 0.6, direction: "none", random: true, straight: false, out_mode: "out" }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" }, resize: true },
+                    modes: { grab: { distance: 200, line_linked: { opacity: 0.3 } } }
+                }
+            });
+        }
+        initParticles();
+
+        // BLING: Staggered entry for mission list items
+        const listObserver = new MutationObserver((mutations) => {
+            mutations.forEach((m) => {
+                if (m.addedNodes.length) {
+                    const found = Array.from(m.addedNodes).some(n => n.id === 'mission-list' || (n.querySelectorAll && n.querySelectorAll('.mission-item').length));
+                    if (found) {
+                        gsap.from(".mission-item", {
+                            opacity: 0,
+                            y: 30,
+                            stagger: 0.1,
+                            duration: 1,
+                            ease: "power3.out",
+                            clearProps: "all"
+                        });
+                    }
+                }
+            });
+        });
+        listObserver.observe(document.body, { childList: true, subtree: true });
 
         function resetAICache() {
             if (!confirm("CLEAR AI FEEDBACK? This will force a fresh fetch from the server.")) return;
