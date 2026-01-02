@@ -1431,23 +1431,85 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         async function fetchLibrary() {
             try {
-                const res = await fetch(LIB_URL);
-                if (!res.ok) throw new Error("Catalog not found.");
-                const j = await res.json(); renderLibrary(j.capsules);
+                // Try backend first, fall back to static GitHub
+                const res = await fetch(TM_URL, { method: 'POST', body: JSON.stringify({ action: 'list_hub', pin: TM_PIN }) });
+                const j = await res.json();
+                if (j.status === "success" && j.capsules && j.capsules.length > 0) {
+                    renderLibrary(j.capsules, true);
+                } else {
+                    // Fallback to GitHub static file
+                    const res2 = await fetch(LIB_URL);
+                    if (!res2.ok) throw new Error("No capsules found.");
+                    const j2 = await res2.json();
+                    renderLibrary(j2.capsules, false);
+                }
             } catch (e) { document.getElementById('hub-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#888; padding:100px;">COMMUNITY_CATALOG_OFFLINE<br><br><span style="font-size:0.5rem; opacity:0.5;">Manual Import Recommended for now.</span></div>`; }
         }
-        function renderLibrary(caps) {
+        function renderLibrary(caps, fromBackend) {
+            const isUserAdmin = googleUser && ["dwaugh@nlesd.ca", "david.waugh@gmail.com"].includes(googleUser.email);
             let h = "";
             caps.forEach(c => {
+                const removeBtn = (isUserAdmin && fromBackend) ? `<button onclick="removeFromHub('${c.id}')" style="font-size:0.5rem; padding:4px 8px; background:#c00; color:#fff; border:none; cursor:pointer; margin-top:5px; width:100%;">REMOVE FROM HUB</button>` : "";
+                const importBtn = c.downloadUrl ? `<button class="btn" onclick="importMission('${c.downloadUrl}', '${c.id}', '${c.title}')" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:8px; font-size:0.6rem; width:100%; margin-top:10px;">IMPORT TO ARCHIVE</button>` : "";
+
                 h += `<div class="panel" style="border-top-color:#666;">
                     <div style="height:150px; background-image:url('${c.thumb}'); background-size:cover; background-position:center; margin-bottom:15px; border-radius:4px; border:1px solid #333;"></div>
                     <h4 style="margin:0; letter-spacing:1px; font-size:0.85rem;">${c.title}</h4>
                     <div style="font-size:0.6rem; color:#888; margin-bottom:15px; text-transform:uppercase;">AUTHOR: ${c.author}</div>
                     <p style="font-size:0.7rem; height:45px; overflow:hidden; opacity:0.7; line-height:1.4;">${c.description}</p>
-                    <button class="btn" onclick="importMission('${c.downloadUrl}', '${c.id}', '${c.title}')" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:8px; font-size:0.6rem; width:100%; margin-top:10px;">IMPORT TO ARCHIVE</button>
+                    ${importBtn}
+                    ${removeBtn}
                 </div>`;
             });
             document.getElementById('hub-grid').innerHTML = h || "<div style='grid-column:1/-1; text-align:center; opacity:0.5; padding:100px; color:#fff;'>NO MISSIONS IN CATALOG.</div>";
+        }
+        async function publishToHub(id, title, thumb) {
+            if (!confirm(`Publish "${title}" to Community Hub?`)) return;
+            log(`Publishing [${id}] to Community Hub...`);
+            try {
+                const res = await fetch(TM_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'publish_to_hub',
+                        pin: TM_PIN,
+                        email: googleUser ? googleUser.email : "",
+                        id: id,
+                        title: title,
+                        author: googleUser ? googleUser.name : "Unknown",
+                        thumb: thumb,
+                        description: ""
+                    })
+                });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log(`[${id}] published to Community Hub!`, "success");
+                    alert(`${title} is now in the Community Hub!`);
+                } else {
+                    log(`Publish failed: ${j.message}`, "error");
+                }
+            } catch (e) { log(`Publish error: ${e.message}`, "error"); }
+        }
+        async function removeFromHub(id) {
+            if (!confirm(`Remove "${id}" from Community Hub?`)) return;
+            log(`Removing [${id}] from Community Hub...`);
+            try {
+                const res = await fetch(TM_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'remove_from_hub',
+                        pin: TM_PIN,
+                        email: googleUser ? googleUser.email : "",
+                        id: id
+                    })
+                });
+                const j = await res.json();
+                if (j.status === "success") {
+                    log(`[${id}] removed from Community Hub.`, "success");
+                    fetchLibrary();
+                } else {
+                    log(`Remove failed: ${j.message}`, "error");
+                }
+            } catch (e) { log(`Remove error: ${e.message}`, "error"); }
         }
         async function importMission(url, id, name) {
             log(`Syncing Remote Capsule [${id}]...`);
@@ -2162,6 +2224,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 return;
             }
             document.getElementById('lib-log').innerText = `${missions.length} mission(s) loaded.`;
+            const isUserAdmin = googleUser && ["dwaugh@nlesd.ca", "david.waugh@gmail.com"].includes(googleUser.email);
 
             let h = `<table style="width:100%; font-size:0.65rem; border-collapse:collapse;">
                     <thead><tr style="border-bottom:1px solid #ddd; text-align:left;">
@@ -2174,6 +2237,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
             missions.forEach(m => {
                 const thumb = m.thumb || "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=200&auto=format&fit=crop";
+                const publishBtn = isUserAdmin ? `<button onclick="publishToHub('${m.id}', '${m.name}', '${thumb}')" style="font-size:0.5rem; padding:3px 6px; background:#00ffcc; color:#000; border:none; cursor:pointer; margin-right:4px;">PUB</button>` : "";
 
                 h += `<tr style="border-bottom:1px solid #eee;">
                     <td style="padding:8px;">
@@ -2187,7 +2251,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                         </label>
                     </td>
                     <td style="padding:8px; text-align:center;">
-                        <button class="btn-del" onclick="deleteMission('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:none; border:1px solid #c00; color:#c00; cursor:pointer;">DEL</button>
+                        ${publishBtn}<button class="btn-del" onclick="deleteMission('${m.id}')" style="font-size:0.6rem; padding:4px 8px; background:none; border:1px solid #c00; color:#c00; cursor:pointer;">DEL</button>
                     </td>
                   </tr>`;
             });
