@@ -22,15 +22,16 @@ const SupabaseBridge = {
     },
 
     // --- MISSION OPERATIONS ---
-    async saveMission(teacherId, title, blobData) {
-        if (!this.client) return this.saveToLegacy(title, blobData);
+    async saveMission(missionId, name, payload, teacherId) {
+        if (!this.client) return this.saveToLegacy(name, payload);
 
         const { data, error } = await this.client
             .from('missions')
             .upsert({
+                mission_id: missionId,
                 teacher_id: teacherId,
-                title: title,
-                blob_data: blobData,
+                title: name,
+                blob_data: payload,
                 updated_at: new Date()
             })
             .select();
@@ -48,7 +49,13 @@ const SupabaseBridge = {
             .order('updated_at', { ascending: false });
 
         if (error) throw error;
-        return data;
+        // Map back to legacy format for UI compatibility
+        return data.map(m => ({
+            id: m.mission_id,
+            name: m.title,
+            payload: m.blob_data,
+            updated: m.updated_at
+        }));
     },
 
     // --- CURRICULUM OPERATIONS ---
