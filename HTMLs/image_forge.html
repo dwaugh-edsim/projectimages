@@ -312,7 +312,16 @@
                 </select>
 
                 <div id="cfg-google" class="controls">
-                    <input type="password" id="api-key-gl" placeholder="GOOGLE API KEY" onchange="saveConfig()">
+                    <input type="password" id="api-key-gl" placeholder="GOOGLE API KEY" onchange="saveConfig()"
+                        style="width:120px;">
+                    <input type="text" id="gl-project" placeholder="GCP PROJECT ID (Optional)" onchange="saveConfig()"
+                        style="width:120px;">
+                    <select id="gl-location" onchange="saveConfig()" style="width:80px;">
+                        <option value="us-central1">us-central1</option>
+                        <option value="us-east4">us-east4</option>
+                        <option value="europe-west1">europe-west1</option>
+                        <option value="asia-northeast1">asia-northeast1</option>
+                    </select>
                     <select id="model-gl" onchange="saveConfig()">
                         <option value="gemini-1.5-flash">Gemini 1.5 Flash (Most Compatible)</option>
                         <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Stable)</option>
@@ -320,7 +329,9 @@
                         <option value="gemini-3.0-pro-image-preview">Gemini 3.0 Pro (Image)</option>
                     </select>
                     <button class="btn secondary" style="padding:5px 10px; font-size:0.6rem;"
-                        onclick="listModels()">SCAN MODELS</button>
+                        onclick="listModels()">SCAN</button>
+                    <div style="font-size:0.55rem; color:#aaa; margin-left:10px;">TIP: Enable "Generative Language API"
+                        in GCP Console</div>
                 </div>
 
                 <div id="cfg-openrouter" class="controls hidden">
@@ -380,7 +391,9 @@
             provider: 'GOOGLE',
             key_gl: '',
             key_or: '',
-            model_gl: 'gemini-2.0-flash-exp',
+            gl_project: '',
+            gl_location: 'us-central1',
+            model_gl: 'gemini-1.5-flash',
             model_or: 'openai/dall-e-3'
         };
 
@@ -390,16 +403,30 @@
         function init() {
             const saved = localStorage.getItem('IMAGE_FORGE_CFG');
             if (saved) {
-                CONFIG = JSON.parse(saved);
+                const loaded = JSON.parse(saved);
+                Object.assign(CONFIG, loaded);
                 document.getElementById('provider-select').value = CONFIG.provider;
                 document.getElementById('api-key-gl').value = CONFIG.key_gl || '';
                 document.getElementById('api-key-or').value = CONFIG.key_or || '';
+                if (document.getElementById('gl-project')) document.getElementById('gl-project').value = CONFIG.gl_project || '';
+                if (document.getElementById('gl-location')) document.getElementById('gl-location').value = CONFIG.gl_location || 'us-central1';
                 document.getElementById('model-gl').value = CONFIG.model_gl;
                 document.getElementById('model-or').value = CONFIG.model_or;
                 toggleProvider();
             }
             createSlots(10);
             log("System Initialized. 10 slots ready.");
+        }
+
+        function saveConfig() {
+            CONFIG.provider = document.getElementById('provider-select').value;
+            CONFIG.key_gl = document.getElementById('api-key-gl').value.trim();
+            CONFIG.key_or = document.getElementById('api-key-or').value.trim();
+            CONFIG.gl_project = document.getElementById('gl-project').value.trim();
+            CONFIG.gl_location = document.getElementById('gl-location').value;
+            CONFIG.model_gl = document.getElementById('model-gl').value;
+            CONFIG.model_or = document.getElementById('model-or').value;
+            localStorage.setItem('IMAGE_FORGE_CFG', JSON.stringify(CONFIG));
         }
 
         function log(msg, type = 'INFO') {
@@ -581,11 +608,6 @@
         async function callGoogleAPI(prompt, slotId) {
             if (!CONFIG.key_gl) throw new Error("MISSING API KEY");
 
-            // AI Studio / Gemini 2.5 Protocol
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.model_gl}:generateContent?key=${CONFIG.key_gl}`;
-
-            log(`OUTBOUND (GOOGLE): ${CONFIG.model_gl} // "${prompt.substring(0, 40)}..."`, 'OUTBOUND');
-
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -594,36 +616,45 @@
                 }
             };
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            // Attempt 1: AI Studio (Query Param)
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.model_gl}:generateContent?key=${CONFIG.key_gl}`;
+                log(`OUTBOUND (GOOGLE): ${CONFIG.model_gl} // AI Studio Tier`, 'OUTBOUND');
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.candidates) return handleGeminiResponse(data);
+                if (data.error) log(`TIER 1 FAILED: ${data.error.message}`, 'ERROR');
+            } catch (e) { log(`TIER 1 ERROR: ${e.message}`, 'ERROR'); }
 
-            const data = await response.json();
+            // Attempt 2: AI Studio (Header Auth)
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.model_gl}:generateContent`;
+                log(`OUTBOUND (GOOGLE): ${CONFIG.model_gl} // Header Auth Tier`, 'OUTBOUND');
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': CONFIG.key_gl },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.candidates) return handleGeminiResponse(data);
+                if (data.error) log(`TIER 2 FAILED: ${data.error.message}`, 'ERROR');
+            } catch (e) { log(`TIER 2 ERROR: ${e.message}`, 'ERROR'); }
 
-            if (data.error) {
-                log(`GOOGLE REJECTION (${data.error.code}): ${data.error.message}`, 'ERROR');
-                // Try fallback for both 401 (Unauthorized) and 400 (Bad Request - often key related)
-                if (data.error.code === 401 || data.error.code === 400) {
-                    log("ATTEMPTING AUTH FALLBACK (HEADER)...", 'OUTBOUND');
-                    const urlNoKey = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.model_gl}:generateContent`;
-                    const res2 = await fetch(urlNoKey, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-goog-api-key': CONFIG.key_gl
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    const data2 = await res2.json();
-                    if (data2.candidates) return handleGeminiResponse(data2);
-                    log(`FALLBACK FAILED: ${data2.error ? data2.error.message : 'Unknown'}`, 'ERROR');
-                }
-                throw new Error(data.error.message);
+            // Attempt 3: Vertex AI (if project provided)
+            if (CONFIG.gl_project) {
+                try {
+                    const url = `https://${CONFIG.gl_location}-aiplatform.googleapis.com/v1/projects/${CONFIG.gl_project}/locations/${CONFIG.gl_location}/publishers/google/models/${CONFIG.model_gl}:streamGenerateContent?key=${CONFIG.key_gl}`;
+                    log(`OUTBOUND (GOOGLE): ${CONFIG.model_gl} // Vertex AI Tier`, 'OUTBOUND');
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    // Vertex Stream returns an array or specific structure
+                    if (Array.isArray(data) && data[0].candidates) return handleGeminiResponse(data[0]);
+                    if (data.candidates) return handleGeminiResponse(data);
+                    if (data.error) log(`TIER 3 FAILED: ${data.error.message}`, 'ERROR');
+                } catch (e) { log(`TIER 3 ERROR: ${e.message}`, 'ERROR'); }
             }
 
-            return handleGeminiResponse(data);
+            throw new Error("ALL GOOGLE TIERS EXHAUSTED. Check 'Generative Language API' status in GCP.");
         }
 
         function handleGeminiResponse(data) {
