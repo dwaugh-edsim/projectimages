@@ -1389,6 +1389,9 @@
                         <button class="btn" id="f-submit"
                             style="flex:2; background:var(--forge-accent); font-size:0.7rem; padding:12px;"
                             onclick="processForge()">SUBMIT COMMAND</button>
+                        <button class="btn" id="f-next-phase"
+                            style="flex:1; background:#060; font-size:0.65rem; padding:12px; border:1px solid #0a0;"
+                            onclick="advancePhase()">NEXT PHASE →</button>
                     </div>
                 </div>
 
@@ -1924,6 +1927,19 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             }
         }
 
+        function advancePhase() {
+            if (currentPhaseIndex >= forgePipeline.length - 1) {
+                addForgeChat("ai", "You are already at the final phase. Use BIRTH MISSION to complete.");
+                return;
+            }
+            const nextPhase = FORGE_PHASES[forgePipeline[currentPhaseIndex + 1]];
+            if (confirm(`Ready to advance to "${nextPhase.label}"?\n\nMake sure you're satisfied with the current phase before proceeding.`)) {
+                currentPhaseIndex++;
+                updateForgeUI();
+                addForgeChat("ai", `✓ Advanced to **${nextPhase.label}**. ${nextPhase.desc}`);
+            }
+        }
+
         function addForgeChat(side, msg) {
             const c = document.getElementById('forge-chat');
             const div = document.createElement('div');
@@ -2123,11 +2139,9 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 forgeHistory.push({ role: "user", content: input || "(Next Phase Request)" });
                 forgeHistory.push({ role: "assistant", content: reply });
 
-                // Advance to next phase if not at end
-                if (currentPhaseIndex < forgePipeline.length - 1) {
-                    currentPhaseIndex++;
-                    updateForgeUI();
-                }
+                // IMPORTANT: NO AUTO-ADVANCE! User must explicitly confirm phase transitions.
+                // The iterative collaboration is the core value of this tool.
+                // Phase advancement is handled by explicit user action (clicking phase or NEXT button).
             } catch (e) {
                 addForgeChat("ai", `!! ERROR: ${e.message}. Check Vercel Proxy connectivity.`);
             } finally {
