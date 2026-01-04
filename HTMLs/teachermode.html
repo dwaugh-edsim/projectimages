@@ -2242,7 +2242,10 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                         style="width:100%; background:#080808; border:1px solid #222; color:#0f0; padding:6px; font-size:0.6rem; margin-bottom:8px;"
                         value="${accumulatedData?.metadata?.heroImage || ''}"
                         onchange="updateAssetUrl('hero', this.value)">
-                    <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset('hero')">⚡ GENERATE</button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px;" onclick="generateAsset('hero')">⚡ GENERATE</button>
+                        <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px; background:#234;" onclick="saveAssetToGit('hero')">GIT</button>
+                    </div>
                 </div>
             `;
 
@@ -2268,7 +2271,10 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                             style="width:100%; background:#080808; border:1px solid #222; color:#0f0; padding:6px; font-size:0.6rem; margin-bottom:8px;"
                             value="${primaryImg}"
                             onchange="updateAssetUrl('${i}-a', this.value)">
-                        <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-a')">⚡ GEN</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-a')">⚡ GEN</button>
+                            <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px; background:#234;" onclick="saveAssetToGit('${i}-a')">GIT</button>
+                        </div>
                     </div>
                 `;
 
@@ -2286,7 +2292,10 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                             style="width:100%; background:#080808; border:1px solid #222; color:#f80; padding:6px; font-size:0.6rem; margin-bottom:8px;"
                             value="${altImg}"
                             onchange="updateAssetUrl('${i}-b', this.value)">
-                        <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-b')">⚡ GEN</button>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-b')">⚡ GEN</button>
+                            <button class="btn secondary" style="flex:1; font-size:0.6rem; padding:6px; background:#234;" onclick="saveAssetToGit('${i}-b')">GIT</button>
+                        </div>
                     </div>
                 `;
             }
@@ -2443,6 +2452,92 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             }
 
             alert(`Generated ${generated} images.`);
+        }
+
+        async function saveAssetToGit(slotId) {
+            const urlEl = document.getElementById(slotId === 'hero' ? 'asset-hero-url' : `asset-${slotId}-url`);
+            const url = urlEl?.value;
+
+            if (!url) {
+                alert('No image URL to save. Generate or paste an image first.');
+                return;
+            }
+
+            // Get GitHub token
+            let ghToken = localStorage.getItem('GITHUB_TOKEN');
+            if (!ghToken) {
+                ghToken = window.prompt("Enter your GitHub Personal Access Token (needs 'repo' scope):");
+                if (!ghToken) return;
+                localStorage.setItem('GITHUB_TOKEN', ghToken.trim());
+            }
+
+            const repo = 'dwaugh-edsim/projectimages';
+            const missionId = accumulatedData?.metadata?.id || 'unnamed';
+            const filename = `${missionId}_${slotId}_${Date.now()}.jpg`;
+            const path = `generated/${filename}`;
+
+            try {
+                log(`Git Save [${slotId}]: Converting to JPG...`, 'OUTBOUND');
+
+                // Convert to JPG via canvas
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = () => reject(new Error("Failed to load image"));
+                    img.src = url;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                const base64Content = jpgDataUrl.split(',')[1];
+
+                log(`Git Save [${slotId}]: Uploading ${filename}...`, 'OUTBOUND');
+
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${ghToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: `[TeacherMode] Asset ${slotId} for ${missionId}`,
+                        content: base64Content,
+                        branch: 'main'
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    if (err.message?.includes('401') || err.message?.includes('Bad credentials')) {
+                        localStorage.removeItem('GITHUB_TOKEN');
+                    }
+                    throw new Error(err.message || `HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                const gitUrl = data.content.download_url;
+
+                // Update URL field with GitHub raw URL
+                urlEl.value = gitUrl;
+                updateAssetUrl(slotId, gitUrl);
+
+                log(`Git Save [${slotId}]: SUCCESS - ${gitUrl}`, 'success');
+                alert(`Saved to GitHub as JPG!\n${filename}`);
+
+            } catch (e) {
+                log(`Git Save [${slotId}] FAILED: ${e.message}`, 'error');
+                alert(`Git save failed: ${e.message}`);
+            }
         }
 
         // --- BIRTH SCREEN FUNCTIONS ---
