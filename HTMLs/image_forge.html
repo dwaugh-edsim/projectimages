@@ -601,11 +601,16 @@
             const dlBtn = document.getElementById(`dl-${id}`);
             const overlayText = document.getElementById(`overlay-text-${id}`);
 
-            if (!prompt) return;
+            if (!prompt) {
+                showToast("SLOT " + id + " NEEDS A PROMPT");
+                return;
+            }
 
+            preview.innerHTML = `<div class="status-overlay" id="overlay-text-${id}">RE-GENERATING...</div>`;
             preview.classList.add('loading');
             status.innerText = "PROCESSING";
-            overlayText.innerText = "COMMUNING WITH MODEL...";
+            status.style.color = "#ff0";
+            dlBtn.disabled = true;
             log(`Requesting Slot ${id}: "${prompt.substring(0, 40)}..."`, 'OUTBOUND');
 
             try {
