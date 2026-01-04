@@ -1409,9 +1409,7 @@
                         </div>
                         <h2 id="forge-title"
                             style="margin:0; font-family:'Oswald',sans-serif; font-size:1.8rem; text-transform:uppercase; color:#fff; letter-spacing:3px;">
-                            <span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE
-                                1:</span>
-                            BRAINSTORM
+                            LOADING...
                         </h2>
                         <p id="forge-desc"
                             style="font-size:0.7rem; color:#888; margin-top:5px; font-family:'Inter',sans-serif; line-height:1.4;">
@@ -1719,8 +1717,8 @@
                 id: 'brainstorm',
                 label: 'BRAINSTORM',
                 icon: '💡',
-                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE:</span> BRAINSTORM",
-                desc: "Bounce mission ideas off of the AI! Select (or add) your course outcomes to help tell the AI your class context. Then give the AI general direction in the text box below, and press submit.<br><br>Don't feel like you have to take its first choices! Spend some time refining (\"a little more this, a little less that...\") until you have a solid concept.",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 1:</span> CONCEPT SEARCH",
+                desc: "Bounce mission ideas off of the AI! Select curricular outcomes to anchor the context. Refine ideas until you have a solid three-scenario concept.",
                 prompt: "PHASE: CONCEPT ARRIVE. Identify SCO + Ethical Audit. Propose 3 detailed Scenario Concepts. Include 'THEMES TARGETING SELECTED OUTCOMES'. End with: 'Review these concepts. Request changes or authorize next phase.'",
                 showCurriculum: true,
                 skippable: true
@@ -1729,8 +1727,8 @@
                 id: 'deepsearch',
                 label: 'DEEP SEARCH',
                 icon: '🔍',
-                title: "Intelligence Framework",
-                desc: "Establish the 10-slide architecture and technical data.",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 2:</span> INTEL FRAMEWORK",
+                desc: "Establish the 10-slide architecture and technical data strategy.",
                 prompt: "PHASE: DEEP SEARCH. Expand chosen concept into 10 Slide Titles and Intel data strategy. End with: 'Awaiting review of architecture.'",
                 showCurriculum: false,
                 skippable: true
@@ -1739,8 +1737,8 @@
                 id: 'narrative',
                 label: 'NARRATIVE',
                 icon: '📝',
-                title: "Narrative Drafting",
-                desc: "Generating full immersive prose and intelligence files.",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 3:</span> STORY CONFIRM",
+                desc: "Generating full immersive prose and intelligence files (200-400 words per node).",
                 prompt: "PHASE: STORY CONFIRM. Draft FULL immersive prose. REQUIRED: 200-400 words MINIMUM per slide section (Combined Slide Text + Intel data). Do not summarize; expand. End with: 'Narrative draft complete. Awaiting asset authorization.'",
                 showCurriculum: false,
                 skippable: true
@@ -1749,8 +1747,8 @@
                 id: 'assets',
                 label: 'ASSETS',
                 icon: '🖼️',
-                title: "Asset Procurement",
-                desc: "Mapping visual keywords (Unsplash) for all nodes.",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 4:</span> ASSET SECURE",
+                desc: "Mapping visual keywords (Unsplash) for all nodes (19 images needed).",
                 prompt: "PHASE: ASSET SECURE. Propose Visual Strategy. MANDATORY: You MUST provide a 6-column Markdown table [ID | Item Name | Context/Description | Visual Style | AI Prompt | Source (URL)]. INVENTORY: You MUST list exactly 19 images (1 Hero/Splash + 18 exhibits for the 10 slides). End with: 'Awaiting final birth command.'",
                 showCurriculum: false,
                 skippable: true
@@ -1759,11 +1757,11 @@
                 id: 'birth',
                 label: 'BIRTH',
                 icon: '🧬',
-                title: "Biological Birth",
-                desc: "Compiling the final .blob mission package.",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 5:</span> BLOB BIRTH",
+                desc: "Compiling the final .blob mission package for deployment.",
                 prompt: "PHASE: BLOB BIRTH. Compile the fully realized mission into a valid JSON .blob package. CRITICAL: Output the RAW JSON block ONLY. Start with '{' and end with '}'. No conversational text, no markdown fences, no padding. This is a machine-to-machine transfer.",
                 showCurriculum: false,
-                skippable: false,
+                skippable: true,
                 locked: true
             }
         };
@@ -2081,6 +2079,11 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 currentPhaseIndex++;
                 updateForgeUI();
                 addForgeChat("ai", `✓ Advanced to **${nextPhase.label}**. ${nextPhase.desc}`);
+
+                // Clear input and provide helpful hint
+                document.getElementById('f-input').value = "";
+                document.getElementById('f-input').placeholder = `Type a command for ${nextPhase.label}...`;
+                log(`Authorized transition to ${nextPhase.label}`, "success");
             }
         }
 
@@ -2177,9 +2180,24 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         // --- FORGE AI ENGINE ---
         async function processForge() {
-            const input = document.getElementById('f-input').value;
+            let input = document.getElementById('f-input').value;
+
+            // v73.SB Auto-Advance Logic: If user input strongly suggests phase change, trigger it.
+            const nextWords = ['next phase', 'proceed', 'advance phase', 'go to phase', 'authorize next'];
+            if (input && nextWords.some(w => input.toLowerCase().includes(w))) {
+                if (currentPhaseIndex < forgePipeline.length - 1) {
+                    const nextPhase = FORGE_PHASES[forgePipeline[currentPhaseIndex + 1]];
+                    if (confirm(`You mentioned wanting to progress. Authorize transition to ${nextPhase.label}?`)) {
+                        currentPhaseIndex++;
+                        updateForgeUI();
+                        log(`Phase advanced via chat command to ${nextPhase.label}`, "success");
+                        input = "(Proceeding to authorized phase: " + nextPhase.label + ")";
+                    }
+                }
+            }
+
             // Allow empty input if outcomes are selected or if the user wants to try "Auto-Pilot" Phase 1
-            if (!input && forgeStep === 1) {
+            if (!input && currentPhaseIndex === 0) {
                 const checks = document.querySelectorAll('#f-outcomes input[type="checkbox"]:checked');
                 if (checks.length === 0 && !confirm("No command context or outcomes selected. Proceed with pure course-based generation?")) {
                     return;

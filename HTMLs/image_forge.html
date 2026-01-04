@@ -512,7 +512,9 @@
                     </div>
                     <div class="action-tray">
                         <button class="btn secondary" style="flex:1" onclick="generateSlot(${i})">RE-GEN</button>
-                        <button class="btn secondary" id="dl-${i}" disabled onclick="downloadImage(${i})">DOWNLOAD</button>
+                        <button class="btn secondary" id="dl-${i}" disabled onclick="downloadImage(${i})">PNG</button>
+                        <button class="btn secondary" id="jpg-${i}" disabled onclick="downloadAsJpg(${i})">JPG</button>
+                        <button class="btn secondary" id="git-${i}" disabled onclick="saveToGit(${i})" style="background:#234;">GIT</button>
                     </div>
                 `;
                 grid.appendChild(div);
@@ -627,6 +629,10 @@
                     status.style.color = "#0f0";
                     dlBtn.disabled = false;
                     dlBtn.dataset.url = imageUrl;
+                    document.getElementById(`jpg-${id}`).disabled = false;
+                    document.getElementById(`jpg-${id}`).dataset.url = imageUrl;
+                    document.getElementById(`git-${id}`).disabled = false;
+                    document.getElementById(`git-${id}`).dataset.url = imageUrl;
                     log(`Slot ${id} successful.`);
                 }
             } catch (e) {
@@ -828,7 +834,121 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast("DATA DOWNLOADED");
+            showToast("PNG DOWNLOADED");
+        }
+
+        async function downloadAsJpg(id) {
+            const btn = document.getElementById(`jpg-${id}`);
+            const url = btn.dataset.url;
+            if (!url) return;
+
+            try {
+                // Create canvas for conversion
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = url;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';  // White background for JPG
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+                const link = document.createElement('a');
+                link.href = jpgDataUrl;
+                link.download = `FORGE_ASSET_${id}_${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("JPG DOWNLOADED");
+            } catch (e) {
+                log(`JPG conversion failed: ${e.message}`, 'ERROR');
+                showToast("JPG CONVERSION FAILED - TRY PNG");
+            }
+        }
+
+        async function saveToGit(id) {
+            const btn = document.getElementById(`git-${id}`);
+            const url = btn.dataset.url;
+            const prompt = document.getElementById(`prompt-${id}`).value;
+            if (!url) return;
+
+            const token = localStorage.getItem('GITHUB_TOKEN');
+            if (!token) {
+                const newToken = window.prompt("Enter your GitHub Personal Access Token (needs 'repo' scope):");
+                if (!newToken) return;
+                localStorage.setItem('GITHUB_TOKEN', newToken.trim());
+            }
+
+            const ghToken = localStorage.getItem('GITHUB_TOKEN');
+            const repo = 'dwaugh-edsim/projectimages';
+            const filename = `forge_${Date.now()}.png`;
+            const path = `generated/${filename}`;
+
+            try {
+                showToast("UPLOADING TO GITHUB...");
+                log(`Git Save: Preparing ${filename}...`, 'OUTBOUND');
+
+                // Get base64 content
+                let base64Content;
+                if (url.startsWith('data:')) {
+                    base64Content = url.split(',')[1];
+                } else {
+                    // Fetch and convert to base64
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    base64Content = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                        reader.readAsDataURL(blob);
+                    });
+                }
+
+                // Commit to GitHub
+                const commitMsg = `[ImageForge] ${prompt.substring(0, 50) || 'Generated asset'}`;
+                const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+                const res = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${ghToken}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: commitMsg,
+                        content: base64Content,
+                        branch: 'main'
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.message || `HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                log(`Git Save: SUCCESS - ${data.content.html_url}`, 'INBOUND');
+                showToast("SAVED TO GITHUB!");
+                btn.style.background = '#060';
+                btn.innerText = '✓ GIT';
+            } catch (e) {
+                log(`Git Save FAILED: ${e.message}`, 'ERROR');
+                showToast("GIT SAVE FAILED");
+                if (e.message.includes('401') || e.message.includes('Bad credentials')) {
+                    localStorage.removeItem('GITHUB_TOKEN');
+                    showToast("TOKEN INVALID - CLEARED");
+                }
+            }
         }
 
         function clearAll() {
