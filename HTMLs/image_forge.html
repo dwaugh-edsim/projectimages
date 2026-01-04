@@ -637,15 +637,36 @@
 
         function listModels() {
             saveConfig();
-            if (!CONFIG.key_gl) { showToast("NEED API KEY"); return; }
-            log("DIAGNOSTIC: PROBING GOOGLE AI STUDIO...", 'OUTBOUND');
+            log("DIAGNOSTIC: PROBING GOOGLE MODELS...", 'OUTBOUND');
 
-            fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${CONFIG.key_gl}`)
+            const headers = { 'Content-Type': 'application/json' };
+            let url = `https://generativelanguage.googleapis.com/v1beta/models`;
+
+            if (CONFIG.gl_token) {
+                headers['Authorization'] = `Bearer ${CONFIG.gl_token}`;
+                log("Using OAuth Token for Scan...", 'INFO');
+            } else if (CONFIG.key_gl) {
+                url += `?key=${CONFIG.key_gl}`;
+                log("Using API Key for Scan...", 'INFO');
+            } else {
+                showToast("NEED API KEY OR LOGIN");
+                return;
+            }
+
+            fetch(url, { headers })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.models) log(`AI STUDIO SUCCESS: Found ${data.models.length} entries.`, 'RESPONSE');
-                    else log(`AI STUDIO REJECTED: ${JSON.stringify(data.error)}`, 'ERROR');
-                });
+                    if (data.models) {
+                        const names = data.models.map(m => m.name.split('/').pop()).join(', ');
+                        log(`SCAN SUCCESS: Found ${data.models.length} models. [${names.substring(0, 100)}...]`, 'RESPONSE');
+                    } else {
+                        log(`SCAN REJECTED: ${JSON.stringify(data.error || data)}`, 'ERROR');
+                        if (data.error && data.error.code === 401) {
+                            log("Check 'OAuth Consent Screen' in GCP: App must be 'External' or user must be added to 'Test Users'.", 'INFO');
+                        }
+                    }
+                })
+                .catch(e => log(`SCAN CRASH: ${e.message}`, 'ERROR'));
         }
 
         async function callGoogleAPI(prompt, slotId) {
