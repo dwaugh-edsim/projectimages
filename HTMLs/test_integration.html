@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test Suite</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 30px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #0af;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #0f0;
+            margin: 30px 0 15px;
+            font-size: 1.1rem;
+        }
+
+        .test-section {
+            background: #111;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .test-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        input,
+        textarea {
+            background: #080808;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        button {
+            background: #0af;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0cf;
+        }
+
+        button.success {
+            background: #0f0;
+        }
+
+        button.error {
+            background: #f44;
+            color: #fff;
+        }
+
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #050505;
+            border: 1px solid #222;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            border-color: #0f0;
+            color: #0f0;
+        }
+
+        .result.error {
+            border-color: #f44;
+            color: #f44;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #888;
+            margin-left: 10px;
+        }
+
+        img.preview {
+            max-width: 200px;
+            max-height: 150px;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 5px 0;
+        }
+
+        .checklist li::before {
+            content: '⬜';
+            margin-right: 10px;
+        }
+
+        .checklist li.pass::before {
+            content: '✅';
+        }
+
+        .checklist li.fail::before {
+            content: '❌';
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 TeacherMode Integration Test Suite</h1>
+    <p style="color:#888; margin-bottom:30px;">Test all the new features we built today. Run each test in order.</p>
+
+    <!-- Test 1: R2 Worker Ping -->
+    <div class="test-section">
+        <h2>1. R2 Worker Health Check</h2>
+        <p style="color:#888; font-size:12px;">Verifies the Cloudflare Worker is deployed and responding.</p>
+        <div class="test-row">
+            <input type="text" id="r2-worker-url" value="https://proud-tooth-42cf.icumusicvideo.workers.dev"
+                placeholder="R2 Worker URL">
+            <button onclick="testR2Ping()">PING</button>
+        </div>
+        <div id="r2-ping-result" class="result">Waiting...</div>
+    </div>
+
+    <!-- Test 2: R2 Upload -->
+    <div class="test-section">
+        <h2>2. R2 Image Upload</h2>
+        <p style="color:#888; font-size:12px;">Uploads a test image to R2 via the worker and verifies public URL works.
+        </p>
+        <div class="test-row">
+            <input type="text" id="test-image-url" value="https://via.placeholder.com/300x200/00ff00/000000?text=TEST"
+                placeholder="Test image URL">
+            <button onclick="testR2Upload()">UPLOAD TO R2</button>
+        </div>
+        <div id="r2-upload-result" class="result">Waiting...</div>
+        <img id="r2-preview" class="preview" style="display:none;">
+    </div>
+
+    <!-- Test 3: OpenRouter Connection -->
+    <div class="test-section">
+        <h2>3. OpenRouter API Connection</h2>
+        <p style="color:#888; font-size:12px;">Tests connectivity to OpenRouter. Doesn't generate an image (saves
+            credits).</p>
+        <div class="test-row">
+            <input type="text" id="or-key" placeholder="OpenRouter API Key" value="">
+            <button onclick="testOpenRouter()">TEST CONNECTION</button>
+        </div>
+        <div id="or-result" class="result">Waiting...</div>
+    </div>
+
+    <!-- Test 4: OpenRouter Image Generation -->
+    <div class="test-section">
+        <h2>4. OpenRouter Flux Image Generation</h2>
+        <p style="color:#888; font-size:12px;">⚠️ This uses credits! Generates a real image via Flux 1.1 Pro.</p>
+        <div class="test-row">
+            <input type="text" id="gen-prompt" value="A simple blue cube on a white background, minimal, clean"
+                placeholder="Image prompt">
+            <button onclick="testImageGen()">GENERATE (USES CREDITS)</button>
+        </div>
+        <div id="gen-result" class="result">Waiting...</div>
+        <img id="gen-preview" class="preview" style="display:none;">
+    </div>
+
+    <!-- Test 5: Full Pipeline -->
+    <div class="test-section">
+        <h2>5. Full Pipeline: Generate → R2 Upload</h2>
+        <p style="color:#888; font-size:12px;">⚠️ Uses credits! Generates image, converts to JPG, uploads to R2.</p>
+        <div class="test-row">
+            <input type="text" id="pipeline-prompt" value="A red triangle on a gray background, simple geometric shape"
+                placeholder="Image prompt">
+            <button onclick="testFullPipeline()">RUN FULL PIPELINE</button>
+        </div>
+        <div id="pipeline-result" class="result">Waiting...</div>
+        <img id="pipeline-preview" class="preview" style="display:none;">
+    </div>
+
+    <!-- Summary -->
+    <div class="test-section">
+        <h2>📋 Test Summary</h2>
+        <ul class="checklist" id="test-summary">
+            <li id="sum-1">R2 Worker Health</li>
+            <li id="sum-2">R2 Upload</li>
+            <li id="sum-3">OpenRouter Connection</li>
+            <li id="sum-4">Image Generation</li>
+            <li id="sum-5">Full Pipeline</li>
+        </ul>
+    </div>
+
+    <script>
+        // Load saved key
+        document.getElementById('or-key').value = localStorage.getItem('TM_OPENROUTER_KEY') || '';
+
+        function updateResult(id, success, message) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.className = 'result ' + (success ? 'success' : 'error');
+        }
+
+        function updateSummary(num, pass) {
+            const el = document.getElementById('sum-' + num);
+            el.className = pass ? 'pass' : 'fail';
+        }
+
+        // Test 1: R2 Ping
+        async function testR2Ping() {
+            const url = document.getElementById('r2-worker-url').value;
+            updateResult('r2-ping-result', false, 'Testing...');
+            try {
+                const res = await fetch(url, { method: 'OPTIONS' });
+                if (res.ok || res.status === 204) {
+                    updateResult('r2-ping-result', true, `✓ Worker responding! Status: ${res.status}\nCORS headers present.`);
+                    updateSummary(1, true);
+                } else {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+            } catch (e) {
+                updateResult('r2-ping-result', false, `✗ Failed: ${e.message}`);
+                updateSummary(1, false);
+            }
+        }
+
+        // Test 2: R2 Upload
+        async function testR2Upload() {
+            const workerUrl = document.getElementById('r2-worker-url').value;
+            const imageUrl = document.getElementById('test-image-url').value;
+            updateResult('r2-upload-result', false, 'Loading test image...');
+
+            try {
+                // Fetch and convert to base64
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = imageUrl;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                updateResult('r2-upload-result', false, 'Uploading to R2...');
+
+                const res = await fetch(`${workerUrl}?filename=test_${Date.now()}.jpg`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: jpgDataUrl })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    updateResult('r2-upload-result', true, `✓ Upload successful!\n\nPublic URL:\n${data.url}`);
+                    document.getElementById('r2-preview').src = data.url;
+                    document.getElementById('r2-preview').style.display = 'block';
+                    updateSummary(2, true);
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+            } catch (e) {
+                updateResult('r2-upload-result', false, `✗ Failed: ${e.message}`);
+                updateSummary(2, false);
+            }
+        }
+
+        // Test 3: OpenRouter Connection
+        async function testOpenRouter() {
+            const key = document.getElementById('or-key').value;
+            if (!key) {
+                updateResult('or-result', false, '✗ Enter your OpenRouter API key first');
+                return;
+            }
+            localStorage.setItem('TM_OPENROUTER_KEY', key);
+            updateResult('or-result', false, 'Testing connection...');
+
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/models', {
+                    headers: { 'Authorization': `Bearer ${key}` }
+                });
+                const data = await res.json();
+
+                if (data.data) {
+                    const fluxModel = data.data.find(m => m.id.includes('flux'));
+                    updateResult('or-result', true, `✓ Connected! Found ${data.data.length} models.\n\nFlux available: ${fluxModel ? 'YES - ' + fluxModel.id : 'Not found'}`);
+                    updateSummary(3, true);
+                } else {
+                    throw new Error(data.error?.message || 'Invalid response');
+                }
+            } catch (e) {
+                updateResult('or-result', false, `✗ Failed: ${e.message}`);
+                updateSummary(3, false);
+            }
+        }
+
+        // Test 4: Image Generation
+        async function testImageGen() {
+            const key = document.getElementById('or-key').value || localStorage.getItem('TM_OPENROUTER_KEY');
+            const prompt = document.getElementById('gen-prompt').value;
+
+            if (!key) {
+                updateResult('gen-result', false, '✗ Set OpenRouter key in test 3 first');
+                return;
+            }
+
+            updateResult('gen-result', false, 'Generating image via Flux 1.1 Pro...');
+
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'black-forest-labs/flux-1.1-pro',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.error) throw new Error(data.error.message);
+
+                const message = data.choices[0].message;
+                let imageUrl = null;
+
+                if (message.images && message.images.length > 0) {
+                    const img = message.images[0];
+                    imageUrl = img.image_url?.url || img;
+                }
+                if (!imageUrl && message.content) {
+                    const match = message.content.match(/https?:\/\/[^\s\)]+/);
+                    if (match) imageUrl = match[0];
+                }
+
+                if (imageUrl) {
+                    updateResult('gen-result', true, `✓ Image generated!\n\nURL: ${imageUrl.substring(0, 100)}...`);
+                    document.getElementById('gen-preview').src = imageUrl;
+                    document.getElementById('gen-preview').style.display = 'block';
+                    updateSummary(4, true);
+                } else {
+                    updateResult('gen-result', false, `✗ No image URL in response:\n${JSON.stringify(data).substring(0, 500)}`);
+                    updateSummary(4, false);
+                }
+            } catch (e) {
+                updateResult('gen-result', false, `✗ Failed: ${e.message}`);
+                updateSummary(4, false);
+            }
+        }
+
+        // Test 5: Full Pipeline
+        async function testFullPipeline() {
+            const key = document.getElementById('or-key').value || localStorage.getItem('TM_OPENROUTER_KEY');
+            const workerUrl = document.getElementById('r2-worker-url').value;
+            const prompt = document.getElementById('pipeline-prompt').value;
+
+            if (!key) {
+                updateResult('pipeline-result', false, '✗ Set OpenRouter key first');
+                return;
+            }
+
+            updateResult('pipeline-result', false, 'Step 1/3: Generating image...');
+
+            try {
+                // Generate
+                const genRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'black-forest-labs/flux-1.1-pro',
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+
+                const genData = await genRes.json();
+                if (genData.error) throw new Error(genData.error.message);
+
+                const message = genData.choices[0].message;
+                let imageUrl = null;
+                if (message.images?.[0]) {
+                    imageUrl = message.images[0].image_url?.url || message.images[0];
+                }
+                if (!imageUrl && message.content) {
+                    const match = message.content.match(/https?:\/\/[^\s\)]+/);
+                    if (match) imageUrl = match[0];
+                }
+                if (!imageUrl) throw new Error('No image URL in generation response');
+
+                updateResult('pipeline-result', false, 'Step 2/3: Converting to JPG...');
+
+                // Convert to JPG
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = () => reject(new Error('Failed to load generated image'));
+                    img.src = imageUrl;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                updateResult('pipeline-result', false, 'Step 3/3: Uploading to R2...');
+
+                // Upload to R2
+                const uploadRes = await fetch(`${workerUrl}?filename=pipeline_test_${Date.now()}.jpg`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: jpgDataUrl })
+                });
+
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) throw new Error(uploadData.error || 'Upload failed');
+
+                updateResult('pipeline-result', true, `✓ FULL PIPELINE SUCCESS!\n\n1. Generated via Flux 1.1 Pro\n2. Converted to JPG\n3. Uploaded to R2\n\nFinal URL:\n${uploadData.url}`);
+                document.getElementById('pipeline-preview').src = uploadData.url;
+                document.getElementById('pipeline-preview').style.display = 'block';
+                updateSummary(5, true);
+
+            } catch (e) {
+                updateResult('pipeline-result', false, `✗ Pipeline failed: ${e.message}`);
+                updateSummary(5, false);
+            }
+        }
+    </script>
+</body>
+
+</html>
