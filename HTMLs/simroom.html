@@ -938,9 +938,10 @@
                 <p
                     style="font-size:0.9rem; opacity:0.6; margin-bottom:50px; text-transform:uppercase; letter-spacing:5px; font-weight:bold;">
                     Critical Juncture Authorization Required</p>
-                <input id="username" placeholder="NAME / CODENAME">
-                <input id="pin" type="password" placeholder="ACCESS PIN">
-                <input id="class-code" placeholder="CLASS CODE (e.g. PER-01)">
+                <input id="username" placeholder="FIRST NAME + LAST LETTER (e.g. John S)">
+                <input id="class-code" placeholder="5-LETTER CLASS CODE (e.g. XJ9KT)">
+                <input id="pin" type="password" placeholder="OPTIONAL PIN (if assigned)"
+                    style="opacity: 0.5; font-size: 0.8rem;">
                 <button class="btn" style="width:100%; margin-top:20px;" onclick="login()">AUTHORIZE ACCESS</button>
                 <div
                     style="margin-top:50px; font-size:0.8rem; opacity:0.4; text-transform:uppercase; letter-spacing:6px; font-family:var(--font-h);">
@@ -1191,9 +1192,10 @@
             const pin = document.getElementById('pin').value.trim();
             const classCode = document.getElementById('class-code').value.trim().toUpperCase();
 
-            if (!name || !pin || !classCode) return alert("CORRUPT PACKET: ALL CREDENTIALS (NAME, PIN, CLASS CODE) REQUIRED.");
-            if (name.includes(" ")) return alert("SECURITY PROTOCOL: SPACES NOT PERMITTED IN CODENAMES.");
-            if (pin.length < 4) return alert("SECURITY PROTOCOL: PIN MUST BE 4+ CHARACTERS.");
+            if (!name || !classCode) return alert("CORRUPT PACKET: NAME and CLASS CODE REQUIRED.");
+
+            // [Migration v76] Allow spaces for "First Name Last Letter" format
+            if (name.length < 2) return alert("SECURITY PROTOCOL: NAME TOO SHORT.");
 
             // RATE LIMIT CHECK
             const lastAttempt = localStorage.getItem('RATE_LIMIT_TIMESTAMP');
@@ -1206,24 +1208,41 @@
             document.getElementById('loading-screen').style.display = 'flex';
 
             try {
-                const cleanName = name.replace(/\s+/g, '');
-
-                // [Migration v73] Initialize Supabase if provided in URL
+                // Initialize Supabase
                 const params = new URLSearchParams(window.location.search);
                 const sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL');
                 const sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY');
-                const teacherId = params.get('teacher') || localStorage.getItem('ST_TEACHER_ID') || 'GUEST';
+                let teacherId = params.get('teacher') || localStorage.getItem('ST_TEACHER_ID') || 'GUEST';
 
                 if (sbUrl && sbKey) {
                     SupabaseBridge.init(sbUrl, sbKey);
                     localStorage.setItem('ST_SB_URL', sbUrl);
                     localStorage.setItem('ST_SB_KEY', sbKey);
-                    localStorage.setItem('ST_TEACHER_ID', teacherId);
                 }
 
-                // Temporary: Simulate successful login for Supabase-only mode
-                // In a full implementation, we'd verify the student or just create a session
-                user = { id: 'ST_' + Date.now(), name: cleanName, pin: pin, missions: {}, class: classCode, teacherId: teacherId };
+                let className = classCode;
+
+                // [Migration v76] Resolve unique 5-letter code to class/teacher
+                if (SupabaseBridge.client) {
+                    const classConfig = await SupabaseBridge.fetchClassByCode(classCode);
+                    if (classConfig) {
+                        teacherId = classConfig.teacher_id;
+                        className = classConfig.class_name;
+                        localStorage.setItem('ST_TEACHER_ID', teacherId);
+                        console.log(`AUTHENTICATED: Code ${classCode} resolved to ${className} (Teacher: ${teacherId})`);
+                    }
+                }
+
+                user = {
+                    id: 'ST_' + Date.now(),
+                    name: name,
+                    pin: pin,
+                    missions: {},
+                    class: className,
+                    classCode: classCode,
+                    teacherId: teacherId
+                };
+
                 user.encryptionKey = await CriticalCrypto.deriveKey(classCode, classCode);
 
                 gsap.to("#login-step", {

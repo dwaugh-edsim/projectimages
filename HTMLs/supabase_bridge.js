@@ -229,6 +229,22 @@ const SupabaseBridge = {
         return data;
     },
 
+    // --- CLASS OPERATIONS ---
+    async fetchClassByCode(passcode) {
+        if (!this.client) return null;
+        const { data, error } = await this.client
+            .from('classes')
+            .select('*')
+            .eq('passcode', passcode.toUpperCase())
+            .single();
+
+        if (error) {
+            console.warn("SUPABASE_BRIDGE: Class lookup failed for code", passcode);
+            return null;
+        }
+        return data;
+    },
+
     // --- LEGACY FALLBACK (DEPRECATING) ---
     saveToLegacy(title, blobData) {
         console.warn("SUPABASE_BRIDGE: Legacy storage is deprecated.");

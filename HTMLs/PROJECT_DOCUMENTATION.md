@@ -134,7 +134,7 @@ The **Situation Room** is an immersive educational platform where students navig
 | `missions` | Published mission JSON blobs |
 | `student_progress` | Decision tracking per student |
 | `forge_ideas` | Work-in-progress mission saves |
-| `classes` | Class/roster management |
+| `classes` | Class codes mapping to teachers/names |
 
 ### Key Functions in `supabase_bridge.js`
 
@@ -471,6 +471,7 @@ CREATE TABLE student_progress (
 - OpenRouter Flux 2 Pro integration
 - SAVE/LOAD IDEA functionality
 - Integration test suite
+- Streamlined student onboarding: "First Name Last Letter" + 5-letter class code
 
 ## v65-75
 - Supabase migration from Google Sheets
