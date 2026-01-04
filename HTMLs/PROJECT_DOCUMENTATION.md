@@ -77,7 +77,7 @@ The **Situation Room** is an immersive educational platform where students navig
 |---------|----------|---------|------|
 | **Database** | Supabase | Missions, progress, auth | Free tier |
 | **Image CDN** | Cloudflare R2 | Generated assets | Free 10GB |
-| **AI Images** | OpenRouter | Flux 1.1 Pro generation | Pay-per-use |
+| **AI Images** | OpenRouter | Flux 2 Pro generation | Pay-per-use |
 | **AI Text** | OpenRouter | Brainstorm, narrative | Pay-per-use |
 | **Auth** | Google OAuth | Teacher identity | Free |
 
@@ -175,7 +175,7 @@ SupabaseBridge.loadIdea(ideaId)            // Restore WIP
 
 | Model | ID | Purpose |
 |-------|-----|---------|
-| Flux 1.1 Pro | `black-forest-labs/flux-1.1-pro` | Image generation |
+| Flux 2 Pro | `black-forest-labs/flux.2-pro` | Image generation |
 | Gemini Flash | `google/gemini-2.0-flash-exp:free` | Text (free tier) |
 | MiMo V2 | `xiaomi/mimo-v2-flash:free` | Text (free tier) |
 
@@ -354,7 +354,7 @@ const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    model: 'black-forest-labs/flux-1.1-pro',
+    model: 'black-forest-labs/flux.2-pro',
     messages: [{ role: 'user', content: 'A blue cube on white background' }]
   })
 });
@@ -468,7 +468,7 @@ CREATE TABLE student_progress (
 - Multi-screen workflow (Chat → Assets Grid → Birth Review)
 - 19-slot asset grid with A/B variants
 - Cloudflare R2 integration (replaced GitHub for assets)
-- OpenRouter Flux 1.1 Pro integration
+- OpenRouter Flux 2 Pro integration
 - SAVE/LOAD IDEA functionality
 - Integration test suite
 

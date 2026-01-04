@@ -126,7 +126,7 @@ Click **LOAD IDEA**:
 - [British Library](https://bl.uk) - UK historical materials
 
 ### AI Generation
-- Built-in **Flux 1.1 Pro** via OpenRouter
+- Built-in **Flux 2 Pro** via OpenRouter
 - First use prompts for API key (get free credits at [openrouter.ai](https://openrouter.ai))
 - Best for: Reconstructions, abstract concepts, custom illustrations
 
