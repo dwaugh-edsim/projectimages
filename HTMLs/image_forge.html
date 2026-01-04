@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Forge</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" onload="initGSI()" async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -419,32 +419,46 @@
             }
             createSlots(10);
 
-            // Initialize GSI
-            try {
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: '985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com',
-                    scope: 'https://www.googleapis.com/auth/generative-language',
-                    callback: (resp) => {
-                        if (resp.access_token) {
-                            CONFIG.gl_token = resp.access_token;
-                            saveConfig();
-                            log("GOOGLE OAUTH TOKEN ACQUIRED", 'RESPONSE');
-                            showToast("AUTH SUCCESSFUL");
-                            document.getElementById('btn-gl-login').innerText = "GOOGLE LOGGED IN";
-                            document.getElementById('btn-gl-login').style.background = "#0f0";
-                        }
-                    }
-                });
-            } catch (e) {
-                log("Google Identity Services not loaded yet.", 'ERROR');
+            if (CONFIG.gl_token) {
+                document.getElementById('btn-gl-login').innerText = "GOOGLE LOGGED IN";
+                document.getElementById('btn-gl-login').style.background = "#0f0";
             }
-
             log("System Initialized. Image Forge Ready.");
         }
 
+        function initGSI() {
+            try {
+                if (typeof google !== 'undefined' && google.accounts) {
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: '985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com',
+                        scope: 'https://www.googleapis.com/auth/generative-language',
+                        callback: (resp) => {
+                            if (resp.access_token) {
+                                CONFIG.gl_token = resp.access_token;
+                                saveConfig();
+                                log("GOOGLE OAUTH TOKEN ACQUIRED", 'RESPONSE');
+                                showToast("AUTH SUCCESSFUL");
+                                document.getElementById('btn-gl-login').innerText = "GOOGLE LOGGED IN";
+                                document.getElementById('btn-gl-login').style.background = "#0f0";
+                            }
+                        }
+                    });
+                    log("GSI Client Initialized.", 'INFO');
+                } else {
+                    setTimeout(initGSI, 500); // Retry if script not parsed yet
+                }
+            } catch (e) {
+                log("GSI Load Failed: " + e.message, 'ERROR');
+            }
+        }
+
         function googleLogin() {
-            if (tokenClient) tokenClient.requestAccessToken();
-            else showToast("OAUTH CLIENT NOT READY");
+            if (tokenClient) {
+                tokenClient.requestAccessToken();
+            } else {
+                initGSI();
+                setTimeout(() => { if (tokenClient) tokenClient.requestAccessToken(); }, 500);
+            }
         }
 
         function saveConfig() {
