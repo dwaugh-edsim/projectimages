@@ -2246,28 +2246,47 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 </div>
             `;
 
-            // Slide assets (2 per slide)
-            for (let i = 0; i < 10; i++) {
+            // Slide assets: 18 exhibits (2 per slide for 9 content slides, or 1 per slide for 10 + extras)
+            // Using 2 images per slide approach: primary + alternate perspective
+            for (let i = 0; i < 9; i++) {
                 const slide = slides[i] || { shortTitle: `Slide ${i + 1}` };
                 const slideTitle = slide.shortTitle || slide.title || `Slide ${i + 1}`;
                 const primaryImg = slide.tabs?.primary?.image || slide.image || '';
-                const altImg = slide.tabs?.intel?.image || slide.tabs?.legal?.image || '';
+                const altImg = slide.tabs?.intel?.image || slide.tabs?.legal?.image || slide.tabs?.secondary?.image || '';
 
-                // Primary image
+                // Primary image for this slide
                 html += `
                     <div class="asset-slot" style="background:#111; border:1px solid #333; padding:15px; border-radius:4px;">
-                        <div style="font-size:0.65rem; color:#888; margin-bottom:8px; letter-spacing:1px;">SLIDE ${i + 1}: ${slideTitle.substring(0, 20)}</div>
-                        <input type="text" id="asset-${i}-prompt" placeholder="AI prompt..."
+                        <div style="font-size:0.65rem; color:#0af; margin-bottom:8px; letter-spacing:1px;">S${i + 1}A: ${slideTitle.substring(0, 15)}</div>
+                        <input type="text" id="asset-${i}-a-prompt" placeholder="Primary image prompt..."
                             style="width:100%; background:#080808; border:1px solid #222; color:#fff; padding:8px; font-size:0.7rem; margin-bottom:8px;"
                             value="${slide.imagePrompt || ''}">
-                        <div id="asset-${i}-preview" style="min-height:80px; background:#050505; border:1px solid #222; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
+                        <div id="asset-${i}-a-preview" style="min-height:80px; background:#050505; border:1px solid #222; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
                             ${primaryImg ? `<img src="${primaryImg}" style="max-width:100%;">` : '<span style="color:#333; font-size:0.55rem;">NO IMAGE</span>'}
                         </div>
-                        <input type="text" id="asset-${i}-url" placeholder="URL..."
+                        <input type="text" id="asset-${i}-a-url" placeholder="URL..."
                             style="width:100%; background:#080808; border:1px solid #222; color:#0f0; padding:6px; font-size:0.6rem; margin-bottom:8px;"
                             value="${primaryImg}"
-                            onchange="updateAssetUrl(${i}, this.value)">
-                        <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset(${i})">⚡ GEN</button>
+                            onchange="updateAssetUrl('${i}-a', this.value)">
+                        <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-a')">⚡ GEN</button>
+                    </div>
+                `;
+
+                // Alternate/Intel image for this slide
+                html += `
+                    <div class="asset-slot" style="background:#0a0a0a; border:1px solid #222; padding:15px; border-radius:4px;">
+                        <div style="font-size:0.65rem; color:#f80; margin-bottom:8px; letter-spacing:1px;">S${i + 1}B: Alt/Intel</div>
+                        <input type="text" id="asset-${i}-b-prompt" placeholder="Alternate perspective..."
+                            style="width:100%; background:#080808; border:1px solid #222; color:#fff; padding:8px; font-size:0.7rem; margin-bottom:8px;"
+                            value="${slide.altImagePrompt || ''}">
+                        <div id="asset-${i}-b-preview" style="min-height:80px; background:#050505; border:1px solid #222; display:flex; align-items:center; justify-content:center; margin-bottom:8px;">
+                            ${altImg ? `<img src="${altImg}" style="max-width:100%;">` : '<span style="color:#333; font-size:0.55rem;">NO IMAGE</span>'}
+                        </div>
+                        <input type="text" id="asset-${i}-b-url" placeholder="URL..."
+                            style="width:100%; background:#080808; border:1px solid #222; color:#f80; padding:6px; font-size:0.6rem; margin-bottom:8px;"
+                            value="${altImg}"
+                            onchange="updateAssetUrl('${i}-b', this.value)">
+                        <button class="btn secondary" style="width:100%; font-size:0.6rem; padding:6px;" onclick="generateAsset('${i}-b')">⚡ GEN</button>
                     </div>
                 `;
             }
@@ -2280,13 +2299,36 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 if (!accumulatedData.metadata) accumulatedData.metadata = {};
                 accumulatedData.metadata.heroImage = url;
                 document.getElementById('asset-hero-preview').innerHTML = url ? `<img src="${url}" style="max-width:100%;">` : '<span style="color:#333;">NO IMAGE</span>';
-            } else {
+            } else if (typeof slotId === 'string' && slotId.includes('-')) {
+                // New format: "3-a" or "5-b"
+                const [slideIdx, variant] = slotId.split('-');
+                const idx = parseInt(slideIdx);
+
                 if (!accumulatedData.slides) accumulatedData.slides = [];
-                if (!accumulatedData.slides[slotId]) accumulatedData.slides[slotId] = {};
-                if (!accumulatedData.slides[slotId].tabs) accumulatedData.slides[slotId].tabs = { primary: {} };
-                if (!accumulatedData.slides[slotId].tabs.primary) accumulatedData.slides[slotId].tabs.primary = {};
-                accumulatedData.slides[slotId].tabs.primary.image = url;
-                accumulatedData.slides[slotId].image = url;
+                if (!accumulatedData.slides[idx]) accumulatedData.slides[idx] = {};
+                if (!accumulatedData.slides[idx].tabs) accumulatedData.slides[idx].tabs = { primary: {}, intel: {} };
+
+                if (variant === 'a') {
+                    // Primary image
+                    if (!accumulatedData.slides[idx].tabs.primary) accumulatedData.slides[idx].tabs.primary = {};
+                    accumulatedData.slides[idx].tabs.primary.image = url;
+                    accumulatedData.slides[idx].image = url;
+                } else {
+                    // Alternate/Intel image
+                    if (!accumulatedData.slides[idx].tabs.intel) accumulatedData.slides[idx].tabs.intel = {};
+                    accumulatedData.slides[idx].tabs.intel.image = url;
+                }
+
+                document.getElementById(`asset-${slotId}-preview`).innerHTML = url ? `<img src="${url}" style="max-width:100%;">` : '<span style="color:#333;">NO IMAGE</span>';
+            } else {
+                // Legacy numeric format
+                const idx = parseInt(slotId);
+                if (!accumulatedData.slides) accumulatedData.slides = [];
+                if (!accumulatedData.slides[idx]) accumulatedData.slides[idx] = {};
+                if (!accumulatedData.slides[idx].tabs) accumulatedData.slides[idx].tabs = { primary: {} };
+                if (!accumulatedData.slides[idx].tabs.primary) accumulatedData.slides[idx].tabs.primary = {};
+                accumulatedData.slides[idx].tabs.primary.image = url;
+                accumulatedData.slides[idx].image = url;
                 document.getElementById(`asset-${slotId}-preview`).innerHTML = url ? `<img src="${url}" style="max-width:100%;">` : '<span style="color:#333;">NO IMAGE</span>';
             }
             log(`Asset URL updated for slot ${slotId}`, 'success');
