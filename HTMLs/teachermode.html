@@ -1301,6 +1301,13 @@
                     placeholder="..."></textarea>
                 <button class="btn" style="padding:10px; font-size:0.75rem;" onclick="upload()">INITIALIZE
                     ARCHIVE</button>
+                <div style="margin-top:20px; padding-top:15px; border-top:1px dashed #333;">
+                    <h4 style="margin:0 0 10px; font-size:0.6rem; color:var(--accent); letter-spacing:1px;">CLASS
+                        OPERATIONS</h4>
+                    <button class="btn"
+                        style="padding:10px; font-size:0.75rem; background:#1a1a1a; border:1px solid var(--accent); color:var(--accent);"
+                        onclick="registerClass()">REGISTER NEW CLASS</button>
+                </div>
             </div>
 
             <div class="panel">
@@ -1316,6 +1323,17 @@
                     </select>
                     <button class="btn" style="width:auto; padding:0 15px; font-size:0.6rem;"
                         onclick="fetchProgress()">REFRESH</button>
+                </div>
+                <div style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h4 style="margin:0; font-size:0.65rem; color:#888; letter-spacing:1px;">CLASS DIRECTORY</h4>
+                        <button class="btn" style="width:auto; padding:2px 8px; font-size:0.5rem;"
+                            onclick="refreshClasses()">REFRESH</button>
+                    </div>
+                    <div id="class-directory-list"
+                        style="font-size:0.7rem; color:#444; max-height:150px; overflow-y:auto; border:1px solid #f9f9f9; padding:5px; background:#fff;">
+                        No classes registered.
+                    </div>
                 </div>
                 <div id="progress-list" style="max-height:500px; overflow-y:auto; border:1px solid #eee;"></div>
             </div>
@@ -3823,6 +3841,76 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             log("Local Source Download Initiated.", "success");
         }
 
+        // --- CLASS MANAGEMENT (v76) ---
+        function generateClassCode() {
+            // Exclude ambiguous chars: O, L, I, 0, 1
+            const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+            let code = "";
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        async function registerClass() {
+            const className = prompt("Enter Class Name (e.g., Period 1 History):", "New Class");
+            if (!className) return;
+
+            const code = generateClassCode();
+            const tId = (typeof googleUser !== 'undefined') ? googleUser.email : 'GUEST';
+
+            if (!confirm(`Register new class [${className}] with code: ${code}?`)) return;
+
+            if (SupabaseBridge.client) {
+                try {
+                    await SupabaseBridge.saveClass(tId, className, code);
+                    log(`CLASS REGISTERED: [${className}] Code: ${code}`, "success");
+                    alert(`Class Registered!\n\nName: ${className}\nCode: ${code}\n\nGive this code to your students.`);
+                } catch (e) {
+                    log("Class Registration Failed: " + e.message, "error");
+                    alert("Failed to register class: " + e.message);
+                }
+            } else {
+                alert("Supabase not connected. Cannot register class.");
+            }
+        }
+
+        async function refreshClasses() {
+            if (!SupabaseBridge.client) return;
+            log("Querying Class Directory...");
+            const tId = googleUser?.email || 'GUEST';
+            try {
+                const classes = await SupabaseBridge.fetchClasses(tId);
+                renderClasses(classes);
+            } catch (e) { log("Class Fetch Failed: " + e.message, "error"); }
+        }
+
+        function renderClasses(classes) {
+            const list = document.getElementById('class-directory-list');
+            const filter = document.getElementById('class-filter');
+            const projFilter = document.getElementById('proj-class-filter');
+
+            if (!classes || classes.length === 0) {
+                if (list) list.innerHTML = "No classes registered.";
+                return;
+            }
+
+            let h = '<div style="display:flex; flex-direction:column; gap:5px;">';
+            let filterHtml = '<option value="ALL">ALL CLASSES</option>';
+
+            classes.forEach(c => {
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px; border-bottom:1px solid #f0f0f0;">
+                    <span style="font-weight:bold;">${c.class_name}</span>
+                    <span style="font-family:var(--font-tech); color:var(--accent); font-weight:bold; background:#000; padding:2px 6px; border-radius:3px;">${c.passcode}</span>
+                </div>`;
+                filterHtml += `<option value="${c.class_name}">${c.class_name}</option>`;
+            });
+            h += '</div>';
+            if (list) list.innerHTML = h;
+            if (filter) filter.innerHTML = filterHtml;
+            if (projFilter) projFilter.innerHTML = filterHtml;
+        }
+
         async function finalizeForge() {
             if (!confirm("Confirm Mission Deployment to Command Center?")) return;
 
@@ -4135,6 +4223,8 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                     sbIndicator.style.color = "var(--accent)";
                     sbIndicator.style.borderColor = "var(--accent)";
                     sbIndicator.style.boxShadow = "0 0 10px var(--accent-dim)";
+
+                    refreshClasses(); // Populate Class Directory
                 }
             }
 

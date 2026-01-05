@@ -82,6 +82,7 @@ const SupabaseBridge = {
             id: m.mission_id,
             name: m.title,
             payload: m.blob_data,
+            thumb: m.blob_data?.metadata?.mediaURL, // EXTRACT THUMBNAIL
             updated: m.updated_at,
             aiEnabled: m.ai_enabled !== false // Safeguard default true
         }));
@@ -245,6 +246,22 @@ const SupabaseBridge = {
         return data;
     },
 
+    async saveClass(teacherId, className, passcode) {
+        if (!this.client) return false;
+        const { data, error } = await this.client
+            .from('classes')
+            .upsert({
+                teacher_id: teacherId,
+                class_name: className,
+                passcode: passcode.toUpperCase(),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'passcode' })
+            .select();
+
+        if (error) throw error;
+        return data;
+    },
+
     // --- LEGACY FALLBACK (DEPRECATING) ---
     saveToLegacy(title, blobData) {
         console.warn("SUPABASE_BRIDGE: Legacy storage is deprecated.");
@@ -343,5 +360,17 @@ const SupabaseBridge = {
 
         if (error) throw error;
         return true;
+    },
+
+    async fetchClasses(teacherId) {
+        if (!this.client) return [];
+        const { data, error } = await this.client
+            .from('classes')
+            .select('*')
+            .eq('teacher_id', teacherId)
+            .order('class_name', { ascending: true });
+
+        if (error) throw error;
+        return data;
     }
 };
