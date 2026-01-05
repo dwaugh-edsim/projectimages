@@ -941,6 +941,7 @@
                     Critical Juncture Authorization Required</p>
                 <input id="username" placeholder="FIRST NAME + LAST LETTER (e.g. John S)">
                 <input id="pin" type="password" placeholder="ENTER YOUR PIN CODE" style="font-size: 1rem;">
+                <input id="teacher-code" placeholder="TEACHER CODE (e.g. DWAUGH)">
                 <button class="btn" style="width:100%; margin-top:20px;" onclick="login()">AUTHORIZE ACCESS</button>
                 <div
                     style="margin-top:50px; font-size:0.8rem; opacity:0.4; text-transform:uppercase; letter-spacing:6px; font-family:var(--font-h);">
@@ -1189,6 +1190,7 @@
         async function login() {
             const name = document.getElementById('username').value.trim();
             const pin = document.getElementById('pin').value.trim();
+            const teacherCode = document.getElementById('teacher-code').value.trim().toUpperCase() || (typeof CONFIG !== 'undefined' ? CONFIG.TEACHER_ID : null);
 
             if (!name || !pin) return alert("CORRUPT PACKET: NAME and PIN REQUIRED.");
             if (name.length < 2) return alert("SECURITY PROTOCOL: NAME TOO SHORT.");
@@ -1218,8 +1220,20 @@
                     return alert("COMMUNICATION ERROR: Please contact your instructor. (Infra Offline)");
                 }
 
+                if (!teacherCode) {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    return alert("SECURITY PROTOCOL: TEACHER CODE REQUIRED.");
+                }
+
+                // VALIDATE TEACHER
+                const isValid = await SupabaseBridge.isTeacherValid(teacherCode);
+                if (!isValid) {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    return alert("ACCESS DENIED: Invalid Teacher Code.");
+                }
+
                 // FETCH OR CREATE STUDENT PROFILE
-                const studentProfile = await SupabaseBridge.getOrCreateStudent(name, pin);
+                const studentProfile = await SupabaseBridge.getOrCreateStudent(name, pin, teacherCode);
 
                 user = {
                     id: studentProfile.id,

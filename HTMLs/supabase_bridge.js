@@ -402,7 +402,7 @@ const SupabaseBridge = {
     },
 
     // --- STUDENT MANAGEMENT ---
-    async getOrCreateStudent(username, pin) {
+    async getOrCreateStudent(username, pin, teacherId) {
         if (!this.client) return null;
         try {
             // Check for existing
@@ -411,6 +411,7 @@ const SupabaseBridge = {
                 .select('*')
                 .eq('username', username)
                 .eq('pin', pin)
+                .eq('teacher_id', teacherId)
                 .maybeSingle();
 
             if (error) throw error;
@@ -419,7 +420,7 @@ const SupabaseBridge = {
             // Create new
             const { data: newData, error: createError } = await this.client
                 .from('students')
-                .insert([{ username, pin, joined_codes: [] }])
+                .insert([{ username, pin, teacher_id: teacherId, joined_codes: [] }])
                 .select()
                 .single();
 
@@ -431,6 +432,24 @@ const SupabaseBridge = {
         }
     },
 
+    async isTeacherValid(teacherId) {
+        if (!this.client) return false;
+        try {
+            // A teacher is valid if they have at least one class or are registered.
+            // For now, we check the 'classes' table for any class with this owner (teacherId).
+            const { count, error } = await this.client
+                .from('classes')
+                .select('*', { count: 'exact', head: true })
+                .eq('owner', teacherId);
+
+            if (error) throw error;
+            return count > 0;
+        } catch (e) {
+            console.error("Supabase Bridge [isTeacherValid] Error:", e);
+            return false;
+        }
+    },
+
     async updateStudentJoinedCodes(studentId, codes) {
         if (!this.client) return false;
         const { error } = await this.client
@@ -439,5 +458,54 @@ const SupabaseBridge = {
             .eq('id', studentId);
         if (error) throw error;
         return true;
+    },
+
+    async fetchStudentsInClass(classCode) {
+        if (!this.client) return [];
+        try {
+            // Use 'contains' operator for JSONB array
+            const { data, error } = await this.client
+                .from('students')
+                .select('*')
+                .contains('joined_codes', [classCode])
+                .order('username', { ascending: true });
+
+            if (error) throw error;
+            return data;
+        } catch (e) {
+            console.error("Supabase Bridge [fetchStudentsInClass] Error:", e);
+            throw e;
+        }
+    },
+
+    async updateStudentProfile(studentId, updates) {
+        if (!this.client) return false;
+        const { data, error } = await this.client
+            .from('students')
+            .update(updates)
+            .eq('id', studentId)
+            .select();
+        if (error) throw error;
+        return data;
+    },
+
+    async removeStudentFromClass(studentId, classCode) {
+        if (!this.client) return false;
+        try {
+            // Fetch current codes
+            const { data, error } = await this.client
+                .from('students')
+                .select('joined_codes')
+                .eq('id', studentId)
+                .single();
+
+            if (error) throw error;
+
+            const newCodes = (data.joined_codes || []).filter(c => c !== classCode);
+            return await this.updateStudentJoinedCodes(studentId, newCodes);
+        } catch (e) {
+            console.error("Supabase Bridge [removeStudentFromClass] Error:", e);
+            throw e;
+        }
     }
 };
