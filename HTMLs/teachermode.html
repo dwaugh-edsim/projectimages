@@ -1645,9 +1645,13 @@
                                 style="flex:1; background:#080808; border:1px solid #222; padding:15px; border-radius:4px; font-size:0.75rem; color:#0f0; overflow-y:auto; white-space:pre-wrap; font-family:'JetBrains Mono', monospace; line-height:1.5;">
                                 Loading research prompt...
                             </div>
-                            <button class="btn"
-                                style="margin-top:10px; padding:10px; font-size:0.7rem; background:#234;"
-                                onclick="copyDeepSearchPrompt()">📋 COPY PROMPT TO CLIPBOARD</button>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn"
+                                    style="flex:1; padding:10px; font-size:0.7rem; background:#640; border:1px solid #f80;"
+                                    onclick="tailorDeepSearchPrompt()">🤖 TAILOR PROMPT WITH AI</button>
+                                <button class="btn" style="flex:1; padding:10px; font-size:0.7rem; background:#234;"
+                                    onclick="copyDeepSearchPrompt()">📋 COPY PROMPT</button>
+                            </div>
                         </div>
                         <!-- Right: Research Results Input -->
                         <div
@@ -2333,40 +2337,89 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             const checks = document.querySelectorAll('#f-outcomes input[type="checkbox"]:checked');
             const selectedOutcomes = Array.from(checks).map(c => c.value);
 
-            // Extract concept from forgeHistory (brainstorm results)
-            let brainstormContext = '';
-            if (forgeHistory.length > 0) {
-                const lastAIResponse = forgeHistory.filter(m => m.role === 'assistant').pop();
-                if (lastAIResponse) {
-                    brainstormContext = lastAIResponse.content.substring(0, 2000); // Limit for prompt size
-                }
+            // Extract context from forgeHistory (look for detailed assistant responses)
+            let narrativeContext = '';
+            // Get all assistant messages from brainstorm phase
+            const assistantMessages = forgeHistory.filter(m => m.role === 'assistant');
+            if (assistantMessages.length > 0) {
+                // Take the last two assistant messages to get the most fleshed out scenario details
+                narrativeContext = assistantMessages.slice(-2).map(m => m.content).join('\n\n');
             }
 
-            const researchPrompt = `I am developing an educational simulation for ${course || 'a course'} (${region ? region + ', ' : ''}${country || 'location not specified'}).
+            const title = accumulatedData?.metadata?.title || 'Educational Simulation';
 
-${selectedOutcomes.length > 0 ? `The simulation targets these curriculum outcomes:\n${selectedOutcomes.map(o => '• ' + o).join('\n')}\n` : ''}
-${brainstormContext ? `Based on the brainstorming, here is the concept direction:\n---\n${brainstormContext}\n---\n` : ''}
-Please conduct a deep research search and provide:
+            const researchPrompt = `I am developing an immersive educational simulation titled "${title}".
+CONTEXT: ${course || 'General Education'} in ${region ? region + ', ' : ''}${country || 'International'}.
 
-1. **VERIFIED FACTS & DATA**: Key statistics, dates, names, and verifiable information relevant to this topic. Include citations/sources where possible.
+${selectedOutcomes.length > 0 ? `CURRICULUM OUTCOMES:\n${selectedOutcomes.map(o => '• ' + o).join('\n')}\n` : ''}
+${narrativeContext ? `MISSION SCENARIO & DETAILS:\n---\n${narrativeContext}\n---\n` : ''}
 
-2. **PRIMARY SOURCES**: Links to or descriptions of primary documents, historical records, court cases, scientific studies, or official reports.
+Please conduct a deep research search to provide the factual foundations for this mission. I need:
 
-3. **MULTIPLE PERSPECTIVES**: Balanced viewpoints from different stakeholders (e.g., for legal cases: prosecution vs defense; for historical events: different nations' perspectives; for scientific debates: competing theories).
+1. **VERIFIED FACTS & DATA**: Key statistics, historical dates (e.g., 1876, 1776, 1215), specific names, and verifiable information relevant to this exact scenario.
+2. **PRIMARY SOURCES**: Links to or specific descriptions of primary documents, historical records, court cases, scientific studies (e.g., DFO reports, legal precedents), or official reports.
+3. **MULTIPLE PERSPECTIVES**: Balanced viewpoints from key stakeholders in this specific scenario (e.g., Indigenous communities, government regulators, industry leaders, environmentalists).
+4. **EXPERT OPINIONS**: Quotes or summaries from subject matter experts (real or based on factual types) relevant to this topic.
+5. **TIMELINE & FACTUAL ANCHORS**: A chronological list of real events that relate to this scenario's progression.
+6. **POTENTIAL MISCONCEPTIONS**: Common misunderstandings about this factual topic that the simulation should clarify.
 
-4. **EXPERT OPINIONS**: Quotes or summaries from subject matter experts, academics, or authoritative figures.
-
-5. **TIMELINE/STRUCTURE**: A suggested 10-slide structure with factual anchors for each slide.
-
-6. **POTENTIAL MISCONCEPTIONS**: Common misunderstandings about this topic that should be addressed or avoided.
-
-Please provide detailed, factual information that can be used to write an immersive educational narrative. Focus on accuracy over creativity - I need verified sources, not speculation.`;
+Provide detailed, factual information that will anchor an immersive educational narrative. Focus on precision and verified sources over creative speculation.`;
 
             promptEl.textContent = researchPrompt;
 
             // Restore any previously saved results
             if (accumulatedData.deepSearchResults) {
                 resultsEl.value = accumulatedData.deepSearchResults;
+            }
+        }
+
+        async function tailorDeepSearchPrompt() {
+            const promptEl = document.getElementById('deepsearch-prompt');
+            if (!promptEl) return;
+
+            const selectedModel = document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free';
+            const currentPrompt = promptEl.textContent;
+
+            setForgeLoading(true, 'TAILORING RESEARCH PROMPT...');
+            log('AI is customizing your research instructions...', 'info');
+
+            const systemInstruction = `You are a Research Architect. Your goal is to rewrite a generic research prompt into a hyper-specific, task-oriented set of instructions for a Deep Research AI (like Gemini Deep Research or Perplexity).
+            
+MANDATORY RULES:
+1. Identify the CORE MISSION TOPIC and frame it as a research priority.
+2. Identify the SPECIFIC LOCATION/JURISDICTION (e.g., Nova Scotia, NY) and mandate region-specific results.
+3. Identify relevant LEGAL, HISTORICAL, or SCIENTIFIC technicalities mentioned in the scenario and demand deep dives into them.
+4. Keep the output as a RAW PROMPT that the user can copy.
+5. DO NOT include conversational filler like "Here is your tailored prompt:".
+6. Be aggressive about demanding "verified sources" and "primary documents".`;
+
+            try {
+                const res = await fetch(FORGE_PROXY, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        message: `SYSTEM: ${systemInstruction}\n\nCURRENT PROMPT TO TAILOR:\n${currentPrompt}`,
+                        model: selectedModel
+                    })
+                });
+
+                const data = await res.json();
+                const repl = data.choices[0].message.content;
+
+                // Strip any markdown fences if AI included them
+                let cleaned = repl.trim();
+                if (cleaned.startsWith('```')) {
+                    cleaned = cleaned.replace(/^```(markdown|text)?\n/, '').replace(/\n```$/, '');
+                }
+
+                promptEl.textContent = cleaned;
+                log('Deep Search prompt tailored with AI!', 'success');
+                alert('Your prompt has been optimized by AI for deep research. You can now copy it to Gemini or Perplexity.');
+
+            } catch (e) {
+                log('Failed to tailor prompt: ' + e.message, 'error');
+            } finally {
+                setForgeLoading(false);
             }
         }
 
