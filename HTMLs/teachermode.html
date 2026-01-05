@@ -2771,8 +2771,9 @@ REQUIRED IMAGES (19 total):
 
                 if (!imageUrl) throw new Error("Could not extract image URL from response");
 
-                // Update UI
-                previewEl.innerHTML = `<img src="${imageUrl}" style="max-width:100%; max-height:150px; object-fit:contain;">`;
+                // Update UI with consistent max-height based on slot type
+                const maxHeight = slotId === 'hero' ? '150px' : '120px';
+                previewEl.innerHTML = `<img src="${imageUrl}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.parentElement.innerHTML='<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>'">`;
                 urlEl.value = imageUrl;
                 updateAssetUrl(slotId, imageUrl);
                 log(`Asset GEN [${slotId}] SUCCESS`, 'success');
@@ -2828,6 +2829,9 @@ REQUIRED IMAGES (19 total):
             const missionId = accumulatedData?.metadata?.id || 'unnamed';
             const filename = `${missionId}_${slotId}_${Date.now()}.jpg`;
 
+            // Save original preview content to restore on error
+            const originalContent = previewEl.innerHTML;
+
             try {
                 log(`R2 Save [${slotId}]: Converting to JPG...`, 'OUTBOUND');
                 previewEl.innerHTML = '<span style="color:#0af; font-size:0.6rem;">⏳ UPLOADING TO R2...</span>';
@@ -2871,14 +2875,18 @@ REQUIRED IMAGES (19 total):
                 // Update URL field with R2 public URL
                 urlEl.value = data.url;
                 updateAssetUrl(slotId, data.url);
-                previewEl.innerHTML = `<img src="${data.url}" style="max-width:100%; max-height:150px; object-fit:contain;">`;
+
+                // Display R2 image with error handling
+                const maxHeight = slotId === 'hero' ? '150px' : '120px';
+                previewEl.innerHTML = `<img src="${data.url}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.parentElement.innerHTML='<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>'">`;
 
                 log(`R2 Save [${slotId}]: SUCCESS - ${data.url}`, 'success');
                 alert(`Saved to R2 as JPG!\n${data.filename}`);
 
             } catch (e) {
                 log(`R2 Save [${slotId}] FAILED: ${e.message}`, 'error');
-                previewEl.innerHTML = `<span style="color:#f44; font-size:0.55rem;">ERROR: ${e.message}</span>`;
+                // Restore original preview on error
+                previewEl.innerHTML = originalContent;
                 alert(`R2 save failed: ${e.message}`);
             }
         }
