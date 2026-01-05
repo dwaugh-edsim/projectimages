@@ -1691,7 +1691,15 @@ This information will be used to inform the Narrative phase with verified facts.
                             <p style="font-size:0.7rem; color:#666; margin-top:5px;">Generate or paste image URLs for
                                 each slide. 19 assets needed: 1 Hero + 18 Exhibits.</p>
                         </div>
-                        <div style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <label style="font-size:0.6rem; color:#888;">PROVIDER:</label>
+                            <select id="asset-provider" onchange="localStorage.setItem('TM_ASSET_PROVIDER', this.value)"
+                                style="background:#111; color:#0af; border:1px solid #333; font-size:0.65rem; padding:4px 8px; border-radius:4px; margin-right:15px;">
+                                <option value="OR" ${localStorage.getItem('TM_ASSET_PROVIDER')==='OR' ? 'selected' : ''
+                                    }>OPENROUTER (FLUX)</option>
+                                <option value="GCP" ${localStorage.getItem('TM_ASSET_PROVIDER')==='GCP' ? 'selected'
+                                    : '' }>GOOGLE CLOUD (IMAGEN/FLASH)</option>
+                            </select>
                             <button class="btn"
                                 style="padding:8px 15px; font-size:0.65rem; background:#234; border:1px solid #0af;"
                                 onclick="generateImagePrompts()">🤖 GENERATE PROMPTS</button>
@@ -1779,6 +1787,8 @@ Loading accumulated data...
         let currentMissions = []; // MISSION_IDS FOR ASSIGNMENT
         let googleUser = null;
         let GOOGLE_CLIENT_ID = "503537759984-imeg79p1djl1csnselh3jaqqofmi5gem.apps.googleusercontent.com";
+        let tokenClient; // For GCP Image Gen credits
+        let GCP_TOKEN = ""; // Temporary access token
 
         function handleCredentialResponse(response) {
             try {
@@ -1862,6 +1872,7 @@ Loading accumulated data...
         function initGoogleAuth() {
             log("GSI_ENGINE: Establishing Secure Identity Link...");
             try {
+                // Identity Sign-in
                 google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
                     callback: handleCredentialResponse
@@ -1870,9 +1881,34 @@ Loading accumulated data...
                     document.getElementById("google-signin-container"),
                     { theme: "outline", size: "large", width: 250 }
                 );
+
+                // OAuth2 Token Client for Image Gen credits
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.tuning https://www.googleapis.com/auth/generative-language.retriever',
+                    callback: (resp) => {
+                        if (resp.access_token) {
+                            GCP_TOKEN = resp.access_token;
+                            log("GCP_OAUTH: Access Token Acquired successfully.", "success");
+                            document.getElementById('btn-gcp-login').innerText = "GOOGLE CLOUD ACTIVE";
+                            document.getElementById('btn-gcp-login').style.background = "var(--success)";
+                            document.getElementById('btn-gcp-login').style.color = "#000";
+                        }
+                    }
+                });
             } catch (e) {
                 console.error("GSI Init Error:", e);
                 document.getElementById('auth-status').innerText = "GSI_INITIALIZATION_ERROR";
+            }
+        }
+
+        function gcpLogin() {
+            if (tokenClient) {
+                tokenClient.requestAccessToken();
+            } else {
+                log("GCP_OAUTH: Client not initialized. Retrying...", "warning");
+                initGoogleAuth();
+                setTimeout(() => { if (tokenClient) tokenClient.requestAccessToken(); }, 500);
             }
         }
 
@@ -2970,61 +3006,68 @@ REQUIRED IMAGES (19 total):
                 alert('Enter a prompt first!');
                 return;
             }
-
-            // Get OpenRouter key
-            let orKey = localStorage.getItem('TM_OPENROUTER_KEY');
-            if (!orKey) {
-                orKey = window.prompt("Enter your OpenRouter API Key (get one at openrouter.ai):");
-                if (!orKey) return;
-                localStorage.setItem('TM_OPENROUTER_KEY', orKey.trim());
-            }
+            const provider = document.getElementById('asset-provider')?.value || localStorage.getItem('TM_ASSET_PROVIDER') || 'OR';
 
             try {
                 previewEl.innerHTML = '<span style="color:#0af; font-size:0.6rem;">⏳ GENERATING...</span>';
-                log(`Asset GEN [${slotId}]: "${prompt.substring(0, 50)}..."`, 'OUTBOUND');
+                log(`Asset GEN [${slotId}] via ${provider}: "${prompt.substring(0, 50)}..."`, 'OUTBOUND');
 
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${orKey}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": "black-forest-labs/flux.2-pro",
-                        "messages": [{ "role": "user", "content": prompt }]
-                    })
-                });
-
-                const data = await response.json();
-                log(`Asset GEN [${slotId}] response: ${JSON.stringify(data).substring(0, 500)}...`, 'INBOUND');
-
-                if (data.error) {
-                    if (data.error.message?.includes('401') || data.error.message?.includes('invalid')) {
-                        localStorage.removeItem('TM_OPENROUTER_KEY');
-                    }
-                    throw new Error(data.error.message);
-                }
-
-                const message = data.choices[0].message;
                 let imageUrl = null;
 
-                // Check for OpenRouter/Flux image object format
-                if (message.images && message.images.length > 0) {
-                    const img = message.images[0];
-                    if (img.image_url) imageUrl = img.image_url.url;
-                    else if (typeof img === 'string') imageUrl = img;
-                }
-
-                // Fallback: look for URL in content
-                if (!imageUrl) {
-                    const content = message.content || "";
-                    const urlMatch = content.match(/https?:\/\/[^\s\)]+/g);
-                    if (urlMatch) imageUrl = urlMatch[0];
-
-                    if (!imageUrl && content.includes('data:image')) {
-                        const base64Match = content.match(/data:image\/[a-zA-Z]*;base64,[^\s\n]+/);
-                        if (base64Match) imageUrl = base64Match[0];
+                if (provider === 'OR') {
+                    // --- OPENROUTER (Original Flux Logic) ---
+                    // Get OpenRouter key
+                    let orKey = localStorage.getItem('TM_OPENROUTER_KEY');
+                    if (!orKey) {
+                        orKey = window.prompt("Enter your OpenRouter API Key (get one at openrouter.ai):");
+                        if (!orKey) throw new Error("API Key Required");
+                        localStorage.setItem('TM_OPENROUTER_KEY', orKey.trim());
                     }
+
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${orKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "model": "black-forest-labs/flux.2-pro",
+                            "messages": [{ "role": "user", "content": prompt }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    log(`Asset GEN [${slotId}] response: ${JSON.stringify(data).substring(0, 500)}...`, 'INBOUND');
+
+                    if (data.error) {
+                        if (data.error.message?.includes('401') || data.error.message?.includes('invalid')) {
+                            localStorage.removeItem('TM_OPENROUTER_KEY');
+                        }
+                        throw new Error(data.error.message);
+                    }
+
+                    const message = data.choices[0].message;
+                    // Check for OpenRouter/Flux image object format
+                    if (message.images && message.images.length > 0) {
+                        const img = message.images[0];
+                        if (img.image_url) imageUrl = img.image_url.url;
+                        else if (typeof img === 'string') imageUrl = img;
+                    }
+
+                    // Fallback: look for URL in content
+                    if (!imageUrl) {
+                        const content = message.content || "";
+                        const urlMatch = content.match(/https?:\/\/[^\s\)]+/g);
+                        if (urlMatch) imageUrl = urlMatch[0];
+
+                        if (!imageUrl && content.includes('data:image')) {
+                            const base64Match = content.match(/data:image\/[a-zA-Z]*;base64,[^\s\n]+/);
+                            if (base64Match) imageUrl = base64Match[0];
+                        }
+                    }
+                } else {
+                    // --- GOOGLE CLOUD (Transplanted from Image Forge) ---
+                    imageUrl = await callGoogleImageAPI(prompt);
                 }
 
                 if (!imageUrl) throw new Error("Could not extract image URL from response");
@@ -3043,15 +3086,82 @@ REQUIRED IMAGES (19 total):
             }
         }
 
-        async function generateAllAssets() {
-            const orKey = localStorage.getItem('TM_OPENROUTER_KEY');
-            if (!orKey) {
-                const key = window.prompt("Enter your OpenRouter API Key to batch generate:");
-                if (!key) return;
-                localStorage.setItem('TM_OPENROUTER_KEY', key.trim());
+        async function callGoogleImageAPI(prompt) {
+            const project = localStorage.getItem('TM_GCP_PROJECT');
+            const location = localStorage.getItem('TM_GCP_LOCATION') || 'us-central1';
+            const model = localStorage.getItem('TM_GCP_MODEL') || 'gemini-1.5-flash-002';
+
+            if (!GCP_TOKEN) {
+                log("GCP_OAUTH: Token missing. Triggering login...", "warning");
+                gcpLogin();
+                throw new Error("Google access required. Log in via Settings.");
             }
 
-            if (!confirm("Generate images for ALL slots with prompts? This will use your OpenRouter credits.")) return;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                    responseModalities: ["TEXT", "IMAGE"],
+                    candidateCount: 1
+                }
+            };
+
+            const url = project
+                ? `https://${location}-aiplatform.googleapis.com/v1/projects/${project}/locations/${location}/publishers/google/models/${model}:generateContent`
+                : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+            try {
+                log(`OUTBOUND (GOOGLE): ${model} [${project ? 'Vertex' : 'Studio'}]`, 'OUTBOUND');
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GCP_TOKEN}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message);
+
+                // Handle both Vertex and Studio formats
+                const candidate = Array.isArray(data) ? data[0].candidates[0] : data.candidates[0];
+                return handleGoogleImageResponse(candidate);
+            } catch (e) {
+                log(`GCP API ERROR: ${e.message}`, 'ERROR');
+                throw e;
+            }
+        }
+
+        function handleGoogleImageResponse(candidate) {
+            if (candidate?.content?.parts) {
+                const parts = candidate.content.parts;
+                const imgPart = parts.find(p => p.inlineData || p.inline_data);
+                if (imgPart) {
+                    const data = imgPart.inlineData || imgPart.inline_data;
+                    return `data:${data.mimeType || data.mime_type};base64,${data.data}`;
+                }
+            }
+            throw new Error("No image data found in Google response.");
+        }
+
+        async function generateAllAssets() {
+            const provider = document.getElementById('asset-provider')?.value || localStorage.getItem('TM_ASSET_PROVIDER') || 'OR';
+
+            if (provider === 'OR') {
+                const orKey = localStorage.getItem('TM_OPENROUTER_KEY');
+                if (!orKey) {
+                    const key = window.prompt("Enter your OpenRouter API Key to batch generate:");
+                    if (!key) return;
+                    localStorage.setItem('TM_OPENROUTER_KEY', key.trim());
+                }
+            } else if (provider === 'GCP') {
+                if (!GCP_TOKEN) {
+                    alert("Google Cloud access required. Please login via Settings.");
+                    return;
+                }
+            }
+
+            if (!confirm(`Generate images for ALL slots with prompts? This will use your ${provider === 'OR' ? 'OpenRouter' : 'Google Cloud'} credits.`)) return;
 
             // Collect all slots with prompts
             const slots = ['hero'];
@@ -3555,6 +3665,11 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 document.getElementById('set-sb-url').value = localStorage.getItem('TM_SUPABASE_URL') || "";
                 document.getElementById('set-sb-key').value = localStorage.getItem('TM_SUPABASE_KEY') || "";
                 document.getElementById('set-teacher-handle').value = localStorage.getItem('TM_TEACHER_HANDLE') || (typeof CONFIG !== 'undefined' ? CONFIG.TEACHER_ID : "");
+
+                // Google Cloud
+                document.getElementById('set-gcp-project').value = localStorage.getItem('TM_GCP_PROJECT') || "";
+                document.getElementById('set-gcp-location').value = localStorage.getItem('TM_GCP_LOCATION') || "us-central1";
+                document.getElementById('set-gcp-model').value = localStorage.getItem('TM_GCP_MODEL') || "gemini-1.5-flash-002";
             }
         }
 
@@ -3566,6 +3681,11 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             localStorage.setItem('TM_SUPABASE_URL', sbUrl);
             localStorage.setItem('TM_SUPABASE_KEY', sbKey);
             localStorage.setItem('TM_TEACHER_HANDLE', handle);
+
+            // Google Cloud
+            localStorage.setItem('TM_GCP_PROJECT', document.getElementById('set-gcp-project').value.trim());
+            localStorage.setItem('TM_GCP_LOCATION', document.getElementById('set-gcp-location').value.trim());
+            localStorage.setItem('TM_GCP_MODEL', document.getElementById('set-gcp-model').value.trim());
 
             alert("Settings Saved. Refreshing to apply changes.");
             location.reload();
@@ -5417,6 +5537,24 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 <input type="password" id="set-sb-key" class="settings-input" placeholder="eyJhbGciOiJIUzI1NiI...">
                 <label>Teacher Handle (Universe ID)</label>
                 <input type="text" id="set-teacher-handle" class="settings-input" placeholder="DWAUGH">
+            </div>
+
+            <div style="margin-top:20px; padding-top:15px; border-top:1px dashed #444;">
+                <h4 style="margin:0 0 10px; font-size:0.7rem; color:#4af;">GOOGLE CLOUD / IMAGEN</h4>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <label>GCP Project ID</label>
+                    <input type="text" id="set-gcp-project" class="settings-input" placeholder="project-id-123">
+                    <label>Location</label>
+                    <input type="text" id="set-gcp-location" class="settings-input" placeholder="us-central1">
+                    <label>Flash/Imagen Model</label>
+                    <input type="text" id="set-gcp-model" class="settings-input" placeholder="gemini-1.5-flash-002">
+
+                    <button id="btn-gcp-login" class="btn" onclick="gcpLogin()"
+                        style="background:#4285F4; color:white; font-size:0.65rem; padding:10px; border:none; margin-top:5px;">
+                        AUTHORIZE GCP IMAGE CREDITS
+                    </button>
+                    <p style="font-size:0.55rem; color:#888; margin:0;">* Required for credit-based generation.</p>
+                </div>
             </div>
 
             <div style="font-size:0.5rem; color:#666; margin-bottom:20px; font-style:italic;">
