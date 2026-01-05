@@ -1221,6 +1221,7 @@
                 }
 
                 let className = classCode;
+                let assignedMissionIds = null; // Declare and initialize
 
                 // [Migration v76] Resolve unique 5-letter code to class/teacher
                 if (SupabaseBridge.client) {
@@ -1229,9 +1230,10 @@
                         teacherId = classConfig.teacher_id;
                         className = classConfig.class_name;
                         // CAPTURE ASSIGNED MISSIONS
-                        assignedMissionIds = classConfig.mission_ids || [];
+                        const foundIds = classConfig.mission_ids || [];
+                        assignedMissionIds = foundIds;
                         localStorage.setItem('ST_TEACHER_ID', teacherId);
-                        console.log(`AUTHENTICATED: Code ${classCode} resolved to ${className} (Teacher: ${teacherId})`);
+                        console.log(`AUTHENTICATED: Code ${classCode} resolved to ${className} (Teacher: ${teacherId})`, "Assigned:", assignedMissionIds);
                     }
                 }
 
@@ -1277,13 +1279,21 @@
                     const allMissions = await SupabaseBridge.fetchMissions(teacherId);
 
                     // [Migration v77] FILTER BY CLASS ASSIGNMENT
-                    // If the teacher has assigned specific missions, show ONLY those.
-                    // If no missions are assigned yet (newly created class), show none to be safe.
+                    console.log("DEBUG: All Missions in DB:", allMissions.map(m => m.id));
+                    console.log("DEBUG: Assigned to Class:", user.assignedMissionIds);
+
                     if (user.assignedMissionIds && Array.isArray(user.assignedMissionIds)) {
                         missionsAvailable = allMissions.filter(m => user.assignedMissionIds.includes(m.id));
-                        console.log(`FILTER: Showing ${missionsAvailable.length} of ${allMissions.length} dossiers.`);
+                        console.log(`FILTER ACTIVE: Showing ${missionsAvailable.length} of ${allMissions.length} dossiers.`);
+
+                        // FALLBACK: If teacher assigned nothing (empty list), show EVERYTHING for now
+                        // so they don't get a blank screen while setting up.
+                        if (missionsAvailable.length === 0 && user.assignedMissionIds.length === 0) {
+                            missionsAvailable = allMissions;
+                            console.log("FILTER FALLBACK: No assignments found, showing all.");
+                        }
                     } else {
-                        missionsAvailable = allMissions; // Fallback for old classes/guests
+                        missionsAvailable = allMissions;
                     }
                 } catch (e) {
                     console.error("Supabase Mission Fetch Failed:", e);
