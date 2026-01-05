@@ -19,7 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@700&display=swap"
         rel="stylesheet">
     <script src="critical_crypto.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" onload="initGoogleAuth()" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Quill Rich Text Editor (Legacy Port) -->
@@ -1786,9 +1786,11 @@ Loading accumulated data...
         let allProgress = [];
         let currentMissions = []; // MISSION_IDS FOR ASSIGNMENT
         let googleUser = null;
-        let GOOGLE_CLIENT_ID = "503537759984-imeg79p1djl1csnselh3jaqqofmi5gem.apps.googleusercontent.com";
-        let tokenClient; // For GCP Image Gen credits
-        let GCP_TOKEN = ""; // Temporary access token
+        let GOOGLE_CLIENT_ID = "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com"; // Matched to image_forge.html
+        let tokenClient;
+        // We will store the token in CONFIG.gl_token to match image_forge logic exactly
+        if (typeof CONFIG === 'undefined') window.CONFIG = {};
+        CONFIG.gl_token = "";
 
         function handleCredentialResponse(response) {
             try {
@@ -1888,11 +1890,14 @@ Loading accumulated data...
                     scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.tuning https://www.googleapis.com/auth/generative-language.retriever',
                     callback: (resp) => {
                         if (resp.access_token) {
-                            GCP_TOKEN = resp.access_token;
+                            CONFIG.gl_token = resp.access_token;
                             log("GCP_OAUTH: Access Token Acquired successfully.", "success");
-                            document.getElementById('btn-gcp-login').innerText = "GOOGLE CLOUD ACTIVE";
-                            document.getElementById('btn-gcp-login').style.background = "var(--success)";
-                            document.getElementById('btn-gcp-login').style.color = "#000";
+                            const btn = document.getElementById('btn-gcp-login');
+                            if (btn) {
+                                btn.innerText = "GOOGLE LOGGED IN";
+                                btn.style.background = "#0f0";
+                                btn.style.color = "#000";
+                            }
                         }
                     }
                 });
@@ -2365,6 +2370,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
 
         function advancePhase() {
             const currentPhase = getCurrentPhase();
+            const nextPhase = FORGE_PHASES[forgePipeline[currentPhaseIndex + 1]];
 
             // Check if we're at the last phase
             if (currentPhaseIndex >= forgePipeline.length - 1) {
@@ -3087,15 +3093,14 @@ REQUIRED IMAGES (19 total):
         }
 
         async function callGoogleImageAPI(prompt) {
-            const project = localStorage.getItem('TM_GCP_PROJECT');
-            const location = localStorage.getItem('TM_GCP_LOCATION') || 'us-central1';
-            const model = localStorage.getItem('TM_GCP_MODEL') || 'gemini-1.5-flash-002';
-
-            if (!GCP_TOKEN) {
-                log("GCP_OAUTH: Token missing. Triggering login...", "warning");
-                gcpLogin();
-                throw new Error("Google access required. Log in via Settings.");
-            }
+            // Replicate image_forge.html callGoogleAPI logic EXACTLY
+            const cfg = {
+                gl_project: localStorage.getItem('TM_GCP_PROJECT'),
+                gl_location: localStorage.getItem('TM_GCP_LOCATION') || 'us-central1',
+                model_gl: localStorage.getItem('TM_GCP_MODEL') || 'gemini-1.5-flash',
+                key_gl: localStorage.getItem('TM_GCP_KEY'),
+                gl_token: CONFIG.gl_token
+            };
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
@@ -3105,43 +3110,97 @@ REQUIRED IMAGES (19 total):
                 }
             };
 
-            const url = project
-                ? `https://${location}-aiplatform.googleapis.com/v1/projects/${project}/locations/${location}/publishers/google/models/${model}:generateContent`
-                : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-
-            try {
-                log(`OUTBOUND (GOOGLE): ${model} [${project ? 'Vertex' : 'Studio'}]`, 'OUTBOUND');
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${GCP_TOKEN}`
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-
-                // Handle both Vertex and Studio formats
-                const candidate = Array.isArray(data) ? data[0].candidates[0] : data.candidates[0];
-                return handleGoogleImageResponse(candidate);
-            } catch (e) {
-                log(`GCP API ERROR: ${e.message}`, 'ERROR');
-                throw e;
+            // Attempt 0: OAuth (Priority for Gemini 2.5/3.0)
+            if (cfg.gl_token) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model_gl}:generateContent`;
+                    log(`OUTBOUND (GOOGLE): ${cfg.model_gl} // OAuth Tier`, 'OUTBOUND');
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${cfg.gl_token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (data.candidates) return handleGoogleImageResponse(data);
+                    if (data.error) {
+                        log(`OAUTH TIER FAILED: ${data.error.message}`, 'ERROR');
+                        if (data.error.code === 401) {
+                            log("OAUTH TOKEN EXPIRED. Use 'LOGIN WITH GOOGLE' again.", 'ERROR');
+                            CONFIG.gl_token = '';
+                        }
+                    }
+                } catch (e) { log(`OAUTH TIER CRASH: ${e.message}`, 'ERROR'); }
             }
+
+            // Attempt 1: AI Studio (Query Param)
+            if (cfg.key_gl) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${cfg.model_gl}:generateContent?key=${cfg.key_gl}`;
+                    log(`OUTBOUND (GOOGLE): ${cfg.model_gl} // AI Studio Tier`, 'OUTBOUND');
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    if (data.candidates) return handleGoogleImageResponse(data);
+                    if (data.error) log(`TIER 1 FAILED: ${data.error.message}`, 'ERROR');
+                } catch (e) { log(`TIER 1 ERROR: ${e.message}`, 'ERROR'); }
+            }
+
+            // Attempt 2: Vertex AI with OAuth (if project provided)
+            if (cfg.gl_project && cfg.gl_token) {
+                try {
+                    const url = `https://${cfg.gl_location}-aiplatform.googleapis.com/v1/projects/${cfg.gl_project}/locations/${cfg.gl_location}/publishers/google/models/${cfg.model_gl}:generateContent`;
+                    log(`OUTBOUND (GOOGLE): ${cfg.model_gl} // Vertex AI + OAuth Tier`, 'OUTBOUND');
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${cfg.gl_token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0 && data[0].candidates) return handleGoogleImageResponse(data[0]);
+                    if (data.candidates) return handleGoogleImageResponse(data);
+                    if (data.error) log(`VERTEX OAUTH FAILED: ${data.error.message}`, 'ERROR');
+                } catch (e) { log(`VERTEX OAUTH ERROR: ${e.message}`, 'ERROR'); }
+            }
+
+            // Attempt 3: Vertex AI with API Key (if project and key provided)
+            if (cfg.gl_project && cfg.key_gl) {
+                try {
+                    const url = `https://${cfg.gl_location}-aiplatform.googleapis.com/v1/projects/${cfg.gl_project}/locations/${cfg.gl_location}/publishers/google/models/${cfg.model_gl}:generateContent?key=${cfg.key_gl}`;
+                    log(`OUTBOUND (GOOGLE): ${cfg.model_gl} // Vertex AI + API Key Tier`, 'OUTBOUND');
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0 && data[0].candidates) return handleGoogleImageResponse(data[0]);
+                    if (data.candidates) return handleGoogleImageResponse(data);
+                    if (data.error) log(`VERTEX KEY FAILED: ${data.error.message}`, 'ERROR');
+                } catch (e) { log(`VERTEX KEY ERROR: ${e.message}`, 'ERROR'); }
+            }
+
+            throw new Error("ALL GOOGLE TIERS EXHAUSTED. Please use 'AUTHORIZE GCP IMAGE CREDITS' in Settings.");
         }
 
-        function handleGoogleImageResponse(candidate) {
-            if (candidate?.content?.parts) {
-                const parts = candidate.content.parts;
+        function handleGoogleImageResponse(data) {
+            // Replicate handleGeminiResponse EXACTLY
+            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                const parts = data.candidates[0].content.parts;
+
+                // Flexible search for image data (handling potential API variations)
                 const imgPart = parts.find(p => p.inlineData || p.inline_data);
                 if (imgPart) {
-                    const data = imgPart.inlineData || imgPart.inline_data;
-                    return `data:${data.mimeType || data.mime_type};base64,${data.data}`;
+                    const dataObj = imgPart.inlineData || imgPart.inline_data;
+                    const mime = dataObj.mimeType || dataObj.mime_type || 'image/png';
+                    const base64 = dataObj.data;
+                    if (base64) return `data:${mime};base64,${base64}`;
                 }
+
+                const textPart = parts.find(p => p.text);
+                if (textPart) throw new Error("REFUSAL: " + textPart.text);
             }
-            throw new Error("No image data found in Google response.");
+            throw new Error("NO IMAGE DATA IN RESPONSE");
         }
 
         async function generateAllAssets() {
@@ -3155,8 +3214,9 @@ REQUIRED IMAGES (19 total):
                     localStorage.setItem('TM_OPENROUTER_KEY', key.trim());
                 }
             } else if (provider === 'GCP') {
-                if (!GCP_TOKEN) {
-                    alert("Google Cloud access required. Please login via Settings.");
+                const apiKey = localStorage.getItem('TM_GCP_KEY');
+                if (!apiKey && !CONFIG.gl_token) {
+                    alert("Google Cloud access required. Please login or add API Key via Settings.");
                     return;
                 }
             }
@@ -3669,7 +3729,17 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 // Google Cloud
                 document.getElementById('set-gcp-project').value = localStorage.getItem('TM_GCP_PROJECT') || "";
                 document.getElementById('set-gcp-location').value = localStorage.getItem('TM_GCP_LOCATION') || "us-central1";
-                document.getElementById('set-gcp-model').value = localStorage.getItem('TM_GCP_MODEL') || "gemini-1.5-flash-002";
+                document.getElementById('set-gcp-model').value = localStorage.getItem('TM_GCP_MODEL') || "gemini-1.5-flash";
+                document.getElementById('set-gcp-key').value = localStorage.getItem('TM_GCP_KEY') || "";
+
+                if (CONFIG.gl_token) {
+                    const btn = document.getElementById('btn-gcp-login');
+                    if (btn) {
+                        btn.innerText = "GOOGLE LOGGED IN";
+                        btn.style.background = "#0f0";
+                        btn.style.color = "#000";
+                    }
+                }
             }
         }
 
@@ -3686,6 +3756,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             localStorage.setItem('TM_GCP_PROJECT', document.getElementById('set-gcp-project').value.trim());
             localStorage.setItem('TM_GCP_LOCATION', document.getElementById('set-gcp-location').value.trim());
             localStorage.setItem('TM_GCP_MODEL', document.getElementById('set-gcp-model').value.trim());
+            localStorage.setItem('TM_GCP_KEY', document.getElementById('set-gcp-key').value.trim());
 
             alert("Settings Saved. Refreshing to apply changes.");
             location.reload();
@@ -5540,20 +5611,51 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             </div>
 
             <div style="margin-top:20px; padding-top:15px; border-top:1px dashed #444;">
-                <h4 style="margin:0 0 10px; font-size:0.7rem; color:#4af;">GOOGLE CLOUD / IMAGEN</h4>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <label>GCP Project ID</label>
-                    <input type="text" id="set-gcp-project" class="settings-input" placeholder="project-id-123">
-                    <label>Location</label>
-                    <input type="text" id="set-gcp-location" class="settings-input" placeholder="us-central1">
-                    <label>Flash/Imagen Model</label>
-                    <input type="text" id="set-gcp-model" class="settings-input" placeholder="gemini-1.5-flash-002">
+                <h4 style="margin:0 0 10px; font-size:0.7rem; color:#4af; letter-spacing:2px;">GOOGLE IMAGE ENGINE ADMIN
+                </h4>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; gap:10px;">
+                        <button id="btn-gcp-login" class="btn" onclick="gcpLogin()"
+                            style="background:#4285F4; color:white; font-size:0.65rem; padding:10px 15px; border:none; flex:1; font-weight:700;">
+                            LOGIN WITH GOOGLE
+                        </button>
+                    </div>
 
-                    <button id="btn-gcp-login" class="btn" onclick="gcpLogin()"
-                        style="background:#4285F4; color:white; font-size:0.65rem; padding:10px; border:none; margin-top:5px;">
-                        AUTHORIZE GCP IMAGE CREDITS
-                    </button>
-                    <p style="font-size:0.55rem; color:#888; margin:0;">* Required for credit-based generation.</p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:0.55rem; color:#888;">API KEY (OPTIONAL TIER)</label>
+                            <input type="password" id="set-gcp-key" class="settings-input" placeholder="Static Key...">
+                        </div>
+                        <div>
+                            <label style="font-size:0.55rem; color:#888;">GCP PROJECT ID</label>
+                            <input type="text" id="set-gcp-project" class="settings-input" placeholder="project-id-123">
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:100px 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:0.55rem; color:#888;">LOCATION</label>
+                            <select id="set-gcp-location" class="settings-input" style="width:100%;">
+                                <option value="us-central1">us-central1</option>
+                                <option value="us-east4">us-east4</option>
+                                <option value="europe-west1">europe-west1</option>
+                                <option value="asia-northeast1">asia-northeast1</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.55rem; color:#888;">MODEL</label>
+                            <select id="set-gcp-model" class="settings-input" style="width:100%;">
+                                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Comp)</option>
+                                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Stable)</option>
+                                <option value="gemini-2.5-flash-image">Gemini 2.5 Flash (Image)</option>
+                                <option value="gemini-3.0-pro-image-preview">Gemini 3.0 Pro (Image)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p style="font-size:0.55rem; color:#888; margin:0; font-style:italic;">
+                        * Uses the multi-tier forge protocol: OAuth -> Studio -> Vertex
+                    </p>
                 </div>
             </div>
 
