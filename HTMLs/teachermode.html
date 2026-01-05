@@ -2634,11 +2634,21 @@ REQUIRED IMAGES (19 total):
                         const row = tableRows[i];
                         const cells = row.split('|').map(c => c.trim()).filter(c => c);
 
+                        // Skip table separator row (e.g., | --- | --- | --- |)
+                        if (cells.length > 0 && cells.every(cell => /^[-:]+$/.test(cell))) {
+                            continue;
+                        }
+
                         if (cells.length >= 4) {
                             // Get AI Prompt from correct column based on format
                             // 4-column: index 3 | 6-column: index 4
                             const aiPrompt = is6Column ? (cells[4] || '') : (cells[3] || '');
                             const itemName = cells[1] || '';
+
+                            // Skip if prompt is empty or just dashes
+                            if (!aiPrompt || /^[-\s]+$/.test(aiPrompt)) {
+                                continue;
+                            }
 
                             prompts.push({
                                 id: cells[0],
