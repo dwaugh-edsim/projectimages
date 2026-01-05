@@ -74,6 +74,22 @@ CREATE POLICY "Teachers can manage their own ideas"
     ON public.forge_ideas FOR ALL
     USING (teacher_id = current_setting('request.jwt.claim.email', true));
 
+-- 4. STUDENTS TABLE (For persistent identity and multi-class membership)
+CREATE TABLE IF NOT EXISTS public.students (
+    id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL,
+    pin TEXT NOT NULL,
+    joined_codes JSONB DEFAULT '[]'::jsonb, -- Array of 5-letter codes
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(username, pin)
+);
+
+ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can manage their student profile"
+    ON public.students FOR ALL
+    USING (true);
+
 -- =====================================================
 -- SEED DATA EXAMPLE
 -- = : INSERT INTO public.classes (passcode, teacher_id, class_name) 

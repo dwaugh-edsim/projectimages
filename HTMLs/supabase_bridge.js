@@ -399,5 +399,45 @@ const SupabaseBridge = {
             .eq('id', classId);
         if (error) throw error;
         return true;
+    },
+
+    // --- STUDENT MANAGEMENT ---
+    async getOrCreateStudent(username, pin) {
+        if (!this.client) return null;
+        try {
+            // Check for existing
+            const { data, error } = await this.client
+                .from('students')
+                .select('*')
+                .eq('username', username)
+                .eq('pin', pin)
+                .maybeSingle();
+
+            if (error) throw error;
+            if (data) return data;
+
+            // Create new
+            const { data: newData, error: createError } = await this.client
+                .from('students')
+                .insert([{ username, pin, joined_codes: [] }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            return newData;
+        } catch (e) {
+            console.error("Supabase Bridge [getOrCreateStudent] Error:", e);
+            throw e;
+        }
+    },
+
+    async updateStudentJoinedCodes(studentId, codes) {
+        if (!this.client) return false;
+        const { error } = await this.client
+            .from('students')
+            .update({ joined_codes: codes })
+            .eq('id', studentId);
+        if (error) throw error;
+        return true;
     }
 };

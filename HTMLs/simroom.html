@@ -939,9 +939,7 @@
                     style="font-size:0.9rem; opacity:0.6; margin-bottom:50px; text-transform:uppercase; letter-spacing:5px; font-weight:bold;">
                     Critical Juncture Authorization Required</p>
                 <input id="username" placeholder="FIRST NAME + LAST LETTER (e.g. John S)">
-                <input id="class-code" placeholder="5-LETTER CLASS CODE (e.g. XJ9KT)">
-                <input id="pin" type="password" placeholder="OPTIONAL PIN (if assigned)"
-                    style="opacity: 0.5; font-size: 0.8rem;">
+                <input id="pin" type="password" placeholder="ENTER YOUR PIN CODE" style="font-size: 1rem;">
                 <button class="btn" style="width:100%; margin-top:20px;" onclick="login()">AUTHORIZE ACCESS</button>
                 <div
                     style="margin-top:50px; font-size:0.8rem; opacity:0.4; text-transform:uppercase; letter-spacing:6px; font-family:var(--font-h);">
@@ -959,13 +957,13 @@
                     style="margin-top:60px; padding:40px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); backdrop-filter:blur(10px);">
                     <p
                         style="font-size:0.8rem; color:var(--accent); text-transform:uppercase; letter-spacing:4px; margin-bottom:30px; text-align:center; font-weight:bold; opacity:0.7;">
-                        PROTOCOL: JUNCTURE AUTHORIZATION REQUIRED</p>
+                        DEPLOY TO NEW THEATER: ENTER CLASS CODE</p>
                     <div style="display:flex; gap:20px; margin-bottom:20px;">
-                        <input id="mission-code" placeholder="ENTER MISSION CODE"
+                        <input id="class-join-code" placeholder="XXXXX"
                             style="flex:1; text-align:center; letter-spacing:8px; margin:0; font-family:var(--font-h); font-size:1.2rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:4px;">
                         <button class="btn"
                             style="background:#fff; color:#000; width:auto; padding:0 40px; border:none;"
-                            onclick="joinMission()">JOIN</button>
+                            onclick="joinClass()">JOIN</button>
                     </div>
                     <div style="border:1px dashed rgba(255,255,255,0.2); padding:20px; text-align:center; cursor:pointer; border-radius:4px; transition:0.3s;"
                         onmouseover="this.style.borderColor='var(--accent)'"
@@ -1190,19 +1188,14 @@
         async function login() {
             const name = document.getElementById('username').value.trim();
             const pin = document.getElementById('pin').value.trim();
-            const classCode = document.getElementById('class-code').value.trim().toUpperCase();
 
-            if (!name || !classCode) return alert("CORRUPT PACKET: NAME and CLASS CODE REQUIRED.");
-
-            // [Migration v76] Allow spaces for "First Name Last Letter" format
+            if (!name || !pin) return alert("CORRUPT PACKET: NAME and PIN REQUIRED.");
             if (name.length < 2) return alert("SECURITY PROTOCOL: NAME TOO SHORT.");
 
             // RATE LIMIT CHECK
-            const lastAttempt = localStorage.getItem('RATE_LIMIT_TIMESTAMP');
             const now = Date.now();
-            if (lastAttempt && (now - parseInt(lastAttempt) < 3000)) {
-                return alert("SECURITY ALERT: WAIT 3 SECONDS BEFORE RETRYING.");
-            }
+            const lastAttempt = localStorage.getItem('RATE_LIMIT_TIMESTAMP');
+            if (lastAttempt && (now - parseInt(lastAttempt) < 2000)) return;
             localStorage.setItem('RATE_LIMIT_TIMESTAMP', now.toString());
 
             document.getElementById('loading-screen').style.display = 'flex';
@@ -1212,7 +1205,6 @@
                 const params = new URLSearchParams(window.location.search);
                 const sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL');
                 const sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY');
-                let teacherId = params.get('teacher') || localStorage.getItem('ST_TEACHER_ID') || 'GUEST';
 
                 if (sbUrl && sbKey) {
                     SupabaseBridge.init(sbUrl, sbKey);
@@ -1220,35 +1212,21 @@
                     localStorage.setItem('ST_SB_KEY', sbKey);
                 }
 
-                let className = classCode;
-                let assignedMissionIds = null; // Declare and initialize
+                if (!SupabaseBridge.client) throw new Error("Supabase disconnected.");
 
-                // [Migration v76] Resolve unique 5-letter code to class/teacher
-                if (SupabaseBridge.client) {
-                    const classConfig = await SupabaseBridge.fetchClassByCode(classCode);
-                    if (classConfig) {
-                        teacherId = classConfig.teacher_id;
-                        className = classConfig.class_name;
-                        // CAPTURE ASSIGNED MISSIONS
-                        const foundIds = classConfig.mission_ids || [];
-                        assignedMissionIds = foundIds;
-                        localStorage.setItem('ST_TEACHER_ID', teacherId);
-                        console.log(`AUTHENTICATED: Code ${classCode} resolved to ${className} (Teacher: ${teacherId})`, "Assigned:", assignedMissionIds);
-                    }
-                }
+                // FETCH OR CREATE STUDENT PROFILE
+                const studentProfile = await SupabaseBridge.getOrCreateStudent(name, pin);
 
                 user = {
-                    id: 'ST_' + Date.now(),
-                    name: name,
-                    pin: pin,
-                    missions: {},
-                    class: className,
-                    classCode: classCode,
-                    teacherId: teacherId,
-                    assignedMissionIds: assignedMissionIds // PERSIST IN SESSION
+                    id: studentProfile.id,
+                    name: studentProfile.username,
+                    pin: studentProfile.pin,
+                    joinedCodes: studentProfile.joined_codes || [],
+                    missions: {}
                 };
 
-                user.encryptionKey = await CriticalCrypto.deriveKey(classCode, classCode);
+                // Personal Encryption Key derived from Name+PIN
+                user.encryptionKey = await CriticalCrypto.deriveKey(name, pin);
 
                 gsap.to("#login-step", {
                     opacity: 0, y: -20, duration: 0.5, onComplete: () => {
@@ -1258,7 +1236,7 @@
                 });
             } catch (e) {
                 console.error("LOGIN_ERROR:", e);
-                alert("COMMUNICATION FAILURE: Check network or backend configuration.");
+                alert("IDENTITY VERIFICATION FAILED: " + e.message);
             } finally {
                 document.getElementById('loading-screen').style.display = 'none';
             }
@@ -1270,37 +1248,29 @@
 
             // BLING: Header Entry
             gsap.from("#lobby-step h3", { opacity: 0, x: -50, duration: 1, ease: "power4.out" });
-            gsap.from("#lobby-step div:last-child", { opacity: 0, y: 50, duration: 1.2, delay: 0.3, ease: "power3.out" });
 
-            // Fetch available missions from Supabase
-            if (SupabaseBridge.client) {
-                try {
-                    const teacherId = user.teacherId || 'GUEST';
-                    const allMissions = await SupabaseBridge.fetchMissions(teacherId);
+            if (!SupabaseBridge.client) return;
 
-                    // [Migration v77] FILTER BY CLASS ASSIGNMENT
-                    console.log("DEBUG: All Missions in DB:", allMissions.map(m => m.id));
-                    console.log("DEBUG: Assigned to Class:", user.assignedMissionIds);
+            try {
+                let allAssignedMissions = [];
+                const codes = user.joinedCodes || [];
 
-                    if (user.assignedMissionIds && Array.isArray(user.assignedMissionIds)) {
-                        missionsAvailable = allMissions.filter(m => user.assignedMissionIds.includes(m.id));
-                        console.log(`FILTER ACTIVE: Showing ${missionsAvailable.length} of ${allMissions.length} dossiers.`);
-
-                        // FALLBACK: If teacher assigned nothing (empty list), show EVERYTHING for now
-                        // so they don't get a blank screen while setting up.
-                        if (missionsAvailable.length === 0 && user.assignedMissionIds.length === 0) {
-                            missionsAvailable = allMissions;
-                            console.log("FILTER FALLBACK: No assignments found, showing all.");
-                        }
-                    } else {
-                        missionsAvailable = allMissions;
+                // Fetch assignments for each joined class
+                for (const code of codes) {
+                    const classConfig = await SupabaseBridge.fetchClassByCode(code);
+                    if (classConfig && classConfig.mission_ids) {
+                        const teacherMissions = await SupabaseBridge.fetchMissions(classConfig.teacher_id);
+                        const assigned = teacherMissions.filter(m => classConfig.mission_ids.includes(m.id));
+                        allAssignedMissions = [...allAssignedMissions, ...assigned];
                     }
-                } catch (e) {
-                    console.error("Supabase Mission Fetch Failed:", e);
-                    missionsAvailable = [];
                 }
-            } else {
-                console.warn("Supabase not configured. Lobby empty.");
+
+                // Deduplicate by mission ID
+                missionsAvailable = Array.from(new Map(allAssignedMissions.map(m => [m.id, m])).values());
+                console.log(`LOBBY SYNC: ${missionsAvailable.length} dossiers available across ${codes.length} classes.`);
+
+            } catch (e) {
+                console.error("Lobby Sync Failed:", e);
                 missionsAvailable = [];
             }
 
@@ -1318,10 +1288,32 @@
                     <div style="font-family:var(--font-tech); font-size:0.6rem; color:var(--accent); opacity:0.4;">[ACCESS]</div>
                 </div>`;
             });
-            document.getElementById('mission-list').innerHTML = h || "<p style='color:#444; font-size:0.7rem; padding:40px; text-align:center;'>No dossiers found.</p>";
+            document.getElementById('mission-list').innerHTML = h || `<p style='color:#444; font-size:0.7rem; padding:40px; text-align:center;'>No dossiers active. Join a class using a 5-letter code below.</p>`;
         }
 
-        async function joinMission() { const code = document.getElementById('mission-code').value.trim().toUpperCase(); if (code) launch(code); }
+        async function joinClass() {
+            const code = document.getElementById('class-join-code').value.trim().toUpperCase();
+            if (!code || code.length !== 5) return alert("INVALID CODE format.");
+
+            if (user.joinedCodes.includes(code)) return alert("Already enrolled in this sector.");
+
+            document.getElementById('loading-screen').style.display = 'flex';
+            try {
+                const classConfig = await SupabaseBridge.fetchClassByCode(code);
+                if (!classConfig) throw new Error("Class not found in archive.");
+
+                user.joinedCodes.push(code);
+                await SupabaseBridge.updateStudentJoinedCodes(user.id, user.joinedCodes);
+
+                document.getElementById('class-join-code').value = "";
+                alert(`SUCCESSFULLY JOINED: ${classConfig.class_name}`);
+                showLobby();
+            } catch (e) {
+                alert("COORDINATES REJECTED: " + e.message);
+            } finally {
+                document.getElementById('loading-screen').style.display = 'none';
+            }
+        }
 
         function ingest(file) {
             if (!file) return;
