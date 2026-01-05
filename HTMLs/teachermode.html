@@ -1688,8 +1688,11 @@ This information will be used to inform the Narrative phase with verified facts.
                                 each slide. 19 assets needed: 1 Hero + 18 Exhibits.</p>
                         </div>
                         <div style="display:flex; gap:10px;">
+                            <button class="btn"
+                                style="padding:8px 15px; font-size:0.65rem; background:#234; border:1px solid #0af;"
+                                onclick="generateImagePrompts()">🤖 GENERATE PROMPTS</button>
                             <button class="btn" style="padding:8px 15px; font-size:0.65rem;"
-                                onclick="generateAllAssets()">⚡ GENERATE ALL</button>
+                                onclick="generateAllAssets()">⚡ GENERATE ALL IMAGES</button>
                             <button class="btn" style="padding:8px 15px; font-size:0.65rem; background:#333;"
                                 onclick="advancePhase()">NEXT: BIRTH →</button>
                         </div>
@@ -2409,6 +2412,87 @@ Please provide detailed, factual information that can be used to write an immers
             advancePhase();
         }
 
+        // --- MEDIA SCREEN PROMPT GENERATION ---
+        async function generateImagePrompts() {
+            const selectedModel = document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free';
+
+            // Build context from accumulated data and history
+            let context = `You are helping generate image prompts for an educational simulation.
+
+Based on the following mission context, generate exactly 19 image prompts for an AI image generator (like Flux or DALL-E).
+
+FORMAT: Output a markdown table with these columns:
+| # | Slide | Description | AI Image Prompt |
+
+The prompts should be:
+- Photorealistic or documentary style
+- Educational and appropriate for classroom use  
+- Specific and descriptive (30-50 words each)
+- Historically/factually accurate where applicable
+
+REQUIRED IMAGES (19 total):
+1. Hero/Splash image (dramatic, sets the tone)
+2-19. Two images per slide for 9 content slides (primary view + alternate perspective)
+
+`;
+
+            // Add mission context
+            if (accumulatedData?.metadata?.title) {
+                context += `Mission Title: ${accumulatedData.metadata.title}\n`;
+            }
+
+            // Add narrative context from history
+            const narrativeContent = forgeHistory
+                .filter(m => m.role === 'assistant')
+                .map(m => m.content)
+                .join('\n\n')
+                .substring(0, 4000); // Limit context size
+
+            if (narrativeContent) {
+                context += `\nMission Narrative:\n${narrativeContent}\n`;
+            }
+
+            // Add deep search results if available
+            if (accumulatedData?.deepSearchResults) {
+                context += `\nResearch Context:\n${accumulatedData.deepSearchResults.substring(0, 1000)}\n`;
+            }
+
+            context += `\nNow generate the 19 image prompts in the table format specified above.`;
+
+            try {
+                log('Generating 19 image prompts via AI...', 'info');
+                setForgeLoading(true, 'GENERATING IMAGE PROMPTS...');
+
+                const res = await fetch(FORGE_PROXY, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: context, model: selectedModel })
+                });
+
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
+
+                // Store in history for extraction
+                forgeHistory.push({ role: 'user', content: 'Generate 19 image prompts for the Media phase.' });
+                forgeHistory.push({ role: 'assistant', content: reply });
+
+                // Reset extraction flag and re-extract
+                accumulatedData.aiPromptsExtracted = false;
+                extractAIPromptsFromHistory();
+
+                // Re-render the screen with populated prompts
+                renderAssetsScreen();
+
+                log('Image prompts generated successfully!', 'success');
+
+            } catch (e) {
+                log(`Prompt generation failed: ${e.message}`, 'error');
+                alert(`Failed to generate prompts: ${e.message}`);
+            } finally {
+                setForgeLoading(false);
+            }
+        }
+
         // --- MEDIA SCREEN PROMPT EXTRACTION ---
         function extractAIPromptsFromHistory() {
             // Look for AI response containing markdown table with prompts
@@ -2417,9 +2501,14 @@ Please provide detailed, factual information that can be used to write an immers
             for (const msg of assistantMsgs.reverse()) { // Start from most recent
                 const content = msg.content;
 
-                // Look for markdown table rows with "AI Prompt" column
-                // Format: | ID | Item Name | Context | Visual Style | AI Prompt | Source |
-                const tableRows = content.match(/\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*\|/g);
+                // Try to find markdown table rows - support both 4-column and 6-column formats
+                // 4-column: | # | Slide | Description | AI Image Prompt |
+                // 6-column: | ID | Item Name | Context | Visual Style | AI Prompt | Source |
+                const tableRows4 = content.match(/\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|/g);
+                const tableRows6 = content.match(/\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*\|/g);
+
+                const tableRows = tableRows6 || tableRows4;
+                const is6Column = !!tableRows6;
 
                 if (tableRows && tableRows.length > 1) {
                     // Skip header row, process data rows
@@ -2429,9 +2518,10 @@ Please provide detailed, factual information that can be used to write an immers
                         const row = tableRows[i];
                         const cells = row.split('|').map(c => c.trim()).filter(c => c);
 
-                        if (cells.length >= 5) {
-                            // Column 5 (index 4) is AI Prompt in the expected format
-                            const aiPrompt = cells[4] || '';
+                        if (cells.length >= 4) {
+                            // Get AI Prompt from correct column based on format
+                            // 4-column: index 3 | 6-column: index 4
+                            const aiPrompt = is6Column ? (cells[4] || '') : (cells[3] || '');
                             const itemName = cells[1] || '';
 
                             prompts.push({
