@@ -1697,6 +1697,9 @@ This information will be used to inform the Narrative phase with verified facts.
                                 onclick="generateImagePrompts()">🤖 GENERATE PROMPTS</button>
                             <button class="btn" style="padding:8px 15px; font-size:0.65rem;"
                                 onclick="generateAllAssets()">⚡ GENERATE ALL IMAGES</button>
+                            <button class="btn"
+                                style="padding:8px 15px; font-size:0.65rem; background:#246; border:1px solid #4af;"
+                                onclick="saveAllAssetsToR2()">💾 SAVE ALL TO R2</button>
                             <button class="btn" style="padding:8px 15px; font-size:0.65rem; background:#333;"
                                 onclick="advancePhase()">NEXT: BIRTH →</button>
                         </div>
@@ -3023,7 +3026,8 @@ REQUIRED IMAGES (19 total):
 
                 // Update UI with consistent max-height based on slot type
                 const maxHeight = slotId === 'hero' ? '150px' : '120px';
-                previewEl.innerHTML = `<img src="${imageUrl}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.parentElement.innerHTML='<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>'">`;
+                // Use onerror on image that just replaces src with placeholder, not the whole parent
+                previewEl.innerHTML = `<img src="${imageUrl}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>')">`;
                 urlEl.value = imageUrl;
                 updateAssetUrl(slotId, imageUrl);
                 log(`Asset GEN [${slotId}] SUCCESS`, 'success');
@@ -3128,7 +3132,8 @@ REQUIRED IMAGES (19 total):
 
                 // Display R2 image with error handling
                 const maxHeight = slotId === 'hero' ? '150px' : '120px';
-                previewEl.innerHTML = `<img src="${data.url}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.parentElement.innerHTML='<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>'">`;
+                // Fixed onerror handler to not break parent structure
+                previewEl.innerHTML = `<img src="${data.url}" style="max-width:100%; max-height:${maxHeight}; object-fit:contain;" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\\'color:#f44; font-size:0.55rem;\\'>Image failed to load</span>')">`;
 
                 log(`R2 Save [${slotId}]: SUCCESS - ${data.url}`, 'success');
                 alert(`Saved to R2 as JPG!\n${data.filename}`);
@@ -3139,6 +3144,45 @@ REQUIRED IMAGES (19 total):
                 previewEl.innerHTML = originalContent;
                 alert(`R2 save failed: ${e.message}`);
             }
+        }
+
+        async function saveAllAssetsToR2() {
+            // Get all slots with images
+            const slots = [];
+            if (accumulatedData?.metadata?.heroImage) slots.push('hero');
+
+            for (let i = 0; i < 9; i++) {
+                const slide = accumulatedData?.slides?.[i];
+                if (slide?.tabs?.primary?.image || slide?.image) slots.push(`${i}-a`);
+                if (slide?.tabs?.intel?.image || slide?.tabs?.legal?.image || slide?.tabs?.secondary?.image) slots.push(`${i}-b`);
+            }
+
+            if (slots.length === 0) {
+                alert('No images found to save!');
+                return;
+            }
+
+            const proceed = confirm(`Save ${slots.length} images to R2? This will convert them to JPG and upload to Cloudflare R2.`);
+            if (!proceed) return;
+
+            log(`Starting batch R2 save for ${slots.length} images...`, 'info');
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const slotId of slots) {
+                try {
+                    await saveAssetToGit(slotId);
+                    successCount++;
+                    // Small delay to avoid overwhelming the server
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (e) {
+                    failCount++;
+                    log(`R2 Save [${slotId}] FAILED: ${e.message}`, 'error');
+                }
+            }
+
+            log(`Batch R2 save complete: ${successCount} succeeded, ${failCount} failed`, successCount === slots.length ? 'success' : 'warning');
+            alert(`Batch save complete!\n${successCount} images saved successfully\n${failCount} failed`);
         }
 
         // --- BIRTH SCREEN FUNCTIONS ---
