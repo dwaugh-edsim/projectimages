@@ -3886,10 +3886,22 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             if (!SupabaseBridge.client) return;
             log("Querying Class Directory...");
             const tId = googleUser?.email || 'GUEST';
+
+            // Failsafe timeout for query
+            const timeout = setTimeout(() => {
+                log("Class Directory Query Timed Out.", "error");
+            }, 5000);
+
             try {
                 const classes = await SupabaseBridge.fetchClasses(tId);
+                clearTimeout(timeout);
+                log(`Class Directory Synced: ${classes.length} entries.`, "success");
                 renderClasses(classes);
-            } catch (e) { log("Class Fetch Failed: " + e.message, "error"); }
+            } catch (e) {
+                clearTimeout(timeout);
+                log("Class Fetch Failed: " + e.message, "error");
+                console.error("DEBUG: refreshClasses catch", e);
+            }
         }
 
         function renderClasses(classes) {

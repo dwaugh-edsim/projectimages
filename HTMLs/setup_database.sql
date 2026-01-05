@@ -22,6 +22,16 @@ CREATE POLICY "Anyone can read class config by passcode"
     ON public.classes FOR SELECT
     USING (true);
 
+-- Teachers can register new classes (permissive for prototype)
+CREATE POLICY "Anyone can register a class"
+    ON public.classes FOR INSERT
+    WITH CHECK (true);
+
+-- Teachers can update their own classes
+CREATE POLICY "Teachers can update their own classes"
+    ON public.classes FOR UPDATE
+    USING (teacher_id = current_setting('request.jwt.claim.email', true) OR teacher_id = 'GUEST');
+
 -- 2. MISSION LOGS (For student submissions)
 CREATE TABLE IF NOT EXISTS public.simulation_logs (
     id SERIAL PRIMARY KEY,

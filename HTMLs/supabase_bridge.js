@@ -82,7 +82,7 @@ const SupabaseBridge = {
             id: m.mission_id,
             name: m.title,
             payload: m.blob_data,
-            thumb: m.blob_data?.metadata?.mediaURL, // EXTRACT THUMBNAIL
+            thumb: m.blob_data?.metadata?.heroImage || m.blob_data?.metadata?.mediaURL, // REFINED EXTRACTION
             updated: m.updated_at,
             aiEnabled: m.ai_enabled !== false // Safeguard default true
         }));
@@ -364,13 +364,18 @@ const SupabaseBridge = {
 
     async fetchClasses(teacherId) {
         if (!this.client) return [];
-        const { data, error } = await this.client
-            .from('classes')
-            .select('*')
-            .eq('teacher_id', teacherId)
-            .order('class_name', { ascending: true });
+        try {
+            const { data, error } = await this.client
+                .from('classes')
+                .select('*')
+                .eq('teacher_id', teacherId)
+                .order('class_name', { ascending: true });
 
-        if (error) throw error;
-        return data;
+            if (error) throw error;
+            return data;
+        } catch (e) {
+            console.error("Supabase Bridge [fetchClasses] Error:", e);
+            throw e;
+        }
     }
 };
