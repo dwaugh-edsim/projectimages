@@ -2324,6 +2324,59 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             log("FORGE_ENGINE: System Reset Complete.", "warning");
         }
 
+        function advancePhase() {
+            const currentPhase = getCurrentPhase();
+
+            // Check if we're at the last phase
+            if (currentPhaseIndex >= forgePipeline.length - 1) {
+                alert('You are already at the final phase (Birth).');
+                return;
+            }
+
+            // Check if next phase is locked
+            const nextPhase = FORGE_PHASES[forgePipeline[currentPhaseIndex + 1]];
+            if (nextPhase.locked) {
+                alert('The next phase is locked. Complete current phase requirements first.');
+                return;
+            }
+
+            // Special validation for narrative → media transition
+            if (currentPhase.id === 'narrative') {
+                const slideCount = accumulatedData?.slides?.length || 0;
+                if (slideCount < 10) {
+                    const proceed = confirm(`Only ${slideCount}/10 slides detected. Proceeding to Media may result in missing content. Continue anyway?`);
+                    if (!proceed) return;
+                }
+            }
+
+            // Advance
+            currentPhaseIndex++;
+            updateForgeUI();
+            log(`Phase advanced to: ${nextPhase.label}`, 'success');
+
+            // Add notification to chat
+            addForgeChat('ai', `✓ **Phase ${currentPhaseIndex} Authorized:** ${nextPhase.label}. ${nextPhase.desc}`);
+        }
+
+        function updatePhaseBadge(phaseId, badgeText) {
+            // Find the phase node in the pipeline stepper and add a badge
+            const nodes = document.querySelectorAll('.pipeline-node');
+            nodes.forEach(node => {
+                if (node.dataset.phase === phaseId) {
+                    // Check if badge already exists
+                    let badge = node.querySelector('.phase-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'phase-badge';
+                        badge.style.cssText = 'position:absolute; top:-8px; right:-8px; background:#0a0; color:#000; font-size:0.5rem; padding:2px 6px; border-radius:10px; font-weight:bold; letter-spacing:0.5px;';
+                        node.appendChild(badge);
+                        node.style.position = 'relative'; // Ensure parent is positioned
+                    }
+                    badge.textContent = badgeText;
+                }
+            });
+        }
+
         // --- DEEP SEARCH SCREEN FUNCTIONS ---
         function renderDeepSearchScreen() {
             const promptEl = document.getElementById('deepsearch-prompt');
@@ -2713,9 +2766,32 @@ REQUIRED IMAGES (19 total):
                 slides.push(slide);
             });
 
+            // --- ROBUSTNESS: If no slides extracted, try looser parsing ---
+            if (slides.length === 0) {
+                log('Strict parser found no slides. Attempting looser extraction...', 'warning');
+
+                // Try to extract any numbered sections
+                const looseBlocks = text.split(/(?:^|\n)(?:###|##)\s*(?:Slide\s*)?\d+/i);
+                if (looseBlocks.length > 1) {
+                    looseBlocks.slice(1).forEach((block, idx) => {
+                        const slide = {
+                            id: idx + 1,
+                            type: 'BRIEFING',
+                            title: `Slide ${idx + 1}`,
+                            content: block.trim().substring(0, 500),
+                            tabs: { primary: { label: 'Primary', content: '' }, intel: { label: 'Intel', content: '' } }
+                        };
+                        slides.push(slide);
+                    });
+                }
+            }
+
             if (slides.length > 0) {
                 accumulatedData.slides = slides;
                 log(`Successfully extracted ${slides.length} slides from narrative.`, 'success');
+
+                // Update phase badge
+                updatePhaseBadge('narrative', `${slides.length} slides`);
             }
 
             // 3. Extract Glossary if present
@@ -2775,7 +2851,8 @@ REQUIRED IMAGES (19 total):
             // Using 2 images per slide approach: primary + alternate perspective
             for (let i = 0; i < 9; i++) {
                 const slide = slides[i] || { shortTitle: `Slide ${i + 1}` };
-                const slideTitle = slide.shortTitle || slide.title || `Slide ${i + 1}`;
+                const slideLabel = slide.title || slide.shortTitle || `Slide ${i + 1}`;
+                const slideTitle = slideLabel.length > 25 ? slideLabel.substring(0, 22) + '...' : slideLabel;
                 const primaryImg = slide.tabs?.primary?.image || slide.image || '';
                 const altImg = slide.tabs?.intel?.image || slide.tabs?.legal?.image || slide.tabs?.secondary?.image || '';
 
