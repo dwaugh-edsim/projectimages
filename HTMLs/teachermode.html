@@ -1614,14 +1614,75 @@
                     </div>
                 </div>
 
-                <!-- ASSETS SCREEN (Image Forge Style Grid) -->
+                <!-- DEEP SEARCH SCREEN (External LLM Research) -->
+                <div id="forge-screen-deepsearch"
+                    style="display:none; grid-column:1/-1; background:#050505; padding:30px; overflow-y:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div>
+                            <h2
+                                style="font-family:'Oswald',sans-serif; font-size:1.5rem; color:#00ffcc; margin:0; letter-spacing:3px;">
+                                <span style="font-size:0.8rem; opacity:0.7; display:block;">PHASE 2:</span> DEEP SEARCH
+                            </h2>
+                            <p style="font-size:0.7rem; color:#666; margin-top:5px;">Copy the research prompt below and
+                                paste it into Gemini, ChatGPT, or Perplexity. Then paste the research results back, or
+                                add your own source materials.</p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn" style="padding:8px 15px; font-size:0.65rem; background:#333;"
+                                onclick="advancePhase()">NEXT: NARRATIVE →</button>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; height:calc(100vh - 280px);">
+                        <!-- Left: Research Prompt -->
+                        <div
+                            style="background:#111; border:1px solid #333; padding:20px; border-radius:4px; display:flex; flex-direction:column;">
+                            <h3 style="color:#0af; font-size:0.8rem; margin-top:0; letter-spacing:2px;">🔍 RESEARCH
+                                PROMPT</h3>
+                            <p style="font-size:0.65rem; color:#666; margin-bottom:10px;">Copy this prompt and paste
+                                into your preferred LLM (Gemini with Deep Research, Perplexity, etc.) for verified
+                                sources.</p>
+                            <div id="deepsearch-prompt"
+                                style="flex:1; background:#080808; border:1px solid #222; padding:15px; border-radius:4px; font-size:0.75rem; color:#0f0; overflow-y:auto; white-space:pre-wrap; font-family:'JetBrains Mono', monospace; line-height:1.5;">
+                                Loading research prompt...
+                            </div>
+                            <button class="btn"
+                                style="margin-top:10px; padding:10px; font-size:0.7rem; background:#234;"
+                                onclick="copyDeepSearchPrompt()">📋 COPY PROMPT TO CLIPBOARD</button>
+                        </div>
+                        <!-- Right: Research Results Input -->
+                        <div
+                            style="background:#111; border:1px solid #333; padding:20px; border-radius:4px; display:flex; flex-direction:column;">
+                            <h3 style="color:#f80; font-size:0.8rem; margin-top:0; letter-spacing:2px;">📚 RESEARCH
+                                RESULTS / SOURCES</h3>
+                            <p style="font-size:0.65rem; color:#666; margin-bottom:10px;">Paste the LLM research results
+                                here, or add your own verified source materials for the Narrative phase.</p>
+                            <textarea id="deepsearch-results"
+                                style="flex:1; background:#080808; border:1px solid #222; padding:15px; border-radius:4px; font-size:0.75rem; color:#fff; resize:none; font-family:'Inter', sans-serif; line-height:1.5;"
+                                placeholder="Paste research results from Gemini/Perplexity here...
+
+OR enter your own source materials:
+- Academic sources
+- News articles  
+- Primary documents
+- Expert interviews
+- Statistical data
+
+This information will be used to inform the Narrative phase with verified facts."></textarea>
+                            <button class="btn"
+                                style="margin-top:10px; padding:10px; font-size:0.7rem; background:#060;"
+                                onclick="saveDeepSearchResults()">💾 SAVE RESEARCH & CONTINUE</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEDIA SCREEN (Image Generation Grid) -->
                 <div id="forge-screen-assets"
                     style="display:none; grid-column:1/-1; background:#050505; padding:30px; overflow-y:auto;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div>
                             <h2
                                 style="font-family:'Oswald',sans-serif; font-size:1.5rem; color:#00ffcc; margin:0; letter-spacing:3px;">
-                                <span style="font-size:0.8rem; opacity:0.7; display:block;">PHASE 4:</span> ASSET FORGE
+                                <span style="font-size:0.8rem; opacity:0.7; display:block;">PHASE 4:</span> MEDIA
                             </h2>
                             <p style="font-size:0.7rem; color:#666; margin-top:5px;">Generate or paste image URLs for
                                 each slide. 19 assets needed: 1 Hero + 18 Exhibits.</p>
@@ -1840,10 +1901,10 @@ Loading accumulated data...
             },
             assets: {
                 id: 'assets',
-                label: 'ASSETS',
+                label: 'MEDIA',
                 icon: '🖼️',
-                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 4:</span> ASSET SECURE",
-                desc: "Mapping visual keywords (Unsplash) for all nodes (19 images needed).",
+                title: "<span style='font-size:1rem; opacity:0.7; letter-spacing:2px; display:block;'>PHASE 4:</span> MEDIA",
+                desc: "Generate images for your simulation. AI prompts from the previous phase will auto-populate below.",
                 prompt: "PHASE: ASSET SECURE. Propose Visual Strategy. MANDATORY: You MUST provide a 6-column Markdown table [ID | Item Name | Context/Description | Visual Style | AI Prompt | Source (URL)]. INVENTORY: You MUST list exactly 19 images (1 Hero/Splash + 18 exhibits for the 10 slides). End with: 'Awaiting final birth command.'",
                 showCurriculum: false,
                 skippable: true
@@ -2013,9 +2074,14 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             document.getElementById('forge-output').style.display = 'none';
             document.getElementById('forge-screen-assets').style.display = 'none';
             document.getElementById('forge-screen-birth').style.display = 'none';
+            document.getElementById('forge-screen-deepsearch').style.display = 'none';
 
             // Show screen based on phase type
-            if (phase.id === 'assets') {
+            if (phase.id === 'deepsearch') {
+                // DEEP SEARCH: Show external research screen
+                document.getElementById('forge-screen-deepsearch').style.display = 'block';
+                renderDeepSearchScreen();
+            } else if (phase.id === 'assets') {
                 // ASSETS: Show grid screen
                 document.getElementById('forge-screen-assets').style.display = 'block';
                 renderAssetsScreen();
@@ -2024,7 +2090,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 document.getElementById('forge-screen-birth').style.display = 'block';
                 renderBirthScreen();
             } else {
-                // BRAINSTORM, DEEPSEARCH, NARRATIVE: Show chat layout
+                // BRAINSTORM, NARRATIVE: Show chat layout
                 document.getElementById('forge-panel').style.display = 'flex';
                 document.getElementById('forge-output').style.display = 'flex';
                 document.getElementById('forge-chat').style.display = 'block';
@@ -2241,10 +2307,191 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             log("FORGE_ENGINE: System Reset Complete.", "warning");
         }
 
+        // --- DEEP SEARCH SCREEN FUNCTIONS ---
+        function renderDeepSearchScreen() {
+            const promptEl = document.getElementById('deepsearch-prompt');
+            const resultsEl = document.getElementById('deepsearch-results');
+            if (!promptEl) return;
+
+            // Build research prompt based on brainstorm context
+            const country = document.getElementById('f-country')?.value || '';
+            const region = document.getElementById('f-region')?.value || '';
+            const course = document.getElementById('f-course')?.value || '';
+            const checks = document.querySelectorAll('#f-outcomes input[type="checkbox"]:checked');
+            const selectedOutcomes = Array.from(checks).map(c => c.value);
+
+            // Extract concept from forgeHistory (brainstorm results)
+            let brainstormContext = '';
+            if (forgeHistory.length > 0) {
+                const lastAIResponse = forgeHistory.filter(m => m.role === 'assistant').pop();
+                if (lastAIResponse) {
+                    brainstormContext = lastAIResponse.content.substring(0, 2000); // Limit for prompt size
+                }
+            }
+
+            const researchPrompt = `I am developing an educational simulation for ${course || 'a course'} (${region ? region + ', ' : ''}${country || 'location not specified'}).
+
+${selectedOutcomes.length > 0 ? `The simulation targets these curriculum outcomes:\n${selectedOutcomes.map(o => '• ' + o).join('\n')}\n` : ''}
+${brainstormContext ? `Based on the brainstorming, here is the concept direction:\n---\n${brainstormContext}\n---\n` : ''}
+Please conduct a deep research search and provide:
+
+1. **VERIFIED FACTS & DATA**: Key statistics, dates, names, and verifiable information relevant to this topic. Include citations/sources where possible.
+
+2. **PRIMARY SOURCES**: Links to or descriptions of primary documents, historical records, court cases, scientific studies, or official reports.
+
+3. **MULTIPLE PERSPECTIVES**: Balanced viewpoints from different stakeholders (e.g., for legal cases: prosecution vs defense; for historical events: different nations' perspectives; for scientific debates: competing theories).
+
+4. **EXPERT OPINIONS**: Quotes or summaries from subject matter experts, academics, or authoritative figures.
+
+5. **TIMELINE/STRUCTURE**: A suggested 10-slide structure with factual anchors for each slide.
+
+6. **POTENTIAL MISCONCEPTIONS**: Common misunderstandings about this topic that should be addressed or avoided.
+
+Please provide detailed, factual information that can be used to write an immersive educational narrative. Focus on accuracy over creativity - I need verified sources, not speculation.`;
+
+            promptEl.textContent = researchPrompt;
+
+            // Restore any previously saved results
+            if (accumulatedData.deepSearchResults) {
+                resultsEl.value = accumulatedData.deepSearchResults;
+            }
+        }
+
+        function copyDeepSearchPrompt() {
+            const promptEl = document.getElementById('deepsearch-prompt');
+            if (!promptEl) return;
+
+            navigator.clipboard.writeText(promptEl.textContent).then(() => {
+                log('Deep Search prompt copied to clipboard!', 'success');
+                alert('Research prompt copied to clipboard!\\n\\nPaste this into Gemini, ChatGPT, Perplexity, or your preferred research tool.');
+            }).catch(err => {
+                log('Failed to copy: ' + err.message, 'error');
+                // Fallback for older browsers
+                const range = document.createRange();
+                range.selectNode(promptEl);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                alert('Research prompt copied!');
+            });
+        }
+
+        function saveDeepSearchResults() {
+            const resultsEl = document.getElementById('deepsearch-results');
+            if (!resultsEl) return;
+
+            const results = resultsEl.value.trim();
+            if (!results) {
+                if (!confirm('No research results entered. Continue anyway?\\n\\nThe Narrative phase will proceed without verified source materials.')) {
+                    return;
+                }
+            }
+
+            // Store in accumulatedData for use in Narrative phase
+            accumulatedData.deepSearchResults = results;
+
+            // Also add to forge history so it's included in AI context
+            if (results) {
+                forgeHistory.push({
+                    role: 'user',
+                    content: `[DEEP SEARCH RESEARCH RESULTS - VERIFIED SOURCES]\n${results}`
+                });
+                forgeHistory.push({
+                    role: 'assistant',
+                    content: 'Research materials received and stored. These verified sources will inform the Narrative phase for factual accuracy.'
+                });
+            }
+
+            log('Deep Search results saved successfully.', 'success');
+
+            // Auto-advance to next phase
+            advancePhase();
+        }
+
+        // --- MEDIA SCREEN PROMPT EXTRACTION ---
+        function extractAIPromptsFromHistory() {
+            // Look for AI response containing markdown table with prompts
+            const assistantMsgs = forgeHistory.filter(m => m.role === 'assistant');
+
+            for (const msg of assistantMsgs.reverse()) { // Start from most recent
+                const content = msg.content;
+
+                // Look for markdown table rows with "AI Prompt" column
+                // Format: | ID | Item Name | Context | Visual Style | AI Prompt | Source |
+                const tableRows = content.match(/\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]+\|[^|\n]*\|/g);
+
+                if (tableRows && tableRows.length > 1) {
+                    // Skip header row, process data rows
+                    const prompts = [];
+
+                    for (let i = 1; i < tableRows.length; i++) {
+                        const row = tableRows[i];
+                        const cells = row.split('|').map(c => c.trim()).filter(c => c);
+
+                        if (cells.length >= 5) {
+                            // Column 5 (index 4) is AI Prompt in the expected format
+                            const aiPrompt = cells[4] || '';
+                            const itemName = cells[1] || '';
+
+                            prompts.push({
+                                id: cells[0],
+                                name: itemName,
+                                prompt: aiPrompt
+                            });
+                        }
+                    }
+
+                    if (prompts.length > 0) {
+                        // Populate accumulatedData with extracted prompts
+                        if (!accumulatedData.metadata) accumulatedData.metadata = {};
+                        if (!accumulatedData.slides) accumulatedData.slides = [];
+
+                        // First prompt is typically Hero
+                        if (prompts[0] && prompts[0].name.toLowerCase().includes('hero')) {
+                            accumulatedData.metadata.heroPrompt = prompts[0].prompt;
+                            prompts.shift(); // Remove hero from array
+                        } else if (prompts[0]) {
+                            accumulatedData.metadata.heroPrompt = prompts[0].prompt;
+                            prompts.shift();
+                        }
+
+                        // Distribute remaining prompts across slides (2 per slide)
+                        for (let i = 0; i < prompts.length && i < 18; i++) {
+                            const slideIdx = Math.floor(i / 2);
+                            const isAlt = i % 2 === 1;
+
+                            if (!accumulatedData.slides[slideIdx]) {
+                                accumulatedData.slides[slideIdx] = { shortTitle: `Slide ${slideIdx + 1}` };
+                            }
+
+                            if (isAlt) {
+                                accumulatedData.slides[slideIdx].altImagePrompt = prompts[i].prompt;
+                            } else {
+                                accumulatedData.slides[slideIdx].imagePrompt = prompts[i].prompt;
+                            }
+                        }
+
+                        accumulatedData.aiPromptsExtracted = true;
+                        log(`Extracted ${prompts.length + 1} AI prompts from Assets phase`, 'success');
+                        return;
+                    }
+                }
+            }
+
+            // Mark as attempted even if nothing found
+            accumulatedData.aiPromptsExtracted = true;
+        }
+
         // --- ASSETS SCREEN FUNCTIONS ---
         function renderAssetsScreen() {
             const grid = document.getElementById('assets-grid');
             if (!grid) return;
+
+            // Try to extract AI prompts from forge history if not already stored
+            if (!accumulatedData.aiPromptsExtracted) {
+                extractAIPromptsFromHistory();
+            }
 
             // Build 19 slots: 1 Hero + 18 exhibits (2 per slide for 9 content slides)
             const slides = accumulatedData?.slides || [];
