@@ -7,16 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>MISSION CONTROL // SITUATION ROOM (0.50)</title>
+    <script src="config.js"></script>
     <script>
-        // --- BOOTSTRAP CONFIGURATION ---
-        (function bootstrap() {
-            // Supabase Credentials (Empty by default)
-            if (!localStorage.getItem('TM_SUPABASE_URL')) localStorage.setItem('TM_SUPABASE_URL', '');
-            if (!localStorage.getItem('TM_SUPABASE_KEY')) localStorage.setItem('TM_SUPABASE_KEY', '');
-        })();
-
-        const SB_URL = localStorage.getItem('TM_SUPABASE_URL');
-        const SB_KEY = localStorage.getItem('TM_SUPABASE_KEY');
+        // --- BOOTSTRAP CONFIGURATION (Silent Defaults) ---
+        const SB_URL = localStorage.getItem('TM_SUPABASE_URL') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_URL : '');
+        const SB_KEY = localStorage.getItem('TM_SUPABASE_KEY') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_KEY : '');
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3885,6 +3880,9 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
         }
 
         async function refreshClasses() {
+            if (!SupabaseBridge.client && SB_URL && SB_KEY) {
+                SupabaseBridge.init(SB_URL, SB_KEY);
+            }
             if (!SupabaseBridge.client) return;
             log("Querying Class Directory...");
             const tId = googleUser?.email || 'GUEST';

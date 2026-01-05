@@ -19,6 +19,7 @@
     <script src="critical_crypto.js"></script>
     <script src="social_history_sim_engine.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="supabase_bridge.js"></script>
     <style>
         :root {
@@ -1201,16 +1202,10 @@
             document.getElementById('loading-screen').style.display = 'flex';
 
             try {
-                // Initialize Supabase
+                // Initialize Supabase (Silent Flow)
                 const params = new URLSearchParams(window.location.search);
-                let sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL');
-                let sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY');
-
-                // FAILSAFE: If connection info is missing, prompt once (useful for testing/first time)
-                if (!sbUrl || !sbKey) {
-                    sbUrl = prompt("SECURITY PROTOCOL: Missing Supabase URL. Please provide URL:");
-                    sbKey = prompt("SECURITY PROTOCOL: Missing Supabase API Key. Please provide Key:");
-                }
+                const sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_URL : null);
+                const sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_KEY : null);
 
                 if (sbUrl && sbKey) {
                     SupabaseBridge.init(sbUrl, sbKey);
@@ -1220,7 +1215,7 @@
 
                 if (!SupabaseBridge.client) {
                     document.getElementById('loading-screen').style.display = 'none';
-                    return alert("IDENTITY VERIFICATION FAILED: Supabase disconnected. Please ensure URL and KEY are provided via Link or Prompt.");
+                    return alert("COMMUNICATION ERROR: Please contact your instructor. (Infra Offline)");
                 }
 
                 // FETCH OR CREATE STUDENT PROFILE
