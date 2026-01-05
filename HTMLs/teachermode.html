@@ -1724,6 +1724,16 @@ This information will be used to inform the Narrative phase with verified facts.
                             <div id="birth-validation" style="font-size:0.7rem; color:#888;">
                                 Loading...
                             </div>
+                            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #333;">
+                                <h4 style="color:#f80; font-size:0.7rem; margin:0 0 10px 0; letter-spacing:1px;">MISSION
+                                    METADATA</h4>
+                                <input type="text" id="birth-mission-title" placeholder="Mission Title..."
+                                    style="width:100%; background:#080808; border:1px solid #222; color:#fff; padding:8px; font-size:0.7rem; margin-bottom:8px;"
+                                    onchange="updateMissionMetadata()">
+                                <input type="text" id="birth-mission-id" placeholder="Mission ID (e.g. MISSION_001)..."
+                                    style="width:100%; background:#080808; border:1px solid #222; color:#0f0; padding:8px; font-size:0.7rem; margin-bottom:8px;"
+                                    onchange="updateMissionMetadata()">
+                            </div>
                             <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
                                 <button class="btn" style="background:#060; font-size:0.7rem;"
                                     onclick="birthMission()">🧬 BIRTH TO JSON</button>
@@ -2929,6 +2939,169 @@ REQUIRED IMAGES (19 total):
             } catch (e) {
                 previewEl.textContent = 'Error rendering JSON: ' + e.message;
             }
+
+            // Populate metadata inputs with existing values
+            const titleInput = document.getElementById('birth-mission-title');
+            const idInput = document.getElementById('birth-mission-id');
+            if (titleInput && accumulatedData?.metadata?.title) {
+                titleInput.value = accumulatedData.metadata.title;
+            }
+            if (idInput && accumulatedData?.metadata?.id) {
+                idInput.value = accumulatedData.metadata.id;
+            }
+        }
+
+        function updateMissionMetadata() {
+            const title = document.getElementById('birth-mission-title')?.value?.trim();
+            const id = document.getElementById('birth-mission-id')?.value?.trim();
+
+            if (!accumulatedData.metadata) accumulatedData.metadata = {};
+            if (title) accumulatedData.metadata.title = title;
+            if (id) accumulatedData.metadata.id = id;
+
+            // Re-render to update validation
+            renderBirthScreen();
+            log('Mission metadata updated', 'success');
+        }
+
+        async function birthMission() {
+            // Parse AI history to extract structured data and call AI for final JSON if needed
+            const selectedModel = document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free';
+
+            // Ensure metadata exists
+            if (!accumulatedData.metadata) accumulatedData.metadata = {};
+
+            // Get title and ID from inputs if not set
+            const titleInput = document.getElementById('birth-mission-title')?.value?.trim();
+            const idInput = document.getElementById('birth-mission-id')?.value?.trim();
+            if (titleInput) accumulatedData.metadata.title = titleInput;
+            if (idInput) accumulatedData.metadata.id = idInput;
+
+            // Validate minimum requirements
+            if (!accumulatedData.metadata.title) {
+                alert('Please enter a Mission Title');
+                return;
+            }
+            if (!accumulatedData.metadata.id) {
+                accumulatedData.metadata.id = 'MISSION_' + Date.now();
+            }
+
+            // Build context for AI to generate structured mission data
+            const context = `You are converting conversation history into a structured educational mission JSON.
+
+Based on the following forge conversation history, extract and structure the mission data into the following JSON format:
+
+{
+  "metadata": {
+    "id": "${accumulatedData.metadata.id}",
+    "title": "${accumulatedData.metadata.title}",
+    "version": "1.0",
+    "heroImage": "${accumulatedData.metadata.heroImage || ''}"
+  },
+  "slides": [
+    {
+      "id": 1,
+      "title": "Slide title from narrative",
+      "shortTitle": "Short version",
+      "content": "Main slide content prose (200-400 words)",
+      "image": "",
+      "tabs": {
+        "primary": { "label": "Primary", "content": "Primary perspective" },
+        "intel": { "label": "Intel", "content": "Intelligence/research data" }
+      }
+    }
+    // ... 10 slides total
+  ],
+  "intelligenceGlossary": []
+}
+
+CONVERSATION HISTORY:
+${forgeHistory.map(m => `[${m.role.toUpperCase()}]: ${m.content}`).join('\n\n').substring(0, 8000)}
+
+Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fences or explanation.`;
+
+            try {
+                setForgeLoading(true, 'BIRTHING MISSION...');
+                log('Calling AI to structure mission data...', 'info');
+
+                const res = await fetch(FORGE_PROXY, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: context, model: selectedModel })
+                });
+
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
+
+                // Try to parse JSON from response
+                try {
+                    // Clean up response - remove markdown fences if present
+                    let jsonStr = reply.trim();
+                    if (jsonStr.startsWith('```json')) jsonStr = jsonStr.slice(7);
+                    if (jsonStr.startsWith('```')) jsonStr = jsonStr.slice(3);
+                    if (jsonStr.endsWith('```')) jsonStr = jsonStr.slice(0, -3);
+
+                    const parsed = JSON.parse(jsonStr.trim());
+
+                    // Merge with existing accumulatedData (preserving images, etc.)
+                    if (parsed.metadata) {
+                        accumulatedData.metadata = { ...accumulatedData.metadata, ...parsed.metadata };
+                    }
+                    if (parsed.slides && Array.isArray(parsed.slides)) {
+                        // Merge slides, preserving existing images
+                        parsed.slides.forEach((slide, i) => {
+                            if (!accumulatedData.slides) accumulatedData.slides = [];
+                            if (accumulatedData.slides[i]) {
+                                accumulatedData.slides[i] = { ...accumulatedData.slides[i], ...slide };
+                            } else {
+                                accumulatedData.slides[i] = slide;
+                            }
+                        });
+                    }
+                    if (parsed.intelligenceGlossary) {
+                        accumulatedData.intelligenceGlossary = parsed.intelligenceGlossary;
+                    }
+
+                    log('Mission data structured successfully!', 'success');
+
+                } catch (parseErr) {
+                    log('AI response was not valid JSON, storing raw response', 'warning');
+                    accumulatedData.rawBirthResponse = reply;
+                }
+
+                // Re-render birth screen
+                renderBirthScreen();
+
+            } catch (e) {
+                log(`Birth failed: ${e.message}`, 'error');
+                alert(`Birth failed: ${e.message}`);
+            } finally {
+                setForgeLoading(false);
+            }
+        }
+
+        function downloadBirthedBlob() {
+            const title = accumulatedData?.metadata?.title || 'mission';
+            const id = accumulatedData?.metadata?.id || 'MISSION_' + Date.now();
+
+            // Ensure minimum structure
+            if (!accumulatedData.metadata) accumulatedData.metadata = {};
+            accumulatedData.metadata.id = id;
+            accumulatedData.metadata.title = title;
+            accumulatedData.metadata.exportedAt = new Date().toISOString();
+
+            const blob = new Blob([JSON.stringify(accumulatedData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${id}.blob`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            log(`Downloaded ${id}.blob`, 'success');
         }
 
         function resetPipeline() {
