@@ -1810,7 +1810,7 @@ Loading accumulated data...
         let tokenClient;
         // We will store the token in CONFIG.gl_token to match image_forge logic exactly
         if (typeof CONFIG === 'undefined') window.CONFIG = {};
-        CONFIG.gl_token = "";
+        CONFIG.gl_token = sessionStorage.getItem('TM_GCP_TOKEN') || "";
 
         function handleCredentialResponse(response) {
             try {
@@ -1914,6 +1914,7 @@ Loading accumulated data...
                         callback: (resp) => {
                             if (resp.access_token) {
                                 CONFIG.gl_token = resp.access_token;
+                                sessionStorage.setItem('TM_GCP_TOKEN', resp.access_token);
                                 log("GCP_OAUTH: Access Token Acquired successfully.", "success");
                                 const btn = document.getElementById('btn-gcp-login');
                                 if (btn) {
@@ -1927,6 +1928,17 @@ Loading accumulated data...
                             }
                         }
                     });
+
+                    // Restore UI State if token already in session
+                    if (CONFIG.gl_token) {
+                        const btn = document.getElementById('btn-gcp-login');
+                        if (btn) {
+                            btn.innerText = "GOOGLE LOGGED IN";
+                            btn.style.background = "#0f0";
+                            btn.style.color = "#000";
+                        }
+                        log("GSI_ENGINE: Restored existing Session Token.", "success");
+                    }
                     log("GSI Client Ready.", 'success');
                 } else {
                     setTimeout(initGoogleAuth, 500); // Retry if script not parsed yet
@@ -3797,11 +3809,18 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             localStorage.setItem('TM_TEACHER_HANDLE', handle);
 
             // Google Cloud
+            const newClientId = document.getElementById('set-gcp-client-id').value.trim();
+            const oldClientId = localStorage.getItem('TM_GCP_CLIENT_ID');
+            if (newClientId !== oldClientId) {
+                sessionStorage.removeItem('TM_GCP_TOKEN'); // Clear token if project changes
+                if (typeof CONFIG !== 'undefined') CONFIG.gl_token = "";
+            }
+
             localStorage.setItem('TM_GCP_PROJECT', document.getElementById('set-gcp-project').value.trim());
             localStorage.setItem('TM_GCP_LOCATION', document.getElementById('set-gcp-location').value.trim());
             localStorage.setItem('TM_GCP_MODEL', document.getElementById('set-gcp-model').value.trim());
             localStorage.setItem('TM_GCP_KEY', document.getElementById('set-gcp-key').value.trim());
-            localStorage.setItem('TM_GCP_CLIENT_ID', document.getElementById('set-gcp-client-id').value.trim());
+            localStorage.setItem('TM_GCP_CLIENT_ID', newClientId);
 
             alert("Settings Saved. Refreshing to apply changes.");
             location.reload();
