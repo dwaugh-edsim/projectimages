@@ -1786,6 +1786,20 @@ Loading accumulated data...
                         style="font-size:0.6rem; color:var(--forge-accent); margin-top:15px; letter-spacing:2px;">
                         PROCESSING...</div>
                 </div>
+
+                <!-- DEBUG CONSOLE (FORGE PHASE ADAPTATION) -->
+                <div id="debug-terminal-container"
+                    style="padding: 20px; background: #000; border-top: 1px solid #222; margin-top: auto;">
+                    <div
+                        style="font-family: var(--font-tech); font-size: 0.6rem; color: var(--forge-accent); letter-spacing: 2px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>DEBUG_TERMINAL // SESSION_LIVE</span>
+                        <span onclick="document.getElementById('debug-console').innerHTML=''"
+                            style="cursor:pointer; opacity:0.5;">[CLEAR]</span>
+                    </div>
+                    <div id="debug-console"
+                        style="height: 120px; overflow-y: auto; font-family: var(--font-tech); font-size: 0.7rem; color: #0f0; line-height: 1.4; white-space: pre-wrap;">
+                        [SYSTEM READY] Awaiting Forge commands...</div>
+                </div>
         </div>
     </main>
     </div>
@@ -1878,39 +1892,48 @@ Loading accumulated data...
         }
 
         function initGoogleAuth() {
-            log("GSI_ENGINE: Establishing Secure Identity Link...");
             try {
-                const clientId = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
-                // Identity Sign-in
-                google.accounts.id.initialize({
-                    client_id: clientId,
-                    callback: handleCredentialResponse
-                });
-                google.accounts.id.renderButton(
-                    document.getElementById("google-signin-container"),
-                    { theme: "outline", size: "large", width: 250 }
-                );
+                if (typeof google !== 'undefined' && google.accounts) {
+                    log("GSI_ENGINE: Establishing Secure Identity Link...");
+                    const clientId = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
 
-                // OAuth2 Token Client for Image Gen credits
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.tuning https://www.googleapis.com/auth/generative-language.retriever',
-                    callback: (resp) => {
-                        if (resp.access_token) {
-                            CONFIG.gl_token = resp.access_token;
-                            log("GCP_OAUTH: Access Token Acquired successfully.", "success");
-                            const btn = document.getElementById('btn-gcp-login');
-                            if (btn) {
-                                btn.innerText = "GOOGLE LOGGED IN";
-                                btn.style.background = "#0f0";
-                                btn.style.color = "#000";
+                    // Identity Sign-in
+                    google.accounts.id.initialize({
+                        client_id: clientId,
+                        callback: handleCredentialResponse
+                    });
+                    google.accounts.id.renderButton(
+                        document.getElementById("google-signin-container"),
+                        { theme: "outline", size: "large", width: 250 }
+                    );
+
+                    // OAuth2 Token Client for Image Gen credits
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: clientId,
+                        scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.tuning https://www.googleapis.com/auth/generative-language.retriever',
+                        callback: (resp) => {
+                            if (resp.access_token) {
+                                CONFIG.gl_token = resp.access_token;
+                                log("GCP_OAUTH: Access Token Acquired successfully.", "success");
+                                const btn = document.getElementById('btn-gcp-login');
+                                if (btn) {
+                                    btn.innerText = "GOOGLE LOGGED IN";
+                                    btn.style.background = "#0f0";
+                                    btn.style.color = "#000";
+                                }
+                            } else if (resp.error) {
+                                log(`GCP_OAUTH ERROR: ${resp.error} - ${resp.error_description || 'Check Test User / Javascript Origin'}`, "error");
+                                console.error("OAuth Response Error:", resp);
                             }
                         }
-                    }
-                });
+                    });
+                    log("GSI Client Ready.", 'success');
+                } else {
+                    setTimeout(initGoogleAuth, 500); // Retry if script not parsed yet
+                }
             } catch (e) {
                 console.error("GSI Init Error:", e);
-                document.getElementById('auth-status').innerText = "GSI_INITIALIZATION_ERROR";
+                log("GSI_INITIALIZATION_ERROR: " + e.message, "error");
             }
         }
 
@@ -2103,10 +2126,23 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
         };
 
         function log(m, t = "info") {
-            const c = document.getElementById('console'); const color = t === "success" ? "lime" : t === "error" ? "red" : "#0f0";
-            if (!c) return;
-            c.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${m}</div>`;
-            c.scrollTop = c.scrollHeight;
+            const timestamp = new Date().toLocaleTimeString();
+            const color = t === "success" ? "lime" : t === "error" ? "red" : t === "warning" ? "yellow" : "#0f0";
+            const entry = `<div style="color:${color}">[${timestamp}] ${m}</div>`;
+
+            // Hub Console
+            const c = document.getElementById('console');
+            if (c) {
+                c.innerHTML += entry;
+                c.scrollTop = c.scrollHeight;
+            }
+
+            // Forge Console
+            const dc = document.getElementById('debug-console');
+            if (dc) {
+                dc.innerHTML += entry;
+                dc.scrollTop = dc.scrollHeight;
+            }
         }
         function setStatus(s, t) {
             const light = document.getElementById('s-light');
