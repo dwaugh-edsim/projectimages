@@ -3553,7 +3553,19 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 });
 
                 const data = await res.json();
-                const reply = data.choices[0].message.content;
+
+                // Handle different API response formats
+                let reply;
+                if (data.choices && data.choices[0]?.message?.content) {
+                    reply = data.choices[0].message.content;
+                } else if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    reply = data.candidates[0].content.parts[0].text;
+                } else if (data.error) {
+                    throw new Error(data.error.message || 'API returned an error');
+                } else {
+                    console.error('Unexpected API response:', data);
+                    throw new Error('Unexpected API response format. Check console for details.');
+                }
 
                 // Try to parse JSON from response
                 try {
