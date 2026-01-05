@@ -13,6 +13,7 @@
         const SB_URL = localStorage.getItem('TM_SUPABASE_URL') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_URL : '');
         const SB_KEY = localStorage.getItem('TM_SUPABASE_KEY') || (typeof CONFIG !== 'undefined' ? CONFIG.SB_KEY : '');
         const TEACHER_HANDLE = localStorage.getItem('TM_TEACHER_HANDLE') || (typeof CONFIG !== 'undefined' ? CONFIG.TEACHER_ID : '');
+        let GOOGLE_CLIENT_ID = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com"; // User configurable
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1786,7 +1787,6 @@ Loading accumulated data...
         let allProgress = [];
         let currentMissions = []; // MISSION_IDS FOR ASSIGNMENT
         let googleUser = null;
-        let GOOGLE_CLIENT_ID = "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com"; // Matched to image_forge.html
         let tokenClient;
         // We will store the token in CONFIG.gl_token to match image_forge logic exactly
         if (typeof CONFIG === 'undefined') window.CONFIG = {};
@@ -1874,9 +1874,10 @@ Loading accumulated data...
         function initGoogleAuth() {
             log("GSI_ENGINE: Establishing Secure Identity Link...");
             try {
+                const clientId = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
                 // Identity Sign-in
                 google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
+                    client_id: clientId,
                     callback: handleCredentialResponse
                 });
                 google.accounts.id.renderButton(
@@ -1886,7 +1887,7 @@ Loading accumulated data...
 
                 // OAuth2 Token Client for Image Gen credits
                 tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: GOOGLE_CLIENT_ID,
+                    client_id: clientId,
                     scope: 'https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/generative-language.tuning https://www.googleapis.com/auth/generative-language.retriever',
                     callback: (resp) => {
                         if (resp.access_token) {
@@ -3731,6 +3732,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 document.getElementById('set-gcp-location').value = localStorage.getItem('TM_GCP_LOCATION') || "us-central1";
                 document.getElementById('set-gcp-model').value = localStorage.getItem('TM_GCP_MODEL') || "gemini-1.5-flash";
                 document.getElementById('set-gcp-key').value = localStorage.getItem('TM_GCP_KEY') || "";
+                document.getElementById('set-gcp-client-id').value = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
 
                 if (CONFIG.gl_token) {
                     const btn = document.getElementById('btn-gcp-login');
@@ -3757,6 +3759,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             localStorage.setItem('TM_GCP_LOCATION', document.getElementById('set-gcp-location').value.trim());
             localStorage.setItem('TM_GCP_MODEL', document.getElementById('set-gcp-model').value.trim());
             localStorage.setItem('TM_GCP_KEY', document.getElementById('set-gcp-key').value.trim());
+            localStorage.setItem('TM_GCP_CLIENT_ID', document.getElementById('set-gcp-client-id').value.trim());
 
             alert("Settings Saved. Refreshing to apply changes.");
             location.reload();
@@ -5228,7 +5231,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (!id || !name || !raw) return log("ABORTED: Missing required parameters.", "error");
             log(`Opening stream for Capsule [${id}]...`);
 
-            const teacherId = (typeof googleUser !== 'undefined') ? googleUser.email : 'GUEST';
+            const teacherId = (typeof googleUser !== 'undefined' && googleUser) ? googleUser.email : 'GUEST';
             const payload = JSON.parse(raw);
 
             // [Telemetry v0.50] Inject logging target into mission metadata
@@ -5651,6 +5654,12 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                                 <option value="gemini-3.0-pro-image-preview">Gemini 3.0 Pro (Image)</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div>
+                        <label style="font-size:0.55rem; color:#888;">GOOGLE CLIENT ID (FOR 403 ERRORS)</label>
+                        <input type="text" id="set-gcp-client-id" class="settings-input"
+                            placeholder="000000000000-xxxxx.apps.googleusercontent.com">
                     </div>
 
                     <p style="font-size:0.55rem; color:#888; margin:0; font-style:italic;">
