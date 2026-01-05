@@ -2336,8 +2336,13 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 return;
             }
 
-            // Check if next phase is locked
-            const nextPhase = FORGE_PHASES[forgePipeline[currentPhaseIndex + 1]];
+            // Unlock Birth phase if advancing from Media
+            if (currentPhase.id === 'assets' && nextPhase.id === 'birth') {
+                nextPhase.locked = false;
+                log('Birth phase unlocked', 'info');
+            }
+
+            // Check if next phase is still locked after potential unlocking
             if (nextPhase.locked) {
                 alert('The next phase is locked. Complete current phase requirements first.');
                 return;
