@@ -4287,48 +4287,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         // --- END CURRICULUM ---
 
         // --- BIRTH & HOSPITAL ---
-        function birthMission() {
-            setForgeLoading(true, "STABILIZING BIOLOGICAL DATA...");
-            const lastReply = forgeHistory.filter(m => m.role === 'assistant').pop()?.content;
-            if (!lastReply) {
-                setForgeLoading(false);
-                return alert("NO BIOLOGICAL MATERIAL DETECTED.");
-            }
-
-            try {
-                // RESILIENT PARSING: Strip markdown fences if present, then find the main JSON object
-                let cleanStr = lastReply.trim();
-                if (cleanStr.includes("```")) {
-                    // Try to extract content between fences
-                    const match = cleanStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-                    if (match) cleanStr = match[1].trim();
-                }
-
-                // Final isolation: Find the first { and last }
-                const start = cleanStr.indexOf('{');
-                const end = cleanStr.lastIndexOf('}');
-
-                if (start === -1 || end === -1) throw new Error("No JSON object found in AI response.");
-
-                const jsonStr = cleanStr.substring(start, end + 1);
-                accumulatedData = JSON.parse(jsonStr);
-
-                // INJECT AUTH DATA
-                if (googleUser && accumulatedData.metadata) {
-                    accumulatedData.metadata.author = googleUser.name;
-                    accumulatedData.metadata.authorEmail = googleUser.email;
-                    log(`IDENTITY INJECTED: Mission authored by ${googleUser.name}`, "success");
-                }
-
-                addForgeChat("ai", "!!! BIRTH SUCCESSFUL. Initiating clinical review in the Surgical Hospital.");
-                openHospital();
-            } catch (e) {
-                console.error("Birth Error:", e);
-                addForgeChat("ai", `!! BIRTH TRAUMA: Parser failed. [Detail: ${e.message}]. Please ask the AI to re-output the RAW JSON block starting with { and ending with }.`);
-            } finally {
-                setForgeLoading(false);
-            }
-        }
+        // NOTE: birthMission is defined earlier (async version with AI call)
 
         function openHospital() {
             // v73.SB UI: Hide main panels for surgical focus
