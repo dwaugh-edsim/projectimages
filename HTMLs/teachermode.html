@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -3364,6 +3364,49 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
         }
 
+
+        function sanitizeForBirth(data) {
+            // Create a deep copy and strip base64 image data, keeping only R2 URLs
+            const sanitized = JSON.parse(JSON.stringify(data));
+
+            // Helper to check if a string is a base64 data URI
+            const isBase64 = (str) => {
+                return typeof str === 'string' && str.startsWith('data:image');
+            };
+
+            // Helper to filter image URLs (only keep R2/HTTP URLs, remove base64)
+            const filterImageUrl = (url) => {
+                if (!url) return '';
+                if (isBase64(url)) return ''; // Strip base64
+                return url; // Keep R2/HTTP URLs
+            };
+
+            // Sanitize metadata
+            if (sanitized.metadata) {
+                sanitized.metadata.heroImage = filterImageUrl(sanitized.metadata.heroImage);
+            }
+
+            // Sanitize slides
+            if (Array.isArray(sanitized.slides)) {
+                sanitized.slides.forEach(slide => {
+                    // Filter slide-level images
+                    slide.image = filterImageUrl(slide.image);
+                    slide.mediaURL = filterImageUrl(slide.mediaURL);
+
+                    // Filter tab images
+                    if (slide.tabs) {
+                        Object.keys(slide.tabs).forEach(tabKey => {
+                            const tab = slide.tabs[tabKey];
+                            if (tab && tab.image) {
+                                tab.image = filterImageUrl(tab.image);
+                            }
+                        });
+                    }
+                });
+            }
+
+            return sanitized;
+        }
         function downloadBirthedBlob() {
             const title = accumulatedData?.metadata?.title || 'mission';
             const id = accumulatedData?.metadata?.id || 'MISSION_' + Date.now();
@@ -3374,7 +3417,10 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             accumulatedData.metadata.title = title;
             accumulatedData.metadata.exportedAt = new Date().toISOString();
 
-            const blob = new Blob([JSON.stringify(accumulatedData, null, 2)], { type: 'application/json' });
+            // Sanitize: strip base64 data, keep only R2 URLs
+            const sanitized = sanitizeForBirth(accumulatedData);
+
+            const blob = new Blob([JSON.stringify(sanitized, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
             const a = document.createElement('a');
