@@ -1203,8 +1203,14 @@
             try {
                 // Initialize Supabase
                 const params = new URLSearchParams(window.location.search);
-                const sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL');
-                const sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY');
+                let sbUrl = params.get('sb_url') || localStorage.getItem('ST_SB_URL');
+                let sbKey = params.get('sb_key') || localStorage.getItem('ST_SB_KEY');
+
+                // FAILSAFE: If connection info is missing, prompt once (useful for testing/first time)
+                if (!sbUrl || !sbKey) {
+                    sbUrl = prompt("SECURITY PROTOCOL: Missing Supabase URL. Please provide URL:");
+                    sbKey = prompt("SECURITY PROTOCOL: Missing Supabase API Key. Please provide Key:");
+                }
 
                 if (sbUrl && sbKey) {
                     SupabaseBridge.init(sbUrl, sbKey);
@@ -1212,7 +1218,10 @@
                     localStorage.setItem('ST_SB_KEY', sbKey);
                 }
 
-                if (!SupabaseBridge.client) throw new Error("Supabase disconnected.");
+                if (!SupabaseBridge.client) {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    return alert("IDENTITY VERIFICATION FAILED: Supabase disconnected. Please ensure URL and KEY are provided via Link or Prompt.");
+                }
 
                 // FETCH OR CREATE STUDENT PROFILE
                 const studentProfile = await SupabaseBridge.getOrCreateStudent(name, pin);
