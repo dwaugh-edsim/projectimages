@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS public.classes (
     class_name TEXT NOT NULL,      -- Display name (e.g. Period 1 - History)
     sb_url TEXT,                   -- (Optional) Override Supabase URL
     sb_key TEXT,                   -- (Optional) Override Supabase Key
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Enable RLS
@@ -42,7 +43,8 @@ CREATE TABLE IF NOT EXISTS public.simulation_logs (
     decision_json JSONB,
     rationale TEXT,
     score INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 ALTER TABLE public.simulation_logs ENABLE ROW LEVEL SECURITY;

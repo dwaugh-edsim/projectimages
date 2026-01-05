@@ -377,5 +377,27 @@ const SupabaseBridge = {
             console.error("Supabase Bridge [fetchClasses] Error:", e);
             throw e;
         }
+    },
+
+    async updateClass(classId, updates) {
+        if (!this.client) return false;
+        if (updates.passcode) updates.passcode = updates.passcode.toUpperCase();
+        const { data, error } = await this.client
+            .from('classes')
+            .update({ ...updates, updated_at: new Date().toISOString() })
+            .eq('id', classId)
+            .select();
+        if (error) throw error;
+        return data;
+    },
+
+    async deleteClass(classId) {
+        if (!this.client) return false;
+        const { error } = await this.client
+            .from('classes')
+            .delete()
+            .eq('id', classId);
+        if (error) throw error;
+        return true;
     }
 };

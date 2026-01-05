@@ -1699,6 +1699,7 @@ Loading accumulated data...
     </div>
     <script>
         let allProgress = [];
+        let currentMissions = []; // MISSION_IDS FOR ASSIGNMENT
         let googleUser = null;
         let GOOGLE_CLIENT_ID = "503537759984-imeg79p1djl1csnselh3jaqqofmi5gem.apps.googleusercontent.com";
 
@@ -3873,6 +3874,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                     await SupabaseBridge.saveClass(tId, className, code);
                     log(`CLASS REGISTERED: [${className}] Code: ${code}`, "success");
                     alert(`Class Registered!\n\nName: ${className}\nCode: ${code}\n\nGive this code to your students.`);
+                    refreshClasses(); // AUTOMATIC REFRESH
                 } catch (e) {
                     log("Class Registration Failed: " + e.message, "error");
                     alert("Failed to register class: " + e.message);
@@ -3914,13 +3916,21 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                 return;
             }
 
-            let h = '<div style="display:flex; flex-direction:column; gap:5px;">';
+            let h = '<div style="display:flex; flex-direction:column; gap:8px;">';
             let filterHtml = '<option value="ALL">ALL CLASSES</option>';
 
             classes.forEach(c => {
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px; border-bottom:1px solid #f0f0f0;">
-                    <span style="font-weight:bold;">${c.class_name}</span>
-                    <span style="font-family:var(--font-tech); color:var(--accent); font-weight:bold; background:#000; padding:2px 6px; border-radius:3px;">${c.passcode}</span>
+                h += `
+                <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-weight:bold; color:#111;">${c.class_name}</span>
+                        <span style="font-family:var(--font-tech); color:var(--accent); font-weight:bold; background:#000; padding:2px 8px; border-radius:3px; font-size:0.8rem;">${c.passcode}</span>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn" style="flex:1; padding:4px; font-size:0.5rem; background:#444;" onclick="editClassUI(${c.id}, '${c.class_name.replace(/'/g, "\\'")}', '${c.passcode}')">EDIT</button>
+                        <button class="btn" style="flex:1; padding:4px; font-size:0.5rem; background:var(--forge-accent);" onclick="manageMissionsUI(${c.id})">MISSIONS</button>
+                        <button class="btn" style="flex:0.5; padding:4px; font-size:0.5rem; background:#c00;" onclick="deleteClassUI(${c.id}, '${c.class_name.replace(/'/g, "\\'")}')">DEL</button>
+                    </div>
                 </div>`;
                 filterHtml += `<option value="${c.class_name}">${c.class_name}</option>`;
             });
@@ -3928,6 +3938,105 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
             if (list) list.innerHTML = h;
             if (filter) filter.innerHTML = filterHtml;
             if (projFilter) projFilter.innerHTML = filterHtml;
+        }
+
+        async function editClassUI(id, currentName, currentCode) {
+            const newName = prompt("Update Class Name:", currentName);
+            if (newName === null) return;
+            const newCode = prompt("Update 5-Letter Code:", currentCode);
+            if (newCode === null) return;
+
+            if (newName === currentName && newCode === currentCode) return;
+
+            try {
+                await SupabaseBridge.updateClass(id, { class_name: newName, passcode: newCode.toUpperCase() });
+                log(`CLASS UPDATED: ${newName}`, "success");
+                refreshClasses();
+            } catch (e) { log("Update Failed: " + e.message, "error"); }
+        }
+
+        async function deleteClassUI(id, name) {
+            if (!confirm(`Permanently delete class [${name}]? Students using this code will be locked out.`)) return;
+            try {
+                await SupabaseBridge.deleteClass(id);
+                log(`CLASS DELETED: ${name}`, "warning");
+                refreshClasses();
+            } catch (e) { log("Delete Failed: " + e.message, "error"); }
+        }
+
+        // assignedMissions is a placeholder for the modal logic
+        let activeClassId = null;
+
+        async function manageMissionsUI(classId) {
+            activeClassId = classId;
+            const modal = document.getElementById('mission-modal');
+            const info = document.getElementById('modal-class-info');
+            const list = document.getElementById('mission-selection-list');
+
+            if (!SupabaseBridge.client) {
+                alert("Supabase not connected.");
+                return;
+            }
+
+            try {
+                // Get class details to know current assignments
+                const tId = googleUser?.email || 'GUEST';
+                const classes = await SupabaseBridge.fetchClasses(tId);
+                const cls = classes.find(c => c.id === classId);
+                const assignedIds = cls.mission_ids || [];
+
+                info.innerHTML = `Class: <strong>${cls.class_name}</strong> | Code: <strong>${cls.passcode}</strong>`;
+
+                // Get all available missions
+                if (!currentMissions || currentMissions.length === 0) {
+                    list.innerHTML = `<div style="color:#666; font-size:0.7rem;">No dossiers found in archive. Please create a mission first.</div>`;
+                } else {
+                    let h = '';
+                    currentMissions.forEach(m => {
+                        const isAssigned = assignedIds.includes(m.id);
+                        const checked = isAssigned ? 'checked' : '';
+                        h += `
+                            <label style="display:flex; align-items:center; gap:12px; background:#1a1a1a; padding:12px; border:1px solid #333; border-radius:4px; cursor:pointer; margin-bottom:0; transition:all 0.2s;">
+                                <input type="checkbox" class="mission-checkbox" value="${m.id}" ${checked} style="width:20px; height:20px; accent-color:var(--accent); cursor:pointer; margin:0;">
+                                <div style="display:flex; flex-direction:column;">
+                                    <span style="font-size:0.75rem; font-weight:bold; color:${isAssigned ? 'var(--accent)' : '#fff'};">${m.name}</span>
+                                    <span style="font-size:0.55rem; color:#666; font-family:var(--font-tech);">${m.id}</span>
+                                </div>
+                            </label>
+                        `;
+                    });
+                    list.innerHTML = h;
+                }
+
+                modal.style.display = 'flex';
+            } catch (e) {
+                log("Failed to load assignments: " + e.message, "error");
+            }
+        }
+
+        function closeMissionModal() {
+            document.getElementById('mission-modal').style.display = 'none';
+            activeClassId = null;
+        }
+
+        async function saveMissionAssignment() {
+            if (!activeClassId) return;
+            const checkboxes = document.querySelectorAll('.mission-checkbox');
+            const selectedIds = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) selectedIds.push(cb.value);
+            });
+
+            log(`Syncing assignments for class ${activeClassId}...`);
+            try {
+                await SupabaseBridge.updateClass(activeClassId, { mission_ids: selectedIds });
+                log("MISSIONS ASSIGNED SUCCESSFULLY.", "success");
+                closeMissionModal();
+                refreshClasses();
+            } catch (e) {
+                log("Save Failed: " + e.message, "error");
+                alert("Failed to save assignments: " + e.message);
+            }
         }
 
         async function finalizeForge() {
@@ -3971,6 +4080,7 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                     const missions = await SupabaseBridge.fetchMissions(teacherId);
                     log(`Supabase Handshake Successful. Found ${missions.length} mission(s).`, "success");
                     localStorage.setItem('TM_MISSION_CACHE', JSON.stringify(missions));
+                    currentMissions = missions; // POPULATE GLOBAL CACHE FOR ASSIGNMENT
                     renderMissions(missions);
                     setStatus("online", "SUPABASE_CONNECTED");
                 } catch (e) {
@@ -4381,6 +4491,28 @@ Rules: Standard Sentence Case. No All-Caps sections. Use Markdown.
                     style="flex:2; background:var(--forge-accent); font-size:0.7rem;">SAVE CONFIG</button>
                 <button class="btn" onclick="toggleSettings()"
                     style="flex:1; background:#333; font-size:0.7rem;">CANCEL</button>
+            </div>
+        </div>
+    </div>
+    <!-- MISSION ASSIGNMENT MODAL -->
+    <div id="mission-modal"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:5000; align-items:center; justify-content:center; padding:20px;">
+        <div
+            style="background:#111; border:1px solid var(--accent); width:100%; max-width:500px; padding:30px; border-radius:8px; box-shadow:0 0 50px rgba(0,255,204,0.2);">
+            <h2
+                style="font-family:var(--font-h); color:var(--accent); margin-top:0; letter-spacing:2px; font-size:1.2rem;">
+                ASSIGN DOSSIERS</h2>
+            <div id="modal-class-info"
+                style="font-size:0.7rem; color:#888; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px;">
+            </div>
+            <div id="mission-selection-list"
+                style="max-height:300px; overflow-y:auto; margin-bottom:20px; display:flex; flex-direction:column; gap:10px;">
+                <!-- Missions will be injected here -->
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="flex:1; background:var(--forge-accent);"
+                    onclick="saveMissionAssignment()">SAVE ASSIGNMENTS</button>
+                <button class="btn" style="flex:0.5; background:#333;" onclick="closeMissionModal()">CANCEL</button>
             </div>
         </div>
     </div>

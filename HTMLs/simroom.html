@@ -1228,6 +1228,8 @@
                     if (classConfig) {
                         teacherId = classConfig.teacher_id;
                         className = classConfig.class_name;
+                        // CAPTURE ASSIGNED MISSIONS
+                        assignedMissionIds = classConfig.mission_ids || [];
                         localStorage.setItem('ST_TEACHER_ID', teacherId);
                         console.log(`AUTHENTICATED: Code ${classCode} resolved to ${className} (Teacher: ${teacherId})`);
                     }
@@ -1240,7 +1242,8 @@
                     missions: {},
                     class: className,
                     classCode: classCode,
-                    teacherId: teacherId
+                    teacherId: teacherId,
+                    assignedMissionIds: assignedMissionIds // PERSIST IN SESSION
                 };
 
                 user.encryptionKey = await CriticalCrypto.deriveKey(classCode, classCode);
@@ -1271,7 +1274,17 @@
             if (SupabaseBridge.client) {
                 try {
                     const teacherId = user.teacherId || 'GUEST';
-                    missionsAvailable = await SupabaseBridge.fetchMissions(teacherId);
+                    const allMissions = await SupabaseBridge.fetchMissions(teacherId);
+
+                    // [Migration v77] FILTER BY CLASS ASSIGNMENT
+                    // If the teacher has assigned specific missions, show ONLY those.
+                    // If no missions are assigned yet (newly created class), show none to be safe.
+                    if (user.assignedMissionIds && Array.isArray(user.assignedMissionIds)) {
+                        missionsAvailable = allMissions.filter(m => user.assignedMissionIds.includes(m.id));
+                        console.log(`FILTER: Showing ${missionsAvailable.length} of ${allMissions.length} dossiers.`);
+                    } else {
+                        missionsAvailable = allMissions; // Fallback for old classes/guests
+                    }
                 } catch (e) {
                     console.error("Supabase Mission Fetch Failed:", e);
                     missionsAvailable = [];
