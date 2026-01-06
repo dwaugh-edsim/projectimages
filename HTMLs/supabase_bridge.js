@@ -399,7 +399,7 @@ const SupabaseBridge = {
             .from('classes')
             .delete()
             .eq('id', classId)
-            .eq('owner', teacherId)
+            .eq('teacher_id', teacherId)
             .select();
         if (error) throw error;
         return data; // Return record to verify deletion
