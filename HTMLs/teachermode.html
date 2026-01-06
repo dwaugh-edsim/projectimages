@@ -154,6 +154,9 @@
                 <div id="status-badge-sb" class="badge badge-outline badge-xs gap-1 font-mono">
                     <div class="w-1.5 h-1.5 rounded-full bg-error"></div> SB_OFFLINE
                 </div>
+                <div id="status-badge-auth" class="badge badge-outline badge-xs gap-1 font-mono opacity-50">
+                    GUEST
+                </div>
             </div>
         </div>
 
@@ -1299,7 +1302,17 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- AUTH & INIT ---
+        let gAuthInitialized = false;
         function initGoogleAuth() {
+            if (gAuthInitialized) {
+                // Already initialized, but ensure button is rendered if container is empty
+                const container = document.getElementById("google-signin-container");
+                if (container && container.innerHTML === "") {
+                    google.accounts.id.renderButton(container, { theme: "outline", size: "large", width: 280 });
+                }
+                return;
+            }
+
             log("GSI_ENGINE: Establishing Secure Identity Link...");
             try {
                 if (typeof google !== 'undefined' && google.accounts) {
@@ -1313,6 +1326,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         { theme: "outline", size: "large", width: 280 }
                     );
                     log("Google Auth Initialized.", "success");
+                    gAuthInitialized = true;
                 } else {
                     log("GSI Library not loaded yet.", "warning");
                 }
@@ -1331,23 +1345,59 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            googleUser = responsePayload;
+            try {
+                log("GSI_ENGINE: Received Credential Packet. Decoding...", "info");
+                const responsePayload = decodeJwtResponse(response.credential);
+                googleUser = responsePayload;
 
-            document.getElementById('status-badge-auth').innerText = "AUTH_OK";
-            document.getElementById('status-badge-auth').classList.remove('opacity-50');
-            document.getElementById('status-badge-auth').classList.add('text-success');
-            document.getElementById('user-avatar-initials').innerText = googleUser.given_name?.[0] || "U";
+                // Update UI Badges
+                const authBadge = document.getElementById('status-badge-auth');
+                if (authBadge) {
+                    authBadge.innerText = "AUTH_OK";
+                    authBadge.classList.remove('opacity-50');
+                    authBadge.classList.add('text-success');
+                }
 
-            log(`Identity Verified: ${googleUser.email}`, "success");
+                const avatar = document.getElementById('user-avatar-initials');
+                if (avatar) avatar.innerText = googleUser.given_name?.[0] || "U";
 
-            // Close the auth modal on successful login
-            const modal = document.getElementById('auth_modal');
-            if (modal) modal.close();
+                log(`Identity Verified: ${googleUser.email}`, "success");
 
-            // Refresh data with authenticated teacher ID
+                // Close the auth modal on successful login
+                const modal = document.getElementById('auth_modal');
+                if (modal) modal.close();
+
+                // Refresh data with authenticated teacher ID
+                refreshClasses();
+                fetchMissions();
+                fetchCurriculum();
+            } catch (e) {
+                console.error("Auth Callback Error:", e);
+                log(`Auth Failed: ${e.message}`, "error");
+            }
+        }
+
+        function googleLogout() {
+            log("LOGOUT: Terminating session...", "warning");
+            googleUser = null;
+
+            // Reset UI
+            const authBadge = document.getElementById('status-badge-auth');
+            if (authBadge) {
+                authBadge.innerText = "GUEST";
+                authBadge.classList.add('opacity-50');
+                authBadge.classList.remove('text-success');
+            }
+
+            const avatar = document.getElementById('user-avatar-initials');
+            if (avatar) avatar.innerText = "G";
+
+            // Re-render as guest
             refreshClasses();
             fetchMissions();
+
+            log("Session Terminated. Operating in Guest Mode.", "info");
+            openAuthModal(); // Prompt to sign back in
         }
 
         function decodeJwtResponse(token) {
