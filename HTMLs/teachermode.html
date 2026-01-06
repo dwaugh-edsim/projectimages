@@ -2762,19 +2762,23 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             };
 
             // 1. Cloud Save (if authenticated)
+            console.log("DEPLOY_DEBUG: SupabaseBridge.client:", !!SupabaseBridge.client, "googleUser:", !!googleUser);
             if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
                 try {
                     log(`Uploading to Command Cloud: ${missionId}...`);
+                    console.log("DEPLOY_DEBUG: Calling saveMission with teacherId:", getCurrentTeacherId());
                     await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, getCurrentTeacherId());
                     log("Cloud Upload Successful.", "success");
                     addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
                     fetchMissions(); // Update library UI
                     return; // EXIT FUNCTION - Do not force local download on success
                 } catch (e) {
+                    console.error("DEPLOY_DEBUG: Cloud Upload Error:", e);
                     log(`Cloud Upload Failed: ${e.message}. Falling back to local storage.`, "error");
                     alert("Cloud upload failed. One moment, initiating local backup...");
                 }
             } else {
+                console.warn("DEPLOY_DEBUG: Skipping cloud save. SupabaseBridge.client:", !!SupabaseBridge.client, "googleUser:", !!googleUser);
                 if (!googleUser) log("GUEST MODE: Saving local copy only.", "warning");
             }
 
