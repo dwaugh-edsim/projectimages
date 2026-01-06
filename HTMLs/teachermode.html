@@ -2425,7 +2425,23 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 intelligenceGlossary: cleanedData.intelligenceGlossary || []
             };
 
-            // Download Blob
+            // 1. Cloud Save (if authenticated)
+            if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
+                try {
+                    log(`Uploading to Command Cloud: ${missionId}...`);
+                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, googleUser.email);
+                    log("Cloud Upload Successful.", "success");
+                    addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
+                    fetchMissions(); // Update library UI
+                } catch (e) {
+                    log(`Cloud Upload Failed: ${e.message}. Falling back to local storage.`, "error");
+                    alert("Cloud upload failed. One moment, initiating local backup...");
+                }
+            } else {
+                if (!googleUser) log("GUEST MODE: Saving local copy only.", "warning");
+            }
+
+            // 2. Download Blob (Always provide local backup)
             const blob = new Blob([JSON.stringify(finalData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2436,8 +2452,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            log(`Mission Deployed: ${missionId}`, 'success');
-            addBuilderChat('ai', `**MISSION DEPLOYED.**\nDossier ID: \`${missionId}\`\nDownload initiated.`);
+            if (!googleUser) log(`Mission Deployed Locally: ${missionId}`, 'success');
         }
 
         // --- IDEA SAVE/LOAD SYSTEM ---
