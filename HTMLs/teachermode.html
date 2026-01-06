@@ -498,9 +498,18 @@
     <!-- SETTINGS MODAL -->
     <dialog id="settings_modal" class="modal">
         <div class="modal-box bg-base-100 border border-base-content/10">
-            <h3 class="font-bold text-lg font-display tracking-widest mb-4">SYSTEM CONFIGURATION</h3>
-
             <div class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-xs font-bold opacity-70">VERCEL AI PROXY URL
+                            (OpenRouter)</span></label>
+                    <input type="text" id="cfg-vercel-proxy" class="input input-bordered input-sm font-mono text-xs"
+                        placeholder="https://...vercel.app/api/chat">
+                    <label class="label"><span class="label-text-alt text-[0.6rem] opacity-50 italic">Priority 1:
+                            Connects to OpenRouter/Flux for story & assets.</span></label>
+                </div>
+
+                <div class="divider text-xs opacity-50">CLARK DIRECT (BACKUP)</div>
+
                 <div class="form-control">
                     <label class="label"><span class="label-text text-xs font-bold opacity-70">GOOGLE CLOUD API KEY
                             (Gemini)</span></label>
@@ -1010,11 +1019,41 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
         }
 
         async function callAI(prompt) {
+            // Priority 0: Vercel Proxy (OpenRouter / Flux / etc)
+            const vercelUrl = localStorage.getItem('TM_VERCEL_PROXY');
+            if (vercelUrl) {
+                console.log("callAI: Connecting via Vercel Proxy...", vercelUrl);
+                log(`AI Uplink: Vercel Proxy [${vercelUrl.substring(0, 20)}...]`, "info");
+                try {
+                    const res = await fetch(vercelUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: prompt })
+                    });
+                    const data = await res.json();
+                    console.log("callAI: Vercel Response:", data);
+
+                    // OpenRouter/Standard Proxy Format
+                    if (data.choices && data.choices[0]) {
+                        const text = data.choices[0].message.content;
+                        log("Proxy Intel Acquired.", "success");
+                        return text;
+                    }
+                    if (data.message) { // Direct message format
+                        return data.message;
+                    }
+                    throw new Error("Proxy response format invalid.");
+                } catch (e) {
+                    console.error("callAI: Vercel Proxy Error:", e);
+                    log(`Proxy Error: ${e.message}`, "warning");
+                }
+            }
+
             // Priority 1: Google Cloud Direct (via Config or LocalStorage)
             const gcpKey = localStorage.getItem('TM_GCP_KEY') || (typeof CONFIG !== 'undefined' ? CONFIG.GCP_KEY : '');
 
             console.log("callAI: Checking GCP Key...", gcpKey ? `Key found (${gcpKey.substring(0, 8)}...)` : "NO KEY");
-            log(`AI Uplink: ${gcpKey ? 'GCP Key detected' : 'NO API KEY - using simulation'}`, gcpKey ? 'info' : 'warning');
+            log(`AI Uplink: ${gcpKey ? 'GCP Key detected' : 'Proxy offline/missing - using backup'}`, gcpKey ? 'info' : 'warning');
 
             if (gcpKey) {
                 // Gemini API Path
@@ -1052,7 +1091,7 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
 
             // Fallback: Smart Simulation (for UI testing or offline)
             console.log("callAI: Using SIMULATION mode");
-            log("Simulation Mode Active - No API Key", "warning");
+            log("Simulation Mode Active - No Uplink Detected", "warning");
             await new Promise(r => setTimeout(r, 1000));
             const simResponses = [
                 "**INTEL ACQUIRED.** \nBased on your parameters, I suggest a scenario involving a diplomatic standoff in the South China Sea. \n\n**Option A**: Naval blockade. \n**Option B**: Cyber-attack on infrastructure. \n\nPlease advise on vector.",
@@ -1503,6 +1542,7 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                 }
 
                 const ids = {
+                    'cfg-vercel-proxy': 'TM_VERCEL_PROXY',
                     'cfg-gcp-key': 'TM_GCP_KEY',
                     'cfg-gcp-project': 'TM_GCP_PROJECT',
                     'cfg-gcp-location': 'TM_GCP_LOCATION',
@@ -1538,6 +1578,7 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
         function saveSettings() {
             try {
                 const mappings = {
+                    'cfg-vercel-proxy': 'TM_VERCEL_PROXY',
                     'cfg-gcp-key': 'TM_GCP_KEY',
                     'cfg-gcp-project': 'TM_GCP_PROJECT',
                     'cfg-gcp-location': 'TM_GCP_LOCATION',
