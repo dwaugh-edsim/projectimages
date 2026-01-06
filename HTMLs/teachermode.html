@@ -1447,9 +1447,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 const isAuthorized = AUTHORIZED_TEACHERS.includes(googleUser.email);
 
                 // TEACHER HANDLE LOGIC
-                // If a handle is set, we treat that as the teacherId for DB ops
-                const savedHandle = localStorage.getItem('TM_TEACHER_HANDLE');
-                const teacherId = savedHandle || googleUser.email;
+                const teacherId = getCurrentTeacherId();
 
                 // Update Dashboard Stat
                 const codeEl = document.getElementById('dash-stat-teacher-code');
@@ -1457,7 +1455,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 if (codeEl) {
                     codeEl.innerText = teacherId;
                     codeEl.classList.remove('text-info'); // Reset colors
-                    if (savedHandle) {
+                    if (localStorage.getItem('TM_TEACHER_HANDLE')) {
                         codeEl.classList.add('text-warning');
                         descEl.innerHTML = `<span class="text-warning font-bold">⚠️ USING ALIAS HANDLE</span> (Privacy Mode)`;
                     } else {
@@ -1465,6 +1463,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         descEl.innerText = "Students use this email to join";
                     }
                 }
+
+
 
                 // Update UI Badges
                 const authBadge = document.getElementById('status-badge-auth');
@@ -2765,7 +2765,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
                 try {
                     log(`Uploading to Command Cloud: ${missionId}...`);
-                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, googleUser.email);
+                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, getCurrentTeacherId());
                     log("Cloud Upload Successful.", "success");
                     addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
                     fetchMissions(); // Update library UI
@@ -3751,7 +3751,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (!className) return;
 
             const code = generateClassCode();
-            const tId = googleUser?.email || 'GUEST';
+            const tId = getCurrentTeacherId();
 
             if (!confirm(`Register new class [${className}] with code: ${code}?`)) return;
 
