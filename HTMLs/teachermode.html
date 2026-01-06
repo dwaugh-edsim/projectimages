@@ -2433,6 +2433,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     log("Cloud Upload Successful.", "success");
                     addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
                     fetchMissions(); // Update library UI
+                    return; // EXIT FUNCTION - Do not force local download on success
                 } catch (e) {
                     log(`Cloud Upload Failed: ${e.message}. Falling back to local storage.`, "error");
                     alert("Cloud upload failed. One moment, initiating local backup...");
@@ -2441,7 +2442,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 if (!googleUser) log("GUEST MODE: Saving local copy only.", "warning");
             }
 
-            // 2. Download Blob (Always provide local backup)
+            // 2. Download Blob (Fallback / Guest Mode)
             const blob = new Blob([JSON.stringify(finalData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
