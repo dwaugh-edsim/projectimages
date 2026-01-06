@@ -361,7 +361,7 @@ const SupabaseBridge = {
     async deleteIdea(ideaId, teacherId) {
         if (!this.client) {
             localStorage.removeItem(`TM_IDEA_${ideaId}`);
-            return true;
+            return [{ idea_id: ideaId }]; // Mock return for local storage
         }
 
         const { data, error } = await this.client
