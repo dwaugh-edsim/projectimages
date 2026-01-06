@@ -2792,7 +2792,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         // --- CLASS DIRECTORY LOGIC ---
         async function refreshClasses() {
             // Mock data if Supabase offline
-            // Mock data if Supabase offline
             // if (!SupabaseBridge.client) {
             //     renderClasses([]);
             //     return;
@@ -2800,6 +2799,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             try {
                 const classes = await SupabaseBridge.fetchClasses(googleUser?.email || 'GUEST');
+                window.activeClassesData = classes; // Store for local updates
                 renderClasses(classes);
             } catch (e) {
                 log("Class Sync Failed: " + e.message, "error");
@@ -3510,17 +3510,29 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         function confirmAssignment() {
-            // Mock assignment logic
             const checks = document.querySelectorAll('#assign_mission_modal input:checked');
             const ids = Array.from(checks).map(c => c.value);
 
             if (ids.length > 0) {
+                // Update local class data with assigned missions
+                if (window.activeClassesData) {
+                    const classToUpdate = window.activeClassesData.find(c => c.id === activeClassAssignId);
+                    if (classToUpdate) {
+                        if (!classToUpdate.mission_ids) classToUpdate.mission_ids = [];
+                        ids.forEach(id => {
+                            if (!classToUpdate.mission_ids.includes(id)) {
+                                classToUpdate.mission_ids.push(id);
+                            }
+                        });
+                        // Re-render the class list with updated data
+                        renderClasses(window.activeClassesData);
+                    }
+                }
+
                 log(`Assigned ${ids.length} missions to Class [${activeClassAssignId}].`, "success");
                 // Ideally: SupabaseBridge.assignMissions(activeClassAssignId, ids);
-                alert(`Mission(s) Assigned!\nIDs: ${ids.join(', ')}`);
             }
             document.getElementById('assign_mission_modal').close();
-            refreshClasses();
         }
 
         function manageStudentsUI(passcode) {
