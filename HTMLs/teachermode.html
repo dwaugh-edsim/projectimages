@@ -395,7 +395,8 @@
                                 WORKSHOP
                             </button>
                         </div>
-                        <h2 id="Builder-title" class="text-3xl font-display uppercase leading-tight">INITIALIZING...</h2>
+                        <h2 id="Builder-title" class="text-3xl font-display uppercase leading-tight">INITIALIZING...
+                        </h2>
                         <p id="Builder-desc" class="text-sm opacity-70 mb-4">Establishing secure connection to neural
                             core...</p>
 
@@ -463,7 +464,8 @@
 
                         <div class="flex flex-wrap gap-2 mt-auto">
                             <button class="btn btn-neutral btn-sm flex-1" onclick="BuilderBack()">Back</button>
-                            <button id="f-submit" class="btn btn-primary btn-sm flex-1" onclick="processBuilder()">Submit
+                            <button id="f-submit" class="btn btn-primary btn-sm flex-1"
+                                onclick="processBuilder()">Submit
                                 Command</button>
                             <button id="f-next-phase" class="btn btn-success btn-sm flex-1 gap-1"
                                 onclick="advancePhase()">
@@ -2767,19 +2769,30 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
         // --- LIBRARY LOGIC ---
         async function fetchMissions() {
-            // Mock data
-            const mockMissions = [
-                { id: "M001", name: "Cuban Missile Crisis", description: "Naval blockade simulation.", thumb: "https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?auto=format&fit=crop&q=80&w=200" },
-                { id: "M002", name: "Mars Colony v1", description: " Resource management failure scenario.", thumb: "https://images.unsplash.com/photo-1614728853970-32a2f51d15d6?auto=format&fit=crop&q=80&w=200" }
+            log("Syncing Archive...", "info");
+
+            // Define samples for GUEST/OFFLINE mode only
+            const sampleMissions = [
+                { id: "SAMPLE-01", name: "Cuban Missile Crisis", description: "Naval blockade simulation sample.", thumb: "https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?auto=format&fit=crop&q=80&w=200" },
+                { id: "SAMPLE-02", name: "Mars Colony v1", description: "Resource management failure scenario sample.", thumb: "https://images.unsplash.com/photo-1614728853970-32a2f51d15d6?auto=format&fit=crop&q=80&w=200" }
             ];
 
-            if (SupabaseBridge.client) {
+            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+            const isGuest = currentTeacher === 'GUEST';
+
+            if (SupabaseBridge.client && !isGuest) {
                 try {
-                    const realMissions = await SupabaseBridge.fetchMissions(googleUser?.email || 'GUEST');
-                    currentMissions = realMissions.length ? realMissions : mockMissions;
-                } catch (e) { }
+                    const realMissions = await SupabaseBridge.fetchMissions(currentTeacher);
+                    currentMissions = realMissions;
+                    log(`Archive Synced. Found ${currentMissions.length} dossiers.`, "success");
+                } catch (e) {
+                    log(`Archive Sync Failed: ${e.message}`, "error");
+                    currentMissions = [];
+                }
             } else {
-                currentMissions = mockMissions;
+                // Not logged in or no Supabase -> Show samples
+                currentMissions = sampleMissions;
+                if (isGuest) log("Guest Mode: Viewing sample simulations.", "warning");
             }
 
             renderLibrary(currentMissions);
@@ -2793,7 +2806,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             let html = '';
             missions.forEach(m => {
-                const deleteBtn = `<button class="btn btn-xs btn-error btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); deleteMission('${m.id}')">Delete</button>`;
+                const isSample = m.id.startsWith('SAMPLE-');
+                const deleteBtn = isSample ? '' : `<button class="btn btn-xs btn-error btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); deleteMission('${m.id}')">Delete</button>`;
 
                 html += `
                 <div class="card bg-base-100 shadow-xl image-full group cursor-pointer hover:scale-[1.02] transition-transform" onclick="loadMission('${m.id}')">
@@ -2854,6 +2868,13 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
         async function deleteMission(id) {
             const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+
+            if (id.startsWith('SAMPLE-')) {
+                log("Local samples cannot be scrubbed from the factory archive.", "warning");
+                alert("Cannot delete factory samples.");
+                return;
+            }
+
             if (!confirm(`PERMANENT DELETION: Are you sure you want to scrub mission [${id}] from the record?`)) return;
 
             log(`SCRUBBING MISSION [${id}]...`);
