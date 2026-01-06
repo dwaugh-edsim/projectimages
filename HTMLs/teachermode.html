@@ -2711,13 +2711,11 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         // --- CLASS DIRECTORY LOGIC ---
         async function refreshClasses() {
             // Mock data if Supabase offline
-            if (!SupabaseBridge.client) {
-                renderClasses([
-                    { id: 1, class_name: "Demo Class A", passcode: "DEMO1", student_count: 12, mission_ids: [] },
-                    { id: 2, class_name: "AP History", passcode: "HIST9", student_count: 28, mission_ids: [] }
-                ]);
-                return;
-            }
+            // Mock data if Supabase offline
+            // if (!SupabaseBridge.client) {
+            //     renderClasses([]);
+            //     return;
+            // }
 
             try {
                 const classes = await SupabaseBridge.fetchClasses(googleUser?.email || 'GUEST');
@@ -2893,12 +2891,13 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- CURRICULUM CONTEXT ---
+        // --- CURRICULUM CONTEXT ---
         async function fetchCurriculum() {
             console.log("fetchCurriculum: Initiating load...");
-            try {
-                log("Synchronizing Curriculum Hub...");
+            log("Synchronizing Curriculum Hub...");
 
-                // 1. Load static curriculum.json (fast, cached)
+            // 1. Load static curriculum.json (fast, cached)
+            try {
                 console.log("fetchCurriculum: Fetching curriculum.json");
                 const res = await fetch("curriculum.json?v=" + Date.now());
                 if (res.ok) {
@@ -2909,79 +2908,79 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     console.warn("fetchCurriculum: curriculum.json fetch failed", res.status);
                     window.curriculumData = window.curriculumData || {};
                 }
+            } catch (err) {
+                console.warn("Local Curriculum Fetch Skipped (likely CORS or offline):", err);
+                window.curriculumData = window.curriculumData || {};
+            }
 
-                // 2. Fetch from Supabase (extended library)
-                if (window.SupabaseBridge && SupabaseBridge.client) {
-                    try {
-                        const outcomes = await SupabaseBridge.fetchAllOutcomes();
-                        outcomes.forEach(o => {
-                            if (!window.curriculumData[o.country]) window.curriculumData[o.country] = {};
-                            if (!window.curriculumData[o.country][o.region]) window.curriculumData[o.country][o.region] = {};
-                            if (!window.curriculumData[o.country][o.region][o.course]) window.curriculumData[o.country][o.region][o.course] = [];
+            // 2. Fetch from Supabase (extended library)
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    const outcomes = await SupabaseBridge.fetchAllOutcomes();
+                    outcomes.forEach(o => {
+                        if (!window.curriculumData[o.country]) window.curriculumData[o.country] = {};
+                        if (!window.curriculumData[o.country][o.region]) window.curriculumData[o.country][o.region] = {};
+                        if (!window.curriculumData[o.country][o.region][o.course]) window.curriculumData[o.country][o.region][o.course] = [];
 
-                            let target = window.curriculumData[o.country][o.region][o.course];
-                            if (!Array.isArray(target)) {
-                                window.curriculumData[o.country][o.region][o.course] = [];
-                                target = window.curriculumData[o.country][o.region][o.course];
-                            }
-                            if (!target.includes(o.description)) target.push(o.description);
-                        });
-                        log(`Cloud Curriculum Synced: ${outcomes.length} outcomes.`, "success");
-                    } catch (e) {
-                        log(`Cloud Sync Warning: ${e.message}`, "warning");
-                    }
+                        let target = window.curriculumData[o.country][o.region][o.course];
+                        if (!Array.isArray(target)) {
+                            window.curriculumData[o.country][o.region][o.course] = [];
+                            target = window.curriculumData[o.country][o.region][o.course];
+                        }
+                        if (!target.includes(o.description)) target.push(o.description);
+                    });
+                    log(`Cloud Curriculum Synced: ${outcomes.length} outcomes.`, "success");
+                } catch (e) {
+                    log(`Cloud Sync Warning: ${e.message}`, "warning");
                 }
+            }
 
-                // 3. Merge Local "Custom Lab" outcomes (Legacy Port)
-                const custom = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
-                console.log("fetchCurriculum: Blending custom labs...", Object.keys(custom));
-                Object.keys(custom).forEach(country => {
-                    if (!window.curriculumData[country]) window.curriculumData[country] = {};
-                    Object.keys(custom[country]).forEach(region => {
-                        if (!window.curriculumData[country][region]) window.curriculumData[country][region] = {};
-                        Object.keys(custom[country][region]).forEach(course => {
-                            window.curriculumData[country][region][course] = custom[country][region][course];
-                        });
+            // 3. Merge Local "Custom Lab" outcomes (Legacy Port)
+            const custom = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
+            console.log("fetchCurriculum: Blending custom labs...", Object.keys(custom));
+            Object.keys(custom).forEach(country => {
+                if (!window.curriculumData[country]) window.curriculumData[country] = {};
+                Object.keys(custom[country]).forEach(region => {
+                    if (!window.curriculumData[country][region]) window.curriculumData[country][region] = {};
+                    Object.keys(custom[country][region]).forEach(course => {
+                        window.curriculumData[country][region][course] = custom[country][region][course];
                     });
                 });
+            });
 
-                log("Curriculum Hybridization Complete.");
+            log("Curriculum Hybridization Complete.");
 
-                // Populate Country Select
-                const sel = document.getElementById('f-country');
-                if (sel) {
-                    sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
-                    Object.keys(window.curriculumData).sort().forEach(c => {
-                        sel.innerHTML += `<option value="${c}">${c}</option>`;
-                    });
-                }
+            // Populate Country Select
+            const sel = document.getElementById('f-country');
+            if (sel) {
+                sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
+                Object.keys(window.curriculumData).sort().forEach(c => {
+                    sel.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            }
 
-                // Sticky Restoration
-                window.isRestoringCurriculum = true;
-                const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
-                if (savedCountry && window.curriculumData[savedCountry]) {
-                    if (sel) sel.value = savedCountry;
-                    updateBuilderRegions();
+            // Sticky Restoration
+            window.isRestoringCurriculum = true;
+            const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
+            if (savedCountry && window.curriculumData[savedCountry]) {
+                if (sel) sel.value = savedCountry;
+                updateBuilderRegions();
 
-                    const savedRegion = localStorage.getItem('TM_Builder_REGION');
-                    const rSel = document.getElementById('f-region');
-                    if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
-                        rSel.value = savedRegion;
-                        updateBuilderCourses();
+                const savedRegion = localStorage.getItem('TM_Builder_REGION');
+                const rSel = document.getElementById('f-region');
+                if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
+                    rSel.value = savedRegion;
+                    updateBuilderCourses();
 
-                        const savedCourse = localStorage.getItem('TM_Builder_COURSE');
-                        const cSel = document.getElementById('f-course');
-                        if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
-                            cSel.value = savedCourse;
-                            updateBuilderOutcomes();
-                        }
+                    const savedCourse = localStorage.getItem('TM_Builder_COURSE');
+                    const cSel = document.getElementById('f-course');
+                    if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
+                        cSel.value = savedCourse;
+                        updateBuilderOutcomes();
                     }
                 }
-                window.isRestoringCurriculum = false;
-
-            } catch (e) {
-                log("Curriculum Hub Failure: " + e.message, "error");
             }
+            window.isRestoringCurriculum = false;
         }
 
         function updateBuilderRegions() {
