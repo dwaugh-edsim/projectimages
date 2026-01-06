@@ -1548,16 +1548,24 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                     'cfg-sb-key': 'TM_SUPABASE_KEY'
                 };
 
+                console.log("saveSettings: Starting save process...");
                 for (let [id, storageKey] of Object.entries(mappings)) {
                     const el = document.getElementById(id);
                     if (el) {
                         let val = el.value.trim();
                         if (storageKey === 'TM_TEACHER_HANDLE') val = val.toUpperCase();
+                        console.log(`saveSettings: Saving ${storageKey} = "${val.substring(0, 10)}..."`);
                         localStorage.setItem(storageKey, val);
+                    } else {
+                        console.warn(`saveSettings: Element '${id}' not found!`);
                     }
                 }
 
-                log("Identity & Configuration Uplink Synchronized.", "success");
+                // Verify key was saved
+                const savedKey = localStorage.getItem('TM_GCP_KEY');
+                console.log("saveSettings: Verification - TM_GCP_KEY =", savedKey ? `${savedKey.substring(0, 8)}...` : "EMPTY");
+                log(`Settings Saved. GCP Key: ${savedKey ? 'Stored' : 'MISSING'}`, savedKey ? "success" : "error");
+
                 alert("Settings Saved. Refreshing to apply cloud credentials.");
                 location.reload();
             } catch (e) {
