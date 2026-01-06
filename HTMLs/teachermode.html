@@ -1024,6 +1024,11 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                 forgeHistory.push({ role: 'user', content: input });
                 forgeHistory.push({ role: 'assistant', content: responseText });
 
+                // Parse narrative if in applicable phase
+                if (phase.id === 'narrative' || responseText.includes('SLIDE 1:')) {
+                    parseNarrativeResponse(responseText);
+                }
+
                 log(`AI Directive Received [${phase.label}]`, "success");
 
             } catch (e) {
@@ -1035,6 +1040,148 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
             }
         }
 
+
+        // --- NARRATIVE PARSER (Restored from old version) ---
+        function parseNarrativeResponse(text) {
+            if (!text) return;
+
+            log('Parsing narrative response for structured components...', 'info');
+
+            // 1. Extract Mission Title if present
+            const titleMatch = text.match(/Mission Title:\s*(.*)/i);
+            if (titleMatch && titleMatch[1]) {
+                if (!accumulatedData.metadata) accumulatedData.metadata = {};
+                accumulatedData.metadata.title = titleMatch[1].trim();
+                log(`Extracted Mission Title: ${accumulatedData.metadata.title}`, 'success');
+            }
+
+            // 2. Split into Slide Blocks
+            // Format usually starts with "SLIDE X:"
+            const slides = [];
+            const slideBlocks = text.split(/SLIDE\s+\d+:\s+/i).slice(1); // Skip the preamble
+
+            slideBlocks.forEach((block, idx) => {
+                const slide = {
+                    id: idx + 1,
+                    type: 'BRIEFING', // Default
+                    title: '',
+                    content: '',
+                    interactionPrompt: '',
+                    options: [],
+                    outcomes: {},
+                    tabs: { primary: { label: 'Primary', content: '' }, intel: { label: 'Intel', content: '' }, legal: { label: 'Legal', content: '' } }
+                };
+
+                // Extract Type and Title
+                const titleLineMatch = block.match(/SLIDE TYPE:\s*(.*?)\s*\|\s*TITLE:\s*(.*)/i);
+                if (titleLineMatch) {
+                    slide.type = titleLineMatch[1].trim();
+                    slide.title = titleLineMatch[2].trim();
+                    slide.shortTitle = slide.title.substring(0, 20);
+                }
+
+                // Extract Content
+                const contentMatch = block.match(/CONTENT:\s*([\s\S]*?)(?=INTERACTION PROMPT:|OPTIONS:|OUTCOMES:|INTEL:|$)/i);
+                if (contentMatch) {
+                    slide.content = contentMatch[1].trim();
+                }
+
+                // Extract Interaction Prompt
+                const promptMatch = block.match(/INTERACTION PROMPT:\s*([\s\S]*?)(?=OPTIONS:|OUTCOMES:|INTEL:|$)/i);
+                if (promptMatch) {
+                    slide.interactionPrompt = promptMatch[1].trim();
+                }
+
+                // Extract Options
+                const optionsMatch = block.match(/OPTIONS:\s*([\s\S]*?)(?=OUTCOMES:|INTEL:|$)/i);
+                if (optionsMatch) {
+                    const opts = optionsMatch[1].match(/\["(.*?)"\]/g);
+                    if (opts) {
+                        slide.options = opts.map(o => o.replace(/\["(.*)"\]/, '$1'));
+                    }
+                }
+
+                // Extract Intel / Tabs
+                const intelMatch = block.match(/INTEL:\s*\{([\s\S]*?)\}/i);
+                if (intelMatch) {
+                    const rawIntel = intelMatch[1];
+                    // Very loose parsing for AI-generated "JSON-like" objects
+                    const primary = rawIntel.match(/PRIMARY:\s*"(.*?)"/i);
+                    const legal = rawIntel.match(/LEGAL:\s*"(.*?)"/i);
+                    const intelSecondary = rawIntel.match(/INTEL:\s*"(.*?)"/i);
+
+                    if (primary) slide.tabs.primary.content = primary[1];
+                    if (legal) slide.tabs.legal.content = legal[1];
+                    if (intelSecondary) slide.tabs.intel.content = intelSecondary[1];
+                }
+
+                slides.push(slide);
+            });
+
+            // --- ROBUSTNESS: If no slides extracted, try looser parsing ---
+            if (slides.length === 0) {
+                log('Strict parser found no slides. Attempting looser extraction...', 'warning');
+
+                // Try to extract any numbered sections
+                const looseBlocks = text.split(/(?:^|\n)(?:###|##)\s*(?:Slide\s*)?\d+/i);
+                if (looseBlocks.length > 1) {
+                    looseBlocks.slice(1).forEach((block, idx) => {
+                        const slide = {
+                            id: idx + 1,
+                            type: 'BRIEFING',
+                            title: `Slide ${idx + 1}`,
+                            content: block.trim().substring(0, 500),
+                            tabs: { primary: { label: 'Primary', content: '' }, intel: { label: 'Intel', content: '' } }
+                        };
+                        slides.push(slide);
+                    });
+                }
+            }
+
+            if (slides.length > 0) {
+                accumulatedData.slides = slides;
+                log(`Successfully extracted ${slides.length} slides from narrative.`, 'success');
+
+                // Update phase badge
+                updatePhaseBadge('narrative', `${slides.length} slides`);
+            }
+
+            // 3. Extract Glossary if present
+            const glossaryMatch = text.match(/INTELLIGENCE GLOSSARY:\s*([\s\S]*)$/i);
+            if (glossaryMatch) {
+                const items = [];
+                const lines = glossaryMatch[1].split('\n');
+                lines.forEach(line => {
+                    const m = line.match(/^(.*?):\s*(.*)/);
+                    if (m) {
+                        items.push({ term: m[1].trim(), definition: m[2].trim() });
+                    }
+                });
+                if (items.length > 0) {
+                    accumulatedData.intelligenceGlossary = items;
+                    log(`Extracted ${items.length} glossary terms.`, 'success');
+                }
+            }
+        }
+
+        function updatePhaseBadge(phaseId, badgeText) {
+            // Find the phase node in the pipeline stepper and add a badge
+            const nodes = document.querySelectorAll('[data-phase]');
+            nodes.forEach(node => {
+                if (node.dataset.phase === phaseId) {
+                    // Check if badge already exists
+                    let badge = node.querySelector('.phase-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'phase-badge badge badge-success badge-sm';
+                        badge.style.cssText = 'position:absolute; top:-8px; right:-8px;';
+                        node.appendChild(badge);
+                        node.style.position = 'relative'; // Ensure parent is positioned
+                    }
+                    badge.textContent = badgeText;
+                }
+            });
+        }
         async function callAI(prompt) {
             // Priority 0: Vercel Proxy (OpenRouter / Flux / etc)
             const vercelUrl = localStorage.getItem('TM_VERCEL_PROXY');
