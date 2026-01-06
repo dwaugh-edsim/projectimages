@@ -2866,11 +2866,20 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     const data = JSON.parse(raw.substring(start, end + 1));
                     accumulatedData = data;
 
+                    // POLYFILL: Handle legacy blobs lacking 'metadata'
+                    if (!accumulatedData.metadata) {
+                        accumulatedData.metadata = {
+                            id: data.id || `LEGACY_${Date.now()}`,
+                            title: data.title || data.missionTitle || "Untitled Legacy Mission",
+                            author: data.author || "Unknown"
+                        };
+                    }
+
                     // Populate BuilderHistory if possible
                     if (data.history) BuilderHistory = data.history;
 
-                    log("Legacy Dossier Loaded. Builder state stabilized.", "success");
-                    alert("Local Mission Loaded into Builder Memory.");
+                    log(`Legacy Dossier Loaded: ${accumulatedData.metadata.title}`, "success");
+                    alert(`Mission Loaded: ${accumulatedData.metadata.title}`);
 
                     // Switch to an active phase tab to show data
                     switchMainTab('Builder');
