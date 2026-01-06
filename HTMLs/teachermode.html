@@ -398,7 +398,11 @@
                                 <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (US)</option>
                             </select>
 
-                            <div class="divider text-[0.6rem] opacity-30 my-1">TARGET OUTCOMES</div>
+                            <div class="divider text-[0.6rem] opacity-30 my-1 flex items-center justify-between">
+                                <span>TARGET OUTCOMES</span>
+                                <button class="btn btn-ghost btn-xs text-[9px] opacity-60 hover:opacity-100"
+                                    onclick="toggleAllOutcomes()">SELECT ALL</button>
+                            </div>
                             <div id="f-outcomes" class="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
                                 <p class="text-center opacity-30 text-[0.6rem] py-4">SELECT COURSE TO LOAD OUTCOMES</p>
                             </div>
@@ -1390,7 +1394,13 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 const region = document.getElementById('f-region').value;
                 const course = document.getElementById('f-course').value;
                 const checks = document.querySelectorAll('.outcome-check:checked');
-                const selectedOutcomes = Array.from(checks).map(c => c.value);
+                let selectedOutcomes = Array.from(checks).map(c => c.value);
+
+                // If no outcomes selected but course is chosen, include ALL outcomes
+                if (selectedOutcomes.length === 0 && course && window.curriculumData?.[country]?.[region]?.[course]) {
+                    selectedOutcomes = window.curriculumData[country][region][course];
+                    log(`No outcomes selected - including all ${selectedOutcomes.length} for AI analysis.`, 'info');
+                }
 
                 if (country || region || course) {
                     context += `\n--- TEACHER CONTEXT ---\n`;
@@ -1652,6 +1662,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             const selectedModel = document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free';
 
             console.log("callAI: Connecting via Vercel Proxy...", HARDWIRED_PROXY);
+            console.log("callAI: Selected Model:", selectedModel);
             log(`AI Uplink: Proxy [${selectedModel}]`, "info");
 
             try {
@@ -1663,18 +1674,48 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         model: selectedModel
                     })
                 });
-                const data = await res.json();
-                console.log("callAI: Vercel Response:", data);
 
-                if (data.choices && data.choices[0]) {
+                console.log("callAI: Response status:", res.status);
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+
+                const data = await res.json();
+                console.log("callAI: Vercel Response (raw):", JSON.stringify(data).substring(0, 500));
+
+                // OpenRouter/OpenAI format: { choices: [{ message: { content: "..." } }] }
+                if (data.choices && data.choices[0]?.message?.content) {
                     const text = data.choices[0].message.content;
                     log("Proxy Intel Acquired.", "success");
                     return text;
                 }
-                if (data.message) {
+
+                // Direct message format: { message: "..." }
+                if (data.message && typeof data.message === 'string') {
+                    log("Proxy Intel Acquired (direct).", "success");
                     return data.message;
                 }
-                throw new Error("Proxy response format invalid.");
+
+                // Direct content format: { content: "..." }
+                if (data.content && typeof data.content === 'string') {
+                    log("Proxy Intel Acquired (content).", "success");
+                    return data.content;
+                }
+
+                // Direct text format: { text: "..." }
+                if (data.text && typeof data.text === 'string') {
+                    log("Proxy Intel Acquired (text).", "success");
+                    return data.text;
+                }
+
+                // If there's an error field, report it
+                if (data.error) {
+                    throw new Error(`Proxy error: ${JSON.stringify(data.error)}`);
+                }
+
+                console.error("callAI: Unrecognized response format:", data);
+                throw new Error("Proxy response format invalid. Check console for details.");
             } catch (e) {
                 console.error("callAI: Vercel Proxy Error:", e);
                 log(`Proxy Error: ${e.message}. Falling back to GCP.`, "warning");
@@ -2971,6 +3012,16 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- CUSTOM COURSE LOGIC ---
+        function toggleAllOutcomes() {
+            const checks = document.querySelectorAll('.outcome-check');
+            if (checks.length === 0) return;
+
+            // If any are unchecked, select all. Otherwise, deselect all.
+            const anyUnchecked = Array.from(checks).some(c => !c.checked);
+            checks.forEach(c => c.checked = anyUnchecked);
+            log(`${anyUnchecked ? 'Selected' : 'Deselected'} all ${checks.length} outcomes.`, 'info');
+        }
+
         function toggleCustomAdd() {
             const zone = document.getElementById('custom-add-zone');
             zone.classList.toggle('hidden');
