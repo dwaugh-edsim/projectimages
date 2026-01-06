@@ -1013,10 +1013,16 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
             // Priority 1: Google Cloud Direct (via Config or LocalStorage)
             const gcpKey = localStorage.getItem('TM_GCP_KEY') || (typeof CONFIG !== 'undefined' ? CONFIG.GCP_KEY : '');
 
+            console.log("callAI: Checking GCP Key...", gcpKey ? `Key found (${gcpKey.substring(0, 8)}...)` : "NO KEY");
+            log(`AI Uplink: ${gcpKey ? 'GCP Key detected' : 'NO API KEY - using simulation'}`, gcpKey ? 'info' : 'warning');
+
             if (gcpKey) {
                 // Gemini API Path
-                const model = "gemini-1.5-flash";
+                const model = localStorage.getItem('TM_GCP_MODEL') || "gemini-1.5-flash";
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${gcpKey}`;
+                console.log("callAI: Sending request to", model);
+                log(`AI Request → ${model}...`);
+
                 try {
                     const res = await fetch(url, {
                         method: 'POST',
@@ -1024,14 +1030,29 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                     });
                     const data = await res.json();
-                    if (data.candidates) return data.candidates[0].content.parts[0].text;
-                    throw new Error(data.error?.message || "Gemini API Blocked");
+                    console.log("callAI: Raw API Response:", data);
+
+                    if (data.candidates && data.candidates[0]) {
+                        const text = data.candidates[0].content.parts[0].text;
+                        console.log("callAI: SUCCESS - Response length:", text.length);
+                        log(`AI Response: ${text.substring(0, 50)}...`, "success");
+                        return text;
+                    }
+
+                    // Handle specific error cases
+                    const errMsg = data.error?.message || JSON.stringify(data);
+                    console.error("callAI: API Error:", errMsg);
+                    log(`API Error: ${errMsg}`, "error");
+                    throw new Error(errMsg);
                 } catch (e) {
+                    console.error("callAI: Fetch failed:", e);
                     log(`AI Error: ${e.message}. Falling back to Simulation.`, "warning");
                 }
             }
 
             // Fallback: Smart Simulation (for UI testing or offline)
+            console.log("callAI: Using SIMULATION mode");
+            log("Simulation Mode Active - No API Key", "warning");
             await new Promise(r => setTimeout(r, 1000));
             const simResponses = [
                 "**INTEL ACQUIRED.** \nBased on your parameters, I suggest a scenario involving a diplomatic standoff in the South China Sea. \n\n**Option A**: Naval blockade. \n**Option B**: Cyber-attack on infrastructure. \n\nPlease advise on vector.",
@@ -1318,7 +1339,6 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                 });
 
                 log("Curriculum Hybridization Complete.");
-                updateForgeCountries(); // Re-populate with blended data
 
                 // Populate Country Select
                 const sel = document.getElementById('f-country');
