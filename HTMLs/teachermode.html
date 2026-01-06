@@ -348,7 +348,7 @@
 
                     <!-- Builder Panel (Inputs) -->
                     <div id="Builder-panel"
-                        class="w-full lg:w-96 lg:min-w-[384px] border-b lg:border-b-0 lg:border-r border-base-content/10 p-6 flex flex-col gap-4 overflow-y-auto bg-base-200/50 h-[500px] lg:h-full">
+                        class="w-full lg:w-96 lg:min-w-[384px] border-b lg:border-b-0 lg:border-r border-base-content/10 p-6 flex flex-col gap-4 overflow-y-auto overflow-x-hidden bg-base-200/50 h-[500px] lg:h-full custom-scrollbar">
                         <div class="flex justify-between items-end">
                             <span class="text-xs font-bold tracking-widest text-primary">CURRENT PHASE</span>
                             <div class="flex gap-1">
@@ -389,7 +389,7 @@
                             <select id="f-course" class="select select-bordered select-xs w-full mb-2 hidden"
                                 onchange="updateBuilderOutcomes()"></select>
 
-                            <input type="hidden" id="f-model" value="google/gemini-2.0-flash-exp:free">
+                            <input type="hidden" id="f-model" value="xiaomi/mimo-v2-flash:free">
 
                             <div class="divider text-[0.6rem] opacity-30 my-1 flex items-center justify-between">
                                 <span>TARGET OUTCOMES</span>
@@ -593,6 +593,21 @@
                             (ID)</span></label>
                     <input type="text" id="cfg-teacher-id"
                         class="input input-bordered input-sm font-mono text-xs uppercase" placeholder="SMITH_01">
+                </div>
+
+                <div class="divider text-xs opacity-50 uppercase">Builder Settings</div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-xs font-bold opacity-70">AI MODEL
+                            (BUILDER)</span></label>
+                    <select id="cfg-builder-model" class="select select-bordered select-sm font-mono text-xs">
+                        <option value="xiaomi/mimo-v2-flash:free" selected>Xiaomi MiMo V2 (China)</option>
+                        <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (Exp)</option>
+                        <option value="mistralai/devstral-2512:free">Mistral 2512 (France)</option>
+                        <option value="nvidia/nemotron-nano-9b-v2:free">Nemotron Nano (US)</option>
+                        <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (US)</option>
+                        <option value="openai/gpt-4o">GPT-4o (Standard)</option>
+                        <option value="anthropic/claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                    </select>
                 </div>
 
                 <div class="divider text-xs opacity-50 uppercase">Global Data Link</div>
@@ -891,7 +906,16 @@ Format: Use Markdown. Use **bold** for key terms and concepts.`;
             const submitBtn = document.getElementById('f-submit');
             const inputEl = document.getElementById('f-input');
 
-            if (titleEl) titleEl.innerText = phase.title;
+            if (titleEl) {
+                titleEl.innerText = phase.title;
+                if (phase.id === 'brainstorm') {
+                    titleEl.classList.remove('text-xl', 'md:text-2xl', 'lg:text-3xl');
+                    titleEl.classList.add('text-lg', 'md:text-xl', 'lg:text-2xl');
+                } else {
+                    titleEl.classList.remove('text-lg', 'md:text-xl', 'lg:text-2xl');
+                    titleEl.classList.add('text-xl', 'md:text-2xl', 'lg:text-3xl');
+                }
+            }
             if (descEl) descEl.innerText = phase.desc;
 
             // Special Handling for Deep Search & Assets
@@ -1730,7 +1754,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
         async function callAI(prompt) {
             // Priority 0: HARDWIRED Vercel Proxy
-            const selectedModel = document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free';
+            const selectedModel = document.getElementById('f-model')?.value || 'xiaomi/mimo-v2-flash:free';
 
             console.log("callAI: Connecting via Vercel Proxy...", HARDWIRED_PROXY);
             console.log("callAI: Selected Model:", selectedModel);
@@ -3202,7 +3226,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     'cfg-gcp-location': 'TM_GCP_LOCATION',
                     'cfg-gcp-model': 'TM_GCP_MODEL',
                     'cfg-gcp-client-id': 'TM_GCP_CLIENT_ID',
-                    'cfg-teacher-id': 'TM_TEACHER_HANDLE'
+                    'cfg-teacher-id': 'TM_TEACHER_HANDLE',
+                    'cfg-builder-model': 'TM_BUILDER_MODEL'
                 };
 
                 for (let [id, storageKey] of Object.entries(ids)) {
@@ -3236,7 +3261,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     'cfg-gcp-location': 'TM_GCP_LOCATION',
                     'cfg-gcp-model': 'TM_GCP_MODEL',
                     'cfg-gcp-client-id': 'TM_GCP_CLIENT_ID',
-                    'cfg-teacher-id': 'TM_TEACHER_HANDLE'
+                    'cfg-teacher-id': 'TM_TEACHER_HANDLE',
+                    'cfg-builder-model': 'TM_BUILDER_MODEL'
                 };
 
                 console.log("saveSettings: Starting save process...");
@@ -3256,6 +3282,12 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 const savedKey = localStorage.getItem('TM_GCP_KEY');
                 console.log("saveSettings: Verification - TM_GCP_KEY =", savedKey ? `${savedKey.substring(0, 8)}...` : "EMPTY");
                 log(`Settings Saved. GCP Key: ${savedKey ? 'Stored' : 'MISSING'}`, savedKey ? "success" : "error");
+
+                // Sync Builder Model specifically
+                const bModel = document.getElementById('cfg-builder-model')?.value;
+                if (bModel && document.getElementById('f-model')) {
+                    document.getElementById('f-model').value = bModel;
+                }
 
                 alert("Settings Saved. Refreshing to apply cloud credentials.");
                 location.reload();
@@ -3562,6 +3594,13 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
 
             initGoogleAuth();
+
+            // Sync saved Builder model on load
+            const savedBModel = localStorage.getItem('TM_BUILDER_MODEL');
+            if (savedBModel && document.getElementById('f-model')) {
+                document.getElementById('f-model').value = savedBModel;
+            }
+
             updateBuilderUI();
             log("Command Center v3.0 Initialized.");
             refreshClasses();
