@@ -248,6 +248,26 @@
                             <div class="stat-desc text-success">Cloud Sync Optimal</div>
                         </div>
                     </div>
+
+                    <!-- TEACHER CODE -->
+                    <div class="stat bg-base-100 shadow rounded-box border border-base-content/5">
+                        <div class="stat-figure text-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                class="inline-block w-8 h-8 stroke-current">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 19.336 9.5 21.336 7.5 19.336 4.5 21.336 2.5 19.336 5.5 15.336 3.5 13.336 6.5 11.336a6 6 0 01-1.036-3.836A4 4 0 1115 7z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="stat-title font-display tracking-wide opacity-50">Teacher Connect Code</div>
+                        <div class="stat-value text-info text-xl truncate" id="dash-stat-teacher-code">AUTH REQUIRED
+                        </div>
+                        <div class="stat-desc text-xs" id="dash-stat-teacher-desc">Students use this code to join</div>
+                        <div class="stat-actions mt-1">
+                            <button class="btn btn-xs btn-outline btn-info font-mono" onclick="copyTeacherCode()">COPY
+                                CODE</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Cards -->
@@ -597,6 +617,23 @@
                 </div>
 
                 <div class="divider text-xs opacity-50">IDENTITY & DATABASE</div>
+
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-xs font-bold opacity-70">TEACHER HANDLE (Optional
+                            Alias)</span></label>
+                    <input type="text" id="cfg-teacher-handle"
+                        class="input input-bordered input-sm font-mono tracking-widest text-xs"
+                        placeholder="Use Email (Default)">
+                    <label class="label">
+                        <span class="label-text-alt text-warning text-[10px] leading-tight">
+                            <strong class="text-xs">⚠️ PRIVACY MODE:</strong> Setting this creates a separate
+                            "Universe".
+                            Missions saved under your email will be hidden until you clear this field.
+                            Students must use this exact handle to join.
+                        </span>
+                    </label>
+                </div>
+
 
                 <div class="form-control">
                     <label class="label"><span class="label-text text-xs font-bold opacity-70">TEACHER HANDLE
@@ -1408,6 +1445,26 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     "mr.waugh@school.edu"
                 ];
                 const isAuthorized = AUTHORIZED_TEACHERS.includes(googleUser.email);
+
+                // TEACHER HANDLE LOGIC
+                // If a handle is set, we treat that as the teacherId for DB ops
+                const savedHandle = localStorage.getItem('TM_TEACHER_HANDLE');
+                const teacherId = savedHandle || googleUser.email;
+
+                // Update Dashboard Stat
+                const codeEl = document.getElementById('dash-stat-teacher-code');
+                const descEl = document.getElementById('dash-stat-teacher-desc');
+                if (codeEl) {
+                    codeEl.innerText = teacherId;
+                    codeEl.classList.remove('text-info'); // Reset colors
+                    if (savedHandle) {
+                        codeEl.classList.add('text-warning');
+                        descEl.innerHTML = `<span class="text-warning font-bold">⚠️ USING ALIAS HANDLE</span> (Privacy Mode)`;
+                    } else {
+                        codeEl.classList.add('text-success');
+                        descEl.innerText = "Students use this email to join";
+                    }
+                }
 
                 // Update UI Badges
                 const authBadge = document.getElementById('status-badge-auth');
@@ -2990,7 +3047,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         async function fetchProgress() {
-            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
             if (currentTeacher === 'GUEST') return;
 
             log("Syncing Student Progress...", "info");
@@ -3105,7 +3162,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             // }
 
             try {
-                const classes = await SupabaseBridge.fetchClasses(googleUser?.email || 'GUEST');
+                const classes = await SupabaseBridge.fetchClasses(localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST');
                 window.activeClassesData = classes; // Store for local updates
                 currentClasses = classes;
                 renderClasses(classes);
@@ -3177,7 +3234,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 { id: "SAMPLE-02", name: "Mars Colony v1", description: "Resource management failure scenario sample.", thumb: "https://images.unsplash.com/photo-1614728853970-32a2f51d15d6?auto=format&fit=crop&q=80&w=200" }
             ];
 
-            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
             const isGuest = currentTeacher === 'GUEST';
 
             if (SupabaseBridge.client && !isGuest) {
@@ -3277,7 +3334,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         async function deleteMission(id) {
-            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
 
             if (id.startsWith('SAMPLE-')) {
                 log("Local samples cannot be scrubbed from the factory archive.", "warning");
@@ -3966,6 +4023,18 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             board.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
             document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS ONLINE]`;
+        }
+
+        // --- COPY TEACHER CODE ---
+        function copyTeacherCode() {
+            const codeEl = document.getElementById('dash-stat-teacher-code');
+            if (codeEl && codeEl.innerText !== 'AUTH REQUIRED') {
+                navigator.clipboard.writeText(codeEl.innerText);
+                const btn = codeEl.parentElement.querySelector('button');
+                const oldText = btn.innerText;
+                btn.innerText = "COPIED!";
+                setTimeout(() => btn.innerText = oldText, 2000);
+            }
         }
 
         function toggleProjector() {
