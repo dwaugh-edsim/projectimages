@@ -5054,9 +5054,15 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (!confirm(`Permanently delete class [${name}]? Students using this code will be locked out.`)) return;
             try {
                 log(`Attempting to delete class ID: ${id}...`);
-                await SupabaseBridge.deleteClass(id);
-                log(`CLASS DELETED: ${name}`, "success");
-                alert(`Class "${name}" has been deleted.`);
+                const deletedData = await SupabaseBridge.deleteClass(id);
+
+                if (deletedData && deletedData.length > 0) {
+                    log(`CLASS DELETED: ${name} (Affected: ${deletedData.length})`, "success");
+                    alert(`Class "${name}" has been deleted.`);
+                } else {
+                    log(`DELETE FAILED: Record not found or Permission Denied (RLS).`, "error");
+                    alert(`Could not delete class "${name}". This is likely due to lack of authority in the database (RLS Policies).`);
+                }
                 refreshClasses();
             } catch (e) {
                 console.error("Delete class error:", e);
@@ -5083,7 +5089,13 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 // Get class details to know current assignments
                 const tId = googleUser?.email || 'GUEST';
                 const classes = await SupabaseBridge.fetchClasses(tId);
-                const cls = classes.find(c => c.id === classId);
+                // Use == for loose equality since quoted IDs in onclick are strings
+                const cls = classes.find(c => c.id == classId);
+
+                if (!cls) {
+                    throw new Error(`Class with ID ${classId} not found in synchronized records.`);
+                }
+
                 const assignedIds = cls.mission_ids || [];
 
                 info.innerHTML = `Class: <strong>${cls.class_name}</strong> | Code: <strong>${cls.passcode}</strong>`;
@@ -5457,9 +5469,16 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (SupabaseBridge.client) {
                 try {
                     log("Scrubbing from Supabase Cloud...");
-                    await SupabaseBridge.deleteMission(id, teacherId);
-                    log(`Supabase Delete Successful [${id}]`, "success");
-                    fetchMissions();
+                    const deletedData = await SupabaseBridge.deleteMission(id, teacherId);
+
+                    if (deletedData && deletedData.length > 0) {
+                        log(`PURGE SUCCESS: Mission [${id}] removed.`, "success");
+                        alert(`Mission "${id}" has been purged from the archive.`);
+                    } else {
+                        log(`PURGE FAILED: Record not found or Permission Denied (RLS).`, "error");
+                        alert(`Could not delete mission "${id}". This is likely due to lack of authority in the database.`);
+                    }
+                    if (typeof fetchMissions !== 'undefined') fetchMissions();
                 } catch (e) {
                     log(`Supabase Delete Failed: ${e.message}`, "error");
                 }

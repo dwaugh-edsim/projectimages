@@ -90,14 +90,15 @@ const SupabaseBridge = {
 
     async deleteMission(missionId, teacherId) {
         if (!this.client) return false;
-        const { error } = await this.client
+        const { data, error } = await this.client
             .from('missions')
             .delete()
             .eq('mission_id', missionId)
-            .eq('teacher_id', teacherId);
+            .eq('teacher_id', teacherId)
+            .select();
 
         if (error) throw error;
-        return true;
+        return data; // Return record to verify deletion
     },
 
     // --- TELEMETRY / LOGGING OPERATIONS ---
@@ -352,14 +353,15 @@ const SupabaseBridge = {
             return true;
         }
 
-        const { error } = await this.client
+        const { data, error } = await this.client
             .from('forge_ideas')
             .delete()
             .eq('idea_id', ideaId)
-            .eq('teacher_id', teacherId);
+            .eq('teacher_id', teacherId)
+            .select();
 
         if (error) throw error;
-        return true;
+        return data; // Return record to verify deletion
     },
 
     async fetchClasses(teacherId) {
@@ -393,12 +395,13 @@ const SupabaseBridge = {
 
     async deleteClass(classId) {
         if (!this.client) return false;
-        const { error } = await this.client
+        const { data, error } = await this.client
             .from('classes')
             .delete()
-            .eq('id', classId);
+            .eq('id', classId)
+            .select();
         if (error) throw error;
-        return true;
+        return data; // Return record to verify deletion
     },
 
     // --- STUDENT MANAGEMENT ---
