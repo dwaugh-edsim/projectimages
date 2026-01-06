@@ -361,6 +361,11 @@
                                 onchange="updateForgeCourses()"></select>
                             <select id="f-course" class="select select-bordered select-xs w-full mb-2 hidden"
                                 onchange="updateForgeOutcomes()"></select>
+
+                            <div class="divider text-[0.6rem] opacity-30 my-1">TARGET OUTCOMES</div>
+                            <div id="f-outcomes" class="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                                <p class="text-center opacity-30 text-[0.6rem] py-4">SELECT COURSE TO LOAD OUTCOMES</p>
+                            </div>
                         </div>
 
                         <div class="form-control flex-1">
@@ -898,11 +903,21 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
                 // 3. Construct Prompt Context
                 let context = `${FORGE_SYSTEM_CORE}\n\n`;
 
-                // Curriculum Context (if available)
+                // Curriculum Context
                 const country = document.getElementById('f-country').value;
                 const region = document.getElementById('f-region').value;
-                if (country || region) {
-                    context += `CONTEXT LOCALE: ${country} / ${region}\n`;
+                const course = document.getElementById('f-course').value;
+                const checks = document.querySelectorAll('.outcome-check:checked');
+                const selectedOutcomes = Array.from(checks).map(c => c.value);
+
+                if (country || region || course) {
+                    context += `\n--- TEACHER CONTEXT ---\n`;
+                    context += `LOCALE: ${country} | ${region}\n`;
+                    context += `COURSE: ${course}\n`;
+                    if (selectedOutcomes.length > 0) {
+                        context += `TARGET OUTCOMES: ${selectedOutcomes.join(" | ")}\n`;
+                        log(`Aligning with ${selectedOutcomes.length} outcomes.`, "info");
+                    }
                 }
 
                 // Append History (Last 6 turns to save tokens)
@@ -1193,59 +1208,100 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
 
         // --- CURRICULUM CONTEXT ---
         async function fetchCurriculum() {
-            // RICH STATIC DATA (V3 Demo)
-            // In prod, this comes from Supabase or JSON file
-            const data = {
-                "USA": {
-                    "National": {
-                        "History 101": ["Causes of Cold War", "Civil Rights Movement", "Industrial Revolution"],
-                        "Civics": ["Bill of Rights", "Supreme Court Function", "Electoral College"]
-                    },
-                    "California": {
-                        "Social Studies 10": ["Gold Rush Economics", "Water Politics"]
-                    }
-                },
-                "Canada": {
-                    "Ontario": {
-                        "Civics 10": ["Democratic Process", "Conflict Resolution", "Indigenous Governance"],
-                        "History 10": ["WWI Impact", "1929 Market Crash"]
-                    },
-                    "BC": {
-                        "Social Studies 9": ["Revolution & Reform", "Geography of Canada"]
-                    }
-                },
-                "UK": {
-                    "National": {
-                        "Key Stage 3": ["The Norman Conquest", "Elizabethan Era"],
-                        "GCSE History": ["Weimar Germany", "Cold War Relations"]
+            try {
+                log("Synchronizing Curriculum Hub...");
+
+                // 1. Load static curriculum.json (fast, cached)
+                const res = await fetch("curriculum.json?v=" + Date.now());
+                if (res.ok) {
+                    window.curriculumData = await res.json();
+                    log("Local Curriculum Loaded.", "success");
+                } else {
+                    window.curriculumData = window.curriculumData || {};
+                }
+
+                // 2. Fetch from Supabase (extended library)
+                if (window.SupabaseBridge && SupabaseBridge.client) {
+                    try {
+                        const outcomes = await SupabaseBridge.fetchAllOutcomes();
+                        outcomes.forEach(o => {
+                            if (!window.curriculumData[o.country]) window.curriculumData[o.country] = {};
+                            if (!window.curriculumData[o.country][o.region]) window.curriculumData[o.country][o.region] = {};
+                            if (!window.curriculumData[o.country][o.region][o.course]) window.curriculumData[o.country][o.region][o.course] = [];
+
+                            let target = window.curriculumData[o.country][o.region][o.course];
+                            if (!Array.isArray(target)) {
+                                window.curriculumData[o.country][o.region][o.course] = [];
+                                target = window.curriculumData[o.country][o.region][o.course];
+                            }
+                            if (!target.includes(o.description)) target.push(o.description);
+                        });
+                        log(`Cloud Curriculum Synced: ${outcomes.length} outcomes.`, "success");
+                    } catch (e) {
+                        log(`Cloud Sync Warning: ${e.message}`, "warning");
                     }
                 }
-            };
 
-            // Populate Country Select
-            const sel = document.getElementById('f-country');
-            if (sel) {
-                sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
-                Object.keys(data).forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+                // Populate Country Select
+                const sel = document.getElementById('f-country');
+                if (sel) {
+                    sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
+                    Object.keys(window.curriculumData).sort().forEach(c => {
+                        sel.innerHTML += `<option value="${c}">${c}</option>`;
+                    });
+                }
+
+                // Sticky Restoration
+                window.isRestoringCurriculum = true;
+                const savedCountry = localStorage.getItem('TM_FORGE_COUNTRY');
+                if (savedCountry && window.curriculumData[savedCountry]) {
+                    if (sel) sel.value = savedCountry;
+                    updateForgeRegions();
+
+                    const savedRegion = localStorage.getItem('TM_FORGE_REGION');
+                    const rSel = document.getElementById('f-region');
+                    if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
+                        rSel.value = savedRegion;
+                        updateForgeCourses();
+
+                        const savedCourse = localStorage.getItem('TM_FORGE_COURSE');
+                        const cSel = document.getElementById('f-course');
+                        if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
+                            cSel.value = savedCourse;
+                            updateForgeOutcomes();
+                        }
+                    }
+                }
+                window.isRestoringCurriculum = false;
+
+            } catch (e) {
+                log("Curriculum Hub Failure: " + e.message, "error");
             }
-
-            window.curriculumData = data; // Global cache
         }
 
         function updateForgeRegions() {
             const country = document.getElementById('f-country').value;
             const rSel = document.getElementById('f-region');
             const cSel = document.getElementById('f-course');
+            const outDiv = document.getElementById('f-outcomes');
+
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_COUNTRY', country);
+                localStorage.removeItem('TM_FORGE_REGION');
+                localStorage.removeItem('TM_FORGE_COURSE');
+            }
 
             rSel.innerHTML = `<option value="">-- SELECT REGION --</option>`;
-            cSel.innerHTML = `<option value="">-- SELECT COURSE --</option>`; // Reset course
+            cSel.innerHTML = `<option value="">-- SELECT COURSE --</option>`;
             rSel.classList.add('hidden');
             cSel.classList.add('hidden');
+            if (outDiv) outDiv.innerHTML = `<p class="text-center opacity-30 text-[0.6rem] py-4">SELECT COURSE TO LOAD OUTCOMES</p>`;
 
             if (!country || !window.curriculumData[country]) return;
 
-            const regions = window.curriculumData[country];
-            Object.keys(regions).forEach(r => rSel.innerHTML += `<option value="${r}">${r}</option>`);
+            Object.keys(window.curriculumData[country]).sort().forEach(r => {
+                rSel.innerHTML += `<option value="${r}">${r}</option>`;
+            });
             rSel.classList.remove('hidden');
         }
 
@@ -1254,27 +1310,72 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
             const region = document.getElementById('f-region').value;
             const cSel = document.getElementById('f-course');
 
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_REGION', region);
+                localStorage.removeItem('TM_FORGE_COURSE');
+            }
+
             cSel.innerHTML = `<option value="">-- SELECT COURSE --</option>`;
             cSel.classList.add('hidden');
 
             if (!region || !window.curriculumData[country][region]) return;
 
-            const courses = window.curriculumData[country][region];
-            Object.keys(courses).forEach(c => cSel.innerHTML += `<option value="${c}">${c}</option>`);
+            Object.keys(window.curriculumData[country][region]).sort().forEach(c => {
+                cSel.innerHTML += `<option value="${c}">${c}</option>`;
+            });
             cSel.classList.remove('hidden');
         }
 
         function updateForgeOutcomes() {
-            // Stub: In V4 this populates a multi-select
-            log("Curriculum Context Locked.", "success");
+            const country = document.getElementById('f-country').value;
+            const region = document.getElementById('f-region').value;
+            const course = document.getElementById('f-course').value;
+            const outDiv = document.getElementById('f-outcomes');
+
+            if (!window.isRestoringCurriculum) {
+                localStorage.setItem('TM_FORGE_COURSE', course);
+            }
+
+            if (!course || !window.curriculumData[country][region][course]) {
+                if (outDiv) outDiv.innerHTML = `<p class="text-center opacity-30 text-[0.6rem] py-4">SELECT COURSE TO LOAD OUTCOMES</p>`;
+                return;
+            }
+
+            const outcomes = window.curriculumData[country][region][course];
+            let html = '';
+            outcomes.forEach((o, i) => {
+                html += `
+                <label class="flex gap-2 items-start p-2 hover:bg-base-200 rounded cursor-pointer transition-colors group">
+                    <input type="checkbox" value="${o}" class="checkbox checkbox-primary checkbox-xs mt-0.5 outcome-check">
+                    <span class="text-[0.7rem] leading-tight opacity-70 group-hover:opacity-100">${o}</span>
+                </label>`;
+            });
+            if (outDiv) outDiv.innerHTML = html;
+            log(`Loaded ${outcomes.length} outcomes for ${course}.`, "success");
         }
 
         // --- UI HELPERS ---
         function openSettings() {
-            document.getElementById('cfg-gcp-key').value = localStorage.getItem('TM_GCP_KEY') || '';
-            document.getElementById('cfg-sb-url').value = localStorage.getItem('TM_SUPABASE_URL') || '';
-            document.getElementById('cfg-sb-key').value = localStorage.getItem('TM_SUPABASE_KEY') || '';
-            document.getElementById('settings_modal').showModal();
+            try {
+                const gcpInput = document.getElementById('cfg-gcp-key');
+                const sbUrlInput = document.getElementById('cfg-sb-url');
+                const sbKeyInput = document.getElementById('cfg-sb-key');
+                const modal = document.getElementById('settings_modal');
+
+                if (gcpInput) gcpInput.value = localStorage.getItem('TM_GCP_KEY') || '';
+                if (sbUrlInput) sbUrlInput.value = localStorage.getItem('TM_SUPABASE_URL') || '';
+                if (sbKeyInput) sbKeyInput.value = localStorage.getItem('TM_SUPABASE_KEY') || '';
+
+                if (modal) {
+                    modal.showModal();
+                    log("Opening System Configuration...");
+                } else {
+                    log("CRITICAL: Settings modal element not found.", "error");
+                    alert("Settings UI is missing. Check page source.");
+                }
+            } catch (e) {
+                log("Settings Error: " + e.message, "error");
+            }
         }
 
         function saveSettings() {
