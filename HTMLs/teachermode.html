@@ -3524,30 +3524,39 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         function manageStudentsUI(passcode) {
+            const modalId = 'manage_roster_modal';
+            let existing = document.getElementById(modalId);
+            if (existing) existing.remove();
+
             const modal = document.createElement('dialog');
+            modal.id = modalId;
             modal.className = 'modal';
 
-            // Mock Student List
-            const mockStudents = [
-                { name: "Cadet Sarah", status: "ONLINE", score: 85 },
-                { name: "Cadet John", status: "OFFLINE", score: 42 },
-                { name: "Cadet Mike", status: "ONLINE", score: 92 }
-            ];
+            // Use a semi-persistent mock list for the session
+            if (!window.activeRoster) {
+                window.activeRoster = [
+                    { name: "Cadet Sarah", status: "ONLINE", score: 85 },
+                    { name: "Cadet John", status: "OFFLINE", score: 42 },
+                    { name: "Cadet Mike", status: "ONLINE", score: 92 }
+                ];
+            }
 
-            let rows = mockStudents.map(s => `
-                <tr class="hover">
-                    <td class="font-bold">${s.name}</td>
-                    <td><div class="badge ${s.status === 'ONLINE' ? 'badge-success' : 'badge-ghost'} badge-xs mr-1"></div> ${s.status}</td>
-                    <td class="font-mono text-xs">${s.score}%</td>
-                    <td><button class="btn btn-xs btn-error btn-outline" onclick="alert('Kicked ${s.name}')">KICK</button></td>
-                </tr>
-            `).join('');
+            const renderRows = () => {
+                return window.activeRoster.map(s => `
+                    <tr class="hover" id="roster-row-${s.name.replace(/\s+/g, '-')}">
+                        <td class="font-bold">${s.name}</td>
+                        <td><div class="badge ${s.status === 'ONLINE' ? 'badge-success' : 'badge-ghost'} badge-xs mr-1"></div> ${s.status}</td>
+                        <td class="font-mono text-xs">${s.score}%</td>
+                        <td><button class="btn btn-xs btn-error btn-outline" onclick="kickStudentUI('${s.name}', '${passcode}')">KICK</button></td>
+                    </tr>
+                `).join('');
+            };
 
             modal.innerHTML = `
                 <div class="modal-box">
                     <h3 class="font-bold text-lg font-display text-secondary mb-2">CLASS ROSTER [${passcode}]</h3>
                     
-                    <div class="overflow-x-auto h-64 border border-base-300 rounded mb-4">
+                    <div class="overflow-x-auto h-64 border border-base-300 rounded mb-4 bg-black/10">
                         <table class="table table-xs w-full">
                             <thead>
                                 <tr>
@@ -3557,7 +3566,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>${rows}</tbody>
+                            <tbody id="roster-tbody">${renderRows()}</tbody>
                         </table>
                     </div>
                     
@@ -3570,12 +3579,36 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         <form method="dialog"><button class="btn btn-sm">Close</button></form>
                     </div>
                 </div>
-                 <form method="dialog" class="modal-backdrop"><button>close</button></form>
+                <form method="dialog" class="modal-backdrop"><button>close</button></form>
             `;
             document.body.appendChild(modal);
             modal.showModal();
-            modal.addEventListener('close', () => modal.remove());
         }
+
+        window.kickStudentUI = function (name, passcode) {
+            if (!confirm(`Are you sure you want to kick ${name} from class ${passcode}?`)) return;
+
+            // Update state
+            if (window.activeRoster) {
+                window.activeRoster = window.activeRoster.filter(s => s.name !== name);
+            }
+
+            // Update UI if the modal is open
+            const tbody = document.getElementById('roster-tbody');
+            if (tbody) {
+                const rows = window.activeRoster.map(s => `
+                    <tr class="hover" id="roster-row-${s.name.replace(/\s+/g, '-')}">
+                        <td class="font-bold">${s.name}</td>
+                        <td><div class="badge ${s.status === 'ONLINE' ? 'badge-success' : 'badge-ghost'} badge-xs mr-1"></div> ${s.status}</td>
+                        <td class="font-mono text-xs">${s.score}%</td>
+                        <td><button class="btn btn-xs btn-error btn-outline" onclick="kickStudentUI('${s.name}', '${passcode}')">KICK</button></td>
+                    </tr>
+                `).join('');
+                tbody.innerHTML = rows;
+            }
+
+            log(`Kicked ${name} from roster.`, "warning");
+        };
 
         // --- PAGE INITIALIZATION ---
         window.onload = () => {
