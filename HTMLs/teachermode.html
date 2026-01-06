@@ -234,15 +234,19 @@
 
                     <div class="stat bg-base-100 shadow rounded-box border border-base-content/5">
                         <div class="stat-figure text-accent">
-                            <div class="radial-progress bg-base-200 text-success border-4 border-base-200"
-                                style="--value:100; --size:2.5rem;" role="progressbar">100%</div>
+                            <div class="radial-progress bg-base-200 text-success border-2 border-base-200"
+                                style="--value:100; --size:3rem; --thickness: 2px;" role="progressbar">
+                                <span class="text-[10px] font-bold">100%</span>
+                            </div>
                         </div>
-                        <div class="stat-title font-display tracking-wide">System Health</div>
-                        <div class="stat-value text-accent flex items-center gap-2" id="dash-stat-sync">
-                            <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-                            LIVE
+                        <div class="stat-title font-display tracking-wide opacity-50">System Health</div>
+                        <div id="dash-stat-sync">
+                            <div class="stat-value text-accent flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
+                                ACTIVE
+                            </div>
+                            <div class="stat-desc text-success">Cloud Sync Optimal</div>
                         </div>
-                        <div class="stat-desc text-success">Cloud Sync Optimal</div>
                     </div>
                 </div>
 
@@ -671,8 +675,11 @@
                 </div>
                 <div class="flex gap-2">
                     <button class="btn btn-sm btn-ghost" onclick="closeHospital()">CANCEL</button>
-                    <button class="btn btn-sm btn-secondary" onclick="saveHospitalChanges()">STABILIZE NODE</button>
-                    <button class="btn btn-sm btn-accent" onclick="finalizeForge()">FINALIZE MISSION</button>
+                    <button class="btn btn-sm btn-outline btn-info font-bold" onclick="downloadBirthedBlob()">DOWNLOAD
+                        .BLOB</button>
+                    <button class="btn btn-sm btn-secondary font-bold" onclick="saveHospitalChanges()">STABILIZE
+                        NODE</button>
+                    <button class="btn btn-sm btn-accent font-bold" onclick="finalizeForge()">FINALIZE MISSION</button>
                 </div>
             </div>
 
@@ -754,22 +761,13 @@
                 </div>
             </div>
         </div>
-    </dialog>
-    <div>PATH: <span id="h-path">SLIDE -> CONTENT</span></div>
-    <div class="flex gap-4">
-        <div>DECISION A: <input type="text" id="h-choice-a"
-                class="bg-transparent border-b border-white/10 outline-none w-24"></div>
-        <div>DECISION B: <input type="text" id="h-choice-b"
-                class="bg-transparent border-b border-white/10 outline-none w-24"></div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-    </form>
+        </div>
+        </div>
+        </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
     </dialog>
 
     <!-- INTEL MODAL (Narrative Viewer) -->
@@ -1571,30 +1569,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
         }
 
-        function getBuilderContextForResearch() {
-            const brainstorm = BuilderHistory.find(h => h.role === 'ai')?.content || "No brainstorm history found.";
-            return `MISSION PARAMETERS:\n${brainstorm}\n\nGOAL: Optimize research queries for the Gemini Deep Research engine.`;
-        }
-
-        async function tailorDeepSearchPrompt() {
-            await optimizeDeepSearch();
-        }
-
-        function copyDeepSearchPrompt() {
-            const el = document.getElementById('deepsearch-prompt');
-            if (el) {
-                navigator.clipboard.writeText(el.innerText);
-                log("PROMPT COPIED TO CLIPBOARD.", "success");
-                alert("Research Prompt Copied!");
-            }
-        }
-
-        function saveDeepSearchResults() {
-            const val = document.getElementById('deepsearch-results').value;
-            accumulatedData.deepSearchResults = val;
-            log("INTELLIGENCE HARVEST ANCHORED.", "success");
-            alert("Research findings saved to mission blob.");
-        }
         async function processBuilder() {
             const inputEl = document.getElementById('f-input');
             const input = inputEl.value.trim();
@@ -2171,8 +2145,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                                     <div class="flex-1 space-y-2">
                                         <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-primary tracking-widest">MISSION HERO // SPLASH</span><span class="badge badge-primary badge-xs scale-75">PRM</span></div>
                                         <div class="join w-full">
-                                            <input id="asset-hero-prompt" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px]" value="${heroPrompt}">
+                                            <input id="asset-hero-prompt" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px]" value="${heroPrompt}" onchange="updateAssetPrompt('hero', this.value)">
                                             <button class="btn btn-xs btn-primary join-item px-4 font-bold" onclick="generateAsset('hero')">GENERATE</button>
+                                            <button class="btn btn-xs btn-accent join-item font-bold" onclick="saveAssetToGit('hero')">R2</button>
                                         </div>
                                         <input id="asset-hero-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-success" placeholder="URL" value="${heroImage}" onchange="updateAssetUrl('hero', this.value)">
                                     </div>
@@ -2202,11 +2177,14 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                                 <div id="asset-${slotId}-preview" class="bg-black/20 rounded aspect-[4/3] flex items-center justify-center border border-white/5 overflow-hidden">
                                     ${img ? `<img src="${img}" class="h-full w-full object-cover">` : '<span class="text-[8px] opacity-20 font-mono">OFFLINE</span>'}
                                 </div>
-                                <input id="asset-${slotId}-prompt" type="text" class="input input-bordered input-[10px] h-6 w-full font-mono" placeholder="Prompt..." value="${prompt}">
+                                <input id="asset-${slotId}-prompt" type="text" class="input input-bordered input-[10px] h-6 w-full font-mono" placeholder="Prompt..." value="${prompt}" onchange="updateAssetPrompt('${slotId}', this.value)">
                                 <div class="flex gap-1">
                                     <input id="asset-${slotId}-url" type="text" class="input input-bordered input-[10px] h-6 flex-1 font-mono text-[8px] text-success" placeholder="URL" value="${img}" onchange="updateAssetUrl('${slotId}', this.value)">
-                                    <button class="btn btn-xs btn-primary btn-square h-6 w-6" onclick="generateAsset('${slotId}')">
+                                    <button class="btn btn-xs btn-primary btn-square h-6 w-6" onclick="generateAsset('${slotId}')" title="Generate Image">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    </button>
+                                    <button class="btn btn-xs btn-accent btn-square h-6 w-6" onclick="saveAssetToGit('${slotId}')" title="Save to R2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                                     </button>
                                 </div>
                             </div>
@@ -2216,6 +2194,23 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             html += `</div></div>`;
             outputArea.innerHTML = html;
+        }
+
+        function updateAssetPrompt(slotId, prompt) {
+            if (slotId === 'hero') {
+                if (!accumulatedData.metadata) accumulatedData.metadata = {};
+                accumulatedData.metadata.heroPrompt = prompt;
+            } else if (typeof slotId === 'string' && slotId.includes('-')) {
+                const [slideIdx, variant] = slotId.split('-');
+                const idx = parseInt(slideIdx);
+                if (!accumulatedData.slides[idx]) accumulatedData.slides[idx] = {};
+                if (variant === 'a') {
+                    accumulatedData.slides[idx].imagePrompt = prompt;
+                } else {
+                    accumulatedData.slides[idx].altImagePrompt = prompt;
+                }
+            }
+            log(`Asset prompt updated for slot ${slotId}`, 'info');
         }
 
         function updateAssetUrl(slotId, url) {
@@ -2987,8 +2982,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     <div class="stat-value text-accent flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
                         ACTIVE
+                        <span class="text-[9px] font-mono opacity-30 ml-2 mt-1">SYNC: ${new Date().toLocaleTimeString()}</span>
                     </div>
-                    <div class="stat-desc opacity-50 font-mono text-[9px]">LAST_SYNC: ${new Date().toLocaleTimeString()}</div>
+                    <div class="stat-desc text-success">Cloud Sync Optimal</div>
                 `;
             }
         }
