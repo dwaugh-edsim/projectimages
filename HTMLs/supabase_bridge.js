@@ -393,13 +393,12 @@ const SupabaseBridge = {
         return data;
     },
 
-    async deleteClass(classId, teacherId) {
+    async deleteClass(classId) {
         if (!this.client) return false;
         const { data, error } = await this.client
             .from('classes')
             .delete()
             .eq('id', classId)
-            .eq('teacher_id', teacherId)
             .select();
         if (error) throw error;
         return data; // Return record to verify deletion
