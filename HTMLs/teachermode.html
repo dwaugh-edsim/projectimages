@@ -138,7 +138,7 @@
                 </div>
                 <ul tabindex="0"
                     class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a onclick="initGoogleAuth()">Verify Identity</a></li>
+                    <li><a onclick="openAuthModal()">Verify Identity</a></li>
                     <li><a onclick="toggleAboutModal()">About System</a></li>
                     <li><a onclick="document.documentElement.setAttribute('data-theme', 'light')">Light Mode</a></li>
                     <li><a onclick="document.documentElement.setAttribute('data-theme', 'dark')">Dark Mode</a></li>
@@ -1075,13 +1075,33 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
 
         // --- AUTH & INIT ---
         function initGoogleAuth() {
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleCredentialResponse
-                });
-                // google.accounts.id.prompt(); 
-                log("Google Auth Initialized.");
+            log("GSI_ENGINE: Establishing Secure Identity Link...");
+            try {
+                if (typeof google !== 'undefined' && google.accounts) {
+                    google.accounts.id.initialize({
+                        client_id: GOOGLE_CLIENT_ID,
+                        callback: handleCredentialResponse
+                    });
+                    // Render the Google Sign-In button in the auth modal
+                    google.accounts.id.renderButton(
+                        document.getElementById("google-signin-container"),
+                        { theme: "outline", size: "large", width: 280 }
+                    );
+                    log("Google Auth Initialized.", "success");
+                } else {
+                    log("GSI Library not loaded yet.", "warning");
+                }
+            } catch (e) {
+                console.error("GSI Init Error:", e);
+                log(`GSI Error: ${e.message}`, "error");
+            }
+        }
+
+        function openAuthModal() {
+            const modal = document.getElementById('auth_modal');
+            if (modal) {
+                initGoogleAuth(); // Ensure button is rendered
+                modal.showModal();
             }
         }
 
@@ -1095,6 +1115,14 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
             document.getElementById('user-avatar-initials').innerText = googleUser.given_name?.[0] || "U";
 
             log(`Identity Verified: ${googleUser.email}`, "success");
+
+            // Close the auth modal on successful login
+            const modal = document.getElementById('auth_modal');
+            if (modal) modal.close();
+
+            // Refresh data with authenticated teacher ID
+            refreshClasses();
+            fetchMissions();
         }
 
         function decodeJwtResponse(token) {
