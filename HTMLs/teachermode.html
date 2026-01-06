@@ -25,6 +25,12 @@
         const TEACHER_HANDLE = localStorage.getItem('TM_TEACHER_HANDLE') || (typeof CONFIG !== 'undefined' ? CONFIG.TEACHER_ID : 'GUEST');
         let GOOGLE_CLIENT_ID = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
         const HARDWIRED_PROXY = "https://nextjs-basic-lemon-one.vercel.app/api/chat";
+
+        // --- GLOBAL STATE (Restored for V3 Brains) ---
+        let currentMissions = [];
+        let currentClasses = [];
+        let allProgress = [];
+        let googleUser = null;
     </script>
     <script src="critical_crypto.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -648,95 +654,122 @@
     </dialog>
 
     <!-- HOSPITAL MODAL (Node Editor) -->
+    <!-- HOSPITAL MODAL (SURGICAL THEATER) -->
     <dialog id="hospital_modal" class="modal modal-bottom sm:modal-middle">
         <div
             class="modal-box w-11/12 max-w-7xl h-[90vh] bg-base-100 border border-secondary/20 p-0 flex flex-col overflow-hidden">
             <!-- Modal Header -->
-            <div class="bg-base-200 px-6 py-4 border-b border-base-content/10 flex justify-between items-center">
-                <h3 class="font-bold text-lg font-display tracking-widest text-secondary flex items-center gap-2">
-                    MISSION HOSPITAL <span class="badge badge-outline badge-xs font-mono opacity-50">SURGICAL
-                        THEATER</span>
-                </h3>
+            <div
+                class="bg-base-200 px-6 py-4 border-b border-base-content/10 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-bold text-lg font-display tracking-widest text-secondary flex items-center gap-2">
+                        MISSION HOSPITAL <span class="badge badge-outline badge-xs font-mono opacity-50">SURGICAL
+                            THEATER</span>
+                    </h3>
+                    <div id="h-path" class="text-[9px] font-mono opacity-40 uppercase tracking-widest mt-1">NODE:
+                        SELECTION_REQUIRED</div>
+                </div>
                 <div class="flex gap-2">
                     <button class="btn btn-sm btn-ghost" onclick="closeHospital()">CANCEL</button>
-                    <button class="btn btn-sm btn-secondary" onclick="saveHospitalChanges()">SAVE CHANGES</button>
+                    <button class="btn btn-sm btn-secondary" onclick="saveHospitalChanges()">STABILIZE NODE</button>
+                    <button class="btn btn-sm btn-accent" onclick="finalizeForge()">FINALIZE MISSION</button>
                 </div>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex-1 flex overflow-hidden">
-                <!-- Slide List Sidebar -->
-                <div class="w-64 bg-base-200/50 border-r border-base-content/10 overflow-y-auto p-4 space-y-1"
-                    id="h-slide-list">
-                    <!-- Injected JS -->
+                <!-- Node Navigator Sidebar -->
+                <div class="w-64 bg-base-200/50 border-r border-base-content/10 flex flex-col overflow-hidden shrink-0">
+                    <div
+                        class="p-3 text-[10px] font-bold opacity-30 uppercase tracking-widest border-b border-base-content/5">
+                        Surgical Nodes</div>
+                    <div class="flex-1 overflow-y-auto p-2" id="h-node-list">
+                        <!-- Injected Nodes -->
+                    </div>
                 </div>
 
-                <!-- Main Surgical Area -->
-                <div class="flex-1 flex overflow-hidden" id="h-surgical-area">
+                <!-- Main Theatre Area -->
+                <div class="flex-1 flex overflow-hidden" id="h-theatre-main">
                     <!-- Left: Visual Monitor -->
-                    <div
-                        class="w-1/3 border-r border-base-content/10 flex flex-col p-4 space-y-4 overflow-y-auto bg-black/10">
-                        <div class="text-[10px] font-bold text-secondary tracking-widest uppercase opacity-50">Visual
-                            Sensor Feed</div>
+                    <div class="w-80 border-r border-base-content/10 flex flex-col p-4 bg-black/10 shrink-0">
+                        <div class="text-[10px] font-bold text-secondary tracking-widest uppercase opacity-50 mb-3">
+                            Visual Sensor Feed</div>
                         <div id="h-visual-preview"
-                            class="bg-black/40 rounded border border-white/5 aspect-video flex items-center justify-center overflow-hidden">
+                            class="bg-black/60 rounded border border-white/5 aspect-video flex items-center justify-center overflow-hidden mb-4 shadow-inner">
                             <span class="text-xs opacity-20 font-mono">NO SIGNAL</span>
                         </div>
-                        <div class="space-y-3">
-                            <div class="form-control">
-                                <label class="label py-1"><span
-                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Slide
+                        <div class="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+                            <div class="form-control" id="h-field-title-wrap">
+                                <label class="label py-0"><span
+                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Display
                                         Title</span></label>
-                                <input type="text" id="h-title" class="input input-bordered input-sm font-display"
-                                    placeholder="Node Title">
+                                <input type="text" id="h-title" class="input input-bordered input-xs font-display h-8"
+                                    placeholder="Node Heading">
                             </div>
-                            <div class="form-control">
-                                <label class="label py-1"><span
-                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Media URL
-                                        (IMG/YT/PDF)</span></label>
+                            <div class="form-control" id="h-field-media-wrap">
+                                <label class="label py-0"><span
+                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Media Link
+                                        (JPG/YT/PDF)</span></label>
                                 <input type="text" id="h-media-url"
-                                    class="input input-bordered input-sm font-mono text-[10px]"
+                                    class="input input-bordered input-xs font-mono text-[9px] h-8 text-success"
                                     onchange="updateHospitalPreview(this.value)">
                             </div>
-                            <div class="form-control">
-                                <label class="label py-1"><span
-                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Visual Prompt
-                                        (AI Reference)</span></label>
-                                <textarea id="h-visual-prompt"
-                                    class="textarea textarea-bordered h-20 font-mono text-xs"></textarea>
+                            <div class="form-control" id="h-field-choices-wrap">
+                                <label class="label py-0"><span
+                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Surgical
+                                        Options</span></label>
+                                <div class="grid grid-cols-2 gap-1">
+                                    <input type="text" id="h-choice-a" class="input input-bordered input-xs text-[10px]"
+                                        placeholder="Option Alpha">
+                                    <input type="text" id="h-choice-b" class="input input-bordered input-xs text-[10px]"
+                                        placeholder="Option Beta">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Narrative Input (Quill) -->
-                    <div class="flex-1 flex flex-col overflow-hidden">
-                        <!-- Tab Navigation -->
-                        <div class="flex bg-base-300/50 p-1 gap-1 border-b border-base-content/10" id="h-tabs-nav">
-                            <!-- Injected JS Tabs -->
-                        </div>
-
-                        <div class="flex-1 flex flex-col overflow-hidden bg-base-100">
-                            <div id="quill-editor" class="flex-1 overflow-y-auto"></div>
-                        </div>
-
-                        <!-- Footer metadata -->
+                    <!-- Right: Operating Region -->
+                    <div class="flex-1 flex flex-col overflow-hidden bg-base-100">
+                        <!-- Interaction Tabs -->
                         <div
-                            class="bg-base-200 p-2 flex justify-between items-center text-[10px] font-mono opacity-50 border-t border-base-content/10">
-                            <div>PATH: <span id="h-path">SLIDE -> CONTENT</span></div>
-                            <div class="flex gap-4">
-                                <div>DECISION A: <input type="text" id="h-choice-a"
-                                        class="bg-transparent border-b border-white/10 outline-none w-24"></div>
-                                <div>DECISION B: <input type="text" id="h-choice-b"
-                                        class="bg-transparent border-b border-white/10 outline-none w-24"></div>
+                            class="bg-base-300/80 p-1 flex justify-between items-center border-b border-base-content/10">
+                            <div class="flex gap-1" id="h-tabs-nav">
+                                <!-- Injected Tabs -->
+                            </div>
+                            <div class="text-[9px] font-mono opacity-30 mr-2 uppercase" id="h-node-type">Node Type:
+                                Generic</div>
+                        </div>
+
+                        <!-- Content Theatre -->
+                        <div class="flex-1 overflow-hidden flex flex-col relative">
+                            <!-- Rich Text Editor -->
+                            <div id="h-editor-wrap" class="flex-1 flex flex-col overflow-hidden">
+                                <div id="quill-editor" class="flex-1"></div>
+                            </div>
+                            <!-- Metadata/Glossary Forms -->
+                            <div id="h-form-wrap" class="absolute inset-0 bg-base-100 overflow-y-auto p-6 hidden">
+                                <!-- Injected Forms -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
+    </dialog>
+    <div>PATH: <span id="h-path">SLIDE -> CONTENT</span></div>
+    <div class="flex gap-4">
+        <div>DECISION A: <input type="text" id="h-choice-a"
+                class="bg-transparent border-b border-white/10 outline-none w-24"></div>
+        <div>DECISION B: <input type="text" id="h-choice-b"
+                class="bg-transparent border-b border-white/10 outline-none w-24"></div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
     </dialog>
 
     <!-- INTEL MODAL (Narrative Viewer) -->
@@ -752,6 +785,25 @@
                 <form method="dialog">
                     <button class="btn btn-sm btn-ghost">CLOSE</button>
                 </form>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- MISSION ASSIGNMENT MODAL -->
+    <dialog id="mission_assignment_modal" class="modal">
+        <div class="modal-box bg-base-100 border border-base-content/10">
+            <h3 class="font-bold text-lg font-display tracking-widest mb-2">DOSSIER ASSIGNMENT</h3>
+            <p id="assignment-class-info" class="text-[0.6rem] font-mono opacity-50 mb-4"></p>
+
+            <div id="assignment-list"
+                class="max-h-64 overflow-y-auto space-y-1 mb-6 border border-base-content/10 p-2 rounded bg-base-200/30">
+                <!-- Mission List Injected Here -->
+            </div>
+
+            <div class="modal-action">
+                <button class="btn btn-sm btn-ghost"
+                    onclick="document.getElementById('mission_assignment_modal').close()">Cancel</button>
+                <button class="btn btn-sm btn-primary" onclick="saveMissionAssignment()">Update Assignments</button>
             </div>
         </div>
     </dialog>
@@ -828,15 +880,12 @@
     <!-- CORE LOGIC TRANSPLANT -->
     <script>
         // --- GLOBAL STATE ---
-        let googleUser = null;
         let accumulatedData = {
             metadata: {},
             slides: [],
             intelligenceGlossary: {},
             aiPromptsExtracted: false
         };
-        let currentMissions = [];
-        let allProgress = [];
 
         // --- Builder PIPELINE CONFIG ---
         const Builder_PHASES = {
@@ -1354,12 +1403,27 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 googleUser = responsePayload;
                 console.log("handleCredentialResponse: User Verified:", googleUser.email);
 
+                // --- SECURITY: TEACHER ALLOWLIST ---
+                const AUTHORIZED_TEACHERS = [
+                    "dwaugh@gmail.com",
+                    "david.waugh@gmail.com",
+                    "mr.waugh@school.edu"
+                ];
+                const isAuthorized = AUTHORIZED_TEACHERS.includes(googleUser.email);
+
                 // Update UI Badges
                 const authBadge = document.getElementById('status-badge-auth');
                 if (authBadge) {
-                    authBadge.innerText = "AUTH_OK";
-                    authBadge.classList.remove('opacity-50', 'badge-outline');
-                    authBadge.classList.add('badge-success', 'text-white');
+                    if (isAuthorized) {
+                        authBadge.innerText = "AUTH_OK";
+                        authBadge.classList.remove('opacity-50', 'badge-outline', 'badge-warning');
+                        authBadge.classList.add('badge-success', 'text-white');
+                    } else {
+                        authBadge.innerText = "GUEST_OK";
+                        authBadge.classList.remove('opacity-50', 'badge-outline', 'badge-success');
+                        authBadge.classList.add('badge-warning', 'text-black');
+                        log("READ-ONLY ACCESS: Identity Verified but not on Authorized List.", "warning");
+                    }
                 }
 
                 const avatar = document.getElementById('user-avatar-initials');
@@ -1367,14 +1431,11 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                 log(`Identity Verified: ${googleUser.email}`, "success");
 
-                // Close the auth modal on successful login
+                // Close the auth modal
                 const modal = document.getElementById('auth_modal');
-                if (modal) {
-                    modal.close();
-                    log("Auth Modal Dismissed.", "info");
-                }
+                if (modal) modal.close();
 
-                // Refresh data with authenticated teacher ID
+                // Refresh data
                 refreshClasses();
                 fetchMissions();
                 fetchCurriculum();
@@ -1457,7 +1518,83 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
 
 
-        // --- STUB FUNCTIONS FOR MISSING LOGIC (Will be filled in Phase 2) ---
+        // --- FORGE NAVIGATION & INTELLIGENCE (Restored V3 Brains) ---
+        function jumpToPhase(index) {
+            if (index < 0 || index >= BuilderPipeline.length) return;
+
+            log(`Navigating to ${Builder_PHASES[BuilderPipeline[index]].label} protocol...`, "info");
+            currentPhaseIndex = index;
+
+            // Clear current chat for the new phase context
+            const chat = document.getElementById('Builder-chat');
+            if (chat) chat.innerHTML = '';
+
+            updateBuilderUI();
+            addBuilderChat('ai', `**PHASE SHIFT**: Entering ${Builder_PHASES[BuilderPipeline[index]].title}. \n\n${Builder_PHASES[BuilderPipeline[index]].desc}`);
+        }
+
+        async function optimizeDeepSearch() {
+            log("Optimizing Intelligence Queries...", "info");
+            const brainstorm = BuilderHistory.find(h => h.role === 'ai')?.content || "";
+            if (!brainstorm) {
+                alert("Please brainstorm a mission first to generate research queries.");
+                return;
+            }
+
+            const prompt = `Based on this mission brainstorm, generate 5 highly specific research queries for a deep-dive investigation. \n\nBRAINSTORM: ${brainstorm}\n\nFormat: Bullet points.`;
+
+            try {
+                const queries = await callAI(prompt);
+                addBuilderChat('ai', `**DEEP SEARCH PROTOCOLS GENERATED**: \n\n${queries}`);
+                log("Intelligence Queries Optimized.", "success");
+            } catch (e) {
+                log(`Research Opt Failed: ${e.message}`, "error");
+            }
+        }
+
+        async function runAI(studentName, classCode, missionId) {
+            log(`Analyzing Agent Performance: ${studentName}...`, "info");
+
+            // 1. Find the student log
+            const logEntry = allProgress.find(p => p.name === studentName && p.class === classCode);
+            if (!logEntry) return;
+
+            // 2. Construct Analysis Prompt
+            const prompt = `Analyze this student's performance in Situation Room Mission [${missionId}]. \n\nSTUDENT: ${studentName}\nSTATUS: ${JSON.stringify(logEntry.missionData[missionId])}\n\nProvide a technical evaluation of their decisions and suggest a 'Counter-Intelligence' briefing for the teacher.`;
+
+            try {
+                const analysis = await callAI(prompt);
+                alert(`STUDENT ANALYSIS [${studentName}]:\n\n${analysis}`);
+                log("Intelligence Analysis Complete.", "success");
+            } catch (e) {
+                log(`Analysis Failed: ${e.message}`, "error");
+            }
+        }
+
+        function getBuilderContextForResearch() {
+            const brainstorm = BuilderHistory.find(h => h.role === 'ai')?.content || "No brainstorm history found.";
+            return `MISSION PARAMETERS:\n${brainstorm}\n\nGOAL: Optimize research queries for the Gemini Deep Research engine.`;
+        }
+
+        async function tailorDeepSearchPrompt() {
+            await optimizeDeepSearch();
+        }
+
+        function copyDeepSearchPrompt() {
+            const el = document.getElementById('deepsearch-prompt');
+            if (el) {
+                navigator.clipboard.writeText(el.innerText);
+                log("PROMPT COPIED TO CLIPBOARD.", "success");
+                alert("Research Prompt Copied!");
+            }
+        }
+
+        function saveDeepSearchResults() {
+            const val = document.getElementById('deepsearch-results').value;
+            accumulatedData.deepSearchResults = val;
+            log("INTELLIGENCE HARVEST ANCHORED.", "success");
+            alert("Research findings saved to mission blob.");
+        }
         async function processBuilder() {
             const inputEl = document.getElementById('f-input');
             const input = inputEl.value.trim();
@@ -2006,48 +2143,38 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             let html = `
                 <div class="p-6 h-full overflow-y-auto bg-base-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                         <div>
-                            <h2 class="text-2xl font-display tracking-widest text-primary flex items-center gap-2">
+                            <h2 class="text-xl font-display tracking-widest text-primary flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                VISUAL ASSET MATRIX
+                                19-ASSET STRATEGY MATRIX
                             </h2>
-                            <p class="text-xs opacity-60 font-mono uppercase tracking-tighter">Mission ID: ${missionId}</p>
+                            <p class="text-[10px] opacity-60 font-mono uppercase tracking-tighter">Mission ID: ${missionId} // 1 HERO + 18 EXHIBITS</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                             <button class="btn btn-sm btn-outline btn-primary font-mono text-[10px]" onclick="extractAIPromptsFromHistory(); renderAssetsScreen(document.getElementById('Builder-output'))">RESYNC PROMPTS</button>
-                             <button class="btn btn-sm btn-secondary font-mono text-[10px]" onclick="generateAllAssets()">GENERATE ALL</button>
-                             <button class="btn btn-sm btn-accent font-mono text-[10px]" onclick="saveAllAssetsToR2()">SAVE ALL TO R2</button>
+                             <button class="btn btn-xs btn-outline btn-primary font-mono text-[9px]" onclick="extractAIPromptsFromHistory(); renderAssetsScreen(document.getElementById('Builder-output'))">RESYNC PROMPTS</button>
+                             <button class="btn btn-xs btn-secondary font-mono text-[9px]" onclick="generateAllAssets()">GENERATE ALL (19)</button>
+                             <button class="btn btn-xs btn-accent font-mono text-[9px]" onclick="saveAllAssetsToR2()">SAVE ALL TO R2</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <div class="col-span-full mb-4">
-                            <div class="card bg-base-100 shadow-xl border border-primary/20">
-                                <div class="card-body p-4 md:p-6">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <h3 class="text-xs font-bold text-primary tracking-widest uppercase">Primary Mission Hero</h3>
-                                        <span class="badge badge-primary badge-xs font-mono">SLOT: HERO</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                        <!-- Hero Card (Full Width in Grid) -->
+                        <div class="col-span-full mb-2">
+                            <div class="card bg-base-100 shadow-xl border border-primary/40">
+                                <div class="card-body p-3 flex-row gap-4 items-center">
+                                    <div id="asset-hero-preview" class="w-24 h-24 bg-black/40 rounded border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+                                        ${heroImage ? `<img src="${heroImage}" class="h-full w-full object-cover">` : '<div class="text-[8px] opacity-20 font-mono">HERO</div>'}
                                     </div>
-                                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                        <div class="lg:col-span-2 space-y-4">
-                                            <div class="form-control">
-                                                <label class="label py-1"><span class="label-text-alt opacity-50 text-[10px] uppercase font-bold">Image Synthesis Prompt</span></label>
-                                                <textarea id="asset-hero-prompt" class="textarea textarea-bordered textarea-sm w-full h-24 font-mono text-xs leading-tight" placeholder="Synthetics prompt...">${heroPrompt}</textarea>
-                                            </div>
-                                            <div class="flex flex-col sm:flex-row gap-2">
-                                                <div class="join flex-1">
-                                                    <input id="asset-hero-url" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px] text-success" placeholder="Asset URL (R2/HTTPS)" value="${heroImage}" onchange="updateAssetUrl('hero', this.value)">
-                                                    <button class="btn btn-xs btn-primary join-item px-4 font-bold" onclick="generateAsset('hero')">GENERATE</button>
-                                                </div>
-                                                <button class="btn btn-xs btn-outline btn-accent font-bold" onclick="saveAssetToGit('hero')">R2 ARCHIVE</button>
-                                            </div>
+                                    <div class="flex-1 space-y-2">
+                                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-primary tracking-widest">MISSION HERO // SPLASH</span><span class="badge badge-primary badge-xs scale-75">PRM</span></div>
+                                        <div class="join w-full">
+                                            <input id="asset-hero-prompt" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px]" value="${heroPrompt}">
+                                            <button class="btn btn-xs btn-primary join-item px-4 font-bold" onclick="generateAsset('hero')">GENERATE</button>
                                         </div>
-                                        <div id="asset-hero-preview" class="bg-black/40 rounded border border-white/5 flex items-center justify-center min-h-[160px] overflow-hidden">
-                                            ${heroImage ? `<img src="${heroImage}" class="max-h-[160px] object-contain shadow-2xl" onerror="this.src='https://placehold.co/600x400/000/0af?text=PREVIEW+FAILED'">` : '<div class="text-center opacity-20"><p class="text-[10px] font-mono">NO IMAGE DATA</p></div>'}
-                                        </div>
+                                        <input id="asset-hero-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-success" placeholder="URL" value="${heroImage}" onchange="updateAssetUrl('hero', this.value)">
                                     </div>
                                 </div>
                             </div>
@@ -2055,55 +2182,37 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             `;
 
             const slides = accumulatedData.slides || [];
-            slides.forEach((slide, i) => {
-                const slideTitle = slide.title || slide.shortTitle || `Section ${i + 1}`;
-                const primaryImg = slide.tabs?.primary?.image || slide.image || '';
-                const altImg = slide.tabs?.intel?.image || slide.altImage || '';
+            // We fill 18 slots (2 per slide for 9 content slides)
+            for (let i = 0; i < 9; i++) {
+                const s = slides[i] || {};
+                const slideTitle = s.title || s.shortTitle || `Section ${i + 1}`;
 
-                html += `
-                    <div class="card bg-base-100 shadow-lg border border-base-content/10">
-                        <div class="card-body p-3 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[10px] font-bold text-accent opacity-70 truncate max-w-[120px]">S${i + 1}A: ${slideTitle.substring(0, 18)}${slideTitle.length > 18 ? '...' : ''}</span>
-                                <div class="flex items-center gap-1">
-                                    <button class="btn btn-[8px] h-4 min-h-0 px-1 btn-ghost opacity-40 hover:opacity-100" onclick="openIntelModal(${i})">INTEL</button>
-                                    <span class="badge badge-outline badge-xs opacity-50 font-mono">PRM</span>
+                ['a', 'b'].forEach(v => {
+                    const slotId = `${i}-${v}`;
+                    const img = (v === 'a') ? (s.tabs?.primary?.image || s.image || '') : (s.tabs?.intel?.image || s.altImage || '');
+                    const prompt = (v === 'a') ? (s.imagePrompt || '') : (s.altImagePrompt || '');
+
+                    html += `
+                        <div class="card bg-base-100 shadow-md border border-base-content/10">
+                            <div class="card-body p-2 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[9px] font-bold text-accent opacity-70 truncate">S${i + 1}${v.toUpperCase()}: ${slideTitle.substring(0, 12)}</span>
+                                    <span class="badge badge-outline badge-[8px] opacity-30 font-mono">${v === 'a' ? 'PRM' : 'INT'}</span>
+                                </div>
+                                <div id="asset-${slotId}-preview" class="bg-black/20 rounded aspect-[4/3] flex items-center justify-center border border-white/5 overflow-hidden">
+                                    ${img ? `<img src="${img}" class="h-full w-full object-cover">` : '<span class="text-[8px] opacity-20 font-mono">OFFLINE</span>'}
+                                </div>
+                                <input id="asset-${slotId}-prompt" type="text" class="input input-bordered input-[10px] h-6 w-full font-mono" placeholder="Prompt..." value="${prompt}">
+                                <div class="flex gap-1">
+                                    <input id="asset-${slotId}-url" type="text" class="input input-bordered input-[10px] h-6 flex-1 font-mono text-[8px] text-success" placeholder="URL" value="${img}" onchange="updateAssetUrl('${slotId}', this.value)">
+                                    <button class="btn btn-xs btn-primary btn-square h-6 w-6" onclick="generateAsset('${slotId}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    </button>
                                 </div>
                             </div>
-                            <div id="asset-${i}-a-preview" class="bg-black/20 rounded aspect-video flex items-center justify-center border border-white/5 overflow-hidden">
-                                ${primaryImg ? `<img src="${primaryImg}" class="max-h-full object-contain" onerror="this.style.display='none'">` : '<span class="text-[10px] opacity-20 font-mono uppercase">Offline</span>'}
-                            </div>
-                            <textarea id="asset-${i}-a-prompt" class="textarea textarea-bordered textarea-xs w-full h-16 font-mono text-[10px] leading-tight" placeholder="Prompt...">${slide.imagePrompt || ''}</textarea>
-                            <input id="asset-${i}-a-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-success" placeholder="URL" value="${primaryImg}" onchange="updateAssetUrl('${i}-a', this.value)">
-                            <div class="grid grid-cols-2 gap-2">
-                                <button class="btn btn-xs btn-primary font-mono text-[9px]" onclick="generateAsset('${i}-a')">GEN</button>
-                                <button class="btn btn-xs btn-outline font-mono text-[9px]" onclick="saveAssetToGit('${i}-a')">R2</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card bg-base-100 shadow-lg border border-base-content/10">
-                        <div class="card-body p-3 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[10px] font-bold text-warning opacity-70 truncate max-w-[120px]">S${i + 1}B: ${slideTitle.substring(0, 18)}${slideTitle.length > 18 ? '...' : ''}</span>
-                                <div class="flex items-center gap-1">
-                                    <button class="btn btn-[8px] h-4 min-h-0 px-1 btn-ghost opacity-40 hover:opacity-100" onclick="openIntelModal(${i})">INTEL</button>
-                                    <span class="badge badge-outline badge-xs opacity-50 font-mono">ALT</span>
-                                </div>
-                            </div>
-                            <div id="asset-${i}-b-preview" class="bg-black/20 rounded aspect-video flex items-center justify-center border border-white/5 overflow-hidden">
-                                ${altImg ? `<img src="${altImg}" class="max-h-full object-contain" onerror="this.style.display='none'">` : '<span class="text-[10px] opacity-20 font-mono uppercase">Offline</span>'}
-                            </div>
-                            <textarea id="asset-${i}-b-prompt" class="textarea textarea-bordered textarea-xs w-full h-16 font-mono text-[10px] leading-tight" placeholder="Alt prompt...">${slide.altImagePrompt || ''}</textarea>
-                            <input id="asset-${i}-b-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-warning" placeholder="URL" value="${altImg}" onchange="updateAssetUrl('${i}-b', this.value)">
-                            <div class="grid grid-cols-2 gap-2">
-                                <button class="btn btn-xs btn-secondary font-mono text-[9px]" onclick="generateAsset('${i}-b')">GEN</button>
-                                <button class="btn btn-xs btn-outline font-mono text-[9px]" onclick="saveAssetToGit('${i}-b')">R2</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+                        </div>`;
+                });
+            }
 
             html += `</div></div>`;
             outputArea.innerHTML = html;
@@ -2283,85 +2392,116 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- HOSPITAL (SURGICAL THEATER) LOGIC ---
-        let currentEditingSlideIndex = -1;
+        let currentHospNode = 'metadata'; // 'metadata', 'glossary', or index
         let activeTabKey = 'primary';
         let quill = null;
         let turndownService = (typeof TurndownService !== 'undefined') ? new TurndownService() : null;
 
         function openHospital() {
-            const data = accumulatedData.slides || [];
-            if (data.length === 0) {
-                accumulatedData.slides = [{ title: "INITIAL BRIEFING", tabs: { primary: { label: "Main", body: "Mission parameters..." } }, visual: "Satellite view...", options: ["Accept", "Decline"] }];
-            }
+            if (!accumulatedData.metadata) accumulatedData.metadata = { title: "Untitled Mission", author: "Unknown", version: "1.0", learningOutcomes: [] };
+            if (!accumulatedData.slides) accumulatedData.slides = [];
+
             document.getElementById('hospital_modal').showModal();
-            loadSlideEditor(0);
+            loadNodeEditor('metadata');
+        }
+
+        function closeHospital() {
+            document.getElementById('hospital_modal').close();
         }
 
         function renderHospitalSidebar() {
-            const list = document.getElementById('h-slide-list');
+            const list = document.getElementById('h-node-list');
             if (!list) return;
-            let html = '';
+
+            let html = `
+                <button class="btn btn-sm ${currentHospNode === 'metadata' ? 'btn-secondary' : 'btn-ghost'} justify-start w-full normal-case text-xs mb-1" onclick="loadNodeEditor('metadata')">
+                    📜 PATIENT DOSSIER
+                </button>
+                <button class="btn btn-sm ${currentHospNode === 'glossary' ? 'btn-secondary' : 'btn-ghost'} justify-start w-full normal-case text-xs mb-3" onclick="loadNodeEditor('glossary')">
+                    🧠 INTELLIGENCE GLOSSARY
+                </button>
+                <div class="text-[9px] font-bold opacity-20 uppercase tracking-tighter mb-2 ml-1">Mission Slides</div>
+            `;
+
             (accumulatedData.slides || []).forEach((s, i) => {
-                const active = i === currentEditingSlideIndex ? 'btn-active btn-secondary' : 'btn-ghost';
-                html += `<button class="btn btn-sm ${active} justify-start font-normal px-2 h-auto py-2" onclick="loadSlideEditor(${i})">
-                    <span class="opacity-50 font-mono text-[10px] mr-2 w-4 self-start mt-0.5">${i + 1}.</span>
-                    <span class="truncate text-xs text-left leading-tight whitespace-normal">${s.title || 'Untitled Mission Step'}</span>
+                const active = currentHospNode === i ? 'btn-active btn-primary' : 'btn-ghost';
+                html += `<button class="btn btn-xs ${active} justify-start w-full normal-case text-[11px] mb-1 px-2 py-3 h-auto leading-tight" onclick="loadNodeEditor(${i})">
+                    <span class="opacity-30 mr-1">${i + 1}.</span>
+                    <span class="truncate">${s.title || 'Untitled Step'}</span>
                 </button>`;
             });
-            html += `<button class="btn btn-sm btn-outline btn-xs border-dashed opacity-50 hover:opacity-100 mt-4" onclick="addHospitalNode()">+ Add Mission Step</button>`;
+
+            html += `<button class="btn btn-xs btn-ghost btn-outline border-dashed opacity-40 mt-4 w-full" onclick="addHospitalNode()">+ ADD SLIDE</button>`;
             list.innerHTML = html;
         }
 
-        function loadSlideEditor(index) {
-            currentEditingSlideIndex = index;
-            const slide = accumulatedData.slides[index];
-            if (!slide) return;
-
-            // Ensure tabs structure
-            if (!slide.tabs) {
-                slide.tabs = { primary: { label: "Main", body: slide.brief || slide.content || "" } };
-            }
-            if (!slide.tabs[activeTabKey]) {
-                activeTabKey = Object.keys(slide.tabs)[0] || 'primary';
-            }
-
-            const tabData = slide.tabs[activeTabKey] || { label: "Main", body: "" };
-
-            // UI Fields
-            document.getElementById('h-title').value = slide.title || slide.shortTitle || '';
-            document.getElementById('h-media-url').value = tabData.image || slide.image || '';
-            document.getElementById('h-visual-prompt').value = slide.visual || slide.visualPrompt || '';
-            document.getElementById('h-choice-a').value = slide.options?.[0] || '';
-            document.getElementById('h-choice-b').value = slide.options?.[1] || '';
-            document.getElementById('h-path').innerText = `SLIDE_${index + 1} -> ${activeTabKey.toUpperCase()}`;
-
-            updateHospitalPreview(document.getElementById('h-media-url').value);
-            renderTabNav(slide);
-            initQuill(tabData.body || tabData.content || "");
+        function loadNodeEditor(nodeId) {
+            currentHospNode = nodeId;
             renderHospitalSidebar();
+
+            const editorWrap = document.getElementById('h-editor-wrap');
+            const formWrap = document.getElementById('h-form-wrap');
+            const pathEl = document.getElementById('h-path');
+            const typeEl = document.getElementById('h-node-type');
+
+            // Reset UI
+            editorWrap.classList.add('hidden');
+            formWrap.classList.add('hidden');
+            document.getElementById('h-field-choices-wrap').classList.add('hidden');
+
+            if (nodeId === 'metadata') {
+                pathEl.innerText = "NODE_SYSTEM: METADATA";
+                typeEl.innerText = "Node Type: Dossier";
+                formWrap.classList.remove('hidden');
+                renderMetadataForm();
+                updateHospitalPreview(accumulatedData.metadata.heroImage);
+            } else if (nodeId === 'glossary') {
+                pathEl.innerText = "NODE_SYSTEM: GLOSSARY";
+                typeEl.innerText = "Node Type: Intelligence";
+                formWrap.classList.remove('hidden');
+                renderGlossaryForm();
+                updateHospitalPreview("");
+            } else {
+                const slide = accumulatedData.slides[nodeId];
+                pathEl.innerText = `NODE_PAYLOAD: SLIDE_${nodeId + 1}`;
+                typeEl.innerText = "Node Type: Operational";
+                editorWrap.classList.remove('hidden');
+                document.getElementById('h-field-choices-wrap').classList.remove('hidden');
+
+                if (!slide.tabs) slide.tabs = { primary: { label: "Main", body: "" } };
+                if (!slide.tabs[activeTabKey]) activeTabKey = Object.keys(slide.tabs)[0];
+
+                const tabData = slide.tabs[activeTabKey];
+                document.getElementById('h-title').value = slide.title || "";
+                document.getElementById('h-media-url').value = tabData.image || slide.image || "";
+                document.getElementById('h-choice-a').value = slide.options?.[0] || "";
+                document.getElementById('h-choice-b').value = slide.options?.[1] || "";
+
+                updateHospitalPreview(document.getElementById('h-media-url').value);
+                renderTabNav(slide);
+                initQuill(tabData.body || "");
+            }
         }
 
         function renderTabNav(slide) {
             const nav = document.getElementById('h-tabs-nav');
-            if (!nav) return;
             let html = '';
             Object.keys(slide.tabs).forEach(key => {
-                const active = key === activeTabKey ? 'btn-secondary text-white' : 'btn-ghost opacity-60';
-                html += `<button class="btn btn-xs ${active} px-3" onclick="switchHospitalTab('${key}')">${(slide.tabs[key].label || key).toUpperCase()}</button>`;
+                const active = key === activeTabKey ? 'btn-primary btn-active text-white' : 'btn-ghost opacity-60';
+                html += `<button class="btn btn-[10px] h-6 min-h-0 ${active} px-3" onclick="switchHospitalTab('${key}')">${(slide.tabs[key].label || key).toUpperCase()}</button>`;
             });
             html += `<button class="btn btn-xs btn-ghost text-secondary" onclick="addHospitalTab()">+</button>`;
             nav.innerHTML = html;
         }
 
         function switchHospitalTab(key) {
-            saveHospitalChanges(); // Save current before switching
             activeTabKey = key;
-            loadSlideEditor(currentEditingSlideIndex);
+            loadNodeEditor(currentHospNode);
         }
 
         function addHospitalTab() {
-            const slide = accumulatedData.slides[currentEditingSlideIndex];
-            const name = prompt("Enter tab label (e.g. Intel, Map, Bio):");
+            const slide = accumulatedData.slides[currentHospNode];
+            const name = prompt("Enter tab label (e.g. Intel, Map):");
             if (!name) return;
             const key = name.toLowerCase().replace(/\s/g, '_');
             slide.tabs[key] = { label: name, body: "" };
@@ -2389,73 +2529,126 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             quill.root.innerHTML = (typeof marked !== 'undefined') ? marked.parse(content || "") : content;
 
-            // Sync on change (Debounced slightly for performance)
             quill.on('text-change', () => {
-                const html = quill.root.innerHTML;
-                if (turndownService && accumulatedData.slides[currentEditingSlideIndex]) {
-                    const md = turndownService.turndown(html);
-                    accumulatedData.slides[currentEditingSlideIndex].tabs[activeTabKey].body = md;
+                if (typeof currentHospNode === 'number' && accumulatedData.slides[currentHospNode]) {
+                    const html = quill.root.innerHTML;
+                    const md = turndownService ? turndownService.turndown(html) : html;
+                    accumulatedData.slides[currentHospNode].tabs[activeTabKey].body = md;
                 }
             });
         }
 
-        function updateHospitalPreview(url) {
-            const preview = document.getElementById('h-visual-preview');
-            if (!preview) return;
-            if (!url) {
-                preview.innerHTML = '<span class="text-xs opacity-20 font-mono">NO SIGNAL</span>';
-                return;
-            }
+        function renderMetadataForm() {
+            const data = accumulatedData.metadata;
+            const wrap = document.getElementById('h-form-wrap');
+            wrap.innerHTML = `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <h3 class="text-lg font-display tracking-widest text-primary border-b border-primary/20 pb-2">PATIENT DOSSIER</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission ID</span></label><input type="text" value="${data.id || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.id = this.value"></div>
+                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Version</span></label><input type="text" value="${data.version || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.version = this.value"></div>
+                    </div>
+                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission Title</span></label><input type="text" value="${data.title || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.title = this.value"></div>
+                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Briefing Summary</span></label><textarea class="textarea textarea-bordered h-24" onchange="accumulatedData.metadata.description = this.value">${data.description || ''}</textarea></div>
+                    
+                    <div class="space-y-4 pt-4">
+                        <h4 class="text-xs font-bold opacity-50 uppercase tracking-widest">Learning Outcomes</h4>
+                        <div id="h-outcomes-list" class="space-y-2"></div>
+                        <button class="btn btn-xs btn-outline btn-secondary" onclick="addHospitalOutcome()">+ ADD OUTCOME</button>
+                    </div>
 
-            const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-            const isPDF = url.toLowerCase().endsWith('.pdf');
-
-            if (ytMatch) {
-                preview.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
-            } else if (isPDF) {
-                preview.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="100%">`;
-            } else {
-                preview.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain shadow-2xl" onerror="this.src='https://placehold.co/600x400/000/0af?text=SIGNAL+LOST'">`;
-            }
+                    <div class="divider opacity-10"></div>
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-4">
+                            <input type="checkbox" class="checkbox checkbox-primary" ${data.enableDevilsAdvocate !== false ? 'checked' : ''} onchange="accumulatedData.metadata.enableDevilsAdvocate = this.checked">
+                            <span class="label-text">Enable AI 'Devil's Advocate' (Critique Student Rationales)</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            renderMetadataOutcomes();
         }
+
+        function renderMetadataOutcomes() {
+            const list = document.getElementById('h-outcomes-list');
+            if (!list) return;
+            const outcomes = accumulatedData.metadata.learningOutcomes || [];
+            list.innerHTML = outcomes.map((o, i) => `
+                <div class="flex gap-2">
+                    <input type="text" class="input input-bordered input-xs flex-1" value="${o}" onchange="accumulatedData.metadata.learningOutcomes[${i}] = this.value">
+                    <button class="btn btn-xs btn-square btn-error btn-outline" onclick="removeHospitalOutcome(${i})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addHospitalOutcome() { if (!accumulatedData.metadata.learningOutcomes) accumulatedData.metadata.learningOutcomes = []; accumulatedData.metadata.learningOutcomes.push(""); renderMetadataForm(); }
+        function removeHospitalOutcome(i) { accumulatedData.metadata.learningOutcomes.splice(i, 1); renderMetadataForm(); }
+
+        function renderGlossaryForm() {
+            const data = accumulatedData.intelligenceGlossary || [];
+            const wrap = document.getElementById('h-form-wrap');
+            wrap.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <h3 class="text-lg font-display tracking-widest text-warning border-b border-warning/20 pb-2">INTELLIGENCE GLOSSARY</h3>
+                    <p class="text-[10px] opacity-40 uppercase">Define critical terms to anchor AI behavior and student reference.</p>
+                    <div id="h-glossary-list" class="space-y-3"></div>
+                    <button class="btn btn-sm btn-outline btn-warning" onclick="addHospitalGlossaryTerm()">+ ADD TERM</button>
+                </div>
+            `;
+            const list = document.getElementById('h-glossary-list');
+            list.innerHTML = data.map((item, i) => `
+                <div class="flex gap-3 items-start bg-base-200/50 p-3 rounded border border-white/5">
+                    <div class="w-1/3"><input type="text" class="input input-bordered input-sm w-full font-bold" value="${item.term}" placeholder="Term" onchange="accumulatedData.intelligenceGlossary[${i}].term = this.value"></div>
+                    <div class="flex-1"><textarea class="textarea textarea-bordered textarea-sm w-full leading-tight" placeholder="Definition" onchange="accumulatedData.intelligenceGlossary[${i}].definition = this.value">${item.definition}</textarea></div>
+                    <button class="btn btn-sm btn-square btn-error btn-outline" onclick="removeHospitalGlossaryTerm(${i})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addHospitalGlossaryTerm() { if (!accumulatedData.intelligenceGlossary) accumulatedData.intelligenceGlossary = []; accumulatedData.intelligenceGlossary.push({ term: "", definition: "" }); renderGlossaryForm(); }
+        function removeHospitalGlossaryTerm(i) { accumulatedData.intelligenceGlossary.splice(i, 1); renderGlossaryForm(); }
 
         function saveHospitalChanges() {
-            if (currentEditingSlideIndex === -1 || !quill) return;
-
-            const slide = accumulatedData.slides[currentEditingSlideIndex];
-            const tabData = slide.tabs[activeTabKey];
-
-            slide.title = document.getElementById('h-title').value;
-            slide.visual = document.getElementById('h-visual-prompt').value;
-            slide.options = [
-                document.getElementById('h-choice-a').value,
-                document.getElementById('h-choice-b').value
-            ];
-
-            tabData.image = document.getElementById('h-media-url').value;
-
-            if (turndownService) {
-                tabData.body = turndownService.turndown(quill.root.innerHTML);
+            if (typeof currentHospNode === 'number') {
+                const slide = accumulatedData.slides[currentHospNode];
+                slide.title = document.getElementById('h-title').value;
+                slide.options = [document.getElementById('h-choice-a').value, document.getElementById('h-choice-b').value];
+                slide.tabs[activeTabKey].image = document.getElementById('h-media-url').value;
+                if (quill && turndownService) {
+                    slide.tabs[activeTabKey].body = turndownService.turndown(quill.root.innerHTML);
+                }
             }
-
-            log(`Stabilized Node ${currentEditingSlideIndex + 1}: ${slide.title}`, 'success');
-            renderHospitalSidebar();
+            log(`NODE_STABILIZED: ${currentHospNode}`, "success");
+            saveIdeaProgress();
         }
 
-        function addHospitalNode() {
+        async function finalizeForge() {
+            if (!confirm("FINALIZING: Push this mission to records?")) return;
             saveHospitalChanges();
-            accumulatedData.slides.push({
-                title: "NEW NODE",
-                tabs: { primary: { label: "Main", body: "" } },
-                visual: "",
-                options: ["", ""]
-            });
-            renderHospitalSidebar();
-            loadSlideEditor(accumulatedData.slides.length - 1);
-        }
 
-        function closeHospital() {
-            document.getElementById('hospital_modal').close();
+            try {
+                // Final Metadata Sync
+                const missionId = accumulatedData.metadata?.id || `M-${Date.now()}`;
+                const title = accumulatedData.metadata?.title || "Untitled Mission";
+                const teacherId = googleUser?.email || 'GUEST';
+
+                log(`DEPLO_FORGE: Sanitizing mission capsule [${missionId}]...`, "info");
+
+                // Ensure slides have consistent 3-tab structure before saving
+                accumulatedData.slides.forEach(s => {
+                    if (!s.tabs) s.tabs = { primary: { label: "Main", body: "" } };
+                    if (!s.tabs.intel) s.tabs.intel = { label: "Intel", body: "" };
+                });
+
+                await SupabaseBridge.saveMission(missionId, title, accumulatedData, teacherId);
+
+                log(`BIRTH SUCCESSFUL: Capsule [${missionId}] committed to cloud hub.`, "success");
+                alert("Birth Successful! Redirecting to Library...");
+                window.location.reload();
+            } catch (e) {
+                log(`BIRTH FAILURE: ${e.message}`, "error");
+                alert(`Birth Failed: ${e.message}`);
+            }
         }
 
         async function deployMission() {
@@ -2772,6 +2965,124 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             validationEl.innerHTML = html;
         }
 
+        // --- DASHBOARD & SYNC LOGIC (Restored V3 Brains) ---
+        function refreshDashboardStats() {
+            log("Updating Dashboard Telemetry...", "info");
+
+            // 1. Missions Count
+            const missionCountEl = document.getElementById('dash-stat-missions');
+            if (missionCountEl) missionCountEl.innerText = currentMissions.length;
+
+            // 2. Classes Count
+            const classCountEl = document.getElementById('dash-stat-classes');
+            // Note: dash-stat-students might be used for classes in some V3 layouts, checking...
+            const studentsCountEl = document.getElementById('dash-stat-students');
+            if (classCountEl) classCountEl.innerText = currentClasses.length;
+            if (studentsCountEl) studentsCountEl.innerText = allProgress.length;
+
+            // 3. Sync Status
+            const syncEl = document.getElementById('dash-stat-sync');
+            if (syncEl) {
+                syncEl.innerHTML = `
+                    <div class="stat-value text-accent flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
+                        ACTIVE
+                    </div>
+                    <div class="stat-desc opacity-50 font-mono text-[9px]">LAST_SYNC: ${new Date().toLocaleTimeString()}</div>
+                `;
+            }
+        }
+
+        async function fetchProgress() {
+            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
+            if (currentTeacher === 'GUEST') return;
+
+            log("Syncing Student Progress...", "info");
+            try {
+                if (SupabaseBridge.client) {
+                    const logs = await SupabaseBridge.fetchLogs(currentTeacher);
+                    if (logs) {
+                        // Normalize logs into student progress objects
+                        const normalized = {};
+                        logs.forEach(l => {
+                            const key = `${l.student_name}_${l.class_period}`;
+                            if (!normalized[key]) {
+                                normalized[key] = {
+                                    id: l.id,
+                                    name: l.student_name,
+                                    class: l.class_period || "UNKNOWN",
+                                    missionData: {}
+                                };
+                            }
+                            if (!normalized[key].missionData[l.mission_id]) {
+                                normalized[key].missionData[l.mission_id] = { steps: 0, status: 'IN_FIELD' };
+                            }
+                            // Increase step count if decision exists
+                            if (l.decision_json) normalized[key].missionData[l.mission_id].steps++;
+                        });
+                        allProgress = Object.values(normalized);
+                        log(`Telemetry Received: ${allProgress.length} students synced.`, "success");
+                        refreshDashboardStats();
+                        renderProgress();
+                        if (document.getElementById('projector-view').classList.contains('active')) {
+                            renderProjectorBoard();
+                        }
+                    }
+                }
+            } catch (e) {
+                log(`Sync Error: ${e.message}`, "error");
+            }
+        }
+
+        function renderProgress() {
+            const tbody = document.getElementById('students-tbody');
+            if (!tbody) return;
+
+            let html = '';
+            allProgress.forEach(p => {
+                const missions = Object.keys(p.missionData).join(", ");
+                html += `
+                <tr class="hover:bg-base-200/50 transition-colors border-b border-base-content/5">
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar placeholder">
+                                <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                    <span class="text-xs">${p.name[0]}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-bold text-xs">${p.name}</div>
+                                <div class="text-[10px] opacity-50 font-mono">${p.class}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-ghost badge-xs font-mono">${missions}</span></td>
+                    <td class="text-right space-x-1">
+                        <button class="btn btn-ghost btn-xs text-secondary" onclick="runAI('${p.name}', '${p.class}', '${missions.split(',')[0]}')">Analyze</button>
+                        <button class="btn btn-ghost btn-xs text-error" onclick="deleteStudentData('${p.name}', '${p.class}')">Scrub</button>
+                    </td>
+                </tr>`;
+            });
+
+            if (allProgress.length === 0) {
+                html = `<tr><td colspan="3" class="text-center opacity-30 py-10 text-xs font-mono">NO ACTIVE FIELD AGENTS DETECTED</td></tr>`;
+            }
+            tbody.innerHTML = html;
+        }
+
+        async function deleteStudentData(name, classCode) {
+            if (!confirm(`CONFIRM DATA SCRUB: Permanently delete records for [${name}] in [${classCode}]?`)) return;
+            try {
+                if (SupabaseBridge.client) {
+                    await SupabaseBridge.deleteLogs(name, classCode);
+                    log(`Data Scrub Successful: ${name}`, "success");
+                    fetchProgress();
+                }
+            } catch (e) {
+                log(`Scrub Failed: ${e.message}`, "error");
+            }
+        }
+
         function updateMissionMetadata() {
             const title = document.getElementById('birth-mission-title')?.value?.trim();
             const id = document.getElementById('birth-mission-id')?.value?.trim();
@@ -2800,7 +3111,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             try {
                 const classes = await SupabaseBridge.fetchClasses(googleUser?.email || 'GUEST');
                 window.activeClassesData = classes; // Store for local updates
+                currentClasses = classes;
                 renderClasses(classes);
+                refreshDashboardStats();
             } catch (e) {
                 log("Class Sync Failed: " + e.message, "error");
             }
@@ -2848,6 +3161,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     <td>
                         <div class="join">
                             <button class="btn btn-xs btn-outline join-item" onclick="editClassUI('${c.id}')">Rename</button>
+                            <button class="btn btn-xs btn-outline join-item" onclick="manageMissionsUI('${c.id}')">Missions</button>
                             <button class="btn btn-xs btn-outline join-item" onclick="manageStudentsUI('${c.passcode}')">Roster</button>
                             <button class="btn btn-xs btn-error btn-outline join-item" onclick="deleteClassUI('${c.id}')">X</button>
                         </div>
@@ -2886,6 +3200,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
 
             renderLibrary(currentMissions);
+            refreshDashboardStats();
         }
 
         function renderLibrary(missions) {
@@ -2994,24 +3309,20 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         // --- CURRICULUM CONTEXT ---
         // --- CURRICULUM CONTEXT ---
         async function fetchCurriculum() {
-            console.log("fetchCurriculum: Initiating load...");
-            log("Synchronizing Curriculum Hub...");
+            log("Synchronizing Curriculum Hub...", "info");
 
-            // 1. Load static curriculum.json (fast, cached)
             try {
-                console.log("fetchCurriculum: Fetching curriculum.json");
+                // 1. Load static curriculum.json (fast, cached)
                 const res = await fetch("curriculum.json?v=" + Date.now());
                 if (res.ok) {
                     window.curriculumData = await res.json();
-                    console.log("fetchCurriculum: Local data loaded.", Object.keys(window.curriculumData));
-                    log("Local Curriculum Loaded.", "success");
+                    log("Base Curriculum Loaded.", "success");
                 } else {
-                    console.warn("fetchCurriculum: curriculum.json fetch failed", res.status);
-                    window.curriculumData = window.curriculumData || {};
+                    window.curriculumData = {};
                 }
             } catch (err) {
-                console.warn("Local Curriculum Fetch Skipped (likely CORS or offline):", err);
-                window.curriculumData = window.curriculumData || {};
+                log("Local Curriculum Load Failed (CORS/Offline). Skipping to Cloud.", "warning");
+                window.curriculumData = {};
             }
 
             // 2. Fetch from Supabase (extended library)
@@ -3024,64 +3335,65 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         if (!window.curriculumData[o.country][o.region][o.course]) window.curriculumData[o.country][o.region][o.course] = [];
 
                         let target = window.curriculumData[o.country][o.region][o.course];
-                        if (!Array.isArray(target)) {
-                            window.curriculumData[o.country][o.region][o.course] = [];
-                            target = window.curriculumData[o.country][o.region][o.course];
+                        if (Array.isArray(target) && !target.includes(o.description)) {
+                            target.push(o.description);
                         }
-                        if (!target.includes(o.description)) target.push(o.description);
                     });
-                    log(`Cloud Curriculum Synced: ${outcomes.length} outcomes.`, "success");
+                    log(`Cloud Curriculum Synced: ${outcomes.length} cloud outcomes.`, "success");
                 } catch (e) {
                     log(`Cloud Sync Warning: ${e.message}`, "warning");
                 }
             }
 
-            // 3. Merge Local "Custom Lab" outcomes (Legacy Port)
-            const custom = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
-            console.log("fetchCurriculum: Blending custom labs...", Object.keys(custom));
-            Object.keys(custom).forEach(country => {
-                if (!window.curriculumData[country]) window.curriculumData[country] = {};
-                Object.keys(custom[country]).forEach(region => {
-                    if (!window.curriculumData[country][region]) window.curriculumData[country][region] = {};
-                    Object.keys(custom[country][region]).forEach(course => {
-                        window.curriculumData[country][region][course] = custom[country][region][course];
+            // 3. Merge Local Custom Lab
+            try {
+                const local = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
+                Object.keys(local).forEach(c => {
+                    if (!window.curriculumData[c]) window.curriculumData[c] = {};
+                    Object.keys(local[c]).forEach(r => {
+                        if (!window.curriculumData[c][r]) window.curriculumData[c][r] = {};
+                        Object.assign(window.curriculumData[c][r], local[c][r]);
                     });
                 });
-            });
+                log("Custom Lab Synchronized.", "success");
+            } catch (e) {
+                log("Custom Lab Sync Error.", "warning");
+            }
 
             log("Curriculum Hybridization Complete.");
 
             // Populate Country Select
             const sel = document.getElementById('f-country');
             if (sel) {
+                const currentVal = sel.value;
                 sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
                 Object.keys(window.curriculumData).sort().forEach(c => {
                     sel.innerHTML += `<option value="${c}">${c}</option>`;
                 });
-            }
+                if (currentVal) sel.value = currentVal;
+                // Sticky Restoration
+                window.isRestoringCurriculum = true;
+                const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
+                if (savedCountry && window.curriculumData[savedCountry]) {
+                    if (sel) sel.value = savedCountry;
+                    updateBuilderRegions();
 
-            // Sticky Restoration
-            window.isRestoringCurriculum = true;
-            const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
-            if (savedCountry && window.curriculumData[savedCountry]) {
-                if (sel) sel.value = savedCountry;
-                updateBuilderRegions();
+                    const savedRegion = localStorage.getItem('TM_Builder_REGION');
+                    const rSel = document.getElementById('f-region');
+                    if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
+                        rSel.value = savedRegion;
+                        updateBuilderCourses();
 
-                const savedRegion = localStorage.getItem('TM_Builder_REGION');
-                const rSel = document.getElementById('f-region');
-                if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
-                    rSel.value = savedRegion;
-                    updateBuilderCourses();
-
-                    const savedCourse = localStorage.getItem('TM_Builder_COURSE');
-                    const cSel = document.getElementById('f-course');
-                    if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
-                        cSel.value = savedCourse;
-                        updateBuilderOutcomes();
+                        const savedCourse = localStorage.getItem('TM_Builder_COURSE');
+                        const cSel = document.getElementById('f-course');
+                        if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
+                            cSel.value = savedCourse;
+                            updateBuilderOutcomes();
+                        }
                     }
                 }
+                window.isRestoringCurriculum = false;
             }
-            window.isRestoringCurriculum = false;
         }
 
         function updateBuilderRegions() {
@@ -3622,6 +3934,106 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             log(`Kicked ${name} from roster.`, "warning");
         };
 
+        // --- PROJECTOR BOARD FILTERS ---
+        function renderProjectorBoard() {
+            const board = document.getElementById('proj-board');
+            if (!board) return;
+
+            const classFilter = document.getElementById('proj-class-filter').value;
+            const missionFilter = document.getElementById('proj-mission-filter')?.value || 'ALL';
+
+            // Filter entries
+            const filtered = allProgress.filter(p => {
+                const classMatch = (classFilter === 'ALL' || p.class === classFilter);
+                return classMatch;
+            });
+
+            let html = "";
+            filtered.forEach(p => {
+                Object.keys(p.missionData).forEach(mid => {
+                    const st = p.missionData[mid];
+                    if (missionFilter !== 'ALL' && mid !== missionFilter) return;
+
+                    const pct = Math.min((st.steps / 10) * 100, 100); // Assume 10 steps for progress bar
+                    html += `
+                    <div class="proj-card active">
+                        <div class="proj-name">${p.name}</div>
+                        <div class="proj-class">${p.class} // ${mid}</div>
+                        <div class="proj-stats">
+                            <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Decisions</div><div style="font-size:0.75rem; color:#fff;">${st.steps}</div></div>
+                            <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Status</div><div style="font-size:0.65rem; color:#0f0;">ACTIVE</div></div>
+                        </div>
+                        <div class="proj-bar"><div class="proj-fill" style="width:${pct}%"></div></div>
+                    </div>`;
+                });
+            });
+
+            board.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
+            document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS ONLINE]`;
+        }
+
+        function toggleProjector() {
+            const pv = document.getElementById('projector-view');
+            pv.classList.toggle('active');
+            if (pv.classList.contains('active')) {
+                // Populate filters
+                const cFilter = document.getElementById('proj-class-filter');
+                const classes = [...new Set(allProgress.map(p => p.class))].sort();
+                let cTags = '<option value="ALL">ALL CLASSES</option>';
+                classes.forEach(c => cTags += `<option value="${c}">${c}</option>`);
+                cFilter.innerHTML = cTags;
+                renderProjectorBoard();
+            }
+        }
+
+        // --- MISSION ASSIGNMENT ---
+        let activeClassId = null;
+        function manageMissionsUI(classId) {
+            activeClassId = classId;
+            const cls = currentClasses.find(c => c.id == classId);
+            if (!cls) return;
+
+            const modal = document.getElementById('mission_assignment_modal');
+            const info = document.getElementById('assignment-class-info');
+            const list = document.getElementById('assignment-list');
+
+            info.innerHTML = `ASSIGN TO: <span class="text-primary">${cls.class_name}</span> (${cls.passcode})`;
+
+            const assignedIds = cls.mission_ids || [];
+
+            let html = '';
+            currentMissions.forEach(m => {
+                const checked = assignedIds.includes(m.id) ? 'checked' : '';
+                html += `
+                <label class="label cursor-pointer flex justify-start gap-4 hover:bg-base-200 p-2 rounded">
+                    <input type="checkbox" class="checkbox checkbox-primary mission-assignment-check" value="${m.id}" ${checked}>
+                    <span class="label-text text-xs">${m.name} <span class="opacity-30 font-mono">[${m.id}]</span></span>
+                </label>`;
+            });
+
+            if (currentMissions.length === 0) html = '<div class="text-center opacity-30 py-4 text-xs">NO MISSIONS FOUND IN ARCHIVE.</div>';
+            list.innerHTML = html;
+            modal.showModal();
+        }
+
+        async function saveMissionAssignment() {
+            if (!activeClassId) return;
+            const checks = document.querySelectorAll('.mission-assignment-check:checked');
+            const selectedIds = Array.from(checks).map(c => c.value);
+
+            log(`Syncing assignments for class [${activeClassId}]...`, "info");
+            try {
+                if (SupabaseBridge.client) {
+                    await SupabaseBridge.updateClass(activeClassId, { mission_ids: selectedIds });
+                    log("MISSION ASSIGNMENT LOGGED.", "success");
+                    document.getElementById('mission_assignment_modal').close();
+                    refreshClasses();
+                }
+            } catch (e) {
+                log(`Assignment Failed: ${e.message}`, "error");
+            }
+        }
+
         // --- PAGE INITIALIZATION ---
         window.onload = () => {
             // Initialize Supabase Bridge
@@ -3651,6 +4063,14 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             refreshClasses();
             fetchMissions();
             fetchCurriculum();
+            fetchProgress();
+
+            // Set background sync interval (30 seconds)
+            setInterval(() => {
+                fetchProgress();
+                fetchMissions();
+                refreshClasses();
+            }, 30000);
 
             // Force Auth Prompt if Guest
             setTimeout(() => {
@@ -3789,17 +4209,18 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 <select id="proj-class-filter" onchange="renderProjectorBoard()"
                     class="select select-bordered select-xs font-mono bg-[#111] text-[#d2b48c] border-[#444] rounded-none">
                     <option value="ALL">ALL CLASSES</option>
-                </select>
-                <div id="proj-sync" class="font-mono text-[0.7rem] text-[#888] tracking-widest animate-pulse">[SYNCING]
-                </div>
-                <button onclick="toggleProjector()"
-                    class="btn btn-sm bg-[#d2b48c] text-black border-none hover:bg-white font-bold tracking-widest rounded-sm">
-                    EXIT PROJECTOR
-                </button>
+                    <div id="proj-sync" class="font-mono text-[0.7rem] text-[#888] tracking-widest animate-pulse">
+                        [SYNCING]</div>
+                    <button onclick="toggleProjector()"
+                        class="btn btn-sm bg-[#d2b48c] text-black border-none hover:bg-white font-bold tracking-widest rounded-sm">EXIT
+                        PROJECTOR</button>
             </div>
+        </header>
 
-
-
+        <div id="proj-grid" class="proj-grid">
+            <!-- Injected Projector Cards -->
+        </div>
+    </div>
 </body>
 
 </html>
