@@ -1208,15 +1208,19 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
 
         // --- CURRICULUM CONTEXT ---
         async function fetchCurriculum() {
+            console.log("fetchCurriculum: Initiating load...");
             try {
                 log("Synchronizing Curriculum Hub...");
 
                 // 1. Load static curriculum.json (fast, cached)
+                console.log("fetchCurriculum: Fetching curriculum.json");
                 const res = await fetch("curriculum.json?v=" + Date.now());
                 if (res.ok) {
                     window.curriculumData = await res.json();
+                    console.log("fetchCurriculum: Local data loaded.", Object.keys(window.curriculumData));
                     log("Local Curriculum Loaded.", "success");
                 } else {
+                    console.warn("fetchCurriculum: curriculum.json fetch failed", res.status);
                     window.curriculumData = window.curriculumData || {};
                 }
 
@@ -1356,24 +1360,31 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
 
         // --- UI HELPERS ---
         function openSettings() {
+            console.log("openSettings: Interaction Hook Fired.");
             try {
-                const gcpInput = document.getElementById('cfg-gcp-key');
-                const sbUrlInput = document.getElementById('cfg-sb-url');
-                const sbKeyInput = document.getElementById('cfg-sb-key');
                 const modal = document.getElementById('settings_modal');
-
-                if (gcpInput) gcpInput.value = localStorage.getItem('TM_GCP_KEY') || '';
-                if (sbUrlInput) sbUrlInput.value = localStorage.getItem('TM_SUPABASE_URL') || '';
-                if (sbKeyInput) sbKeyInput.value = localStorage.getItem('TM_SUPABASE_KEY') || '';
-
-                if (modal) {
-                    modal.showModal();
-                    log("Opening System Configuration...");
-                } else {
-                    log("CRITICAL: Settings modal element not found.", "error");
-                    alert("Settings UI is missing. Check page source.");
+                if (!modal) {
+                    console.error("openSettings: Modal element 'settings_modal' missing from DOM.");
+                    log("CRITICAL: settings_modal element missing.", "error");
+                    return;
                 }
+
+                const ids = {
+                    'cfg-gcp-key': 'TM_GCP_KEY',
+                    'cfg-sb-url': 'TM_SUPABASE_URL',
+                    'cfg-sb-key': 'TM_SUPABASE_KEY'
+                };
+
+                for (let [id, storageKey] of Object.entries(ids)) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = localStorage.getItem(storageKey) || '';
+                    else console.warn(`openSettings: Input field '${id}' missing.`);
+                }
+
+                modal.showModal();
+                log("Opening System Configuration...");
             } catch (e) {
+                console.error("openSettings: Execution Error", e);
                 log("Settings Error: " + e.message, "error");
             }
         }
