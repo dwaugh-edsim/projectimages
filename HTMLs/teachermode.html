@@ -5053,10 +5053,16 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         async function deleteClassUI(id, name) {
             if (!confirm(`Permanently delete class [${name}]? Students using this code will be locked out.`)) return;
             try {
+                log(`Attempting to delete class ID: ${id}...`);
                 await SupabaseBridge.deleteClass(id);
-                log(`CLASS DELETED: ${name}`, "warning");
+                log(`CLASS DELETED: ${name}`, "success");
+                alert(`Class "${name}" has been deleted.`);
                 refreshClasses();
-            } catch (e) { log("Delete Failed: " + e.message, "error"); }
+            } catch (e) {
+                console.error("Delete class error:", e);
+                log("Delete Failed: " + e.message, "error");
+                alert("Delete Failed: " + e.message);
+            }
         }
 
         // assignedMissions is a placeholder for the modal logic
