@@ -1164,6 +1164,49 @@ Format: Use Markdown. Heavy use of **bold** for key terms.`;
             }
         }
 
+
+        function sanitizeForBirth(data) {
+            // Create a deep copy and strip base64 image data, keeping only R2 URLs
+            const sanitized = JSON.parse(JSON.stringify(data));
+
+            // Helper to check if a string is a base64 data URI
+            const isBase64 = (str) => {
+                return typeof str === 'string' && str.startsWith('data:image');
+            };
+
+            // Helper to filter image URLs (only keep R2/HTTP URLs, remove base64)
+            const filterImageUrl = (url) => {
+                if (!url) return '';
+                if (isBase64(url)) return ''; // Strip base64
+                return url; // Keep R2/HTTP URLs
+            };
+
+            // Sanitize metadata
+            if (sanitized.metadata) {
+                sanitized.metadata.heroImage = filterImageUrl(sanitized.metadata.heroImage);
+            }
+
+            // Sanitize slides
+            if (Array.isArray(sanitized.slides)) {
+                sanitized.slides.forEach(slide => {
+                    // Filter slide-level images
+                    slide.image = filterImageUrl(slide.image);
+                    slide.mediaURL = filterImageUrl(slide.mediaURL);
+
+                    // Filter tab images
+                    if (slide.tabs) {
+                        Object.keys(slide.tabs).forEach(tabKey => {
+                            const tab = slide.tabs[tabKey];
+                            if (tab && tab.image) {
+                                tab.image = filterImageUrl(tab.image);
+                            }
+                        });
+                    }
+                });
+            }
+
+            return sanitized;
+        }
         function updatePhaseBadge(phaseId, badgeText) {
             // Find the phase node in the pipeline stepper and add a badge
             const nodes = document.querySelectorAll('[data-phase]');
