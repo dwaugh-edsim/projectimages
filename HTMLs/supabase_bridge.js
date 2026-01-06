@@ -433,21 +433,12 @@ const SupabaseBridge = {
     },
 
     async isTeacherValid(teacherId) {
+        // NOTE: Since students are scoped by teacher_id anyway, we allow any teacher code.
+        // The system prevents username collisions across different teachers' "universes".
+        // A stricter check (e.g., requiring teacher to have classes) can be re-enabled later.
         if (!this.client) return false;
-        try {
-            // A teacher is valid if they have at least one class or are registered.
-            // For now, we check the 'classes' table for any class with this owner (teacherId).
-            const { count, error } = await this.client
-                .from('classes')
-                .select('*', { count: 'exact', head: true })
-                .eq('owner', teacherId);
-
-            if (error) throw error;
-            return count > 0;
-        } catch (e) {
-            console.error("Supabase Bridge [isTeacherValid] Error:", e);
-            return false;
-        }
+        if (!teacherId || teacherId.trim() === '') return false;
+        return true; // Allow any non-empty teacher code
     },
 
     async updateStudentJoinedCodes(studentId, codes) {
@@ -463,15 +454,27 @@ const SupabaseBridge = {
     async fetchStudentsInClass(classCode) {
         if (!this.client) return [];
         try {
-            // Use 'contains' operator for JSONB array
+            // Use textSearch with array contains for compatibility with different column types
+            // First, try to get all students and filter client-side (safer for mixed types)
             const { data, error } = await this.client
                 .from('students')
                 .select('*')
-                .contains('joined_codes', [classCode])
                 .order('username', { ascending: true });
 
             if (error) throw error;
-            return data;
+
+            // Filter client-side to handle both JSONB arrays and text arrays
+            return (data || []).filter(s => {
+                const codes = s.joined_codes;
+                if (Array.isArray(codes)) return codes.includes(classCode);
+                if (typeof codes === 'string') {
+                    try {
+                        const parsed = JSON.parse(codes);
+                        return Array.isArray(parsed) && parsed.includes(classCode);
+                    } catch { return codes === classCode; }
+                }
+                return false;
+            });
         } catch (e) {
             console.error("Supabase Bridge [fetchStudentsInClass] Error:", e);
             throw e;
