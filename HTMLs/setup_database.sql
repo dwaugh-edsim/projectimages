@@ -33,6 +33,11 @@ CREATE POLICY "Teachers can update their own classes"
     ON public.classes FOR UPDATE
     USING (teacher_id = current_setting('request.jwt.claim.email', true) OR teacher_id = 'GUEST');
 
+-- Teachers can delete their own classes
+CREATE POLICY "Teachers can delete their own classes"
+    ON public.classes FOR DELETE
+    USING (teacher_id = current_setting('request.jwt.claim.email', true) OR teacher_id = 'GUEST');
+
 -- 2. MISSION LOGS (For student submissions)
 CREATE TABLE IF NOT EXISTS public.simulation_logs (
     id SERIAL PRIMARY KEY,

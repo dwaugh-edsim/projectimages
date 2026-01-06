@@ -439,7 +439,6 @@ const SupabaseBridge = {
                 .select('*')
                 .eq('username', username)
                 .eq('pin', pin)
-                .eq('teacher_id', teacherId)
                 .maybeSingle();
 
             if (error) throw error;
@@ -448,7 +447,7 @@ const SupabaseBridge = {
             // Create new
             const { data: newData, error: createError } = await this.client
                 .from('students')
-                .insert([{ username, pin, teacher_id: teacherId, joined_codes: [] }])
+                .insert([{ username, pin, joined_codes: [] }])
                 .select()
                 .single();
 
