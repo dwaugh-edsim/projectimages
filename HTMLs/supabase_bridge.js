@@ -90,11 +90,22 @@ const SupabaseBridge = {
 
     async deleteMission(missionId, teacherId) {
         if (!this.client) return false;
+
+        // Diagnostic: Check if mission exists first
+        const { data: existing } = await this.client
+            .from('missions')
+            .select('mission_id')
+            .eq('mission_id', missionId)
+            .eq('teacher_id', teacherId);
+
+        if (!existing || existing.length === 0) {
+            console.warn(`Supabase Bridge: deleteMission targeting non-existent record: ${missionId}`);
+        }
+
         const { data, error } = await this.client
             .from('missions')
             .delete()
-            .eq('mission_id', missionId)
-            .eq('teacher_id', teacherId)
+            .match({ mission_id: missionId, teacher_id: teacherId })
             .select();
 
         if (error) throw error;
@@ -395,10 +406,24 @@ const SupabaseBridge = {
 
     async deleteClass(classId) {
         if (!this.client) return false;
+
+        // Diagnostic: Check if record exists before deletion
+        // We try both as-is and as a Number in case of type mismatches
+        const targetId = isNaN(classId) ? classId : Number(classId);
+
+        const { data: existing } = await this.client
+            .from('classes')
+            .select('id')
+            .eq('id', targetId);
+
+        if (!existing || existing.length === 0) {
+            console.warn(`Supabase Bridge: deleteClass targeting non-existent record: ${classId}`);
+        }
+
         const { data, error } = await this.client
             .from('classes')
             .delete()
-            .eq('id', classId)
+            .eq('id', targetId)
             .select();
         if (error) throw error;
         return data; // Return record to verify deletion
