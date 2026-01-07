@@ -333,7 +333,7 @@
             user.profile.teacherId = teacherId;
 
             // Attempt to join class / create student
-            if (window.SupabaseBridge && SupabaseBridge.client) {
+            if (SupabaseBridge && SupabaseBridge.client) {
                 try {
                     const student = await SupabaseBridge.getOrCreateStudent(name, teacherId);
                     if (!student) throw new Error('Could not verify class. Check your teacher code.');
@@ -355,7 +355,7 @@
             const list = document.getElementById('mission-list');
             list.innerHTML = '<div class="text-center text-gray-500 py-4">Loading missions...</div>';
 
-            if (window.SupabaseBridge && SupabaseBridge.client) {
+            if (SupabaseBridge && SupabaseBridge.client) {
                 try {
                     const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
                     if (!missions.length) {
@@ -388,7 +388,7 @@
 
         async function launch(missionId) {
             // Fetch mission data
-            if (window.SupabaseBridge && SupabaseBridge.client) {
+            if (SupabaseBridge && SupabaseBridge.client) {
                 try {
                     const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
                     const mission = missions.find(m => m.mission_id === missionId);
@@ -661,7 +661,7 @@
         // TELEMETRY
         // =============================================
         async function transmitTelemetry(slideIndex, rationale) {
-            if (!window.SupabaseBridge || !SupabaseBridge.client) return;
+            if (!SupabaseBridge || !SupabaseBridge.client) return;
             try {
                 const slide = slides[slideIndex];
                 await SupabaseBridge.logSimulation({
@@ -756,8 +756,9 @@
         // =============================================
         document.addEventListener('DOMContentLoaded', () => {
             // Init Supabase
-            if (window.SupabaseBridge && window.CONFIG) {
+            if (typeof SupabaseBridge !== 'undefined' && typeof CONFIG !== 'undefined') {
                 SupabaseBridge.init(CONFIG.SB_URL, CONFIG.SB_KEY);
+                console.log('GO.HTML: Supabase initialized');
             }
 
             initParticles();
