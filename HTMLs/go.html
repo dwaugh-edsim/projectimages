@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITUATION ROOM</title>
+    <link rel="icon" type="image/png" href="images/logic_gear_logo.png">
+
+    <!-- DaisyUI + Tailwind -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.24/dist/full.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- Libs -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles-slim@2/tsparticles.slim.bundle.min.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="supabase_bridge.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['Orbitron', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        'navy': {
+                            900: '#0a0f1a',
+                            950: '#050810'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --accent: #f59e0b;
+            /* Amber */
+            --accent-glow: rgba(245, 158, 11, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050810;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar active state */
+        .nav-item.active {
+            background: rgba(245, 158, 11, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        /* Pill-style choice buttons */
+        .choice-pill {
+            @apply px-6 py-3 rounded-full border-2 border-base-content/20 bg-base-200/50 font-medium transition-all cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/10;
+        }
+
+        .choice-pill.selected {
+            @apply border-amber-500 bg-amber-500/20 text-amber-400 shadow-lg;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Exhibit image */
+        .exhibit-image {
+            @apply w-full h-64 object-cover rounded-lg border border-white/10;
+        }
+
+        /* Tab content area */
+        .tab-panel {
+            @apply p-4 text-sm leading-relaxed text-gray-300;
+        }
+
+        /* Particles container */
+        #tsparticles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-navy-950 text-gray-200">
+    <!-- Particle Background -->
+    <div id="tsparticles"></div>
+
+    <!-- SPLASH / LOGIN SCREEN -->
+    <div id="splash" class="fixed inset-0 z-50 flex items-center justify-center bg-navy-950">
+        <div class="text-center space-y-8 max-w-md px-6">
+            <img src="images/logic_gear_logo.png" alt="Logo" class="w-24 h-24 mx-auto opacity-80">
+            <h1 class="text-4xl font-display text-amber-400 tracking-widest">SITUATION ROOM</h1>
+            <p class="text-sm text-gray-400 font-mono tracking-wide">"The Critical Moment Where Everything Hangs on a
+                Decision"</p>
+
+            <div id="login-step" class="space-y-4">
+                <input type="text" id="input-name" placeholder="Enter Your Name"
+                    class="input input-bordered w-full bg-base-200/50 border-white/10 text-center text-lg">
+                <input type="text" id="input-teacher" placeholder *="Teacher Code (e.g. MR_WAUGH)"
+                    class="input input-bordered w-full bg-base-200/50 border-white/10 text-center">
+                <button onclick="login()" class="btn btn-warning btn-lg w-full font-display tracking-wider">
+                    ENTER SITUATION ROOM
+                </button>
+            </div>
+
+            <div id="mission-select" class="hidden space-y-4">
+                <h2 class="text-lg font-display text-amber-400">SELECT MISSION</h2>
+                <div id="mission-list" class="space-y-2 max-h-64 overflow-y-auto">
+                    <!-- Missions injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN SIMULATION LAYOUT -->
+    <div id="sim-container" class="hidden fixed inset-0 flex">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="w-56 min-w-56 bg-slate-900/95 border-r border-white/5 flex flex-col p-4 z-10">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+                <img src="images/logic_gear_logo.png" alt="Logo" class="w-10 h-10 opacity-70">
+                <div>
+                    <div class="text-xs font-display text-amber-400 tracking-widest" id="sidebar-title">SITUATION ROOM
+                    </div>
+                    <div class="text-[10px] text-gray-500 font-mono" id="sidebar-subtitle">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav id="nav-list" class="flex-1 overflow-y-auto space-y-1">
+                <!-- Dynamic nav items injected here -->
+            </nav>
+
+            <!-- Footer -->
+            <div class="mt-auto pt-4 border-t border-white/10 space-y-2">
+                <button onclick="toggleGlossary()"
+                    class="btn btn-ghost btn-sm w-full justify-start text-xs opacity-60 hover:opacity-100">
+                    📖 Research Library
+                </button>
+                <div class="text-[10px] text-gray-600 font-mono text-center">
+                    <span id="user-name-display">Guest</span> • <span id="progress-text">0%</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 flex flex-col overflow-hidden relative bg-navy-950">
+
+            <!-- SLIDE HEADER -->
+            <header class="px-6 py-4 border-b border-white/5">
+                <h1 id="slide-title" class="text-2xl font-display text-amber-400 tracking-wide">Exhibit Title</h1>
+            </header>
+
+            <!-- SLIDE BODY -->
+            <div class="flex-1 flex overflow-hidden">
+
+                <!-- LEFT: Exhibit Image -->
+                <div class="w-1/2 p-6 flex flex-col">
+                    <div class="relative flex-1 rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                        <img id="exhibit-image" src="" alt="Exhibit" class="w-full h-full object-cover">
+                        <div id="exhibit-caption"
+                            class="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+                            <span class="text-xs font-mono text-gray-300 bg-black/50 px-2 py-1 rounded">Caption</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Tabs + Content -->
+                <div class="w-1/2 flex flex-col p-6 pl-0">
+                    <!-- Tabs -->
+                    <div role="tablist" class="tabs tabs-bordered mb-4">
+                        <a role="tab" class="tab tab-active" onclick="switchTab('primary')" id="tab-primary">PRIMARY</a>
+                        <a role="tab" class="tab" onclick="switchTab('intel')" id="tab-intel">INTEL</a>
+                        <a role="tab" class="tab" onclick="switchTab('background')" id="tab-background">BACKGROUND</a>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div id="tab-content"
+                        class="flex-1 overflow-y-auto bg-base-200/30 rounded-lg p-4 text-sm leading-relaxed text-gray-300">
+                        <p>Loading content...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DECISION FOOTER -->
+            <footer class="p-6 border-t border-white/10 bg-slate-900/50">
+                <!-- Choice Pills -->
+                <div id="choice-container" class="flex flex-wrap gap-3 mb-4">
+                    <span class="text-xs text-amber-400 font-display tracking-wide mr-2 self-center">YOUR
+                        DECISION:</span>
+                    <!-- Choices injected dynamically -->
+                </div>
+
+                <!-- Rationale -->
+                <div class="flex gap-4">
+                    <textarea id="rationale-input" placeholder="I chose this because..."
+                        class="textarea textarea-bordered flex-1 bg-base-200/50 border-white/10 text-sm resize-none h-16"></textarea>
+                    <button onclick="submitDecision()" id="submit-btn"
+                        class="btn btn-warning font-display tracking-wide px-8 self-end">
+                        RECORD & CONTINUE →
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- GLOSSARY DRAWER -->
+    <div id="glossary-drawer"
+        class="fixed inset-y-0 right-0 w-96 bg-slate-900/98 border-l border-amber-500/30 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-display text-amber-400 tracking-widest">RESEARCH LIBRARY</h2>
+                <button onclick="toggleGlossary()" class="btn btn-ghost btn-sm">✕</button>
+            </div>
+            <div id="glossary-content" class="space-y-4 overflow-y-auto max-h-[80vh]">
+                <!-- Glossary items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- DEVIL'S ADVOCATE DRAWER -->
+    <div id="debate-drawer"
+        class="fixed inset-y-0 right-0 w-[500px] bg-slate-900/98 border-l-2 border-red-500/50 z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex justify-between items-center">
+                <h3 class="font-display text-red-400 tracking-widest text-sm">⚔️ DEVIL'S ADVOCATE</h3>
+                <span id="debate-timer" class="font-mono text-lg text-red-400">90</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Defend your position. You have 90 seconds.</p>
+        </div>
+        <div id="debate-log" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Chat messages injected here -->
+        </div>
+        <div class="p-4 border-t border-white/10">
+            <div class="flex gap-2">
+                <input type="text" id="debate-input" placeholder="Your response..."
+                    class="input input-bordered flex-1 bg-base-200/50 border-white/10 text-sm">
+                <button onclick="sendDebateMessage()" class="btn btn-error btn-sm">SEND</button>
+            </div>
+            <button onclick="closeDebate()" class="btn btn-ghost btn-sm w-full mt-2 text-xs opacity-60">
+                Skip Challenge (Proceed Anyway)
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // =============================================
+        // CORE DATA STRUCTURES
+        // =============================================
+        window.DATA = null;  // Mission data
+        let user = {
+            profile: { name: '', class: '', teacherId: '' },
+            state: { idx: 0, ans: {}, rat: {}, aiFeedback: null, aiRequested: false }
+        };
+        let slides = [];
+        let currentTab = 'primary';
+        let selectedChoice = null;
+
+        // Devil's Advocate state
+        let debateActive = false;
+        let debateTimer = 90;
+        let debateInterval = null;
+        let debateLog = [];
+
+        // =============================================
+        // UTILITY FUNCTIONS
+        // =============================================
+        function parseMD(text) {
+            if (!text) return '';
+            return marked.parse(text);
+        }
+
+        function save() {
+            localStorage.setItem('go_user_state_' + (window.DATA?.metadata?.id || 'default'), JSON.stringify(user.state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('go_user_state_' + (window.DATA?.metadata?.id || 'default'));
+            if (saved) {
+                try { user.state = JSON.parse(saved); } catch (e) { }
+            }
+        }
+
+        // =============================================
+        // LOGIN FLOW
+        // =============================================
+        async function login() {
+            const name = document.getElementById('input-name').value.trim();
+            const teacherId = document.getElementById('input-teacher').value.trim().toUpperCase();
+
+            if (!name || !teacherId) {
+                alert('Please enter your name and teacher code.');
+                return;
+            }
+
+            user.profile.name = name;
+            user.profile.teacherId = teacherId;
+
+            // Attempt to join class / create student
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    const student = await SupabaseBridge.getOrCreateStudent(name, teacherId);
+                    if (!student) throw new Error('Could not verify class. Check your teacher code.');
+                    user.profile.class = student.class_code || '';
+                    console.log('Student authenticated:', student);
+                } catch (e) {
+                    alert('Login Error: ' + e.message);
+                    return;
+                }
+            }
+
+            // Show mission selection
+            document.getElementById('login-step').classList.add('hidden');
+            document.getElementById('mission-select').classList.remove('hidden');
+            fetchMissions();
+        }
+
+        async function fetchMissions() {
+            const list = document.getElementById('mission-list');
+            list.innerHTML = '<div class="text-center text-gray-500 py-4">Loading missions...</div>';
+
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
+                    if (!missions.length) {
+                        list.innerHTML = '<div class="text-center text-gray-500 py-4">No missions available yet.</div>';
+                        return;
+                    }
+                    let html = '';
+                    missions.forEach(m => {
+                        const title = m.title || m.mission_id || 'Untitled';
+                        const thumb = m.data?.metadata?.heroImage || 'https://placehold.co/100x60/111/333?text=MISSION';
+                        html += `
+                            <button onclick="launch('${m.mission_id}')" 
+                                class="w-full flex items-center gap-4 p-3 rounded-lg bg-base-200/30 hover:bg-amber-500/10 hover:border-amber-500/30 border border-transparent transition-all text-left">
+                                <img src="${thumb}" class="w-20 h-12 object-cover rounded border border-white/10">
+                                <div>
+                                    <div class="font-medium text-amber-400">${title}</div>
+                                    <div class="text-xs text-gray-500 font-mono">${m.mission_id}</div>
+                                </div>
+                            </button>`;
+                    });
+                    list.innerHTML = html;
+                } catch (e) {
+                    list.innerHTML = '<div class="text-center text-red-400 py-4">Error loading missions.</div>';
+                    console.error(e);
+                }
+            } else {
+                list.innerHTML = '<div class="text-center text-gray-500 py-4">Supabase not connected.</div>';
+            }
+        }
+
+        async function launch(missionId) {
+            // Fetch mission data
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
+                    const mission = missions.find(m => m.mission_id === missionId);
+                    if (!mission || !mission.data) throw new Error('Mission not found.');
+                    processData(mission.data, missionId);
+                } catch (e) {
+                    alert('Failed to load mission: ' + e.message);
+                    return;
+                }
+            }
+
+            // Hide splash, show sim
+            document.getElementById('splash').classList.add('hidden');
+            document.getElementById('sim-container').classList.remove('hidden');
+            init();
+        }
+
+        function processData(data, idOverride) {
+            window.DATA = data;
+            if (idOverride) window.DATA.metadata = { ...window.DATA.metadata, id: idOverride };
+
+            slides = window.DATA.slides || [];
+            user.state.idx = 0;
+            loadState();
+
+            // Update sidebar
+            document.getElementById('sidebar-subtitle').innerText = window.DATA.metadata?.title || 'Simulation';
+            document.getElementById('user-name-display').innerText = user.profile.name;
+
+            // Render glossary
+            renderGlossary();
+        }
+
+        // =============================================
+        // NAVIGATION & RENDERING
+        // =============================================
+        function init() {
+            renderNav();
+            go(user.state.idx || 0);
+        }
+
+        function renderNav() {
+            const nav = document.getElementById('nav-list');
+            let html = '';
+            slides.forEach((s, i) => {
+                const active = i === user.state.idx ? 'active bg-amber-500/10 border-l-amber-500' : 'border-l-transparent';
+                const icon = user.state.ans[i] !== undefined ? '✓' : (i + 1);
+                html += `
+                    <button onclick="go(${i})" 
+                        class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-r-lg border-l-2 ${active} hover:bg-white/5 transition-all text-left">
+                        <span class="w-6 h-6 flex items-center justify-center text-xs font-mono rounded-full bg-base-200/50 ${user.state.ans[i] !== undefined ? 'text-green-400' : 'text-gray-500'}">${icon}</span>
+                        <span class="text-sm truncate ${i === user.state.idx ? 'text-amber-400' : 'text-gray-400'}">${s.title || 'Step ' + (i + 1)}</span>
+                    </button>`;
+            });
+            nav.innerHTML = html;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const completed = Object.keys(user.state.ans).length;
+            const pct = slides.length ? Math.round((completed / slides.length) * 100) : 0;
+            document.getElementById('progress-text').innerText = pct + '% Complete';
+        }
+
+        function go(i) {
+            if (i < 0 || i >= slides.length) return;
+            user.state.idx = i;
+            selectedChoice = user.state.ans[i] ?? null;
+            save();
+            renderNav();
+            renderSlide(slides[i], i);
+        }
+
+        function renderSlide(slide, idx) {
+            // Title
+            document.getElementById('slide-title').innerText = slide.title || 'Exhibit ' + (idx + 1);
+
+            // Image
+            const img = document.getElementById('exhibit-image');
+            const caption = document.getElementById('exhibit-caption').querySelector('span');
+            const imgUrl = slide.tabs?.primary?.image || slide.image || '';
+            img.src = imgUrl || 'https://placehold.co/800x400/111/333?text=NO+IMAGE';
+            caption.innerText = slide.tabs?.primary?.caption || slide.caption || '';
+
+            // Tabs
+            currentTab = 'primary';
+            switchTab('primary');
+
+            // Choices
+            renderChoices(slide, idx);
+
+            // Rationale
+            document.getElementById('rationale-input').value = user.state.rat[idx] || '';
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            const slide = slides[user.state.idx];
+            const content = document.getElementById('tab-content');
+
+            // Update tab UI
+            ['primary', 'intel', 'background'].forEach(t => {
+                const tabEl = document.getElementById('tab-' + t);
+                if (tabEl) tabEl.classList.toggle('tab-active', t === tabName);
+            });
+
+            // Render content
+            let body = '';
+            if (tabName === 'primary') {
+                body = slide.tabs?.primary?.body || slide.content || slide.brief || '<p class="opacity-50">No content available.</p>';
+            } else if (tabName === 'intel') {
+                body = slide.tabs?.intel?.body || '<p class="opacity-50">No intel available for this exhibit.</p>';
+            } else if (tabName === 'background') {
+                body = slide.tabs?.background?.body || slide.tabs?.context?.body || '<p class="opacity-50">No background information.</p>';
+            }
+            content.innerHTML = parseMD(body);
+        }
+
+        function renderChoices(slide, idx) {
+            const container = document.getElementById('choice-container');
+            const options = slide.options || [];
+            if (!options.length) {
+                container.innerHTML = '<span class="text-xs text-gray-500">No decision required for this exhibit.</span>';
+                document.getElementById('submit-btn').innerText = 'CONTINUE →';
+                return;
+            }
+
+            let html = '<span class="text-xs text-amber-400 font-display tracking-wide mr-2 self-center">YOUR DECISION:</span>';
+            options.forEach((opt, i) => {
+                const sel = selectedChoice === i ? 'selected' : '';
+                html += `<button onclick="selectChoice(${i})" class="choice-pill ${sel}">${opt}</button>`;
+            });
+            container.innerHTML = html;
+            document.getElementById('submit-btn').innerText = 'RECORD & CONTINUE →';
+        }
+
+        function selectChoice(i) {
+            selectedChoice = i;
+            const slide = slides[user.state.idx];
+            renderChoices(slide, user.state.idx);
+        }
+
+        // =============================================
+        // DECISION SUBMISSION
+        // =============================================
+        function submitDecision() {
+            const idx = user.state.idx;
+            const slide = slides[idx];
+            const rationale = document.getElementById('rationale-input').value.trim();
+
+            // If no choices required, just advance
+            if (!slide.options || !slide.options.length) {
+                goNext();
+                return;
+            }
+
+            // Require choice
+            if (selectedChoice === null) {
+                alert('Please select a decision before continuing.');
+                return;
+            }
+
+            // Check Devil's Advocate
+            const enableDA = window.DATA.metadata?.enableDevilsAdvocate !== false;
+            if (enableDA && rationale.length > 10) {
+                startDebate(idx, selectedChoice, rationale);
+            } else {
+                finalizeDecision(idx, selectedChoice, rationale);
+            }
+        }
+
+        function finalizeDecision(idx, choice, rationale) {
+            user.state.ans[idx] = choice;
+            user.state.rat[idx] = rationale;
+            save();
+            transmitTelemetry(idx, rationale);
+            goNext();
+        }
+
+        function goNext() {
+            if (user.state.idx < slides.length - 1) {
+                go(user.state.idx + 1);
+            } else {
+                showEpilogue();
+            }
+        }
+
+        // =============================================
+        // DEVIL'S ADVOCATE
+        // =============================================
+        async function startDebate(idx, choice, rationale) {
+            debateActive = true;
+            debateLog = [];
+            debateTimer = 90;
+
+            // Show drawer
+            const drawer = document.getElementById('debate-drawer');
+            drawer.classList.remove('translate-x-full');
+
+            // Initial AI challenge
+            const slide = slides[idx];
+            const choiceText = slide.options[choice];
+            const systemPrompt = `You are a Devil's Advocate in a simulation. The student chose "${choiceText}" with rationale: "${rationale}". Challenge their reasoning aggressively but fairly. Ask probing questions. Be concise (under 60 words).`;
+
+            addDebateMessage('system', 'Connecting to adversarial AI...');
+            try {
+                const response = await callOpenRouterProxy(systemPrompt, 'Begin the challenge.');
+                addDebateMessage('ai', response);
+            } catch (e) {
+                addDebateMessage('system', 'AI unavailable. You may proceed.');
+            }
+
+            startDebateTimer();
+        }
+
+        function addDebateMessage(role, text) {
+            debateLog.push({ role, text });
+            const log = document.getElementById('debate-log');
+            const cls = role === 'ai' ? 'chat-start' : 'chat-end';
+            const bubble = role === 'ai' ? 'chat-bubble chat-bubble-error' : 'chat-bubble chat-bubble-info';
+            log.innerHTML += `
+                <div class="chat ${cls}">
+                    <div class="${bubble} text-sm">${text}</div>
+                </div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function sendDebateMessage() {
+            const input = document.getElementById('debate-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            addDebateMessage('user', text);
+
+            try {
+                const history = debateLog.map(m => `${m.role}: ${m.text}`).join('\n');
+                const response = await callOpenRouterProxy(
+                    "Continue the Devil's Advocate challenge. Be aggressive but fair. Under 50 words.",
+                    `DEBATE SO FAR:\n${history}\n\nSTUDENT'S RESPONSE: ${text}`
+                );
+                addDebateMessage('ai', response);
+            } catch (e) {
+                addDebateMessage('system', 'AI response failed.');
+            }
+        }
+
+        function startDebateTimer() {
+            const timerEl = document.getElementById('debate-timer');
+            debateInterval = setInterval(() => {
+                debateTimer--;
+                timerEl.innerText = debateTimer;
+                if (debateTimer <= 0) {
+                    closeDebate();
+                }
+            }, 1000);
+        }
+
+        function closeDebate() {
+            clearInterval(debateInterval);
+            debateActive = false;
+            document.getElementById('debate-drawer').classList.add('translate-x-full');
+            document.getElementById('debate-log').innerHTML = '';
+
+            const idx = user.state.idx;
+            const rationale = document.getElementById('rationale-input').value.trim();
+            finalizeDecision(idx, selectedChoice, rationale);
+        }
+
+        // =============================================
+        // TELEMETRY
+        // =============================================
+        async function transmitTelemetry(slideIndex, rationale) {
+            if (!window.SupabaseBridge || !SupabaseBridge.client) return;
+            try {
+                const slide = slides[slideIndex];
+                await SupabaseBridge.logSimulation({
+                    mission_id: window.DATA.metadata?.id,
+                    student_name: user.profile.name,
+                    teacher_id: user.profile.teacherId,
+                    slide_index: slideIndex,
+                    slide_title: slide.title,
+                    choice: slide.options?.[user.state.ans[slideIndex]] || 'N/A',
+                    rationale: rationale
+                });
+                console.log('Telemetry logged for slide', slideIndex);
+            } catch (e) {
+                console.warn('Telemetry failed:', e);
+            }
+        }
+
+        // =============================================
+        // GLOSSARY
+        // =============================================
+        function renderGlossary() {
+            const content = document.getElementById('glossary-content');
+            const glossary = window.DATA?.intelligenceGlossary || [];
+            if (!glossary.length) {
+                content.innerHTML = '<p class="text-gray-500 text-sm">No research materials available.</p>';
+                return;
+            }
+            let html = '';
+            glossary.forEach(g => {
+                html += `
+                    <div class="p-3 bg-base-200/30 rounded-lg">
+                        <h4 class="text-amber-400 font-medium mb-1">${g.term}</h4>
+                        <p class="text-xs text-gray-400">${g.definition || ''}</p>
+                    </div>`;
+            });
+            content.innerHTML = html;
+        }
+
+        function toggleGlossary() {
+            const drawer = document.getElementById('glossary-drawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // =============================================
+        // EPILOGUE / DEBRIEF
+        // =============================================
+        function showEpilogue() {
+            alert('Mission Complete! AI Debrief coming soon...');
+            // TODO: Render epilogue with AI feedback
+        }
+
+        // =============================================
+        // AI PROXY
+        // =============================================
+        async function callOpenRouterProxy(system, message) {
+            const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${window.OPENROUTER_API_KEY || ''}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'mistralai/mistral-7b-instruct',
+                    messages: [
+                        { role: 'system', content: system },
+                        { role: 'user', content: message }
+                    ],
+                    max_tokens: 150
+                })
+            });
+            const data = await res.json();
+            return data.choices?.[0]?.message?.content || 'No response.';
+        }
+
+        // =============================================
+        // PARTICLES
+        // =============================================
+        async function initParticles() {
+            await tsParticles.load('tsparticles', {
+                particles: {
+                    number: { value: 30 },
+                    color: { value: '#f59e0b' },
+                    opacity: { value: 0.1 },
+                    size: { value: 2 },
+                    move: { enable: true, speed: 0.3 }
+                }
+            });
+        }
+
+        // =============================================
+        // INIT ON LOAD
+        // =============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            // Focus first input
+            document.getElementById('input-name')?.focus();
+        });
+    </script>
+</body>
+
+</html>
