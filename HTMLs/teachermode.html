@@ -1252,6 +1252,7 @@ Format: Use Markdown. Use **bold** for key terms and concepts.`;
             accumulatedData.deepSearchResults = results;
             log('Mission anchored to research harvest.', 'success');
             addBuilderChat('ai', '✅ **Research Anchored.** I will now use these verified sources to construct the operational narrative.');
+            saveDraft(); // Auto-save on deep search results change
         }
 
         async function executeDeepSearch() {
@@ -1279,6 +1280,7 @@ Format: Use Markdown. Use **bold** for key terms and concepts.`;
             updateBuilderUI();
             addBuilderChat("ai", `⚡ Jumped to **${getCurrentPhase().label}**. Context preserved.`);
             log(`Phase override: ${getCurrentPhase().label}`, 'warning');
+            saveDraft(); // Auto-save on phase jump
         }
 
         async function generateImagePrompts() {
@@ -1331,6 +1333,7 @@ REQUIRED IMAGES (19 total):
 
                 BuilderHistory.push({ role: 'user', content: 'Generate 19 image prompts for the Media phase.' });
                 BuilderHistory.push({ role: 'assistant', content: reply });
+                saveDraft(); // Auto-save after AI response
 
                 accumulatedData.aiPromptsExtracted = false;
                 extractAIPromptsFromHistory();
@@ -1352,8 +1355,6 @@ REQUIRED IMAGES (19 total):
             const id = accumulatedData?.metadata?.id || 'MISSION_' + Date.now();
 
             if (!accumulatedData.metadata) accumulatedData.metadata = {};
-            accumulatedData.metadata.id = id;
-            accumulatedData.metadata.title = title;
             accumulatedData.metadata.exportedAt = new Date().toISOString();
 
             const sanitized = sanitizeForBirth(accumulatedData);
@@ -1457,6 +1458,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                     log('Mission data structured successfully!', 'success');
                     addBuilderChat('ai', '✅ **Mission data structured!** Review the validation report below.');
+                    saveDraft(); // Auto-save after AI structures mission data
 
                 } catch (parseErr) {
                     log('AI response was not valid JSON, storing raw response', 'warning');
@@ -1492,6 +1494,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             updateBuilderUI();
             log("Builder Session Reset.", "warning");
+            localStorage.removeItem('TM_Builder_DRAFT'); // Clear draft on explicit reset
         }
 
         // --- AUTH & INIT ---
@@ -1791,6 +1794,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 // Save to History
                 BuilderHistory.push({ role: 'user', content: input });
                 BuilderHistory.push({ role: 'assistant', content: responseText });
+                saveDraft(); // Auto-save after AI response
 
                 // Parse narrative if in applicable phase
                 if (phase.id === 'narrative' || phase.id === 'scripting' || responseText.includes('SLIDE 1:')) {
@@ -1930,6 +1934,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     log(`Extracted ${items.length} glossary terms.`, 'success');
                 }
             }
+            saveDraft(); // Auto-save after parsing narrative
         }
 
 
@@ -2158,6 +2163,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             currentPhaseIndex++;
             updateBuilderUI();
             log(`Phase advanced to: ${getCurrentPhase().label}`, 'success');
+            saveDraft(); // Auto-save on phase advance
         }
 
         function BuilderBack() {
@@ -2166,6 +2172,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 updateBuilderUI();
                 addBuilderChat("ai", `Reverting to ${getCurrentPhase().label}. Command parameters preserved.`);
                 log(`Builder reverted to: ${getCurrentPhase().label}`, 'warning');
+                saveDraft(); // Auto-save on BuilderBack
             }
         }
 
@@ -2238,6 +2245,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                         accumulatedData.aiPromptsExtracted = true;
                         log(`Extracted ${prompts.length + 1} AI prompts from Assets phase`, 'success');
+                        saveDraft(); // Auto-save after extracting prompts
                         return;
                     }
                 }
@@ -2376,6 +2384,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 }
             }
             log(`Asset prompt updated for slot ${slotId}`, 'info');
+            saveDraft(); // Auto-save on asset prompt update
         }
 
         function updateAssetUrl(slotId, url) {
@@ -2402,6 +2411,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 if (prev) prev.innerHTML = url ? `<img src="${url}" class="max-h-full object-contain">` : '<span class="text-[10px] opacity-20 font-mono">Offline</span>';
             }
             log(`Asset URL updated for slot ${slotId}`, 'success');
+            saveDraft(); // Auto-save on asset URL update
         }
 
         async function generateAsset(slotId) {
@@ -2724,6 +2734,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     const html = quill.root.innerHTML;
                     const md = turndownService ? turndownService.turndown(html) : html;
                     accumulatedData.slides[currentHospNode].tabs[activeTabKey].body = md;
+                    saveDraft(); // Auto-save on quill text change
                 }
             });
         }
@@ -2735,11 +2746,11 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 <div class="max-w-2xl mx-auto space-y-6">
                     <h3 class="text-lg font-display tracking-widest text-primary border-b border-primary/20 pb-2">PATIENT DOSSIER</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission ID</span></label><input type="text" value="${data.id || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.id = this.value"></div>
-                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Version</span></label><input type="text" value="${data.version || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.version = this.value"></div>
+                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission ID</span></label><input type="text" value="${data.id || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.id = this.value; saveDraft();"></div>
+                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Version</span></label><input type="text" value="${data.version || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.version = this.value; saveDraft();"></div>
                     </div>
-                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission Title</span></label><input type="text" value="${data.title || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.title = this.value"></div>
-                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Briefing Summary</span></label><textarea class="textarea textarea-bordered h-24" onchange="accumulatedData.metadata.description = this.value">${data.description || ''}</textarea></div>
+                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission Title</span></label><input type="text" value="${data.title || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.title = this.value; saveDraft();"></div>
+                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Briefing Summary</span></label><textarea class="textarea textarea-bordered h-24" onchange="accumulatedData.metadata.description = this.value; saveDraft();">${data.description || ''}</textarea></div>
                     
                     <div class="space-y-4 pt-4">
                         <h4 class="text-xs font-bold opacity-50 uppercase tracking-widest">Learning Outcomes</h4>
@@ -2750,7 +2761,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     <div class="divider opacity-10"></div>
                     <div class="form-control">
                         <label class="label cursor-pointer justify-start gap-4">
-                            <input type="checkbox" class="checkbox checkbox-primary" ${data.enableDevilsAdvocate !== false ? 'checked' : ''} onchange="accumulatedData.metadata.enableDevilsAdvocate = this.checked">
+                            <input type="checkbox" class="checkbox checkbox-primary" ${data.enableDevilsAdvocate !== false ? 'checked' : ''} onchange="accumulatedData.metadata.enableDevilsAdvocate = this.checked; saveDraft();">
                             <span class="label-text">Enable AI 'Devil's Advocate' (Critique Student Rationales)</span>
                         </label>
                     </div>
@@ -2765,14 +2776,14 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             const outcomes = accumulatedData.metadata.learningOutcomes || [];
             list.innerHTML = outcomes.map((o, i) => `
                 <div class="flex gap-2">
-                    <input type="text" class="input input-bordered input-xs flex-1" value="${o}" onchange="accumulatedData.metadata.learningOutcomes[${i}] = this.value">
+                    <input type="text" class="input input-bordered input-xs flex-1" value="${o}" onchange="accumulatedData.metadata.learningOutcomes[${i}] = this.value; saveDraft();">
                     <button class="btn btn-xs btn-square btn-error btn-outline" onclick="removeHospitalOutcome(${i})">×</button>
                 </div>
             `).join('');
         }
 
-        function addHospitalOutcome() { if (!accumulatedData.metadata.learningOutcomes) accumulatedData.metadata.learningOutcomes = []; accumulatedData.metadata.learningOutcomes.push(""); renderMetadataForm(); }
-        function removeHospitalOutcome(i) { accumulatedData.metadata.learningOutcomes.splice(i, 1); renderMetadataForm(); }
+        function addHospitalOutcome() { if (!accumulatedData.metadata.learningOutcomes) accumulatedData.metadata.learningOutcomes = []; accumulatedData.metadata.learningOutcomes.push(""); renderMetadataForm(); saveDraft(); }
+        function removeHospitalOutcome(i) { accumulatedData.metadata.learningOutcomes.splice(i, 1); renderMetadataForm(); saveDraft(); }
 
         function renderGlossaryForm() {
             const data = accumulatedData.intelligenceGlossary || [];
@@ -2788,15 +2799,15 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             const list = document.getElementById('h-glossary-list');
             list.innerHTML = data.map((item, i) => `
                 <div class="flex gap-3 items-start bg-base-200/50 p-3 rounded border border-white/5">
-                    <div class="w-1/3"><input type="text" class="input input-bordered input-sm w-full font-bold" value="${item.term}" placeholder="Term" onchange="accumulatedData.intelligenceGlossary[${i}].term = this.value"></div>
-                    <div class="flex-1"><textarea class="textarea textarea-bordered textarea-sm w-full leading-tight" placeholder="Definition" onchange="accumulatedData.intelligenceGlossary[${i}].definition = this.value">${item.definition}</textarea></div>
+                    <div class="w-1/3"><input type="text" class="input input-bordered input-sm w-full font-bold" value="${item.term}" placeholder="Term" onchange="accumulatedData.intelligenceGlossary[${i}].term = this.value; saveDraft();"></div>
+                    <div class="flex-1"><textarea class="textarea textarea-bordered textarea-sm w-full leading-tight" placeholder="Definition" onchange="accumulatedData.intelligenceGlossary[${i}].definition = this.value; saveDraft();">${item.definition}</textarea></div>
                     <button class="btn btn-sm btn-square btn-error btn-outline" onclick="removeHospitalGlossaryTerm(${i})">×</button>
                 </div>
             `).join('');
         }
 
-        function addHospitalGlossaryTerm() { if (!accumulatedData.intelligenceGlossary) accumulatedData.intelligenceGlossary = []; accumulatedData.intelligenceGlossary.push({ term: "", definition: "" }); renderGlossaryForm(); }
-        function removeHospitalGlossaryTerm(i) { accumulatedData.intelligenceGlossary.splice(i, 1); renderGlossaryForm(); }
+        function addHospitalGlossaryTerm() { if (!accumulatedData.intelligenceGlossary) accumulatedData.intelligenceGlossary = []; accumulatedData.intelligenceGlossary.push({ term: "", definition: "" }); renderGlossaryForm(); saveDraft(); }
+        function removeHospitalGlossaryTerm(i) { accumulatedData.intelligenceGlossary.splice(i, 1); renderGlossaryForm(); saveDraft(); }
 
         function saveHospitalChanges() {
             if (typeof currentHospNode === 'number') {
@@ -2810,6 +2821,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
             log(`NODE_STABILIZED: ${currentHospNode}`, "success");
             saveIdeaProgress();
+            saveDraft(); // Auto-save after hospital changes
         }
 
         async function finalizeForge() {
@@ -3292,6 +3304,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             updateValidationMark();
             log('Mission identifiers synchronized.', 'info');
+            saveDraft(); // Auto-save on mission metadata update
         }
 
 
@@ -3528,13 +3541,42 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     const data = JSON.parse(raw.substring(start, end + 1));
                     accumulatedData = data;
 
-                    // POLYFILL: Handle legacy blobs lacking 'metadata'
+                    // SCHEMATIC ADAPTER (Legacy -> V72)
+                    // 1. Metadata Normalization
                     if (!accumulatedData.metadata) {
                         accumulatedData.metadata = {
                             id: data.id || `LEGACY_${Date.now()}`,
                             title: data.title || data.missionTitle || "Untitled Legacy Mission",
-                            author: data.author || "Unknown"
+                            author: data.author || "Unknown",
+                            description: data.description || "",
+                            version: data.version || "1.0"
                         };
+                        // Copy root outcomes if metadata missing
+                        if (data.learningOutcomes) accumulatedData.metadata.learningOutcomes = data.learningOutcomes;
+                        if (data.intelligenceGlossary) accumulatedData.intelligenceGlossary = data.intelligenceGlossary;
+                    }
+
+                    // 2. Slide Normalization (Critical for Cuba/Defcon blobs)
+                    if (accumulatedData.slides && Array.isArray(accumulatedData.slides)) {
+                        accumulatedData.slides.forEach(s => {
+                            // Fix Title
+                            if (!s.title && s.shortTitle) s.title = s.shortTitle;
+
+                            // Fix Tabs (Object -> Standard Schema)
+                            // If tabs is an object with keys 'primary', 'intel', etc.
+                            // The current builder expects specific structure or just raw keys? 
+                            // Looking at 'loadMission' mock, it seems we keep the structure but ensure 'body' exists.
+                            // Cuba blob has: tabs.primary.content. Builder uses tabs.primary.body? 
+                            // Let's normalize content -> body if needed.
+                            if (s.tabs) {
+                                ['primary', 'legal', 'intel', 'background'].forEach(k => {
+                                    if (s.tabs[k]) {
+                                        if (s.tabs[k].content && !s.tabs[k].body) s.tabs[k].body = s.tabs[k].content;
+                                        if (s.tabs[k].label && !s.tabs[k].name) s.tabs[k].name = s.tabs[k].label;
+                                    }
+                                });
+                            }
+                        });
                     }
 
                     // Populate BuilderHistory if possible
@@ -3546,6 +3588,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     // Switch to an active phase tab to show data
                     switchMainTab('Builder');
                     updateBuilderUI();
+                    saveDraft(); // Auto-save after loading file
                 } catch (err) {
                     log(`Parse Error: ${err.message}`, "error");
                     alert("Invalid Dossier format: " + err.message);
@@ -3840,6 +3883,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
         function saveSettings() {
             try {
+                // Auto-save draft before reload to prevent data loss
+                saveDraft(false);
+
                 const mappings = {
                     'cfg-vercel-proxy': 'TM_VERCEL_PROXY',
                     'cfg-gcp-key': 'TM_GCP_KEY',
@@ -3883,6 +3929,60 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             }
         }
 
+        // --- SAVE SYSTEM ---
+        let lastDraftTime = 0;
+        async function saveDraft(forceCloud = false) {
+            // Local Draft
+            const bundle = {
+                data: accumulatedData,
+                history: BuilderHistory,
+                phase: currentPhaseIndex,
+                ts: Date.now()
+            };
+            localStorage.setItem('TM_Builder_DRAFT', JSON.stringify(bundle));
+
+            // Cloud Auto-Save (Throttle: 30s)
+            const id = accumulatedData?.metadata?.id;
+            const tId = getCurrentTeacherId();
+            if (id && !id.startsWith('SAMPLE-') && window.SupabaseBridge && SupabaseBridge.client) {
+                const now = Date.now();
+                if (forceCloud || (now - lastDraftTime > 30000)) {
+                    lastDraftTime = now;
+                    try {
+                        const loading = document.getElementById('builder-save-indicator');
+                        if (loading) loading.innerText = "Cloud Syncing...";
+                        await SupabaseBridge.saveMission(id, accumulatedData.metadata.title, accumulatedData, tId);
+                        if (loading) loading.innerText = "Synced";
+                        setTimeout(() => { if (loading) loading.innerText = ""; }, 2000);
+                        console.log("Auto-Save: Cloud Sync Complete");
+                    } catch (e) { console.warn("Auto-Save Failed:", e); }
+                }
+            }
+        }
+
+        function restoreDraft() {
+            const raw = localStorage.getItem('TM_Builder_DRAFT');
+            if (!raw) return false;
+
+            try {
+                const bundle = JSON.parse(raw);
+                // Expire drafts older than 24h
+                if (Date.now() - bundle.ts > 86400000) return false;
+
+                const date = new Date(bundle.ts).toLocaleTimeString();
+                if (confirm(`Unsaved draft found from ${date}. Resume work?`)) {
+                    accumulatedData = bundle.data;
+                    BuilderHistory = bundle.history;
+                    currentPhaseIndex = bundle.phase || 0;
+                    switchMainTab('Builder');
+                    updateBuilderUI();
+                    log("Draft restored successfully.", "success");
+                    return true;
+                }
+                return false;
+            } catch (e) { console.error("Draft restore error", e); return false; }
+        }
+
         async function loadMission(id) {
             const mission = currentMissions.find(m => m.id === id);
             if (!mission) return log(`Mission ${id} not found locally.`, 'error');
@@ -3895,6 +3995,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 updateBuilderUI();
                 switchMainTab('Builder');
                 addBuilderChat('ai', `**MISSION LOADED: ${mission.name}**\nResuming architecture sequence at Phase: ${getCurrentPhase().label}.`);
+                saveDraft(); // Auto-save after loading mission
             }
         }
 
@@ -3910,6 +4011,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             };
             localStorage.removeItem('TM_Builder_HISTORY');
             localStorage.removeItem('TM_Builder_DATA');
+            localStorage.removeItem('TM_Builder_DRAFT');
 
             const chat = document.getElementById('Builder-chat');
             if (chat) {
@@ -4356,6 +4458,17 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             refreshClasses();
             fetchMissions();
             fetchCurriculum();
+
+            // Auto-Save: Restore Draft if available
+            if (!restoreDraft()) {
+                // Only if no draft, check URL params or load defaults
+                const urlParams = new URLSearchParams(window.location.search);
+                const missionId = urlParams.get('mission');
+                if (missionId) {
+                    // Logic to load mission from ID if not draft
+                    console.log("Loading mission from URL:", missionId);
+                }
+            }
             fetchProgress();
 
             // Set background sync interval (30 seconds)
