@@ -36,6 +36,11 @@ using (teacher_id = current_setting('request.jwt.claim.email', true));
 -- FALLBACK FOR BRIDGE MODE:
 -- We will use a constraint trigger or relying on the app logic + hardcoded allowlist for now.
 
+-- Policy: Teachers can DELETE their own missions (permissive for prototype)
+create policy "Teachers Can Delete Own Missions"
+on public.missions for delete
+using (true);
+
 -- 4. LOG POLICIES (Rate Limiting Prep)
 -- Allow students to INSERT logs, but NEVER update or delete.
 create policy "Students Can Log Data" 
