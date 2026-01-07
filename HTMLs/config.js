@@ -5,5 +5,9 @@
 const CONFIG = {
     SB_URL: "https://zwujpkuguevnkcqrkhas.supabase.co",
     SB_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3dWpwa3VndWV2bmtjcXJraGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczODA0NDQsImV4cCI6MjA4Mjk1NjQ0NH0.H9tVz_expVsE7VLLLLEsnTMVsm5PQ09r7KlLe85MirA",
-    TEACHER_ID: "DWAUGH" // Default scoping ID
+    TEACHER_ID: "DWAUGH", // Default scoping ID
+
+    // Google Sheet Script URL (Sovereign Teacher backend)
+    // Set this after deploying Code.gs to a Google Sheet
+    SHEET_SCRIPT_URL: "" // e.g., "https://script.google.com/macros/s/.../exec"
 };

@@ -26,6 +26,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="supabase_bridge.js"></script>
+    <script src="hybrid_bridge.js"></script>
 
     <script>
         tailwind.config = {
@@ -780,25 +781,46 @@
         // TELEMETRY
         // =============================================
         async function transmitTelemetry(slideIndex, rationale) {
-            if (!SupabaseBridge || !SupabaseBridge.client) return;
-            try {
-                const slide = slides[slideIndex];
-                await SupabaseBridge.logSubmission({
-                    missionId: window.DATA.metadata?.id,
-                    studentName: user.profile.name,
-                    teacherId: user.profile.teacherId,
-                    classPeriod: user.profile.class,
-                    decisionJson: {
-                        slideIndex: slideIndex,
-                        slideTitle: slide.title,
-                        choice: slide.options?.[user.state.ans[slideIndex]] || 'N/A'
-                    },
-                    rationale: rationale,
-                    score: 0 // Default score or calculate if available
-                });
-                console.log('Telemetry logged for slide', slideIndex);
-            } catch (e) {
-                console.warn('Telemetry failed:', e);
+            const slide = slides[slideIndex];
+            const logData = {
+                missionId: window.DATA?.metadata?.id || 'unknown',
+                studentName: user.profile.name,
+                studentId: user.profile.name,
+                stepIndex: slideIndex,
+                decision: slide.options?.[user.state.ans[slideIndex]] || 'N/A',
+                rationale: rationale
+            };
+
+            // PRIMARY: Write to Google Sheets via HybridBridge
+            if (window.HybridBridge && HybridBridge.sheetScriptUrl) {
+                try {
+                    await HybridBridge.logDecision(logData);
+                    console.log('Telemetry logged to Google Sheet for slide', slideIndex);
+                } catch (e) {
+                    console.warn('Sheet telemetry failed:', e);
+                }
+            }
+
+            // FALLBACK: Also write to Supabase if available (for demo/backup)
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    await SupabaseBridge.logSubmission({
+                        missionId: logData.missionId,
+                        studentName: logData.studentName,
+                        teacherId: user.profile.teacherId,
+                        classPeriod: user.profile.class,
+                        decisionJson: {
+                            slideIndex: slideIndex,
+                            slideTitle: slide.title,
+                            choice: logData.decision
+                        },
+                        rationale: rationale,
+                        score: 0
+                    });
+                    console.log('Telemetry logged to Supabase for slide', slideIndex);
+                } catch (e) {
+                    console.warn('Supabase telemetry failed:', e);
+                }
             }
         }
 
@@ -878,10 +900,16 @@
         // INIT ON LOAD
         // =============================================
         document.addEventListener('DOMContentLoaded', () => {
-            // Init Supabase
+            // Init Supabase (for reading missions)
             if (typeof SupabaseBridge !== 'undefined' && typeof CONFIG !== 'undefined') {
                 SupabaseBridge.init(CONFIG.SB_URL, CONFIG.SB_KEY);
                 console.log('GO.HTML: Supabase initialized');
+            }
+
+            // Init HybridBridge (for writing to Google Sheets)
+            if (typeof HybridBridge !== 'undefined' && typeof CONFIG !== 'undefined') {
+                HybridBridge.init(CONFIG.SB_URL, CONFIG.SB_KEY, CONFIG.SHEET_SCRIPT_URL);
+                console.log('GO.HTML: HybridBridge initialized');
             }
 
             initParticles();
