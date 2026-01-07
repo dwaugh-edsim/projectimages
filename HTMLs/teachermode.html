@@ -2885,15 +2885,19 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 intelligenceGlossary: cleanedData.intelligenceGlossary || []
             };
 
-            // 1. Cloud Save (if authenticated)
-            console.log("DEPLOY_DEBUG: SupabaseBridge.client:", !!SupabaseBridge.client, "googleUser:", !!googleUser);
-            if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
+            // 1. Cloud Save (if authenticated OR has teacher handle)
+            const teacherId = getCurrentTeacherId();
+            const hasCloudAccess = window.SupabaseBridge && SupabaseBridge.client && teacherId && teacherId !== 'GUEST';
+            console.log("DEPLOY_DEBUG: SupabaseBridge.client:", !!SupabaseBridge.client, "teacherId:", teacherId, "hasCloudAccess:", hasCloudAccess);
+
+            if (hasCloudAccess) {
                 try {
                     log(`Uploading to Command Cloud: ${missionId}...`);
-                    console.log("DEPLOY_DEBUG: Calling saveMission with teacherId:", getCurrentTeacherId());
-                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, getCurrentTeacherId());
+                    console.log("DEPLOY_DEBUG: Calling saveMission with teacherId:", teacherId);
+                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, teacherId);
                     log("Cloud Upload Successful.", "success");
                     addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
+                    alert("✅ Mission deployed to cloud successfully!");
                     fetchMissions(); // Update library UI
                     return; // EXIT FUNCTION - Do not force local download on success
                 } catch (e) {
@@ -2902,8 +2906,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     alert("Cloud upload failed. One moment, initiating local backup...");
                 }
             } else {
-                console.warn("DEPLOY_DEBUG: Skipping cloud save. SupabaseBridge.client:", !!SupabaseBridge.client, "googleUser:", !!googleUser);
-                if (!googleUser) log("GUEST MODE: Saving local copy only.", "warning");
+                console.warn("DEPLOY_DEBUG: Skipping cloud save. hasCloudAccess:", hasCloudAccess);
+                log("GUEST MODE: Saving local copy only. Set Teacher Handle in Settings for cloud sync.", "warning");
             }
 
             // 2. Download Blob (Fallback / Guest Mode)
