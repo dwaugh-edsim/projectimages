@@ -2887,13 +2887,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             // 1. Cloud Save (if authenticated OR has teacher handle)
             const teacherId = getCurrentTeacherId();
-            // DEBUG: Check each condition individually
-            const c1 = !!window.SupabaseBridge;
-            const c2 = !!SupabaseBridge?.client;
-            const c3 = !!teacherId;
-            const c4 = teacherId !== 'GUEST';
-            const hasCloudAccess = c1 && c2 && c3 && c4;
-            console.log("DEPLOY_DEBUG_V3:", { c1, c2, c3, c4, teacherId, hasCloudAccess });
+            // Check SupabaseBridge directly (not window.SupabaseBridge)
+            const hasCloudAccess = !!(SupabaseBridge && SupabaseBridge.client && teacherId && teacherId !== 'GUEST');
+            console.log("DEPLOY_DEBUG_V4: hasCloudAccess:", hasCloudAccess, "teacherId:", teacherId);
 
             if (hasCloudAccess) {
                 try {
