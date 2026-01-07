@@ -578,14 +578,25 @@ const SupabaseBridge = {
     async fetchClassRoster(classCode) {
         if (!this.client) return [];
         try {
+            // Fetch all students and filter client-side to handle JSONB array nuances
             const { data, error } = await this.client
                 .from('students')
                 .select('id, username, joined_codes, created_at')
-                .contains('joined_codes', [classCode]);
+                .order('username', { ascending: true });
 
             if (error) throw error;
 
-            return data.map(s => ({
+            return (data || []).filter(s => {
+                const codes = s.joined_codes;
+                if (Array.isArray(codes)) return codes.includes(classCode);
+                if (typeof codes === 'string') {
+                    try {
+                        const parsed = JSON.parse(codes);
+                        return Array.isArray(parsed) && parsed.includes(classCode);
+                    } catch { return codes === classCode; }
+                }
+                return false;
+            }).map(s => ({
                 id: s.id,
                 name: s.username,
                 status: 'ENROLLED',

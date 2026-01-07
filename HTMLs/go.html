@@ -350,6 +350,7 @@
                     if (!cls) throw new Error('Class not found. Check your Class Code.');
 
                     user.profile.teacherId = cls.teacher_id;
+                    user.profile.assignedMissions = cls.mission_ids || []; // Store assigned missions
 
                     // Get or create student and add class to their joined_codes
                     const student = await SupabaseBridge.getOrCreateStudent(name, pin, cls.teacher_id);
@@ -374,18 +375,24 @@
             // Show mission selection
             document.getElementById('login-step').classList.add('hidden');
             document.getElementById('mission-select').classList.remove('hidden');
-            fetchMissions();
+            fetchMissions(user.profile.assignedMissions);
         }
 
-        async function fetchMissions() {
+        async function fetchMissions(assignedIds = []) {
             const list = document.getElementById('mission-list');
             list.innerHTML = '<div class="text-center text-gray-500 py-4">Loading missions...</div>';
 
             if (SupabaseBridge && SupabaseBridge.client) {
                 try {
-                    const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
+                    let missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
+
+                    // Filter by assigned mission IDs if provided
+                    if (assignedIds && assignedIds.length > 0) {
+                        missions = missions.filter(m => assignedIds.includes(m.mission_id));
+                    }
+
                     if (!missions.length) {
-                        list.innerHTML = '<div class="text-center text-gray-500 py-4">No missions available yet.</div>';
+                        list.innerHTML = '<div class="text-center text-gray-500 py-4">No missions available for this class.</div>';
                         return;
                     }
                     let html = '';
@@ -690,14 +697,18 @@
             if (!SupabaseBridge || !SupabaseBridge.client) return;
             try {
                 const slide = slides[slideIndex];
-                await SupabaseBridge.logSimulation({
-                    mission_id: window.DATA.metadata?.id,
-                    student_name: user.profile.name,
-                    teacher_id: user.profile.teacherId,
-                    slide_index: slideIndex,
-                    slide_title: slide.title,
-                    choice: slide.options?.[user.state.ans[slideIndex]] || 'N/A',
-                    rationale: rationale
+                await SupabaseBridge.logSubmission({
+                    missionId: window.DATA.metadata?.id,
+                    studentName: user.profile.name,
+                    teacherId: user.profile.teacherId,
+                    classPeriod: user.profile.class,
+                    decisionJson: {
+                        slideIndex: slideIndex,
+                        slideTitle: slide.title,
+                        choice: slide.options?.[user.state.ans[slideIndex]] || 'N/A'
+                    },
+                    rationale: rationale,
+                    score: 0 // Default score or calculate if available
                 });
                 console.log('Telemetry logged for slide', slideIndex);
             } catch (e) {
