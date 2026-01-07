@@ -85,9 +85,10 @@ CREATE TABLE IF NOT EXISTS public.students (
     id SERIAL PRIMARY KEY,
     username TEXT NOT NULL,
     pin TEXT NOT NULL,
+    teacher_id TEXT NOT NULL, -- Scoped to a specific teacher
     joined_codes JSONB DEFAULT '[]'::jsonb, -- Array of 5-letter codes
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(username, pin)
+    UNIQUE(username, pin, teacher_id)
 );
 
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;

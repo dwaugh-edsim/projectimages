@@ -133,12 +133,25 @@
                 <input type="password" id="input-pin" placeholder="Your PIN (4 digits)"
                     class="input input-bordered w-full bg-base-200/50 border-white/10 text-center font-mono tracking-widest"
                     maxlength="4">
-                <input type="text" id="input-class" placeholder="Class Code (e.g. ABC123)"
+                <input type="text" id="input-teacher" placeholder="Teacher ID (e.g. DWAUGH)"
                     class="input input-bordered w-full bg-base-200/50 border-white/10 text-center font-mono uppercase">
                 <button onclick="login()" class="btn btn-warning btn-lg w-full font-display tracking-wider">
                     ENTER SITUATION ROOM
                 </button>
-                <p class="text-xs text-gray-500 text-center">Get your Class Code from your teacher.</p>
+            </div>
+
+            <div id="class-step" class="hidden space-y-4">
+                <h2 class="text-lg font-display text-amber-400">SELECT YOUR CLASS</h2>
+                <div id="class-list" class="space-y-2 max-h-48 overflow-y-auto">
+                    <!-- Joined classes buttons -->
+                </div>
+                <div class="divider text-[10px] opacity-30">OR JOIN NEW</div>
+                <div class="join w-full">
+                    <input type="text" id="input-class" placeholder="5-Letter Code"
+                        class="input input-sm input-bordered w-full bg-base-200/50 border-white/10 text-center font-mono uppercase join-item">
+                    <button onclick="joinClass()" class="btn btn-sm btn-warning join-item uppercase">Join</button>
+                </div>
+                <button onclick="backToLogin()" class="btn btn-ghost btn-xs opacity-50">← Use different account</button>
             </div>
 
             <div id="mission-select" class="hidden space-y-4">
@@ -289,7 +302,14 @@
         // =============================================
         window.DATA = null;  // Mission data
         let user = {
-            profile: { name: '', class: '', teacherId: '' },
+            profile: {
+                name: '',
+                class: '',
+                teacherId: '',
+                studentId: null,
+                joinedCodes: [],
+                assignedMissions: []
+            },
             state: { idx: 0, ans: {}, rat: {}, aiFeedback: null, aiRequested: false }
         };
         let slides = [];
@@ -324,13 +344,16 @@
         // =============================================
         // LOGIN FLOW
         // =============================================
+        // =============================================
+        // LOGIN FLOW
+        // =============================================
         async function login() {
             const name = document.getElementById('input-name').value.trim();
             const pin = document.getElementById('input-pin').value.trim();
-            const classCode = document.getElementById('input-class').value.trim().toUpperCase();
+            const teacherId = document.getElementById('input-teacher').value.trim().toUpperCase();
 
-            if (!name || !pin || !classCode) {
-                alert('Please fill in all fields: Name, PIN, and Class Code.');
+            if (!name || !pin || !teacherId) {
+                alert('Please fill in Name, PIN, and Teacher ID.');
                 return;
             }
 
@@ -340,42 +363,98 @@
             }
 
             user.profile.name = name;
-            user.profile.class = classCode;
+            user.profile.teacherId = teacherId;
 
-            // Verify class exists and get/create student
+            // Verify teacher/student exist
             if (SupabaseBridge && SupabaseBridge.client) {
                 try {
-                    // First verify the class exists
-                    const cls = await SupabaseBridge.fetchClassByCode(classCode);
-                    if (!cls) throw new Error('Class not found. Check your Class Code.');
+                    const student = await SupabaseBridge.getOrCreateStudent(name, pin, teacherId);
+                    if (!student) throw new Error('Could not authenticate. Check your Name, PIN, and Teacher ID.');
 
-                    user.profile.teacherId = cls.teacher_id;
-                    user.profile.assignedMissions = cls.mission_ids || []; // Store assigned missions
+                    user.profile.studentId = student.id;
+                    user.profile.joinedCodes = student.joined_codes || [];
 
-                    // Get or create student and add class to their joined_codes
-                    const student = await SupabaseBridge.getOrCreateStudent(name, pin, cls.teacher_id);
-                    if (!student) throw new Error('Could not create student record.');
-
-                    // Add this class to student's joined_codes if not already
-                    if (!student.joined_codes?.includes(classCode)) {
-                        const updatedCodes = [...(student.joined_codes || []), classCode];
-                        await SupabaseBridge.updateStudentJoinedCodes(student.id, updatedCodes);
-                    }
-
-                    console.log('Student authenticated:', student, 'Class:', cls);
+                    console.log('Student authenticated:', student);
+                    showClassStep();
                 } catch (e) {
-                    alert('Login Error: ' + e.message);
-                    return;
+                    alert('Authentication Error: ' + e.message);
                 }
             } else {
-                alert('Database not connected. Please refresh and try again.');
-                return;
+                alert('Database not connected.');
+            }
+        }
+
+        async function showClassStep() {
+            document.getElementById('login-step').classList.add('hidden');
+            document.getElementById('class-step').classList.remove('hidden');
+
+            const list = document.getElementById('class-list');
+            list.innerHTML = '';
+
+            if (user.profile.joinedCodes.length > 0) {
+                const classes = await SupabaseBridge.fetchClassesByCodes(user.profile.joinedCodes);
+                classes.forEach(cls => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full p-3 rounded-lg bg-base-200/50 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30 transition-all text-left flex justify-between items-center group";
+                    btn.onclick = () => selectClass(cls.passcode);
+                    btn.innerHTML = `
+                        <div>
+                            <div class="font-medium text-amber-400 group-hover:text-amber-300">${cls.class_name}</div>
+                            <div class="text-[10px] text-gray-500 font-mono italic">${cls.passcode}</div>
+                        </div>
+                        <span class="text-xs opacity-0 group-hover:opacity-100 transition-opacity">Select →</span>
+                    `;
+                    list.appendChild(btn);
+                });
+            } else {
+                list.innerHTML = '<div class="text-center text-xs text-gray-500 py-4 italic">No classes joined yet.</div>';
+            }
+        }
+
+        async function joinClass() {
+            const code = document.getElementById('input-class').value.trim().toUpperCase();
+            if (!code) return;
+
+            if (SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    const cls = await SupabaseBridge.fetchClassByCode(code);
+                    if (!cls) throw new Error('Class code not found.');
+                    if (cls.teacher_id !== user.profile.teacherId) {
+                        throw new Error(`This class code belongs to a different teacher. Check the Teacher ID you entered.`);
+                    }
+
+                    // Add to profile if not there
+                    if (!user.profile.joinedCodes.includes(code)) {
+                        user.profile.joinedCodes.push(code);
+                        await SupabaseBridge.updateStudentJoinedCodes(user.profile.studentId, user.profile.joinedCodes);
+                    }
+
+                    selectClass(code);
+                } catch (e) {
+                    alert('Join Error: ' + e.message);
+                }
+            }
+        }
+
+        async function selectClass(code) {
+            user.profile.class = code;
+
+            // Get class details again for assigned missions
+            if (SupabaseBridge && SupabaseBridge.client) {
+                const cls = await SupabaseBridge.fetchClassByCode(code);
+                user.profile.assignedMissions = cls?.mission_ids || [];
             }
 
-            // Show mission selection
-            document.getElementById('login-step').classList.add('hidden');
+            document.getElementById('class-step').classList.add('hidden');
             document.getElementById('mission-select').classList.remove('hidden');
             fetchMissions(user.profile.assignedMissions);
+        }
+
+        function backToLogin() {
+            document.getElementById('class-step').classList.add('hidden');
+            document.getElementById('login-step').classList.remove('hidden');
+            user.profile.studentId = null;
+            user.profile.joinedCodes = [];
         }
 
         async function fetchMissions(assignedIds = []) {

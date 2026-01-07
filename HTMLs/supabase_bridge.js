@@ -433,21 +433,22 @@ const SupabaseBridge = {
     async getOrCreateStudent(username, pin, teacherId) {
         if (!this.client) return null;
         try {
-            // Check for existing
+            // Check for existing student with this name, pin AND teacher_id
             const { data, error } = await this.client
                 .from('students')
                 .select('*')
                 .eq('username', username)
                 .eq('pin', pin)
+                .eq('teacher_id', teacherId)
                 .maybeSingle();
 
             if (error) throw error;
             if (data) return data;
 
-            // Create new
+            // Create new student record tied to this teacher
             const { data: newData, error: createError } = await this.client
                 .from('students')
-                .insert([{ username, pin, joined_codes: [] }])
+                .insert([{ username, pin, teacher_id: teacherId, joined_codes: [] }])
                 .select()
                 .single();
 
