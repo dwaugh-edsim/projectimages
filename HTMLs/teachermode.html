@@ -3435,15 +3435,19 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             missions.forEach(m => {
                 const isSample = m.id.startsWith('SAMPLE-');
                 const deleteBtn = isSample ? '' : `<button class="btn btn-xs btn-error btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); deleteMission('${m.id}')">Delete</button>`;
+                const publishBtn = isSample ? '' : `<button class="btn btn-xs btn-secondary btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); publishToCommunity('${m.id}')" title="Share to Community Hub">📤</button>`;
 
                 html += `
                 <div class="card bg-base-100 shadow-xl image-full group cursor-pointer hover:scale-[1.02] transition-transform" onclick="loadMission('${m.id}')">
                     <figure><img src="${m.thumb || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa'}" alt="Mission" class="opacity-40 group-hover:opacity-60 transition-opacity w-full h-48 object-cover" /></figure>
                     <div class="card-body p-4 justify-between">
                         <div>
-                            <div class="flex justify-between items-start">
+                            <div class="flex justify-between items-start gap-2">
                                 <h2 class="card-title text-sm text-white tracking-wider mb-1 line-clamp-1">${m.name}</h2>
-                                ${deleteBtn}
+                                <div class="flex gap-1">
+                                    ${publishBtn}
+                                    ${deleteBtn}
+                                </div>
                             </div>
                             <p class="text-[10px] text-base-200/80 line-clamp-2">${m.description || "No description available."}</p>
                         </div>
@@ -3462,7 +3466,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- COMMUNITY HUB LOGIC ---
-        const COMMUNITY_LIB_URL = "https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json";
+        // const COMMUNITY_LIB_URL = "https://raw.githubusercontent.com/..."; // DEPRECATED - Now using Supabase
 
         function toggleCommunityHub() {
             const modal = document.getElementById('community_hub_modal');
@@ -3473,27 +3477,47 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         async function fetchCommunityLibrary() {
             const grid = document.getElementById('community-hub-grid');
             grid.innerHTML = `<div class="col-span-full text-center opacity-30 py-20"><span class="loading loading-spinner loading-md"></span><br>Loading Community Catalog...</div>`;
+
             try {
-                const res = await fetch(COMMUNITY_LIB_URL);
-                if (!res.ok) throw new Error("Catalog not found.");
-                const data = await res.json();
-                renderCommunityHub(data.capsules || []);
+                if (window.SupabaseBridge && SupabaseBridge.client) {
+                    const capsules = await SupabaseBridge.fetchCommunityCatalog();
+                    renderCommunityHub(capsules);
+                } else {
+                    // Fallback to static file for offline mode
+                    const res = await fetch("https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json");
+                    if (!res.ok) throw new Error("Catalog not found.");
+                    const data = await res.json();
+                    renderCommunityHub((data.capsules || []).map(c => ({
+                        mission_id: c.id,
+                        title: c.title,
+                        author: c.author,
+                        description: c.description,
+                        thumb: c.thumb,
+                        blob_data: null,
+                        download_url: c.downloadUrl
+                    })));
+                }
             } catch (e) {
-                grid.innerHTML = `<div class="col-span-full text-center text-error py-20">COMMUNITY_CATALOG_OFFLINE<br><span class="text-xs opacity-50">Check your network or try again later.</span></div>`;
+                grid.innerHTML = `<div class="col-span-full text-center text-error py-20">COMMUNITY_CATALOG_OFFLINE<br><span class="text-xs opacity-50">${e.message}</span></div>`;
                 log("Community Hub Fetch Failed: " + e.message, "error");
             }
         }
 
         function renderCommunityHub(capsules) {
             const grid = document.getElementById('community-hub-grid');
+            const currentTeacher = getCurrentTeacherId();
+
             if (!capsules.length) {
-                grid.innerHTML = `<div class="col-span-full text-center opacity-50 py-20">No missions in community catalog.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center opacity-50 py-20">No missions in community catalog yet.<br><span class="text-xs">Publish your first mission from the Library!</span></div>`;
                 return;
             }
             let html = '';
             capsules.forEach(c => {
+                const isOwner = c.author === currentTeacher || c.author === googleUser?.email;
+                const removeBtn = isOwner ? `<button class="btn btn-xs btn-error btn-outline" onclick="removeFromCommunity('${c.mission_id}')">REMOVE</button>` : '';
+
                 html += `
-                <div class="card bg-base-200 shadow-md border border-base-content/10">
+                <div class="card bg-base-200 shadow-md border border-base-content/10 group">
                     <figure class="h-32 bg-black/30">
                         <img src="${c.thumb || 'https://placehold.co/400x200/111/333?text=NO+IMAGE'}" alt="${c.title}" class="w-full h-full object-cover opacity-80">
                     </figure>
@@ -3501,8 +3525,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                         <h2 class="card-title text-sm font-display tracking-wide">${c.title}</h2>
                         <p class="text-[10px] opacity-50 font-mono uppercase">BY: ${c.author || 'UNKNOWN'}</p>
                         <p class="text-xs opacity-70 line-clamp-2">${c.description || 'An interactive educational simulation.'}</p>
-                        <div class="card-actions justify-end mt-2">
-                            <button class="btn btn-xs btn-secondary" onclick="importCommunityMission('${c.downloadUrl}', '${c.id}', '${c.title.replace(/'/g, "\\'")}')">IMPORT</button>
+                        <div class="card-actions justify-between mt-2 items-center">
+                            ${removeBtn}
+                            <button class="btn btn-xs btn-secondary ml-auto" onclick="importCommunityMission('${c.mission_id}', '${c.title.replace(/'/g, "\\'")}', ${c.blob_data ? 'true' : 'false'})">IMPORT</button>
                         </div>
                     </div>
                 </div>`;
@@ -3510,19 +3535,62 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             grid.innerHTML = html;
         }
 
-        async function importCommunityMission(url, id, name) {
-            log(`Syncing Remote Capsule [${id}]...`, "info");
+        async function removeFromCommunity(missionId) {
+            if (!confirm(`Remove this mission from the Community Hub?`)) return;
+
             try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error("Could not fetch mission file.");
-                const data = await res.json();
+                await SupabaseBridge.removeFromCommunity(missionId);
+                log(`Mission removed from Community Hub: ${missionId}`, "success");
+                fetchCommunityLibrary();
+            } catch (e) {
+                log(`Failed to remove: ${e.message}`, "error");
+                alert(`Error: ${e.message}`);
+            }
+        }
+
+        async function publishToCommunity(missionId) {
+            const mission = currentMissions.find(m => m.id === missionId);
+            if (!mission) return alert("Mission not found in library.");
+
+            const author = getCurrentTeacherId();
+            const title = mission.name || mission.payload?.metadata?.title || "Untitled";
+            const description = mission.payload?.metadata?.description || "";
+            const thumb = mission.thumb || mission.payload?.metadata?.heroImage || "";
+
+            if (!confirm(`Publish "${title}" to the Community Hub?\n\nThis makes it available to ALL teachers.`)) return;
+
+            try {
+                await SupabaseBridge.publishToCommunity(missionId, title, author, description, thumb, mission.payload);
+                log(`Mission published to Community Hub: ${title}`, "success");
+                alert(`"${title}" is now live in the Community Hub!`);
+            } catch (e) {
+                log(`Publish failed: ${e.message}`, "error");
+                alert(`Error publishing: ${e.message}`);
+            }
+        }
+
+        async function importCommunityMission(missionId, title, hasInlineData) {
+            log(`Importing Community Capsule [${missionId}]...`, "info");
+            try {
+                let data;
+
+                if (hasInlineData && window.SupabaseBridge && SupabaseBridge.client) {
+                    // Fetch full record from community_catalog
+                    const catalog = await SupabaseBridge.fetchCommunityCatalog();
+                    const capsule = catalog.find(c => c.mission_id === missionId);
+                    if (!capsule || !capsule.blob_data) throw new Error("Mission data not found in catalog.");
+                    data = capsule.blob_data;
+                } else {
+                    // Fallback to URL fetch (legacy)
+                    throw new Error("Legacy URL import not supported. Mission must have inline data.");
+                }
 
                 // Save to personal library
                 const teacherId = getCurrentTeacherId();
                 if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
-                    await SupabaseBridge.saveMission(id, name, data, teacherId);
-                    log(`Mission [${name}] imported to your library!`, "success");
-                    alert(`Mission imported!\\n\\n"${name}" is now in your personal Library.`);
+                    await SupabaseBridge.saveMission(missionId, title, data, teacherId);
+                    log(`Mission [${title}] imported to your library!`, "success");
+                    alert(`Mission imported!\n\n"${title}" is now in your personal Library.`);
                     fetchMissions(); // Refresh library
                 } else {
                     // Fallback: Download locally
@@ -3530,7 +3598,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
-                    a.download = `${id}.blob`;
+                    a.download = `${missionId}.blob`;
                     a.click();
                 }
                 document.getElementById('community_hub_modal').close();

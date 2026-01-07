@@ -119,6 +119,51 @@ const SupabaseBridge = {
         return data; // Return record to verify deletion
     },
 
+    // --- COMMUNITY CATALOG OPERATIONS ---
+    async fetchCommunityCatalog() {
+        if (!this.client) return [];
+        const { data, error } = await this.client
+            .from('community_catalog')
+            .select('*')
+            .order('published_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    async publishToCommunity(missionId, title, author, description, thumb, blobData) {
+        if (!this.client) return null;
+
+        const { data, error } = await this.client
+            .from('community_catalog')
+            .upsert({
+                mission_id: missionId,
+                title: title,
+                author: author,
+                description: description,
+                thumb: thumb,
+                blob_data: blobData,
+                published_at: new Date().toISOString()
+            })
+            .select();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async removeFromCommunity(missionId) {
+        if (!this.client) return false;
+
+        const { data, error } = await this.client
+            .from('community_catalog')
+            .delete()
+            .eq('mission_id', missionId)
+            .select();
+
+        if (error) throw error;
+        return data;
+    },
+
     // --- TELEMETRY / LOGGING OPERATIONS ---
     async logSubmission(logData) {
         if (!this.client) {

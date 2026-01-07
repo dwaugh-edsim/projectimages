@@ -102,3 +102,33 @@ CREATE POLICY "Anyone can manage their student profile"
 -- = : INSERT INTO public.classes (passcode, teacher_id, class_name) 
 --     VALUES ('XJ9KT', 'your-email@example.com', 'History 101');
 -- =====================================================
+
+-- 5. COMMUNITY CATALOG (For shared mission hub)
+CREATE TABLE IF NOT EXISTS public.community_catalog (
+    id SERIAL PRIMARY KEY,
+    mission_id TEXT UNIQUE NOT NULL,       -- The mission ID from missions table
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,                  -- Email or handle of who published it
+    description TEXT,
+    thumb TEXT,                            -- Hero image URL
+    download_url TEXT,                     -- Direct link to the .blob file, or inline JSON
+    blob_data JSONB,                       -- Full mission data (stored inline for simplicity)
+    published_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.community_catalog ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read the community catalog
+CREATE POLICY "Anyone can read community catalog"
+    ON public.community_catalog FOR SELECT
+    USING (true);
+
+-- Any authenticated user can publish (add) their mission
+CREATE POLICY "Anyone can publish to community"
+    ON public.community_catalog FOR INSERT
+    WITH CHECK (true);
+
+-- Only the author can remove their own entry
+CREATE POLICY "Authors can remove their own entries"
+    ON public.community_catalog FOR DELETE
+    USING (true); -- Permissive for prototype; in production use author = jwt.email
