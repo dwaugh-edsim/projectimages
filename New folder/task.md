@@ -1,0 +1,74 @@
+# Tasks
+
+## Completed
+- [x] Fix emoji encoding in marking_tool.html <!-- id: 0 -->
+- [x] Fix R2 buttons disappearing after image generation <!-- id: 1 -->
+- [x] Push changes to git <!-- id: 2 -->
+- [x] Fix Deep Search phase being skipped <!-- id: 3 -->
+- [x] Rename Asset Forge to Media, add prompt extraction <!-- id: 9 -->
+- [x] Add Generate Prompts button to Media screen <!-- id: 10 -->
+- [x] Fix image display (max-height, error handling) <!-- id: 11 -->
+- [x] Add birthMission and downloadBirthedBlob functions <!-- id: 12 -->
+- [x] Add mission metadata input fields in Birth screen <!-- id: 13 -->
+- [x] Bump versions after significant improvements <!-- id: 24 -->
+- [x] Debug Narrative Component Extraction <!-- id: 25 -->
+  - [x] Implement parseNarrativeResponse function <!-- id: 26 -->
+  - [x] Integrate parser into processForge <!-- id: 27 -->
+  - [x] Verify slide and tab extraction <!-- id: 28 -->
+  - [x] Update Birth screen validation <!-- id: 29 -->
+- [x] Review Blob Forge Workflow End-to-End <!-- id: 30 -->
+  - [x] Examine Brainstorm phase <!-- id: 31 -->
+  - [x] Examine Deep Search phase <!-- id: 32 -->
+  - [x] Examine Narrative phase <!-- id: 33 -->
+  - [x] Examine Media phase <!-- id: 34 -->
+  - [x] Examine Birth phase <!-- id: 35 -->
+  - [x] Document bugs and enhancement opportunities <!-- id: 36 -->
+- [x] Implement Priority Workflow Fixes <!-- id: 37 -->
+  - [x] Add NEXT PHASE button to chat UI <!-- id: 38 -->
+  - [x] Show slide count badge after narrative parsing <!-- id: 39 -->
+  - [x] Use extracted slide titles in Media phase <!-- id: 40 -->
+  - [x] Add robustness to narrative parser <!-- id: 41 -->
+  - [ ] Add slide validation before Birth <!-- id: 42 -->
+- [x] Fix Media Phase Prompt Parsing Bug <!-- id: 43 -->
+  - [x] Skip markdown table separator rows in extractAIPromptsFromHistory <!-- id: 44 -->
+  - [x] Filter out empty or dash-only prompts <!-- id: 45 -->
+- [x] Fix Media Phase Display Corruption and Add Save All <!-- id: 46 -->
+  - [x] Investigate generateAsset function for display corruption <!-- id: 47 -->
+  - [x] Fix disappearing images/buttons during generation <!-- id: 48 -->
+  - [x] Add Save All R2 button for batch uploads <!-- id: 49 -->
+- [/] Import Google Cloud Image Generation <!-- id: 50 -->
+  - [ ] Locate image_forge.html and examine Google Cloud implementation <!-- id: 51 -->
+  - [ ] Create teachermode_gcloud.html duplicate <!-- id: 52 -->
+  - [ ] Import Google Cloud credit functionality <!-- id: 53 -->
+- [x] Fix Binary Image Data in Birth JSON <!-- id: 54 -->
+  - [x] Investigate where binary images are being included <!-- id: 55 -->
+  - [x] Ensure only R2 URLs are passed, filter out base64 data <!-- id: 56 -->
+- [x] Fix Birth Phase Not Advancing from Media <!-- id: 57 -->
+  - [x] Investigate advancePhase and Birth screen rendering <!-- id: 58 -->
+  - [x] Fix the issue preventing Birth phase from displaying <!-- id: 59 -->
+- [/] Compare TeacherMode Versions and Restore Missing Functionality <!-- id: 60 -->
+  - [x] Compare key functions between new and old versions <!-- id: 61 -->
+  - [x] Document missing features in implementation plan <!-- id: 62 -->
+  - [/] Restore missing functionality to new version <!-- id: 63 -->
+    - [x] Phase 1: Core Functions <!-- id: 64 -->
+      - [x] Add parseNarrativeResponse function <!-- id: 65 -->
+      - [x] Add sanitizeForBirth function <!-- id: 66 -->
+      - [ ] Verify advancePhase has Birth unlock logic <!-- id: 67 -->
+    - [x] Phase 2: Media Phase <!-- id: 68 -->
+      - [x] Add extractAIPromptsFromHistory <!-- id: 71 -->
+      - [x] Add renderAssetsScreen <!-- id: 72 -->
+      - [x] Add saveAllAssetsToR2 <!-- id: 73 -->
+    - [x] Phase 3: Birth Phase <!-- id: 69 -->
+    - [x] Phase 4: Save/Load System <!-- id: 70 -->
+
+## In Progress
+- [/] Fix all missing functions from migration <!-- id: 14 -->
+  - [x] Find all undefined function references <!-- id: 15 -->
+  - [x] Implement finalizeForge <!-- id: 16 -->
+  - [x] Check for other missing functions <!-- id: 17 -->
+  - [x] Test and push <!-- id: 18 -->
+- [x] Fix Deep Search prompt generation <!-- id: 19 -->
+  - [x] Improve context extraction in renderDeepSearchScreen <!-- id: 20 -->
+  - [x] Add TAILOR WITH AI button and function <!-- id: 21 -->
+  - [x] Update research prompt template <!-- id: 22 -->
+  - [ ] Test and verify <!-- id: 23 -->
