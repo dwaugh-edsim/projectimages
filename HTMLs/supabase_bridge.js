@@ -91,22 +91,29 @@ const SupabaseBridge = {
     async deleteMission(missionId, teacherId) {
         if (!this.client) return false;
 
-        // Diagnostic: Check if mission exists first
-        const { data: existing } = await this.client
+        console.log(`[SupabaseBridge] deleteMission: id=${missionId}, teacher=${teacherId}`);
+
+        // Diagnostic: Check if mission exists first (any teacher)
+        const { data: existing, error: checkError } = await this.client
             .from('missions')
-            .select('mission_id')
-            .eq('mission_id', missionId)
-            .eq('teacher_id', teacherId);
+            .select('mission_id, teacher_id')
+            .eq('mission_id', missionId);
+
+        console.log(`[SupabaseBridge] Existing record check:`, existing, checkError);
 
         if (!existing || existing.length === 0) {
             console.warn(`Supabase Bridge: deleteMission targeting non-existent record: ${missionId}`);
+            return [];
         }
 
+        // Delete by mission_id only (RLS policy should handle authorization)
         const { data, error } = await this.client
             .from('missions')
             .delete()
-            .match({ mission_id: missionId, teacher_id: teacherId })
+            .eq('mission_id', missionId)
             .select();
+
+        console.log(`[SupabaseBridge] Delete result:`, data, error);
 
         if (error) throw error;
         return data; // Return record to verify deletion

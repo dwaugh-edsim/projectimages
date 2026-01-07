@@ -3613,7 +3613,8 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         async function deleteMission(id) {
-            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
+            const currentTeacher = getCurrentTeacherId();
+            console.log(`[DELETE] Attempting to delete mission: ${id} for teacher: ${currentTeacher}`);
 
             if (id.startsWith('SAMPLE-')) {
                 log("Local samples cannot be scrubbed from the factory archive.", "warning");
@@ -3627,11 +3628,19 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             if (window.SupabaseBridge && SupabaseBridge.client) {
                 try {
-                    await SupabaseBridge.deleteMission(id, currentTeacher);
-                    log(`Mission scrubbed from cloud: ${id}`, "success");
-                    fetchMissions();
+                    const result = await SupabaseBridge.deleteMission(id, currentTeacher);
+                    console.log(`[DELETE] Supabase returned:`, result);
+
+                    if (result && result.length > 0) {
+                        log(`Mission scrubbed from cloud: ${id}`, "success");
+                    } else {
+                        log(`Mission [${id}] was not found or already deleted (no rows affected).`, "warning");
+                    }
+                    await fetchMissions();
                 } catch (e) {
+                    console.error(`[DELETE] Error:`, e);
                     log(`Deletion Failed: ${e.message}`, "error");
+                    alert(`Deletion failed: ${e.message}`);
                 }
             } else {
                 log("Supabase not configured. Cannot delete from cloud.", "error");
