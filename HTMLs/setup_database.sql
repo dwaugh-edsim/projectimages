@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.classes (
     passcode TEXT UNIQUE NOT NULL, -- The 5-letter unique code (e.g. XJ9KT)
     teacher_id TEXT NOT NULL,      -- Email of the teacher/creator
     class_name TEXT NOT NULL,      -- Display name (e.g. Period 1 - History)
+    mission_ids JSONB DEFAULT '[]'::jsonb, -- Array of assigned mission IDs
     sb_url TEXT,                   -- (Optional) Override Supabase URL
     sb_key TEXT,                   -- (Optional) Override Supabase Key
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
