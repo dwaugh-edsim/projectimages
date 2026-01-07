@@ -2513,6 +2513,36 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             list.innerHTML = html;
         }
 
+        // --- HOSPITAL HELPER FUNCTIONS ---
+        function updateHospitalPreview(imageUrl) {
+            const previewEl = document.getElementById('h-preview-img');
+            if (previewEl) {
+                if (imageUrl) {
+                    previewEl.src = imageUrl;
+                    previewEl.classList.remove('hidden');
+                } else {
+                    previewEl.src = "";
+                    previewEl.classList.add('hidden');
+                }
+            }
+        }
+
+        async function saveIdeaProgress() {
+            // Auto-save WIP to Supabase (optional feature)
+            if (!window.SupabaseBridge || !SupabaseBridge.client || !googleUser) {
+                console.log("SAVE_IDEA: Skipping (no auth or client)");
+                return;
+            }
+            try {
+                const ideaId = accumulatedData.metadata?.id || 'WIP_' + Date.now();
+                const name = accumulatedData.metadata?.title || 'Untitled';
+                await SupabaseBridge.saveIdea(ideaId, name, accumulatedData, getCurrentTeacherId());
+                console.log("SAVE_IDEA: Progress saved to cloud.");
+            } catch (e) {
+                console.warn("SAVE_IDEA: Auto-save failed:", e.message);
+            }
+        }
+
         function loadNodeEditor(nodeId) {
             currentHospNode = nodeId;
             renderHospitalSidebar();
