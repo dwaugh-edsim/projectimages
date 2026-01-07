@@ -2594,6 +2594,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             `;
 
             (accumulatedData.slides || []).forEach((s, i) => {
+                if (!s) return; // Skip null nodes
                 const active = currentHospNode === i ? 'btn-active btn-primary' : 'btn-ghost';
                 html += `<button class="btn btn-xs ${active} justify-start w-full normal-case text-[11px] mb-1 px-2 py-3 h-auto leading-tight" onclick="loadNodeEditor(${i})">
                     <span class="opacity-30 mr-1">${i + 1}.</span>
@@ -2663,6 +2664,10 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 updateHospitalPreview("");
             } else {
                 const slide = accumulatedData.slides[nodeId];
+                if (!slide) {
+                    pathEl.innerText = "ERROR: NULL_NODE";
+                    return;
+                }
                 pathEl.innerText = `NODE_PAYLOAD: SLIDE_${nodeId + 1}`;
                 typeEl.innerText = "Node Type: Operational";
                 editorWrap.classList.remove('hidden');
@@ -2812,6 +2817,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         function saveHospitalChanges() {
             if (typeof currentHospNode === 'number') {
                 const slide = accumulatedData.slides[currentHospNode];
+                if (!slide) return;
                 slide.title = document.getElementById('h-title').value;
                 slide.options = [document.getElementById('h-choice-a').value, document.getElementById('h-choice-b').value];
                 slide.tabs[activeTabKey].image = document.getElementById('h-media-url').value;
@@ -2837,6 +2843,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 log(`DEPLO_FORGE: Sanitizing mission capsule [${missionId}]...`, "info");
 
                 // Ensure slides have consistent 3-tab structure before saving
+                accumulatedData.slides = (accumulatedData.slides || []).filter(s => !!s);
                 accumulatedData.slides.forEach(s => {
                     if (!s.tabs) s.tabs = { primary: { label: "Main", body: "" } };
                     if (!s.tabs.intel) s.tabs.intel = { label: "Intel", body: "" };
@@ -3167,7 +3174,9 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             html += check('SLIDE CAPACITY', slides.length >= 10, `${slides.length}/10 NODES`);
 
             let imgCount = 0;
-            slides.forEach(s => { if (s.image || s.tabs?.primary?.image) imgCount++; });
+            slides.forEach(s => {
+                if (s && (s.image || s.tabs?.primary?.image)) imgCount++;
+            });
             html += check('VISUAL ASSETS', imgCount >= 10, `${imgCount}/10 LOADED`);
 
             const hasGlossary = Array.isArray(accumulatedData?.intelligenceGlossary) && accumulatedData.intelligenceGlossary.length > 0;
