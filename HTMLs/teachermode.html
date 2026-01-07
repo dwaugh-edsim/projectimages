@@ -549,6 +549,14 @@
                     </div>
                     <div class="flex gap-2">
                         <button class="btn btn-outline btn-sm" onclick="fetchMissions()">Refresh</button>
+                        <button class="btn btn-secondary btn-sm gap-2" onclick="toggleCommunityHub()">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            COMMUNITY HUB
+                        </button>
                         <button class="btn btn-accent btn-sm gap-2"
                             onclick="document.getElementById('file-input').click()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -572,6 +580,28 @@
     </div>
 
     <!-- Hidden Modals (DaisyUI Format) -->
+
+    <!-- COMMUNITY HUB MODAL -->
+    <dialog id="community_hub_modal" class="modal">
+        <div class="modal-box bg-base-100 border border-secondary/30 max-w-5xl w-11/12">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="font-bold text-xl font-display text-secondary tracking-widest">COMMUNITY ARCHIVE HUB</h3>
+                    <p class="text-xs opacity-50 font-mono">Approved missions available to all teachers</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-sm btn-outline btn-secondary"
+                        onclick="fetchCommunityLibrary()">REFRESH</button>
+                    <form method="dialog"><button class="btn btn-sm btn-ghost">CLOSE</button></form>
+                </div>
+            </div>
+            <div id="community-hub-grid"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
+                <div class="col-span-full text-center opacity-30 py-20">Loading Community Catalog...</div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
 
     <!-- SETTINGS MODAL -->
     <dialog id="settings_modal" class="modal">
@@ -3350,6 +3380,85 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             if (!missions.length) html = `<div class="col-span-1 md:col-span-3 text-center opacity-50 p-10 font-mono text-xs">NO MISSION DATA DETECTED IN ARCHIVE.</div>`;
             grid.innerHTML = html;
+        }
+
+        // --- COMMUNITY HUB LOGIC ---
+        const COMMUNITY_LIB_URL = "https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json";
+
+        function toggleCommunityHub() {
+            const modal = document.getElementById('community_hub_modal');
+            modal.showModal();
+            fetchCommunityLibrary();
+        }
+
+        async function fetchCommunityLibrary() {
+            const grid = document.getElementById('community-hub-grid');
+            grid.innerHTML = `<div class="col-span-full text-center opacity-30 py-20"><span class="loading loading-spinner loading-md"></span><br>Loading Community Catalog...</div>`;
+            try {
+                const res = await fetch(COMMUNITY_LIB_URL);
+                if (!res.ok) throw new Error("Catalog not found.");
+                const data = await res.json();
+                renderCommunityHub(data.capsules || []);
+            } catch (e) {
+                grid.innerHTML = `<div class="col-span-full text-center text-error py-20">COMMUNITY_CATALOG_OFFLINE<br><span class="text-xs opacity-50">Check your network or try again later.</span></div>`;
+                log("Community Hub Fetch Failed: " + e.message, "error");
+            }
+        }
+
+        function renderCommunityHub(capsules) {
+            const grid = document.getElementById('community-hub-grid');
+            if (!capsules.length) {
+                grid.innerHTML = `<div class="col-span-full text-center opacity-50 py-20">No missions in community catalog.</div>`;
+                return;
+            }
+            let html = '';
+            capsules.forEach(c => {
+                html += `
+                <div class="card bg-base-200 shadow-md border border-base-content/10">
+                    <figure class="h-32 bg-black/30">
+                        <img src="${c.thumb || 'https://placehold.co/400x200/111/333?text=NO+IMAGE'}" alt="${c.title}" class="w-full h-full object-cover opacity-80">
+                    </figure>
+                    <div class="card-body p-3">
+                        <h2 class="card-title text-sm font-display tracking-wide">${c.title}</h2>
+                        <p class="text-[10px] opacity-50 font-mono uppercase">BY: ${c.author || 'UNKNOWN'}</p>
+                        <p class="text-xs opacity-70 line-clamp-2">${c.description || 'An interactive educational simulation.'}</p>
+                        <div class="card-actions justify-end mt-2">
+                            <button class="btn btn-xs btn-secondary" onclick="importCommunityMission('${c.downloadUrl}', '${c.id}', '${c.title.replace(/'/g, "\\'")}')">IMPORT</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        async function importCommunityMission(url, id, name) {
+            log(`Syncing Remote Capsule [${id}]...`, "info");
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Could not fetch mission file.");
+                const data = await res.json();
+
+                // Save to personal library
+                const teacherId = getCurrentTeacherId();
+                if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
+                    await SupabaseBridge.saveMission(id, name, data, teacherId);
+                    log(`Mission [${name}] imported to your library!`, "success");
+                    alert(`Mission imported!\\n\\n"${name}" is now in your personal Library.`);
+                    fetchMissions(); // Refresh library
+                } else {
+                    // Fallback: Download locally
+                    log("Guest Mode: Downloading mission locally.", "warning");
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `${id}.blob`;
+                    a.click();
+                }
+                document.getElementById('community_hub_modal').close();
+            } catch (e) {
+                log(`Import Failed: ${e.message}`, "error");
+                alert("Failed to import mission: " + e.message);
+            }
         }
 
         async function handleFile(file) {
