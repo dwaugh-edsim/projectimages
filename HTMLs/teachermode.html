@@ -231,7 +231,7 @@
 
                     <!-- MISSION LIBRARY -->
                     <div class="card bg-gradient-to-br from-teal-900/80 via-cyan-900/60 to-slate-900 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-accent/30 hover:shadow-2xl overflow-hidden relative"
-                        onclick="switchMainTab('Library')">
+                        onclick="switchMainTab('library')">
                         <div
                             class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity">
                         </div>
@@ -268,7 +268,7 @@
 
                     <!-- CLASS DIRECTORY -->
                     <div class="card bg-gradient-to-br from-pink-900/80 via-fuchsia-900/60 to-slate-900 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-secondary/30 hover:shadow-2xl overflow-hidden relative"
-                        onclick="switchMainTab('Classes')">
+                        onclick="switchMainTab('classes')">
                         <div
                             class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity">
                         </div>
@@ -4111,20 +4111,36 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         async function renderProjectorBoard() {
-            // Mock Data for Demo / if offline
-            let progressData = [
-                { name: "Cadet Sarah", class: "Period 1", mission: "CUBA_62", steps: 4, status: "IN_PROGRESS" },
-                { name: "Cadet John", class: "Period 1", mission: "CUBA_62", steps: 8, status: "READY" },
-                { name: "Cadet Mike", class: "Period 2", mission: "MARS_V1", steps: 2, status: "IN_PROGRESS" }
-            ];
-
             const board = document.getElementById('proj-board');
             const sync = document.getElementById('proj-sync');
             sync.innerText = `[SYNC: ${new Date().toLocaleTimeString()}]`;
 
+            // Fetch real student progress from database
+            let progressData = [];
+            const teacherId = getCurrentTeacherId();
+
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    progressData = await SupabaseBridge.fetchLiveProgress(teacherId);
+                } catch (e) {
+                    console.warn("Projector: Failed to fetch live data", e);
+                }
+            }
+
+            // Handle empty state
+            if (progressData.length === 0) {
+                board.innerHTML = `
+                    <div style="text-align:center; padding:40px; opacity:0.5;">
+                        <div style="font-size:2rem; margin-bottom:10px;">📡</div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:2px;">Awaiting Student Activity</div>
+                        <div style="font-size:0.6rem; margin-top:5px; opacity:0.7;">Students will appear here once they begin a mission.</div>
+                    </div>`;
+                return;
+            }
+
             let html = "";
             progressData.forEach(p => {
-                const pct = (p.steps / 10) * 100; // Assuming 10 steps
+                const pct = Math.min((p.steps / 10) * 100, 100); // Assuming 10 steps max
                 const isReady = p.status === "READY";
 
                 html += `
@@ -4245,7 +4261,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             document.getElementById('assign_mission_modal')?.close();
         }
 
-        function manageStudentsUI(passcode) {
+        async function manageStudentsUI(passcode) {
             const modalId = 'manage_roster_modal';
             let existing = document.getElementById(modalId);
             if (existing) existing.remove();
@@ -4254,21 +4270,26 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             modal.id = modalId;
             modal.className = 'modal';
 
-            // Use a semi-persistent mock list for the session
-            if (!window.activeRoster) {
-                window.activeRoster = [
-                    { name: "Cadet Sarah", status: "ONLINE", score: 85 },
-                    { name: "Cadet John", status: "OFFLINE", score: 42 },
-                    { name: "Cadet Mike", status: "ONLINE", score: 92 }
-                ];
+            // Fetch real roster from Supabase
+            let roster = [];
+            if (window.SupabaseBridge && SupabaseBridge.client) {
+                try {
+                    roster = await SupabaseBridge.fetchClassRoster(passcode);
+                } catch (e) {
+                    console.warn("Failed to fetch roster:", e);
+                }
             }
+            window.activeRoster = roster; // Store for kick functionality
 
             const renderRows = () => {
-                return window.activeRoster.map(s => `
+                if (roster.length === 0) {
+                    return `<tr><td colspan="4" class="text-center py-8 opacity-50">No students enrolled yet. Share code: ${passcode}</td></tr>`;
+                }
+                return roster.map(s => `
                     <tr class="hover" id="roster-row-${s.name.replace(/\s+/g, '-')}">
                         <td class="font-bold">${s.name}</td>
                         <td><div class="badge ${s.status === 'ONLINE' ? 'badge-success' : 'badge-ghost'} badge-xs mr-1"></div> ${s.status}</td>
-                        <td class="font-mono text-xs">${s.score}%</td>
+                        <td class="font-mono text-xs">${s.score || '--'}%</td>
                         <td><button class="btn btn-xs btn-error btn-outline" onclick="kickStudentUI('${s.name}', '${passcode}')">KICK</button></td>
                     </tr>
                 `).join('');
@@ -4294,7 +4315,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     
                     <div class="alert alert-info text-xs py-2 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Live updates require Supabase connection. Manage seats in Admin panel.</span>
+                        <span>Students join with code <strong>${passcode}</strong> in go.html.</span>
                     </div>
 
                     <div class="modal-action">

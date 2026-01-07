@@ -537,5 +537,63 @@ const SupabaseBridge = {
             console.error("Supabase Bridge [removeStudentFromClass] Error:", e);
             throw e;
         }
+    },
+
+    // --- PROJECTOR BOARD: Live Student Progress ---
+    async fetchLiveProgress(teacherId) {
+        if (!this.client) return [];
+        try {
+            // Get latest log entry per student (aggregated progress)
+            const { data, error } = await this.client
+                .from('simulation_logs')
+                .select('student_name, class_period, mission_id, score, created_at')
+                .eq('teacher_id', teacherId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            // Aggregate: Get latest entry per student
+            const studentMap = new Map();
+            data.forEach(log => {
+                if (!studentMap.has(log.student_name)) {
+                    studentMap.set(log.student_name, {
+                        name: log.student_name,
+                        class: log.class_period,
+                        mission: log.mission_id,
+                        steps: log.score || 0,
+                        status: 'IN_PROGRESS',
+                        lastUpdate: log.created_at
+                    });
+                }
+            });
+
+            return Array.from(studentMap.values());
+        } catch (e) {
+            console.error("Supabase Bridge [fetchLiveProgress] Error:", e);
+            return [];
+        }
+    },
+
+    // --- CLASS ROSTER: Fetch students by class code ---
+    async fetchClassRoster(classCode) {
+        if (!this.client) return [];
+        try {
+            const { data, error } = await this.client
+                .from('students')
+                .select('id, username, joined_codes, created_at')
+                .contains('joined_codes', [classCode]);
+
+            if (error) throw error;
+
+            return data.map(s => ({
+                id: s.id,
+                name: s.username,
+                status: 'ENROLLED',
+                joined: s.created_at
+            }));
+        } catch (e) {
+            console.error("Supabase Bridge [fetchClassRoster] Error:", e);
+            return [];
+        }
     }
 };
