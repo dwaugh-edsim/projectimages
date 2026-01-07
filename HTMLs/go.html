@@ -386,10 +386,16 @@
                 try {
                     let missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
 
+                    console.log('Fetched missions:', missions);
+                    console.log('Assigned IDs:', assignedIds);
+
                     // Filter by assigned mission IDs if provided
+                    // Note: fetchMissions returns 'id' (mapped from mission_id)
                     if (assignedIds && assignedIds.length > 0) {
-                        missions = missions.filter(m => assignedIds.includes(m.mission_id));
+                        missions = missions.filter(m => assignedIds.includes(m.id));
                     }
+
+                    console.log('Filtered missions:', missions);
 
                     if (!missions.length) {
                         list.innerHTML = '<div class="text-center text-gray-500 py-4">No missions available for this class.</div>';
@@ -397,15 +403,15 @@
                     }
                     let html = '';
                     missions.forEach(m => {
-                        const title = m.title || m.mission_id || 'Untitled';
-                        const thumb = m.data?.metadata?.heroImage || 'https://placehold.co/100x60/111/333?text=MISSION';
+                        const title = m.name || m.id || 'Untitled';
+                        const thumb = m.thumb || m.payload?.metadata?.heroImage || 'https://placehold.co/100x60/111/333?text=MISSION';
                         html += `
-                            <button onclick="launch('${m.mission_id}')" 
+                            <button onclick="launch('${m.id}')" 
                                 class="w-full flex items-center gap-4 p-3 rounded-lg bg-base-200/30 hover:bg-amber-500/10 hover:border-amber-500/30 border border-transparent transition-all text-left">
                                 <img src="${thumb}" class="w-20 h-12 object-cover rounded border border-white/10">
                                 <div>
                                     <div class="font-medium text-amber-400">${title}</div>
-                                    <div class="text-xs text-gray-500 font-mono">${m.mission_id}</div>
+                                    <div class="text-xs text-gray-500 font-mono">${m.id}</div>
                                 </div>
                             </button>`;
                     });
@@ -424,9 +430,9 @@
             if (SupabaseBridge && SupabaseBridge.client) {
                 try {
                     const missions = await SupabaseBridge.fetchMissions(user.profile.teacherId);
-                    const mission = missions.find(m => m.mission_id === missionId);
-                    if (!mission || !mission.data) throw new Error('Mission not found.');
-                    processData(mission.data, missionId);
+                    const mission = missions.find(m => m.id === missionId);
+                    if (!mission || !mission.payload) throw new Error('Mission not found.');
+                    processData(mission.payload, missionId);
                 } catch (e) {
                     alert('Failed to load mission: ' + e.message);
                     return;
