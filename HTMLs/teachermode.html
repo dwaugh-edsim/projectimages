@@ -4204,30 +4204,45 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             modal.addEventListener('close', () => modal.remove());
         }
 
-        function confirmAssignment() {
+        async function confirmAssignment() {
             const checks = document.querySelectorAll('#assign_mission_modal input:checked');
             const ids = Array.from(checks).map(c => c.value);
 
             if (ids.length > 0) {
-                // Update local class data with assigned missions
+                // 1. Merge with existing mission_ids
+                let finalIds = [];
                 if (window.activeClassesData) {
                     const classToUpdate = window.activeClassesData.find(c => c.id === activeClassAssignId);
                     if (classToUpdate) {
-                        if (!classToUpdate.mission_ids) classToUpdate.mission_ids = [];
+                        finalIds = [...(classToUpdate.mission_ids || [])];
                         ids.forEach(id => {
-                            if (!classToUpdate.mission_ids.includes(id)) {
-                                classToUpdate.mission_ids.push(id);
-                            }
+                            if (!finalIds.includes(id)) finalIds.push(id);
                         });
-                        // Re-render the class list with updated data
-                        renderClasses(window.activeClassesData);
                     }
                 }
 
-                log(`Assigned ${ids.length} missions to Class [${activeClassAssignId}].`, "success");
-                // Ideally: SupabaseBridge.assignMissions(activeClassAssignId, ids);
+                // 2. Persist to database
+                if (window.SupabaseBridge && SupabaseBridge.client) {
+                    try {
+                        await SupabaseBridge.updateClass(activeClassAssignId, { mission_ids: finalIds });
+                        log(`Deployed ${ids.length} missions to Class [${activeClassAssignId}].`, "success");
+                        // Refresh to get updated counts
+                        refreshClasses();
+                    } catch (e) {
+                        log(`Deployment Failed: ${e.message}`, "error");
+                        alert("Failed to deploy missions: " + e.message);
+                    }
+                } else {
+                    // Offline mode: Just update local state
+                    if (window.activeClassesData) {
+                        const classToUpdate = window.activeClassesData.find(c => c.id === activeClassAssignId);
+                        if (classToUpdate) classToUpdate.mission_ids = finalIds;
+                        renderClasses(window.activeClassesData);
+                    }
+                    log(`Assigned ${ids.length} missions locally (offline mode).`, "warning");
+                }
             }
-            document.getElementById('assign_mission_modal').close();
+            document.getElementById('assign_mission_modal')?.close();
         }
 
         function manageStudentsUI(passcode) {
