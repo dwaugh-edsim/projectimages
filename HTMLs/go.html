@@ -130,11 +130,15 @@
             <div id="login-step" class="space-y-4">
                 <input type="text" id="input-name" placeholder="Enter Your Name"
                     class="input input-bordered w-full bg-base-200/50 border-white/10 text-center text-lg">
-                <input type="text" id="input-teacher" placeholder *="Teacher Code (e.g. MR_WAUGH)"
-                    class="input input-bordered w-full bg-base-200/50 border-white/10 text-center">
+                <input type="text" id="input-pin" placeholder="Your PIN (4 digits)"
+                    class="input input-bordered w-full bg-base-200/50 border-white/10 text-center font-mono tracking-widest"
+                    maxlength="4">
+                <input type="text" id="input-class" placeholder="Class Code (e.g. ABC123)"
+                    class="input input-bordered w-full bg-base-200/50 border-white/10 text-center font-mono uppercase">
                 <button onclick="login()" class="btn btn-warning btn-lg w-full font-display tracking-wider">
                     ENTER SITUATION ROOM
                 </button>
+                <p class="text-xs text-gray-500 text-center">Get your Class Code from your teacher.</p>
             </div>
 
             <div id="mission-select" class="hidden space-y-4">
@@ -322,27 +326,49 @@
         // =============================================
         async function login() {
             const name = document.getElementById('input-name').value.trim();
-            const teacherId = document.getElementById('input-teacher').value.trim().toUpperCase();
+            const pin = document.getElementById('input-pin').value.trim();
+            const classCode = document.getElementById('input-class').value.trim().toUpperCase();
 
-            if (!name || !teacherId) {
-                alert('Please enter your name and teacher code.');
+            if (!name || !pin || !classCode) {
+                alert('Please fill in all fields: Name, PIN, and Class Code.');
+                return;
+            }
+
+            if (pin.length < 4) {
+                alert('PIN must be 4 digits.');
                 return;
             }
 
             user.profile.name = name;
-            user.profile.teacherId = teacherId;
+            user.profile.class = classCode;
 
-            // Attempt to join class / create student
+            // Verify class exists and get/create student
             if (SupabaseBridge && SupabaseBridge.client) {
                 try {
-                    const student = await SupabaseBridge.getOrCreateStudent(name, teacherId);
-                    if (!student) throw new Error('Could not verify class. Check your teacher code.');
-                    user.profile.class = student.class_code || '';
-                    console.log('Student authenticated:', student);
+                    // First verify the class exists
+                    const cls = await SupabaseBridge.fetchClassByCode(classCode);
+                    if (!cls) throw new Error('Class not found. Check your Class Code.');
+
+                    user.profile.teacherId = cls.teacher_id;
+
+                    // Get or create student and add class to their joined_codes
+                    const student = await SupabaseBridge.getOrCreateStudent(name, pin, cls.teacher_id);
+                    if (!student) throw new Error('Could not create student record.');
+
+                    // Add this class to student's joined_codes if not already
+                    if (!student.joined_codes?.includes(classCode)) {
+                        const updatedCodes = [...(student.joined_codes || []), classCode];
+                        await SupabaseBridge.updateStudentJoinedCodes(student.id, updatedCodes);
+                    }
+
+                    console.log('Student authenticated:', student, 'Class:', cls);
                 } catch (e) {
                     alert('Login Error: ' + e.message);
                     return;
                 }
+            } else {
+                alert('Database not connected. Please refresh and try again.');
+                return;
             }
 
             // Show mission selection
