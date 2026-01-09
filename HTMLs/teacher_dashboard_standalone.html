@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="black">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sovereign Teacher // Control Node</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.1.0/dist/full.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <script src="sovereign_bridge.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'Share Tech Mono', monospace;
+        }
+    </style>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <div class="navbar bg-base-300 border-b border-white/10 p-4">
+        <div class="flex-1">
+            <a class="btn btn-ghost normal-case text-xl font-mono text-primary tracking-widest">SOVEREIGN_TEACHER
+                v1.0</a>
+        </div>
+        <div class="flex-none gap-4">
+            <span id="connection-status" class="badge badge-error gap-2 font-mono text-xs">OFFLINE</span>
+            <button class="btn btn-sm btn-outline text-xs font-mono" onclick="toggleSettings()">CONFIG</button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: LIBRARY (Content) -->
+        <div class="col-span-12 lg:col-span-8 space-y-4">
+            <h2 class="text-xs font-bold text-accent tracking-widest uppercase mb-4">Content Library (Public Blobs)</h2>
+            <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Loaded via JS -->
+                <div class="loading loading-spinner text-primary"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT: DATA (Private Sheet) -->
+        <div class="col-span-12 lg:col-span-4 space-y-4">
+            <h2 class="text-xs font-bold text-success tracking-widest uppercase mb-4">Classroom Data (Private Sheet)
+            </h2>
+
+            <div class="card bg-base-900 border border-white/10">
+                <div class="card-body p-4 max-h-[60vh] overflow-y-auto">
+                    <table class="table table-xs font-mono">
+                        <thead>
+                            <tr class="text-white/50">
+                                <th>Timestamp</th>
+                                <th>Student</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roster-body">
+                            <tr>
+                                <td colspan="3" class="text-center opacity-30">No connection to Sheet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-actions p-4 pt-0">
+                    <button class="btn btn-xs btn-outline w-full" onclick="refreshRoster()">REFRESH DATA</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <dialog id="settings_modal" class="modal">
+        <div class="modal-box bg-base-200 border border-primary/20">
+            <h3 class="font-bold text-lg font-mono text-primary mb-4">SYSTEM CONFIGURATION</h3>
+
+            <div class="form-control w-full mb-4">
+                <label class="label"><span class="label-text font-mono text-xs">APPS SCRIPT URL (Deploy as Web
+                        App)</span></label>
+                <input type="text" id="cfg-script-url" placeholder="https://script.google.com/macros/s/..."
+                    class="input input-sm input-bordered font-mono text-xs" />
+                <label class="label"><span class="label-text-alt text-warning">Deploy as: "Me", Access:
+                        "Anyone"</span></label>
+            </div>
+
+            <div class="divider">AI BRIDGE</div>
+
+            <div class="form-control w-full mb-4">
+                <label class="label"><span class="label-text font-mono text-xs">GEMINI API KEY (The
+                        Vault)</span></label>
+                <div class="join">
+                    <input type="password" id="cfg-api-key" placeholder="AIzaSy..."
+                        class="input input-sm input-bordered join-item w-full font-mono text-xs" />
+                    <button class="btn btn-sm btn-secondary join-item" onclick="saveVaultKey()">SECURE SAVE</button>
+                </div>
+                <label class="label"><span class="label-text-alt opacity-50">This key is sent ONCE to your Sheet's
+                        hidden properties. It is never stored in this browser or simulations.</span></label>
+            </div>
+
+            <div class="modal-action">
+                <button class="btn btn-primary btn-sm" onclick="saveConfig()">CONNECT</button>
+                <button class="btn btn-ghost btn-sm" onclick="settings_modal.close()">CLOSE</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        // --- LOGIC ---
+        let scriptUrl = localStorage.getItem('SOV_SCRIPT_URL') || '';
+
+        // 1. INIT
+        window.onload = () => {
+            document.getElementById('cfg-script-url').value = scriptUrl;
+            if (scriptUrl) {
+                connectBridge(scriptUrl);
+            } else {
+                toggleSettings();
+            }
+            fetchLibrary();
+        };
+
+        function toggleSettings() {
+            document.getElementById('settings_modal').showModal();
+        }
+
+        async function saveConfig() {
+            const url = document.getElementById('cfg-script-url').value.trim();
+            if (!url) return alert("URL Required");
+
+            localStorage.setItem('SOV_SCRIPT_URL', url);
+            scriptUrl = url;
+            await connectBridge(url);
+            document.getElementById('settings_modal').close();
+        }
+
+        async function connectBridge(url) {
+            const statusEl = document.getElementById('connection-status');
+            statusEl.className = "badge badge-warning gap-2 font-mono text-xs";
+            statusEl.innerText = "CONNECTING...";
+
+            const ok = SovereignBridge.init(url);
+            if (ok) {
+                // Check ping
+                const alive = await SovereignBridge.ping();
+                if (alive) {
+                    statusEl.className = "badge badge-success gap-2 font-mono text-xs";
+                    statusEl.innerText = "ONLINE";
+                    refreshRoster();
+                } else {
+                    statusEl.className = "badge badge-error gap-2 font-mono text-xs";
+                    statusEl.innerText = "ERROR";
+                }
+            }
+        }
+
+        async function saveVaultKey() {
+            const key = document.getElementById('cfg-api-key').value.trim();
+            if (!key) return alert("Key Required");
+
+            if (!SovereignBridge.scriptUrl) return alert("Connect to Script URL first!");
+
+            const res = await fetch(SovereignBridge.scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'save_api_key',
+                    payload: { key: key }
+                }),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            }).then(r => r.json());
+
+            if (res.success) {
+                alert("Key secured in Vault!");
+                document.getElementById('cfg-api-key').value = ""; // Clear from UI
+            } else {
+                alert("Failed: " + res.error);
+            }
+        }
+
+        async function refreshRoster() {
+            const tbody = document.getElementById('roster-body');
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center"><span class="loading loading-spinner loading-xs"></span></td></tr>';
+
+            const data = await SovereignBridge.fetchRoster();
+
+            // Assuming simplified roster for now (raw rows)
+            // Apps Script returns array of arrays. First row header.
+            if (!data || data.length < 2) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center opacity-30">No logs found.</td></tr>';
+                return;
+            }
+
+            // Headers: Timestamp, Student ID, Mission ID, Step Index, Decision, Rationale
+            // We want last few logs.
+            const rows = data.slice(1).reverse().slice(0, 50); // Newest first
+
+            let html = '';
+            rows.forEach(r => {
+                // r[0] is timestamp, r[1] student, r[4] decision
+                const time = new Date(r[0]).toLocaleTimeString();
+                const student = r[1];
+                const action = `${r[4]} (${r[2]})`;
+                html += `<tr><td>${time}</td><td class="font-bold text-accent">${student}</td><td class="opacity-70">${action}</td></tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function fetchLibrary() {
+            // Using the GitHub library index
+            const url = "https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json";
+            const grid = document.getElementById('library-grid');
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                let html = '';
+                data.capsules.forEach(c => {
+                    html += `
+                    <div class="card bg-base-900 border border-white/10 shadow-lg">
+                        <figure class="h-32 bg-black">
+                            <img src="${c.thumb}" class="w-full h-full object-cover opacity-60">
+                        </figure>
+                        <div class="card-body p-4">
+                            <h2 class="card-title text-sm tracking-widest text-primary">${c.title}</h2>
+                            <p class="text-xs opacity-50 line-clamp-2">${c.description}</p>
+                            <div class="card-actions justify-end mt-2">
+                                <a href="student_client_standalone.html?mission=${c.downloadUrl}&script=${encodeURIComponent(scriptUrl)}" target="_blank" class="btn btn-xs btn-outline btn-info">LAUNCH SIMULATOR</a>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                grid.innerHTML = html;
+            } catch (e) {
+                grid.innerHTML = "Offline / Catalog Error";
+            }
+        }
+
+    </script>
+</body>
+
+</html>
