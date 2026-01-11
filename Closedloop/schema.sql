@@ -19,6 +19,7 @@ ALTER TABLE mission_codes ENABLE ROW LEVEL SECURITY;
 -- DROP EXISTING POLICIES IF REDEPLOYING
 DROP POLICY IF EXISTS "Anyone can lookup a code" ON mission_codes;
 DROP POLICY IF EXISTS "Authenticated users can create codes" ON mission_codes;
+DROP POLICY IF EXISTS "Anyone can create codes" ON mission_codes;
 
 CREATE POLICY "Anyone can lookup a code" 
 ON mission_codes FOR SELECT 
