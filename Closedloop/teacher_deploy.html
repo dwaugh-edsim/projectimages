@@ -153,27 +153,40 @@
             lucide.createIcons();
             const url = document.getElementById('sb-url').value;
             const key = document.getElementById('sb-key').value;
-            sb = supabase.createClient(url, key);
 
-            // Fetch missions for the picker
             try {
-                const { data, error } = await sb.from('community_catalog').select('id, title').order('created_at', { ascending: false });
-                if (error) throw error;
+                sb = supabase.createClient(url, key);
+                console.log("Supabase Client Initialized");
+
+                // Fetch missions for the picker
+                const { data, error } = await sb.from('community_catalog').select('mission_id, title').order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Supabase Query Error:", error);
+                    document.getElementById('auth-status').textContent = 'QUERY ERROR: ' + error.message;
+                    document.getElementById('auth-status').classList.add('text-red-400');
+                    return;
+                }
 
                 const select = document.getElementById('mission-select');
-                select.innerHTML = '<option value="">-- SELECT MISSION --</option>';
-                data.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m.id;
-                    opt.textContent = m.title.toUpperCase();
-                    select.appendChild(opt);
-                });
+                if (data && data.length > 0) {
+                    select.innerHTML = '<option value="">-- SELECT MISSION --</option>';
+                    data.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.mission_id;
+                        opt.textContent = m.title.toUpperCase();
+                        select.appendChild(opt);
+                    });
+                    document.getElementById('auth-status').textContent = 'STATUS: ONLINE';
+                    document.getElementById('auth-status').classList.add('text-green-400');
+                } else {
+                    select.innerHTML = '<option value="">NO MISSIONS FOUND IN CATALOG</option>';
+                    document.getElementById('auth-status').textContent = 'STATUS: NO DATA';
+                }
 
-                document.getElementById('auth-status').textContent = 'STATUS: ONLINE';
-                document.getElementById('auth-status').classList.add('text-green-400');
             } catch (err) {
-                console.error(err);
-                document.getElementById('auth-status').textContent = 'STATUS: DB ERROR';
+                console.error("Initialization Critical Error:", err);
+                document.getElementById('auth-status').textContent = 'INIT ERROR: ' + err.message;
                 document.getElementById('auth-status').classList.add('text-red-400');
             }
         }
@@ -206,7 +219,10 @@
                     teacher_id: 'DWAUGH_DEMO'
                 });
 
-                if (error) throw error;
+                if (error) {
+                    console.error("Supabase Insert Error:", error);
+                    throw error;
+                }
 
                 // Show Live View
                 document.getElementById('setup-view').classList.add('hidden');

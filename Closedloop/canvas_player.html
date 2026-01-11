@@ -167,10 +167,13 @@
                 activeCode = codeInput;
 
                 // 2. Fetch Full Mission Blob
-                const { data: mData, error: mError } = await sb.from('community_catalog').select('title, payload').eq('id', codeData.mission_id).single();
-                if (mError) throw new Error('MISSION ASSET RECOVERY FAILED');
+                const { data: mData, error: mError } = await sb.from('community_catalog').select('title, blob_data').eq('mission_id', codeData.mission_id).single();
+                if (mError) {
+                    console.error("Mission recovery error:", mError);
+                    throw new Error('MISSION ASSET RECOVERY FAILED');
+                }
 
-                missionData = mData.payload;
+                missionData = mData.blob_data;
 
                 // 3. UI Transition
                 document.getElementById('join-view').classList.add('hidden');
