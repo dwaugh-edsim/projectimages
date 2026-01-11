@@ -158,30 +158,48 @@
                 sb = supabase.createClient(url, key);
                 console.log("Supabase Client Initialized");
 
-                // Fetch missions for the picker
-                const { data, error } = await sb.from('community_catalog').select('mission_id, title').order('published_at', { ascending: false });
+                // Fetch Personal Missions for the picker
+                const teacherId = 'DWAUGH'; // Derived from user config
+                let { data: personalData, error: personalError } = await sb.from('missions')
+                    .select('mission_id, title')
+                    .eq('teacher_id', teacherId)
+                    .order('updated_at', { ascending: false });
 
-                if (error) {
-                    console.error("Supabase Query Error:", error);
-                    document.getElementById('auth-status').textContent = 'QUERY ERROR: ' + error.message;
+                // Fetch Community Missions as fallback/addition
+                let { data: commData, error: commError } = await sb.from('community_catalog')
+                    .select('mission_id, title')
+                    .order('published_at', { ascending: false });
+
+                if (personalError && commError) {
+                    console.error("Supabase Query Error:", personalError || commError);
+                    document.getElementById('auth-status').textContent = 'QUERY ERROR';
                     document.getElementById('auth-status').classList.add('text-red-400');
                     return;
                 }
 
+                // Merge and De-duplicate (Community might have duplicates of personal)
+                const missionMap = new Map();
+                if (personalData) personalData.forEach(m => missionMap.set(m.mission_id, { title: m.title, type: 'PERSONAL' }));
+                if (commData) commData.forEach(m => {
+                    if (!missionMap.has(m.mission_id)) missionMap.set(m.mission_id, { title: m.title, type: 'COMMUNITY' });
+                });
+
                 const select = document.getElementById('mission-select');
-                if (data && data.length > 0) {
+                if (missionMap.size > 0) {
                     select.innerHTML = '<option value="">-- SELECT MISSION --</option>';
-                    data.forEach(m => {
+                    missionMap.forEach((meta, id) => {
                         const opt = document.createElement('option');
-                        opt.value = m.mission_id;
-                        opt.textContent = m.title.toUpperCase();
+                        opt.value = id;
+                        opt.textContent = `${meta.title.toUpperCase()} [${meta.type}]`;
                         select.appendChild(opt);
                     });
                     document.getElementById('auth-status').textContent = 'STATUS: ONLINE';
+                    document.getElementById('auth-status').classList.remove('text-red-400', 'text-yellow-400');
                     document.getElementById('auth-status').classList.add('text-green-400');
                 } else {
-                    select.innerHTML = '<option value="">NO MISSIONS FOUND IN CATALOG</option>';
+                    select.innerHTML = '<option value="">NO MISSIONS FOUND IN DATABASE</option>';
                     document.getElementById('auth-status').textContent = 'STATUS: NO DATA';
+                    document.getElementById('auth-status').classList.add('text-yellow-400');
                 }
 
             } catch (err) {

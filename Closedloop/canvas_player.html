@@ -166,14 +166,28 @@
                 submissionUrl = codeData.submission_url;
                 activeCode = codeInput;
 
-                // 2. Fetch Full Mission Blob
-                const { data: mData, error: mError } = await sb.from('community_catalog').select('title, blob_data').eq('mission_id', codeData.mission_id).single();
-                if (mError) {
-                    console.error("Mission recovery error:", mError);
-                    throw new Error('MISSION ASSET RECOVERY FAILED');
+                // 2. Fetch Full Mission Blob (Try Community First, then Personal)
+                let { data: mData, error: mError } = await sb.from('community_catalog')
+                    .select('title, blob_data')
+                    .eq('mission_id', codeData.mission_id)
+                    .maybeSingle();
+
+                if (!mData) {
+                    // Fallback to Missions table
+                    const { data: pData, error: pError } = await sb.from('missions')
+                        .select('title, blob_data')
+                        .eq('mission_id', codeData.mission_id)
+                        .maybeSingle();
+                    mData = pData;
+                }
+
+                if (!mData) {
+                    console.error("Mission recovery error: No mission found in any table for ID", codeData.mission_id);
+                    throw new Error('MISSION ASSET RECOVERY FAILED: DATA NOT FOUND');
                 }
 
                 missionData = mData.blob_data;
+                const missionTitle = mData.title || missionData?.metadata?.title || 'UNTITLED MISSION';
 
                 // 3. UI Transition
                 document.getElementById('join-view').classList.add('hidden');
