@@ -11,6 +11,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <!-- pdf.js for .pdf files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- JSZip for .pptx parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         // Set worker path for pdf.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -1025,14 +1027,47 @@ CRITICAL: If the student work is empty or questions are missing, explicitly stat
                         fullText += XLSX.utils.sheet_to_txt(worksheet) + "\n\n";
                     });
                     text = fullText;
+                    text = fullText;
                 } else if (file.name.endsWith('.pptx')) {
                     const arrayBuffer = await file.arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    let fullText = "";
-                    workbook.SheetNames.forEach(sheetName => {
-                        const worksheet = workbook.Sheets[sheetName];
-                        fullText += XLSX.utils.sheet_to_txt(worksheet) + "\n";
+                    const zip = new JSZip();
+                    await zip.loadAsync(arrayBuffer);
+
+                    // Find slide files
+                    const slideFiles = Object.keys(zip.files).filter(name =>
+                        name.startsWith('ppt/slides/slide') && name.endsWith('.xml')
+                    );
+
+                    // Sort slides naturally (slide1, slide2, slide10...)
+                    slideFiles.sort((a, b) => {
+                        const numA = parseInt(a.match(/slide(\d+)\.xml/)[1]);
+                        const numB = parseInt(b.match(/slide(\d+)\.xml/)[1]);
+                        return numA - numB;
                     });
+
+                    let fullText = "";
+                    for (let i = 0; i < slideFiles.length; i++) {
+                        const fileName = slideFiles[i];
+                        const slideXml = await zip.file(fileName).async('string');
+
+                        // Simple XML text extraction (looking for <a:t> tags)
+                        // This regex grabs text between <a:t>...</a:t>
+                        const matches = slideXml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+
+                        if (matches) {
+                            const slideContent = matches
+                                .map(m => m.replace(/<\/?a:t[^>]*>/g, ''))
+                                .join(' ');
+
+                            if (slideContent.trim()) {
+                                fullText += `--- Slide ${i + 1} ---\n${slideContent}\n\n`;
+                            }
+                        }
+                    }
+
+                    if (!fullText.trim()) {
+                        fullText = "[PPTX Loaded but no text content found. Note: Images are not OCR'd]";
+                    }
                     text = fullText;
                 } else {
                     text = await file.text();
