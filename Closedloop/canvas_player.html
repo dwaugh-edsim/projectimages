@@ -154,13 +154,14 @@
         }
 
         async function join() {
-            const codeInput = document.getElementById('join-code').value.toUpperCase().trim();
+            const rawCode = document.getElementById('join-code').value.toUpperCase().trim();
+            const cleanCode = rawCode.replace(/[^A-Z0-9]/g, '');
             const errorLog = document.getElementById('error-log');
             errorLog.textContent = 'CONNECTING...';
 
             try {
                 // SPECIAL: PROBE MODE BYPASS
-                if (codeInput === 'PROBE') {
+                if (cleanCode === 'PROBE') {
                     console.log("!!! ENTERING PROBE MODE !!!");
                     activeCode = 'PROBE';
                     submissionUrl = 'https://httpbin.org/post'; // Dummy for probe
@@ -181,6 +182,11 @@
                 }
 
                 // 1. Fetch Code Data
+                const { data: codeData, error: codeError } = await sb.from('mission_codes').select('*').eq('code', cleanCode).single();
+                if (codeError || !codeData) throw new Error('AUTHORIZATION REVOKED: INVALID CODE');
+
+                submissionUrl = codeData.submission_url;
+                activeCode = cleanCode;
 
                 // 2. Fetch Full Mission Blob (Try Community First, then Personal)
                 let { data: mData, error: mError } = await sb.from('community_catalog')
