@@ -97,8 +97,8 @@
             <div class="glass rounded-xl overflow-hidden shadow-2xl relative">
                 <!-- Direct MP4 Player -->
                 <div class="aspect-video bg-black flex items-center justify-center overflow-hidden">
-                    <video id="test-video" controls class="w-full h-full object-contain"
-                        poster="https://via.placeholder.com/800x450/000000/00ffea?text=ENCRYPTED+MEDIA">
+                    <video id="test-video" controls playsinline muted class="w-full h-full object-contain"
+                        poster="https://via.placeholder.com/800x450/000000/00ffea?text=ESTABLISHING+FEED">
                         <source id="video-source" src="" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
@@ -159,12 +159,28 @@
             errorLog.textContent = 'CONNECTING...';
 
             try {
-                // 1. Fetch Code Data
-                const { data: codeData, error: codeError } = await sb.from('mission_codes').select('*').eq('code', codeInput).single();
-                if (codeError || !codeData) throw new Error('AUTHORIZATION REVOKED: INVALID CODE');
+                // SPECIAL: PROBE MODE BYPASS
+                if (codeInput === 'PROBE') {
+                    console.log("!!! ENTERING PROBE MODE !!!");
+                    activeCode = 'PROBE';
+                    submissionUrl = 'https://httpbin.org/post'; // Dummy for probe
 
-                submissionUrl = codeData.submission_url;
-                activeCode = codeInput;
+                    // Mock a mission blob with a test video
+                    missionData = {
+                        slides: [{
+                            tabs: {
+                                primary: {
+                                    mediaURL: "https://www.w3schools.com/html/mov_bbb.mp4" // Big Buck Bunny Test
+                                }
+                            }
+                        }]
+                    };
+
+                    await startPlayer("MEDIA PROBE ACTIVE");
+                    return;
+                }
+
+                // 1. Fetch Code Data
 
                 // 2. Fetch Full Mission Blob (Try Community First, then Personal)
                 let { data: mData, error: mError } = await sb.from('community_catalog')
@@ -189,30 +205,35 @@
                 missionData = mData.blob_data;
                 const missionTitle = mData.title || missionData?.metadata?.title || 'UNTITLED MISSION';
 
-                // 3. UI Transition
-                document.getElementById('join-view').classList.add('hidden');
-                document.getElementById('player-view').classList.remove('hidden');
-
-                document.getElementById('view-mission-title').textContent = mData.title.toUpperCase();
-                document.getElementById('view-code').textContent = activeCode;
-
-                // 4. Test Content Injection
-                // We'll look for media in the first slide for the test
-                const firstSlide = missionData.slides?.[0];
-                const testMedia = firstSlide?.tabs?.primary?.mediaURL || firstSlide?.tabs?.primary?.image || '';
-
-                if (testMedia.toLowerCase().endsWith('.mp4')) {
-                    const video = document.getElementById('test-video');
-                    document.getElementById('video-source').src = testMedia;
-                    video.load();
-                } else if (testMedia) {
-                    const imgTest = document.getElementById('image-test');
-                    imgTest.style.backgroundImage = `url('${testMedia}')`;
-                    imgTest.classList.remove('hidden');
-                }
+                await startPlayer(missionTitle);
 
             } catch (err) {
                 errorLog.textContent = err.message;
+            }
+        }
+
+        async function startPlayer(title) {
+            // UI Transition
+            document.getElementById('join-view').classList.add('hidden');
+            document.getElementById('player-view').classList.remove('hidden');
+
+            document.getElementById('view-mission-title').textContent = title.toUpperCase();
+            document.getElementById('view-code').textContent = activeCode;
+
+            // 4. Media Injection
+            const firstSlide = missionData.slides?.[0];
+            const testMedia = firstSlide?.tabs?.primary?.mediaURL || firstSlide?.tabs?.primary?.image || '';
+
+            if (testMedia.toLowerCase().endsWith('.mp4')) {
+                const video = document.getElementById('test-video');
+                document.getElementById('video-source').src = testMedia;
+                video.load();
+                // Attempt play (may fail if not muted/interacted)
+                video.play().catch(e => console.warn("Autoplay blocked:", e));
+            } else if (testMedia) {
+                const imgTest = document.getElementById('image-test');
+                imgTest.style.backgroundImage = `url('${testMedia}')`;
+                imgTest.classList.remove('hidden');
             }
         }
 
