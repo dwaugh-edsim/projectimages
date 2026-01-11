@@ -289,16 +289,10 @@
 
                 <!-- Rationale -->
                 <div class="flex gap-4">
-                    <div class="flex-1">
-                        <textarea id="rationale-input" placeholder="I chose this because..."
-                            class="textarea textarea-bordered w-full bg-base-200/50 border-white/10 text-sm resize-none h-16"></textarea>
-                        <div class="text-[10px] text-gray-500 mt-1 opacity-60 flex items-center gap-1">
-                            <span>🔒</span>
-                            <span>Privacy tip: Avoid using real names of people you know.</span>
-                        </div>
-                    </div>
+                    <textarea id="rationale-input" placeholder="I chose this because..."
+                        class="textarea textarea-bordered flex-1 bg-base-200/50 border-white/10 text-sm resize-none h-16"></textarea>
                     <button onclick="submitDecision()" id="submit-btn"
-                        class="btn btn-warning font-display tracking-wide px-8 self-start mt-0">
+                        class="btn btn-warning font-display tracking-wide px-8 self-end">
                         RECORD & CONTINUE →
                     </button>
                 </div>
@@ -381,6 +375,14 @@
                         ...logData,
                         email: IDENTITY.email
                     });
+                });
+            },
+            async callAI(prompt, system) {
+                return new Promise((resolve, reject) => {
+                    google.script.run
+                        .withSuccessHandler(res => resolve(res))
+                        .withFailureHandler(err => reject(err))
+                        .callGemini(prompt, system);
                 });
             }
         };
@@ -756,8 +758,7 @@
         }
 
         // =============================================
-        // DEVIL'S ADVOCATE (Pre-Authored Challenges)
-        // No runtime AI calls - challenges baked into mission at authoring time
+        // DEVIL'S ADVOCATE
         // =============================================
         async function startDebate(idx, choice, rationale) {
             debateActive = true;
@@ -768,26 +769,17 @@
             const drawer = document.getElementById('debate-drawer');
             drawer.classList.remove('translate-x-full');
 
-            // Get PRE-AUTHORED challenge (no AI call!)
+            // Initial AI challenge
             const slide = slides[idx];
             const choiceText = slide.options[choice];
+            const systemPrompt = `You are a Devil's Advocate in a simulation. The student chose "${choiceText}" with rationale: "${rationale}". Challenge their reasoning aggressively but fairly. Ask probing questions. Be concise (under 60 words).`;
 
-            // Check for pre-authored Devil's Advocate challenge
-            const preAuthored = slide.devilsAdvocate?.[choice.toString()];
-
-            if (preAuthored) {
-                // Use the mission author's pre-written challenge
-                addDebateMessage('ai', preAuthored);
-            } else {
-                // Fallback: Generic challenge (still no AI call)
-                const genericChallenges = [
-                    `You chose "${choiceText}" — but have you considered what could go wrong with this approach?`,
-                    `Interesting choice. What evidence supports "${choiceText}" as the best option here?`,
-                    `"${choiceText}" seems reasonable, but what would critics of this decision say?`,
-                    `Before you commit to "${choiceText}", what's the strongest argument AGAINST it?`
-                ];
-                const fallback = genericChallenges[Math.floor(Math.random() * genericChallenges.length)];
-                addDebateMessage('ai', fallback);
+            addDebateMessage('system', 'Connecting to adversarial AI...');
+            try {
+                const response = await Bridge.callAI(systemPrompt, 'Begin the challenge.');
+                addDebateMessage('ai', response);
+            } catch (e) {
+                addDebateMessage('system', 'AI unavailable. You may proceed.');
             }
 
             startDebateTimer();
@@ -812,18 +804,16 @@
             input.value = '';
             addDebateMessage('user', text);
 
-            // No AI call - use pre-written follow-up responses
-            // The student's response is logged for teacher review
-            const followUps = [
-                "Interesting perspective. But have you considered all the consequences?",
-                "That's one way to look at it. What evidence supports your view?",
-                "I hear your reasoning. How would you respond to critics who disagree?",
-                "Good point. But let's dig deeper — what are the long-term implications?",
-                "You've defended your position. The final judgment is yours to make."
-            ];
-
-            const responseIdx = Math.min(debateLog.filter(m => m.role === 'user').length - 1, followUps.length - 1);
-            addDebateMessage('ai', followUps[responseIdx]);
+            try {
+                const history = debateLog.map(m => `${m.role}: ${m.text}`).join('\n');
+                const response = await Bridge.callAI(
+                    "Continue the Devil's Advocate challenge. Be aggressive but fair. Under 50 words.",
+                    `DEBATE SO FAR:\n${history}\n\nSTUDENT'S RESPONSE: ${text}`
+                );
+                addDebateMessage('ai', response);
+            } catch (e) {
+                addDebateMessage('system', 'AI response failed.');
+            }
         }
 
         function startDebateTimer() {
@@ -927,8 +917,28 @@
             // TODO: Render epilogue with AI feedback
         }
 
-        // AI PROXY REMOVED - Devil's Advocate now uses pre-authored challenges
-        // No student data leaves the walled garden
+        // =============================================
+        // AI PROXY
+        // =============================================
+        async function callOpenRouterProxy(system, message) {
+            const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${window.OPENROUTER_API_KEY || ''}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'mistralai/mistral-7b-instruct',
+                    messages: [
+                        { role: 'system', content: system },
+                        { role: 'user', content: message }
+                    ],
+                    max_tokens: 150
+                })
+            });
+            const data = await res.json();
+            return data.choices?.[0]?.message?.content || 'No response.';
+        }
 
         // =============================================
         // PARTICLES

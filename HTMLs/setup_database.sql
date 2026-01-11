@@ -132,3 +132,30 @@ CREATE POLICY "Anyone can publish to community"
 CREATE POLICY "Authors can remove their own entries"
     ON public.community_catalog FOR DELETE
     USING (true); -- Permissive for prototype; in production use author = jwt.email
+
+-- 6. MISSION JOIN CODES (For Kahoot-style access)
+CREATE TABLE IF NOT EXISTS public.mission_codes (
+    code TEXT PRIMARY KEY,                 -- The 6-7 char code (e.g. QAR-UYZ)
+    mission_id TEXT NOT NULL,              -- Links to community_catalog.mission_id
+    teacher_id TEXT,                       -- Email of the teacher
+    submission_url TEXT,                   -- Where student work is POSTed
+    class_name TEXT,                       -- Optional: Period name
+    expires_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() + interval '7 days'),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index for lightning-fast join lookup
+CREATE INDEX IF NOT EXISTS idx_mission_codes_code ON public.mission_codes(code);
+
+-- Enable RLS
+ALTER TABLE public.mission_codes ENABLE ROW LEVEL SECURITY;
+
+-- Students can read codes to join (Public)
+CREATE POLICY "Anyone can lookup mission code" 
+    ON public.mission_codes FOR SELECT 
+    USING (true);
+
+-- Teachers can create new codes
+CREATE POLICY "Anyone can create mission codes" 
+    ON public.mission_codes FOR INSERT 
+    WITH CHECK (true);

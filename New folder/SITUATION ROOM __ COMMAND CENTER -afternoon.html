@@ -25,12 +25,6 @@
         const TEACHER_HANDLE = localStorage.getItem('TM_TEACHER_HANDLE') || (typeof CONFIG !== 'undefined' ? CONFIG.TEACHER_ID : 'GUEST');
         let GOOGLE_CLIENT_ID = localStorage.getItem('TM_GCP_CLIENT_ID') || "985904065235-u0115ektel546fs42mar5rch46utkki6.apps.googleusercontent.com";
         const HARDWIRED_PROXY = "https://nextjs-basic-lemon-one.vercel.app/api/chat";
-
-        // --- GLOBAL STATE (Restored for V3 Brains) ---
-        let currentMissions = [];
-        let currentClasses = [];
-        let allProgress = [];
-        let googleUser = null;
     </script>
     <script src="critical_crypto.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -40,7 +34,6 @@
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
     <script src="supabase_bridge.js"></script>
-    <script src="hybrid_bridge.js"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
     <style>
@@ -78,32 +71,6 @@
         /* Smooth Tabs Transition */
         .tab-content {
             transition: all 0.2s ease-in-out;
-        }
-
-        /* Dashboard Background Enhancement */
-        #main-scroll-area {
-            background:
-                radial-gradient(ellipse at top, rgba(56, 189, 248, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.03) 0%, transparent 50%),
-                linear-gradient(180deg, #0d0d0d 0%, #0a0a0a 100%);
-        }
-
-        /* Subtle grid overlay */
-        #main-scroll-area::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        #main-scroll-area>* {
-            position: relative;
-            z-index: 1;
         }
 
         /* Animations */
@@ -224,93 +191,61 @@
         <!-- MAIN CONTENT AREA -->
         <div class="flex-1 bg-base-300 p-6 overflow-y-auto relative" id="main-scroll-area">
 
-            <!-- VIEW: DASHBOARD (Command Center) -->
-            <div id="view-dashboard" class="space-y-6 max-w-5xl mx-auto tab-view">
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="space-y-6 max-w-7xl mx-auto tab-view">
 
-                <!-- 2x2 Command Center Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-
-                    <!-- MISSION LIBRARY -->
-                    <div class="card bg-gradient-to-br from-teal-900/80 via-cyan-900/60 to-slate-900 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-accent/30 hover:shadow-2xl overflow-hidden relative"
-                        onclick="switchMainTab('library')">
-                        <div
-                            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity">
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="stat bg-base-100 shadow rounded-box border border-base-content/5">
+                        <div class="stat-figure text-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                class="inline-block w-8 h-8 stroke-current">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                        </div>
-                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl"></div>
-                        <div class="card-body justify-between relative z-10">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-accent/20 backdrop-blur-sm flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h2
-                                        class="card-title text-xl font-display tracking-wider text-accent drop-shadow-lg">
-                                        MISSION LIBRARY</h2>
-                                    <p class="text-xs text-white/60">Manage your simulation blobs</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-end">
-                                <div>
-                                    <span class="text-3xl font-bold text-accent" id="dash-stat-missions">--</span>
-                                    <span class="text-xs text-white/50 ml-1">Missions</span>
-                                </div>
-                                <button class="btn btn-sm bg-accent text-black hover:bg-accent/80 shadow-lg">Open
-                                    Library →</button>
-                            </div>
-                        </div>
+                        <div class="stat-title font-display tracking-wide">Active Missions</div>
+                        <div class="stat-value text-primary mb-1" id="dash-stat-missions">--</div>
+                        <button class="btn btn-xs btn-outline btn-accent font-mono tracking-widest"
+                            onclick="toggleProjector()">
+                            LAUNCH PROJECTOR
+                        </button>
                     </div>
 
-                    <!-- CLASS DIRECTORY -->
-                    <div class="card bg-gradient-to-br from-pink-900/80 via-fuchsia-900/60 to-slate-900 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-secondary/30 hover:shadow-2xl overflow-hidden relative"
-                        onclick="switchMainTab('classes')">
-                        <div
-                            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity">
+                    <div class="stat bg-base-100 shadow rounded-box border border-base-content/5">
+                        <div class="stat-figure text-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                class="inline-block w-8 h-8 stroke-current">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                        </div>
-                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-secondary/20 rounded-full blur-3xl"></div>
-                        <div class="card-body justify-between relative z-10">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-secondary/20 backdrop-blur-sm flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h2
-                                        class="card-title text-xl font-display tracking-wider text-secondary drop-shadow-lg">
-                                        CLASS DIRECTORY</h2>
-                                    <p class="text-xs text-white/60">Manage student cohorts</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-end">
-                                <div>
-                                    <span class="text-3xl font-bold text-secondary" id="dash-stat-classes">--</span>
-                                    <span class="text-xs text-white/50 ml-1">Classes</span>
-                                    <span class="text-lg font-bold text-secondary/60 ml-3"
-                                        id="dash-stat-students">--</span>
-                                    <span class="text-xs text-white/50 ml-1">Students</span>
-                                </div>
-                                <button class="btn btn-sm bg-secondary text-black hover:bg-secondary/80 shadow-lg">Open
-                                    Classes →</button>
-                            </div>
-                        </div>
+                        <div class="stat-title font-display tracking-wide">Students</div>
+                        <div class="stat-value text-secondary" id="dash-stat-students">--</div>
+                        <div class="stat-desc">Registered seats</div>
                     </div>
 
-                    <!-- MISSION BUILDER (Hero Card) -->
-                    <div class="card bg-gradient-to-br from-primary/90 via-indigo-600 to-purple-800 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-primary/30 hover:shadow-2xl overflow-hidden relative"
+                    <div class="stat bg-base-100 shadow rounded-box border border-base-content/5">
+                        <div class="stat-figure text-accent">
+                            <div class="radial-progress bg-base-200 text-success border-4 border-base-200"
+                                style="--value:100; --size:2.5rem;" role="progressbar">100%</div>
+                        </div>
+                        <div class="stat-title font-display tracking-wide">System Health</div>
+                        <div class="stat-value text-accent flex items-center gap-2" id="dash-stat-sync">
+                            <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                            LIVE
+                        </div>
+                        <div class="stat-desc text-success">Cloud Sync Optimal</div>
+                    </div>
+                </div>
+
+                <!-- Action Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Create Card - Enhanced Design -->
+                    <div class="card bg-gradient-to-br from-primary/90 via-indigo-600 to-purple-800 shadow-2xl h-64 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-primary/30 hover:shadow-2xl overflow-hidden relative"
                         onclick="switchMainTab('Builder')">
-                        <!-- Decorative background -->
+                        <!-- Decorative background elements -->
                         <div
                             class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity">
                         </div>
@@ -319,9 +254,10 @@
                         <div
                             class="absolute -top-20 -right-20 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors">
                         </div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/30 rounded-full blur-2xl"></div>
 
-                        <div class="card-body justify-between relative z-10">
-                            <div class="flex items-center gap-3">
+                        <div class="card-body justify-end relative z-10">
+                            <div class="flex items-center gap-3 mb-2">
                                 <div
                                     class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
@@ -332,80 +268,61 @@
                                 </div>
                                 <div>
                                     <h2
-                                        class="card-title text-xl font-display tracking-wider text-white drop-shadow-lg">
+                                        class="card-title text-3xl font-display tracking-wider text-white drop-shadow-lg">
                                         MISSION BUILDER</h2>
-                                    <p class="text-white/70 text-xs">AI-Powered Curriculum Design</p>
+                                    <p class="text-white/70 text-sm">AI-Powered Curriculum Design</p>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-end">
-                                <p class="text-white/80 text-sm max-w-[60%]">Create engaging, interactive lessons with
-                                    your AI curriculum partner.</p>
-                                <button class="btn btn-sm bg-white text-primary hover:bg-white/90 shadow-lg">+ Start
-                                    Creating</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CLASSROOM DISPLAY -->
-                    <div class="card bg-gradient-to-br from-sky-900/80 via-blue-900/60 to-slate-900 shadow-2xl h-48 group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-info/30 hover:shadow-2xl overflow-hidden relative"
-                        onclick="toggleProjector()">
-                        <div
-                            class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop')] bg-cover bg-center opacity-15 group-hover:opacity-25 transition-opacity">
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent">
-                        </div>
-                        <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-info/20 rounded-full blur-3xl"></div>
-                        <div class="card-body justify-between relative z-10">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 rounded-xl bg-info/20 backdrop-blur-sm flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-info" fill="none"
+                            <p class="grow-0 text-white/80 text-sm mb-3">Create engaging, interactive lessons with your
+                                AI curriculum partner.</p>
+                            <div class="card-actions justify-end">
+                                <button class="btn btn-white bg-white text-primary hover:bg-white/90 gap-2 shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                </div>
-                                <div>
-                                    <h2 class="card-title text-xl font-display tracking-wider text-info drop-shadow-lg">
-                                        CLASSROOM DISPLAY</h2>
-                                    <p class="text-xs text-white/60">Projector / Live View</p>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-end">
-                                <p class="text-sm text-white/70 max-w-[60%]">Present missions to your students in
-                                    real-time on the big screen.</p>
-                                <button class="btn btn-sm bg-info text-black hover:bg-info/80 shadow-lg">Launch
-                                    Projector →</button>
+                                    Start Creating
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                </div>
-
-                <!-- Footer Status Bar -->
-                <div
-                    class="flex flex-wrap justify-between items-center gap-4 p-4 bg-base-200/50 rounded-box border border-base-content/5 mt-4">
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs opacity-50 font-display tracking-wide">TEACHER CODE:</span>
-                            <span class="font-mono font-bold text-info" id="dash-stat-teacher-code">AUTH REQUIRED</span>
-                            <button class="btn btn-xs btn-ghost opacity-50 hover:opacity-100"
-                                onclick="copyTeacherCode()" title="Copy Code">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none"
+                    <!-- Manage Card -->
+                    <div class="card bg-base-100 shadow-xl border border-base-content/10 h-64">
+                        <div class="card-body">
+                            <h2 class="card-title font-display tracking-wide">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                 </svg>
-                            </button>
+                                Recent Activity
+                            </h2>
+                            <div class="overflow-y-auto flex-1 -mx-4 px-4">
+                                <ul class="timeline timeline-vertical timeline-compact timeline-snap-icon w-full">
+                                    <li>
+                                        <hr class="bg-primary" />
+                                        <div class="timeline-middle">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                fill="currentColor" class="h-5 w-5 text-primary">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="timeline-end mb-2">
+                                            <time class="font-mono italic text-xs opacity-50">Just now</time>
+                                            <div class="text-sm font-bold text-base-content">System Ready</div>
+                                            <div class="text-xs opacity-70">Dashboard initialized successfully.</div>
+                                        </div>
+                                        <hr />
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <span class="text-xs opacity-30" id="dash-stat-teacher-desc"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                        <span class="text-xs font-mono text-success">CLOUD SYNC ACTIVE</span>
                     </div>
                 </div>
-
             </div>
 
             <!-- VIEW: Builder (Placeholder for Logic Transplant) -->
@@ -602,14 +519,6 @@
                     </div>
                     <div class="flex gap-2">
                         <button class="btn btn-outline btn-sm" onclick="fetchMissions()">Refresh</button>
-                        <button class="btn btn-secondary btn-sm gap-2" onclick="toggleCommunityHub()">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                            COMMUNITY HUB
-                        </button>
                         <button class="btn btn-accent btn-sm gap-2"
                             onclick="document.getElementById('file-input').click()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -633,28 +542,6 @@
     </div>
 
     <!-- Hidden Modals (DaisyUI Format) -->
-
-    <!-- COMMUNITY HUB MODAL -->
-    <dialog id="community_hub_modal" class="modal">
-        <div class="modal-box bg-base-100 border border-secondary/30 max-w-5xl w-11/12">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h3 class="font-bold text-xl font-display text-secondary tracking-widest">COMMUNITY ARCHIVE HUB</h3>
-                    <p class="text-xs opacity-50 font-mono">Approved missions available to all teachers</p>
-                </div>
-                <div class="flex gap-2">
-                    <button class="btn btn-sm btn-outline btn-secondary"
-                        onclick="fetchCommunityLibrary()">REFRESH</button>
-                    <form method="dialog"><button class="btn btn-sm btn-ghost">CLOSE</button></form>
-                </div>
-            </div>
-            <div id="community-hub-grid"
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-                <div class="col-span-full text-center opacity-30 py-20">Loading Community Catalog...</div>
-            </div>
-        </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
-    </dialog>
 
     <!-- SETTINGS MODAL -->
     <dialog id="settings_modal" class="modal">
@@ -700,23 +587,6 @@
                 </div>
 
                 <div class="divider text-xs opacity-50">IDENTITY & DATABASE</div>
-
-                <div class="form-control">
-                    <label class="label"><span class="label-text text-xs font-bold opacity-70">TEACHER HANDLE (Optional
-                            Alias)</span></label>
-                    <input type="text" id="cfg-teacher-handle"
-                        class="input input-bordered input-sm font-mono tracking-widest text-xs"
-                        placeholder="Use Email (Default)">
-                    <label class="label">
-                        <span class="label-text-alt text-warning text-[10px] leading-tight">
-                            <strong class="text-xs">⚠️ PRIVACY MODE:</strong> Setting this creates a separate
-                            "Universe".
-                            Missions saved under your email will be hidden until you clear this field.
-                            Students must use this exact handle to join.
-                        </span>
-                    </label>
-                </div>
-
 
                 <div class="form-control">
                     <label class="label"><span class="label-text text-xs font-bold opacity-70">TEACHER HANDLE
@@ -778,141 +648,91 @@
     </dialog>
 
     <!-- HOSPITAL MODAL (Node Editor) -->
-    <!-- HOSPITAL MODAL (SURGICAL THEATER) -->
     <dialog id="hospital_modal" class="modal modal-bottom sm:modal-middle">
         <div
             class="modal-box w-11/12 max-w-7xl h-[90vh] bg-base-100 border border-secondary/20 p-0 flex flex-col overflow-hidden">
             <!-- Modal Header -->
-            <div
-                class="bg-base-200 px-6 py-4 border-b border-base-content/10 flex justify-between items-center shrink-0">
-                <div>
-                    <h3 class="font-bold text-lg font-display tracking-widest text-secondary flex items-center gap-2">
-                        MISSION HOSPITAL <span class="badge badge-outline badge-xs font-mono opacity-50">SURGICAL
-                            THEATER</span>
-                    </h3>
-                    <div id="h-path" class="text-[9px] font-mono opacity-40 uppercase tracking-widest mt-1">NODE:
-                        SELECTION_REQUIRED</div>
-                </div>
+            <div class="bg-base-200 px-6 py-4 border-b border-base-content/10 flex justify-between items-center">
+                <h3 class="font-bold text-lg font-display tracking-widest text-secondary flex items-center gap-2">
+                    MISSION HOSPITAL <span class="badge badge-outline badge-xs font-mono opacity-50">SURGICAL
+                        THEATER</span>
+                </h3>
                 <div class="flex gap-2">
                     <button class="btn btn-sm btn-ghost" onclick="closeHospital()">CANCEL</button>
-                    <button class="btn btn-sm btn-outline btn-info font-bold" onclick="downloadBirthedBlob()">DOWNLOAD
-                        .BLOB</button>
-                    <button class="btn btn-sm btn-secondary font-bold" onclick="saveHospitalChanges()">SAVE
-                        CHANGES</button>
-                    <button class="btn btn-sm btn-accent font-bold" onclick="finalizeForge()">FINALIZE MISSION</button>
+                    <button class="btn btn-sm btn-secondary" onclick="saveHospitalChanges()">SAVE CHANGES</button>
                 </div>
             </div>
 
+            <!-- Modal Body -->
             <div class="flex-1 flex overflow-hidden">
-                <!-- Node Navigator Sidebar -->
-                <div class="w-64 bg-base-200/50 border-r border-base-content/10 flex flex-col overflow-hidden shrink-0">
-                    <div
-                        class="p-3 text-[10px] font-bold opacity-30 uppercase tracking-widest border-b border-base-content/5">
-                        Surgical Nodes</div>
-                    <div class="flex-1 overflow-y-auto p-2" id="h-node-list">
-                        <!-- Injected Nodes -->
-                    </div>
+                <!-- Slide List Sidebar -->
+                <div class="w-64 bg-base-200/50 border-r border-base-content/10 overflow-y-auto p-4 space-y-1"
+                    id="h-slide-list">
+                    <!-- Injected JS -->
                 </div>
 
-                <!-- Main Theatre Area -->
-                <div class="flex-1 flex overflow-hidden" id="h-theatre-main">
+                <!-- Main Surgical Area -->
+                <div class="flex-1 flex overflow-hidden" id="h-surgical-area">
                     <!-- Left: Visual Monitor -->
-                    <div class="w-80 border-r border-base-content/10 flex flex-col p-4 bg-black/10 shrink-0">
-                        <div class="text-[10px] font-bold text-secondary tracking-widest uppercase opacity-50 mb-3">
-                            Visual Sensor Feed</div>
+                    <div
+                        class="w-1/3 border-r border-base-content/10 flex flex-col p-4 space-y-4 overflow-y-auto bg-black/10">
+                        <div class="text-[10px] font-bold text-secondary tracking-widest uppercase opacity-50">Visual
+                            Sensor Feed</div>
                         <div id="h-visual-preview"
-                            class="bg-black/60 rounded border border-white/5 aspect-video flex items-center justify-center overflow-hidden mb-4 shadow-inner">
+                            class="bg-black/40 rounded border border-white/5 aspect-video flex items-center justify-center overflow-hidden">
                             <span class="text-xs opacity-20 font-mono">NO SIGNAL</span>
                         </div>
-                        <div class="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
-                            <div class="form-control" id="h-field-title-wrap">
-                                <label class="label py-0"><span
-                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Display
+                        <div class="space-y-3">
+                            <div class="form-control">
+                                <label class="label py-1"><span
+                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Slide
                                         Title</span></label>
-                                <input type="text" id="h-title" class="input input-bordered input-xs font-display h-8"
-                                    placeholder="Node Heading">
+                                <input type="text" id="h-title" class="input input-bordered input-sm font-display"
+                                    placeholder="Node Title">
                             </div>
-                            <div class="form-control" id="h-field-media-wrap">
-                                <label class="label py-0"><span
-                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Media Link
-                                        (JPG/YT/PDF)</span></label>
+                            <div class="form-control">
+                                <label class="label py-1"><span
+                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Media URL
+                                        (IMG/YT/PDF)</span></label>
                                 <input type="text" id="h-media-url"
-                                    class="input input-bordered input-xs font-mono text-[9px] h-8 text-success"
+                                    class="input input-bordered input-sm font-mono text-[10px]"
                                     onchange="updateHospitalPreview(this.value)">
                             </div>
-                            <div class="form-control" id="h-field-choices-wrap">
-                                <label class="label py-0"><span
-                                        class="label-text-alt text-[9px] font-bold opacity-40 uppercase">Surgical
-                                        Options</span></label>
-                                <div class="grid grid-cols-2 gap-1">
-                                    <input type="text" id="h-choice-a" class="input input-bordered input-xs text-[10px]"
-                                        placeholder="Option Alpha">
-                                    <input type="text" id="h-choice-b" class="input input-bordered input-xs text-[10px]"
-                                        placeholder="Option Beta">
-                                </div>
-
-                                <!-- Devil's Advocate Challenges (Pre-authored) -->
-                                <div class="mt-3 pt-3 border-t border-error/20">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <label class="label py-0"><span
-                                                class="label-text-alt text-[9px] font-bold text-error/70 uppercase">⚔️
-                                                Devil's Advocate Challenges</span></label>
-                                        <button class="btn btn-xs btn-ghost text-error gap-1"
-                                            onclick="generateDAForCurrentSlide()">
-                                            🤖 Generate
-                                        </button>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex gap-2 items-start">
-                                            <span class="text-[9px] font-mono text-error/50 w-4 pt-2">α</span>
-                                            <textarea id="h-da-a"
-                                                class="textarea textarea-bordered textarea-xs text-[10px] flex-1 h-16 leading-tight"
-                                                placeholder="Counter-argument for Option Alpha... (e.g., 'But if you negotiate, won't they see it as weakness?')"></textarea>
-                                        </div>
-                                        <div class="flex gap-2 items-start">
-                                            <span class="text-[9px] font-mono text-error/50 w-4 pt-2">β</span>
-                                            <textarea id="h-da-b"
-                                                class="textarea textarea-bordered textarea-xs text-[10px] flex-1 h-16 leading-tight"
-                                                placeholder="Counter-argument for Option Beta... (e.g., 'A blockade is an act of war. What if they run it?')"></textarea>
-                                        </div>
-                                    </div>
-                                    <p class="text-[8px] text-error/40 mt-1 italic">These challenges appear to students
-                                        after they choose. No runtime AI needed.</p>
-                                </div>
+                            <div class="form-control">
+                                <label class="label py-1"><span
+                                        class="label-text-alt text-[10px] font-bold opacity-50 uppercase">Visual Prompt
+                                        (AI Reference)</span></label>
+                                <textarea id="h-visual-prompt"
+                                    class="textarea textarea-bordered h-20 font-mono text-xs"></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Operating Region -->
-                    <div class="flex-1 flex flex-col overflow-hidden bg-base-100">
-                        <!-- Interaction Tabs -->
-                        <div
-                            class="bg-base-300/80 p-1 flex justify-between items-center border-b border-base-content/10">
-                            <div class="flex gap-1" id="h-tabs-nav">
-                                <!-- Injected Tabs -->
-                            </div>
-                            <div class="text-[9px] font-mono opacity-30 mr-2 uppercase" id="h-node-type">Node Type:
-                                Generic</div>
+                    <!-- Right: Narrative Input (Quill) -->
+                    <div class="flex-1 flex flex-col overflow-hidden">
+                        <!-- Tab Navigation -->
+                        <div class="flex bg-base-300/50 p-1 gap-1 border-b border-base-content/10" id="h-tabs-nav">
+                            <!-- Injected JS Tabs -->
                         </div>
 
-                        <!-- Content Theatre -->
-                        <div class="flex-1 overflow-hidden flex flex-col relative">
-                            <!-- Rich Text Editor -->
-                            <div id="h-editor-wrap" class="flex-1 flex flex-col overflow-hidden">
-                                <div id="quill-editor" class="flex-1"></div>
-                            </div>
-                            <!-- Metadata/Glossary Forms -->
-                            <div id="h-form-wrap" class="absolute inset-0 bg-base-100 overflow-y-auto p-6 hidden">
-                                <!-- Injected Forms -->
+                        <div class="flex-1 flex flex-col overflow-hidden bg-base-100">
+                            <div id="quill-editor" class="flex-1 overflow-y-auto"></div>
+                        </div>
+
+                        <!-- Footer metadata -->
+                        <div
+                            class="bg-base-200 p-2 flex justify-between items-center text-[10px] font-mono opacity-50 border-t border-base-content/10">
+                            <div>PATH: <span id="h-path">SLIDE -> CONTENT</span></div>
+                            <div class="flex gap-4">
+                                <div>DECISION A: <input type="text" id="h-choice-a"
+                                        class="bg-transparent border-b border-white/10 outline-none w-24"></div>
+                                <div>DECISION B: <input type="text" id="h-choice-b"
+                                        class="bg-transparent border-b border-white/10 outline-none w-24"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
-        </div>
         </div>
         <form method="dialog" class="modal-backdrop">
             <button>close</button>
@@ -932,25 +752,6 @@
                 <form method="dialog">
                     <button class="btn btn-sm btn-ghost">CLOSE</button>
                 </form>
-            </div>
-        </div>
-    </dialog>
-
-    <!-- MISSION ASSIGNMENT MODAL -->
-    <dialog id="mission_assignment_modal" class="modal">
-        <div class="modal-box bg-base-100 border border-base-content/10">
-            <h3 class="font-bold text-lg font-display tracking-widest mb-2">DOSSIER ASSIGNMENT</h3>
-            <p id="assignment-class-info" class="text-[0.6rem] font-mono opacity-50 mb-4"></p>
-
-            <div id="assignment-list"
-                class="max-h-64 overflow-y-auto space-y-1 mb-6 border border-base-content/10 p-2 rounded bg-base-200/30">
-                <!-- Mission List Injected Here -->
-            </div>
-
-            <div class="modal-action">
-                <button class="btn btn-sm btn-ghost"
-                    onclick="document.getElementById('mission_assignment_modal').close()">Cancel</button>
-                <button class="btn btn-sm btn-primary" onclick="saveMissionAssignment()">Update Assignments</button>
             </div>
         </div>
     </dialog>
@@ -1027,12 +828,15 @@
     <!-- CORE LOGIC TRANSPLANT -->
     <script>
         // --- GLOBAL STATE ---
+        let googleUser = null;
         let accumulatedData = {
             metadata: {},
             slides: [],
             intelligenceGlossary: {},
             aiPromptsExtracted: false
         };
+        let currentMissions = [];
+        let allProgress = [];
 
         // --- Builder PIPELINE CONFIG ---
         const Builder_PHASES = {
@@ -1282,7 +1086,6 @@ Format: Use Markdown. Use **bold** for key terms and concepts.`;
             accumulatedData.deepSearchResults = results;
             log('Mission anchored to research harvest.', 'success');
             addBuilderChat('ai', '✅ **Research Anchored.** I will now use these verified sources to construct the operational narrative.');
-            saveDraft(); // Auto-save on deep search results change
         }
 
         async function executeDeepSearch() {
@@ -1310,7 +1113,6 @@ Format: Use Markdown. Use **bold** for key terms and concepts.`;
             updateBuilderUI();
             addBuilderChat("ai", `⚡ Jumped to **${getCurrentPhase().label}**. Context preserved.`);
             log(`Phase override: ${getCurrentPhase().label}`, 'warning');
-            saveDraft(); // Auto-save on phase jump
         }
 
         async function generateImagePrompts() {
@@ -1363,7 +1165,6 @@ REQUIRED IMAGES (19 total):
 
                 BuilderHistory.push({ role: 'user', content: 'Generate 19 image prompts for the Media phase.' });
                 BuilderHistory.push({ role: 'assistant', content: reply });
-                saveDraft(); // Auto-save after AI response
 
                 accumulatedData.aiPromptsExtracted = false;
                 extractAIPromptsFromHistory();
@@ -1385,6 +1186,8 @@ REQUIRED IMAGES (19 total):
             const id = accumulatedData?.metadata?.id || 'MISSION_' + Date.now();
 
             if (!accumulatedData.metadata) accumulatedData.metadata = {};
+            accumulatedData.metadata.id = id;
+            accumulatedData.metadata.title = title;
             accumulatedData.metadata.exportedAt = new Date().toISOString();
 
             const sanitized = sanitizeForBirth(accumulatedData);
@@ -1488,7 +1291,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                     log('Mission data structured successfully!', 'success');
                     addBuilderChat('ai', '✅ **Mission data structured!** Review the validation report below.');
-                    saveDraft(); // Auto-save after AI structures mission data
 
                 } catch (parseErr) {
                     log('AI response was not valid JSON, storing raw response', 'warning');
@@ -1524,7 +1326,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             updateBuilderUI();
             log("Builder Session Reset.", "warning");
-            localStorage.removeItem('TM_Builder_DRAFT'); // Clear draft on explicit reset
         }
 
         // --- AUTH & INIT ---
@@ -1553,47 +1354,12 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 googleUser = responsePayload;
                 console.log("handleCredentialResponse: User Verified:", googleUser.email);
 
-                // --- SECURITY: TEACHER ALLOWLIST ---
-                const AUTHORIZED_TEACHERS = [
-                    "dwaugh@gmail.com",
-                    "david.waugh@gmail.com",
-                    "mr.waugh@school.edu"
-                ];
-                const isAuthorized = AUTHORIZED_TEACHERS.includes(googleUser.email);
-
-                // TEACHER HANDLE LOGIC
-                const teacherId = getCurrentTeacherId();
-
-                // Update Dashboard Stat
-                const codeEl = document.getElementById('dash-stat-teacher-code');
-                const descEl = document.getElementById('dash-stat-teacher-desc');
-                if (codeEl) {
-                    codeEl.innerText = teacherId;
-                    codeEl.classList.remove('text-info'); // Reset colors
-                    if (localStorage.getItem('TM_TEACHER_HANDLE')) {
-                        codeEl.classList.add('text-warning');
-                        descEl.innerHTML = `<span class="text-warning font-bold">⚠️ USING ALIAS HANDLE</span> (Privacy Mode)`;
-                    } else {
-                        codeEl.classList.add('text-success');
-                        descEl.innerText = "Students use this email to join";
-                    }
-                }
-
-
-
                 // Update UI Badges
                 const authBadge = document.getElementById('status-badge-auth');
                 if (authBadge) {
-                    if (isAuthorized) {
-                        authBadge.innerText = "AUTH_OK";
-                        authBadge.classList.remove('opacity-50', 'badge-outline', 'badge-warning');
-                        authBadge.classList.add('badge-success', 'text-white');
-                    } else {
-                        authBadge.innerText = "GUEST_OK";
-                        authBadge.classList.remove('opacity-50', 'badge-outline', 'badge-success');
-                        authBadge.classList.add('badge-warning', 'text-black');
-                        log("READ-ONLY ACCESS: Identity Verified but not on Authorized List.", "warning");
-                    }
+                    authBadge.innerText = "AUTH_OK";
+                    authBadge.classList.remove('opacity-50', 'badge-outline');
+                    authBadge.classList.add('badge-success', 'text-white');
                 }
 
                 const avatar = document.getElementById('user-avatar-initials');
@@ -1601,11 +1367,14 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                 log(`Identity Verified: ${googleUser.email}`, "success");
 
-                // Close the auth modal
+                // Close the auth modal on successful login
                 const modal = document.getElementById('auth_modal');
-                if (modal) modal.close();
+                if (modal) {
+                    modal.close();
+                    log("Auth Modal Dismissed.", "info");
+                }
 
-                // Refresh data
+                // Refresh data with authenticated teacher ID
                 refreshClasses();
                 fetchMissions();
                 fetchCurriculum();
@@ -1688,59 +1457,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
 
 
-        // --- FORGE NAVIGATION & INTELLIGENCE (Restored V3 Brains) ---
-        function jumpToPhase(index) {
-            if (index < 0 || index >= BuilderPipeline.length) return;
-
-            log(`Navigating to ${Builder_PHASES[BuilderPipeline[index]].label} protocol...`, "info");
-            currentPhaseIndex = index;
-
-            // Clear current chat for the new phase context
-            const chat = document.getElementById('Builder-chat');
-            if (chat) chat.innerHTML = '';
-
-            updateBuilderUI();
-            addBuilderChat('ai', `**PHASE SHIFT**: Entering ${Builder_PHASES[BuilderPipeline[index]].title}. \n\n${Builder_PHASES[BuilderPipeline[index]].desc}`);
-        }
-
-        async function optimizeDeepSearch() {
-            log("Optimizing Intelligence Queries...", "info");
-            const brainstorm = BuilderHistory.find(h => h.role === 'ai')?.content || "";
-            if (!brainstorm) {
-                alert("Please brainstorm a mission first to generate research queries.");
-                return;
-            }
-
-            const prompt = `Based on this mission brainstorm, generate 5 highly specific research queries for a deep-dive investigation. \n\nBRAINSTORM: ${brainstorm}\n\nFormat: Bullet points.`;
-
-            try {
-                const queries = await callAI(prompt);
-                addBuilderChat('ai', `**DEEP SEARCH PROTOCOLS GENERATED**: \n\n${queries}`);
-                log("Intelligence Queries Optimized.", "success");
-            } catch (e) {
-                log(`Research Opt Failed: ${e.message}`, "error");
-            }
-        }
-
-        async function runAI(studentName, classCode, missionId) {
-            log(`Analyzing Agent Performance: ${studentName}...`, "info");
-
-            // 1. Find the student log
-            const logEntry = allProgress.find(p => p.name === studentName && p.class === classCode);
-            if (!logEntry) return;
-
-            // 2. Construct Analysis Prompt
-            const prompt = `Analyze this student's performance in Situation Room Mission [${missionId}]. \n\nSTUDENT: ${studentName}\nSTATUS: ${JSON.stringify(logEntry.missionData[missionId])}\n\nProvide a technical evaluation of their decisions and suggest a 'Counter-Intelligence' briefing for the teacher.`;
-
-            try {
-                const analysis = await callAI(prompt);
-                alert(`STUDENT ANALYSIS [${studentName}]:\n\n${analysis}`);
-                log("Intelligence Analysis Complete.", "success");
-            } catch (e) {
-                log(`Analysis Failed: ${e.message}`, "error");
-            }
-        }
-
+        // --- STUB FUNCTIONS FOR MISSING LOGIC (Will be filled in Phase 2) ---
         async function processBuilder() {
             const inputEl = document.getElementById('f-input');
             const input = inputEl.value.trim();
@@ -1824,7 +1541,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 // Save to History
                 BuilderHistory.push({ role: 'user', content: input });
                 BuilderHistory.push({ role: 'assistant', content: responseText });
-                saveDraft(); // Auto-save after AI response
 
                 // Parse narrative if in applicable phase
                 if (phase.id === 'narrative' || phase.id === 'scripting' || responseText.includes('SLIDE 1:')) {
@@ -1964,7 +1680,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                     log(`Extracted ${items.length} glossary terms.`, 'success');
                 }
             }
-            saveDraft(); // Auto-save after parsing narrative
         }
 
 
@@ -2174,7 +1889,7 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             if (currentPhase.id === 'assets') {
                 let imgCount = 0;
                 (accumulatedData.slides || []).forEach(s => {
-                    if (s && (s.image || s.tabs?.primary?.image)) imgCount++;
+                    if (s.image || s.tabs?.primary?.image) imgCount++;
                 });
                 if (imgCount < 5) {
                     const proceed = confirm(`Only ${imgCount} visual assets archived. Proceeding to Birth may result in incomplete data. Continue?`);
@@ -2193,7 +1908,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             currentPhaseIndex++;
             updateBuilderUI();
             log(`Phase advanced to: ${getCurrentPhase().label}`, 'success');
-            saveDraft(); // Auto-save on phase advance
         }
 
         function BuilderBack() {
@@ -2202,7 +1916,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 updateBuilderUI();
                 addBuilderChat("ai", `Reverting to ${getCurrentPhase().label}. Command parameters preserved.`);
                 log(`Builder reverted to: ${getCurrentPhase().label}`, 'warning');
-                saveDraft(); // Auto-save on BuilderBack
             }
         }
 
@@ -2275,7 +1988,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
                         accumulatedData.aiPromptsExtracted = true;
                         log(`Extracted ${prompts.length + 1} AI prompts from Assets phase`, 'success');
-                        saveDraft(); // Auto-save after extracting prompts
                         return;
                     }
                 }
@@ -2294,39 +2006,48 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             let html = `
                 <div class="p-6 h-full overflow-y-auto bg-base-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                         <div>
-                            <h2 class="text-xl font-display tracking-widest text-primary flex items-center gap-2">
+                            <h2 class="text-2xl font-display tracking-widest text-primary flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                19-ASSET STRATEGY MATRIX
+                                VISUAL ASSET MATRIX
                             </h2>
-                            <p class="text-[10px] opacity-60 font-mono uppercase tracking-tighter">Mission ID: ${missionId} // 1 HERO + 18 EXHIBITS</p>
+                            <p class="text-xs opacity-60 font-mono uppercase tracking-tighter">Mission ID: ${missionId}</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
-                             <button class="btn btn-xs btn-outline btn-primary font-mono text-[9px]" onclick="extractAIPromptsFromHistory(); renderAssetsScreen(document.getElementById('Builder-output'))">RESYNC PROMPTS</button>
-                             <button class="btn btn-xs btn-secondary font-mono text-[9px]" onclick="generateAllAssets()">GENERATE ALL (19)</button>
-                             <button class="btn btn-xs btn-accent font-mono text-[9px]" onclick="saveAllAssetsToR2()">SAVE ALL TO R2</button>
+                             <button class="btn btn-sm btn-outline btn-primary font-mono text-[10px]" onclick="extractAIPromptsFromHistory(); renderAssetsScreen(document.getElementById('Builder-output'))">RESYNC PROMPTS</button>
+                             <button class="btn btn-sm btn-secondary font-mono text-[10px]" onclick="generateAllAssets()">GENERATE ALL</button>
+                             <button class="btn btn-sm btn-accent font-mono text-[10px]" onclick="saveAllAssetsToR2()">SAVE ALL TO R2</button>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <!-- Hero Card (Full Width in Grid) -->
-                        <div class="col-span-full mb-2">
-                            <div class="card bg-base-100 shadow-xl border border-primary/40">
-                                <div class="card-body p-3 flex-row gap-4 items-center">
-                                    <div id="asset-hero-preview" class="w-24 h-24 bg-black/40 rounded border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
-                                        ${heroImage ? `<img src="${heroImage}" class="h-full w-full object-cover">` : '<div class="text-[8px] opacity-20 font-mono">HERO</div>'}
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div class="col-span-full mb-4">
+                            <div class="card bg-base-100 shadow-xl border border-primary/20">
+                                <div class="card-body p-4 md:p-6">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h3 class="text-xs font-bold text-primary tracking-widest uppercase">Primary Mission Hero</h3>
+                                        <span class="badge badge-primary badge-xs font-mono">SLOT: HERO</span>
                                     </div>
-                                    <div class="flex-1 space-y-2">
-                                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-primary tracking-widest">MISSION HERO // SPLASH</span><span class="badge badge-primary badge-xs scale-75">PRM</span></div>
-                                        <div class="join w-full">
-                                            <input id="asset-hero-prompt" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px]" value="${heroPrompt}" onchange="updateAssetPrompt('hero', this.value)">
-                                            <button class="btn btn-xs btn-primary join-item px-4 font-bold" onclick="generateAsset('hero')">GENERATE</button>
-                                            <button class="btn btn-xs btn-accent join-item font-bold" onclick="saveAssetToGit('hero')">R2</button>
+                                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                        <div class="lg:col-span-2 space-y-4">
+                                            <div class="form-control">
+                                                <label class="label py-1"><span class="label-text-alt opacity-50 text-[10px] uppercase font-bold">Image Synthesis Prompt</span></label>
+                                                <textarea id="asset-hero-prompt" class="textarea textarea-bordered textarea-sm w-full h-24 font-mono text-xs leading-tight" placeholder="Synthetics prompt...">${heroPrompt}</textarea>
+                                            </div>
+                                            <div class="flex flex-col sm:flex-row gap-2">
+                                                <div class="join flex-1">
+                                                    <input id="asset-hero-url" type="text" class="input input-bordered input-xs join-item flex-1 font-mono text-[10px] text-success" placeholder="Asset URL (R2/HTTPS)" value="${heroImage}" onchange="updateAssetUrl('hero', this.value)">
+                                                    <button class="btn btn-xs btn-primary join-item px-4 font-bold" onclick="generateAsset('hero')">GENERATE</button>
+                                                </div>
+                                                <button class="btn btn-xs btn-outline btn-accent font-bold" onclick="saveAssetToGit('hero')">R2 ARCHIVE</button>
+                                            </div>
                                         </div>
-                                        <input id="asset-hero-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-success" placeholder="URL" value="${heroImage}" onchange="updateAssetUrl('hero', this.value)">
+                                        <div id="asset-hero-preview" class="bg-black/40 rounded border border-white/5 flex items-center justify-center min-h-[160px] overflow-hidden">
+                                            ${heroImage ? `<img src="${heroImage}" class="max-h-[160px] object-contain shadow-2xl" onerror="this.src='https://placehold.co/600x400/000/0af?text=PREVIEW+FAILED'">` : '<div class="text-center opacity-20"><p class="text-[10px] font-mono">NO IMAGE DATA</p></div>'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2334,87 +2055,58 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
             `;
 
             const slides = accumulatedData.slides || [];
-            // We fill 18 slots (2 per slide for 9 content slides)
-            for (let i = 0; i < 9; i++) {
-                const s = slides[i] || {};
-                const slideTitle = s.title || s.shortTitle || `Section ${i + 1}`;
+            slides.forEach((slide, i) => {
+                const slideTitle = slide.title || slide.shortTitle || `Section ${i + 1}`;
+                const primaryImg = slide.tabs?.primary?.image || slide.image || '';
+                const altImg = slide.tabs?.intel?.image || slide.altImage || '';
 
-                ['a', 'b'].forEach(v => {
-                    const slotId = `${i}-${v}`;
-                    const img = (v === 'a') ? (s.tabs?.primary?.image || s.image || '') : (s.tabs?.intel?.image || s.altImage || '');
-                    const prompt = (v === 'a') ? (s.imagePrompt || '') : (s.altImagePrompt || '');
-
-                    html += `
-                        <div class="card bg-base-100 shadow-md border border-base-content/10">
-                            <div class="card-body p-2 space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[9px] font-bold text-accent opacity-70 truncate">S${i + 1}${v.toUpperCase()}: ${slideTitle.substring(0, 12)}</span>
-                                    <span class="badge badge-outline badge-[8px] opacity-30 font-mono">${v === 'a' ? 'PRM' : 'INT'}</span>
-                                </div>
-                                <div id="asset-${slotId}-preview" class="bg-black/20 rounded aspect-[4/3] flex items-center justify-center border border-white/5 overflow-hidden">
-                                    ${img ? `<img src="${img}" class="h-full w-full object-cover">` : '<span class="text-[8px] opacity-20 font-mono">OFFLINE</span>'}
-                                </div>
-                                <input id="asset-${slotId}-prompt" type="text" class="input input-bordered input-[10px] h-6 w-full font-mono" placeholder="Prompt..." value="${prompt}" onchange="updateAssetPrompt('${slotId}', this.value)">
-                                <div class="flex gap-1">
-                                    <input id="asset-${slotId}-url" type="text" class="input input-bordered input-[10px] h-6 flex-1 font-mono text-[8px] text-success" placeholder="URL" value="${img}" onchange="updateAssetUrl('${slotId}', this.value)">
-                                    <button class="btn btn-xs btn-primary btn-square h-6 w-6" onclick="generateAsset('${slotId}')" title="Generate Image">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                                    </button>
-                                    <button class="btn btn-xs btn-accent btn-square h-6 w-6" onclick="saveAssetToGit('${slotId}')" title="Save to R2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                                    </button>
-                                    <!-- Context Button -->
-                                    <button class="btn btn-xs btn-ghost btn-square h-6 w-6 opacity-50 hover:opacity-100" onclick="viewSlideContext(${i}, '${v}')" title="View Context">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                    </button>
+                html += `
+                    <div class="card bg-base-100 shadow-lg border border-base-content/10">
+                        <div class="card-body p-3 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-accent opacity-70 truncate max-w-[120px]">S${i + 1}A: ${slideTitle.substring(0, 18)}${slideTitle.length > 18 ? '...' : ''}</span>
+                                <div class="flex items-center gap-1">
+                                    <button class="btn btn-[8px] h-4 min-h-0 px-1 btn-ghost opacity-40 hover:opacity-100" onclick="openIntelModal(${i})">INTEL</button>
+                                    <span class="badge badge-outline badge-xs opacity-50 font-mono">PRM</span>
                                 </div>
                             </div>
-                        </div>`;
-                });
-            }
+                            <div id="asset-${i}-a-preview" class="bg-black/20 rounded aspect-video flex items-center justify-center border border-white/5 overflow-hidden">
+                                ${primaryImg ? `<img src="${primaryImg}" class="max-h-full object-contain" onerror="this.style.display='none'">` : '<span class="text-[10px] opacity-20 font-mono uppercase">Offline</span>'}
+                            </div>
+                            <textarea id="asset-${i}-a-prompt" class="textarea textarea-bordered textarea-xs w-full h-16 font-mono text-[10px] leading-tight" placeholder="Prompt...">${slide.imagePrompt || ''}</textarea>
+                            <input id="asset-${i}-a-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-success" placeholder="URL" value="${primaryImg}" onchange="updateAssetUrl('${i}-a', this.value)">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="btn btn-xs btn-primary font-mono text-[9px]" onclick="generateAsset('${i}-a')">GEN</button>
+                                <button class="btn btn-xs btn-outline font-mono text-[9px]" onclick="saveAssetToGit('${i}-a')">R2</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-base-100 shadow-lg border border-base-content/10">
+                        <div class="card-body p-3 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-warning opacity-70 truncate max-w-[120px]">S${i + 1}B: ${slideTitle.substring(0, 18)}${slideTitle.length > 18 ? '...' : ''}</span>
+                                <div class="flex items-center gap-1">
+                                    <button class="btn btn-[8px] h-4 min-h-0 px-1 btn-ghost opacity-40 hover:opacity-100" onclick="openIntelModal(${i})">INTEL</button>
+                                    <span class="badge badge-outline badge-xs opacity-50 font-mono">ALT</span>
+                                </div>
+                            </div>
+                            <div id="asset-${i}-b-preview" class="bg-black/20 rounded aspect-video flex items-center justify-center border border-white/5 overflow-hidden">
+                                ${altImg ? `<img src="${altImg}" class="max-h-full object-contain" onerror="this.style.display='none'">` : '<span class="text-[10px] opacity-20 font-mono uppercase">Offline</span>'}
+                            </div>
+                            <textarea id="asset-${i}-b-prompt" class="textarea textarea-bordered textarea-xs w-full h-16 font-mono text-[10px] leading-tight" placeholder="Alt prompt...">${slide.altImagePrompt || ''}</textarea>
+                            <input id="asset-${i}-b-url" type="text" class="input input-bordered input-xs w-full font-mono text-[9px] text-warning" placeholder="URL" value="${altImg}" onchange="updateAssetUrl('${i}-b', this.value)">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="btn btn-xs btn-secondary font-mono text-[9px]" onclick="generateAsset('${i}-b')">GEN</button>
+                                <button class="btn btn-xs btn-outline font-mono text-[9px]" onclick="saveAssetToGit('${i}-b')">R2</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
 
             html += `</div></div>`;
             outputArea.innerHTML = html;
-        }
-
-        function viewSlideContext(slideIdx, variant) {
-            const slide = accumulatedData.slides[slideIdx];
-            if (!slide) return;
-
-            const modal = document.getElementById('intel_modal');
-            const title = document.getElementById('intel-modal-title');
-            const content = document.getElementById('intel-modal-content');
-
-            const typeLabel = variant === 'a' ? 'PRIMARY' : 'INTEL';
-            title.innerText = `CONTEXT: S${slideIdx + 1}${variant.toUpperCase()} (${typeLabel})`;
-
-            let text = "";
-            if (variant === 'a') {
-                text = slide.tabs?.primary?.content || slide.content || slide.brief || "* NO DATA *";
-            } else {
-                text = slide.tabs?.intel?.content || slide.tabs?.intel || slide.intel || "* NO INTEL DATA *";
-            }
-
-            content.innerHTML = (typeof marked !== 'undefined') ? marked.parse(text) : text;
-            modal.showModal();
-        }
-
-        function updateAssetPrompt(slotId, prompt) {
-            if (slotId === 'hero') {
-                if (!accumulatedData.metadata) accumulatedData.metadata = {};
-                accumulatedData.metadata.heroPrompt = prompt;
-            } else if (typeof slotId === 'string' && slotId.includes('-')) {
-                const [slideIdx, variant] = slotId.split('-');
-                const idx = parseInt(slideIdx);
-                if (!accumulatedData.slides[idx]) accumulatedData.slides[idx] = {};
-                if (variant === 'a') {
-                    accumulatedData.slides[idx].imagePrompt = prompt;
-                } else {
-                    accumulatedData.slides[idx].altImagePrompt = prompt;
-                }
-            }
-            log(`Asset prompt updated for slot ${slotId}`, 'info');
-            saveDraft(); // Auto-save on asset prompt update
         }
 
         function updateAssetUrl(slotId, url) {
@@ -2441,7 +2133,6 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
                 if (prev) prev.innerHTML = url ? `<img src="${url}" class="max-h-full object-contain">` : '<span class="text-[10px] opacity-20 font-mono">Offline</span>';
             }
             log(`Asset URL updated for slot ${slotId}`, 'success');
-            saveDraft(); // Auto-save on asset URL update
         }
 
         async function generateAsset(slotId) {
@@ -2592,155 +2283,85 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
         }
 
         // --- HOSPITAL (SURGICAL THEATER) LOGIC ---
-        let currentHospNode = 'metadata'; // 'metadata', 'glossary', or index
+        let currentEditingSlideIndex = -1;
         let activeTabKey = 'primary';
         let quill = null;
         let turndownService = (typeof TurndownService !== 'undefined') ? new TurndownService() : null;
 
         function openHospital() {
-            if (!accumulatedData.metadata) accumulatedData.metadata = { title: "Untitled Mission", author: "Unknown", version: "1.0", learningOutcomes: [] };
-            if (!accumulatedData.slides) accumulatedData.slides = [];
-
+            const data = accumulatedData.slides || [];
+            if (data.length === 0) {
+                accumulatedData.slides = [{ title: "INITIAL BRIEFING", tabs: { primary: { label: "Main", body: "Mission parameters..." } }, visual: "Satellite view...", options: ["Accept", "Decline"] }];
+            }
             document.getElementById('hospital_modal').showModal();
-            loadNodeEditor('metadata');
-        }
-
-        function closeHospital() {
-            document.getElementById('hospital_modal').close();
+            loadSlideEditor(0);
         }
 
         function renderHospitalSidebar() {
-            const list = document.getElementById('h-node-list');
+            const list = document.getElementById('h-slide-list');
             if (!list) return;
-
-            let html = `
-                <button class="btn btn-sm ${currentHospNode === 'metadata' ? 'btn-secondary' : 'btn-ghost'} justify-start w-full normal-case text-xs mb-1" onclick="loadNodeEditor('metadata')">
-                    📜 PATIENT DOSSIER
-                </button>
-                <button class="btn btn-sm ${currentHospNode === 'glossary' ? 'btn-secondary' : 'btn-ghost'} justify-start w-full normal-case text-xs mb-3" onclick="loadNodeEditor('glossary')">
-                    🧠 INTELLIGENCE GLOSSARY
-                </button>
-                <div class="text-[9px] font-bold opacity-20 uppercase tracking-tighter mb-2 ml-1">Mission Slides</div>
-            `;
-
+            let html = '';
             (accumulatedData.slides || []).forEach((s, i) => {
-                if (!s) return; // Skip null nodes
-                const active = currentHospNode === i ? 'btn-active btn-primary' : 'btn-ghost';
-                html += `<button class="btn btn-xs ${active} justify-start w-full normal-case text-[11px] mb-1 px-2 py-3 h-auto leading-tight" onclick="loadNodeEditor(${i})">
-                    <span class="opacity-30 mr-1">${i + 1}.</span>
-                    <span class="truncate">${s.title || 'Untitled Step'}</span>
+                const active = i === currentEditingSlideIndex ? 'btn-active btn-secondary' : 'btn-ghost';
+                html += `<button class="btn btn-sm ${active} justify-start font-normal px-2 h-auto py-2" onclick="loadSlideEditor(${i})">
+                    <span class="opacity-50 font-mono text-[10px] mr-2 w-4 self-start mt-0.5">${i + 1}.</span>
+                    <span class="truncate text-xs text-left leading-tight whitespace-normal">${s.title || 'Untitled Mission Step'}</span>
                 </button>`;
             });
-
-            html += `<button class="btn btn-xs btn-ghost btn-outline border-dashed opacity-40 mt-4 w-full" onclick="addHospitalNode()">+ ADD SLIDE</button>`;
+            html += `<button class="btn btn-sm btn-outline btn-xs border-dashed opacity-50 hover:opacity-100 mt-4" onclick="addHospitalNode()">+ Add Mission Step</button>`;
             list.innerHTML = html;
         }
 
-        // --- HOSPITAL HELPER FUNCTIONS ---
-        function updateHospitalPreview(imageUrl) {
-            const previewEl = document.getElementById('h-preview-img');
-            if (previewEl) {
-                if (imageUrl) {
-                    previewEl.src = imageUrl;
-                    previewEl.classList.remove('hidden');
-                } else {
-                    previewEl.src = "";
-                    previewEl.classList.add('hidden');
-                }
-            }
-        }
+        function loadSlideEditor(index) {
+            currentEditingSlideIndex = index;
+            const slide = accumulatedData.slides[index];
+            if (!slide) return;
 
-        async function saveIdeaProgress() {
-            // Auto-save WIP to Supabase (optional feature)
-            if (!window.SupabaseBridge || !SupabaseBridge.client || !googleUser) {
-                console.log("SAVE_IDEA: Skipping (no auth or client)");
-                return;
+            // Ensure tabs structure
+            if (!slide.tabs) {
+                slide.tabs = { primary: { label: "Main", body: slide.brief || slide.content || "" } };
             }
-            try {
-                const ideaId = accumulatedData.metadata?.id || 'WIP_' + Date.now();
-                const name = accumulatedData.metadata?.title || 'Untitled';
-                await SupabaseBridge.saveIdea(ideaId, name, accumulatedData, getCurrentTeacherId());
-                console.log("SAVE_IDEA: Progress saved to cloud.");
-            } catch (e) {
-                console.warn("SAVE_IDEA: Auto-save failed:", e.message);
+            if (!slide.tabs[activeTabKey]) {
+                activeTabKey = Object.keys(slide.tabs)[0] || 'primary';
             }
-        }
 
-        function loadNodeEditor(nodeId) {
-            currentHospNode = nodeId;
+            const tabData = slide.tabs[activeTabKey] || { label: "Main", body: "" };
+
+            // UI Fields
+            document.getElementById('h-title').value = slide.title || slide.shortTitle || '';
+            document.getElementById('h-media-url').value = tabData.image || slide.image || '';
+            document.getElementById('h-visual-prompt').value = slide.visual || slide.visualPrompt || '';
+            document.getElementById('h-choice-a').value = slide.options?.[0] || '';
+            document.getElementById('h-choice-b').value = slide.options?.[1] || '';
+            document.getElementById('h-path').innerText = `SLIDE_${index + 1} -> ${activeTabKey.toUpperCase()}`;
+
+            updateHospitalPreview(document.getElementById('h-media-url').value);
+            renderTabNav(slide);
+            initQuill(tabData.body || tabData.content || "");
             renderHospitalSidebar();
-
-            const editorWrap = document.getElementById('h-editor-wrap');
-            const formWrap = document.getElementById('h-form-wrap');
-            const pathEl = document.getElementById('h-path');
-            const typeEl = document.getElementById('h-node-type');
-
-            // Reset UI
-            editorWrap.classList.add('hidden');
-            formWrap.classList.add('hidden');
-            document.getElementById('h-field-choices-wrap').classList.add('hidden');
-
-            if (nodeId === 'metadata') {
-                pathEl.innerText = "NODE_SYSTEM: METADATA";
-                typeEl.innerText = "Node Type: Dossier";
-                formWrap.classList.remove('hidden');
-                renderMetadataForm();
-                updateHospitalPreview(accumulatedData.metadata.heroImage);
-            } else if (nodeId === 'glossary') {
-                pathEl.innerText = "NODE_SYSTEM: GLOSSARY";
-                typeEl.innerText = "Node Type: Intelligence";
-                formWrap.classList.remove('hidden');
-                renderGlossaryForm();
-                updateHospitalPreview("");
-            } else {
-                const slide = accumulatedData.slides[nodeId];
-                if (!slide) {
-                    pathEl.innerText = "ERROR: NULL_NODE";
-                    return;
-                }
-                pathEl.innerText = `NODE_PAYLOAD: SLIDE_${nodeId + 1}`;
-                typeEl.innerText = "Node Type: Operational";
-                editorWrap.classList.remove('hidden');
-                document.getElementById('h-field-choices-wrap').classList.remove('hidden');
-
-                if (!slide.tabs) slide.tabs = { primary: { label: "Main", body: "" } };
-                if (!slide.tabs[activeTabKey]) activeTabKey = Object.keys(slide.tabs)[0];
-
-                const tabData = slide.tabs[activeTabKey];
-                document.getElementById('h-title').value = slide.title || "";
-                document.getElementById('h-media-url').value = tabData.image || slide.image || "";
-                document.getElementById('h-choice-a').value = slide.options?.[0] || "";
-                document.getElementById('h-choice-b').value = slide.options?.[1] || "";
-
-                // Load Devil's Advocate challenges
-                document.getElementById('h-da-a').value = slide.devilsAdvocate?.["0"] || "";
-                document.getElementById('h-da-b').value = slide.devilsAdvocate?.["1"] || "";
-
-                updateHospitalPreview(document.getElementById('h-media-url').value);
-                renderTabNav(slide);
-                initQuill(tabData.body || "");
-            }
         }
 
         function renderTabNav(slide) {
             const nav = document.getElementById('h-tabs-nav');
+            if (!nav) return;
             let html = '';
             Object.keys(slide.tabs).forEach(key => {
-                const active = key === activeTabKey ? 'btn-primary btn-active text-white' : 'btn-ghost opacity-60';
-                html += `<button class="btn btn-[10px] h-6 min-h-0 ${active} px-3" onclick="switchHospitalTab('${key}')">${(slide.tabs[key].label || key).toUpperCase()}</button>`;
+                const active = key === activeTabKey ? 'btn-secondary text-white' : 'btn-ghost opacity-60';
+                html += `<button class="btn btn-xs ${active} px-3" onclick="switchHospitalTab('${key}')">${(slide.tabs[key].label || key).toUpperCase()}</button>`;
             });
             html += `<button class="btn btn-xs btn-ghost text-secondary" onclick="addHospitalTab()">+</button>`;
             nav.innerHTML = html;
         }
 
         function switchHospitalTab(key) {
+            saveHospitalChanges(); // Save current before switching
             activeTabKey = key;
-            loadNodeEditor(currentHospNode);
+            loadSlideEditor(currentEditingSlideIndex);
         }
 
         function addHospitalTab() {
-            const slide = accumulatedData.slides[currentHospNode];
-            const name = prompt("Enter tab label (e.g. Intel, Map):");
+            const slide = accumulatedData.slides[currentEditingSlideIndex];
+            const name = prompt("Enter tab label (e.g. Intel, Map, Bio):");
             if (!name) return;
             const key = name.toLowerCase().replace(/\s/g, '_');
             slide.tabs[key] = { label: name, body: "" };
@@ -2768,247 +2389,73 @@ Generate the complete JSON structure. Output ONLY the raw JSON, no markdown fenc
 
             quill.root.innerHTML = (typeof marked !== 'undefined') ? marked.parse(content || "") : content;
 
+            // Sync on change (Debounced slightly for performance)
             quill.on('text-change', () => {
-                if (typeof currentHospNode === 'number' && accumulatedData.slides[currentHospNode]) {
-                    const html = quill.root.innerHTML;
-                    const md = turndownService ? turndownService.turndown(html) : html;
-                    accumulatedData.slides[currentHospNode].tabs[activeTabKey].body = md;
-                    saveDraft(); // Auto-save on quill text change
+                const html = quill.root.innerHTML;
+                if (turndownService && accumulatedData.slides[currentEditingSlideIndex]) {
+                    const md = turndownService.turndown(html);
+                    accumulatedData.slides[currentEditingSlideIndex].tabs[activeTabKey].body = md;
                 }
             });
         }
 
-        function renderMetadataForm() {
-            const data = accumulatedData.metadata;
-            const wrap = document.getElementById('h-form-wrap');
-            wrap.innerHTML = `
-                <div class="max-w-2xl mx-auto space-y-6">
-                    <h3 class="text-lg font-display tracking-widest text-primary border-b border-primary/20 pb-2">PATIENT DOSSIER</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission ID</span></label><input type="text" value="${data.id || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.id = this.value; saveDraft();"></div>
-                        <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Version</span></label><input type="text" value="${data.version || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.version = this.value; saveDraft();"></div>
-                    </div>
-                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Mission Title</span></label><input type="text" value="${data.title || ''}" class="input input-bordered input-sm" onchange="accumulatedData.metadata.title = this.value; saveDraft();"></div>
-                    <div class="form-control"><label class="label"><span class="label-text-alt uppercase font-bold opacity-40">Briefing Summary</span></label><textarea class="textarea textarea-bordered h-24" onchange="accumulatedData.metadata.description = this.value; saveDraft();">${data.description || ''}</textarea></div>
-                    
-                    <div class="space-y-4 pt-4">
-                        <h4 class="text-xs font-bold opacity-50 uppercase tracking-widest">Learning Outcomes</h4>
-                        <div id="h-outcomes-list" class="space-y-2"></div>
-                        <button class="btn btn-xs btn-outline btn-secondary" onclick="addHospitalOutcome()">+ ADD OUTCOME</button>
-                    </div>
-
-                    <div class="divider opacity-10"></div>
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-4">
-                            <input type="checkbox" class="checkbox checkbox-primary" ${data.enableDevilsAdvocate !== false ? 'checked' : ''} onchange="accumulatedData.metadata.enableDevilsAdvocate = this.checked; saveDraft();">
-                            <span class="label-text">Enable AI 'Devil's Advocate' (Critique Student Rationales)</span>
-                        </label>
-                    </div>
-                </div>
-            `;
-            renderMetadataOutcomes();
-        }
-
-        function renderMetadataOutcomes() {
-            const list = document.getElementById('h-outcomes-list');
-            if (!list) return;
-            const outcomes = accumulatedData.metadata.learningOutcomes || [];
-            list.innerHTML = outcomes.map((o, i) => `
-                <div class="flex gap-2">
-                    <input type="text" class="input input-bordered input-xs flex-1" value="${o}" onchange="accumulatedData.metadata.learningOutcomes[${i}] = this.value; saveDraft();">
-                    <button class="btn btn-xs btn-square btn-error btn-outline" onclick="removeHospitalOutcome(${i})">×</button>
-                </div>
-            `).join('');
-        }
-
-        function addHospitalOutcome() { if (!accumulatedData.metadata.learningOutcomes) accumulatedData.metadata.learningOutcomes = []; accumulatedData.metadata.learningOutcomes.push(""); renderMetadataForm(); saveDraft(); }
-        function removeHospitalOutcome(i) { accumulatedData.metadata.learningOutcomes.splice(i, 1); renderMetadataForm(); saveDraft(); }
-
-        function renderGlossaryForm() {
-            const data = accumulatedData.intelligenceGlossary || [];
-            const wrap = document.getElementById('h-form-wrap');
-            wrap.innerHTML = `
-                <div class="max-w-3xl mx-auto space-y-6">
-                    <h3 class="text-lg font-display tracking-widest text-warning border-b border-warning/20 pb-2">INTELLIGENCE GLOSSARY</h3>
-                    <p class="text-[10px] opacity-40 uppercase">Define critical terms to anchor AI behavior and student reference.</p>
-                    <div id="h-glossary-list" class="space-y-3"></div>
-                    <button class="btn btn-sm btn-outline btn-warning" onclick="addHospitalGlossaryTerm()">+ ADD TERM</button>
-                </div>
-            `;
-            const list = document.getElementById('h-glossary-list');
-            list.innerHTML = data.map((item, i) => `
-                <div class="flex gap-3 items-start bg-base-200/50 p-3 rounded border border-white/5">
-                    <div class="w-1/3"><input type="text" class="input input-bordered input-sm w-full font-bold" value="${item.term}" placeholder="Term" onchange="accumulatedData.intelligenceGlossary[${i}].term = this.value; saveDraft();"></div>
-                    <div class="flex-1"><textarea class="textarea textarea-bordered textarea-sm w-full leading-tight" placeholder="Definition" onchange="accumulatedData.intelligenceGlossary[${i}].definition = this.value; saveDraft();">${item.definition}</textarea></div>
-                    <button class="btn btn-sm btn-square btn-error btn-outline" onclick="removeHospitalGlossaryTerm(${i})">×</button>
-                </div>
-            `).join('');
-        }
-
-        function addHospitalGlossaryTerm() { if (!accumulatedData.intelligenceGlossary) accumulatedData.intelligenceGlossary = []; accumulatedData.intelligenceGlossary.push({ term: "", definition: "" }); renderGlossaryForm(); saveDraft(); }
-        function removeHospitalGlossaryTerm(i) { accumulatedData.intelligenceGlossary.splice(i, 1); renderGlossaryForm(); saveDraft(); }
-
-        /**
-         * Generate Devil's Advocate challenges for the current slide using AI.
-         * This happens at AUTHORING TIME (teacher-side), not runtime.
-         * No student data is involved - this is purely content generation.
-         */
-        async function generateDAForCurrentSlide() {
-            if (typeof currentHospNode !== 'number') {
-                alert('Select a slide first.');
+        function updateHospitalPreview(url) {
+            const preview = document.getElementById('h-visual-preview');
+            if (!preview) return;
+            if (!url) {
+                preview.innerHTML = '<span class="text-xs opacity-20 font-mono">NO SIGNAL</span>';
                 return;
             }
 
-            const slide = accumulatedData.slides[currentHospNode];
-            if (!slide) return;
+            const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            const isPDF = url.toLowerCase().endsWith('.pdf');
 
-            const optionA = document.getElementById('h-choice-a').value;
-            const optionB = document.getElementById('h-choice-b').value;
-
-            if (!optionA && !optionB) {
-                alert('Enter at least one option before generating challenges.');
-                return;
-            }
-
-            // Get context from the slide
-            const slideTitle = slide.title || 'this decision';
-            const slideContent = slide.tabs?.primary?.body || slide.content || '';
-            const missionTitle = accumulatedData.metadata?.title || 'this simulation';
-
-            const prompt = `You are creating Devil's Advocate challenges for a history simulation called "${missionTitle}".
-
-Current scenario: "${slideTitle}"
-Context: ${slideContent.substring(0, 500)}
-
-The student must choose between:
-- Option A: "${optionA}"
-- Option B: "${optionB}"
-
-Generate TWO brief, challenging counter-arguments (one for each option). These will be shown to students AFTER they make their choice to make them defend their reasoning.
-
-Format your response EXACTLY like this:
-CHALLENGE_A: [1-2 sentence counter-argument questioning Option A]
-CHALLENGE_B: [1-2 sentence counter-argument questioning Option B]
-
-Make the challenges:
-- Provocative but fair (like a debate opponent)
-- Historically grounded if possible
-- Age-appropriate for high school students
-- Under 50 words each`;
-
-            try {
-                log('Generating Devil\'s Advocate challenges...', 'info');
-
-                // Use the same AI infrastructure as the Builder
-                let orKey = localStorage.getItem('TM_OPENROUTER_KEY');
-                if (!orKey) {
-                    // Try to use the hardwired proxy or prompt for key
-                    const response = await fetch(HARDWIRED_PROXY, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ message: prompt })
-                    });
-                    const data = await response.json();
-                    const reply = data.choices?.[0]?.message?.content || data.reply || '';
-                    parseDAResponse(reply);
-                    return;
-                }
-
-                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${orKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: document.getElementById('f-model')?.value || 'google/gemini-2.0-flash-exp:free',
-                        messages: [{ role: 'user', content: prompt }],
-                        max_tokens: 300
-                    })
-                });
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
-
-                const reply = data.choices?.[0]?.message?.content || '';
-                parseDAResponse(reply);
-
-            } catch (e) {
-                log(`DA Generation Failed: ${e.message}`, 'error');
-                alert(`Failed to generate challenges: ${e.message}`);
-            }
-        }
-
-        function parseDAResponse(reply) {
-            const challengeA = reply.match(/CHALLENGE_A:\s*(.+?)(?=CHALLENGE_B:|$)/is)?.[1]?.trim() || '';
-            const challengeB = reply.match(/CHALLENGE_B:\s*(.+?)$/is)?.[1]?.trim() || '';
-
-            if (challengeA) document.getElementById('h-da-a').value = challengeA;
-            if (challengeB) document.getElementById('h-da-b').value = challengeB;
-
-            if (challengeA || challengeB) {
-                log('Devil\'s Advocate challenges generated!', 'success');
-                saveDraft();
+            if (ytMatch) {
+                preview.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+            } else if (isPDF) {
+                preview.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="100%">`;
             } else {
-                log('Could not parse AI response. Please write challenges manually.', 'warning');
+                preview.innerHTML = `<img src="${url}" class="max-w-full max-h-full object-contain shadow-2xl" onerror="this.src='https://placehold.co/600x400/000/0af?text=SIGNAL+LOST'">`;
             }
         }
 
         function saveHospitalChanges() {
-            if (typeof currentHospNode === 'number') {
-                const slide = accumulatedData.slides[currentHospNode];
-                if (!slide) return;
-                slide.title = document.getElementById('h-title').value;
-                slide.options = [document.getElementById('h-choice-a').value, document.getElementById('h-choice-b').value];
-                slide.tabs[activeTabKey].image = document.getElementById('h-media-url').value;
+            if (currentEditingSlideIndex === -1 || !quill) return;
 
-                // Save Devil's Advocate challenges
-                const daA = document.getElementById('h-da-a').value;
-                const daB = document.getElementById('h-da-b').value;
-                if (daA || daB) {
-                    slide.devilsAdvocate = {
-                        "0": daA,
-                        "1": daB
-                    };
-                }
+            const slide = accumulatedData.slides[currentEditingSlideIndex];
+            const tabData = slide.tabs[activeTabKey];
 
-                if (quill && turndownService) {
-                    slide.tabs[activeTabKey].body = turndownService.turndown(quill.root.innerHTML);
-                }
+            slide.title = document.getElementById('h-title').value;
+            slide.visual = document.getElementById('h-visual-prompt').value;
+            slide.options = [
+                document.getElementById('h-choice-a').value,
+                document.getElementById('h-choice-b').value
+            ];
+
+            tabData.image = document.getElementById('h-media-url').value;
+
+            if (turndownService) {
+                tabData.body = turndownService.turndown(quill.root.innerHTML);
             }
-            log(`CHANGES_SAVED: ${currentHospNode}`, "success");
-            saveIdeaProgress();
-            saveDraft(); // Auto-save after hospital changes
+
+            log(`Stabilized Node ${currentEditingSlideIndex + 1}: ${slide.title}`, 'success');
+            renderHospitalSidebar();
         }
 
-        async function finalizeForge() {
-            if (!confirm("FINALIZING: Push this mission to records?")) return;
+        function addHospitalNode() {
             saveHospitalChanges();
+            accumulatedData.slides.push({
+                title: "NEW NODE",
+                tabs: { primary: { label: "Main", body: "" } },
+                visual: "",
+                options: ["", ""]
+            });
+            renderHospitalSidebar();
+            loadSlideEditor(accumulatedData.slides.length - 1);
+        }
 
-            try {
-                // Final Metadata Sync
-                const missionId = accumulatedData.metadata?.id || `M-${Date.now()}`;
-                const title = accumulatedData.metadata?.title || "Untitled Mission";
-                const teacherId = googleUser?.email || 'GUEST';
-
-                log(`DEPLO_FORGE: Sanitizing mission capsule [${missionId}]...`, "info");
-
-                // Ensure slides have consistent 3-tab structure before saving
-                accumulatedData.slides = (accumulatedData.slides || []).filter(s => !!s);
-                accumulatedData.slides.forEach(s => {
-                    if (!s.tabs) s.tabs = { primary: { label: "Main", body: "" } };
-                    if (!s.tabs.intel) s.tabs.intel = { label: "Intel", body: "" };
-                });
-
-                await SupabaseBridge.saveMission(missionId, title, accumulatedData, teacherId);
-
-                log(`BIRTH SUCCESSFUL: Capsule [${missionId}] committed to cloud hub.`, "success");
-                alert("Birth Successful! Redirecting to Library...");
-                window.location.reload();
-            } catch (e) {
-                log(`BIRTH FAILURE: ${e.message}`, "error");
-                alert(`Birth Failed: ${e.message}`);
-            }
+        function closeHospital() {
+            document.getElementById('hospital_modal').close();
         }
 
         async function deployMission() {
@@ -3043,30 +2490,21 @@ Make the challenges:
                 intelligenceGlossary: cleanedData.intelligenceGlossary || []
             };
 
-            // 1. Cloud Save (if authenticated OR has teacher handle)
-            const teacherId = getCurrentTeacherId();
-            // Check SupabaseBridge directly (not window.SupabaseBridge)
-            const hasCloudAccess = !!(SupabaseBridge && SupabaseBridge.client && teacherId && teacherId !== 'GUEST');
-            console.log("DEPLOY_DEBUG_V4: hasCloudAccess:", hasCloudAccess, "teacherId:", teacherId);
-
-            if (hasCloudAccess) {
+            // 1. Cloud Save (if authenticated)
+            if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
                 try {
                     log(`Uploading to Command Cloud: ${missionId}...`);
-                    console.log("DEPLOY_DEBUG: Calling saveMission with teacherId:", teacherId);
-                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, teacherId);
+                    await SupabaseBridge.saveMission(missionId, finalData.metadata.title, finalData, googleUser.email);
                     log("Cloud Upload Successful.", "success");
                     addBuilderChat('ai', `**MISSION DEPLOYED TO CLOUD.**\nID: \`${missionId}\`\nThis mission is now live in your Library.`);
-                    alert("✅ Mission deployed to cloud successfully!");
                     fetchMissions(); // Update library UI
                     return; // EXIT FUNCTION - Do not force local download on success
                 } catch (e) {
-                    console.error("DEPLOY_DEBUG: Cloud Upload Error:", e);
                     log(`Cloud Upload Failed: ${e.message}. Falling back to local storage.`, "error");
                     alert("Cloud upload failed. One moment, initiating local backup...");
                 }
             } else {
-                console.warn("DEPLOY_DEBUG: Skipping cloud save. hasCloudAccess:", hasCloudAccess);
-                log("GUEST MODE: Saving local copy only. Set Teacher Handle in Settings for cloud sync.", "warning");
+                if (!googleUser) log("GUEST MODE: Saving local copy only.", "warning");
             }
 
             // 2. Download Blob (Fallback / Guest Mode)
@@ -3325,134 +2763,13 @@ Make the challenges:
             html += check('SLIDE CAPACITY', slides.length >= 10, `${slides.length}/10 NODES`);
 
             let imgCount = 0;
-            slides.forEach(s => {
-                if (s && (s.image || s.tabs?.primary?.image)) imgCount++;
-            });
+            slides.forEach(s => { if (s.image || s.tabs?.primary?.image) imgCount++; });
             html += check('VISUAL ASSETS', imgCount >= 10, `${imgCount}/10 LOADED`);
 
             const hasGlossary = Array.isArray(accumulatedData?.intelligenceGlossary) && accumulatedData.intelligenceGlossary.length > 0;
             html += check('INTEL GLOSSARY', hasGlossary, hasGlossary ? 'ACTIVE' : 'NONE');
 
             validationEl.innerHTML = html;
-        }
-
-        // --- DASHBOARD & SYNC LOGIC (Restored V3 Brains) ---
-        function refreshDashboardStats() {
-            log("Updating Dashboard Telemetry...", "info");
-
-            // 1. Missions Count
-            const missionCountEl = document.getElementById('dash-stat-missions');
-            if (missionCountEl) missionCountEl.innerText = currentMissions.length;
-
-            // 2. Classes Count
-            const classCountEl = document.getElementById('dash-stat-classes');
-            // Note: dash-stat-students might be used for classes in some V3 layouts, checking...
-            const studentsCountEl = document.getElementById('dash-stat-students');
-            if (classCountEl) classCountEl.innerText = currentClasses.length;
-            if (studentsCountEl) studentsCountEl.innerText = allProgress.length;
-
-            // 3. Sync Status
-            const syncEl = document.getElementById('dash-stat-sync');
-            if (syncEl) {
-                syncEl.innerHTML = `
-                    <div class="stat-value text-accent flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
-                        ACTIVE
-                        <span class="text-[9px] font-mono opacity-30 ml-2 mt-1">SYNC: ${new Date().toLocaleTimeString()}</span>
-                    </div>
-                    <div class="stat-desc text-success">Cloud Sync Optimal</div>
-                `;
-            }
-        }
-
-        async function fetchProgress() {
-            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
-            if (currentTeacher === 'GUEST') return;
-
-            log("Syncing Student Progress...", "info");
-            try {
-                if (SupabaseBridge.client) {
-                    const logs = await SupabaseBridge.fetchLogs(currentTeacher);
-                    if (logs) {
-                        // Normalize logs into student progress objects
-                        const normalized = {};
-                        logs.forEach(l => {
-                            const key = `${l.student_name}_${l.class_period}`;
-                            if (!normalized[key]) {
-                                normalized[key] = {
-                                    id: l.id,
-                                    name: l.student_name,
-                                    class: l.class_period || "UNKNOWN",
-                                    missionData: {}
-                                };
-                            }
-                            if (!normalized[key].missionData[l.mission_id]) {
-                                normalized[key].missionData[l.mission_id] = { steps: 0, status: 'IN_FIELD' };
-                            }
-                            // Increase step count if decision exists
-                            if (l.decision_json) normalized[key].missionData[l.mission_id].steps++;
-                        });
-                        allProgress = Object.values(normalized);
-                        log(`Telemetry Received: ${allProgress.length} students synced.`, "success");
-                        refreshDashboardStats();
-                        renderProgress();
-                        if (document.getElementById('projector-view').classList.contains('active')) {
-                            renderProjectorBoard();
-                        }
-                    }
-                }
-            } catch (e) {
-                log(`Sync Error: ${e.message}`, "error");
-            }
-        }
-
-        function renderProgress() {
-            const tbody = document.getElementById('students-tbody');
-            if (!tbody) return;
-
-            let html = '';
-            allProgress.forEach(p => {
-                const missions = Object.keys(p.missionData).join(", ");
-                html += `
-                <tr class="hover:bg-base-200/50 transition-colors border-b border-base-content/5">
-                    <td>
-                        <div class="flex items-center gap-3">
-                            <div class="avatar placeholder">
-                                <div class="bg-neutral text-neutral-content rounded-full w-8">
-                                    <span class="text-xs">${p.name[0]}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="font-bold text-xs">${p.name}</div>
-                                <div class="text-[10px] opacity-50 font-mono">${p.class}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="badge badge-ghost badge-xs font-mono">${missions}</span></td>
-                    <td class="text-right space-x-1">
-                        <button class="btn btn-ghost btn-xs text-secondary" onclick="runAI('${p.name}', '${p.class}', '${missions.split(',')[0]}')">Analyze</button>
-                        <button class="btn btn-ghost btn-xs text-error" onclick="deleteStudentData('${p.name}', '${p.class}')">Scrub</button>
-                    </td>
-                </tr>`;
-            });
-
-            if (allProgress.length === 0) {
-                html = `<tr><td colspan="3" class="text-center opacity-30 py-10 text-xs font-mono">NO ACTIVE FIELD AGENTS DETECTED</td></tr>`;
-            }
-            tbody.innerHTML = html;
-        }
-
-        async function deleteStudentData(name, classCode) {
-            if (!confirm(`CONFIRM DATA SCRUB: Permanently delete records for [${name}] in [${classCode}]?`)) return;
-            try {
-                if (SupabaseBridge.client) {
-                    await SupabaseBridge.deleteLogs(name, classCode);
-                    log(`Data Scrub Successful: ${name}`, "success");
-                    fetchProgress();
-                }
-            } catch (e) {
-                log(`Scrub Failed: ${e.message}`, "error");
-            }
         }
 
         function updateMissionMetadata() {
@@ -3469,7 +2786,6 @@ Make the challenges:
 
             updateValidationMark();
             log('Mission identifiers synchronized.', 'info');
-            saveDraft(); // Auto-save on mission metadata update
         }
 
 
@@ -3482,11 +2798,9 @@ Make the challenges:
             // }
 
             try {
-                const classes = await SupabaseBridge.fetchClasses(localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST');
+                const classes = await SupabaseBridge.fetchClasses(googleUser?.email || 'GUEST');
                 window.activeClassesData = classes; // Store for local updates
-                currentClasses = classes;
                 renderClasses(classes);
-                refreshDashboardStats();
             } catch (e) {
                 log("Class Sync Failed: " + e.message, "error");
             }
@@ -3534,7 +2848,6 @@ Make the challenges:
                     <td>
                         <div class="join">
                             <button class="btn btn-xs btn-outline join-item" onclick="editClassUI('${c.id}')">Rename</button>
-                            <button class="btn btn-xs btn-outline join-item" onclick="manageMissionsUI('${c.id}')">Missions</button>
                             <button class="btn btn-xs btn-outline join-item" onclick="manageStudentsUI('${c.passcode}')">Roster</button>
                             <button class="btn btn-xs btn-error btn-outline join-item" onclick="deleteClassUI('${c.id}')">X</button>
                         </div>
@@ -3554,7 +2867,7 @@ Make the challenges:
                 { id: "SAMPLE-02", name: "Mars Colony v1", description: "Resource management failure scenario sample.", thumb: "https://images.unsplash.com/photo-1614728853970-32a2f51d15d6?auto=format&fit=crop&q=80&w=200" }
             ];
 
-            const currentTeacher = localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
+            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
             const isGuest = currentTeacher === 'GUEST';
 
             if (SupabaseBridge.client && !isGuest) {
@@ -3573,7 +2886,6 @@ Make the challenges:
             }
 
             renderLibrary(currentMissions);
-            refreshDashboardStats();
         }
 
         function renderLibrary(missions) {
@@ -3586,19 +2898,15 @@ Make the challenges:
             missions.forEach(m => {
                 const isSample = m.id.startsWith('SAMPLE-');
                 const deleteBtn = isSample ? '' : `<button class="btn btn-xs btn-error btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); deleteMission('${m.id}')">Delete</button>`;
-                const publishBtn = isSample ? '' : `<button class="btn btn-xs btn-secondary btn-outline opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); publishToCommunity('${m.id}')" title="Share to Community Hub">📤</button>`;
 
                 html += `
                 <div class="card bg-base-100 shadow-xl image-full group cursor-pointer hover:scale-[1.02] transition-transform" onclick="loadMission('${m.id}')">
                     <figure><img src="${m.thumb || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa'}" alt="Mission" class="opacity-40 group-hover:opacity-60 transition-opacity w-full h-48 object-cover" /></figure>
                     <div class="card-body p-4 justify-between">
                         <div>
-                            <div class="flex justify-between items-start gap-2">
+                            <div class="flex justify-between items-start">
                                 <h2 class="card-title text-sm text-white tracking-wider mb-1 line-clamp-1">${m.name}</h2>
-                                <div class="flex gap-1">
-                                    ${publishBtn}
-                                    ${deleteBtn}
-                                </div>
+                                ${deleteBtn}
                             </div>
                             <p class="text-[10px] text-base-200/80 line-clamp-2">${m.description || "No description available."}</p>
                         </div>
@@ -3616,149 +2924,6 @@ Make the challenges:
             grid.innerHTML = html;
         }
 
-        // --- COMMUNITY HUB LOGIC ---
-        // const COMMUNITY_LIB_URL = "https://raw.githubusercontent.com/..."; // DEPRECATED - Now using Supabase
-
-        function toggleCommunityHub() {
-            const modal = document.getElementById('community_hub_modal');
-            modal.showModal();
-            fetchCommunityLibrary();
-        }
-
-        async function fetchCommunityLibrary() {
-            const grid = document.getElementById('community-hub-grid');
-            grid.innerHTML = `<div class="col-span-full text-center opacity-30 py-20"><span class="loading loading-spinner loading-md"></span><br>Loading Community Catalog...</div>`;
-
-            try {
-                if (window.SupabaseBridge && SupabaseBridge.client) {
-                    const capsules = await SupabaseBridge.fetchCommunityCatalog();
-                    renderCommunityHub(capsules);
-                } else {
-                    // Fallback to static file for offline mode
-                    const res = await fetch("https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/capsule-library/index.json");
-                    if (!res.ok) throw new Error("Catalog not found.");
-                    const data = await res.json();
-                    renderCommunityHub((data.capsules || []).map(c => ({
-                        mission_id: c.id,
-                        title: c.title,
-                        author: c.author,
-                        description: c.description,
-                        thumb: c.thumb,
-                        blob_data: null,
-                        download_url: c.downloadUrl
-                    })));
-                }
-            } catch (e) {
-                grid.innerHTML = `<div class="col-span-full text-center text-error py-20">COMMUNITY_CATALOG_OFFLINE<br><span class="text-xs opacity-50">${e.message}</span></div>`;
-                log("Community Hub Fetch Failed: " + e.message, "error");
-            }
-        }
-
-        function renderCommunityHub(capsules) {
-            const grid = document.getElementById('community-hub-grid');
-            const currentTeacher = getCurrentTeacherId();
-
-            if (!capsules.length) {
-                grid.innerHTML = `<div class="col-span-full text-center opacity-50 py-20">No missions in community catalog yet.<br><span class="text-xs">Publish your first mission from the Library!</span></div>`;
-                return;
-            }
-            let html = '';
-            capsules.forEach(c => {
-                const isOwner = c.author === currentTeacher || c.author === googleUser?.email;
-                const removeBtn = isOwner ? `<button class="btn btn-xs btn-error btn-outline" onclick="removeFromCommunity('${c.mission_id}')">REMOVE</button>` : '';
-
-                html += `
-                <div class="card bg-base-200 shadow-md border border-base-content/10 group">
-                    <figure class="h-32 bg-black/30">
-                        <img src="${c.thumb || 'https://placehold.co/400x200/111/333?text=NO+IMAGE'}" alt="${c.title}" class="w-full h-full object-cover opacity-80">
-                    </figure>
-                    <div class="card-body p-3">
-                        <h2 class="card-title text-sm font-display tracking-wide">${c.title}</h2>
-                        <p class="text-[10px] opacity-50 font-mono uppercase">BY: ${c.author || 'UNKNOWN'}</p>
-                        <p class="text-xs opacity-70 line-clamp-2">${c.description || 'An interactive educational simulation.'}</p>
-                        <div class="card-actions justify-between mt-2 items-center">
-                            ${removeBtn}
-                            <button class="btn btn-xs btn-secondary ml-auto" onclick="importCommunityMission('${c.mission_id}', '${c.title.replace(/'/g, "\\'")}', ${c.blob_data ? 'true' : 'false'})">IMPORT</button>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            grid.innerHTML = html;
-        }
-
-        async function removeFromCommunity(missionId) {
-            if (!confirm(`Remove this mission from the Community Hub?`)) return;
-
-            try {
-                await SupabaseBridge.removeFromCommunity(missionId);
-                log(`Mission removed from Community Hub: ${missionId}`, "success");
-                fetchCommunityLibrary();
-            } catch (e) {
-                log(`Failed to remove: ${e.message}`, "error");
-                alert(`Error: ${e.message}`);
-            }
-        }
-
-        async function publishToCommunity(missionId) {
-            const mission = currentMissions.find(m => m.id === missionId);
-            if (!mission) return alert("Mission not found in library.");
-
-            const author = getCurrentTeacherId();
-            const title = mission.name || mission.payload?.metadata?.title || "Untitled";
-            const description = mission.payload?.metadata?.description || "";
-            const thumb = mission.thumb || mission.payload?.metadata?.heroImage || "";
-
-            if (!confirm(`Publish "${title}" to the Community Hub?\n\nThis makes it available to ALL teachers.`)) return;
-
-            try {
-                await SupabaseBridge.publishToCommunity(missionId, title, author, description, thumb, mission.payload);
-                log(`Mission published to Community Hub: ${title}`, "success");
-                alert(`"${title}" is now live in the Community Hub!`);
-            } catch (e) {
-                log(`Publish failed: ${e.message}`, "error");
-                alert(`Error publishing: ${e.message}`);
-            }
-        }
-
-        async function importCommunityMission(missionId, title, hasInlineData) {
-            log(`Importing Community Capsule [${missionId}]...`, "info");
-            try {
-                let data;
-
-                if (hasInlineData && window.SupabaseBridge && SupabaseBridge.client) {
-                    // Fetch full record from community_catalog
-                    const catalog = await SupabaseBridge.fetchCommunityCatalog();
-                    const capsule = catalog.find(c => c.mission_id === missionId);
-                    if (!capsule || !capsule.blob_data) throw new Error("Mission data not found in catalog.");
-                    data = capsule.blob_data;
-                } else {
-                    // Fallback to URL fetch (legacy)
-                    throw new Error("Legacy URL import not supported. Mission must have inline data.");
-                }
-
-                // Save to personal library
-                const teacherId = getCurrentTeacherId();
-                if (window.SupabaseBridge && SupabaseBridge.client && googleUser) {
-                    await SupabaseBridge.saveMission(missionId, title, data, teacherId);
-                    log(`Mission [${title}] imported to your library!`, "success");
-                    alert(`Mission imported!\n\n"${title}" is now in your personal Library.`);
-                    fetchMissions(); // Refresh library
-                } else {
-                    // Fallback: Download locally
-                    log("Guest Mode: Downloading mission locally.", "warning");
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `${missionId}.blob`;
-                    a.click();
-                }
-                document.getElementById('community_hub_modal').close();
-            } catch (e) {
-                log(`Import Failed: ${e.message}`, "error");
-                alert("Failed to import mission: " + e.message);
-            }
-        }
-
         async function handleFile(file) {
             if (!file) return;
             log(`Parsing local dossier: ${file.name}...`);
@@ -3774,43 +2939,13 @@ Make the challenges:
                     const data = JSON.parse(raw.substring(start, end + 1));
                     accumulatedData = data;
 
-                    // SCHEMATIC ADAPTER (Legacy -> V72)
-                    // 1. Metadata Normalization
+                    // POLYFILL: Handle legacy blobs lacking 'metadata'
                     if (!accumulatedData.metadata) {
                         accumulatedData.metadata = {
                             id: data.id || `LEGACY_${Date.now()}`,
                             title: data.title || data.missionTitle || "Untitled Legacy Mission",
-                            author: data.author || "Unknown",
-                            description: data.description || "",
-                            version: data.version || "1.0"
+                            author: data.author || "Unknown"
                         };
-                        // Copy root outcomes if metadata missing
-                        if (data.learningOutcomes) accumulatedData.metadata.learningOutcomes = data.learningOutcomes;
-                        if (data.intelligenceGlossary) accumulatedData.intelligenceGlossary = data.intelligenceGlossary;
-                    }
-
-                    // 2. Slide Normalization (Critical for Cuba/Defcon blobs)
-                    if (accumulatedData.slides && Array.isArray(accumulatedData.slides)) {
-                        accumulatedData.slides.forEach(s => {
-                            if (!s) return;
-                            // Fix Title
-                            if (!s.title && s.shortTitle) s.title = s.shortTitle;
-
-                            // Fix Tabs (Object -> Standard Schema)
-                            // If tabs is an object with keys 'primary', 'intel', etc.
-                            // The current builder expects specific structure or just raw keys? 
-                            // Looking at 'loadMission' mock, it seems we keep the structure but ensure 'body' exists.
-                            // Cuba blob has: tabs.primary.content. Builder uses tabs.primary.body? 
-                            // Let's normalize content -> body if needed.
-                            if (s.tabs) {
-                                ['primary', 'legal', 'intel', 'background'].forEach(k => {
-                                    if (s.tabs[k]) {
-                                        if (s.tabs[k].content && !s.tabs[k].body) s.tabs[k].body = s.tabs[k].content;
-                                        if (s.tabs[k].label && !s.tabs[k].name) s.tabs[k].name = s.tabs[k].label;
-                                    }
-                                });
-                            }
-                        });
                     }
 
                     // Populate BuilderHistory if possible
@@ -3822,7 +2957,6 @@ Make the challenges:
                     // Switch to an active phase tab to show data
                     switchMainTab('Builder');
                     updateBuilderUI();
-                    saveDraft(); // Auto-save after loading file
                 } catch (err) {
                     log(`Parse Error: ${err.message}`, "error");
                     alert("Invalid Dossier format: " + err.message);
@@ -3832,8 +2966,7 @@ Make the challenges:
         }
 
         async function deleteMission(id) {
-            const currentTeacher = getCurrentTeacherId();
-            console.log(`[DELETE] Attempting to delete mission: ${id} for teacher: ${currentTeacher}`);
+            const currentTeacher = googleUser?.email || TEACHER_HANDLE || 'GUEST';
 
             if (id.startsWith('SAMPLE-')) {
                 log("Local samples cannot be scrubbed from the factory archive.", "warning");
@@ -3847,19 +2980,11 @@ Make the challenges:
 
             if (window.SupabaseBridge && SupabaseBridge.client) {
                 try {
-                    const result = await SupabaseBridge.deleteMission(id, currentTeacher);
-                    console.log(`[DELETE] Supabase returned:`, result);
-
-                    if (result && result.length > 0) {
-                        log(`Mission scrubbed from cloud: ${id}`, "success");
-                    } else {
-                        log(`Mission [${id}] was not found or already deleted (no rows affected).`, "warning");
-                    }
-                    await fetchMissions();
+                    await SupabaseBridge.deleteMission(id, currentTeacher);
+                    log(`Mission scrubbed from cloud: ${id}`, "success");
+                    fetchMissions();
                 } catch (e) {
-                    console.error(`[DELETE] Error:`, e);
                     log(`Deletion Failed: ${e.message}`, "error");
-                    alert(`Deletion failed: ${e.message}`);
                 }
             } else {
                 log("Supabase not configured. Cannot delete from cloud.", "error");
@@ -3869,20 +2994,24 @@ Make the challenges:
         // --- CURRICULUM CONTEXT ---
         // --- CURRICULUM CONTEXT ---
         async function fetchCurriculum() {
-            log("Synchronizing Curriculum Hub...", "info");
+            console.log("fetchCurriculum: Initiating load...");
+            log("Synchronizing Curriculum Hub...");
 
+            // 1. Load static curriculum.json (fast, cached)
             try {
-                // 1. Load static curriculum.json (fast, cached)
+                console.log("fetchCurriculum: Fetching curriculum.json");
                 const res = await fetch("curriculum.json?v=" + Date.now());
                 if (res.ok) {
                     window.curriculumData = await res.json();
-                    log("Base Curriculum Loaded.", "success");
+                    console.log("fetchCurriculum: Local data loaded.", Object.keys(window.curriculumData));
+                    log("Local Curriculum Loaded.", "success");
                 } else {
-                    window.curriculumData = {};
+                    console.warn("fetchCurriculum: curriculum.json fetch failed", res.status);
+                    window.curriculumData = window.curriculumData || {};
                 }
             } catch (err) {
-                log("Local Curriculum Load Failed (CORS/Offline). Skipping to Cloud.", "warning");
-                window.curriculumData = {};
+                console.warn("Local Curriculum Fetch Skipped (likely CORS or offline):", err);
+                window.curriculumData = window.curriculumData || {};
             }
 
             // 2. Fetch from Supabase (extended library)
@@ -3895,65 +3024,64 @@ Make the challenges:
                         if (!window.curriculumData[o.country][o.region][o.course]) window.curriculumData[o.country][o.region][o.course] = [];
 
                         let target = window.curriculumData[o.country][o.region][o.course];
-                        if (Array.isArray(target) && !target.includes(o.description)) {
-                            target.push(o.description);
+                        if (!Array.isArray(target)) {
+                            window.curriculumData[o.country][o.region][o.course] = [];
+                            target = window.curriculumData[o.country][o.region][o.course];
                         }
+                        if (!target.includes(o.description)) target.push(o.description);
                     });
-                    log(`Cloud Curriculum Synced: ${outcomes.length} cloud outcomes.`, "success");
+                    log(`Cloud Curriculum Synced: ${outcomes.length} outcomes.`, "success");
                 } catch (e) {
                     log(`Cloud Sync Warning: ${e.message}`, "warning");
                 }
             }
 
-            // 3. Merge Local Custom Lab
-            try {
-                const local = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
-                Object.keys(local).forEach(c => {
-                    if (!window.curriculumData[c]) window.curriculumData[c] = {};
-                    Object.keys(local[c]).forEach(r => {
-                        if (!window.curriculumData[c][r]) window.curriculumData[c][r] = {};
-                        Object.assign(window.curriculumData[c][r], local[c][r]);
+            // 3. Merge Local "Custom Lab" outcomes (Legacy Port)
+            const custom = JSON.parse(localStorage.getItem('blob_custom_curriculum')) || {};
+            console.log("fetchCurriculum: Blending custom labs...", Object.keys(custom));
+            Object.keys(custom).forEach(country => {
+                if (!window.curriculumData[country]) window.curriculumData[country] = {};
+                Object.keys(custom[country]).forEach(region => {
+                    if (!window.curriculumData[country][region]) window.curriculumData[country][region] = {};
+                    Object.keys(custom[country][region]).forEach(course => {
+                        window.curriculumData[country][region][course] = custom[country][region][course];
                     });
                 });
-                log("Custom Lab Synchronized.", "success");
-            } catch (e) {
-                log("Custom Lab Sync Error.", "warning");
-            }
+            });
 
             log("Curriculum Hybridization Complete.");
 
             // Populate Country Select
             const sel = document.getElementById('f-country');
             if (sel) {
-                const currentVal = sel.value;
                 sel.innerHTML = `<option value="">-- SELECT COUNTRY --</option>`;
                 Object.keys(window.curriculumData).sort().forEach(c => {
                     sel.innerHTML += `<option value="${c}">${c}</option>`;
                 });
-                if (currentVal) sel.value = currentVal;
-                // Sticky Restoration
-                window.isRestoringCurriculum = true;
-                const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
-                if (savedCountry && window.curriculumData[savedCountry]) {
-                    if (sel) sel.value = savedCountry;
-                    updateBuilderRegions();
+            }
 
-                    const savedRegion = localStorage.getItem('TM_Builder_REGION');
-                    const rSel = document.getElementById('f-region');
-                    if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
-                        rSel.value = savedRegion;
-                        updateBuilderCourses();
+            // Sticky Restoration
+            window.isRestoringCurriculum = true;
+            const savedCountry = localStorage.getItem('TM_Builder_COUNTRY');
+            if (savedCountry && window.curriculumData[savedCountry]) {
+                if (sel) sel.value = savedCountry;
+                updateBuilderRegions();
 
-                        const savedCourse = localStorage.getItem('TM_Builder_COURSE');
-                        const cSel = document.getElementById('f-course');
-                        if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
-                            cSel.value = savedCourse;
-                            updateBuilderOutcomes();
-                        }
+                const savedRegion = localStorage.getItem('TM_Builder_REGION');
+                const rSel = document.getElementById('f-region');
+                if (savedRegion && window.curriculumData[savedCountry][savedRegion]) {
+                    rSel.value = savedRegion;
+                    updateBuilderCourses();
+
+                    const savedCourse = localStorage.getItem('TM_Builder_COURSE');
+                    const cSel = document.getElementById('f-course');
+                    if (savedCourse && window.curriculumData[savedCountry][savedRegion][savedCourse]) {
+                        cSel.value = savedCourse;
+                        updateBuilderOutcomes();
                     }
                 }
-                window.isRestoringCurriculum = false;
             }
+            window.isRestoringCurriculum = false;
         }
 
         function updateBuilderRegions() {
@@ -4126,9 +3254,6 @@ Make the challenges:
 
         function saveSettings() {
             try {
-                // Auto-save draft before reload to prevent data loss
-                saveDraft(false);
-
                 const mappings = {
                     'cfg-vercel-proxy': 'TM_VERCEL_PROXY',
                     'cfg-gcp-key': 'TM_GCP_KEY',
@@ -4172,60 +3297,6 @@ Make the challenges:
             }
         }
 
-        // --- SAVE SYSTEM ---
-        let lastDraftTime = 0;
-        async function saveDraft(forceCloud = false) {
-            // Local Draft
-            const bundle = {
-                data: accumulatedData,
-                history: BuilderHistory,
-                phase: currentPhaseIndex,
-                ts: Date.now()
-            };
-            localStorage.setItem('TM_Builder_DRAFT', JSON.stringify(bundle));
-
-            // Cloud Auto-Save (Throttle: 30s)
-            const id = accumulatedData?.metadata?.id;
-            const tId = getCurrentTeacherId();
-            if (id && !id.startsWith('SAMPLE-') && window.SupabaseBridge && SupabaseBridge.client) {
-                const now = Date.now();
-                if (forceCloud || (now - lastDraftTime > 30000)) {
-                    lastDraftTime = now;
-                    try {
-                        const loading = document.getElementById('builder-save-indicator');
-                        if (loading) loading.innerText = "Cloud Syncing...";
-                        await SupabaseBridge.saveMission(id, accumulatedData.metadata.title, accumulatedData, tId);
-                        if (loading) loading.innerText = "Synced";
-                        setTimeout(() => { if (loading) loading.innerText = ""; }, 2000);
-                        console.log("Auto-Save: Cloud Sync Complete");
-                    } catch (e) { console.warn("Auto-Save Failed:", e); }
-                }
-            }
-        }
-
-        function restoreDraft() {
-            const raw = localStorage.getItem('TM_Builder_DRAFT');
-            if (!raw) return false;
-
-            try {
-                const bundle = JSON.parse(raw);
-                // Expire drafts older than 24h
-                if (Date.now() - bundle.ts > 86400000) return false;
-
-                const date = new Date(bundle.ts).toLocaleTimeString();
-                if (confirm(`Unsaved draft found from ${date}. Resume work?`)) {
-                    accumulatedData = bundle.data;
-                    BuilderHistory = bundle.history;
-                    currentPhaseIndex = bundle.phase || 0;
-                    switchMainTab('Builder');
-                    updateBuilderUI();
-                    log("Draft restored successfully.", "success");
-                    return true;
-                }
-                return false;
-            } catch (e) { console.error("Draft restore error", e); return false; }
-        }
-
         async function loadMission(id) {
             const mission = currentMissions.find(m => m.id === id);
             if (!mission) return log(`Mission ${id} not found locally.`, 'error');
@@ -4238,7 +3309,6 @@ Make the challenges:
                 updateBuilderUI();
                 switchMainTab('Builder');
                 addBuilderChat('ai', `**MISSION LOADED: ${mission.name}**\nResuming architecture sequence at Phase: ${getCurrentPhase().label}.`);
-                saveDraft(); // Auto-save after loading mission
             }
         }
 
@@ -4254,7 +3324,6 @@ Make the challenges:
             };
             localStorage.removeItem('TM_Builder_HISTORY');
             localStorage.removeItem('TM_Builder_DATA');
-            localStorage.removeItem('TM_Builder_DRAFT');
 
             const chat = document.getElementById('Builder-chat');
             if (chat) {
@@ -4286,19 +3355,12 @@ Make the challenges:
             return code;
         }
 
-
-
-        // --- HELPER: GET CURRENT TEACHER ID ---
-        function getCurrentTeacherId() {
-            return localStorage.getItem('TM_TEACHER_HANDLE') || googleUser?.email || 'GUEST';
-        }
-
         async function registerClass() {
             const className = prompt("Enter Class Name (e.g., Period 1 History):", "New Class");
             if (!className) return;
 
             const code = generateClassCode();
-            const tId = getCurrentTeacherId();
+            const tId = googleUser?.email || 'GUEST';
 
             if (!confirm(`Register new class [${className}] with code: ${code}?`)) return;
 
@@ -4354,36 +3416,20 @@ Make the challenges:
         }
 
         async function renderProjectorBoard() {
+            // Mock Data for Demo / if offline
+            let progressData = [
+                { name: "Cadet Sarah", class: "Period 1", mission: "CUBA_62", steps: 4, status: "IN_PROGRESS" },
+                { name: "Cadet John", class: "Period 1", mission: "CUBA_62", steps: 8, status: "READY" },
+                { name: "Cadet Mike", class: "Period 2", mission: "MARS_V1", steps: 2, status: "IN_PROGRESS" }
+            ];
+
             const board = document.getElementById('proj-board');
             const sync = document.getElementById('proj-sync');
             sync.innerText = `[SYNC: ${new Date().toLocaleTimeString()}]`;
 
-            // Fetch real student progress from database
-            let progressData = [];
-            const teacherId = getCurrentTeacherId();
-
-            if (window.SupabaseBridge && SupabaseBridge.client) {
-                try {
-                    progressData = await SupabaseBridge.fetchLiveProgress(teacherId);
-                } catch (e) {
-                    console.warn("Projector: Failed to fetch live data", e);
-                }
-            }
-
-            // Handle empty state
-            if (progressData.length === 0) {
-                board.innerHTML = `
-                    <div style="text-align:center; padding:40px; opacity:0.5;">
-                        <div style="font-size:2rem; margin-bottom:10px;">📡</div>
-                        <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:2px;">Awaiting Student Activity</div>
-                        <div style="font-size:0.6rem; margin-top:5px; opacity:0.7;">Students will appear here once they begin a mission.</div>
-                    </div>`;
-                return;
-            }
-
             let html = "";
             progressData.forEach(p => {
-                const pct = Math.min((p.steps / 10) * 100, 100); // Assuming 10 steps max
+                const pct = (p.steps / 10) * 100; // Assuming 10 steps
                 const isReady = p.status === "READY";
 
                 html += `
@@ -4463,48 +3509,33 @@ Make the challenges:
             modal.addEventListener('close', () => modal.remove());
         }
 
-        async function confirmAssignment() {
+        function confirmAssignment() {
             const checks = document.querySelectorAll('#assign_mission_modal input:checked');
             const ids = Array.from(checks).map(c => c.value);
 
             if (ids.length > 0) {
-                // 1. Merge with existing mission_ids
-                let finalIds = [];
+                // Update local class data with assigned missions
                 if (window.activeClassesData) {
                     const classToUpdate = window.activeClassesData.find(c => c.id === activeClassAssignId);
                     if (classToUpdate) {
-                        finalIds = [...(classToUpdate.mission_ids || [])];
+                        if (!classToUpdate.mission_ids) classToUpdate.mission_ids = [];
                         ids.forEach(id => {
-                            if (!finalIds.includes(id)) finalIds.push(id);
+                            if (!classToUpdate.mission_ids.includes(id)) {
+                                classToUpdate.mission_ids.push(id);
+                            }
                         });
-                    }
-                }
-
-                // 2. Persist to database
-                if (window.SupabaseBridge && SupabaseBridge.client) {
-                    try {
-                        await SupabaseBridge.updateClass(activeClassAssignId, { mission_ids: finalIds });
-                        log(`Deployed ${ids.length} missions to Class [${activeClassAssignId}].`, "success");
-                        // Refresh to get updated counts
-                        refreshClasses();
-                    } catch (e) {
-                        log(`Deployment Failed: ${e.message}`, "error");
-                        alert("Failed to deploy missions: " + e.message);
-                    }
-                } else {
-                    // Offline mode: Just update local state
-                    if (window.activeClassesData) {
-                        const classToUpdate = window.activeClassesData.find(c => c.id === activeClassAssignId);
-                        if (classToUpdate) classToUpdate.mission_ids = finalIds;
+                        // Re-render the class list with updated data
                         renderClasses(window.activeClassesData);
                     }
-                    log(`Assigned ${ids.length} missions locally (offline mode).`, "warning");
                 }
+
+                log(`Assigned ${ids.length} missions to Class [${activeClassAssignId}].`, "success");
+                // Ideally: SupabaseBridge.assignMissions(activeClassAssignId, ids);
             }
-            document.getElementById('assign_mission_modal')?.close();
+            document.getElementById('assign_mission_modal').close();
         }
 
-        async function manageStudentsUI(passcode) {
+        function manageStudentsUI(passcode) {
             const modalId = 'manage_roster_modal';
             let existing = document.getElementById(modalId);
             if (existing) existing.remove();
@@ -4513,26 +3544,21 @@ Make the challenges:
             modal.id = modalId;
             modal.className = 'modal';
 
-            // Fetch real roster from Supabase
-            let roster = [];
-            if (window.SupabaseBridge && SupabaseBridge.client) {
-                try {
-                    roster = await SupabaseBridge.fetchClassRoster(passcode);
-                } catch (e) {
-                    console.warn("Failed to fetch roster:", e);
-                }
+            // Use a semi-persistent mock list for the session
+            if (!window.activeRoster) {
+                window.activeRoster = [
+                    { name: "Cadet Sarah", status: "ONLINE", score: 85 },
+                    { name: "Cadet John", status: "OFFLINE", score: 42 },
+                    { name: "Cadet Mike", status: "ONLINE", score: 92 }
+                ];
             }
-            window.activeRoster = roster; // Store for kick functionality
 
             const renderRows = () => {
-                if (roster.length === 0) {
-                    return `<tr><td colspan="4" class="text-center py-8 opacity-50">No students enrolled yet. Share code: ${passcode}</td></tr>`;
-                }
-                return roster.map(s => `
+                return window.activeRoster.map(s => `
                     <tr class="hover" id="roster-row-${s.name.replace(/\s+/g, '-')}">
                         <td class="font-bold">${s.name}</td>
                         <td><div class="badge ${s.status === 'ONLINE' ? 'badge-success' : 'badge-ghost'} badge-xs mr-1"></div> ${s.status}</td>
-                        <td class="font-mono text-xs">${s.score || '--'}%</td>
+                        <td class="font-mono text-xs">${s.score}%</td>
                         <td><button class="btn btn-xs btn-error btn-outline" onclick="kickStudentUI('${s.name}', '${passcode}')">KICK</button></td>
                     </tr>
                 `).join('');
@@ -4558,7 +3584,7 @@ Make the challenges:
                     
                     <div class="alert alert-info text-xs py-2 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Students join with code <strong>${passcode}</strong> in go.html.</span>
+                        <span>Live updates require Supabase connection. Manage seats in Admin panel.</span>
                     </div>
 
                     <div class="modal-action">
@@ -4596,118 +3622,6 @@ Make the challenges:
             log(`Kicked ${name} from roster.`, "warning");
         };
 
-        // --- PROJECTOR BOARD FILTERS ---
-        function renderProjectorBoard() {
-            const board = document.getElementById('proj-board');
-            if (!board) return;
-
-            const classFilter = document.getElementById('proj-class-filter').value;
-            const missionFilter = document.getElementById('proj-mission-filter')?.value || 'ALL';
-
-            // Filter entries
-            const filtered = allProgress.filter(p => {
-                const classMatch = (classFilter === 'ALL' || p.class === classFilter);
-                return classMatch;
-            });
-
-            let html = "";
-            filtered.forEach(p => {
-                Object.keys(p.missionData).forEach(mid => {
-                    const st = p.missionData[mid];
-                    if (missionFilter !== 'ALL' && mid !== missionFilter) return;
-
-                    const pct = Math.min((st.steps / 10) * 100, 100); // Assume 10 steps for progress bar
-                    html += `
-                    <div class="proj-card active">
-                        <div class="proj-name">${p.name}</div>
-                        <div class="proj-class">${p.class} // ${mid}</div>
-                        <div class="proj-stats">
-                            <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Decisions</div><div style="font-size:0.75rem; color:#fff;">${st.steps}</div></div>
-                            <div><div style="color:#d2b48c; font-size:0.5rem; text-transform:uppercase; margin-bottom:2px;">Status</div><div style="font-size:0.65rem; color:#0f0;">ACTIVE</div></div>
-                        </div>
-                        <div class="proj-bar"><div class="proj-fill" style="width:${pct}%"></div></div>
-                    </div>`;
-                });
-            });
-
-            board.innerHTML = html || "<div style='grid-column:1/-1; text-align:center; opacity:0.3; padding:100px; color:#d2b48c;'>WAITING FOR FIELD AGENTS...</div>";
-            document.getElementById('proj-sync').innerText = `[${filtered.length} AGENTS ONLINE]`;
-        }
-
-        // --- COPY TEACHER CODE ---
-        function copyTeacherCode() {
-            const codeEl = document.getElementById('dash-stat-teacher-code');
-            if (codeEl && codeEl.innerText !== 'AUTH REQUIRED') {
-                navigator.clipboard.writeText(codeEl.innerText);
-                const btn = codeEl.parentElement.querySelector('button');
-                const oldText = btn.innerText;
-                btn.innerText = "COPIED!";
-                setTimeout(() => btn.innerText = oldText, 2000);
-            }
-        }
-
-        function toggleProjector() {
-            const pv = document.getElementById('projector-view');
-            pv.classList.toggle('active');
-            if (pv.classList.contains('active')) {
-                // Populate filters
-                const cFilter = document.getElementById('proj-class-filter');
-                const classes = [...new Set(allProgress.map(p => p.class))].sort();
-                let cTags = '<option value="ALL">ALL CLASSES</option>';
-                classes.forEach(c => cTags += `<option value="${c}">${c}</option>`);
-                cFilter.innerHTML = cTags;
-                renderProjectorBoard();
-            }
-        }
-
-        // --- MISSION ASSIGNMENT ---
-        let activeClassId = null;
-        function manageMissionsUI(classId) {
-            activeClassId = classId;
-            const cls = currentClasses.find(c => c.id == classId);
-            if (!cls) return;
-
-            const modal = document.getElementById('mission_assignment_modal');
-            const info = document.getElementById('assignment-class-info');
-            const list = document.getElementById('assignment-list');
-
-            info.innerHTML = `ASSIGN TO: <span class="text-primary">${cls.class_name}</span> (${cls.passcode})`;
-
-            const assignedIds = cls.mission_ids || [];
-
-            let html = '';
-            currentMissions.forEach(m => {
-                const checked = assignedIds.includes(m.id) ? 'checked' : '';
-                html += `
-                <label class="label cursor-pointer flex justify-start gap-4 hover:bg-base-200 p-2 rounded">
-                    <input type="checkbox" class="checkbox checkbox-primary mission-assignment-check" value="${m.id}" ${checked}>
-                    <span class="label-text text-xs">${m.name} <span class="opacity-30 font-mono">[${m.id}]</span></span>
-                </label>`;
-            });
-
-            if (currentMissions.length === 0) html = '<div class="text-center opacity-30 py-4 text-xs">NO MISSIONS FOUND IN ARCHIVE.</div>';
-            list.innerHTML = html;
-            modal.showModal();
-        }
-
-        async function saveMissionAssignment() {
-            if (!activeClassId) return;
-            const checks = document.querySelectorAll('.mission-assignment-check:checked');
-            const selectedIds = Array.from(checks).map(c => c.value);
-
-            log(`Syncing assignments for class [${activeClassId}]...`, "info");
-            try {
-                if (SupabaseBridge.client) {
-                    await SupabaseBridge.updateClass(activeClassId, { mission_ids: selectedIds });
-                    log("MISSION ASSIGNMENT LOGGED.", "success");
-                    document.getElementById('mission_assignment_modal').close();
-                    refreshClasses();
-                }
-            } catch (e) {
-                log(`Assignment Failed: ${e.message}`, "error");
-            }
-        }
-
         // --- PAGE INITIALIZATION ---
         window.onload = () => {
             // Initialize Supabase Bridge
@@ -4737,25 +3651,6 @@ Make the challenges:
             refreshClasses();
             fetchMissions();
             fetchCurriculum();
-
-            // Auto-Save: Restore Draft if available
-            if (!restoreDraft()) {
-                // Only if no draft, check URL params or load defaults
-                const urlParams = new URLSearchParams(window.location.search);
-                const missionId = urlParams.get('mission');
-                if (missionId) {
-                    // Logic to load mission from ID if not draft
-                    console.log("Loading mission from URL:", missionId);
-                }
-            }
-            fetchProgress();
-
-            // Set background sync interval (30 seconds)
-            setInterval(() => {
-                fetchProgress();
-                fetchMissions();
-                refreshClasses();
-            }, 30000);
 
             // Force Auth Prompt if Guest
             setTimeout(() => {
@@ -4894,18 +3789,17 @@ Make the challenges:
                 <select id="proj-class-filter" onchange="renderProjectorBoard()"
                     class="select select-bordered select-xs font-mono bg-[#111] text-[#d2b48c] border-[#444] rounded-none">
                     <option value="ALL">ALL CLASSES</option>
-                    <div id="proj-sync" class="font-mono text-[0.7rem] text-[#888] tracking-widest animate-pulse">
-                        [SYNCING]</div>
-                    <button onclick="toggleProjector()"
-                        class="btn btn-sm bg-[#d2b48c] text-black border-none hover:bg-white font-bold tracking-widest rounded-sm">EXIT
-                        PROJECTOR</button>
+                </select>
+                <div id="proj-sync" class="font-mono text-[0.7rem] text-[#888] tracking-widest animate-pulse">[SYNCING]
+                </div>
+                <button onclick="toggleProjector()"
+                    class="btn btn-sm bg-[#d2b48c] text-black border-none hover:bg-white font-bold tracking-widest rounded-sm">
+                    EXIT PROJECTOR
+                </button>
             </div>
-        </header>
 
-        <div id="proj-grid" class="proj-grid">
-            <!-- Injected Projector Cards -->
-        </div>
-    </div>
+
+
 </body>
 
 </html>
