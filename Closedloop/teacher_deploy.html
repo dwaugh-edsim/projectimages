@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MISSION CONTROL // DEPLOY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Oswald:wght@700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020202;
+            color: #e0e0e0;
+            background: radial-gradient(circle at 50% 0%, #0d2828 0%, #020202 70%);
+            min-height: 100vh;
+        }
+
+        .font-display {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 234, 0.1);
+        }
+
+        .kahoot-code {
+            font-size: 5rem;
+            letter-spacing: 0.2em;
+            font-weight: 900;
+            color: #00ffea;
+            text-shadow: 0 0 30px rgba(0, 255, 234, 0.4);
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #00ffea 0%, #ffffff 50%, #00ffea 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+    </style>
+</head>
+
+<body class="p-6 md:p-12">
+
+    <div class="max-w-4xl mx-auto space-y-8">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between border-l-4 border-cyan-400 pl-6 py-2">
+            <div>
+                <h1 class="font-display text-4xl tracking-tighter text-cyan-400 uppercase italic">Command Center</h1>
+                <p class="text-[10px] font-mono opacity-50 uppercase tracking-[0.5em]">Closed Loop Deployment Protocol
+                </p>
+            </div>
+            <div id="auth-status"
+                class="text-[10px] font-mono bg-cyan-900/20 text-cyan-400 px-4 py-2 rounded border border-cyan-400/20">
+                STATUS: OFFLINE
+            </div>
+        </div>
+
+        <!-- Setup Step -->
+        <div id="setup-view" class="space-y-6">
+            <div class="glass p-8 rounded-2xl shadow-2xl space-y-8">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Mission Picker -->
+                    <div class="space-y-4">
+                        <label class="block text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-400/70">1. Select
+                            Strategic Asset</label>
+                        <select id="mission-select"
+                            class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-cyan-400 transition-all font-display text-lg">
+                            <option value="">LOADING ARSENAL...</option>
+                        </select>
+                    </div>
+
+                    <!-- Submission URL -->
+                    <div class="space-y-4">
+                        <label class="block text-[10px] font-mono uppercase tracking-[0.3em] text-cyan-400/70">2.
+                            Intelligence Sink (Apps Script URL)</label>
+                        <input type="text" id="submission-url"
+                            class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-4 text-white focus:outline-none focus:border-cyan-400 transition-all font-mono text-xs"
+                            placeholder="https://script.google.com/macros/s/.../exec">
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center pt-8 border-t border-white/5">
+                    <button id="deploy-btn"
+                        class="group relative px-12 py-6 bg-cyan-500 hover:bg-cyan-400 text-black rounded-full transition-all transform hover:scale-105 active:scale-95 overflow-hidden">
+                        <span class="relative z-10 font-display text-2xl tracking-widest uppercase italic">Generate Join
+                            Code</span>
+                        <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity">
+                        </div>
+                    </button>
+                    <p class="mt-4 text-[10px] font-mono opacity-30 uppercase tracking-widest">Initializes secure
+                        student session</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Live View (Hidden initially) -->
+        <div id="live-view"
+            class="hidden flex flex-col items-center justify-center space-y-12 py-12 animate-in fade-in duration-700">
+            <div class="text-center space-y-2">
+                <h2 class="text-cyan-400 font-display text-6xl tracking-widest italic uppercase shimmer">Mission Active
+                </h2>
+                <p id="active-mission-title" class="font-mono text-sm opacity-50 uppercase tracking-[0.5em]">MISSION
+                    TITLE</p>
+            </div>
+
+            <div
+                class="glass p-16 rounded-[3rem] shadow-[0_0_100px_rgba(0,255,234,0.15)] flex flex-col items-center border-2 border-cyan-400/30">
+                <p class="text-[10px] font-mono opacity-50 uppercase tracking-[1em] mb-4">Student Join Code</p>
+                <div id="display-code" class="kahoot-code font-display italic">--- ---</div>
+                <p class="text-xs font-mono text-cyan-400/70 mt-8 tracking-widest uppercase">Go to Gemini → Enter Code
+                </p>
+            </div>
+
+            <button onclick="window.location.reload()"
+                class="text-[10px] font-mono opacity-30 hover:opacity-100 transition-opacity uppercase tracking-widest border-b border-transparent hover:border-white">Terminating
+                Current Session</button>
+        </div>
+
+    </div>
+
+    <!-- Configuration (Hidden) -->
+    <div id="config-panel" class="hidden">
+        <input type="hidden" id="sb-url" value="https://zwujpkuguevnkcqrkhas.supabase.co">
+        <input type="hidden" id="sb-key"
+            value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3dWpwa3VndWV2bmtjcXJraGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczODA0NDQsImV4cCI6MjA4Mjk1NjQ0NH0.H9tVz_expVsE7VLLLLEsnTMVsm5PQ09r7KlLe85MirA">
+    </div>
+
+    <script>
+        let sb = null;
+
+        async function init() {
+            lucide.createIcons();
+            const url = document.getElementById('sb-url').value;
+            const key = document.getElementById('sb-key').value;
+            sb = supabase.createClient(url, key);
+
+            // Fetch missions for the picker
+            try {
+                const { data, error } = await sb.from('community_catalog').select('id, title').order('created_at', { ascending: false });
+                if (error) throw error;
+
+                const select = document.getElementById('mission-select');
+                select.innerHTML = '<option value="">-- SELECT MISSION --</option>';
+                data.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.title.toUpperCase();
+                    select.appendChild(opt);
+                });
+
+                document.getElementById('auth-status').textContent = 'STATUS: ONLINE';
+                document.getElementById('auth-status').classList.add('text-green-400');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('auth-status').textContent = 'STATUS: DB ERROR';
+                document.getElementById('auth-status').classList.add('text-red-400');
+            }
+        }
+
+        function generateCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 3; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            code += '-';
+            for (let i = 0; i < 3; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
+        document.getElementById('deploy-btn').addEventListener('click', async () => {
+            const missionId = document.getElementById('mission-select').value;
+            const subUrl = document.getElementById('submission-url').value;
+
+            if (!missionId || !subUrl) {
+                alert('Please select a mission and provide a submission URL.');
+                return;
+            }
+
+            const code = generateCode();
+
+            try {
+                const { error } = await sb.from('mission_codes').insert({
+                    code: code,
+                    mission_id: missionId,
+                    submission_url: subUrl,
+                    teacher_id: 'DWAUGH_DEMO'
+                });
+
+                if (error) throw error;
+
+                // Show Live View
+                document.getElementById('setup-view').classList.add('hidden');
+                document.getElementById('live-view').classList.remove('hidden');
+                document.getElementById('display-code').textContent = code;
+                document.getElementById('active-mission-title').textContent = document.getElementById('mission-select').options[document.getElementById('mission-select').selectedIndex].text;
+
+            } catch (err) {
+                alert('Deployment failed: ' + err.message);
+            }
+        });
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>

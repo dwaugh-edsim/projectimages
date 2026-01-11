@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITUATION ROOM // PLAYER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&family=Oswald:wght@700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020202;
+            color: #e0e0e0;
+            background: radial-gradient(circle at 50% 0%, #0d2828 0%, #020202 70%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 234, 0.1);
+        }
+
+        .code-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 234, 0.2);
+            font-size: 3rem;
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .code-input:focus {
+            border-color: #00ffea;
+            box-shadow: 0 0 30px rgba(0, 255, 234, 0.2);
+            outline: none;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+
+    <div class="max-w-xl mx-auto space-y-8 min-h-[90vh] flex flex-col justify-center">
+
+        <!-- JOIN VIEW -->
+        <div id="join-view" class="space-y-8 text-center animate-in fade-in zoom-in duration-500">
+            <div class="space-y-2">
+                <h1 class="font-display text-5xl tracking-[0.2em] text-cyan-400 uppercase italic">Situation Room</h1>
+                <p class="text-[10px] font-mono opacity-50 uppercase tracking-[0.5em]">Enter Authorization Code</p>
+            </div>
+
+            <div class="space-y-4">
+                <input type="text" id="join-code" maxlength="7" placeholder="XXX-XXX"
+                    class="w-full code-input rounded-2xl py-6 text-cyan-400 placeholder-white/5">
+
+                <button id="join-btn"
+                    class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-display text-xl tracking-widest py-6 rounded-2xl transition-all transform active:scale-95 uppercase italic">
+                    Establish Connection
+                </button>
+            </div>
+
+            <p id="error-log" class="text-red-500 font-mono text-[10px] uppercase tracking-widest h-4"></p>
+        </div>
+
+        <!-- PLAYER VIEW (Hidden) -->
+        <div id="player-view" class="hidden space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+
+            <!-- Mission HUD -->
+            <div class="flex justify-between items-center border-l-4 border-cyan-400 pl-4 py-2">
+                <div>
+                    <h2 id="view-mission-title"
+                        class="font-display text-xl tracking-widest text-white uppercase italic">LOADING...</h2>
+                    <p class="text-[8px] font-mono opacity-50 uppercase tracking-[0.3em]">Operational Readiness: ACTIVE
+                    </p>
+                </div>
+                <div
+                    class="text-[10px] font-mono bg-cyan-900/20 text-cyan-400 px-3 py-1 rounded border border-cyan-400/20">
+                    CODE: <span id="view-code">---</span>
+                </div>
+            </div>
+
+            <!-- Media Test (The Proof) -->
+            <div class="glass rounded-xl overflow-hidden shadow-2xl relative">
+                <!-- Direct MP4 Player -->
+                <div class="aspect-video bg-black flex items-center justify-center overflow-hidden">
+                    <video id="test-video" controls class="w-full h-full object-contain"
+                        poster="https://via.placeholder.com/800x450/000000/00ffea?text=ENCRYPTED+MEDIA">
+                        <source id="video-source" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <!-- Image Overlay Overlay (Small) -->
+                <div id="image-test"
+                    class="absolute top-4 right-4 w-24 h-24 rounded-lg border-2 border-white/20 bg-cover bg-center shadow-lg hidden">
+                </div>
+            </div>
+
+            <!-- Interaction -->
+            <div class="glass p-6 rounded-xl space-y-4 border-t-4 border-cyan-400">
+                <p class="text-[10px] font-mono text-cyan-400 uppercase tracking-widest italic">Mission Parameter Check
+                </p>
+                <p class="text-sm font-light leading-relaxed">System test in progress. Please verify you can see the
+                    video feed above and the high-resolution satellite imagery if available. Once verified, signal
+                    completion below.</p>
+
+                <textarea id="test-rationale"
+                    class="w-full bg-black/40 border border-white/10 rounded-lg p-4 font-mono text-xs text-white focus:outline-none focus:border-cyan-400 h-24"
+                    placeholder="Enter test rationale..."></textarea>
+
+                <button id="submit-btn"
+                    class="w-full bg-white text-black font-display text-lg tracking-widest py-4 rounded-xl hover:bg-cyan-400 transition-all uppercase italic">
+                    Finalize Connection
+                </button>
+            </div>
+
+            <div id="status-panel" class="p-4 bg-cyan-900/10 rounded-lg border border-cyan-400/10 hidden">
+                <p id="status-msg" class="text-[9px] font-mono text-cyan-400 uppercase tracking-[0.2em]"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DB Config -->
+    <div id="cb-config" class="hidden">
+        <input type="hidden" id="sb-url" value="https://zwujpkuguevnkcqrkhas.supabase.co">
+        <input type="hidden" id="sb-key"
+            value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3dWpwa3VndWV2bmtjcXJraGFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczODA0NDQsImV4cCI6MjA4Mjk1NjQ0NH0.H9tVz_expVsE7VLLLLEsnTMVsm5PQ09r7KlLe85MirA">
+    </div>
+
+    <script>
+        let sb = null;
+        let activeCode = '';
+        let submissionUrl = '';
+        let missionData = null;
+
+        async function init() {
+            lucide.createIcons();
+            sb = supabase.createClient(document.getElementById('sb-url').value, document.getElementById('sb-key').value);
+        }
+
+        async function join() {
+            const codeInput = document.getElementById('join-code').value.toUpperCase().trim();
+            const errorLog = document.getElementById('error-log');
+            errorLog.textContent = 'CONNECTING...';
+
+            try {
+                // 1. Fetch Code Data
+                const { data: codeData, error: codeError } = await sb.from('mission_codes').select('*').eq('code', codeInput).single();
+                if (codeError || !codeData) throw new Error('AUTHORIZATION REVOKED: INVALID CODE');
+
+                submissionUrl = codeData.submission_url;
+                activeCode = codeInput;
+
+                // 2. Fetch Full Mission Blob
+                const { data: mData, error: mError } = await sb.from('community_catalog').select('title, payload').eq('id', codeData.mission_id).single();
+                if (mError) throw new Error('MISSION ASSET RECOVERY FAILED');
+
+                missionData = mData.payload;
+
+                // 3. UI Transition
+                document.getElementById('join-view').classList.add('hidden');
+                document.getElementById('player-view').classList.remove('hidden');
+
+                document.getElementById('view-mission-title').textContent = mData.title.toUpperCase();
+                document.getElementById('view-code').textContent = activeCode;
+
+                // 4. Test Content Injection
+                // We'll look for media in the first slide for the test
+                const firstSlide = missionData.slides?.[0];
+                const testMedia = firstSlide?.tabs?.primary?.mediaURL || firstSlide?.tabs?.primary?.image || '';
+
+                if (testMedia.toLowerCase().endsWith('.mp4')) {
+                    const video = document.getElementById('test-video');
+                    document.getElementById('video-source').src = testMedia;
+                    video.load();
+                } else if (testMedia) {
+                    const imgTest = document.getElementById('image-test');
+                    imgTest.style.backgroundImage = `url('${testMedia}')`;
+                    imgTest.classList.remove('hidden');
+                }
+
+            } catch (err) {
+                errorLog.textContent = err.message;
+            }
+        }
+
+        async function submit() {
+            const statusPanel = document.getElementById('status-panel');
+            const statusMsg = document.getElementById('status-msg');
+            const rationale = document.getElementById('test-rationale').value;
+
+            statusPanel.classList.remove('hidden');
+            statusMsg.textContent = 'TRANSMITTING TO TIER 1 SINK...';
+
+            const payload = {
+                studentName: "SYSTEM_TEST_PROBE",
+                missionTitle: document.getElementById('view-mission-title').textContent,
+                code: activeCode,
+                rationale: rationale,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(submissionUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // Google Apps Script requires this for cross-domain POST if not returning specific CORS
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                statusMsg.textContent = 'TRANSMISSION COMPLETE: ACK RECEIVED';
+                statusMsg.classList.add('text-green-400');
+            } catch (err) {
+                statusMsg.textContent = 'UPLINK FAILURE: ' + err.message;
+                statusMsg.classList.add('text-red-400');
+            }
+        }
+
+        document.getElementById('join-btn').addEventListener('click', join);
+        document.getElementById('submit-btn').addEventListener('click', submit);
+
+        // Auto-hyphenate code input
+        document.getElementById('join-code').addEventListener('input', (e) => {
+            let val = e.target.value.replace(/-/g, '');
+            if (val.length > 3) {
+                val = val.substring(0, 3) + '-' + val.substring(3, 6);
+            }
+            e.target.value = val.toUpperCase();
+        });
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>
