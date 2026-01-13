@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Bot - Collaborative AI Creation</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Mammoth.js for .docx files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <!-- pdf.js for .pdf files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- SheetJS for .xlsx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --llm1-color: #3b82f6;
+            --llm2-color: #ec4899;
+            --boss-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0, transparent 50%);
+        }
+
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: white;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.2rem;
+        }
+
+        #main-app {
+            display: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .upload-zone.active {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--accent);
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            cursor: pointer;
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 0.5rem;
+            background-color: var(--glass-bg);
+            color: white;
+            border: 1px solid var(--border);
+        }
+
+        select option {
+            background-color: #1e293b;
+            color: white;
+            padding: 0.5rem;
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        #results {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .content-display {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .content-display h1,
+        .content-display h2,
+        .content-display h3 {
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-main);
+        }
+
+        .content-display ul,
+        .content-display ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content-display table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .content-display th,
+        .content-display td {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .content-display th {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        /* Phase Cards */
+        .phase-card {
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .phase-card.llm1 {
+            border-left-color: var(--llm1-color);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .phase-card.llm2 {
+            border-left-color: var(--llm2-color);
+            background: rgba(236, 72, 153, 0.05);
+        }
+
+        .phase-card.boss {
+            border-left-color: var(--boss-color);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .phase-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .llm1 .phase-badge {
+            background: var(--llm1-color);
+        }
+
+        .llm2 .phase-badge {
+            background: var(--llm2-color);
+        }
+
+        .boss .phase-badge {
+            background: var(--boss-color);
+            color: #000;
+        }
+
+        .phase-status {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #eab308 100%);
+            color: #000;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-circle.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            animation: pulse 1s infinite;
+        }
+
+        .step-circle.complete {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 80px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading .spinner {
+            display: inline-block;
+        }
+
+        .loading span {
+            opacity: 0;
+        }
+
+        .doc-list {
+            margin-top: 1rem;
+        }
+
+        .doc-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-item .name {
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 5000px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">🧠 Idea Bot</h1>
+            <p style="color: var(--text-dim);">Enter your credentials</p>
+            <input type="text" id="userInput" class="login-input" placeholder="Username"
+                style="margin-bottom: 0; letter-spacing: normal;">
+            <input type="password" id="passInput" class="login-input" placeholder="Password">
+            <button class="btn-submit" id="loginBtn">Unlock</button>
+            <p id="loginError" style="color: #ef4444; margin-top: 1rem; display: none;">Incorrect credentials. Try
+                again.</p>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="container">
+            <header>
+                <h1>🧠 Idea Bot</h1>
+                <p class="subtitle">Two AI minds compete, critique, and refine — then the Final Boss picks the winner
+                </p>
+            </header>
+
+            <div class="card">
+                <div class="form-group">
+                    <label>📝 Task Description</label>
+                    <textarea id="taskDescription" placeholder="Describe what you want created. For example:
+
+• Write a 10-question quiz about photosynthesis for Grade 8 students
+• Create a lesson plan on the French Revolution (45 minutes, include activities)
+• Design a rubric for evaluating creative writing essays
+• Generate discussion questions about climate change for college freshmen"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>📎 Supporting Documents (Optional)</label>
+                    <div class="upload-zone" id="docsZone">
+                        <span class="upload-icon">📄</span>
+                        <p>Drop documents here or click to upload</p>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">PDF, DOCX, TXT, XLSX supported • Multiple
+                            files allowed</p>
+                        <input type="file" id="docsFile" accept=".docx,.txt,.pdf,.xlsx,.csv" multiple
+                            style="display:none">
+                        <div class="file-info" id="docsInfo"></div>
+                    </div>
+                    <div id="docsList" class="doc-list"></div>
+                    <textarea id="docsText" placeholder="Or paste reference content here..."
+                        style="min-height: 100px; margin-top: 0.5rem;"></textarea>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label style="color: var(--llm1-color);">🔵 Contender 1</label>
+                        <select id="modelSelect1">
+                            <option value="xiaomi/mimo-v2-flash:free" selected>MIMo v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                            <option value="openai/gpt-oss-120b">GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="color: var(--llm2-color);">🟣 Contender 2</label>
+                        <select id="modelSelect2">
+                            <option value="xiaomi/mimo-v2-flash:free">MIMo v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free" selected>Llama 3.3 70B (Free)
+                            </option>
+                            <option value="openai/gpt-oss-120b">GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="color: var(--boss-color);">👑 Final Boss</label>
+                        <select id="modelSelectBoss">
+                            <option value="xiaomi/mimo-v2-flash:free">MIMo v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                            <option value="openai/gpt-oss-120b" selected>GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-submit" id="submitBtn">
+                    <span>🚀 Start Idea Battle</span>
+                    <div class="spinner"></div>
+                </button>
+            </div>
+
+            <div id="results" class="card">
+                <div class="results-header">
+                    <h3>⚔️ Idea Battle Arena</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-secondary" id="downloadBtn"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                            📥 Download Results
+                        </button>
+                        <button class="btn-secondary" id="clearBtn"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; color: #ef4444;">
+                            🗑️ Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-steps">
+                        <div class="progress-step">
+                            <div class="step-circle" id="step1">1</div>
+                            <span class="step-label">Initial Drafts</span>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-circle" id="step2">2</div>
+                            <span class="step-label">Critique Pass 1</span>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-circle" id="step3">3</div>
+                            <span class="step-label">Revision 1</span>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-circle" id="step4">4</div>
+                            <span class="step-label">Critique Pass 2</span>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-circle" id="step5">5</div>
+                            <span class="step-label">Revision 2</span>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-circle" id="step6">👑</div>
+                            <span class="step-label">Final Boss</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="battleOutput">
+                    <!-- Battle phases appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PROXY_URL = 'https://nextjs-basic-lemon-one.vercel.app/api/chat';
+
+        // State
+        let supportingDocs = []; // { name, text }
+
+        // Elements
+        const taskDescription = document.getElementById('taskDescription');
+        const docsZone = document.getElementById('docsZone');
+        const docsFile = document.getElementById('docsFile');
+        const docsInfo = document.getElementById('docsInfo');
+        const docsList = document.getElementById('docsList');
+        const docsText = document.getElementById('docsText');
+        const modelSelect1 = document.getElementById('modelSelect1');
+        const modelSelect2 = document.getElementById('modelSelect2');
+        const modelSelectBoss = document.getElementById('modelSelectBoss');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsArea = document.getElementById('results');
+        const battleOutput = document.getElementById('battleOutput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // File Upload Handling
+        docsZone.onclick = () => docsFile.click();
+
+        docsZone.ondragover = (e) => {
+            e.preventDefault();
+            docsZone.classList.add('active');
+        };
+
+        docsZone.ondragleave = () => docsZone.classList.remove('active');
+
+        docsZone.ondrop = (e) => {
+            e.preventDefault();
+            docsZone.classList.remove('active');
+            Array.from(e.dataTransfer.files).forEach(handleFile);
+        };
+
+        docsFile.onchange = (e) => {
+            Array.from(e.target.files).forEach(handleFile);
+        };
+
+        async function handleFile(file) {
+            docsInfo.innerText = `Reading: ${file.name}...`;
+            docsInfo.style.display = 'block';
+
+            try {
+                let text = "";
+                if (file.name.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    text = result.value;
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = "";
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const strings = content.items.map(item => item.str);
+                        fullText += strings.join(" ") + "\n";
+                    }
+                    text = fullText;
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.csv')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    let fullText = "";
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        fullText += `--- Sheet: ${sheetName} ---\n`;
+                        fullText += XLSX.utils.sheet_to_txt(worksheet) + "\n\n";
+                    });
+                    text = fullText;
+                } else {
+                    text = await file.text();
+                }
+
+                supportingDocs.push({ name: file.name, text });
+                updateDocsList();
+                docsInfo.innerText = `Loaded: ${file.name}`;
+                docsInfo.style.color = 'var(--accent)';
+            } catch (err) {
+                console.error(err);
+                docsInfo.innerText = `Error reading ${file.name}`;
+                docsInfo.style.color = '#ef4444';
+            }
+        }
+
+        function updateDocsList() {
+            docsList.innerHTML = '';
+            supportingDocs.forEach((doc, index) => {
+                const item = document.createElement('div');
+                item.className = 'doc-item';
+                item.innerHTML = `
+                    <span class="name">📄 ${doc.name}</span>
+                    <button class="remove-btn" onclick="removeDoc(${index})">Remove</button>
+                `;
+                docsList.appendChild(item);
+            });
+        }
+
+        window.removeDoc = (index) => {
+            supportingDocs.splice(index, 1);
+            updateDocsList();
+        };
+
+        // Progress Step Management
+        function setStepActive(stepNum) {
+            for (let i = 1; i <= 6; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'complete');
+                if (i < stepNum) step.classList.add('complete');
+                if (i === stepNum) step.classList.add('active');
+            }
+        }
+
+        function setStepComplete(stepNum) {
+            const step = document.getElementById(`step${stepNum}`);
+            step.classList.remove('active');
+            step.classList.add('complete');
+        }
+
+        // API Call
+        async function callLLM(prompt, model) {
+            const response = await fetch(PROXY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: prompt, model: model })
+            });
+            const data = await response.json();
+            if (data.choices && data.choices[0]) {
+                return data.choices[0].message.content;
+            }
+            throw new Error(data.error?.message || 'Unknown API Error');
+        }
+
+        // Create Phase Card
+        function createPhaseCard(id, type, title) {
+            const card = document.createElement('div');
+            card.className = `phase-card ${type}`;
+            card.id = id;
+            card.innerHTML = `
+                <div class="phase-header collapsible" onclick="toggleCollapse('${id}-content', '${id}-toggle')">
+                    <span class="phase-badge">${type === 'llm1' ? 'Contender 1' : type === 'llm2' ? 'Contender 2' : 'Final Boss'}</span>
+                    <span>${title}</span>
+                    <span class="toggle-icon" id="${id}-toggle" style="margin-left: auto;">▼</span>
+                </div>
+                <div class="phase-status" id="${id}-status">Waiting...</div>
+                <div class="collapsible-content expanded" id="${id}-content">
+                    <div class="content-display" id="${id}-output">—</div>
+                </div>
+            `;
+            return card;
+        }
+
+        window.toggleCollapse = (contentId, toggleId) => {
+            const content = document.getElementById(contentId);
+            const toggle = document.getElementById(toggleId);
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('rotated');
+        };
+
+        // Main Battle Logic
+        submitBtn.onclick = async () => {
+            const task = taskDescription.value.trim();
+            if (!task) {
+                alert('Please describe your task.');
+                return;
+            }
+
+            const docsContent = [
+                ...supportingDocs.map(d => `### ${d.name}\n${d.text}`),
+                docsText.value.trim()
+            ].filter(Boolean).join('\n\n');
+
+            const model1 = modelSelect1.value;
+            const model2 = modelSelect2.value;
+            const bossModel = modelSelectBoss.value;
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            resultsArea.style.display = 'block';
+            battleOutput.innerHTML = '';
+
+            // Reset steps
+            for (let i = 1; i <= 6; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'complete');
+            }
+
+            const sessionId = Date.now();
+
+            try {
+                // ===== STEP 1: Initial Drafts =====
+                setStepActive(1);
+
+                const card1a = createPhaseCard(`draft1-${sessionId}`, 'llm1', 'Initial Draft');
+                const card1b = createPhaseCard(`draft2-${sessionId}`, 'llm2', 'Initial Draft');
+                battleOutput.appendChild(card1a);
+                battleOutput.appendChild(card1b);
+
+                const initialPrompt = (contenderName) => `
+You are ${contenderName}, a creative and thorough content creator.
+
+### TASK
+${task}
+
+${docsContent ? `### SUPPORTING DOCUMENTS\n${docsContent}` : ''}
+
+### INSTRUCTIONS
+Create a complete, high-quality response to the task. Be thorough, creative, and professional.
+Format your output with clear structure using headings, bullet points, or numbered lists as appropriate.
+`;
+
+                document.getElementById(`draft1-${sessionId}-status`).innerText = 'Generating initial draft...';
+                document.getElementById(`draft2-${sessionId}-status`).innerText = 'Generating initial draft...';
+
+                const [draft1, draft2] = await Promise.all([
+                    callLLM(initialPrompt('Contender 1'), model1),
+                    callLLM(initialPrompt('Contender 2'), model2)
+                ]);
+
+                document.getElementById(`draft1-${sessionId}-output`).innerHTML = marked.parse(draft1);
+                document.getElementById(`draft1-${sessionId}-status`).innerText = '✓ Draft complete';
+                document.getElementById(`draft2-${sessionId}-output`).innerHTML = marked.parse(draft2);
+                document.getElementById(`draft2-${sessionId}-status`).innerText = '✓ Draft complete';
+
+                setStepComplete(1);
+
+                // ===== STEP 2: Critique Pass 1 =====
+                setStepActive(2);
+
+                const card2a = createPhaseCard(`critique1a-${sessionId}`, 'llm2', 'Critique of Contender 1');
+                const card2b = createPhaseCard(`critique1b-${sessionId}`, 'llm1', 'Critique of Contender 2');
+                battleOutput.appendChild(card2a);
+                battleOutput.appendChild(card2b);
+
+                const critiquePrompt = (otherDraft, critiquerName) => `
+You are ${critiquerName}, a thorough reviewer.
+
+### ORIGINAL TASK
+${task}
+
+### WORK TO CRITIQUE
+${otherDraft}
+
+### INSTRUCTIONS
+Provide constructive critique:
+1. Identify 2-3 specific strengths
+2. Identify 2-3 specific weaknesses or gaps
+3. Suggest 2-3 concrete improvements
+Be specific and actionable. Reference particular parts of the work.
+`;
+
+                document.getElementById(`critique1a-${sessionId}-status`).innerText = 'Analyzing work...';
+                document.getElementById(`critique1b-${sessionId}-status`).innerText = 'Analyzing work...';
+
+                const [crit1of2, crit2of1] = await Promise.all([
+                    callLLM(critiquePrompt(draft2, 'Contender 1'), model1),
+                    callLLM(critiquePrompt(draft1, 'Contender 2'), model2)
+                ]);
+
+                document.getElementById(`critique1a-${sessionId}-output`).innerHTML = marked.parse(crit2of1);
+                document.getElementById(`critique1a-${sessionId}-status`).innerText = '✓ Critique complete';
+                document.getElementById(`critique1b-${sessionId}-output`).innerHTML = marked.parse(crit1of2);
+                document.getElementById(`critique1b-${sessionId}-status`).innerText = '✓ Critique complete';
+
+                setStepComplete(2);
+
+                // ===== STEP 3: Revision 1 =====
+                setStepActive(3);
+
+                const card3a = createPhaseCard(`rev1a-${sessionId}`, 'llm1', 'Revision 1');
+                const card3b = createPhaseCard(`rev1b-${sessionId}`, 'llm2', 'Revision 1');
+                battleOutput.appendChild(card3a);
+                battleOutput.appendChild(card3b);
+
+                const revisionPrompt = (myDraft, critique, contenderName) => `
+You are ${contenderName}. Your opponent has critiqued your work.
+
+### ORIGINAL TASK
+${task}
+
+### YOUR PREVIOUS DRAFT
+${myDraft}
+
+### OPPONENT'S CRITIQUE
+${critique}
+
+### INSTRUCTIONS
+Revise your work to address the valid points in the critique.
+- Keep what was praised as strengths
+- Improve the areas identified as weaknesses
+- Incorporate the suggested improvements where appropriate
+Output the complete revised version (not just changes).
+`;
+
+                document.getElementById(`rev1a-${sessionId}-status`).innerText = 'Revising based on critique...';
+                document.getElementById(`rev1b-${sessionId}-status`).innerText = 'Revising based on critique...';
+
+                const [rev1_1, rev1_2] = await Promise.all([
+                    callLLM(revisionPrompt(draft1, crit2of1, 'Contender 1'), model1),
+                    callLLM(revisionPrompt(draft2, crit1of2, 'Contender 2'), model2)
+                ]);
+
+                document.getElementById(`rev1a-${sessionId}-output`).innerHTML = marked.parse(rev1_1);
+                document.getElementById(`rev1a-${sessionId}-status`).innerText = '✓ Revision complete';
+                document.getElementById(`rev1b-${sessionId}-output`).innerHTML = marked.parse(rev1_2);
+                document.getElementById(`rev1b-${sessionId}-status`).innerText = '✓ Revision complete';
+
+                setStepComplete(3);
+
+                // ===== STEP 4: Critique Pass 2 =====
+                setStepActive(4);
+
+                const card4a = createPhaseCard(`critique2a-${sessionId}`, 'llm2', 'Second Critique of Contender 1');
+                const card4b = createPhaseCard(`critique2b-${sessionId}`, 'llm1', 'Second Critique of Contender 2');
+                battleOutput.appendChild(card4a);
+                battleOutput.appendChild(card4b);
+
+                document.getElementById(`critique2a-${sessionId}-status`).innerText = 'Analyzing revised work...';
+                document.getElementById(`critique2b-${sessionId}-status`).innerText = 'Analyzing revised work...';
+
+                const [crit2_1of2, crit2_2of1] = await Promise.all([
+                    callLLM(critiquePrompt(rev1_2, 'Contender 1'), model1),
+                    callLLM(critiquePrompt(rev1_1, 'Contender 2'), model2)
+                ]);
+
+                document.getElementById(`critique2a-${sessionId}-output`).innerHTML = marked.parse(crit2_2of1);
+                document.getElementById(`critique2a-${sessionId}-status`).innerText = '✓ Critique complete';
+                document.getElementById(`critique2b-${sessionId}-output`).innerHTML = marked.parse(crit2_1of2);
+                document.getElementById(`critique2b-${sessionId}-status`).innerText = '✓ Critique complete';
+
+                setStepComplete(4);
+
+                // ===== STEP 5: Revision 2 (Final) =====
+                setStepActive(5);
+
+                const card5a = createPhaseCard(`rev2a-${sessionId}`, 'llm1', 'Final Revision');
+                const card5b = createPhaseCard(`rev2b-${sessionId}`, 'llm2', 'Final Revision');
+                battleOutput.appendChild(card5a);
+                battleOutput.appendChild(card5b);
+
+                document.getElementById(`rev2a-${sessionId}-status`).innerText = 'Preparing final version...';
+                document.getElementById(`rev2b-${sessionId}-status`).innerText = 'Preparing final version...';
+
+                const [final1, final2] = await Promise.all([
+                    callLLM(revisionPrompt(rev1_1, crit2_2of1, 'Contender 1'), model1),
+                    callLLM(revisionPrompt(rev1_2, crit2_1of2, 'Contender 2'), model2)
+                ]);
+
+                document.getElementById(`rev2a-${sessionId}-output`).innerHTML = marked.parse(final1);
+                document.getElementById(`rev2a-${sessionId}-status`).innerText = '✓ Final version ready';
+                document.getElementById(`rev2b-${sessionId}-output`).innerHTML = marked.parse(final2);
+                document.getElementById(`rev2b-${sessionId}-status`).innerText = '✓ Final version ready';
+
+                setStepComplete(5);
+
+                // ===== STEP 6: Final Boss Decision =====
+                setStepActive(6);
+
+                const bossCard = createPhaseCard(`boss-${sessionId}`, 'boss', 'Final Judgement');
+                battleOutput.appendChild(bossCard);
+
+                const bossPrompt = `
+You are the Final Boss, an impartial expert judge.
+
+### ORIGINAL TASK
+${task}
+
+### CONTENDER 1's FINAL SUBMISSION
+${final1}
+
+### CONTENDER 2's FINAL SUBMISSION
+${final2}
+
+### YOUR TASK
+1. Compare both submissions against the original task requirements
+2. Evaluate on: Completeness, Accuracy, Creativity, Clarity, and Usefulness
+3. Declare a WINNER (Contender 1 or Contender 2)
+4. Explain your reasoning with specific examples from each submission
+5. Provide a final combined "Best Version" that takes the best elements from both
+
+### OUTPUT FORMAT
+## 🏆 Winner: [Contender 1 or Contender 2]
+
+### Comparison Table
+| Criteria | Contender 1 | Contender 2 |
+|----------|-------------|-------------|
+| Completeness | X/10 | X/10 |
+| Accuracy | X/10 | X/10 |
+| Creativity | X/10 | X/10 |
+| Clarity | X/10 | X/10 |
+| Usefulness | X/10 | X/10 |
+| **TOTAL** | X/50 | X/50 |
+
+### Reasoning
+[Explain your decision]
+
+### 🎯 Best Combined Version
+[The ultimate refined output taking the best from both]
+`;
+
+                document.getElementById(`boss-${sessionId}-status`).innerText = 'The Final Boss is deliberating...';
+
+                const bossDecision = await callLLM(bossPrompt, bossModel);
+
+                document.getElementById(`boss-${sessionId}-output`).innerHTML = marked.parse(bossDecision);
+                document.getElementById(`boss-${sessionId}-status`).innerText = '👑 Judgement rendered!';
+
+                setStepComplete(6);
+
+            } catch (error) {
+                console.error(error);
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;';
+                errorDiv.innerText = `Error: ${error.message}`;
+                battleOutput.appendChild(errorDiv);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        };
+
+        // Download Results
+        downloadBtn.onclick = () => {
+            const content = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Idea Bot Results - ${new Date().toLocaleDateString()}</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; max-width: 1200px; margin: 0 auto; background: #f9fafb; }
+        h1 { color: #8b5cf6; }
+        .phase-card { border-left: 4px solid #8b5cf6; padding: 20px; margin: 20px 0; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .phase-card.llm1 { border-left-color: #3b82f6; }
+        .phase-card.llm2 { border-left-color: #ec4899; }
+        .phase-card.boss { border-left-color: #f59e0b; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+        th { background: #f3f4f6; }
+        .task-box { background: #ede9fe; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Idea Bot Results</h1>
+    <p>Generated: ${new Date().toLocaleString()}</p>
+    <div class="task-box">
+        <h3>Original Task</h3>
+        <p>${taskDescription.value.replace(/\n/g, '<br>')}</p>
+    </div>
+    ${battleOutput.innerHTML}
+</body>
+</html>`;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ideabot-results-${new Date().toISOString().slice(0, 10)}.html`;
+            a.click();
+        };
+
+        // Clear Results
+        clearBtn.onclick = () => {
+            if (confirm('Clear all results?')) {
+                battleOutput.innerHTML = '';
+                for (let i = 1; i <= 6; i++) {
+                    document.getElementById(`step${i}`).classList.remove('active', 'complete');
+                }
+            }
+        };
+
+        // Password Protection
+        const loginScreen = document.getElementById('login-screen');
+        const mainApp = document.getElementById('main-app');
+        const userInput = document.getElementById('userInput');
+        const passInput = document.getElementById('passInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        const AUTH = {
+            u: "27ee214296dc1594df8a89279fd8072d281b03c0862d57723f7d2b65b2509672",
+            p: "1cab0987b84b8000bf5e29a1178dbd0b778c0118a47a9bff4a5e0cd4a73c6fee"
+        };
+
+        async function hash(str) {
+            const msgUint8 = new TextEncoder().encode(String(str));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function checkLogin() {
+            if (sessionStorage.getItem('ideabot_verified') === 'true') {
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+            }
+        }
+
+        loginBtn.onclick = async () => {
+            const u = await hash(userInput.value.trim().toLowerCase());
+            const p = await hash(passInput.value.trim());
+            if (u === AUTH.u && p === AUTH.p) {
+                sessionStorage.setItem('ideabot_verified', 'true');
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+            } else {
+                loginError.style.display = 'block';
+                passInput.value = "";
+                passInput.focus();
+            }
+        };
+
+        [userInput, passInput].forEach(el => {
+            el.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+        });
+
+        checkLogin();
+    </script>
+
+</body>
+
+</html>

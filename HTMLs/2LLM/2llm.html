@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Marking Assistant</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Mammoth.js for .docx files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <!-- pdf.js for .pdf files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // Set worker path for pdf.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <!-- SheetJS for .xlsx and .pptx (basic text) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* CSS variables and Reset */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --accent: #10b981;
+            --warning: #f59e0b;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.6rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: white;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 0.2rem;
+        }
+
+        #main-app {
+            display: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            margin-bottom: 1rem;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-zone.active {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--accent);
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results Area */
+        #results {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            background: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .content-display {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .content-display table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .content-display th,
+        .content-display td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-display th {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .content-display tr:last-child td {
+            border-bottom: none;
+        }
+
+        .content-display h1,
+        .content-display h2,
+        .content-display h3 {
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-main);
+        }
+
+        .content-display ul,
+        .content-display ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .student-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-list {
+            margin-top: 1rem;
+        }
+
+        .student-item .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .test-btn {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        /* Select styling fixes for visibility */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: #1e293b;
+            /* Dark background for the dropdown list */
+            color: white;
+            padding: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading .spinner {
+            display: inline-block;
+        }
+
+        .loading span {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Secure Access</h1>
+            <p style="color: var(--text-dim);">Enter your credentials</p>
+            <input type="text" id="userInput" class="login-input" placeholder="Username"
+                style="margin-bottom: 0; letter-spacing: normal;">
+            <input type="password" id="passInput" class="login-input" placeholder="Password">
+            <button class="btn-submit" id="loginBtn">Unlock Tool</button>
+            <p id="loginError" style="color: #ef4444; margin-top: 1rem; display: none;">Incorrect credentials. Try
+                again.</p>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="container">
+            <header>
+                <h1>Marking Bot</h1>
+                <p class="subtitle">Intelligent Assessment & Feedback powered by AI</p>
+            </header>
+
+            <div class="card">
+                <div class="grid">
+                    <div class="form-group">
+                        <label>Assignment Description</label>
+                        <div class="upload-zone" id="assignmentZone">
+                            <span class="upload-icon">📄</span>
+                            <p>Drop assignment doc or click to upload</p>
+                            <input type="file" id="assignmentFile" accept=".docx,.txt,.pdf,.pptx,.xlsx"
+                                style="display:none">
+                            <div class="file-info" id="assignmentInfo"></div>
+                        </div>
+                        <textarea id="assignmentText" placeholder="Or paste description here..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rubric</label>
+                        <div class="upload-zone" id="rubricZone">
+                            <span class="upload-icon">📊</span>
+                            <p>Drop rubric doc or click to upload</p>
+                            <input type="file" id="rubricFile" accept=".docx,.txt,.pdf,.pptx,.xlsx"
+                                style="display:none">
+                            <div class="file-info" id="rubricInfo"></div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem; margin-bottom: 0.5rem;">
+                            <input type="text" id="rubricGuidance"
+                                placeholder="Guidance (e.g. emphasize concept, ignore spacing)"
+                                style="flex: 1; padding: 0.6rem; border-radius: 0.4rem; background: var(--glass-bg); color: white; border: 1px solid var(--border); font-size: 0.9rem;">
+                            <button class="btn-submit" id="genRubricBtn"
+                                style="width: auto; padding: 0.6rem 1rem; font-size: 0.85rem; margin: 0; background: var(--primary);">
+                                <span>Gen Rubric ✨</span>
+                            </button>
+                        </div>
+                        <textarea id="rubricText" placeholder="Or paste rubric here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Student Work (Batch up to 100)</label>
+                    <div class="upload-zone" id="workZone">
+                        <span class="upload-icon">🎓</span>
+                        <p>Drop student work files or click to upload (multiple allowed)</p>
+                        <input type="file" id="workFile" accept=".docx,.txt,.pdf,.pptx,.xlsx" multiple
+                            style="display:none">
+                        <div class="file-info" id="workInfo"></div>
+                    </div>
+                    <div id="studentFileList" class="student-list"></div>
+                    <textarea id="workText" placeholder="Or paste student work here (for a single student)..."
+                        style="display:none"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Assessment Instructions</label>
+                    <select id="instructionPreset"
+                        style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; background: var(--glass-bg); color: white; border: 1px solid var(--border); margin-bottom: 0.5rem;">
+                        <option value="detailed">Detailed Analysis (Pro)</option>
+                        <option value="generic" selected>Generic Table (Brief)</option>
+                        <option value="custom">Custom Instructions...</option>
+                    </select>
+                    <textarea id="assessmentInstructions"
+                        placeholder="Enter custom instructions for the AI here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Live Marking Guidance (Updates during session)</label>
+                    <textarea id="markingGuidance"
+                        placeholder="Enter specific guidance as you mark (e.g. 'Award 2 marks for mention of inflation', 'Ignore formatting errors')"></textarea>
+                </div>
+
+                <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>Teacher A</label>
+                        <select id="modelSelect"
+                            style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; background: var(--glass-bg); color: white; border: 1px solid var(--border);">
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="xiaomi/mimo-v2-flash:free" selected>MIMO v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                            <option value="openai/gpt-oss-120b">GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Teacher B</label>
+                        <select id="modelSelectB"
+                            style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; background: var(--glass-bg); color: white; border: 1px solid var(--border);">
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="xiaomi/mimo-v2-flash:free">MIMO v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free" selected>Llama 3.3 70B (Free)
+                            </option>
+                            <option value="openai/gpt-oss-120b">GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lead Moderator</label>
+                        <select id="modelSelectC"
+                            style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; background: var(--glass-bg); color: white; border: 1px solid var(--border);">
+                            <option value="allenai/olmo-3.1-32b-think:free">OLMo 3.1 32B Think (Free)</option>
+                            <option value="xiaomi/mimo-v2-flash:free">MIMO v2 Flash (Free)</option>
+                            <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash Exp (Free)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Free)</option>
+                            <option value="openai/gpt-oss-120b" selected>GPT-OSS 120B (Free)</option>
+                            <option value="mistralai/devstral-2512:free">Mistral Devstral 2512 (Free)</option>
+                            <option value="nex-agi/deepseek-v3.1-nex-n1:free">DeepSeek v3.1 Nex-N1 (Free)</option>
+                            <option value="tngtech/deepseek-r1t2-chimera:free">DeepSeek R1T2 Chimera (Free)</option>
+                            <option value="z-ai/glm-4.5-air:free">GLM 4.5 Air (Free)</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="btn-submit" id="submitBtn" style="flex: 2;">
+                <span>Generate Assessments</span>
+                <div class="spinner"></div>
+            </button>
+            <button class="btn-secondary" id="saveSessionBtn" title="Save session to file">
+                <span>💾 Save Set</span>
+            </button>
+            <button class="btn-secondary" id="loadSessionBtn" title="Load session from file">
+                <span>📂 Load Set</span>
+            </button>
+            <input type="file" id="sessionFile" accept=".json" style="display: none;">
+        </div>
+    </div>
+
+    <div id="results" class="card">
+        <div class="results-header">
+            <h3>Cumulative Assessment Log</h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-secondary" id="downloadResultsBtn"
+                    style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                    📥 Download HTML Report
+                </button>
+                <button class="btn-secondary" id="clearResultsBtn"
+                    style="padding: 0.4rem 0.8rem; font-size: 0.8rem; color: #ef4444;">
+                    🗑️ Clear All
+                </button>
+            </div>
+        </div>
+        <div id="assessmentOutput">
+            <!-- Cumulative results appear here -->
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Configuration
+        const PROXY_URL = 'https://nextjs-basic-lemon-one.vercel.app/api/chat';
+
+        // Elements
+        const dropZones = {
+            assignment: document.getElementById('assignmentZone'),
+            rubric: document.getElementById('rubricZone'),
+            work: document.getElementById('workZone')
+        };
+        const studentFileList = document.getElementById('studentFileList');
+        let studentWorks = []; // Array of { name, text }
+
+        const fileInputs = {
+            assignment: document.getElementById('assignmentFile'),
+            rubric: document.getElementById('rubricFile'),
+            work: document.getElementById('workFile')
+        };
+
+        const textAreas = {
+            assignment: document.getElementById('assignmentText'),
+            rubric: document.getElementById('rubricText'),
+            work: document.getElementById('workText')
+        };
+
+        const fileInfos = {
+            assignment: document.getElementById('assignmentInfo'),
+            rubric: document.getElementById('rubricInfo'),
+            work: document.getElementById('workInfo')
+        };
+
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsArea = document.getElementById('results');
+        const output = document.getElementById('assessmentOutput');
+        const modelSelect = document.getElementById('modelSelect');
+        const modelSelectB = document.getElementById('modelSelectB');
+        const modelSelectC = document.getElementById('modelSelectC');
+        const genRubricBtn = document.getElementById('genRubricBtn');
+        const rubricGuidance = document.getElementById('rubricGuidance');
+        const instructionPreset = document.getElementById('instructionPreset');
+        const instructionsText = document.getElementById('assessmentInstructions');
+        const markingGuidance = document.getElementById('markingGuidance');
+        const saveSessionBtn = document.getElementById('saveSessionBtn');
+        const loadSessionBtn = document.getElementById('loadSessionBtn');
+        const sessionFileInput = document.getElementById('sessionFile');
+        const downloadResultsBtn = document.getElementById('downloadResultsBtn');
+        const clearResultsBtn = document.getElementById('clearResultsBtn');
+        const demoBtn = document.createElement('button');
+        demoBtn.innerText = "Load Demo Data";
+        demoBtn.style.cssText = "background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-dim); padding: 0.5rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; cursor: pointer; font-size: 0.8rem;";
+        demoBtn.onclick = loadDemo;
+        document.querySelector('.card').prepend(demoBtn);
+
+        function loadDemo() {
+            textAreas.assignment.value = "Essay on the Impact of AI in Education. Students should analyze both benefits (personalization, efficiency) and risks (privacy, bias). Length: 500-800 words.";
+            textAreas.rubric.value = "1. Content Accuracy (40%): Depth of analysis on AI benefits/risks.\n2. Structure (30%): Clear intro, body, and conclusion.\n3. Grammar & Style (30%): Proper academic tone and citation.";
+            textAreas.work.value = "Artificial Intelligence is changing the way we learn. One major benefit is personalization, where students get tailored content. However, privacy is a big risk because data is collected. In conclusion, AI is good but we must be careful with our data.";
+            alert("Demo data loaded!");
+        }
+
+        const presets = {
+            detailed: `1. Provide a detailed critique of the SINGLE student's work provided.
+2. Link feedback directly to the criteria in the rubric.
+3. Assign a specific score or grade based on the rubric.
+4. Offer 3 actionable "Next Steps" for the student to improve.
+5. Maintain a professional yet encouraging tone.
+6. Format your response clearly with headings.
+7. DO NOT invent other students or names. Only mark the work provided.
+8. CRITICAL: If any questions in the assignment are left blank or unanswered in the student work, you MUST explicitly flag them as "Unanswered" and award 0 marks for those sections. DO NOT hallucinate content that is not there.`,
+            generic: `Analyze the SINGLE student work provided below. Score it out of 10. No sources needed, the student just needs to convey understanding and correctness. 
+
+YOU MUST RESPOND WITH A VALID MARKDOWN TABLE including the header row and the separator row (---).
+
+REQUIRED TABLE FORMAT:
+| Student Name | Grade (1-10) | Strengths | Areas of Weakness | Statement to Student |
+| :--- | :--- | :--- | :--- | :--- |
+| [Insert Name] | [Insert Grade] | [Insert Strengths] | [Insert Weaknesses] | [Insert 2nd person statement] |
+
+IMPORTANT: Use the specific student name provided in the [STUDENT NAME] field. Ensure the grade is a single number in the second column.
+CRITICAL: If the student work is empty or questions are missing, explicitly state "Unanswered/Missing" in the weaknesses column and grade accordingly. DO NOT make up answers for the student.`
+        };
+
+        // Initialize preset
+        instructionsText.value = presets.generic;
+
+        instructionPreset.onchange = () => {
+            if (instructionPreset.value !== 'custom') {
+                instructionsText.value = presets[instructionPreset.value];
+            }
+        };
+
+        // Setup Drag & Drop and Upload
+        Object.keys(dropZones).forEach(key => {
+            const zone = dropZones[key];
+            const input = fileInputs[key];
+
+            zone.onclick = () => input.click();
+
+            zone.ondragover = (e) => {
+                e.preventDefault();
+                zone.classList.add('active');
+            };
+
+            zone.ondragleave = () => zone.classList.remove('active');
+
+            zone.ondrop = (e) => {
+                e.preventDefault();
+                zone.classList.remove('active');
+                if (e.dataTransfer.files.length) {
+                    if (key === 'work') {
+                        Array.from(e.dataTransfer.files).forEach(file => handleFile(file, key));
+                    } else {
+                        handleFile(e.dataTransfer.files[0], key);
+                    }
+                }
+            };
+
+            input.onchange = (e) => {
+                if (e.target.files.length) {
+                    if (key === 'work') {
+                        Array.from(e.target.files).forEach(file => handleFile(file, key));
+                    } else {
+                        handleFile(e.target.files[0], key);
+                    }
+                }
+            };
+        });
+
+        async function handleFile(file, key) {
+            if (key === 'work' && studentWorks.length >= 100) {
+                alert("Batch limit is 100 files. Please remove one before adding more.");
+                return;
+            }
+
+            fileInfos[key].innerText = `Reading: ${file.name}...`;
+            fileInfos[key].style.display = 'block';
+
+            try {
+                let text = "";
+                if (file.name.endsWith('.docx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    text = result.value;
+                } else if (file.name.endsWith('.pdf')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = "";
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const strings = content.items.map(item => item.str);
+                        fullText += strings.join(" ") + "\n";
+                    }
+                    text = fullText;
+                } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.csv')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                    if (key === 'work' && jsonData.length > 1) {
+                        const confirmSplit = confirm(`Spreadsheet detected with ${jsonData.length - 1} rows. Import each row as a separate student?`);
+                        if (confirmSplit) {
+                            const headers = jsonData[0];
+                            for (let i = 1; i < jsonData.length; i++) {
+                                if (studentWorks.length >= 100) break;
+                                const row = jsonData[i];
+                                if (!row || row.length === 0) continue;
+
+                                // Email removal regex
+                                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+                                // Try to find a name: usually 2nd or 3rd col in forms (1st is timestamp)
+                                const studentName = String(row[1] || row[0] || `Row ${i}`).replace(emailRegex, "[REMOVED]");
+
+                                const studentContent = row.map((cell, idx) => {
+                                    const header = String(headers[idx] || "").toLowerCase();
+                                    const value = String(cell || "");
+
+                                    // Skip columns explicitly named "email" or containing email strings
+                                    if (header.includes("email") || emailRegex.test(value)) {
+                                        return `${headers[idx]}: [PROTECTED - EMAIL REMOVED]`;
+                                    }
+                                    return `${headers[idx]}: ${value}`;
+                                }).join("\n");
+
+                                studentWorks.push({
+                                    name: `${file.name} - ${studentName}`,
+                                    text: studentContent
+                                });
+                            }
+                            updateStudentList();
+                            fileInfos[key].innerText = `Imported ${jsonData.length - 1} records from ${file.name}`;
+                            return;
+                        }
+                    }
+
+                    // Fallback to full text if not splitting or not 'work'
+                    let fullText = "";
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        fullText += `--- Sheet: ${sheetName} ---\n`;
+                        fullText += XLSX.utils.sheet_to_txt(worksheet) + "\n\n";
+                    });
+                    text = fullText;
+                } else if (file.name.endsWith('.pptx')) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    let fullText = "";
+                    workbook.SheetNames.forEach(sheetName => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        fullText += XLSX.utils.sheet_to_txt(worksheet) + "\n";
+                    });
+                    text = fullText;
+                } else {
+                    text = await file.text();
+                }
+
+                if (key === 'work') {
+                    studentWorks.push({ name: file.name, text: text });
+                    updateStudentList();
+                } else {
+                    textAreas[key].value = text;
+                }
+
+                fileInfos[key].innerText = `Loaded: ${file.name}`;
+                fileInfos[key].style.color = 'var(--accent)';
+            } catch (err) {
+                console.error(err);
+                fileInfos[key].innerText = `Error reading file`;
+                fileInfos[key].style.color = '#ef4444';
+            }
+        }
+
+        function updateStudentList() {
+            studentFileList.innerHTML = '';
+            studentWorks.forEach((work, index) => {
+                const item = document.createElement('div');
+                item.className = 'student-item';
+                item.innerHTML = `
+                    <span class="student-name">${work.name}</span>
+                    <div class="actions">
+                        <button class="test-btn" onclick="testStudent(${index})">Test Mark</button>
+                        <button class="remove-btn" onclick="removeStudent(${index})">Remove</button>
+                    </div>
+                `;
+                studentFileList.appendChild(item);
+            });
+            // Show/hide textarea based on if there are files
+            textAreas.work.style.display = studentWorks.length === 0 ? 'block' : 'none';
+        }
+
+        window.removeStudent = (index) => {
+            studentWorks.splice(index, 1);
+            updateStudentList();
+        };
+
+        // Rubric Generation Logic
+        genRubricBtn.onclick = async () => {
+            const assignment = textAreas.assignment.value.trim();
+            const guidance = rubricGuidance.value.trim();
+            const model = modelSelectC.value;
+
+            if (!assignment) {
+                alert("Please provide an assignment description first.");
+                return;
+            }
+
+            genRubricBtn.disabled = true;
+            genRubricBtn.querySelector('span').innerText = "Generating...";
+
+            try {
+                const prompt = `
+You are an expert curriculum designer. Based on the assignment description below, create a clear, simple rubric.
+Teacher Guidance: ${guidance || "Create a standard professional rubric."}
+
+### ASSIGNMENT DESCRIPTION
+${assignment}
+
+### OUTPUT FORMAT
+Provide the rubric as a clear list or markdown table.
+`;
+                const response = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt, model: model })
+                });
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    textAreas.rubric.value = data.choices[0].message.content;
+                } else {
+                    alert("Error generating rubric: " + JSON.stringify(data.error || data));
+                }
+            } catch (err) {
+                alert("Connection failed: " + err.message);
+            } finally {
+                genRubricBtn.disabled = false;
+                genRubricBtn.querySelector('span').innerText = "Gen Rubric âœ¨";
+            }
+        };
+
+        function tryExtractGrade(text) {
+            // Pattern 1: Look for the second column in a markdown table row (common in Generic preset)
+            // Matches: | Name | 8 |
+            const tableMatch = text.match(/\|[^|]+\|\s*(\d+)\s*\|/);
+            if (tableMatch) return tableMatch[1];
+
+            // Pattern 2: Look for common "8/10"
+            const slashMatch = text.match(/(\d+)\/10/);
+            if (slashMatch) return slashMatch[1];
+
+            // Pattern 3: Look for "Grade: 8" 
+            const gradeMatch = text.match(/Grade:\s*(\d+)/i);
+            if (gradeMatch) return gradeMatch[1];
+
+            return null;
+        }
+
+        async function processStudent(student, index) {
+            const assignment = textAreas.assignment.value.trim();
+            const rubric = textAreas.rubric.value.trim();
+            const teacherGuidance = markingGuidance.value.trim();
+            const modelA = modelSelect.value;
+            const modelB = modelSelectB.value;
+            const modelC = modelSelectC.value;
+
+            const studentDiv = document.createElement('div');
+            studentDiv.className = 'session-item';
+            studentDiv.style.marginBottom = '3rem';
+            studentDiv.style.padding = '1rem';
+            studentDiv.style.borderBottom = '1px solid var(--border)';
+
+            output.insertBefore(studentDiv, output.firstChild);
+
+            studentDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <h2 style="color: var(--primary); margin: 0;">Student: ${student.name} <small style="font-size: 0.6em; color: var(--text-dim);">(${new Date().toLocaleTimeString()})</small></h2>
+                    <button class="btn-secondary" onclick="toggleEdit(this)" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;">âœï¸ Edit Result</button>
+                </div>
+                <div id="steps-${index}" style="border-left: 2px solid var(--border); padding-left: 1.5rem; margin-left: 0.5rem;">
+                    <div id="res-a-${index}" class="content-display" style="opacity: 0.6; font-size: 0.85rem;">Waiting for Model A...</div>
+                    <div id="res-b-${index}" class="content-display" style="opacity: 0.6; font-size: 0.85rem;">Waiting for Model B...</div>
+                    <div id="res-final-${index}" class="content-display" style="border: 1px solid var(--accent);">Final Moderated Result...</div>
+                </div>
+            `;
+
+            const getPrompt = (modelName, studentName, workText) => `
+You are an expert teacher marking work for: [STUDENT NAME: ${studentName}].
+Strictly analyze ONLY the work for this one student.
+
+### ASSIGNMENT
+${assignment}
+### RUBRIC
+${rubric}
+### TEACHER'S LIVE MARKING GUIDANCE
+${teacherGuidance || "None provided."}
+
+### STUDENT WORK (FOR ${studentName})
+${workText || "[NO CONTENT PROVIDED - MARK AS UNANSWERED]"}
+
+### INSTRUCTIONS
+${instructionsText.value}
+
+### ANTI-HALLUCINATION RULES:
+- If a question is not addressed in the work, mark it as "Unanswered".
+- Do not assume the student understood something if they didn't write it.
+- Strictly stick to the text provided above.
+`;
+
+            try {
+                // Step 1: Model A
+                const targetA = document.getElementById(`res-a-${index}`);
+                targetA.innerText = `Model A (${modelA}) is marking...`;
+                const resA = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: getPrompt(modelA, student.name, student.text), model: modelA })
+                });
+                const d1 = await resA.json();
+                const gradeA = ensureTable(d1.choices[0].message.content);
+                targetA.innerHTML = `<strong>Model A Result:</strong><br>` + marked.parse(gradeA);
+
+                // Step 2: Model B
+                const targetB = document.getElementById(`res-b-${index}`);
+                targetB.innerText = `Model B (${modelB}) is marking...`;
+                const resB = await fetch(PROXY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: getPrompt(modelB, student.name, student.text), model: modelB })
+                });
+                const d2 = await resB.json();
+                const gradeB = ensureTable(d2.choices[0].message.content);
+                targetB.innerHTML = `<strong>Model B Result:</strong><br>` + marked.parse(gradeB);
+
+                // Step 3: Comparison
+                const targetFinal = document.getElementById(`res-final-${index}`);
+                const valA = tryExtractGrade(gradeA);
+                const valB = tryExtractGrade(gradeB);
+
+                if (valA && valB && valA === valB) {
+                    targetFinal.innerHTML = `<strong>Unanimous Agreement (Grade: ${valA}/10):</strong><br>Passing Model A's feedback as the final assessment.<br><hr>` + marked.parse(gradeA);
+                    targetFinal.style.border = "1px solid var(--accent)";
+                } else {
+                    targetFinal.innerText = `Grades differ (${valA || '?'} vs ${valB || '?'}). Moderating agreement...`;
+                    const modPrompt = `
+You are a Lead Moderator. Two teachers have marked the student work for: [STUDENT NAME: ${student.name}].
+Your job is to:
+1. Compare their findings.
+2. Moderate a final agreed-upon assessment and grade.
+3. Justify any changes you make to their original individual grades.
+4. Output the final feedback for ${student.name} using the following instructions:
+${instructionsText.value}
+
+--- TEACHER A FEEDBACK ---
+${gradeA}
+
+--- TEACHER B FEEDBACK ---
+${gradeB}
+`;
+                    const resFinal = await fetch(PROXY_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: modPrompt, model: modelC })
+                    });
+                    const d3 = await resFinal.json();
+                    const finalGrade = ensureTable(d3.choices[0].message.content);
+                    targetFinal.innerHTML = `<strong>Final Moderated Assessment:</strong><br>` + marked.parse(finalGrade);
+                }
+            } catch (error) {
+                console.error(error);
+                studentDiv.innerHTML += `<div style="color:red; padding: 1rem;">Error processing ${student.name}: ${error.message}</div>`;
+            }
+        }
+
+        window.testStudent = async (index) => {
+            const student = studentWorks[index];
+            if (!textAreas.assignment.value || !textAreas.rubric.value) {
+                alert("Please provide assignment description and rubric first.");
+                return;
+            }
+            resultsArea.style.display = 'block';
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+            await processStudent(student, `test-${Date.now()}`);
+            alert(`Test mark for ${student.name} complete. Review the results and edit if needed before running the full batch.`);
+        };
+
+        window.toggleEdit = (btn) => {
+            const card = btn.closest('.session-item');
+            const target = card.querySelector('[id^="res-final"]');
+            const isEditing = target.contentEditable === 'true';
+
+            if (isEditing) {
+                target.contentEditable = 'false';
+                target.style.background = 'rgba(0,0,0,0.2)';
+                target.style.border = '1px solid var(--accent)';
+                btn.innerText = 'âœï¸ Edit Result';
+                btn.style.background = 'rgba(255,255,255,0.1)';
+            } else {
+                target.contentEditable = 'true';
+                target.style.background = 'rgba(255,255,255,0.05)';
+                target.style.border = '1px solid var(--primary)';
+                target.focus();
+                btn.innerText = 'ðŸ’¾ Save Changes';
+                btn.style.background = 'var(--primary)';
+            }
+        };
+
+        function ensureTable(text) {
+            // Logic: if the text contains pipes but no separator line (---), 
+            // the model probably just output a single row. Wrap it.
+            if (text.includes('|') && !text.includes('---')) {
+                return `| Student | Grade | Strengths | Weaknesses | Feedback |\n|---|---|---|---|---|\n${text}`;
+            }
+            return text;
+        }
+
+        // Submission Logic
+        submitBtn.onclick = async () => {
+            let worksToProcess = [];
+
+            if (studentWorks.length > 0) {
+                worksToProcess = studentWorks;
+            } else if (textAreas.work.value.trim()) {
+                worksToProcess = [{ name: "Manual Entry Student", text: textAreas.work.value.trim() }];
+            }
+
+            if (!textAreas.assignment.value.trim() || !textAreas.rubric.value.trim() || worksToProcess.length === 0) {
+                alert('Please provide assignment description, rubric, and at least one student work.');
+                return;
+            }
+
+            if (worksToProcess.length > 1) {
+                const choice = confirm(`Process all ${worksToProcess.length} students?`);
+                if (!choice) return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            resultsArea.style.display = 'block';
+
+            for (let i = 0; i < worksToProcess.length; i++) {
+                await processStudent(worksToProcess[i], i);
+                if (i < worksToProcess.length - 1) await new Promise(r => setTimeout(r, 2000));
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+        };
+
+        // Session Persistence Logic
+        saveSessionBtn.onclick = () => {
+            const sessionData = {
+                assignment: textAreas.assignment.value,
+                rubric: textAreas.rubric.value,
+                guidance: markingGuidance.value,
+                results: output.innerHTML,
+                timestamp: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(sessionData)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `marking-session-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+        };
+
+        loadSessionBtn.onclick = () => sessionFileInput.click();
+        sessionFileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const data = JSON.parse(ev.target.result);
+                textAreas.assignment.value = data.assignment || "";
+                textAreas.rubric.value = data.rubric || "";
+                markingGuidance.value = data.guidance || "";
+                output.innerHTML = data.results || "";
+                resultsArea.style.display = 'block';
+                alert("Session loaded successfully!");
+            };
+            reader.readAsText(file);
+        };
+
+        clearResultsBtn.onclick = () => {
+            if (confirm("Clear all cumulative results? This cannot be undone.")) {
+                output.innerHTML = "";
+            }
+        };
+
+        downloadResultsBtn.onclick = () => {
+            const content = `
+                <html>
+                <head>
+                    <title>Marking Report - ${new Date().toLocaleDateString()}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 40px; color: #333; }
+                        .session-item { border-bottom: 2px solid #eee; padding-bottom: 40px; margin-bottom: 40px; }
+                        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+                        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                        th { background: #f4f4f4; }
+                        .content-display { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+                        h2 { color: #6366f1; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Cumulative Assessment Report</h1>
+                    <p>Generated on: ${new Date().toLocaleString()}</p>
+                    <hr>
+                    ${output.innerHTML}
+                    </div>
+</body>
+                </html>
+            `;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `marking-report-${new Date().toISOString().slice(0, 10)}.html`;
+            a.click();
+        };
+
+        // Password Protection Logic
+        const loginScreen = document.getElementById('login-screen');
+        const mainApp = document.getElementById('main-app');
+        const userInput = document.getElementById('userInput');
+        const passInput = document.getElementById('passInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        const AUTH = {
+            u: "27ee214296dc1594df8a89279fd8072d281b03c0862d57723f7d2b65b2509672", // dwaugh
+            p: "1cab0987b84b8000bf5e29a1178dbd0b778c0118a47a9bff4a5e0cd4a73c6fee"  // dlwlll
+        };
+
+        async function hash(str) {
+            const msgUint8 = new TextEncoder().encode(String(str));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function checkLogin() {
+            if (sessionStorage.getItem('marking_verified') === 'true') {
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+            }
+        }
+
+        loginBtn.onclick = async () => {
+            const u = await hash(userInput.value.trim().toLowerCase());
+            const p = await hash(passInput.value.trim());
+            if (u === AUTH.u && p === AUTH.p) {
+                sessionStorage.setItem('marking_verified', 'true');
+                loginScreen.style.display = 'none';
+                mainApp.style.display = 'block';
+            } else {
+                loginError.style.display = 'block';
+                passInput.value = "";
+                passInput.focus();
+            }
+        };
+
+        [userInput, passInput].forEach(el => {
+            el.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') loginBtn.click();
+            });
+        });
+
+        checkLogin();
+    </script>
+
+    </div>
+</body>
+
+</html>
