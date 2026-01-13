@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNC Presentation Marking Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .header-fields {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .header-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-field label {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .header-field input {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 4px 8px;
+            font-size: 1rem;
+            min-width: 180px;
+            background: transparent;
+        }
+
+        .header-field input:focus {
+            outline: none;
+            border-bottom-color: #2563eb;
+        }
+
+        .phase-section {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+        }
+
+        .phase-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .phase-table th,
+        .phase-table td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.85rem;
+        }
+
+        .phase-table th {
+            background: #f8f8f8;
+            font-weight: 600;
+        }
+
+        .phase-header {
+            background: #f0f0f0 !important;
+        }
+
+        .phase-header th {
+            background: #f0f0f0;
+        }
+
+        .criteria-name {
+            font-weight: 600;
+            min-width: 130px;
+        }
+
+        .criteria-desc {
+            font-weight: normal;
+            font-size: 0.8rem;
+            color: #666;
+            display: block;
+            margin-top: 3px;
+        }
+
+        /* Clickable level cells */
+        .level-cell {
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .level-cell:hover {
+            transform: scale(1.02);
+            z-index: 1;
+        }
+
+        .level-cell::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .level-cell:hover::before {
+            opacity: 0.5;
+        }
+
+        .level-4 {
+            background: #e8f5e9;
+        }
+
+        .level-3 {
+            background: #fff3e0;
+        }
+
+        .level-2 {
+            background: #fff8e1;
+        }
+
+        .level-1 {
+            background: #ffebee;
+        }
+
+        .level-4:hover {
+            background: #c8e6c9;
+        }
+
+        .level-3:hover {
+            background: #ffe0b2;
+        }
+
+        .level-2:hover {
+            background: #fff59d;
+        }
+
+        .level-1:hover {
+            background: #ffcdd2;
+        }
+
+        .level-4.selected {
+            background: #4caf50 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #2e7d32;
+        }
+
+        .level-3.selected {
+            background: #ff9800 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #e65100;
+        }
+
+        .level-2.selected {
+            background: #ffc107 !important;
+            color: #333;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #ff8f00;
+        }
+
+        .level-1.selected {
+            background: #f44336 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #c62828;
+        }
+
+        .click-hint {
+            display: block;
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .level-cell.selected .click-hint {
+            color: inherit;
+            opacity: 0.8;
+        }
+
+        .score-cell {
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .score-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .max-score {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .notes-row td {
+            padding: 0;
+        }
+
+        .notes-label {
+            font-weight: 600;
+            padding: 10px 12px;
+            background: #fafafa;
+            width: 130px;
+            vertical-align: top;
+        }
+
+        .notes-input {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .notes-input:focus {
+            outline: none;
+            background: #f8faff;
+        }
+
+        .footer {
+            display: flex;
+            gap: 30px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .footer-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-field label {
+            font-weight: 600;
+        }
+
+        .final-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .percentage {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .signature-input {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 4px 8px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .save-indicator {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .save-indicator.success {
+            background: #d1fae5;
+            color: #065f46;
+            display: inline-block;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .actions {
+                display: none;
+            }
+
+            .score-input,
+            .notes-input,
+            .header-field input,
+            .signature-input {
+                border: none !important;
+                background: transparent !important;
+            }
+
+            .click-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .phase-table {
+                font-size: 0.75rem;
+            }
+
+            .phase-table th,
+            .phase-table td {
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>TNC Presentation Marking Sheet: Economic & Global Perspectives</h1>
+
+        <div class="header-fields">
+            <div class="header-field">
+                <label>Student(s):</label>
+                <input type="text" id="studentName" placeholder="">
+            </div>
+            <div class="header-field">
+                <label>TNC:</label>
+                <input type="text" id="tncName" placeholder="">
+            </div>
+            <div class="header-field">
+                <label>Grade:</label>
+                <input type="text" id="gradeLevel" placeholder="">
+            </div>
+        </div>
+
+        <!-- Phase 1: Economic -->
+        <div class="phase-section">
+            <table class="phase-table">
+                <tr class="phase-header">
+                    <th>Phase 1: Economic</th>
+                    <th class="level-4">4 - Exceptional</th>
+                    <th class="level-3">3 - Proficient</th>
+                    <th class="level-2">2 - Developing</th>
+                    <th class="level-1">1 - Beginning</th>
+                    <th>Score</th>
+                </tr>
+                <tr data-row="p1-1">
+                    <td class="criteria-name">Market Drivers<span class="criteria-desc">Scarcity, demand, or
+                            cost-cutting logic.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p1-1">Deep insight into profit/cost
+                        logic and economic incentives.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p1-1">Clear explanation of the
+                        TNC's economic motivation.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p1-1">Basic mention of business
+                        drivers; lacks depth.<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p1-1">Little to no economic context
+                        provided.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p1-1">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr data-row="p1-2">
+                    <td class="criteria-name">Market Factors<span class="criteria-desc">Labor, supply, or pricing
+                            mechanics.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p1-2">Nuanced analysis of wages,
+                        supply chains, or resource access.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p1-2">Accurate description of
+                        relevant market mechanics.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p1-2">General overview; misses
+                        specific economic links.<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p1-2">Incorrect or missing market
+                        analysis.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p1-2">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr data-row="p1-3">
+                    <td class="criteria-name">Structure & Power<span class="criteria-desc">Monopoly, oligopoly, or
+                            market influence.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p1-3">Critical analysis of market
+                        power over consumers/suppliers.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p1-3">Correctly identifies and
+                        explains market structure.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p1-3">Identifies structure but
+                        doesn't explain its impact.<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p1-3">Misidentified or ignored
+                        market structure.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p1-3">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr class="notes-row">
+                    <td class="notes-label">Notes:</td>
+                    <td colspan="5"><textarea class="notes-input" id="notes-p1"
+                            placeholder="Add comments for Phase 1..."></textarea></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Phase 2: Global -->
+        <div class="phase-section">
+            <table class="phase-table">
+                <tr class="phase-header">
+                    <th>Phase 2: Global</th>
+                    <th class="level-4">4 - Exceptional</th>
+                    <th class="level-3">3 - Proficient</th>
+                    <th class="level-2">2 - Developing</th>
+                    <th class="level-1">1 - Beginning</th>
+                    <th>Score</th>
+                </tr>
+                <tr data-row="p2-1">
+                    <td class="criteria-name">Inequality & Development<span class="criteria-desc">Impact on global
+                            systems.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p2-1">Complex link between TNC
+                        behavior and global inequality.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p2-1">Clear connection between
+                        actions and global effects.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p2-1">Surface-level view of
+                        development issues.<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p2-1">Fails to link behavior to
+                        development.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p2-1">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr data-row="p2-2">
+                    <td class="criteria-name">Individual/Environmental Lens<span
+                            class="criteria-desc">Micro-impact.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p2-2">Vivid, data-backed analysis
+                        of worker/consumer/nature.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p2-2">Good description of impact on
+                        individuals/environment.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p2-2">Generic mention of "harm" or
+                        "impact."<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p2-2">Missing specific human/earth
+                        lens.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p2-2">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr class="notes-row">
+                    <td class="notes-label">Notes:</td>
+                    <td colspan="5"><textarea class="notes-input" id="notes-p2"
+                            placeholder="Add comments for Phase 2..."></textarea></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Phase 3: The Boardroom Pitch -->
+        <div class="phase-section">
+            <table class="phase-table">
+                <tr class="phase-header">
+                    <th>Phase 3: The Boardroom Pitch</th>
+                    <th class="level-4">4 - Exceptional</th>
+                    <th class="level-3">3 - Proficient</th>
+                    <th class="level-2">2 - Developing</th>
+                    <th class="level-1">1 - Beginning</th>
+                    <th>Score</th>
+                </tr>
+                <tr data-row="p3-1">
+                    <td class="criteria-name">Sustainable Reform<span class="criteria-desc">The proposed
+                            solution.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p3-1">Highly innovative, feasible,
+                        and specific model change.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p3-1">Realistic reform proposed
+                        with logical steps.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p3-1">Vague or generic
+                        sustainability goal.<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p3-1">No clear reform
+                        proposed.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p3-1">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr data-row="p3-2">
+                    <td class="criteria-name">Compliance/Frameworks<span class="criteria-desc">Int'l agreements or
+                            ethics.</span></td>
+                    <td class="level-4 level-cell" data-score="4" data-target="score-p3-2">Sophisticated use of relevant
+                        int'l law/ethical standards.<span class="click-hint">Click to select</span></td>
+                    <td class="level-3 level-cell" data-score="3" data-target="score-p3-2">Appropriate mention of
+                        relevant codes/agreements.<span class="click-hint">Click to select</span></td>
+                    <td class="level-2 level-cell" data-score="2" data-target="score-p3-2">Misaligned or broad mention
+                        of "rules."<span class="click-hint">Click to select</span></td>
+                    <td class="level-1 level-cell" data-score="1" data-target="score-p3-2">No mention of external
+                        compliance.<span class="click-hint">Click to select</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="4" min="0" max="4" value="" id="score-p3-2">
+                        <span class="max-score">/4</span>
+                    </td>
+                </tr>
+                <tr data-row="p3-3">
+                    <td class="criteria-name">Economic Prediction<span class="criteria-desc">Long-term
+                            consequences.</span></td>
+                    <td class="level-4 level-cell" data-score="2" data-target="score-p3-3">Sharp evaluation of market
+                        share or regulatory risks.<span class="click-hint">Click for 2</span></td>
+                    <td class="level-3 level-cell" data-score="1.5" data-target="score-p3-3">Logical prediction of
+                        future consequences.<span class="click-hint">Click for 1.5</span></td>
+                    <td class="level-2 level-cell" data-score="1" data-target="score-p3-3">Basic statement about
+                        "failure" or "success."<span class="click-hint">Click for 1</span></td>
+                    <td class="level-1 level-cell" data-score="0.5" data-target="score-p3-3">No economic evaluation of
+                        the future.<span class="click-hint">Click for 0.5</span></td>
+                    <td class="score-cell">
+                        <input type="number" class="score-input" data-max="2" min="0" max="2" step="0.5" value=""
+                            id="score-p3-3">
+                        <span class="max-score">/2</span>
+                    </td>
+                </tr>
+                <tr class="notes-row">
+                    <td class="notes-label">Notes:</td>
+                    <td colspan="5"><textarea class="notes-input" id="notes-p3"
+                            placeholder="Add comments for Phase 3..." style="min-height: 100px;"></textarea></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer / Totals -->
+        <div class="footer">
+            <div class="footer-field">
+                <label>Final Score:</label>
+                <span class="final-score" id="totalScore">0</span>
+                <span class="max-score">/ 30</span>
+            </div>
+            <div class="footer-field">
+                <label>Percentage:</label>
+                <span class="percentage" id="percentage">0%</span>
+            </div>
+            <div class="footer-field">
+                <label>Signature:</label>
+                <input type="text" class="signature-input" id="signature" placeholder="">
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-primary" onclick="saveToLocal()">💾 Save Progress</button>
+            <button class="btn btn-secondary" onclick="loadFromLocal()">📂 Load Saved</button>
+            <button class="btn btn-success" onclick="downloadAsHTML()">📥 Download HTML</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+            <button class="btn btn-danger" onclick="clearForm()">🗑️ Clear Form</button>
+            <span class="save-indicator" id="saveIndicator">✓ Saved!</span>
+        </div>
+    </div>
+
+    <script>
+        // Score calculation
+        const scoreInputs = document.querySelectorAll('.score-input');
+
+        function calculateTotal() {
+            let total = 0;
+            scoreInputs.forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                total += val;
+            });
+            document.getElementById('totalScore').textContent = total;
+            document.getElementById('percentage').textContent = Math.round((total / 30) * 100) + '%';
+        }
+
+        scoreInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const max = parseFloat(input.dataset.max);
+                let val = parseFloat(input.value);
+                if (val > max) input.value = max;
+                if (val < 0) input.value = 0;
+                calculateTotal();
+                updateCellSelection(input.id);
+            });
+        });
+
+        // Click-to-select functionality
+        document.querySelectorAll('.level-cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const score = parseFloat(cell.dataset.score);
+                const targetId = cell.dataset.target;
+                const input = document.getElementById(targetId);
+
+                if (input) {
+                    input.value = score;
+                    calculateTotal();
+                    updateCellSelection(targetId);
+                    triggerAutoSave();
+                }
+            });
+        });
+
+        function updateCellSelection(inputId) {
+            // Find the row containing this input
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const row = input.closest('tr');
+            if (!row) return;
+
+            // Clear all selections in this row
+            row.querySelectorAll('.level-cell').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+
+            // Find and select the matching cell
+            const currentValue = parseFloat(input.value);
+            if (!isNaN(currentValue)) {
+                row.querySelectorAll('.level-cell').forEach(cell => {
+                    if (parseFloat(cell.dataset.score) === currentValue) {
+                        cell.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        // Get all form data
+        function getFormData() {
+            return {
+                studentName: document.getElementById('studentName').value,
+                tncName: document.getElementById('tncName').value,
+                gradeLevel: document.getElementById('gradeLevel').value,
+                signature: document.getElementById('signature').value,
+                scores: {
+                    'p1-1': document.getElementById('score-p1-1').value,
+                    'p1-2': document.getElementById('score-p1-2').value,
+                    'p1-3': document.getElementById('score-p1-3').value,
+                    'p2-1': document.getElementById('score-p2-1').value,
+                    'p2-2': document.getElementById('score-p2-2').value,
+                    'p3-1': document.getElementById('score-p3-1').value,
+                    'p3-2': document.getElementById('score-p3-2').value,
+                    'p3-3': document.getElementById('score-p3-3').value
+                },
+                notes: {
+                    'p1': document.getElementById('notes-p1').value,
+                    'p2': document.getElementById('notes-p2').value,
+                    'p3': document.getElementById('notes-p3').value
+                },
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        // Load form data
+        function loadFormData(data) {
+            if (!data) return;
+            document.getElementById('studentName').value = data.studentName || '';
+            document.getElementById('tncName').value = data.tncName || '';
+            document.getElementById('gradeLevel').value = data.gradeLevel || '';
+            document.getElementById('signature').value = data.signature || '';
+
+            if (data.scores) {
+                Object.keys(data.scores).forEach(key => {
+                    const el = document.getElementById('score-' + key);
+                    if (el) {
+                        el.value = data.scores[key];
+                        updateCellSelection('score-' + key);
+                    }
+                });
+            }
+
+            if (data.notes) {
+                Object.keys(data.notes).forEach(key => {
+                    const el = document.getElementById('notes-' + key);
+                    if (el) el.value = data.notes[key];
+                });
+            }
+
+            calculateTotal();
+        }
+
+        // Save to localStorage
+        function saveToLocal() {
+            const data = getFormData();
+            const key = 'rubric_' + (data.studentName || 'unnamed').replace(/\s+/g, '_');
+            localStorage.setItem('tnc_rubric_current', JSON.stringify(data));
+            localStorage.setItem(key, JSON.stringify(data));
+
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('success');
+            setTimeout(() => indicator.classList.remove('success'), 2000);
+        }
+
+        // Load from localStorage
+        function loadFromLocal() {
+            const data = localStorage.getItem('tnc_rubric_current');
+            if (data) {
+                loadFormData(JSON.parse(data));
+                alert('Loaded saved rubric!');
+            } else {
+                alert('No saved rubric found.');
+            }
+        }
+
+        // Download as HTML
+        function downloadAsHTML() {
+            const data = getFormData();
+            const studentName = data.studentName || 'student';
+
+            const clone = document.documentElement.cloneNode(true);
+            const actions = clone.querySelector('.actions');
+            if (actions) actions.remove();
+
+            const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rubric-${studentName.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Clear form
+        function clearForm() {
+            if (!confirm('Clear all entries? This cannot be undone.')) return;
+
+            document.getElementById('studentName').value = '';
+            document.getElementById('tncName').value = '';
+            document.getElementById('gradeLevel').value = '';
+            document.getElementById('signature').value = '';
+
+            scoreInputs.forEach(input => {
+                input.value = '';
+                updateCellSelection(input.id);
+            });
+
+            document.getElementById('notes-p1').value = '';
+            document.getElementById('notes-p2').value = '';
+            document.getElementById('notes-p3').value = '';
+
+            calculateTotal();
+        }
+
+        // Auto-save
+        let saveTimeout;
+        function triggerAutoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                localStorage.setItem('tnc_rubric_current', JSON.stringify(getFormData()));
+            }, 1000);
+        }
+
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', triggerAutoSave);
+        });
+
+        // Auto-load last session
+        window.onload = function () {
+            const data = localStorage.getItem('tnc_rubric_current');
+            if (data) {
+                const parsed = JSON.parse(data);
+                if (parsed.timestamp && parsed.timestamp.slice(0, 10) === new Date().toISOString().slice(0, 10)) {
+                    loadFormData(parsed);
+                }
+            }
+        };
+    </script>
+
+</body>
+
+</html>
