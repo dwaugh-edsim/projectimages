@@ -574,6 +574,53 @@
         .toggle-icon.rotated {
             transform: rotate(180deg);
         }
+
+        /* Mode Selector Cards */
+        .mode-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .mode-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .mode-output {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .mode-judge {
+            font-size: 0.75rem;
+            color: var(--boss-color);
+        }
+
+        .mode-criteria {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 
@@ -592,12 +639,27 @@
         </div>
     </div>
 
-    <div id="main-app">
+    <!-- Mode Selector Screen -->
+    <div id="mode-selector" style="display: none;">
         <div class="container">
             <header>
                 <h1>🧠 Idea Bot</h1>
-                <p class="subtitle">Two AI minds compete, critique, and refine — then the Final Boss picks the winner
-                </p>
+                <p class="subtitle">Select your battle arena</p>
+            </header>
+            <div class="mode-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="container">
+            <header>
+                <h1 id="appTitle">🧠 Idea Bot</h1>
+                <p class="subtitle" id="appSubtitle">Two AI minds compete, critique, and refine — then the Final Boss
+                    picks the winner</p>
+                <button class="btn-secondary" id="changeModeBtn" style="margin-top: 1rem; display: inline-flex;">←
+                    Change Mode</button>
             </header>
 
             <div class="card">
@@ -734,7 +796,27 @@
     <script>
         const PROXY_URL = 'https://nextjs-basic-lemon-one.vercel.app/api/chat';
 
+        // Mode Configurations
+        const MODES = {
+            teach: { icon: '📚', title: 'Lesson & Quiz Builder', output: 'Unit plan, rubric, 10-Q quiz', judge: 'Master Teacher', criteria: 'pedagogy, age-appropriate language, engagement' },
+            code: { icon: '💻', title: 'Code Review Arena', output: 'React/Python/Go component', judge: 'Staff Engineer', criteria: 'readability, tests, Big-O, a11y' },
+            copy: { icon: '✍️', title: 'Marketing Copy Duel', output: 'Email, landing page, ad variant', judge: 'CMO', criteria: 'hook, CTA, brand voice, brevity' },
+            policy: { icon: '⚖️', title: 'Legal Policy Forge', output: 'Remote-work, privacy, ToS', judge: 'General Counsel', criteria: 'liability, clarity, enforceability' },
+            dataviz: { icon: '📊', title: 'Data-Story Battle', output: 'Python/R notebook + insight', judge: 'Chief Data Officer', criteria: 'insight depth, color-blind safe, narrative' },
+            grant: { icon: '🎓', title: 'Grant Proposal Smackdown', output: 'NSF/NIH project summary', judge: 'Program Officer', criteria: 'intellectual merit, broader impacts, fit-to-call' },
+            cv: { icon: '📄', title: 'Resume Refinery', output: '1-page résumé & cover letter', judge: 'Hiring Manager', criteria: 'ATS keywords, quantified impact, brevity' },
+            brief: { icon: '🎨', title: 'Creative Brief Studio', output: 'Ad-brief, mood-board copy', judge: 'Creative Director', criteria: 'objective, target insight, single-minded proposition' },
+            pitch: { icon: '🚀', title: 'Startup Pitch Deck', output: '10-slide outline + blurb', judge: 'Seed VC', criteria: 'problem, solution, TAM, traction, ask' },
+            sop: { icon: '📋', title: 'SOP Generator', output: 'Step-by-step procedure', judge: 'Ops Manager', criteria: 'safety, compliance, clarity, training time' },
+            recipe: { icon: '👨‍🍳', title: 'Recipe Rumble', output: 'Original dish + plating guide', judge: 'Head Chef', criteria: 'flavour balance, technique, cost, allergen safety' },
+            script: { icon: '🎬', title: 'Video Script Battle', output: '60-sec TikTok/YouTube script', judge: 'Content Lead', criteria: 'hook rate, retention curve, CTA, brand voice' },
+            brieflegal: { icon: '⚖️', title: 'Case Brief Studio', output: 'IRAC memo for new ruling', judge: 'Senior Partner', criteria: 'issue, rule, application, conclusion, citation' },
+            grantloc: { icon: '🏛️', title: 'Local Grant Appeal', output: 'City-culture, charity ask', judge: 'Council Clerk', criteria: 'community benefit, budget realism, equity' },
+            wiki: { icon: '📖', title: 'Internal Wiki Forge', output: 'Confluence-style how-to', judge: 'KM Lead', criteria: 'discoverability, newbie-proof, screenshot gaps' }
+        };
+
         // State
+        let currentMode = null;
         let supportingDocs = []; // { name, text }
 
         // Elements
@@ -752,6 +834,44 @@
         const battleOutput = document.getElementById('battleOutput');
         const downloadBtn = document.getElementById('downloadBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const modeSelector = document.getElementById('mode-selector');
+        const modeGrid = document.querySelector('.mode-grid');
+        const changeModeBtn = document.getElementById('changeModeBtn');
+        const appTitle = document.getElementById('appTitle');
+        const appSubtitle = document.getElementById('appSubtitle');
+
+        // Initialize Mode Selector
+        function initModeSelector() {
+            modeGrid.innerHTML = '';
+            Object.entries(MODES).forEach(([key, mode]) => {
+                const card = document.createElement('div');
+                card.className = 'mode-card';
+                card.innerHTML = `
+                    <span class="mode-icon">${mode.icon}</span>
+                    <div class="mode-title">${mode.title}</div>
+                    <div class="mode-output">${mode.output}</div>
+                    <div class="mode-judge">👑 ${mode.judge}</div>
+                    <div class="mode-criteria">${mode.criteria}</div>
+                `;
+                card.onclick = () => selectMode(key);
+                modeGrid.appendChild(card);
+            });
+        }
+
+        function selectMode(modeKey) {
+            currentMode = MODES[modeKey];
+            currentMode.key = modeKey;
+            modeSelector.style.display = 'none';
+            mainApp.style.display = 'block';
+            appTitle.innerHTML = `${currentMode.icon} ${currentMode.title}`;
+            appSubtitle.textContent = `Output: ${currentMode.output} • Judge: ${currentMode.judge}`;
+            taskDescription.placeholder = `Describe your ${currentMode.output.toLowerCase()}...\n\nThe ${currentMode.judge} will evaluate based on: ${currentMode.criteria}`;
+        }
+
+        changeModeBtn.onclick = () => {
+            mainApp.style.display = 'none';
+            modeSelector.style.display = 'block';
+        };
 
         // File Upload Handling
         docsZone.onclick = () => docsFile.click();
@@ -932,16 +1052,24 @@
                 battleOutput.appendChild(card1a);
                 battleOutput.appendChild(card1b);
 
+                const modeContext = currentMode ? `
+### MODE: ${currentMode.title}
+Expected Output: ${currentMode.output}
+You will be judged by: ${currentMode.judge}
+Evaluation Criteria: ${currentMode.criteria}
+` : '';
+
                 const initialPrompt = (contenderName) => `
-You are ${contenderName}, a creative and thorough content creator.
+You are ${contenderName}, an expert in creating ${currentMode ? currentMode.output : 'high-quality content'}.
 
 ### TASK
 ${task}
-
+${modeContext}
 ${docsContent ? `### SUPPORTING DOCUMENTS\n${docsContent}` : ''}
 
 ### INSTRUCTIONS
-Create a complete, high-quality response to the task. Be thorough, creative, and professional.
+Create a complete, high-quality ${currentMode ? currentMode.output : 'response'}. 
+Focus on: ${currentMode ? currentMode.criteria : 'completeness, accuracy, and clarity'}.
 Format your output with clear structure using headings, bullet points, or numbered lists as appropriate.
 `;
 
@@ -1095,8 +1223,12 @@ Output the complete revised version (not just changes).
                 const bossCard = createPhaseCard(`boss-${sessionId}`, 'boss', 'Final Judgement');
                 battleOutput.appendChild(bossCard);
 
+                const judgeName = currentMode ? currentMode.judge : 'Final Boss';
+                const judgeCriteria = currentMode ? currentMode.criteria.split(', ') : ['Completeness', 'Accuracy', 'Creativity', 'Clarity', 'Usefulness'];
+                const criteriaTable = judgeCriteria.map(c => `| ${c} | X/10 | X/10 |`).join('\n');
+
                 const bossPrompt = `
-You are the Final Boss, an impartial expert judge.
+You are the ${judgeName}, an impartial expert judge${currentMode ? ` specializing in ${currentMode.output}` : ''}.
 
 ### ORIGINAL TASK
 ${task}
@@ -1109,7 +1241,7 @@ ${final2}
 
 ### YOUR TASK
 1. Compare both submissions against the original task requirements
-2. Evaluate on: Completeness, Accuracy, Creativity, Clarity, and Usefulness
+2. Evaluate specifically on: ${judgeCriteria.join(', ')}
 3. Declare a WINNER (Contender 1 or Contender 2)
 4. Explain your reasoning with specific examples from each submission
 5. Provide a final combined "Best Version" that takes the best elements from both
@@ -1120,12 +1252,8 @@ ${final2}
 ### Comparison Table
 | Criteria | Contender 1 | Contender 2 |
 |----------|-------------|-------------|
-| Completeness | X/10 | X/10 |
-| Accuracy | X/10 | X/10 |
-| Creativity | X/10 | X/10 |
-| Clarity | X/10 | X/10 |
-| Usefulness | X/10 | X/10 |
-| **TOTAL** | X/50 | X/50 |
+${criteriaTable}
+| **TOTAL** | X/${judgeCriteria.length * 10} | X/${judgeCriteria.length * 10} |
 
 ### Reasoning
 [Explain your decision]
@@ -1226,7 +1354,8 @@ ${final2}
         function checkLogin() {
             if (sessionStorage.getItem('ideabot_verified') === 'true') {
                 loginScreen.style.display = 'none';
-                mainApp.style.display = 'block';
+                modeSelector.style.display = 'block';
+                initModeSelector();
             }
         }
 
@@ -1236,7 +1365,8 @@ ${final2}
             if (u === AUTH.u && p === AUTH.p) {
                 sessionStorage.setItem('ideabot_verified', 'true');
                 loginScreen.style.display = 'none';
-                mainApp.style.display = 'block';
+                modeSelector.style.display = 'block';
+                initModeSelector();
             } else {
                 loginError.style.display = 'block';
                 passInput.value = "";
