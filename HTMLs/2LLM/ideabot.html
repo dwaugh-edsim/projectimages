@@ -963,18 +963,22 @@
 
         // Progress Step Management
         function setStepActive(stepNum) {
-            for (let i = 1; i <= 6; i++) {
-                const step = document.getElementById(`step${i}`);
+            // Get all step elements dynamically
+            const allSteps = document.querySelectorAll('.step-circle');
+            allSteps.forEach((step, index) => {
+                const num = index + 1;
                 step.classList.remove('active', 'complete');
-                if (i < stepNum) step.classList.add('complete');
-                if (i === stepNum) step.classList.add('active');
-            }
+                if (num < stepNum) step.classList.add('complete');
+                if (num === stepNum) step.classList.add('active');
+            });
         }
 
         function setStepComplete(stepNum) {
             const step = document.getElementById(`step${stepNum}`);
-            step.classList.remove('active');
-            step.classList.add('complete');
+            if (step) {
+                step.classList.remove('active');
+                step.classList.add('complete');
+            }
         }
 
         // API Call
@@ -1386,9 +1390,9 @@ ${criteriaTable}
         clearBtn.onclick = () => {
             if (confirm('Clear all results?')) {
                 battleOutput.innerHTML = '';
-                for (let i = 1; i <= 6; i++) {
-                    document.getElementById(`step${i}`).classList.remove('active', 'complete');
-                }
+                document.querySelectorAll('.step-circle').forEach(step => {
+                    step.classList.remove('active', 'complete');
+                });
                 window.interviewContext = null;
                 window.interviewHistory = [];
             }
