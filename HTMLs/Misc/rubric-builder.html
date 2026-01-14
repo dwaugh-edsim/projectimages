@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubric Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mode-toggle h1 {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover,
+        .toggle-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Header Fields Config */
+        .config-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-section.hidden {
+            display: none;
+        }
+
+        .field-config {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .field-config input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .field-config input.field-label {
+            width: 150px;
+        }
+
+        .field-config input.field-placeholder {
+            width: 200px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        /* Phase Builder */
+        .phase-builder {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .phase-header-config {
+            background: #f0f0f0;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .phase-header-config input {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .criteria-list {
+            padding: 15px;
+        }
+
+        .criterion-row {
+            display: grid;
+            grid-template-columns: 180px 1fr auto;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .criterion-row input,
+        .criterion-row textarea {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .criterion-row textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .levels-config {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .level-config {
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .level-config.level-4 {
+            background: #e8f5e9;
+        }
+
+        .level-config.level-3 {
+            background: #fff3e0;
+        }
+
+        .level-config.level-2 {
+            background: #fff8e1;
+        }
+
+        .level-config.level-1 {
+            background: #ffebee;
+        }
+
+        .level-config input {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .level-config textarea {
+            width: 100%;
+            min-height: 50px;
+            font-size: 0.8rem;
+        }
+
+        /* Scoring Config */
+        .scoring-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .scoring-row label {
+            font-weight: 500;
+        }
+
+        .scoring-row input {
+            width: 60px;
+            text-align: center;
+        }
+
+        /* Rendered Rubric (Fill Mode) */
+        .header-fields {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .header-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-field label {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .header-field input {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 4px 8px;
+            font-size: 1rem;
+            min-width: 180px;
+            background: transparent;
+        }
+
+        .header-field input:focus {
+            outline: none;
+            border-bottom-color: #2563eb;
+        }
+
+        .phase-section {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+        }
+
+        .phase-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .phase-table th,
+        .phase-table td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.85rem;
+        }
+
+        .phase-table th {
+            background: #f8f8f8;
+            font-weight: 600;
+        }
+
+        .phase-title {
+            background: #f0f0f0 !important;
+        }
+
+        .criteria-name {
+            font-weight: 600;
+            min-width: 130px;
+        }
+
+        .criteria-desc {
+            font-weight: normal;
+            font-size: 0.8rem;
+            color: #666;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .level-cell {
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .level-cell:hover {
+            transform: scale(1.02);
+        }
+
+        .level-4 {
+            background: #e8f5e9;
+        }
+
+        .level-4:hover {
+            background: #c8e6c9;
+        }
+
+        .level-3 {
+            background: #fff3e0;
+        }
+
+        .level-3:hover {
+            background: #ffe0b2;
+        }
+
+        .level-2 {
+            background: #fff8e1;
+        }
+
+        .level-2:hover {
+            background: #fff59d;
+        }
+
+        .level-1 {
+            background: #ffebee;
+        }
+
+        .level-1:hover {
+            background: #ffcdd2;
+        }
+
+        .level-4.selected {
+            background: #4caf50 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #2e7d32;
+        }
+
+        .level-3.selected {
+            background: #ff9800 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #e65100;
+        }
+
+        .level-2.selected {
+            background: #ffc107 !important;
+            color: #333;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #ff8f00;
+        }
+
+        .level-1.selected {
+            background: #f44336 !important;
+            color: white;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 3px #c62828;
+        }
+
+        .score-cell {
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .score-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .max-score {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .notes-row td {
+            padding: 0;
+        }
+
+        .notes-label {
+            font-weight: 600;
+            padding: 10px 12px;
+            background: #fafafa;
+            width: 130px;
+            vertical-align: top;
+        }
+
+        .notes-input {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            padding: 10px 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+
+        .notes-input:focus {
+            outline: none;
+            background: #f8faff;
+        }
+
+        .footer {
+            display: flex;
+            gap: 30px;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .footer-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-field label {
+            font-weight: 600;
+        }
+
+        .final-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .percentage {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .signature-input {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 4px 8px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        @media print {
+
+            .mode-toggle,
+            .config-section,
+            .actions,
+            .btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="mode-toggle">
+            <h1>📋 Rubric Builder</h1>
+            <div>
+                <button class="toggle-btn active" id="editModeBtn" onclick="setMode('edit')">✏️ Edit Template</button>
+                <button class="toggle-btn" id="fillModeBtn" onclick="setMode('fill')">📝 Fill Rubric</button>
+            </div>
+        </div>
+
+        <!-- EDIT MODE -->
+        <div id="editMode">
+            <!-- Rubric Title -->
+            <div class="config-section">
+                <h3>📌 Rubric Title</h3>
+                <input type="text" id="rubricTitle" placeholder="e.g., TNC Presentation Marking Sheet"
+                    value="Custom Rubric" style="width: 100%; padding: 10px; font-size: 1.1rem; font-weight: 600;">
+            </div>
+
+            <!-- Header Fields -->
+            <div class="config-section">
+                <h3>📋 Header Fields <button class="btn btn-sm btn-success" onclick="addHeaderField()">+ Add
+                        Field</button></h3>
+                <div id="headerFieldsConfig">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Scoring Levels -->
+            <div class="config-section">
+                <h3>⭐ Scoring Levels</h3>
+                <div class="levels-config" id="globalLevels">
+                    <div class="level-config level-4">
+                        <input type="text" id="level4Name" value="4 - Exceptional">
+                    </div>
+                    <div class="level-config level-3">
+                        <input type="text" id="level3Name" value="3 - Proficient">
+                    </div>
+                    <div class="level-config level-2">
+                        <input type="text" id="level2Name" value="2 - Developing">
+                    </div>
+                    <div class="level-config level-1">
+                        <input type="text" id="level1Name" value="1 - Beginning">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phases -->
+            <div id="phasesContainer">
+                <!-- Phases added dynamically -->
+            </div>
+
+            <button class="btn btn-primary" onclick="addPhase()" style="margin-top: 15px;">➕ Add Phase</button>
+
+            <div class="actions">
+                <button class="btn btn-success" onclick="saveTemplate()">💾 Save Template</button>
+                <button class="btn btn-secondary" onclick="loadTemplate()">📂 Load Template</button>
+                <button class="btn btn-primary" onclick="exportAsHTML()">📥 Export as HTML</button>
+            </div>
+        </div>
+
+        <!-- FILL MODE -->
+        <div id="fillMode" style="display: none;">
+            <div id="renderedRubric">
+                <!-- Rendered rubric appears here -->
+            </div>
+            <div class="actions">
+                <button class="btn btn-success" onclick="saveProgress()">💾 Save Progress</button>
+                <button class="btn btn-secondary" onclick="loadProgress()">📂 Load Progress</button>
+                <button class="btn btn-primary" onclick="downloadFilledRubric()">📥 Download Filled</button>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+                <button class="btn btn-danger" onclick="clearForm()">🗑️ Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default template structure
+        let template = {
+            title: 'Custom Rubric',
+            headerFields: [
+                { label: 'Student Name', placeholder: 'Enter name' },
+                { label: 'Class/Section', placeholder: 'Enter class' },
+                { label: 'Date', placeholder: 'Enter date' }
+            ],
+            levels: {
+                4: { name: '4 - Exceptional', color: 'level-4' },
+                3: { name: '3 - Proficient', color: 'level-3' },
+                2: { name: '2 - Developing', color: 'level-2' },
+                1: { name: '1 - Beginning', color: 'level-1' }
+            },
+            phases: []
+        };
+
+        let currentMode = 'edit';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            renderHeaderFields();
+            if (template.phases.length === 0) {
+                addPhase(); // Add one default phase
+            } else {
+                renderPhases();
+            }
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('editModeBtn').classList.toggle('active', mode === 'edit');
+            document.getElementById('fillModeBtn').classList.toggle('active', mode === 'fill');
+            document.getElementById('editMode').style.display = mode === 'edit' ? 'block' : 'none';
+            document.getElementById('fillMode').style.display = mode === 'fill' ? 'block' : 'none';
+
+            if (mode === 'fill') {
+                collectTemplateData();
+                renderFillableRubric();
+            }
+        }
+
+        // === HEADER FIELDS ===
+        function renderHeaderFields() {
+            const container = document.getElementById('headerFieldsConfig');
+            container.innerHTML = template.headerFields.map((f, i) => `
+                <div class="field-config">
+                    <input type="text" class="field-label" value="${f.label}" onchange="updateHeaderField(${i}, 'label', this.value)" placeholder="Field label">
+                    <input type="text" class="field-placeholder" value="${f.placeholder}" onchange="updateHeaderField(${i}, 'placeholder', this.value)" placeholder="Placeholder text">
+                    <button class="btn btn-sm btn-danger" onclick="removeHeaderField(${i})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function addHeaderField() {
+            template.headerFields.push({ label: 'New Field', placeholder: 'Enter value' });
+            renderHeaderFields();
+        }
+
+        function updateHeaderField(index, key, value) {
+            template.headerFields[index][key] = value;
+        }
+
+        function removeHeaderField(index) {
+            template.headerFields.splice(index, 1);
+            renderHeaderFields();
+        }
+
+        // === PHASES ===
+        function renderPhases() {
+            const container = document.getElementById('phasesContainer');
+            container.innerHTML = template.phases.map((phase, pIdx) => `
+                <div class="phase-builder" data-phase="${pIdx}">
+                    <div class="phase-header-config">
+                        <input type="text" value="${phase.name}" onchange="updatePhase(${pIdx}, 'name', this.value)" placeholder="Phase name (e.g., Phase 1: Research)">
+                        <button class="btn btn-sm btn-danger" onclick="removePhase(${pIdx})">🗑️ Delete Phase</button>
+                    </div>
+                    <div class="criteria-list">
+                        ${phase.criteria.map((crit, cIdx) => renderCriterion(pIdx, cIdx, crit)).join('')}
+                        <button class="btn btn-sm btn-success" onclick="addCriterion(${pIdx})">+ Add Criterion</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCriterion(pIdx, cIdx, crit) {
+            return `
+                <div class="criterion-row">
+                    <div>
+                        <input type="text" value="${crit.name}" onchange="updateCriterion(${pIdx}, ${cIdx}, 'name', this.value)" placeholder="Criterion name">
+                        <textarea onchange="updateCriterion(${pIdx}, ${cIdx}, 'description', this.value)" placeholder="Description">${crit.description || ''}</textarea>
+                        <div class="scoring-row">
+                            <label>Max Score:</label>
+                            <input type="number" value="${crit.maxScore || 4}" onchange="updateCriterion(${pIdx}, ${cIdx}, 'maxScore', parseInt(this.value))" min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="levels-config">
+                        <div class="level-config level-4">
+                            <strong>Level 4</strong>
+                            <textarea onchange="updateCriterionLevel(${pIdx}, ${cIdx}, 4, this.value)" placeholder="Exceptional description">${crit.levels?.[4] || ''}</textarea>
+                        </div>
+                        <div class="level-config level-3">
+                            <strong>Level 3</strong>
+                            <textarea onchange="updateCriterionLevel(${pIdx}, ${cIdx}, 3, this.value)" placeholder="Proficient description">${crit.levels?.[3] || ''}</textarea>
+                        </div>
+                        <div class="level-config level-2">
+                            <strong>Level 2</strong>
+                            <textarea onchange="updateCriterionLevel(${pIdx}, ${cIdx}, 2, this.value)" placeholder="Developing description">${crit.levels?.[2] || ''}</textarea>
+                        </div>
+                        <div class="level-config level-1">
+                            <strong>Level 1</strong>
+                            <textarea onchange="updateCriterionLevel(${pIdx}, ${cIdx}, 1, this.value)" placeholder="Beginning description">${crit.levels?.[1] || ''}</textarea>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="removeCriterion(${pIdx}, ${cIdx})">✕</button>
+                </div>
+            `;
+        }
+
+        function addPhase() {
+            template.phases.push({
+                name: `Phase ${template.phases.length + 1}`,
+                criteria: [{ name: 'Criterion 1', description: '', maxScore: 4, levels: { 4: '', 3: '', 2: '', 1: '' } }]
+            });
+            renderPhases();
+        }
+
+        function removePhase(index) {
+            if (confirm('Delete this phase?')) {
+                template.phases.splice(index, 1);
+                renderPhases();
+            }
+        }
+
+        function updatePhase(pIdx, key, value) {
+            template.phases[pIdx][key] = value;
+        }
+
+        function addCriterion(pIdx) {
+            template.phases[pIdx].criteria.push({
+                name: `Criterion ${template.phases[pIdx].criteria.length + 1}`,
+                description: '',
+                maxScore: 4,
+                levels: { 4: '', 3: '', 2: '', 1: '' }
+            });
+            renderPhases();
+        }
+
+        function removeCriterion(pIdx, cIdx) {
+            template.phases[pIdx].criteria.splice(cIdx, 1);
+            renderPhases();
+        }
+
+        function updateCriterion(pIdx, cIdx, key, value) {
+            template.phases[pIdx].criteria[cIdx][key] = value;
+        }
+
+        function updateCriterionLevel(pIdx, cIdx, level, value) {
+            if (!template.phases[pIdx].criteria[cIdx].levels) {
+                template.phases[pIdx].criteria[cIdx].levels = {};
+            }
+            template.phases[pIdx].criteria[cIdx].levels[level] = value;
+        }
+
+        // === COLLECT DATA ===
+        function collectTemplateData() {
+            template.title = document.getElementById('rubricTitle').value;
+            template.levels[4].name = document.getElementById('level4Name').value;
+            template.levels[3].name = document.getElementById('level3Name').value;
+            template.levels[2].name = document.getElementById('level2Name').value;
+            template.levels[1].name = document.getElementById('level1Name').value;
+        }
+
+        // === RENDER FILLABLE RUBRIC ===
+        function renderFillableRubric() {
+            const container = document.getElementById('renderedRubric');
+            let totalMax = 0;
+            template.phases.forEach(p => p.criteria.forEach(c => totalMax += (c.maxScore || 4)));
+
+            let html = `<h1>${template.title}</h1>`;
+
+            // Header fields
+            html += '<div class="header-fields">';
+            template.headerFields.forEach((f, i) => {
+                html += `<div class="header-field"><label>${f.label}:</label><input type="text" id="hf-${i}" placeholder="${f.placeholder}"></div>`;
+            });
+            html += '</div>';
+
+            // Phases
+            template.phases.forEach((phase, pIdx) => {
+                html += `<div class="phase-section"><table class="phase-table">`;
+                html += `<tr class="phase-title"><th colspan="6">${phase.name}</th></tr>`;
+                html += `<tr><th style="width:150px">Criteria</th>
+                    <th class="level-4">${template.levels[4].name}</th>
+                    <th class="level-3">${template.levels[3].name}</th>
+                    <th class="level-2">${template.levels[2].name}</th>
+                    <th class="level-1">${template.levels[1].name}</th>
+                    <th class="score-cell">Score</th></tr>`;
+
+                phase.criteria.forEach((crit, cIdx) => {
+                    const id = `p${pIdx}c${cIdx}`;
+                    html += `<tr>
+                        <td class="criteria-name">${crit.name}${crit.description ? `<span class="criteria-desc">${crit.description}</span>` : ''}</td>
+                        <td class="level-cell level-4" data-score="${crit.maxScore || 4}" data-target="${id}" onclick="selectLevel(this)">${crit.levels?.[4] || ''}</td>
+                        <td class="level-cell level-3" data-score="${Math.ceil((crit.maxScore || 4) * 0.75)}" data-target="${id}" onclick="selectLevel(this)">${crit.levels?.[3] || ''}</td>
+                        <td class="level-cell level-2" data-score="${Math.ceil((crit.maxScore || 4) * 0.5)}" data-target="${id}" onclick="selectLevel(this)">${crit.levels?.[2] || ''}</td>
+                        <td class="level-cell level-1" data-score="${Math.ceil((crit.maxScore || 4) * 0.25)}" data-target="${id}" onclick="selectLevel(this)">${crit.levels?.[1] || ''}</td>
+                        <td class="score-cell"><input type="number" class="score-input" id="${id}" min="0" max="${crit.maxScore || 4}" onchange="calculateTotal()"> <span class="max-score">/ ${crit.maxScore || 4}</span></td>
+                    </tr>`;
+                });
+
+                html += `<tr class="notes-row"><td class="notes-label">Notes:</td><td colspan="5"><textarea class="notes-input" id="notes-p${pIdx}" placeholder="Add comments..."></textarea></td></tr>`;
+                html += `</table></div>`;
+            });
+
+            // Footer
+            html += `<div class="footer">
+                <div class="footer-field"><label>Total Score:</label><span class="final-score" id="totalScore">0</span><span class="max-score">/ ${totalMax}</span></div>
+                <div class="footer-field"><label>Percentage:</label><span class="percentage" id="percentage">0%</span></div>
+                <div class="footer-field"><label>Evaluator Signature:</label><input type="text" class="signature-input" id="signature"></div>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function selectLevel(cell) {
+            const target = cell.dataset.target;
+            const score = parseInt(cell.dataset.score);
+            const row = cell.parentElement;
+
+            // Clear selection in this row
+            row.querySelectorAll('.level-cell').forEach(c => c.classList.remove('selected'));
+            cell.classList.add('selected');
+
+            // Set score
+            document.getElementById(target).value = score;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            let max = 0;
+            template.phases.forEach((p, pIdx) => {
+                p.criteria.forEach((c, cIdx) => {
+                    const input = document.getElementById(`p${pIdx}c${cIdx}`);
+                    if (input && input.value) total += parseInt(input.value) || 0;
+                    max += c.maxScore || 4;
+                });
+            });
+            document.getElementById('totalScore').textContent = total;
+            document.getElementById('percentage').textContent = max > 0 ? Math.round((total / max) * 100) + '%' : '0%';
+        }
+
+        // === STORAGE ===
+        function saveTemplate() {
+            collectTemplateData();
+            localStorage.setItem('rubricTemplate', JSON.stringify(template));
+            alert('Template saved!');
+        }
+
+        function loadTemplate() {
+            const saved = localStorage.getItem('rubricTemplate');
+            if (saved) {
+                template = JSON.parse(saved);
+                document.getElementById('rubricTitle').value = template.title;
+                document.getElementById('level4Name').value = template.levels[4].name;
+                document.getElementById('level3Name').value = template.levels[3].name;
+                document.getElementById('level2Name').value = template.levels[2].name;
+                document.getElementById('level1Name').value = template.levels[1].name;
+                renderHeaderFields();
+                renderPhases();
+                alert('Template loaded!');
+            } else {
+                alert('No saved template found.');
+            }
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('rubricTemplate');
+            if (saved) {
+                template = JSON.parse(saved);
+                document.getElementById('rubricTitle').value = template.title || 'Custom Rubric';
+                if (template.levels) {
+                    document.getElementById('level4Name').value = template.levels[4]?.name || '4 - Exceptional';
+                    document.getElementById('level3Name').value = template.levels[3]?.name || '3 - Proficient';
+                    document.getElementById('level2Name').value = template.levels[2]?.name || '2 - Developing';
+                    document.getElementById('level1Name').value = template.levels[1]?.name || '1 - Beginning';
+                }
+            }
+        }
+
+        function saveProgress() {
+            const data = {};
+            template.phases.forEach((p, pIdx) => {
+                p.criteria.forEach((c, cIdx) => {
+                    const input = document.getElementById(`p${pIdx}c${cIdx}`);
+                    if (input) data[`p${pIdx}c${cIdx}`] = input.value;
+                });
+                const notes = document.getElementById(`notes-p${pIdx}`);
+                if (notes) data[`notes-p${pIdx}`] = notes.value;
+            });
+            template.headerFields.forEach((f, i) => {
+                const input = document.getElementById(`hf-${i}`);
+                if (input) data[`hf-${i}`] = input.value;
+            });
+            const sig = document.getElementById('signature');
+            if (sig) data.signature = sig.value;
+            localStorage.setItem('rubricProgress', JSON.stringify(data));
+            alert('Progress saved!');
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('rubricProgress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) el.value = data[key];
+                });
+                calculateTotal();
+                alert('Progress loaded!');
+            }
+        }
+
+        function clearForm() {
+            if (confirm('Clear all entries?')) {
+                document.querySelectorAll('.score-input, .notes-input, .header-field input, .signature-input').forEach(el => el.value = '');
+                document.querySelectorAll('.level-cell.selected').forEach(el => el.classList.remove('selected'));
+                calculateTotal();
+            }
+        }
+
+        function exportAsHTML() {
+            collectTemplateData();
+            // Generate standalone HTML
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${template.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-rubric.html`;
+            a.click();
+        }
+
+        function downloadFilledRubric() {
+            const content = document.getElementById('renderedRubric').innerHTML;
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${template.title}</title>
+                <style>body{font-family:'Segoe UI',sans-serif;padding:30px;max-width:1100px;margin:auto;}
+                h1{margin-bottom:20px;} .header-fields{display:flex;gap:20px;margin-bottom:25px;flex-wrap:wrap;}
+                .header-field{display:flex;gap:8px;} .header-field label{font-weight:600;}
+                .phase-section{margin-bottom:25px;border:1px solid #ddd;} .phase-table{width:100%;border-collapse:collapse;}
+                .phase-table th,.phase-table td{border:1px solid #ddd;padding:10px;text-align:left;font-size:0.85rem;}
+                .phase-table th{background:#f8f8f8;} .phase-title{background:#f0f0f0;}
+                .criteria-name{font-weight:600;} .criteria-desc{font-size:0.8rem;color:#666;}
+                .level-4{background:#e8f5e9;} .level-3{background:#fff3e0;} .level-2{background:#fff8e1;} .level-1{background:#ffebee;}
+                .level-4.selected{background:#4caf50;color:white;} .level-3.selected{background:#ff9800;color:white;}
+                .level-2.selected{background:#ffc107;color:#333;} .level-1.selected{background:#f44336;color:white;}
+                .score-cell{text-align:center;} .footer{display:flex;gap:30px;margin-top:25px;padding-top:15px;border-top:1px solid #ddd;}
+                .final-score{font-size:1.2rem;font-weight:700;padding:4px 12px;background:#e8f5e9;border-radius:4px;}
+                .percentage{font-size:1.1rem;font-weight:600;color:#2563eb;}</style></head>
+                <body>${content}</body></html>`;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `filled-rubric-${new Date().toISOString().slice(0, 10)}.html`;
+            a.click();
+        }
+    </script>
+</body>
+
+</html>
