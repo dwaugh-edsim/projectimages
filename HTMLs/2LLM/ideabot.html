@@ -1097,7 +1097,7 @@ Format your output with clear structure using headings, bullet points, or number
                 battleOutput.appendChild(card2b);
 
                 const critiquePrompt = (otherDraft, critiquerName) => `
-You are ${critiquerName}, a thorough reviewer.
+You are ${critiquerName}, a thorough expert reviewer${currentMode ? ` with deep expertise in ${currentMode.output}` : ''}.
 
 ### ORIGINAL TASK
 ${task}
@@ -1105,12 +1105,26 @@ ${task}
 ### WORK TO CRITIQUE
 ${otherDraft}
 
+### EVALUATION CRITERIA
+${currentMode ? `Focus on: ${currentMode.criteria}` : 'Focus on: completeness, accuracy, clarity, and usefulness'}
+
 ### INSTRUCTIONS
-Provide constructive critique:
-1. Identify 2-3 specific strengths
-2. Identify 2-3 specific weaknesses or gaps
-3. Suggest 2-3 concrete improvements
-Be specific and actionable. Reference particular parts of the work.
+Provide a rigorous, constructive critique:
+
+1. **STRENGTHS (2-3)**: What works well? Be specific with examples.
+
+2. **WEAKNESSES (2-3)**: Identify issues such as:
+   - Anti-patterns or common mistakes
+   - Missing edge cases or error handling
+   - Complexity issues (unnecessary overhead, poor structure)
+   - Accessibility/usability gaps
+   - Inconsistencies or unclear sections
+
+3. **CONCRETE IMPROVEMENTS (2-3)**: Suggest specific fixes, not vague advice. Include code snippets, rewrites, or restructured content where helpful.
+
+4. **REMAINING GAPS**: What would a real ${currentMode ? currentMode.judge : 'expert'} still push back on?
+
+Be direct and actionable. Reference specific lines, sections, or elements.
 `;
 
                 document.getElementById(`critique1a-${sessionId}-status`).innerText = 'Analyzing work...';
@@ -1269,6 +1283,38 @@ ${criteriaTable}
                 document.getElementById(`boss-${sessionId}-output`).innerHTML = marked.parse(bossDecision);
                 document.getElementById(`boss-${sessionId}-status`).innerText = '👑 Judgement rendered!';
 
+                // Store context for interview
+                window.interviewContext = {
+                    task,
+                    final1,
+                    final2,
+                    bossDecision,
+                    bossModel,
+                    judgeName: currentMode ? currentMode.judge : 'Final Boss',
+                    mode: currentMode
+                };
+
+                // Create Interview Panel
+                const interviewPanel = document.createElement('div');
+                interviewPanel.className = 'phase-card boss';
+                interviewPanel.id = `interview-${sessionId}`;
+                interviewPanel.innerHTML = `
+                    <div class="phase-header">
+                        <span class="phase-badge">💬 Interview</span>
+                        <span>Ask the ${window.interviewContext.judgeName}</span>
+                    </div>
+                    <div class="phase-status">Ask follow-up questions about the decision or final product</div>
+                    <div id="interview-history-${sessionId}" style="margin: 1rem 0;"></div>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <textarea id="interview-input-${sessionId}" placeholder="Ask about the decision, request changes, or dig deeper..." style="flex: 1; min-height: 60px;"></textarea>
+                        <button class="btn-submit" style="width: auto; padding: 1rem 1.5rem;" onclick="askInterview('${sessionId}')">
+                            <span>Ask</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </div>
+                `;
+                battleOutput.appendChild(interviewPanel);
+
                 setStepComplete(6);
 
             } catch (error) {
@@ -1328,6 +1374,76 @@ ${criteriaTable}
                 for (let i = 1; i <= 6; i++) {
                     document.getElementById(`step${i}`).classList.remove('active', 'complete');
                 }
+                window.interviewContext = null;
+                window.interviewHistory = [];
+            }
+        };
+
+        // Interview the Final Boss
+        window.interviewHistory = [];
+        window.askInterview = async (sessionId) => {
+            const input = document.getElementById(`interview-input-${sessionId}`);
+            const history = document.getElementById(`interview-history-${sessionId}`);
+            const btn = input.nextElementSibling;
+            const question = input.value.trim();
+
+            if (!question || !window.interviewContext) return;
+
+            btn.disabled = true;
+            btn.classList.add('loading');
+
+            // Add user question to history
+            window.interviewHistory.push({ role: 'user', content: question });
+            history.innerHTML += `
+                <div style="background: rgba(139,92,246,0.1); padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; border-left: 3px solid var(--primary);">
+                    <strong>You:</strong> ${question}
+                </div>
+            `;
+            input.value = '';
+
+            const ctx = window.interviewContext;
+            const historyText = window.interviewHistory.map(m => `${m.role === 'user' ? 'User' : ctx.judgeName}: ${m.content}`).join('\n\n');
+
+            const interviewPrompt = `
+You are the ${ctx.judgeName}, continuing to discuss your decision.
+
+### CONTEXT
+Original Task: ${ctx.task}
+
+Your Previous Decision:
+${ctx.bossDecision}
+
+### CONVERSATION SO FAR
+${historyText}
+
+### INSTRUCTIONS
+Answer the user's latest question thoughtfully. You can:
+- Explain your reasoning in more detail
+- Suggest specific improvements to the final product
+- Compare aspects of the two contenders
+- Provide code fixes, rewrites, or additional content if asked
+Be helpful, specific, and stay in character as the ${ctx.judgeName}.
+`;
+
+            try {
+                const response = await callLLM(interviewPrompt, ctx.bossModel);
+                window.interviewHistory.push({ role: 'assistant', content: response });
+                history.innerHTML += `
+                    <div style="background: rgba(245,158,11,0.1); padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; border-left: 3px solid var(--boss-color);">
+                        <strong>${ctx.judgeName}:</strong>
+                        <div class="content-display" style="margin-top: 0.5rem; padding: 0.5rem;">${marked.parse(response)}</div>
+                    </div>
+                `;
+            } catch (error) {
+                history.innerHTML += `
+                    <div style="background: rgba(239,68,68,0.1); padding: 0.75rem 1rem; border-radius: 0.5rem; color: #ef4444;">
+                        Error: ${error.message}
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                history.scrollTop = history.scrollHeight;
             }
         };
 
