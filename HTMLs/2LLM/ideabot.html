@@ -738,16 +738,26 @@
                 <!-- Advanced Options -->
                 <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
                     <label
+                        style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">
+                        🔁 Rounds:
+                        <select id="numRounds"
+                            style="padding: 0.4rem 0.8rem; background: var(--glass-bg); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 0.9rem;">
+                            <option value="1">1 (Quick)</option>
+                            <option value="2" selected>2 (Standard)</option>
+                            <option value="3">3 (Deep)</option>
+                        </select>
+                    </label>
+                    <label
                         style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-dim); font-size: 0.9rem;">
                         <input type="checkbox" id="flipSides"
                             style="width: 18px; height: 18px; accent-color: var(--primary);">
-                        🔄 Flip Sides (swap A↔B to reduce position bias)
+                        🔄 Flip Sides
                     </label>
                     <label
                         style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-dim); font-size: 0.9rem;">
                         <input type="checkbox" id="requireQuotes" checked
                             style="width: 18px; height: 18px; accent-color: var(--accent);">
-                        📎 Require &lt;quote&gt; evidence (stricter critiques)
+                        📎 Require &lt;quote&gt; evidence
                     </label>
                 </div>
 
@@ -772,33 +782,10 @@
                     </div>
                 </div>
 
-                <!-- Progress Bar -->
+                <!-- Progress Bar (dynamically generated) -->
                 <div class="progress-container">
-                    <div class="progress-steps">
-                        <div class="progress-step">
-                            <div class="step-circle" id="step1">1</div>
-                            <span class="step-label">Initial Drafts</span>
-                        </div>
-                        <div class="progress-step">
-                            <div class="step-circle" id="step2">2</div>
-                            <span class="step-label">Critique Pass 1</span>
-                        </div>
-                        <div class="progress-step">
-                            <div class="step-circle" id="step3">3</div>
-                            <span class="step-label">Revision 1</span>
-                        </div>
-                        <div class="progress-step">
-                            <div class="step-circle" id="step4">4</div>
-                            <span class="step-label">Critique Pass 2</span>
-                        </div>
-                        <div class="progress-step">
-                            <div class="step-circle" id="step5">5</div>
-                            <span class="step-label">Revision 2</span>
-                        </div>
-                        <div class="progress-step">
-                            <div class="step-circle" id="step6">👑</div>
-                            <span class="step-label">Final Boss</span>
-                        </div>
+                    <div class="progress-steps" id="progressSteps">
+                        <!-- Steps generated dynamically based on rounds -->
                     </div>
                 </div>
 
@@ -1046,6 +1033,7 @@
             // Model selection with optional flip
             const flipSides = document.getElementById('flipSides').checked;
             const requireQuotes = document.getElementById('requireQuotes').checked;
+            const numRounds = parseInt(document.getElementById('numRounds').value);
             let model1 = modelSelect1.value;
             let model2 = modelSelect2.value;
             const bossModel = modelSelectBoss.value;
@@ -1060,11 +1048,25 @@
             resultsArea.style.display = 'block';
             battleOutput.innerHTML = '';
 
-            // Reset steps
-            for (let i = 1; i <= 6; i++) {
-                const step = document.getElementById(`step${i}`);
-                step.classList.remove('active', 'complete');
+            // Generate dynamic progress bar based on rounds
+            const progressSteps = document.getElementById('progressSteps');
+            progressSteps.innerHTML = '';
+            const totalSteps = 1 + (numRounds * 2) + 1; // Draft + (Critique+Revision)*rounds + Boss
+
+            // Step 1: Initial Draft
+            progressSteps.innerHTML += `<div class="progress-step"><div class="step-circle" id="step1">1</div><span class="step-label">Drafts</span></div>`;
+
+            // Steps for each round (Critique + Revision)
+            let stepNum = 2;
+            for (let r = 1; r <= numRounds; r++) {
+                progressSteps.innerHTML += `<div class="progress-step"><div class="step-circle" id="step${stepNum}">${stepNum}</div><span class="step-label">Crit ${r}</span></div>`;
+                stepNum++;
+                progressSteps.innerHTML += `<div class="progress-step"><div class="step-circle" id="step${stepNum}">${stepNum}</div><span class="step-label">Rev ${r}</span></div>`;
+                stepNum++;
             }
+
+            // Final Boss step
+            progressSteps.innerHTML += `<div class="progress-step"><div class="step-circle" id="step${stepNum}">👑</div><span class="step-label">Boss</span></div>`;
 
             const sessionId = Date.now();
 
@@ -1113,14 +1115,7 @@ Format your output with clear structure using headings, bullet points, or number
 
                 setStepComplete(1);
 
-                // ===== STEP 2: Critique Pass 1 =====
-                setStepActive(2);
-
-                const card2a = createPhaseCard(`critique1a-${sessionId}`, 'llm2', 'Critique of Contender 1');
-                const card2b = createPhaseCard(`critique1b-${sessionId}`, 'llm1', 'Critique of Contender 2');
-                battleOutput.appendChild(card2a);
-                battleOutput.appendChild(card2b);
-
+                // Quote enforcement helper
                 const quoteEnforcement = requireQuotes ? `
 **IMPORTANT: Evidence Rule**
 You MUST wrap all quoted evidence in \`<quote>\` tags. Example:
@@ -1128,13 +1123,13 @@ You MUST wrap all quoted evidence in \`<quote>\` tags. Example:
 Only criticisms backed by exact quotes from the work will be considered valid by the judge.
 ` : '';
 
-                const critiquePrompt = (otherDraft, critiquerName) => `
+                const critiquePrompt = (otherDraft, critiquerName, roundNum) => `
 You are ${critiquerName}, a thorough expert reviewer${currentMode ? ` with deep expertise in ${currentMode.output}` : ''}.
 
 ### ORIGINAL TASK
 ${task}
 
-### WORK TO CRITIQUE
+### WORK TO CRITIQUE (Round ${roundNum})
 ${otherDraft}
 
 ### EVALUATION CRITERIA
@@ -1160,30 +1155,7 @@ Provide a rigorous, constructive critique:
 Be direct and actionable. Reference specific lines, sections, or elements.
 `;
 
-                document.getElementById(`critique1a-${sessionId}-status`).innerText = 'Analyzing work...';
-                document.getElementById(`critique1b-${sessionId}-status`).innerText = 'Analyzing work...';
-
-                const [crit1of2, crit2of1] = await Promise.all([
-                    callLLM(critiquePrompt(draft2, 'Contender 1'), model1),
-                    callLLM(critiquePrompt(draft1, 'Contender 2'), model2)
-                ]);
-
-                document.getElementById(`critique1a-${sessionId}-output`).innerHTML = marked.parse(crit2of1);
-                document.getElementById(`critique1a-${sessionId}-status`).innerText = '✓ Critique complete';
-                document.getElementById(`critique1b-${sessionId}-output`).innerHTML = marked.parse(crit1of2);
-                document.getElementById(`critique1b-${sessionId}-status`).innerText = '✓ Critique complete';
-
-                setStepComplete(2);
-
-                // ===== STEP 3: Revision 1 =====
-                setStepActive(3);
-
-                const card3a = createPhaseCard(`rev1a-${sessionId}`, 'llm1', 'Revision 1');
-                const card3b = createPhaseCard(`rev1b-${sessionId}`, 'llm2', 'Revision 1');
-                battleOutput.appendChild(card3a);
-                battleOutput.appendChild(card3b);
-
-                const revisionPrompt = (myDraft, critique, contenderName) => `
+                const revisionPrompt = (myDraft, critique, contenderName, roundNum) => `
 You are ${contenderName}. Your opponent has critiqued your work.
 
 ### ORIGINAL TASK
@@ -1192,7 +1164,7 @@ ${task}
 ### YOUR PREVIOUS DRAFT
 ${myDraft}
 
-### OPPONENT'S CRITIQUE
+### OPPONENT'S CRITIQUE (Round ${roundNum})
 ${critique}
 
 ### INSTRUCTIONS
@@ -1203,69 +1175,71 @@ Revise your work to address the valid points in the critique.
 Output the complete revised version (not just changes).
 `;
 
-                document.getElementById(`rev1a-${sessionId}-status`).innerText = 'Revising based on critique...';
-                document.getElementById(`rev1b-${sessionId}-status`).innerText = 'Revising based on critique...';
+                // Track current versions
+                let current1 = draft1;
+                let current2 = draft2;
+                let stepNum = 2;
 
-                const [rev1_1, rev1_2] = await Promise.all([
-                    callLLM(revisionPrompt(draft1, crit2of1, 'Contender 1'), model1),
-                    callLLM(revisionPrompt(draft2, crit1of2, 'Contender 2'), model2)
-                ]);
+                // ===== DYNAMIC ROUNDS: Critique + Revision =====
+                for (let round = 1; round <= numRounds; round++) {
+                    const isLastRound = round === numRounds;
 
-                document.getElementById(`rev1a-${sessionId}-output`).innerHTML = marked.parse(rev1_1);
-                document.getElementById(`rev1a-${sessionId}-status`).innerText = '✓ Revision complete';
-                document.getElementById(`rev1b-${sessionId}-output`).innerHTML = marked.parse(rev1_2);
-                document.getElementById(`rev1b-${sessionId}-status`).innerText = '✓ Revision complete';
+                    // Critique Phase
+                    setStepActive(stepNum);
+                    const critCardA = createPhaseCard(`crit${round}a-${sessionId}`, 'llm2', `Round ${round} Critique of C1`);
+                    const critCardB = createPhaseCard(`crit${round}b-${sessionId}`, 'llm1', `Round ${round} Critique of C2`);
+                    battleOutput.appendChild(critCardA);
+                    battleOutput.appendChild(critCardB);
 
-                setStepComplete(3);
+                    document.getElementById(`crit${round}a-${sessionId}-status`).innerText = 'Analyzing work...';
+                    document.getElementById(`crit${round}b-${sessionId}-status`).innerText = 'Analyzing work...';
 
-                // ===== STEP 4: Critique Pass 2 =====
-                setStepActive(4);
+                    const [critOf1, critOf2] = await Promise.all([
+                        callLLM(critiquePrompt(current1, 'Contender 2', round), model2),
+                        callLLM(critiquePrompt(current2, 'Contender 1', round), model1)
+                    ]);
 
-                const card4a = createPhaseCard(`critique2a-${sessionId}`, 'llm2', 'Second Critique of Contender 1');
-                const card4b = createPhaseCard(`critique2b-${sessionId}`, 'llm1', 'Second Critique of Contender 2');
-                battleOutput.appendChild(card4a);
-                battleOutput.appendChild(card4b);
+                    document.getElementById(`crit${round}a-${sessionId}-output`).innerHTML = marked.parse(critOf1);
+                    document.getElementById(`crit${round}a-${sessionId}-status`).innerText = '✓ Critique complete';
+                    document.getElementById(`crit${round}b-${sessionId}-output`).innerHTML = marked.parse(critOf2);
+                    document.getElementById(`crit${round}b-${sessionId}-status`).innerText = '✓ Critique complete';
+                    setStepComplete(stepNum);
+                    stepNum++;
 
-                document.getElementById(`critique2a-${sessionId}-status`).innerText = 'Analyzing revised work...';
-                document.getElementById(`critique2b-${sessionId}-status`).innerText = 'Analyzing revised work...';
+                    // Revision Phase
+                    setStepActive(stepNum);
+                    const revLabel = isLastRound ? 'Final Revision' : `Revision ${round}`;
+                    const revCardA = createPhaseCard(`rev${round}a-${sessionId}`, 'llm1', revLabel);
+                    const revCardB = createPhaseCard(`rev${round}b-${sessionId}`, 'llm2', revLabel);
+                    battleOutput.appendChild(revCardA);
+                    battleOutput.appendChild(revCardB);
 
-                const [crit2_1of2, crit2_2of1] = await Promise.all([
-                    callLLM(critiquePrompt(rev1_2, 'Contender 1'), model1),
-                    callLLM(critiquePrompt(rev1_1, 'Contender 2'), model2)
-                ]);
+                    document.getElementById(`rev${round}a-${sessionId}-status`).innerText = isLastRound ? 'Preparing final version...' : 'Revising...';
+                    document.getElementById(`rev${round}b-${sessionId}-status`).innerText = isLastRound ? 'Preparing final version...' : 'Revising...';
 
-                document.getElementById(`critique2a-${sessionId}-output`).innerHTML = marked.parse(crit2_2of1);
-                document.getElementById(`critique2a-${sessionId}-status`).innerText = '✓ Critique complete';
-                document.getElementById(`critique2b-${sessionId}-output`).innerHTML = marked.parse(crit2_1of2);
-                document.getElementById(`critique2b-${sessionId}-status`).innerText = '✓ Critique complete';
+                    const [rev1, rev2] = await Promise.all([
+                        callLLM(revisionPrompt(current1, critOf1, 'Contender 1', round), model1),
+                        callLLM(revisionPrompt(current2, critOf2, 'Contender 2', round), model2)
+                    ]);
 
-                setStepComplete(4);
+                    document.getElementById(`rev${round}a-${sessionId}-output`).innerHTML = marked.parse(rev1);
+                    document.getElementById(`rev${round}a-${sessionId}-status`).innerText = isLastRound ? '✓ Final version ready' : '✓ Revision complete';
+                    document.getElementById(`rev${round}b-${sessionId}-output`).innerHTML = marked.parse(rev2);
+                    document.getElementById(`rev${round}b-${sessionId}-status`).innerText = isLastRound ? '✓ Final version ready' : '✓ Revision complete';
+                    setStepComplete(stepNum);
+                    stepNum++;
 
-                // ===== STEP 5: Revision 2 (Final) =====
-                setStepActive(5);
+                    // Update current versions for next round
+                    current1 = rev1;
+                    current2 = rev2;
+                }
 
-                const card5a = createPhaseCard(`rev2a-${sessionId}`, 'llm1', 'Final Revision');
-                const card5b = createPhaseCard(`rev2b-${sessionId}`, 'llm2', 'Final Revision');
-                battleOutput.appendChild(card5a);
-                battleOutput.appendChild(card5b);
+                // Final submissions
+                const final1 = current1;
+                const final2 = current2;
 
-                document.getElementById(`rev2a-${sessionId}-status`).innerText = 'Preparing final version...';
-                document.getElementById(`rev2b-${sessionId}-status`).innerText = 'Preparing final version...';
-
-                const [final1, final2] = await Promise.all([
-                    callLLM(revisionPrompt(rev1_1, crit2_2of1, 'Contender 1'), model1),
-                    callLLM(revisionPrompt(rev1_2, crit2_1of2, 'Contender 2'), model2)
-                ]);
-
-                document.getElementById(`rev2a-${sessionId}-output`).innerHTML = marked.parse(final1);
-                document.getElementById(`rev2a-${sessionId}-status`).innerText = '✓ Final version ready';
-                document.getElementById(`rev2b-${sessionId}-output`).innerHTML = marked.parse(final2);
-                document.getElementById(`rev2b-${sessionId}-status`).innerText = '✓ Final version ready';
-
-                setStepComplete(5);
-
-                // ===== STEP 6: Final Boss Decision =====
-                setStepActive(6);
+                // ===== FINAL BOSS STEP =====
+                setStepActive(stepNum);
 
                 const bossCard = createPhaseCard(`boss-${sessionId}`, 'boss', 'Final Judgement');
                 battleOutput.appendChild(bossCard);
@@ -1356,7 +1330,7 @@ ${criteriaTable}
                 `;
                 battleOutput.appendChild(interviewPanel);
 
-                setStepComplete(6);
+                setStepComplete(stepNum);
 
             } catch (error) {
                 console.error(error);
