@@ -347,13 +347,15 @@
                 </div>
 
                 <button class="btn secondary" onclick="clearAll()">CLEAR ALL</button>
+                <button class="btn secondary" onclick="saveAllToR2()" style="background:#046; color:#fff;">SAVE ALL TO
+                    R2</button>
             </div>
         </div>
 
         <div class="batch-area">
             <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
                 <textarea id="batch-input"
-                    placeholder="Paste Markdown Table from Teacher Mode here... [ID | Name | Context | Style | AI PROMPT | Source]"></textarea>
+                    placeholder="Paste CSV or Markdown Table... [ID, Name, Prompt] or [ID | Name | ... | AI PROMPT | ...]"></textarea>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="master-prompt"
                         placeholder="Direct Forge: Enter a single prompt to populate Slot 01..." style="flex:1">
@@ -417,7 +419,7 @@
                 document.getElementById('model-or').value = CONFIG.model_or;
                 toggleProvider();
             }
-            createSlots(10);
+            createSlots(20);
 
             if (CONFIG.gl_token) {
                 document.getElementById('btn-gl-login').innerText = "GOOGLE LOGGED IN";
@@ -515,6 +517,7 @@
                         <button class="btn secondary" id="dl-${i}" disabled onclick="downloadImage(${i})">PNG</button>
                         <button class="btn secondary" id="jpg-${i}" disabled onclick="downloadAsJpg(${i})">JPG</button>
                         <button class="btn secondary" id="git-${i}" disabled onclick="saveToGit(${i})" style="background:#234;">GIT</button>
+                        <button class="btn secondary" id="r2-${i}" disabled onclick="saveToR2(${i})" style="background:#046;">R2</button>
                     </div>
                 `;
                 grid.appendChild(div);
@@ -552,43 +555,82 @@
         }
 
         function parseBatch() {
-            const raw = document.getElementById('batch-input').value;
+            const raw = document.getElementById('batch-input').value.trim();
             if (!raw) return;
 
-            const lines = raw.split('\n').filter(l => l.includes('|') && !l.includes('---'));
             let count = 0;
+            let lines = [];
 
-            lines.forEach((line) => {
-                const parts = line.split('|').map(p => p.trim());
-                let prompt = "";
-                let name = "";
-                let id = "";
+            // Detect CSV (comma-separated) vs Markdown (pipe-separated)
+            const isCSV = raw.includes(',') && !raw.includes('|');
 
-                if (parts.length >= 6) {
-                    id = parts[1];
-                    name = parts[2];
-                    prompt = parts[5] || parts[4];
-                }
+            if (isCSV) {
+                // CSV parsing
+                lines = raw.split('\n').filter(l => l.trim());
+                const hasHeader = lines[0].toLowerCase().includes('prompt') ||
+                    lines[0].toLowerCase().includes('name');
+                if (hasHeader) lines.shift(); // Remove header row
 
-                if (prompt && prompt.toLowerCase() !== 'ai prompt' && count < 10) {
-                    count++;
-                    document.getElementById(`prompt-${count}`).value = prompt;
-                    document.getElementById(`label-${count}`).innerText = `ASSET ${id} // ${name}`;
-                }
-            });
+                lines.forEach((line, idx) => {
+                    if (count >= 20) return;
+                    const parts = parseCSVLine(line);
+                    // Expect format: ID, Name, Prompt (or just Prompt)
+                    const prompt = parts.length >= 3 ? parts[2] : parts[parts.length - 1];
+                    const name = parts.length >= 2 ? parts[1] : `Item ${idx + 1}`;
+                    const id = parts[0] || `${idx + 1}`;
 
-            if (count === 0) {
-                showToast("ERROR: NO PROMPTS DETECTED");
-                return;
+                    if (prompt && prompt.trim()) {
+                        count++;
+                        document.getElementById(`prompt-${count}`).value = prompt.trim();
+                        document.getElementById(`label-${count}`).innerText = `ASSET ${id} // ${name}`;
+                    }
+                });
+            } else {
+                // Existing markdown table parsing
+                lines = raw.split('\n').filter(l => l.includes('|') && !l.includes('---'));
+                lines.forEach((line) => {
+                    const parts = line.split('|').map(p => p.trim());
+                    let prompt = "", name = "", id = "";
+                    if (parts.length >= 6) {
+                        id = parts[1]; name = parts[2]; prompt = parts[5] || parts[4];
+                    }
+                    if (prompt && prompt.toLowerCase() !== 'ai prompt' && count < 20) {
+                        count++;
+                        document.getElementById(`prompt-${count}`).value = prompt;
+                        document.getElementById(`label-${count}`).innerText = `ASSET ${id} // ${name}`;
+                    }
+                });
             }
 
+            if (count === 0) { showToast("ERROR: NO PROMPTS DETECTED"); return; }
             showToast(`LOADED ${count} PROMPTS`);
             log(`Batch parsed: ${count} items extracted.`);
         }
 
+        // Helper for CSV lines with quoted fields
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
         async function generateAll() {
             log("Bulk generation sequence initiated...");
-            for (let i = 1; i <= 10; i++) {
+            for (let i = 1; i <= 20; i++) {
                 const prompt = document.getElementById(`prompt-${i}`).value;
                 if (prompt) {
                     await generateSlot(i);
@@ -633,6 +675,8 @@
                     document.getElementById(`jpg-${id}`).dataset.url = imageUrl;
                     document.getElementById(`git-${id}`).disabled = false;
                     document.getElementById(`git-${id}`).dataset.url = imageUrl;
+                    document.getElementById(`r2-${id}`).disabled = false;
+                    document.getElementById(`r2-${id}`).dataset.url = imageUrl;
                     log(`Slot ${id} successful.`);
                 }
             } catch (e) {
@@ -951,9 +995,84 @@
             }
         }
 
+        // R2 (Cloudflare) Upload Functions
+        const R2_WORKER_URL = 'https://proud-tooth-42cf.icumusicvideo.workers.dev';
+
+        async function saveToR2(id) {
+            const btn = document.getElementById(`r2-${id}`);
+            const url = btn.dataset.url;
+            const prompt = document.getElementById(`prompt-${id}`).value;
+            if (!url) return;
+
+            try {
+                showToast("UPLOADING TO R2...");
+                log(`R2 Upload: Preparing slot ${id}...`, 'OUTBOUND');
+
+                // Convert to JPG via canvas
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = url;
+                });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                const jpgData = canvas.toDataURL('image/jpeg', 0.85);
+
+                const res = await fetch(`${R2_WORKER_URL}?filename=${encodeURIComponent(`FORGE_${id}_${Date.now()}.jpg`)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: jpgData })
+                });
+
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+
+                log(`R2 Upload SUCCESS: ${data.url}`, 'RESPONSE');
+                showToast("SAVED TO R2!");
+                btn.style.background = '#060';
+                btn.innerText = '✓ R2';
+                btn.dataset.r2url = data.url;
+
+            } catch (e) {
+                log(`R2 Upload FAILED: ${e.message}`, 'ERROR');
+                showToast("R2 UPLOAD FAILED");
+            }
+        }
+
+        async function saveAllToR2() {
+            const slots = [];
+            for (let i = 1; i <= 20; i++) {
+                const btn = document.getElementById(`r2-${i}`);
+                if (btn && !btn.disabled && btn.dataset.url) {
+                    slots.push(i);
+                }
+            }
+
+            if (slots.length === 0) {
+                showToast("NO IMAGES TO UPLOAD");
+                return;
+            }
+
+            if (!confirm(`Upload ${slots.length} images to R2 storage?`)) return;
+
+            for (const id of slots) {
+                await saveToR2(id);
+                await new Promise(r => setTimeout(r, 500)); // Rate limiting
+            }
+            showToast("BATCH R2 UPLOAD COMPLETE");
+        }
+
         function clearAll() {
             if (confirm("PURGE ALL SLOTS?")) {
-                for (let i = 1; i <= 10; i++) {
+                for (let i = 1; i <= 20; i++) {
                     document.getElementById(`prompt-${i}`).value = '';
                     document.getElementById(`preview-${i}`).innerHTML = '<div class="status-overlay" id="overlay-text-' + i + '">SYNTHESIZING...</div><span style="opacity:0.1; font-size:0.6rem;">AWAITING DATA</span>';
                     document.getElementById(`status-${i}`).innerText = 'READY';
