@@ -796,9 +796,41 @@
             const data = getFormData();
             const studentName = data.studentName || 'student';
 
+            // First, sync all input values to their attributes so they persist in the clone
+            document.querySelectorAll('input').forEach(input => {
+                input.setAttribute('value', input.value);
+            });
+
+            // Sync textarea content to innerHTML (textareas don't use value attribute in HTML)
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.textContent = textarea.value;
+            });
+
+            // Sync the total score and percentage displays
+            document.getElementById('totalScore').setAttribute('data-value', document.getElementById('totalScore').textContent);
+            document.getElementById('percentage').setAttribute('data-value', document.getElementById('percentage').textContent);
+
             const clone = document.documentElement.cloneNode(true);
+
+            // Remove action buttons from the exported version
             const actions = clone.querySelector('.actions');
             if (actions) actions.remove();
+
+            // Remove the auto-load script behavior for exported file (make it static)
+            const scripts = clone.querySelectorAll('script');
+            scripts.forEach(script => {
+                // Replace the script with a minimal static version
+                script.textContent = `
+                    // Static exported rubric - read-only
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Restore displayed values
+                        const total = document.getElementById('totalScore');
+                        const pct = document.getElementById('percentage');
+                        if (total && total.dataset.value) total.textContent = total.dataset.value;
+                        if (pct && pct.dataset.value) pct.textContent = pct.dataset.value;
+                    });
+                `;
+            });
 
             const html = '<!DOCTYPE html>\n' + clone.outerHTML;
 
@@ -809,6 +841,11 @@
             a.download = `rubric-${studentName.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.html`;
             a.click();
             URL.revokeObjectURL(url);
+
+            // Reset textarea content back (we modified it for export)
+            document.querySelectorAll('textarea').forEach(textarea => {
+                textarea.textContent = '';
+            });
         }
 
         // Clear form
