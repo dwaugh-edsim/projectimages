@@ -1,4 +1,4 @@
-const MODEL_NAME = "liquid/lfm-2.5-1.2b-thinking:free"; // Updated to valid OpenRouter model
+const MODEL_NAME = "xiaomi/mimo-v2-flash";
 
 const AI = {
     async getResponse(prompt, systemPrompt = "You are the Chief of Staff for the Premier of Nova Scotia during a global energy crisis. Provide concise, expert, and constructive feedback.") {
