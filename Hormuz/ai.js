@@ -8,9 +8,7 @@ const AI = {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "https://dwaugh-edsim.github.io/projectimages/", // Site URL for OpenRouter ranking
-                    "X-Title": "Economics 12 Hormuz Simulator"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     model: MODEL_NAME,
