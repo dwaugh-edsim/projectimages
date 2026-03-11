@@ -295,18 +295,28 @@
             }
         }
 
-        function handleInputStart(clientX, clientY) {
+        function getCanvasPos(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
-            const x = clientX - rect.left;
-            const y = clientY - rect.top;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleInputStart(clientX, clientY) {
+            const pos = getCanvasPos(clientX, clientY);
+            const x = pos.x;
+            const y = pos.y;
 
             startX = x;
             startY = y;
 
-            // 1. Check for Intuition Point (Stages 3, 5) - Increased hit area to 60px
+            // 1. Check for Intuition Point (Stages 3, 5) - Increased hit area to 80px
             if (trainingPoint && [3, 5].includes(currentStage)) {
                 const dist = Math.sqrt((x - trainingPoint.x) ** 2 + (y - trainingPoint.y) ** 2);
-                if (dist < 60) {
+                if (dist < 80) {
                     isInteracting = true;
                     return;
                 }
