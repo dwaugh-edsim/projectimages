@@ -1,4 +1,4 @@
-const MODEL_NAME = "openai/gpt-oss-120b";
+const MODEL_NAME = "liquid/lfm-2.5-1.2b-thinking:free"; // Updated to valid OpenRouter model
 
 const AI = {
     async getResponse(prompt, systemPrompt = "You are the Chief of Staff for the Premier of Nova Scotia during a global energy crisis. Provide concise, expert, and constructive feedback.") {
@@ -57,10 +57,13 @@ const AI = {
                     return JSON.parse(content.substring(start, end));
                 } catch (e) {
                     // Fallback if AI doesn't return perfect JSON: Do NOT let them pass automatically.
-                    return { passed: false, feedback: "HQ could not parse your transmission. Please provide a clearer, more detailed economic explanation." };
+                    return { passed: false, feedback: "HQ could not parse your transmission format. Please provide a clearer economic explanation." };
                 }
             }
-            return { passed: false, feedback: "HQ COMMS DOWN. Try re-transmitting your analysis." };
+
+            // If data is returned but it's an API error
+            const errorMsg = (data && data.error && data.error.message) ? data.error.message : "Unknown API connection error.";
+            return { passed: false, feedback: `HQ COMMS DOWN. Reason: ${errorMsg}` };
         } catch (error) {
             console.error("AI Socratic Error:", error);
             return { passed: false, feedback: "Error connecting to HQ. Re-evaluate and try again." };
