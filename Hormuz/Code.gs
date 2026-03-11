@@ -147,6 +147,40 @@ function doPost(e) {
       return successJSON({ status: 'submitted_successfully' });
     }
     
+    // --- ACTION: FETCH AI (Secure Proxy) ---
+    // Calls OpenRouter from the backend so the API Key is never exposed to the browser.
+    else if (action === 'fetch_ai') {
+      const OPENROUTER_KEY = "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"; // PASTE NEW KEY HERE
+      const model = payload.model || "openai/gpt-oss-120b";
+      const messages = payload.messages;
+
+      const response = UrlFetchApp.fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "post",
+        headers: {
+          "Authorization": "Bearer " + OPENROUTER_KEY,
+          "Content-Type": "application/json"
+        },
+        payload: JSON.stringify({
+          model: model,
+          messages: messages
+        }),
+        muteHttpExceptions: true
+      });
+
+      const responseCode = response.getResponseCode();
+      const responseBody = response.getContentText();
+
+      if (responseCode !== 200) {
+        return ContentService.createTextOutput(JSON.stringify({ 
+          status: 'error', 
+          code: responseCode, 
+          message: responseBody 
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      return ContentService.createTextOutput(responseBody).setMimeType(ContentService.MimeType.JSON);
+    }
+    
     else {
       throw new Error("Unknown action.");
     }

@@ -37,6 +37,24 @@ const API = {
             console.error(e);
             return { status: 'error' };
         }
+    },
+
+    async fetchAI(model, messages) {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'fetch_ai', pin: this.getPinFallback(), model, messages })
+            });
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            return { status: 'error' };
+        }
+    },
+
+    // Internal helper for when Session isn't available or we need a quick PIN
+    getPinFallback() {
+        return sessionStorage.getItem('hormuz_pin') || '0000';
     }
 };
 

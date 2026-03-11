@@ -1,29 +1,15 @@
-const OPENROUTER_API_KEY = "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";
 const MODEL_NAME = "openai/gpt-oss-120b";
 
 const AI = {
     async getResponse(prompt, systemPrompt = "You are the Chief of Staff for the Premier of Nova Scotia during a global energy crisis. Provide concise, expert, and constructive feedback.") {
         try {
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: MODEL_NAME,
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: prompt }
-                    ]
-                })
-            });
-            if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("OpenRouter Error:", response.status, errorBody);
-                return null;
-            }
-            const data = await response.json();
+            const messages = [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: prompt }
+            ];
+
+            const data = await API.fetchAI(MODEL_NAME, messages);
+
             if (data && data.choices && data.choices[0]) {
                 return data.choices[0].message.content;
             }
