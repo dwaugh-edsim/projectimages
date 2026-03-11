@@ -35,13 +35,14 @@ const AI = {
 
     async verifyComprehension(studentName, actionDescription, studentExplanation) {
         const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their reasoning regarding: "${actionDescription}". 
-        CRITICAL EVALUATION RULES: 
-        1. DO NOT BE OVERLY PEDANTIC. This is a high school student. If their answer captures the fundamental economic truth (e.g., "price will spike because gas is inelastic"), they PASS. Do not demand perfect academic paragraphs or explanations of every underlying mechanism.
-        2. If the explanation is complete gibberish, random letters, or flat-out wrong (e.g., "price will go down"), they MUST FAIL. If they fail, return "passed": false, and ask a targeted, Socratic clarifying question to guide them.
-        3. If their explanation is even partially correct or grasps the main point, return "passed": true, praise them, and you may gently add any missing context in your feedback.
+        CRITICAL EVALUATION RULES - OBEY STRICTLY: 
+        1. YOU MUST BE EXTREMELY LENIENT. This is a 16-year-old high school student, not a university student.
+        2. If their answer contains the core concept (e.g., they mention "price will go up" or "spike" and mention "inelastic"), THEY PASS IMMEDIATELY ("passed": true). 
+        3. DO NOT ASK FOR ELABORATION OR CLARIFICATION if they got the main point. Just say "passed": true, praise them briefly, and fill in the blanks yourself.
+        4. ONLY fail them ("passed": false) if they are totally wrong (e.g., "price goes down"), say "I don't know", or type random gibberish. If they fail, ask ONE simple guiding question.
         You MUST return your response in strictly parseable JSON format: { "passed": boolean, "feedback": "your message" }`;
 
-        const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Is this correct? Provide feedback in JSON.`;
+        const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Did they grasp the core concept? Provide feedback in JSON.`;
 
         try {
             const data = await API.fetchAI(MODEL_NAME, [
