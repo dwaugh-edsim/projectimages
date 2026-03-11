@@ -8,10 +8,11 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify({ action: 'login', name, pin })
             });
-            return await res.json();
+            const data = await res.json();
+            return data;
         } catch (e) {
             console.error(e);
-            return { status: 'error' };
+            return { status: 'error', message: 'Network connection failed.' };
         }
     },
 
