@@ -1,4 +1,4 @@
-const MODEL_NAME = "xiaomi/mimo-v2-flash";
+const MODEL_NAME = "qwen/qwen3-235b-a22b-2507";
 
 const AI = {
     async getResponse(prompt, systemPrompt = "You are the Chief of Staff for the Premier of Nova Scotia during a global energy crisis. Provide concise, expert, and constructive feedback.") {
@@ -35,14 +35,14 @@ const AI = {
 
     async verifyComprehension(studentName, actionDescription, studentExplanation) {
         const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their reasoning regarding: "${actionDescription}". 
-        CRITICAL EVALUATION RULES - OBEY STRICTLY: 
-        1. YOU MUST BE EXTREMELY LENIENT. This is a 16-year-old high school student, not a university student.
-        2. If their answer contains the core concept (e.g., they mention "price will go up" or "spike" and mention "inelastic"), THEY PASS IMMEDIATELY ("passed": true). 
-        3. DO NOT ASK FOR ELABORATION OR CLARIFICATION if they got the main point. Just say "passed": true, praise them briefly, and fill in the blanks yourself.
-        4. ONLY fail them ("passed": false) if they are totally wrong (e.g., "price goes down"), say "I don't know", or type random gibberish. If they fail, ask ONE simple guiding question.
+        CRITICAL EVALUATION RULES: 
+        1. Act as a supportive mentor to a 16-year-old high school student. ALWAYS use simple, accessible, teenage-appropriate vocabulary. Avoid heavy academic jargon.
+        2. If their answer captures the fundamental economic truth (e.g., "price will spike because gas is inelastic"), they PASS ("passed": true). Praise them and gently add any missing context in simple terms.
+        3. If their answer is partially correct but missing a key logical step, or if it is totally wrong, they FAIL ("passed": false).
+        4. If they fail, DO NOT just give them the answer. Instead, ask ONE targeted, simple clarifying question to guide them toward the correct economic concept.
         You MUST return your response in strictly parseable JSON format: { "passed": boolean, "feedback": "your message" }`;
 
-        const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Did they grasp the core concept? Provide feedback in JSON.`;
+        const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Provide feedback in JSON.`;
 
         try {
             const data = await API.fetchAI(MODEL_NAME, [
