@@ -23,6 +23,10 @@ class EconomicsGraph {
 
         // Grid spacing for snapping
         this.gridSize = 20;
+
+        // Numerical Scales
+        this.MAX_PRICE = 3.00;
+        this.MAX_QUANTITY = 300;
     }
 
     // --- Core Rendering ---
@@ -59,13 +63,52 @@ class EconomicsGraph {
         this.ctx.fillStyle = '#94a3b8';
         this.ctx.font = '14px Inter';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Quantity (Q)', this.width / 2, this.height - 20);
+        this.ctx.fillText('Quantity (Q)', this.width / 2, this.height - 10);
 
         this.ctx.save();
-        this.ctx.translate(20, this.height / 2);
+        this.ctx.translate(15, this.height / 2);
         this.ctx.rotate(-Math.PI / 2);
         this.ctx.fillText('Price ($)', 0, 0);
         this.ctx.restore();
+
+        // Numerical Axis Marks
+        this.ctx.font = '10px JetBrains Mono';
+        this.ctx.textAlign = 'right';
+
+        // Price Marks (Y Axis)
+        for (let p = 0; p <= this.MAX_PRICE; p += 0.50) {
+            const y = this.priceToY(p);
+            this.ctx.fillText(`$${p.toFixed(2)}`, this.pLeft - 10, y + 4);
+            // Small tick
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.pLeft - 5, y);
+            this.ctx.lineTo(this.pLeft, y);
+            this.ctx.stroke();
+        }
+
+        // Quantity Marks (X Axis)
+        this.ctx.textAlign = 'center';
+        for (let q = 0; q <= this.MAX_QUANTITY; q += 50) {
+            const x = this.quantityToX(q);
+            this.ctx.fillText(q, x, this.height - this.pBottom + 20);
+            // Small tick
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, this.height - this.pBottom);
+            this.ctx.lineTo(x, this.height - this.pBottom + 5);
+            this.ctx.stroke();
+        }
+    }
+
+    priceToY(price) {
+        const ratio = price / this.MAX_PRICE;
+        const drawHeight = this.height - this.pBottom - this.pTop;
+        return (this.height - this.pBottom) - (ratio * drawHeight);
+    }
+
+    quantityToX(qty) {
+        const ratio = qty / this.MAX_QUANTITY;
+        const drawWidth = this.width - this.pLeft - this.pRight;
+        return this.pLeft + (ratio * drawWidth);
     }
 
     // Draws a quadratic curve from top-left to bottom-right bowing *inward* toward origin
@@ -150,9 +193,9 @@ class EconomicsGraph {
         this.ctx.font = 'bold 14px Inter';
         this.ctx.textAlign = 'right';
 
-        // Scale 0 to ~3.00 based on Y
+        // Scale 0 to MAX based on Y
         const ratio = 1 - ((y - this.pTop) / (this.height - this.pBottom - this.pTop));
-        const price = (ratio * 3.00).toFixed(2);
+        const price = (ratio * this.MAX_PRICE).toFixed(2);
         const priceText = `$${price}`;
 
         this.ctx.fillText(priceText, this.pLeft - 8, y + 5);

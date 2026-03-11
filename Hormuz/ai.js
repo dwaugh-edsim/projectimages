@@ -31,5 +31,48 @@ const AI = {
         Policy Advice: ${studentAdvice}
         Provide 2-3 sentences of feedback. Be professional. Mention one realistic economic consequence they might have missed or praise a specific good point.`;
         return await this.getResponse(prompt);
+    },
+
+    async verifyComprehension(studentName, actionDescription, studentExplanation) {
+        const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their graphing decisions. 
+        Be professional but firm. If their explanation is logical and uses correct economic reasoning (like the Law of Demand or Supply), praise them by name and tell them to proceed. 
+        If it's wrong or too brief, correct them by name and ask them to try explaining again. 
+        Return your response in JSON format: { "passed": boolean, "feedback": "your message" }`;
+
+        const prompt = `Advisor ${studentName} just ${actionDescription}. Their explanation: "${studentExplanation}". Is this correct? Provide feedback.`;
+
+        try {
+            const data = await API.fetchAI(MODEL_NAME, [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: prompt }
+            ]);
+
+            if (data && data.choices && data.choices[0]) {
+                const content = data.choices[0].message.content;
+                // Attempt to parse JSON from the AI response
+                try {
+                    const start = content.indexOf('{');
+                    const end = content.lastIndexOf('}') + 1;
+                    return JSON.parse(content.substring(start, end));
+                } catch (e) {
+                    // Fallback if AI doesn't return perfect JSON
+                    return { passed: true, feedback: content };
+                }
+            }
+            return { passed: true, feedback: "I'll let you proceed for now, Advisor." };
+        } catch (error) {
+            console.error("AI Socratic Error:", error);
+            return { passed: true, feedback: "Error connecting to HQ. Proceed." };
+        }
+    },
+
+    async getGeneralGuidance(studentName, currentStage, studentMessage) {
+        const systemPrompt = `You are the Chief of Staff. Advisor ${studentName} is confused and asking: "${studentMessage}". 
+        They are currently on Stage ${currentStage} of the training. 
+        Provide a concise, encouraging, and authoritative response that guides them back to the task. 
+        Refer to them by name. If they are on Stage 0, explain Scarcity. If they are graphing, explain the Law of Demand/Supply. 
+        Keep it under 3 sentences.`;
+
+        return await this.getResponse(studentMessage, systemPrompt);
     }
 };

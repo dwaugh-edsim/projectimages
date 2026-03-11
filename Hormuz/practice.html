@@ -62,6 +62,68 @@
             margin-bottom: 0.5rem;
             display: block;
         }
+
+        /* Socratic Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .socratic-card {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            padding: 2.5rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+            text-align: center;
+        }
+
+        .socratic-card h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .socratic-card p {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .socratic-textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            resize: none;
+            margin-bottom: 1.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .socratic-textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .socratic-feedback {
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            color: var(--urgent);
+            display: none;
+        }
     </style>
 </head>
 
@@ -90,7 +152,17 @@
                 </div>
 
                 <div id="stages-container">
-                    <div class="stage-box active" id="stage-1">
+                    <div class="stage-box active" id="stage-0">
+                        <h4>STAGE 0: SECURITY CLEARANCE</h4>
+                        <p>Before accessing the terminal, HQ needs to verify your economic intuition. Pass the
+                            <b>Socratic Check</b> to unlock the simulators.</p>
+                        <div class="feedback" id="feedback-0"></div>
+                        <button class="submit-btn" id="start-quiz-btn" style="margin-top: 1rem; padding: 0.5rem;">
+                            <span class="btn-text">START CLEARANCE CHECK</span>
+                        </button>
+                    </div>
+
+                    <div class="stage-box locked" id="stage-1">
                         <h4>STAGE 1: THE Y-AXIS (PRICE)</h4>
                         <p>The vertical axis represents <b>Price ($)</b>. As you move UP, things get more expensive.</p>
                         <div class="feedback" id="feedback-1"></div>
@@ -106,7 +178,9 @@
                     <div class="stage-box locked" id="stage-3">
                         <h4>STAGE 3: BUYER INTUITION</h4>
                         <p><b>Market Equilibrium:</b> The white dot shows the current balance. Scenario: Gas prices
-                            jumped to <b>$3.00/L</b>. Adjust the dot to show how <b>Buyers</b> respond.</p>
+                            jumped to <b>$3.00</b>. Adjust the dot to <b>$3.00</b> and <b>50 units</b> to show how
+                            <b>Buyers</b> respond.
+                        </p>
                         <div class="feedback" id="feedback-3"></div>
                     </div>
 
@@ -119,8 +193,10 @@
 
                     <div class="stage-box locked" id="stage-5">
                         <h4>STAGE 5: SELLER INTUITION</h4>
-                        <p><b>Market Equilibrium:</b> Now consider the <b>Sellers</b>. If the price goes UP to $3.00, do
-                            gas stations want to provide <b>more or less</b> supply?</p>
+                        <p><b>Market Equilibrium:</b> Now consider the <b>Sellers</b>. If the price goes UP to
+                            <b>$3.00</b>, gas stations want more profit. Move the dot to <b>$3.00</b> and <b>250
+                                units</b>.
+                        </p>
                         <div class="feedback" id="feedback-5"></div>
                     </div>
 
@@ -166,6 +242,43 @@
             </section>
 
         </main>
+    </div>
+
+    <!-- Socratic AI Modal -->
+    <div class="modal-overlay" id="socratic-modal">
+        <div class="socratic-card">
+            <span class="ai-tag">SECURE COMS: CHIEF OF STAFF</span>
+            <h3 id="socratic-title">COGNITIVE CHECK</h3>
+            <p id="socratic-prompt">Question goes here...</p>
+            <textarea class="socratic-textarea" id="socratic-input" placeholder="Type your explanation here..."
+                rows="3"></textarea>
+            <button class="submit-btn" id="socratic-submit">
+                <span class="btn-text">SUBMIT TO HQ</span>
+            </button>
+            <div class="socratic-feedback" id="socratic-feedback"></div>
+        </div>
+    </div>
+
+    <!-- Help Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <span>EMERGENCY UPLINK: CHIEF OF STAFF</span>
+                <span style="cursor:pointer" id="chat-close">×</span>
+            </div>
+            <div class="chat-body" id="chat-body">
+                <div class="msg ai">RECEPTION SECURE. State your request, Advisor.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-query" class="chat-input" placeholder="What the F am I doing here?">
+                <button id="chat-send-btn" class="chat-send">➔</button>
+            </div>
+        </div>
+        <button class="chat-btn" id="chat-toggle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </button>
     </div>
 
     <!-- Toast Notification -->
@@ -260,6 +373,55 @@
             ctx.fillText(text, x, y);
         };
 
+        // --- Socratic AI Logic ---
+        const socraticModal = document.getElementById('socratic-modal');
+        const socraticTitle = document.getElementById('socratic-title');
+        const socraticPrompt = document.getElementById('socratic-prompt');
+        const socraticInput = document.getElementById('socratic-input');
+        const socraticSubmit = document.getElementById('socratic-submit');
+        const socraticFeedback = document.getElementById('socratic-feedback');
+
+        function triggerSocraticCheck(title, prompt, actionDesc, onPass) {
+            socraticModal.style.display = 'flex';
+            socraticTitle.innerText = title;
+            socraticPrompt.innerText = prompt;
+            socraticInput.value = '';
+            socraticFeedback.style.display = 'none';
+
+            socraticSubmit.onclick = async () => {
+                const val = socraticInput.value.trim();
+                if (val.length < 5) {
+                    socraticFeedback.innerText = "Please provide a more detailed explanation, Advisor.";
+                    socraticFeedback.style.display = 'block';
+                    return;
+                }
+
+                socraticSubmit.disabled = true;
+                socraticSubmit.querySelector('.btn-text').innerText = "HQ ANALYZING...";
+
+                const result = await AI.verifyComprehension(name, actionDesc, val);
+
+                socraticSubmit.disabled = false;
+                socraticSubmit.querySelector('.btn-text').innerText = "SUBMIT TO HQ";
+
+                if (result.passed) {
+                    socraticFeedback.className = "socratic-feedback success";
+                    socraticFeedback.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
+                    socraticFeedback.style.color = "#10b981";
+                    socraticFeedback.style.display = 'block';
+                    socraticFeedback.innerText = result.feedback;
+                    setTimeout(() => {
+                        socraticModal.style.display = 'none';
+                        onPass();
+                    }, 2500);
+                } else {
+                    socraticFeedback.className = "socratic-feedback error";
+                    socraticFeedback.style.display = 'block';
+                    socraticFeedback.innerText = result.feedback;
+                }
+            };
+        }
+
         async function nextStage() {
             document.getElementById(`stage-${currentStage}`).classList.remove('active');
             document.getElementById(`feedback-${currentStage}`).innerHTML = "✓ Stage Complete";
@@ -289,13 +451,13 @@
 
         function getStageInstruction(s) {
             switch (s) {
-                case 1: return "Focus on the Price Axis. Move up for higher costs.";
-                case 2: return "Focus on the Quantity Axis. Move right for more volume.";
-                case 3: return "DRAG THE EQUILIBRIUM DOT LEFT. Higher prices discourage buyers.";
-                case 4: return "Draw the Demand curve. It always slopes DOWN (D is for Down).";
-                case 5: return "DRAG THE EQUILIBRIUM DOT RIGHT. Higher prices encourage sellers.";
-                case 6: return "Draw the Supply curve. It always slopes UP (S is for Skyward).";
-                case 7: return "Draw a STEEP Demand curve. People MUST buy gas no matter the price.";
+                case 1: return "Click the Top of the Price axis ($3.00).";
+                case 2: return "Click the Far Right of the Quantity axis (300).";
+                case 3: return "Scenario: $3.00 Gas. Drag the Market Equilibrium dot LEFT to 50 units.";
+                case 4: return "Draw Demand. Start at ($3.00, 50) and drag down to ($0.50, 300).";
+                case 5: return "Scenario: $3.00 Gas. Drag the Market Equilibrium dot RIGHT to 250 units.";
+                case 6: return "Draw Supply. Start at ($0.50, 0) and drag up to ($3.00, 250).";
+                case 7: return "Draw a STEEP Near-Vertical Demand curve starting at ($3.00, 100).";
                 default: return "";
             }
         }
@@ -393,44 +555,59 @@
 
             // Validate Intuition
             if (currentStage === 3) {
-                if (endX < graph.width / 2.5) {
+                // Drag to $3.00, 50 Q
+                if (endX < graph.quantityToX(80) && endY < graph.priceToY(2.50)) {
                     trainingPoint = null;
-                    nextStage();
+                    triggerSocraticCheck(
+                        "COGNITIVE CHECK: DEMAND",
+                        `${name}, you just dropped the quantity to near-zero as prices hit $3.00. Why does quantity demanded fall when prices rise?`,
+                        "moved the quantity demanded to minimum as price hit $3.00",
+                        nextStage
+                    );
                 } else {
-                    handleError("Wrong Direction. High price means people buy LESS. Drag the point significantly to the LEFT.");
+                    handleError("Not far enough. At $3.00, demand should be very low (near 50 units). Move it up and left.");
                 }
             } else if (currentStage === 5) {
-                if (endX > graph.width / 1.5) {
+                // Drag to $3.00, 250 Q
+                if (endX > graph.quantityToX(220) && endY < graph.priceToY(2.50)) {
                     trainingPoint = null;
-                    nextStage();
+                    triggerSocraticCheck(
+                        "COGNITIVE CHECK: SUPPLY",
+                        `${name}, you've increased supply to 250 units for $3.00. Why do businesses want to sell more when the price is high?`,
+                        "maximized supply as market price hit $3.00",
+                        nextStage
+                    );
                 } else {
-                    handleError("Wrong Direction. High price means businesses want to sell MORE. Drag the point significantly to the RIGHT.");
+                    handleError("Wrong direction. Higher prices mean higher profits! Drag the point up and RIGHT (near 250 units).");
                 }
             }
 
             // Validate Curves
             else if (currentStage === 4) {
-                if (endX > startX + 50 && endY > startY + 50) {
+                // Demand: Down and right. 
+                if (endX > startX + 100 && endY > startY + 100) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Invalid Curve. Demand MUST slope Downward and Right. Start at the top-left and drag down-right.");
+                    handleError("Demand curves must slope DOWN-RIGHT. Start high at $3.00 and drag down toward 300 units.");
                 }
             } else if (currentStage === 6) {
-                if (endX > startX + 50 && endY < startY - 50) {
+                // Supply: Up and right.
+                if (endX > startX + 100 && endY < startY - 100) {
                     graph.supplyCurve1 = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Invalid Curve. Supply MUST slope Upward and Right. Start at the bottom-left and drag up-right.");
+                    handleError("Supply curves must slope UP-RIGHT. Start low at $0.50 and drag up toward 250-300 units.");
                 }
             } else if (currentStage === 7) {
                 const dy = Math.abs(endY - startY);
                 const dx = Math.abs(endX - startX);
-                if (dy > dx * 1.8 && endX > startX && endY > startY) {
+                // Near vertical
+                if (dy > dx * 3 && endY > startY) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Not Steep Enough. For gasoline, demand is a near-vertical line because people HAVE to drive.");
+                    handleError("That's too flat. For gasoline, demand is inelastic. It needs to be almost vertical.");
                 }
             }
             graph.render();
@@ -470,14 +647,59 @@
             }
         }
 
-        document.getElementById('proceed-btn').addEventListener('click', async () => {
-            await API.saveState(pin, 'dashboard');
-            window.location.href = 'dashboard.html';
-        });
+        // --- Help Chat Logic ---
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatBody = document.getElementById('chat-body');
+        const chatInput = document.getElementById('chat-query');
+        const chatSend = document.getElementById('chat-send-btn');
+        const chatClose = document.getElementById('chat-close');
 
-        document.getElementById('tool-reset').addEventListener('click', () => {
-            graph.demandCurve = null; graph.supplyCurve1 = null; graph.render();
-        });
+        chatToggle.onclick = () => chatWindow.style.display = 'flex';
+        chatClose.onclick = () => chatWindow.style.display = 'none';
+
+        async function sendChatMessage() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            // User Message
+            const uMsg = document.createElement('div');
+            uMsg.className = 'msg user';
+            uMsg.innerText = query;
+            chatBody.appendChild(uMsg);
+            chatInput.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // AI Processing
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'msg ai';
+            aiMsg.innerText = "...";
+            chatBody.appendChild(aiMsg);
+
+            const response = await AI.getGeneralGuidance(name, currentStage, query);
+            aiMsg.innerText = response || "Signal lost. Try again.";
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        chatSend.onclick = sendChatMessage;
+        chatInput.onkeypress = (e) => { if (e.key === 'Enter') sendChatMessage(); };
+
+        // --- Stage 0 Kickoff ---
+        document.getElementById('start-quiz-btn').onclick = () => {
+            triggerSocraticCheck(
+                "SECURITY CLEARANCE: Q1",
+                `${name}, define SCARCITY in your own words. Why does the blockade of the Strait of Hormuz create a scarcity crisis for Halifax?`,
+                "answering foundational scarcity question",
+                () => {
+                    triggerSocraticCheck(
+                        "SECURITY CLEARANCE: Q2",
+                        `Understood. Now, if gas is scarce but every motorist in Nova Scotia still needs to drive to work, what happens to the Price? And why?`,
+                        "answering foundational price question",
+                        nextStage
+                    );
+                }
+            );
+        };
 
         graph.render();
     </script>
