@@ -62,7 +62,12 @@ const AI = {
             }
 
             // If data is returned but it's an API error
-            const errorMsg = (data && data.error && data.error.message) ? data.error.message : "Unknown API connection error.";
+            let errorMsg = "Unknown API connection error.";
+            if (data && data.status === 'error') {
+                errorMsg = data.message || "Backend error without specific message.";
+            } else if (data && data.error && data.error.message) {
+                errorMsg = data.error.message;
+            }
             return { passed: false, feedback: `HQ COMMS DOWN. Reason: ${errorMsg}` };
         } catch (error) {
             console.error("AI Socratic Error:", error);
