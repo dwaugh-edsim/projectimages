@@ -150,7 +150,7 @@ function doPost(e) {
     // --- ACTION: FETCH AI (Secure Proxy) ---
     // Calls OpenRouter from the backend so the API Key is never exposed to the browser.
     else if (action === 'fetch_ai') {
-      const OPENROUTER_KEY = "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"; // PASTE NEW KEY HERE
+      const OPENROUTER_KEY = "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"; 
       const model = payload.model || "openai/gpt-oss-120b";
       const messages = payload.messages;
 
