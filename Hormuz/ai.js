@@ -20,8 +20,16 @@ const AI = {
                     ]
                 })
             });
+            if (!response.ok) {
+                const errorBody = await response.text();
+                console.error("OpenRouter Error:", response.status, errorBody);
+                return null;
+            }
             const data = await response.json();
-            return data.choices[0].message.content;
+            if (data && data.choices && data.choices[0]) {
+                return data.choices[0].message.content;
+            }
+            return null;
         } catch (error) {
             console.error("AI Error:", error);
             return null;
