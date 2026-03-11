@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NS Advisor Dashboard | Operation Hormuz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="seal"></div>
+                <div class="header-titles">
+                    <h1>OFFICE OF THE PREMIER</h1>
+                    <h2>Economic Advisory Council</h2>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="pulse"></span>
+                    <span class="status-text" id="user-greeting">SECURE CONNECTION --</span>
+                </div>
+                <div class="clock" id="system-clock">14:02:45 AST</div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+
+            <section class="panel scenario-panel">
+                <div class="panel-header">
+                    <h3>SITREP: OPERATION HORMUZ</h3>
+                </div>
+
+                <div class="scenario-feed" id="scenario-feed">
+                    <div class="briefing-card urgent">
+                        <span class="timestamp">08:00 AST</span>
+                        <h4>FLASH: BLOCKADE DECLARED</h4>
+                        <p>The Strait of Hormuz has been closed by naval forces. Global oil supply has instantly dropped
+                            by 5%.</p>
+                        <hr>
+                        <p class="instruction"><strong>DIRECTIVE:</strong> Advisor, use the terminal to map the current
+                            Halifax gasoline market. First, plot the highly inelastic DEMAND you just calibrated. Then
+                            plot the initial SUPPLY curve.</p>
+                    </div>
+                </div>
+
+                <div class="policy-form" id="policy-form"
+                    style="display: none; opacity: 0; animation: fadeIn 1s forwards;">
+                    <div class="panel-header" style="margin-top: 2rem;">
+                        <h3>ADVISOR BRIEFING (PART 2)</h3>
+                    </div>
+                    <form id="submission-form">
+                        <div class="input-group">
+                            <label for="predictions">1. Predictions (Consequences)</label>
+                            <textarea id="predictions" required
+                                placeholder="Will people drive less? What happens to shipping/grocery costs? Be specific."></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="policy">2. Policy Recommendation</label>
+                            <textarea id="policy" required
+                                placeholder="What should the Premier do? (e.g. gas tax holiday, transit passes). Cite 1 news reference."></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="submit-btn">
+                            <span class="btn-text">TRANSMIT BRIEFING TO PREMIER</span>
+                            <span class="btn-icon">➔</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel graph-panel">
+                <div class="panel-header">
+                    <h3>DATA TERMINAL: HALIFAX GASOLINE (¢/L)</h3>
+                    <div class="graph-controls">
+                        <button class="tool-btn active" id="tool-draw" title="Draw Curves">✎ Draw Market</button>
+                        <button class="tool-btn danger" id="tool-shock" title="Simulate Crisis" disabled>⚡ SHOCK
+                            SUPPLY</button>
+                        <button class="tool-btn ghost" id="tool-reset">Reset</button>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="market-graph" width="600" height="500"></canvas>
+                    <div class="overlay-ui" id="graph-instructions">
+                        1. Draw the highly inelastic DEMAND curve.<br>
+                        2. Draw the initial SUPPLY curve perfectly crossing it.
+                    </div>
+                </div>
+
+                <div class="data-readout">
+                    <div class="readout-box">
+                        <span class="label">INITIAL PRICE ($)</span>
+                        <span class="value" id="readout-p1">--</span>
+                    </div>
+                    <div class="readout-box alert">
+                        <span class="label">NEW PRICE ($)</span>
+                        <span class="value" id="readout-p2">--</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="api.js"></script>
+    <script src="graph.js"></script>
+
+    <script>
+        // Check Auth
+        const pin = Session.getPin();
+        const name = Session.getName();
+        if (!pin) window.location.href = 'index.html';
+
+        document.getElementById('user-greeting').innerText = `ADVISOR ${name.toUpperCase()} (LINK SECURE)`;
+
+        // Setup Graph Engine
+        const graphEngine = new EconomicsGraph('market-graph');
+        let state = 'start';
+        let isDrawing = false;
+        let startX, startY;
+
+        const canvas = graphEngine.canvas;
+        const btnDraw = document.getElementById('tool-draw');
+        const btnShock = document.getElementById('tool-shock');
+        const btnReset = document.getElementById('tool-reset');
+        const instructions = document.getElementById('graph-instructions');
+        const p1Readout = document.getElementById('readout-p1');
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (state !== 'drawing_d' && state !== 'drawing_s') return;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            isDrawing = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const curX = e.clientX - rect.left;
+            const curY = e.clientY - rect.top;
+
+            graphEngine.render();
+            graphEngine.ctx.beginPath();
+            graphEngine.ctx.strokeStyle = state === 'drawing_d' ? 'rgba(59, 130, 246, 0.5)' : 'rgba(16, 185, 129, 0.5)';
+            graphEngine.ctx.lineWidth = 4;
+            graphEngine.ctx.moveTo(startX, startY);
+            graphEngine.ctx.lineTo(curX, curY);
+            graphEngine.ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+            if (Math.abs(endX - startX) < 20) return;
+
+            if (state === 'drawing_d') {
+                graphEngine.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
+                state = 'drawing_s';
+                instructions.innerHTML = "Great. Now draw the initial <b>SUPPLY</b> curve crossing it.";
+            }
+            else if (state === 'drawing_s') {
+                graphEngine.supplyCurve1 = { x1: startX, y1: startY, x2: endX, y2: endY };
+
+                const eq1 = graphEngine.estimateIntersection(graphEngine.demandCurve, graphEngine.supplyCurve1);
+                if (eq1 && eq1.x > graphEngine.pLeft && eq1.x < graphEngine.width - graphEngine.pRight && eq1.y > graphEngine.pTop && eq1.y < graphEngine.height - graphEngine.pBottom) {
+                    state = 'ready_to_shock';
+                    instructions.style.display = 'none';
+                    btnDraw.classList.remove('active');
+                    btnShock.disabled = false;
+
+                    const ratio = 1 - ((eq1.y - graphEngine.pTop) / (graphEngine.height - graphEngine.pBottom - graphEngine.pTop));
+                    p1Readout.innerText = `$${(ratio * 3.00).toFixed(2)}`;
+                } else {
+                    alert("Those lines don't cross to form an equilibrium properly! Try again.");
+                    graphEngine.supplyCurve1 = null;
+                }
+            }
+            graphEngine.render();
+        });
+
+        // Controls
+        btnDraw.addEventListener('click', () => {
+            if (state === 'start') {
+                state = 'drawing_d';
+                instructions.innerHTML = "1. Click and drag to draw the steep <b>DEMAND</b> curve.";
+                instructions.style.display = 'block';
+                btnDraw.classList.add('active');
+            }
+        });
+
+        btnShock.addEventListener('click', () => {
+            if (state !== 'ready_to_shock') return;
+            state = 'shocked';
+
+            // Shift supply left by 80px (severe shock)
+            const shiftAmount = 80;
+            graphEngine.supplyCurve2 = {
+                x1: graphEngine.supplyCurve1.x1 - shiftAmount,
+                y1: graphEngine.supplyCurve1.y1,
+                x2: graphEngine.supplyCurve1.x2 - shiftAmount,
+                y2: graphEngine.supplyCurve1.y2
+            };
+
+            graphEngine.render();
+            btnShock.disabled = true;
+
+            // Trigger Day 2 prompt
+            const feed = document.getElementById('scenario-feed');
+            const updateHTML = `
+                <div class="briefing-card update" style="border-left-color: var(--success); opacity: 0; animation: fadeIn 1s forwards; margin-top: 1rem;">
+                    <span class="timestamp">DAY 2 UPDATE</span>
+                    <h4>THE INELASTICITY SPIKE</h4>
+                    <p>Look at the new Equilibrium (E2). Because gas demand is highly inelastic, a 5% supply shock caused a massive, amplified price spike.</p>
+                    <hr>
+                    <p class="instruction"><strong>DIRECTIVE:</strong> Fill out the Part 2 Advisor Briefing form below to advise the Premier.</p>
+                </div>
+            `;
+            feed.insertAdjacentHTML('beforeend', updateHTML);
+
+            setTimeout(() => {
+                const pForm = document.getElementById('policy-form');
+                pForm.style.display = 'block';
+                pForm.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        });
+
+        btnReset.addEventListener('click', () => {
+            state = 'start';
+            graphEngine.demandCurve = null;
+            graphEngine.supplyCurve1 = null;
+            graphEngine.supplyCurve2 = null;
+
+            btnShock.disabled = true;
+            btnDraw.classList.remove('active');
+            instructions.style.display = 'block';
+            instructions.innerHTML = "Ready. Click 'Draw Market'.";
+            p1Readout.innerText = '--';
+            document.getElementById('readout-p2').innerText = '--';
+
+            const updates = document.querySelectorAll('.briefing-card.update');
+            updates.forEach(el => el.remove());
+            document.getElementById('policy-form').style.display = 'none';
+
+            graphEngine.render();
+        });
+
+        // Submission via new API
+        document.getElementById('submission-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+
+            const pred = document.getElementById('predictions').value;
+            const pol = document.getElementById('policy').value;
+            const b64 = canvas.toDataURL('image/png');
+
+            btn.innerText = "TRANSMITTING SECURELY...";
+            btn.disabled = true;
+
+            const res = await API.submitFinal(pin, pred, pol, b64);
+
+            if (res.status === 'success') {
+                showToast("Briefing Transmitted Successfully!");
+                btn.innerText = "TRANSMISSION COMPLETE";
+            } else {
+                alert("Error transmitting. Check network or PIN.");
+                btn.innerText = "TRANSMIT BRIEFING TO PREMIER";
+                btn.disabled = false;
+            }
+        });
+
+        // Initialize clock
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('system-clock').innerText =
+                d.getHours().toString().padStart(2, '0') + ':' +
+                d.getMinutes().toString().padStart(2, '0') + ':' +
+                d.getSeconds().toString().padStart(2, '0') + ' AST';
+        }, 1000);
+
+        graphEngine.render();
+
+        // CSS animations
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

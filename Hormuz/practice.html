@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Simulator | Operation Hormuz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="seal"></div>
+                <div class="header-titles">
+                    <h1>TRAINING SIMULATOR</h1>
+                    <h2>Economic Advisory Council</h2>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <span class="status-text" id="user-greeting">ADVISOR --</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+
+            <section class="panel scenario-panel">
+                <div class="panel-header">
+                    <h3>TRAINING PROTOCOLS</h3>
+                </div>
+
+                <div class="scenario-feed" id="tutorial-feed">
+
+                    <div class="briefing-card" id="stage-1" style="border-left-color: var(--accent);">
+                        <h4>STAGE 1: THE LAW OF DEMAND</h4>
+                        <p>Before touching the live Hormuz data, you must calibrate your graphing tool.</p>
+                        <hr>
+                        <p class="instruction"><strong>DIRECTIVE:</strong> Draw a standard DEMAND curve on the terminal.
+                            It should slope downward from Top-Left to Bottom-Right.</p>
+                    </div>
+
+                    <div class="briefing-card" id="stage-2"
+                        style="display: none; border-left-color: var(--success); opacity: 0; animation: fadeIn 1s forwards;">
+                        <h4>STAGE 2: CALIBRATING SUPPLY</h4>
+                        <p>Demand calibrated. Now we need the Sellers.</p>
+                        <hr>
+                        <p class="instruction"><strong>DIRECTIVE:</strong> Draw a normal SUPPLY curve sloping upward
+                            from Bottom-Left to Top-Right so that it crosses your Demand curve to form an Equilibrium.
+                        </p>
+                    </div>
+
+                    <div class="briefing-card urgent" id="stage-3"
+                        style="display: none; opacity: 0; animation: fadeIn 1s forwards;">
+                        <h4>STAGE 3: INELASTICITY</h4>
+                        <p>Gasoline is an essential good. People need it to drive to work. This means its demand curve
+                            is highly <strong>inelastic</strong> (steep).</p>
+                        <hr>
+                        <p class="instruction"><strong>DIRECTIVE:</strong> Reset the graph. Draw a very steep, nearly
+                            vertical DEMAND curve to represent Gasoline.</p>
+                    </div>
+                </div>
+
+                <div class="policy-form" id="proceed-container"
+                    style="display: none; opacity: 0; animation: fadeIn 1s forwards;">
+                    <button class="submit-btn" id="proceed-btn">
+                        <span class="btn-text">ENTER LIVE SIMULATION</span>
+                        <span class="btn-icon">➔</span>
+                    </button>
+                    <p
+                        style="font-size: 0.75rem; text-align: center; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Training complete. State will be saved.
+                    </p>
+                </div>
+            </section>
+
+            <section class="panel graph-panel">
+                <div class="panel-header">
+                    <h3>DATA TERMINAL: TRAINING MODE</h3>
+                    <div class="graph-controls">
+                        <button class="tool-btn active" id="tool-draw" title="Draw Curves">✎ Draw</button>
+                        <button class="tool-btn ghost" id="tool-reset">Reset</button>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="market-graph" width="600" height="500"></canvas>
+                    <div class="overlay-ui" id="graph-instructions">
+                        Awaiting input. Click and drag to draw.
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="api.js"></script>
+    <script src="graph.js"></script>
+    <script>
+        // Check Auth
+        const pin = Session.getPin();
+        const name = Session.getName();
+        if (!pin) window.location.href = 'index.html';
+
+        document.getElementById('user-greeting').innerText = `ADVISOR ${name.toUpperCase()}`;
+
+        // Graphing Engine
+        const graph = new EconomicsGraph('market-graph');
+        const canvas = graph.canvas;
+        const instructions = document.getElementById('graph-instructions');
+        const btnReset = document.getElementById('tool-reset');
+
+        // Tutorial State
+        let stage = 1;
+
+        // Interaction State
+        let isDrawing = false;
+        let startX, startY;
+        let expectedDraw = 'demand';
+
+        function setStage(num) {
+            stage = num;
+            if (stage === 2) {
+                document.getElementById('stage-2').style.display = 'block';
+                expectedDraw = 'supply';
+                instructions.innerText = "Draw an upward SUPPLY curve.";
+                instructions.style.display = 'block';
+            }
+            if (stage === 3) {
+                document.getElementById('stage-3').style.display = 'block';
+                expectedDraw = 'demand_inelastic';
+                instructions.innerText = "Draw a STEEP Demand curve.";
+                instructions.style.display = 'block';
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (expectedDraw === 'done') return;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            isDrawing = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const curX = e.clientX - rect.left;
+            const curY = e.clientY - rect.top;
+
+            graph.render();
+
+            // Draw temp line
+            graph.ctx.beginPath();
+            graph.ctx.strokeStyle = expectedDraw.includes('demand') ? 'rgba(59, 130, 246, 0.5)' : 'rgba(16, 185, 129, 0.5)';
+            graph.ctx.lineWidth = 4;
+            graph.ctx.moveTo(startX, startY);
+            graph.ctx.lineTo(curX, curY);
+            graph.ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+
+            const rect = canvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+
+            // Need a minimum length
+            if (Math.abs(endX - startX) < 40 && Math.abs(endY - startY) < 40) return;
+
+            // Geometry checks based on stage
+            if (stage === 1 && expectedDraw === 'demand') {
+                // Must go down and right
+                if (endX > startX && endY > startY) {
+                    graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
+                    graph.render();
+                    instructions.style.display = 'none';
+                    showToast("Demand Curve Detected.");
+                    setTimeout(() => setStage(2), 1000);
+                } else {
+                    alert("Demand slopes downward. Try again from Top-Left to Bottom-Right.");
+                    graph.render();
+                }
+            }
+            else if (stage === 2 && expectedDraw === 'supply') {
+                // Must go up and right (start bottom left, end top right)
+                if (endX > startX && endY < startY) {
+                    graph.supplyCurve1 = { x1: startX, y1: startY, x2: endX, y2: endY };
+                    graph.render();
+
+                    if (graph.estimateIntersection(graph.demandCurve, graph.supplyCurve1)) {
+                        instructions.style.display = 'none';
+                        showToast("Equilibrium found.");
+                        setTimeout(() => setStage(3), 1500);
+                    } else {
+                        alert("The lines didn't cross! Reset and try again.");
+                    }
+                } else {
+                    alert("Supply slopes upward. Try again from Bottom-Left to Top-Right.");
+                    graph.render();
+                }
+            }
+            else if (stage === 3 && expectedDraw === 'demand_inelastic') {
+                // Must be steep (y diff > x diff by at least 2x)
+                const dx = Math.abs(endX - startX);
+                const dy = Math.abs(endY - startY);
+
+                if (endX > startX && endY > startY && dy > dx * 1.5) {
+                    graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
+                    graph.render();
+                    instructions.style.display = 'none';
+                    expectedDraw = 'done';
+                    showToast("Inelastic Curve Calibrated.");
+                    document.getElementById('proceed-container').style.display = 'block';
+                } else {
+                    alert("Not steep enough. Gasoline demand is highly inelastic. Draw it almost vertically.");
+                    graph.render();
+                }
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            graph.demandCurve = null;
+            graph.supplyCurve1 = null;
+            graph.supplyCurve2 = null;
+            graph.render();
+
+            if (stage === 1) expectedDraw = 'demand';
+            if (stage === 2) expectedDraw = 'supply';
+            if (stage === 3) expectedDraw = 'demand_inelastic';
+
+            instructions.style.display = 'block';
+        });
+
+        document.getElementById('proceed-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('proceed-btn');
+            btn.innerText = "SAVING STATE...";
+            btn.disabled = true;
+
+            // Save state to backend
+            await API.saveState(pin, 'dashboard');
+
+            // Move to final sim
+            window.location.href = 'dashboard.html';
+        });
+
+        graph.render();
+
+        // Animation helper class
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>

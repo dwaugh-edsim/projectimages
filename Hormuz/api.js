@@ -1,0 +1,64 @@
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzetjsitM2UvkjMg6crFdUy1MgqKm1rfcsSL353RSE96bOTqelnn9d_6EY08QFANwfm/exec';
+
+// Centralized API calls
+const API = {
+    async login(name, pin) {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', name, pin })
+            });
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            return { status: 'error' };
+        }
+    },
+
+    async saveState(pin, stage) {
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'save_state', pin, stage })
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    },
+
+    async submitFinal(pin, predictions, policy, imageData) {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'submit_final', pin, predictions, policy, imageData })
+            });
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            return { status: 'error' };
+        }
+    }
+};
+
+// Global session helper (Uses sessionStorage just to pass the PIN between pages during one sitting)
+const Session = {
+    setPin(pin) { sessionStorage.setItem('hormuz_pin', pin); },
+    getPin() { return sessionStorage.getItem('hormuz_pin'); },
+    setName(name) { sessionStorage.setItem('hormuz_name', name); },
+    getName() { return sessionStorage.getItem('hormuz_name'); }
+};
+
+// Common toast UI
+function showToast(msg, isError = false) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.style.backgroundColor = isError ? 'var(--urgent)' : 'var(--success)';
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
