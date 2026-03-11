@@ -303,27 +303,31 @@
             startX = x;
             startY = y;
 
-            // 1. Check for Intuition Point (Stages 3, 5)
+            // 1. Check for Intuition Point (Stages 3, 5) - Increased hit area to 60px
             if (trainingPoint && [3, 5].includes(currentStage)) {
                 const dist = Math.sqrt((x - trainingPoint.x) ** 2 + (y - trainingPoint.y) ** 2);
-                if (dist < 40) {
+                if (dist < 60) {
                     isInteracting = true;
                     return;
                 }
             }
 
-            // 2. Check for Axis Clicks (Stages 1, 2)
+            // 2. Check for Axis Clicks (Stages 1, 2) - Much wider hitboxes
             if (currentStage === 1) {
-                if (y < graph.height / 3 && x < graph.pLeft + 80) {
+                // Clicking anywhere near the top half of the Y-axis
+                if (x < graph.pLeft + 120 && y < graph.height / 1.8) {
                     nextStage();
                 } else {
                     handleError("Action Required: Click the VERY TOP of the vertical Price ($) axis.");
+                    showClickHint(graph.pLeft, graph.pTop + 50);
                 }
             } else if (currentStage === 2) {
-                if (x > graph.width / 1.5 && y > graph.height - graph.pBottom - 80) {
+                // Clicking anywhere near the right half of the X-axis
+                if (x > graph.width / 2.2 && y > graph.height - graph.pBottom - 120) {
                     nextStage();
                 } else {
                     handleError("Action Required: Click the FAR RIGHT of the horizontal Quantity (Q) axis.");
+                    showClickHint(graph.width - graph.pRight - 50, graph.height - graph.pBottom);
                 }
             }
 
@@ -331,6 +335,15 @@
             if ([4, 6, 7].includes(currentStage)) {
                 isInteracting = true;
             }
+        }
+
+        function showClickHint(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 40, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
         }
 
         function handleInputMove(clientX, clientY) {
