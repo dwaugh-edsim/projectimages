@@ -574,8 +574,25 @@
                     trainingPoint = { x: graph.width / 2 + 50, y: graph.height / 2 - 50 };
                 }
             } else {
-                document.getElementById('proceed-container').style.display = 'block';
-                instructions.innerText = "Training Complete. Advisor, you are ready for the live terminal.";
+                // Training complete, execute final checkpoints
+                document.getElementById('graph-container').style.display = 'none'; // Clear the screen for the final questions
+
+                triggerSocraticCheck(
+                    "SECURITY CLEARANCE: Q4 (CLIMATE)",
+                    `We live in a cold climate. If heating oil prices double, why can't people just switch to 'alternatives' tomorrow? Why does this make gas prices inelastic?`,
+                    "explaining how climate-driven necessity creates extreme inelasticity",
+                    () => {
+                        triggerSocraticCheck(
+                            "SECURITY CLEARANCE: Q5 (MACRO)",
+                            `Final analysis before uplink: How might this supply shock affect the OVERALL Nova Scotia economy in the long term (6-12 months)? Think about unemployment and small businesses.`,
+                            "predicting the long-term macroeconomic fallout for the province",
+                            () => {
+                                document.getElementById('proceed-container').style.display = 'block';
+                                instructions.innerText = "Training Complete. Advisor, you are ready for the live terminal.";
+                            }
+                        );
+                    }
+                );
             }
             graph.render();
         }
@@ -841,21 +858,7 @@
                                 "SECURITY CLEARANCE: Q3 (LOGISTICS)",
                                 `Advisor, 40% of our homes use oil for heat and all our groceries are trucked in. How can a price spike in the Persian Gulf affect the price of milk at a Sobeys in Clayton Park?`,
                                 "analyzing the connection between maritime fuel costs and local retail prices",
-                                () => {
-                                    triggerSocraticCheck(
-                                        "SECURITY CLEARANCE: Q4 (CLIMATE)",
-                                        `We live in a cold climate. If heating oil prices double, why can't people just switch to 'alternatives' tomorrow? Why does this make gas prices inelastic?`,
-                                        "explaining how climate-driven necessity creates extreme inelasticity",
-                                        () => {
-                                            triggerSocraticCheck(
-                                                "SECURITY CLEARANCE: Q5 (MACRO)",
-                                                `Final analysis before uplink: How might this supply shock affect the OVERALL Nova Scotia economy in the long term (6-12 months)? Think about unemployment and small businesses.`,
-                                                "predicting the long-term macroeconomic fallout for the province",
-                                                nextStage
-                                            );
-                                        }
-                                    );
-                                }
+                                nextStage // Proceed to graphing tutorial
                             );
                         }
                     );
