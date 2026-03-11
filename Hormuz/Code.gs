@@ -59,12 +59,19 @@ function doPost(e) {
 
     // --- ACTION: LOGIN ---
     if (action === 'login') {
-      const name = payload.name || 'Unknown';
+      const name = (payload.name || 'Advisor').trim();
       
       if (rowIndex !== -1) {
         // PIN exists. Return their saved state.
-        const savedName = data[rowIndex-1][1];
+        let savedName = data[rowIndex-1][1];
         const savedStage = data[rowIndex-1][2];
+        
+        // If the saved name is empty (legacy data fix), update it with the new name provided
+        if (!savedName || savedName === "" || savedName === "undefined") {
+          savedName = name;
+          sheet.getRange(rowIndex, 2).setValue(name);
+        }
+
         return successJSON({
           isNew: false,
           name: savedName,

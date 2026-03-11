@@ -177,9 +177,18 @@
     <script>
         // Check Auth
         const pin = Session.getPin();
-        const name = Session.getName();
-        if (!pin) window.location.href = 'index.html';
-        document.getElementById('user-greeting').innerText = `ADVISOR ${name.toUpperCase()}`;
+        let name = Session.getName();
+
+        if (!pin) {
+            window.location.href = 'index.html';
+        }
+
+        // Final fallback for missing name display
+        if (!name || name === 'undefined' || name === 'null') {
+            name = 'Advisor';
+        }
+
+        document.getElementById('user-greeting').innerText = `ADVISOR: ${name.toUpperCase()}`;
 
         const graph = new EconomicsGraph('market-graph');
         const canvas = graph.canvas;
@@ -286,102 +295,137 @@
             }
         }
 
-        canvas.addEventListener('mousedown', (e) => {
+        function handleInputStart(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
 
-            // Assessment Logic
+            startX = x;
+            startY = y;
+
+            // 1. Check for Intuition Point (Stages 3, 5)
+            if (trainingPoint && [3, 5].includes(currentStage)) {
+                const dist = Math.sqrt((x - trainingPoint.x) ** 2 + (y - trainingPoint.y) ** 2);
+                if (dist < 40) {
+                    isInteracting = true;
+                    return;
+                }
+            }
+
+            // 2. Check for Axis Clicks (Stages 1, 2)
             if (currentStage === 1) {
-                if (y < graph.height / 3 && x < graph.pLeft + 50) {
+                if (y < graph.height / 3 && x < graph.pLeft + 80) {
                     nextStage();
                 } else {
-                    handleError("Click the top part of the vertical Price axis.");
+                    handleError("Action Required: Click the VERY TOP of the vertical Price ($) axis.");
                 }
             } else if (currentStage === 2) {
-                if (x > graph.width / 1.5 && y > graph.height - graph.pBottom - 50) {
+                if (x > graph.width / 1.5 && y > graph.height - graph.pBottom - 80) {
                     nextStage();
                 } else {
-                    handleError("Click the right part of the horizontal Quantity axis.");
-                }
-            } else if (currentStage === 3 || currentStage === 5) {
-                // Check if clicking near training point
-                const dist = Math.sqrt((x - trainingPoint.x) ** 2 + (y - trainingPoint.y) ** 2);
-                if (dist < 30) isInteracting = true;
-            }
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isInteracting || ![3, 5].includes(currentStage)) return;
-            const rect = canvas.getBoundingClientRect();
-            trainingPoint.x = e.clientX - rect.left;
-            trainingPoint.y = e.clientY - rect.top;
-            graph.render();
-        });
-
-        canvas.addEventListener('mouseup', (e) => {
-            if (!isInteracting || ![3, 5].includes(currentStage)) return;
-            isInteracting = false;
-
-            if (currentStage === 3) {
-                if (trainingPoint.x < graph.width / 2) {
-                    trainingPoint = null;
-                    nextStage();
-                } else {
-                    handleError("Incorrect. If gas is expensive, consumers buy LESS. Move the point further LEFT.");
-                }
-            } else if (currentStage === 5) {
-                if (trainingPoint.x > graph.width / 2) {
-                    trainingPoint = null;
-                    nextStage();
-                } else {
-                    handleError("Incorrect. If price is high, businesses want to sell MORE. Move the point further RIGHT.");
+                    handleError("Action Required: Click the FAR RIGHT of the horizontal Quantity (Q) axis.");
                 }
             }
-            graph.render();
-        });
 
-        // Drawing Logic for stages 4, 6, 7
-        let startX, startY;
-        canvas.addEventListener('mousedown', (e) => {
-            if (![4, 6, 7].includes(currentStage)) return;
+            // 3. Start Drawing (Stages 4, 6, 7)
+            if ([4, 6, 7].includes(currentStage)) {
+                isInteracting = true;
+            }
+        }
+
+        function handleInputMove(clientX, clientY) {
+            if (!isInteracting) return;
             const rect = canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left;
-            startY = e.clientY - rect.top;
-            isInteracting = true;
-        });
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
 
-        canvas.addEventListener('mouseup', async (e) => {
+            if ([3, 5].includes(currentStage) && trainingPoint) {
+                trainingPoint.x = x;
+                trainingPoint.y = y;
+                graph.render();
+            } else if ([4, 6, 7].includes(currentStage)) {
+                // Preview line
+                graph.render();
+                ctx.beginPath();
+                ctx.strokeStyle = currentStage === 6 ? '#10b981' : '#3b82f6';
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        async function handleInputEnd(clientX, clientY) {
             if (!isInteracting) return;
             isInteracting = false;
             const rect = canvas.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
+            const endX = clientX - rect.left;
+            const endY = clientY - rect.top;
 
-            if (currentStage === 4) {
-                if (endX > startX && endY > startY) {
+            // Validate Intuition
+            if (currentStage === 3) {
+                if (endX < graph.width / 2.5) {
+                    trainingPoint = null;
+                    nextStage();
+                } else {
+                    handleError("Wrong Direction. High price means people buy LESS. Drag the point significantly to the LEFT.");
+                }
+            } else if (currentStage === 5) {
+                if (endX > graph.width / 1.5) {
+                    trainingPoint = null;
+                    nextStage();
+                } else {
+                    handleError("Wrong Direction. High price means businesses want to sell MORE. Drag the point significantly to the RIGHT.");
+                }
+            }
+
+            // Validate Curves
+            else if (currentStage === 4) {
+                if (endX > startX + 50 && endY > startY + 50) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Incorrect. Demand must slope DOWNWARD (Top-Left to Bottom-Right).");
+                    handleError("Invalid Curve. Demand MUST slope Downward and Right. Start at the top-left and drag down-right.");
                 }
             } else if (currentStage === 6) {
-                if (endX > startX && endY < startY) {
+                if (endX > startX + 50 && endY < startY - 50) {
                     graph.supplyCurve1 = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Incorrect. Supply must slope UPWARD (Bottom-Left to Top-Right).");
+                    handleError("Invalid Curve. Supply MUST slope Upward and Right. Start at the bottom-left and drag up-right.");
                 }
             } else if (currentStage === 7) {
                 const dy = Math.abs(endY - startY);
                 const dx = Math.abs(endX - startX);
-                if (dy > dx * 1.5 && endX > startX && endY > startY) {
+                if (dy > dx * 1.8 && endX > startX && endY > startY) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
                     nextStage();
                 } else {
-                    handleError("Not steep enough! Gasoline demand is inelastic; people buy it no matter the price.");
+                    handleError("Not Steep Enough. For gasoline, demand is a near-vertical line because people HAVE to drive.");
                 }
             }
+            graph.render();
+        }
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', (e) => handleInputStart(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => handleInputMove(e.clientX, e.clientY));
+        window.addEventListener('mouseup', (e) => handleInputEnd(e.clientX, e.clientY));
+
+        // Touch Events (for Chromebooks)
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleInputStart(touch.clientX, touch.clientY);
+        }, { passive: false });
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            handleInputMove(touch.clientX, touch.clientY);
+        }, { passive: false });
+        window.addEventListener('touchend', (e) => {
+            const touch = e.changedTouches[0];
+            handleInputEnd(touch.clientX, touch.clientY);
         });
 
         async function handleError(msg) {
