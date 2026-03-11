@@ -45,10 +45,18 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify({ action: 'fetch_ai', pin: this.getPinFallback(), model, messages })
             });
-            return await res.json();
+            const data = await res.json();
+
+            // Intercept Apps Script error wrapper
+            if (data && data.status === 'error') {
+                console.error("Backend Proxy Error:", data.message);
+                return { error: { message: data.message } };
+            }
+
+            return data;
         } catch (e) {
             console.error(e);
-            return { status: 'error' };
+            return { status: 'error', error: { message: e.toString() } };
         }
     },
 
