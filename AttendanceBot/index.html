@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AttendanceBot — Threshold Notification System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --t5: rgba(16, 185, 129, 0.2);
+            --t10: rgba(245, 158, 11, 0.2);
+            --t15: rgba(249, 115, 22, 0.2);
+            --t20: rgba(239, 68, 68, 0.2)
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0, transparent 40%), radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.12) 0, transparent 40%), radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 1) 100%);
+            background-attachment: fixed
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown .8s ease-out
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: -.05em;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: .3rem
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1rem;
+            font-weight: 300
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: all .3s ease
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem
+        }
+
+        .form-group {
+            margin-bottom: 1rem
+        }
+
+        label {
+            display: block;
+            margin-bottom: .4rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .1em
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: .7rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: .6rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: .9rem;
+            outline: none;
+            transition: all .3s
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1)
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px
+        }
+
+        select {
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right .8rem center;
+            background-size: 1em
+        }
+
+        select option {
+            background: #1e293b;
+            color: white
+        }
+
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all .3s;
+            background: rgba(255, 255, 255, 0.02);
+            margin-bottom: .5rem
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            transform: scale(1.01)
+        }
+
+        .upload-zone.active {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.08)
+        }
+
+        .upload-icon {
+            font-size: 1.8rem;
+            margin-bottom: .5rem;
+            display: block
+        }
+
+        .btn {
+            padding: .7rem 1.2rem;
+            border: none;
+            border-radius: .7rem;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(99, 102, 241, 0.4)
+        }
+
+        .btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main)
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+            transform: translateY(-1px)
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), #059669);
+            color: white;
+            box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3)
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3)
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25)
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            padding: 1rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        .vp-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr .6fr .6fr;
+            gap: .8rem;
+            align-items: end;
+            padding: .8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: .7rem;
+            margin-bottom: .5rem;
+            transition: background .2s
+        }
+
+        .vp-row:hover {
+            background: rgba(255, 255, 255, 0.04)
+        }
+
+        .threshold-badges {
+            display: flex;
+            gap: .4rem;
+            flex-wrap: wrap;
+            margin-top: .3rem
+        }
+
+        .badge {
+            padding: .2rem .6rem;
+            border-radius: 1rem;
+            font-size: .7rem;
+            font-weight: 600;
+            text-transform: uppercase
+        }
+
+        .badge-5 {
+            background: var(--t5);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3)
+        }
+
+        .badge-10 {
+            background: var(--t10);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3)
+        }
+
+        .badge-15 {
+            background: var(--t15);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3)
+        }
+
+        .badge-20 {
+            background: var(--t20);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3)
+        }
+
+        .badge-dup {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            text-decoration: line-through
+        }
+
+        .vp-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp .5s ease-out
+        }
+
+        .vp-card h3 {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: .8rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .email-block {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: .8rem;
+            padding: 1rem;
+            margin-bottom: .8rem;
+            position: relative;
+            font-size: .85rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+            max-height: 300px;
+            overflow-y: auto
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: .5rem;
+            right: .5rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: .3rem .6rem;
+            border-radius: .4rem;
+            cursor: pointer;
+            font-size: .7rem;
+            transition: all .2s
+        }
+
+        .copy-btn:hover {
+            background: rgba(99, 102, 241, 0.4);
+            color: white
+        }
+
+        .student-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .5rem .8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: .5rem;
+            margin-bottom: .4rem;
+            font-size: .85rem
+        }
+
+        .student-row .name {
+            font-weight: 500;
+            color: var(--accent)
+        }
+
+        .student-row .pct {
+            font-weight: 600
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite
+        }
+
+        .loading .spinner {
+            display: inline-block
+        }
+
+        .loading .btn-text {
+            display: none
+        }
+
+        .status-bar {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: .8rem;
+            padding: .8rem 1.2rem;
+            margin-bottom: 1rem;
+            font-size: .85rem;
+            color: #a5b4fc;
+            display: none
+        }
+
+        .status-bar.visible {
+            display: block;
+            animation: fadeInUp .3s
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: .5rem
+        }
+
+        .tab {
+            padding: .5rem 1rem;
+            border-radius: .5rem .5rem 0 0;
+            cursor: pointer;
+            font-size: .85rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            background: transparent;
+            border: none;
+            transition: all .2s
+        }
+
+        .tab.active {
+            color: var(--text-main);
+            background: rgba(99, 102, 241, 0.15);
+            border-bottom: 2px solid var(--primary)
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .file-info {
+            font-size: .8rem;
+            color: var(--accent);
+            margin-top: .3rem
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @media(max-width:768px) {
+            .container {
+                padding: 1rem
+            }
+
+            .vp-row {
+                grid-template-columns: 1fr 1fr;
+                gap: .5rem
+            }
+
+            h1 {
+                font-size: 2rem
+            }
+
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 AttendanceBot</h1>
+            <p class="subtitle">Threshold Notification System — Analyze, Route & Generate Emails</p>
+        </header>
+
+        <!-- Settings Card -->
+        <div class="card" id="settingsCard">
+            <h2>⚙️ Configuration</h2>
+            <div class="grid">
+                <div class="form-group">
+                    <label>OpenRouter API Key</label>
+                    <input type="text" id="apiKey" placeholder="sk-or-..." autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>LLM Model</label>
+                    <select id="modelSelect">
+                        <option value="mistralai/mistral-nemo" selected>Mistral Nemo</option>
+                        <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+                        <option value="meta-llama/llama-3.3-8b-instruct:free">Llama 3.3 8B (Free)</option>
+                        <option value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free">Dolphin Mistral
+                            24B (Free)</option>
+                        <option value="xiaomi/mimo-v2-flash">MIMO v2 Flash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vision Model (for screenshots)</label>
+                    <select id="visionModel">
+                        <option value="google/gemini-2.0-flash-001" selected>Gemini 2.0 Flash</option>
+                        <option value="allenai/molmo-2-8b:free">Molmo 2 8B (Free)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>School Name</label>
+                    <input type="text" id="schoolName" placeholder="e.g. Springfield Academy" value="">
+                </div>
+                <div class="form-group">
+                    <label>Course / Class</label>
+                    <input type="text" id="courseName" placeholder="e.g. Economics 12, Period 2">
+                </div>
+            </div>
+
+            <h2 style="margin-top:1rem">👔 Vice-Principal Assignments (by Student Last Name)</h2>
+            <div id="vpConfig">
+                <div class="vp-row">
+                    <div class="form-group"><label>VP Name</label><input type="text" class="vp-name" value="Ryan Lutes"
+                            data-vp="0"></div>
+                    <div class="form-group"><label>VP Email</label><input type="email" class="vp-email"
+                            value="rlutes@hrce.ca" data-vp="0"></div>
+                    <div class="form-group"><label>From</label><input type="text" class="vp-from" value="A" data-vp="0"
+                            maxlength="1"></div>
+                    <div class="form-group"><label>To</label><input type="text" class="vp-to" value="C" data-vp="0"
+                            maxlength="1"></div>
+                </div>
+                <div class="vp-row">
+                    <div class="form-group"><label>VP Name</label><input type="text" class="vp-name"
+                            value="Glen MacDuff" data-vp="1"></div>
+                    <div class="form-group"><label>VP Email</label><input type="email" class="vp-email"
+                            value="gmacduff@hrce.ca" data-vp="1"></div>
+                    <div class="form-group"><label>From</label><input type="text" class="vp-from" value="D" data-vp="1"
+                            maxlength="1"></div>
+                    <div class="form-group"><label>To</label><input type="text" class="vp-to" value="J" data-vp="1"
+                            maxlength="1"></div>
+                </div>
+                <div class="vp-row">
+                    <div class="form-group"><label>VP Name</label><input type="text" class="vp-name"
+                            value="Tanya Skelhorn" data-vp="2"></div>
+                    <div class="form-group"><label>VP Email</label><input type="email" class="vp-email"
+                            value="skelhornt@hrce.ca" data-vp="2"></div>
+                    <div class="form-group"><label>From</label><input type="text" class="vp-from" value="K" data-vp="2"
+                            maxlength="1"></div>
+                    <div class="form-group"><label>To</label><input type="text" class="vp-to" value="O" data-vp="2"
+                            maxlength="1"></div>
+                </div>
+                <div class="vp-row">
+                    <div class="form-group"><label>VP Name</label><input type="text" class="vp-name" value="Sarah Miles"
+                            data-vp="3"></div>
+                    <div class="form-group"><label>VP Email</label><input type="email" class="vp-email"
+                            value="smiles@hrce.ca" data-vp="3"></div>
+                    <div class="form-group"><label>From</label><input type="text" class="vp-from" value="P" data-vp="3"
+                            maxlength="1"></div>
+                    <div class="form-group"><label>To</label><input type="text" class="vp-to" value="Z" data-vp="3"
+                            maxlength="1"></div>
+                </div>
+            </div>
+
+            <h2 style="margin-top:1rem">✉️ Family Email Template</h2>
+            <p style="color:var(--text-dim);font-size:.8rem;margin-bottom:.5rem">Customize the family notification
+                email. Use placeholders: <code>{firstName}</code>, <code>{lastName}</code>,
+                <code>{missedPeriods}</code>, <code>{totalPeriods}</code>, <code>{percentAbsent}</code>,
+                <code>{threshold}</code>, <code>{courseName}</code>, <code>{schoolName}</code>
+            </p>
+            <textarea id="emailTemplate" rows="6" style="font-size:.85rem">Dear Family of {firstName} {lastName},
+
+{firstName} has missed {missedPeriods} out of {totalPeriods} class periods in {courseName}, resulting in an absence rate of {percentAbsent}%. This has crossed the {threshold}% attendance threshold.
+
+Regular attendance is essential for academic success. Please don't hesitate to reach out if there are circumstances affecting attendance that I should be aware of.
+
+Sincerely,
+David Waugh</textarea>
+        </div>
+
+        <div class="card">
+            <h2>📊 Attendance Data Input</h2>
+            <div class="form-group">
+                <label>Input Method</label>
+                <div class="tab-bar">
+                    <button class="tab active" data-tab="paste" onclick="switchTab('paste')">📝 Paste Data</button>
+                    <button class="tab" data-tab="file" onclick="switchTab('file')">📁 Upload File</button>
+                    <button class="tab" data-tab="screenshot" onclick="switchTab('screenshot')">📸
+                        Screenshot</button>
+                </div>
+            </div>
+
+            <div id="tab-paste">
+                <label>Paste attendance data — include missed periods and total periods per student</label>
+                <textarea id="rawData" rows="8"
+                    placeholder="Paste attendance data here in any format — CSV, tab-separated, or just a list. Include student names, missed periods, and total periods. The AI will parse it.&#10;&#10;Example:&#10;Last Name, First Name, Missed Periods, Total Periods&#10;Smith, John, 45, 450&#10;Johnson, Emily, 12, 450&#10;Williams, Sarah, 68, 450"></textarea>
+            </div>
+            <div id="tab-file" class="hidden">
+                <div class="upload-zone" id="fileZone" onclick="document.getElementById('fileInput').click()">
+                    <span class="upload-icon">📁</span>
+                    <p>Drop a .csv or .xlsx file here, or click to upload</p>
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none">
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+            </div>
+            <div id="tab-screenshot" class="hidden">
+                <div class="upload-zone" id="screenshotZone"
+                    onclick="document.getElementById('screenshotInput').click()">
+                    <span class="upload-icon">📸</span>
+                    <p>Drop a screenshot of attendance data here, or click to upload</p>
+                    <input type="file" id="screenshotInput" accept="image/*" style="display:none">
+                    <div class="file-info" id="screenshotInfo"></div>
+                </div>
+                <img id="screenshotPreview"
+                    style="display:none;max-width:100%;border-radius:.8rem;margin-top:.5rem;border:1px solid var(--border)">
+            </div>
+
+            <div style="display:flex;gap:1rem;margin-top:1.5rem">
+                <button class="btn btn-primary btn-full" id="analyzeBtn" onclick="runAnalysis()">
+                    <span class="btn-text">🚀 Analyze & Generate Notifications</span>
+                    <div class="spinner"></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar" id="statusBar"></div>
+
+        <!-- Results -->
+        <div id="resultsSection" class="hidden">
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                    <h2>📬 Generated Notifications</h2>
+                    <div style="display:flex;gap:.5rem">
+                        <button class="btn btn-secondary" onclick="exportAll()">💾 Export All</button>
+                        <button class="btn btn-danger" onclick="clearHistory()">🗑️ Clear History</button>
+                    </div>
+                </div>
+
+                <div id="summaryStats"
+                    style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem"></div>
+                <div id="vpResults"></div>
+            </div>
+
+            <!-- Notification Log -->
+            <div class="card">
+                <h2>📜 Notification History</h2>
+                <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:1rem">Previously sent thresholds
+                    (de-duplicated). Stored in local database — persists across sessions.</p>
+                <div id="historyLog"></div>
+            </div>
+
+            <!-- Past Sessions -->
+            <div class="card">
+                <h2>🗂️ Past Sessions</h2>
+                <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:1rem">Complete log of every analysis run.
+                    Click a session to review its results.</p>
+                <div id="sessionsLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ── STATE ── */
+        let parsedStudents = [];
+        let screenshotBase64 = null;
+        let fileData = null;
+        let db = null;
+        const THRESHOLDS = [5, 10, 15, 20];
+        const FAMILY_THRESHOLDS = [5, 10, 15, 20];
+        const VP_THRESHOLDS = [10, 15, 20];
+        const CONFIG_KEY = 'AB_CONFIG';
+        const DB_NAME = 'AttendanceBotDB';
+        const DB_VERSION = 1;
+
+        /* ── IndexedDB LAYER ── */
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = e => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains('notifications')) {
+                        d.createObjectStore('notifications', { keyPath: 'key' });
+                    }
+                    if (!d.objectStoreNames.contains('sessions')) {
+                        const s = d.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true });
+                        s.createIndex('date', 'date');
+                    }
+                };
+                req.onsuccess = e => { db = e.target.result; resolve(db); };
+                req.onerror = e => reject(e.target.error);
+            });
+        }
+
+        async function dbGetAllNotifications() {
+            const tx = db.transaction('notifications', 'readonly');
+            const store = tx.objectStore('notifications');
+            return new Promise((resolve, reject) => {
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const map = {};
+                    req.result.forEach(r => map[r.key] = r.date);
+                    resolve(map);
+                };
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function dbPutNotification(key, date) {
+            const tx = db.transaction('notifications', 'readwrite');
+            tx.objectStore('notifications').put({ key, date });
+            return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+        }
+
+        async function dbClearNotifications() {
+            const tx = db.transaction('notifications', 'readwrite');
+            tx.objectStore('notifications').clear();
+            return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+        }
+
+        async function dbSaveSession(session) {
+            const tx = db.transaction('sessions', 'readwrite');
+            tx.objectStore('sessions').add(session);
+            return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+        }
+
+        async function dbGetAllSessions() {
+            const tx = db.transaction('sessions', 'readonly');
+            const store = tx.objectStore('sessions');
+            return new Promise((resolve, reject) => {
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result.reverse());
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function dbClearSessions() {
+            const tx = db.transaction('sessions', 'readwrite');
+            tx.objectStore('sessions').clear();
+            return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+        }
+
+        /* ── INIT ── */
+        document.addEventListener('DOMContentLoaded', async () => {
+            await openDB();
+            loadConfig();
+            setupDragDrop('fileZone', 'fileInput');
+            setupDragDrop('screenshotZone', 'screenshotInput');
+            document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+            document.getElementById('screenshotInput').addEventListener('change', handleScreenshot);
+            await renderHistory();
+            await renderSessions();
+            // Auto-save config on any input change
+            document.querySelectorAll('#settingsCard input, #settingsCard select, #settingsCard textarea').forEach(el => {
+                el.addEventListener('change', saveConfig);
+            });
+        });
+
+        function loadConfig() {
+            const cfg = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}');
+            if (cfg.apiKey) document.getElementById('apiKey').value = cfg.apiKey;
+            if (cfg.model) document.getElementById('modelSelect').value = cfg.model;
+            if (cfg.visionModel) document.getElementById('visionModel').value = cfg.visionModel;
+            if (cfg.schoolName) document.getElementById('schoolName').value = cfg.schoolName;
+            if (cfg.courseName) document.getElementById('courseName').value = cfg.courseName;
+            if (cfg.emailTemplate) document.getElementById('emailTemplate').value = cfg.emailTemplate;
+            if (cfg.vps) {
+                cfg.vps.forEach((vp, i) => {
+                    const names = document.querySelectorAll('.vp-name');
+                    const emails = document.querySelectorAll('.vp-email');
+                    const froms = document.querySelectorAll('.vp-from');
+                    const tos = document.querySelectorAll('.vp-to');
+                    if (names[i]) names[i].value = vp.name || '';
+                    if (emails[i]) emails[i].value = vp.email || '';
+                    if (froms[i]) froms[i].value = vp.from || '';
+                    if (tos[i]) tos[i].value = vp.to || '';
+                });
+            }
+        }
+
+        function saveConfig() {
+            const vps = [];
+            document.querySelectorAll('.vp-name').forEach((el, i) => {
+                vps.push({
+                    name: el.value,
+                    email: document.querySelectorAll('.vp-email')[i]?.value || '',
+                    from: document.querySelectorAll('.vp-from')[i]?.value?.toUpperCase() || '',
+                    to: document.querySelectorAll('.vp-to')[i]?.value?.toUpperCase() || ''
+                });
+            });
+            localStorage.setItem(CONFIG_KEY, JSON.stringify({
+                apiKey: document.getElementById('apiKey').value,
+                model: document.getElementById('modelSelect').value,
+                visionModel: document.getElementById('visionModel').value,
+                schoolName: document.getElementById('schoolName').value,
+                courseName: document.getElementById('courseName').value,
+                emailTemplate: document.getElementById('emailTemplate').value,
+                vps
+            }));
+        }
+
+        // History now backed by IndexedDB — see dbGetAllNotifications / dbPutNotification
+
+        /* ── TABS ── */
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+            ['paste', 'file', 'screenshot'].forEach(t => {
+                document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+            });
+        }
+
+        /* ── DRAG & DROP ── */
+        function setupDragDrop(zoneId, inputId) {
+            const zone = document.getElementById(zoneId);
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('active'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('active'));
+            zone.addEventListener('drop', e => {
+                e.preventDefault(); zone.classList.remove('active');
+                document.getElementById(inputId).files = e.dataTransfer.files;
+                document.getElementById(inputId).dispatchEvent(new Event('change'));
+            });
+        }
+
+        /* ── FILE HANDLING ── */
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('fileInfo').textContent = `✅ ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            const reader = new FileReader();
+            if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+                reader.onload = ev => { fileData = ev.target.result; };
+                reader.readAsText(file);
+            } else {
+                reader.onload = ev => {
+                    const wb = XLSX.read(ev.target.result, { type: 'array' });
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    fileData = XLSX.utils.sheet_to_csv(ws);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function handleScreenshot(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('screenshotInfo').textContent = `✅ ${file.name}`;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                screenshotBase64 = ev.target.result;
+                const preview = document.getElementById('screenshotPreview');
+                preview.src = screenshotBase64;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /* ── STATUS ── */
+        function setStatus(msg) {
+            const bar = document.getElementById('statusBar');
+            bar.textContent = msg;
+            bar.classList.add('visible');
+        }
+        function hideStatus() { document.getElementById('statusBar').classList.remove('visible'); }
+
+        /* ── LLM CALL ── */
+        async function callLLM(prompt, systemMsg, useVision = false, imageData = null) {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) throw new Error('Please enter your OpenRouter API key.');
+            const model = useVision
+                ? document.getElementById('visionModel').value
+                : document.getElementById('modelSelect').value;
+
+            const messages = [{ role: 'system', content: systemMsg }];
+            if (useVision && imageData) {
+                messages.push({
+                    role: 'user', content: [
+                        { type: 'text', text: prompt },
+                        { type: 'image_url', image_url: { url: imageData } }
+                    ]
+                });
+            } else {
+                messages.push({ role: 'user', content: prompt });
+            }
+            const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({ model, messages, temperature: 0.1 })
+            });
+            if (!res.ok) { const err = await res.text(); throw new Error(`API Error ${res.status}: ${err}`); }
+            const data = await res.json();
+            return data.choices?.[0]?.message?.content || '';
+        }
+
+        /* ── MAIN ANALYSIS ── */
+        async function runAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            btn.classList.add('loading'); btn.disabled = true;
+            try {
+                saveConfig();
+
+                // Step 1: Get raw data
+                let rawInput = '';
+                const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+                if (activeTab === 'paste') rawInput = document.getElementById('rawData').value.trim();
+                else if (activeTab === 'file') rawInput = fileData;
+                else if (activeTab === 'screenshot') {
+                    if (!screenshotBase64) throw new Error('Upload a screenshot first.');
+                    setStatus('🔍 Extracting data from screenshot via vision model...');
+                    rawInput = await callLLM(
+                        'Extract all student attendance data from this image. Return ONLY a CSV with columns: LastName,FirstName,MissedPeriods,TotalPeriods — no other text.',
+                        'You are a data extraction tool. Output only clean CSV data, no markdown formatting, no code fences.', true, screenshotBase64
+                    );
+                }
+                if (!rawInput) throw new Error('No attendance data provided.');
+
+                // Step 2: LLM Parse
+                setStatus('🤖 Parsing attendance data with AI...');
+                const parsePrompt = `Parse this attendance data and return ONLY a JSON array. Each object must have: {"lastName": string, "firstName": string, "missedPeriods": number, "totalPeriods": number}
+
+CRITICAL INSTRUCTIONS:
+- The data may contain MULTIPLE numeric columns (e.g. AWN, A, R, MR, etc.) which are BREAKDOWN CATEGORIES — IGNORE THESE.
+- Look specifically for columns labeled "Missed Periods" (or similar total missed count) and "Total Periods" (the total possible periods).
+- "Missed Periods" is the TOTAL absences and "Total Periods" is the total possible — these are the ONLY two numbers you should extract.
+- If a student has 0 missed periods (blank/empty), set missedPeriods to 0.
+- For the name field: the data is in "LastName, FirstName MiddleName" format. Use only the first given name as firstName (drop middle names). Use the surname portion as lastName.
+- If the data includes a pre-calculated Percentage column, you can cross-check: missedPeriods/totalPeriods should approximately equal that percentage.
+
+Do NOT include any markdown, code fences, or explanation. ONLY the raw JSON array.
+
+Raw data:
+${rawInput}`;
+
+                let parseResult = await callLLM(parsePrompt,
+                    'You are a data parser. Return ONLY valid JSON arrays with no surrounding text, no markdown code fences, no explanation.');
+
+                // Clean response
+                parseResult = parseResult.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+                try { parsedStudents = JSON.parse(parseResult); }
+                catch { throw new Error('Failed to parse AI response as JSON. Raw:\n' + parseResult.substring(0, 500)); }
+
+                // Step 3: Calculate thresholds
+                setStatus('📊 Calculating thresholds and checking history...');
+                const history = await dbGetAllNotifications();
+                const flaggedStudents = [];
+                const newNotifications = [];
+
+                parsedStudents.forEach(s => {
+                    const pct = (s.missedPeriods / s.totalPeriods) * 100;
+                    s.percentAbsent = Math.round(pct * 10) / 10;
+                    s.crossedThresholds = [];
+                    s.newThresholds = [];    // all new (for display)
+                    s.newFamilyThresholds = [];
+                    s.newVpThresholds = [];
+                    s.dupThresholds = [];
+
+                    THRESHOLDS.forEach(t => {
+                        if (pct >= t) {
+                            s.crossedThresholds.push(t);
+                            const key = `${s.lastName},${s.firstName}-${t}`;
+                            if (history[key]) {
+                                s.dupThresholds.push(t);
+                            } else {
+                                s.newThresholds.push(t);
+                                newNotifications.push({ key, date: new Date().toISOString() });
+                                if (FAMILY_THRESHOLDS.includes(t)) s.newFamilyThresholds.push(t);
+                                if (VP_THRESHOLDS.includes(t)) s.newVpThresholds.push(t);
+                            }
+                        }
+                    });
+                    if (s.crossedThresholds.length > 0) flaggedStudents.push(s);
+                });
+                // Write new notifications to IndexedDB
+                for (const n of newNotifications) await dbPutNotification(n.key, n.date);
+
+                // Step 4: Assign to VPs
+                const vpData = getVPConfig();
+                vpData.forEach(vp => { vp.students = []; });
+                flaggedStudents.forEach(s => {
+                    const initial = (s.lastName || '').charAt(0).toUpperCase();
+                    const vp = vpData.find(v => initial >= v.from && initial <= v.to);
+                    if (vp) vp.students.push(s);
+                    else if (vpData.length) vpData[vpData.length - 1].students.push(s); // fallback
+                });
+
+                // Step 5: Generate emails
+                const schoolName = document.getElementById('schoolName').value || 'the school';
+                const courseName = document.getElementById('courseName').value || '';
+
+                // 5a: Family emails — ALWAYS from the editable template
+                setStatus('✉️ Generating family emails from template...');
+                generateFamilyEmails(flaggedStudents, schoolName, courseName);
+
+                // 5b: VP emails — LLM-generated with fallback
+                const studentsWithVpThresholds = flaggedStudents.filter(s => s.newVpThresholds.length > 0);
+                if (studentsWithVpThresholds.length > 0) {
+                    setStatus('✉️ Generating VP summary emails with AI...');
+                    const emailPrompt = buildVpEmailPrompt(vpData, schoolName, courseName);
+                    try {
+                        let emailResult = await callLLM(emailPrompt,
+                            'You are a professional school communication assistant. Generate formal VP notification emails. Return ONLY valid JSON with no markdown fences.');
+                        emailResult = emailResult.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+                        const vpEmails = JSON.parse(emailResult);
+                        if (vpEmails.vpEmails) {
+                            vpData.forEach(vp => { vp.vpEmail = vpEmails.vpEmails[vp.name] || ''; });
+                        }
+                    } catch {
+                        generateFallbackVpEmails(vpData, schoolName, courseName);
+                    }
+                } else {
+                    generateFallbackVpEmails(vpData, schoolName, courseName);
+                }
+
+                // Step 6: Save session to IndexedDB
+                setStatus('💾 Saving session to local database...');
+                await dbSaveSession({
+                    date: new Date().toISOString(),
+                    totalStudents: parsedStudents.length,
+                    flaggedCount: flaggedStudents.length,
+                    newNotifications: newNotifications.length,
+                    students: flaggedStudents.map(s => ({
+                        firstName: s.firstName, lastName: s.lastName,
+                        missedPeriods: s.missedPeriods, totalPeriods: s.totalPeriods, percentAbsent: s.percentAbsent,
+                        newThresholds: s.newThresholds, dupThresholds: s.dupThresholds
+                    })),
+                    vpSummary: vpData.map(v => ({ name: v.name, range: `${v.from}-${v.to}`, studentCount: v.students.length }))
+                });
+
+                // Step 7: Render results
+                setStatus('✅ Done! Scroll down to see results.');
+                renderResults(vpData, flaggedStudents);
+                await renderHistory();
+                await renderSessions();
+                setTimeout(hideStatus, 3000);
+
+            } catch (err) {
+                setStatus('❌ Error: ' + err.message);
+                console.error(err);
+            } finally {
+                btn.classList.remove('loading'); btn.disabled = false;
+            }
+        }
+
+        function getVPConfig() {
+            const vps = [];
+            document.querySelectorAll('.vp-name').forEach((el, i) => {
+                vps.push({
+                    name: el.value || `VP ${i + 1}`,
+                    email: document.querySelectorAll('.vp-email')[i]?.value || '',
+                    from: (document.querySelectorAll('.vp-from')[i]?.value || '').toUpperCase(),
+                    to: (document.querySelectorAll('.vp-to')[i]?.value || '').toUpperCase(),
+                    students: [], vpEmail: '', familyEmails: {}
+                });
+            });
+            return vps;
+        }
+
+        function buildVpEmailPrompt(vpData, schoolName, courseName) {
+            const courseInfo = courseName ? ` for the course "${courseName}"` : '';
+
+            // Build per-VP student lists — only include students with VP-level thresholds (10/15/20)
+            const vpSections = vpData.filter(v => v.students.length > 0).map(v => {
+                const vpStudentList = v.students.filter(s => s.newVpThresholds.length > 0).map(s =>
+                    `  - ${s.firstName} ${s.lastName}: ${s.missedPeriods}/${s.totalPeriods} periods missed (${s.percentAbsent}%), VP thresholds: ${s.newVpThresholds.join(',')}%`
+                ).join('\n');
+                return vpStudentList ? `${v.name} (${v.email}, range ${v.from}-${v.to}):\n${vpStudentList}` : null;
+            }).filter(Boolean).join('\n\n');
+
+            return `Generate VP attendance notification emails in JSON format for ${schoolName}${courseInfo}.
+
+STUDENTS GROUPED BY VICE-PRINCIPAL (thresholds at 10%, 15%, 20% only — already routed, do NOT change groupings):
+${vpSections || 'None'}
+
+Return this exact JSON structure (no markdown, no code fences):
+{
+  "vpEmails": {
+    "VP Name": "VP Full Name\\n\\nVP Email Address\\n\\nDear [VP First Name],\\n\\n..."
+  }
+}
+
+RULES:
+- VP emails MUST start with exactly this format on separate lines: 1) VP full name, 2) blank line, 3) VP email address, 4) blank line, 5) "Dear [VP first name]," then the body.
+- Include a consolidated summary of ONLY the students listed under that VP with names, exact periods missed/total, percentages, and thresholds crossed. DO NOT move students between VPs.
+- Use the EXACT numbers shown above — do not recalculate or approximate`;
+        }
+
+        function generateFamilyEmails(students, schoolName, courseName) {
+            const template = document.getElementById('emailTemplate').value;
+            students.filter(s => s.newFamilyThresholds.length > 0).forEach(s => {
+                const highest = Math.max(...s.newFamilyThresholds);
+                s.familyEmail = template
+                    .replace(/\{firstName\}/g, s.firstName)
+                    .replace(/\{lastName\}/g, s.lastName)
+                    .replace(/\{missedPeriods\}/g, s.missedPeriods)
+                    .replace(/\{totalPeriods\}/g, s.totalPeriods)
+                    .replace(/\{percentAbsent\}/g, s.percentAbsent)
+                    .replace(/\{threshold\}/g, highest)
+                    .replace(/\{courseName\}/g, courseName || 'the course')
+                    .replace(/\{schoolName\}/g, schoolName);
+            });
+        }
+
+        function generateFallbackVpEmails(vpData, schoolName, courseName) {
+            const courseInfo = courseName ? ` in ${courseName}` : '';
+            vpData.forEach(vp => {
+                const vpStudents = vp.students.filter(s => s.newVpThresholds.length > 0);
+                if (vpStudents.length === 0) return;
+                const vpFirstName = vp.name.split(' ')[0];
+                const table = vpStudents.map(s =>
+                    `• ${s.firstName} ${s.lastName}: ${s.percentAbsent}% absent (${s.missedPeriods}/${s.totalPeriods} periods) — VP Thresholds: ${s.newVpThresholds.join(', ')}%`
+                ).join('\n');
+                vp.vpEmail = `${vp.name}\n\n${vp.email}\n\nDear ${vpFirstName},\n\nThe following students in your assigned range (${vp.from}-${vp.to}) have crossed attendance thresholds${courseInfo} requiring notification:\n\n${table}\n\nPlease review and take any necessary follow-up action.\n\nRegards,\n${schoolName} Attendance System`;
+            });
+        }
+
+        /* ── RENDER RESULTS ── */
+        function renderResults(vpData, flaggedStudents) {
+            document.getElementById('resultsSection').classList.remove('hidden');
+
+            // Summary stats
+            const stats = document.getElementById('summaryStats');
+            const counts = {};
+            THRESHOLDS.forEach(t => counts[t] = 0);
+            flaggedStudents.forEach(s => s.newThresholds.forEach(t => counts[t]++));
+            stats.innerHTML = THRESHOLDS.map(t => `
+    <div style="background:var(--t${t});border:1px solid rgba(255,255,255,0.1);border-radius:.8rem;padding:1rem;text-align:center">
+      <div style="font-size:2rem;font-weight:800">${counts[t]}</div>
+      <div style="font-size:.75rem;color:var(--text-dim);text-transform:uppercase">New at ${t}%</div>
+    </div>
+  `).join('');
+
+            // VP Cards
+            const vpResults = document.getElementById('vpResults');
+            vpResults.innerHTML = vpData.map(vp => {
+                if (vp.students.length === 0) return `
+      <div class="vp-card">
+        <h3>👔 ${esc(vp.name)} <span style="font-size:.75rem;color:var(--text-dim)">(${vp.from}-${vp.to})</span></h3>
+        <p style="color:var(--text-dim);font-size:.85rem">No students in this range have crossed any thresholds.</p>
+      </div>`;
+
+                const studentRows = vp.students.map(s => `
+      <div class="student-row">
+        <span class="name">${esc(s.firstName)} ${esc(s.lastName)}</span>
+        <span class="pct" style="color:${s.percentAbsent >= 20 ? '#f87171' : s.percentAbsent >= 15 ? '#fb923c' : s.percentAbsent >= 10 ? '#fbbf24' : '#34d399'}">${s.percentAbsent}%</span>
+        <div class="threshold-badges">
+          ${s.newThresholds.map(t => `<span class="badge badge-${t}">NEW ${t}%</span>`).join('')}
+          ${s.dupThresholds.map(t => `<span class="badge badge-dup">${t}%</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+
+                const familyEmails = vp.students.filter(s => s.familyEmail && s.newThresholds.length > 0).map(s => `
+      <div style="margin-top:.8rem">
+        <label style="color:var(--accent);font-size:.8rem">✉️ Family Email — ${esc(s.firstName)} ${esc(s.lastName)}</label>
+        <div class="email-block" id="fam-${esc(s.lastName)}-${esc(s.firstName)}">
+          <button class="copy-btn" onclick="copyEmail('fam-${esc(s.lastName)}-${esc(s.firstName)}')">📋 Copy</button>
+          ${esc(s.familyEmail)}
+        </div>
+      </div>
+    `).join('');
+
+                return `
+      <div class="vp-card">
+        <h3>👔 ${esc(vp.name)} <span style="font-size:.75rem;color:var(--text-dim)">(${vp.from}-${vp.to}) — ${vp.students.length} student(s)</span></h3>
+        ${studentRows}
+        ${vp.vpEmail ? `
+          <div style="margin-top:1rem">
+            <label style="color:var(--warning);font-size:.8rem">📧 VP Summary Email</label>
+            <div class="email-block" id="vp-${vp.from}">
+              <button class="copy-btn" onclick="copyEmail('vp-${vp.from}')">📋 Copy</button>
+              ${esc(vp.vpEmail)}
+            </div>
+          </div>` : ''}
+        ${familyEmails}
+      </div>`;
+            }).join('');
+
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* ── HISTORY (IndexedDB) ── */
+        async function renderHistory() {
+            const history = await dbGetAllNotifications();
+            const entries = Object.entries(history);
+            const log = document.getElementById('historyLog');
+            if (!entries.length) { log.innerHTML = '<p style="color:var(--text-dim);font-size:.85rem">No notifications sent yet.</p>'; return; }
+            log.innerHTML = `<div style="max-height:300px;overflow-y:auto">${entries.map(([key, date]) => {
+                const [namepart, threshold] = key.split('-');
+                return `<div class="student-row"><span>${esc(namepart)}</span><span class="badge badge-${threshold}">${threshold}%</span><span style="font-size:.75rem;color:var(--text-dim)">${new Date(date).toLocaleDateString()}</span></div>`;
+            }).join('')}</div>`;
+        }
+
+        async function renderSessions() {
+            const sessions = await dbGetAllSessions();
+            const container = document.getElementById('sessionsLog');
+            if (!sessions.length) { container.innerHTML = '<p style="color:var(--text-dim);font-size:.85rem">No past sessions recorded yet.</p>'; return; }
+            container.innerHTML = sessions.map((s, i) => {
+                const d = new Date(s.date);
+                const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                const timeStr = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const studentDetails = (s.students || []).map(st =>
+                    `<div class="student-row"><span class="name">${esc(st.firstName)} ${esc(st.lastName)}</span><span class="pct" style="color:${st.percentAbsent >= 20 ? '#f87171' : st.percentAbsent >= 10 ? '#fbbf24' : '#34d399'}">${st.percentAbsent}%</span><div class="threshold-badges">${(st.newThresholds || []).map(t => `<span class="badge badge-${t}">NEW ${t}%</span>`).join('')}${(st.dupThresholds || []).map(t => `<span class="badge badge-dup">${t}%</span>`).join('')}</div></div>`
+                ).join('');
+                return `<details style="margin-bottom:.5rem;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:.7rem;overflow:hidden">
+                    <summary style="padding:.8rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:.9rem">
+                        <span><strong>${dateStr}</strong> at ${timeStr}</span>
+                        <span style="display:flex;gap:.5rem;align-items:center">
+                            <span style="font-size:.75rem;color:var(--text-dim)">${s.totalStudents} students analyzed</span>
+                            <span class="badge badge-5">${s.flaggedCount} flagged</span>
+                            <span class="badge badge-10">${s.newNotifications} new</span>
+                        </span>
+                    </summary>
+                    <div style="padding:.5rem 1rem 1rem;border-top:1px solid var(--border)">
+                        <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:.5rem">${s.totalDays} school days | VPs: ${(s.vpSummary || []).map(v => `${v.name} (${v.range}: ${v.studentCount})`).join(', ')}</div>
+                        ${studentDetails || '<p style="color:var(--text-dim);font-size:.8rem">No flagged students in this session.</p>'}
+                    </div>
+                </details>`;
+            }).join('');
+        }
+
+        async function clearHistory() {
+            if (!confirm('Clear all notification history AND past sessions? This is typically done at the start of a new semester.')) return;
+            await dbClearNotifications();
+            await dbClearSessions();
+            await renderHistory();
+            await renderSessions();
+            setStatus('🗑️ All history and sessions cleared.');
+            setTimeout(hideStatus, 2000);
+        }
+
+        /* ── UTILITIES ── */
+        function esc(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+        function copyEmail(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const text = el.innerText.replace('📋 Copy', '').trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = el.querySelector('.copy-btn');
+                if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2000); }
+            });
+        }
+
+        function exportAll() {
+            const blocks = document.querySelectorAll('.email-block');
+            let all = '';
+            blocks.forEach(b => {
+                all += b.innerText.replace('📋 Copy', '').trim() + '\n\n' + '='.repeat(60) + '\n\n';
+            });
+            const blob = new Blob([all], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `attendance_notifications_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+        }
+    </script>
+</body>
+
+</html>

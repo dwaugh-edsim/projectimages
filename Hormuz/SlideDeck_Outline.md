@@ -1,4 +1,4 @@
-# OPERATION: HORMUZ - Expanded Strategic Briefing (13 Slides)
+# OPERATION: HORMUZ - The Complete Strategic Briefing (20 Slides)
 ## Unit: Economics 12 - Supply, Demand, and the History of Scarcity
 
 ---
@@ -22,8 +22,19 @@
 
 ---
 
-## Slide 3: 1973 - THE FIRST SHOCK
-**Image:** [NEW] 1970s Gas Lines (hormuz_history_1973.png)
+## Slide 3: PRE-1979 - THE SHAH'S IRAN
+**Image:** [NEW] The Shah and Queen in formal attire (hormuz_history_shah.png)
+**Headline:** The "White Revolution"
+**Bullet Points:**
+- Iran as a Western-allied "Island of Stability."
+- Rapid modernization and industrialization.
+- Top-down secularization causes deep internal friction.
+**Speaker Notes:** Before the 1979 change, Iran was a key US ally and a major Westernized power. But underneath the surface, tension was building.
+
+---
+
+## Slide 4: 1973 - THE FIRST SHOCK
+**Image:** 1970s Gas Lines (hormuz_history_1973.png)
 **Headline:** 1973: The Embargo
 **Bullet Points:**
 - OPEC cuts supply to the West.
@@ -33,19 +44,34 @@
 
 ---
 
-## Slide 4: 1979 - THE FIRE RISES
-**Image:** [NEW] Iranian Revolution Protests (hormuz_history_1979.png)
+## Slide 5: 1978 - THE UNREST BEGINS
+**Image:** [NEW] Street protests in Tehran (hormuz_history_unrest.png)
+**Headline:** Seeds of Revolution
+**Bullet Points:**
+- Massive strikes in the oil sector.
+- Religious and secular groups unite against the Shah.
+- Global markets begin to panic about supply.
+**Speaker Notes:** The revolution didn't happen overnight. It was a slow burn of strikes and protests that targeted the oil fields first.
+
+---
+
+## Slide 6: 1979 - THE FIRE RISES
+**Image:** Iranian Revolution Protests (hormuz_history_1979.png)
 **Headline:** 1979: The Revolution
 **Bullet Points:**
 - The Shah falls; the Islamic Republic begins.
 - Global oil production drops 4%.
 - **Price Shock:** Gas jumps from $15 to $39 per barrel.
-**Speaker Notes:** In 1979, the Iranian Revolution didn't just change the map—it changed the price of everything you buy.
+---
+
+## [CHECKPOINT ALPHA] - THE REVOLUTIONARY IMPACT
+**Question:** "Why would a 4 percent production cut cause prices to spike far more than 4 percent? (Note: This shows the demand is 'inelastic' - demand doesn't respond directly to price because people NEED gas and oil)"
+**Logic:** Requires mention of panic, lack of substitutes, or "Inelasticity."
 
 ---
 
-## Slide 5: 444 DAYS - THE HOSTAGE CRISIS
-**Image:** [NEW] US Embassy Blindfolded Hostages (hormuz_history_hostages.png)
+## Slide 7: 444 DAYS - THE HOSTAGE CRISIS
+**Image:** US Embassy Blindfolded Hostages (hormuz_history_hostages.png)
 **Headline:** 444 Days of Crisis
 **Bullet Points:**
 - 52 American citizens held in Tehran.
@@ -55,86 +81,145 @@
 
 ---
 
-## Slide 6: DEATH TO USA - THE TENSION
-**Image:** [NEW] "Death to USA" Mural (hormuz_history_mural.png)
+## Slide 8: THE CARTER DOCTRINE
+**Image:** [NEW] President Jimmy Carter speaking (hormuz_history_carter.png)
+**Headline:** The "Red Line"
+**Bullet Points:**
+- "An attempt... to gain control of the Persian Gulf will be regarded as an assault on the interests of the USA."
+- The Gulf becomes a direct military concern for the West.
+**Speaker Notes:** President Carter made it clear: The Strait is too important to lose. He committed the military to keeping it open.
+
+---
+
+## Slide 9: DEATH TO USA - THE TENSION
+**Image:** "Death to USA" Mural (hormuz_history_mural.png)
 **Headline:** Ideological War
 **Bullet Points:**
 - The start of the "Great Satan" rhetoric.
 - The Strait becomes a tool for asymmetric pressure.
 - Strategic mistrust becomes the "New Normal."
-**Speaker Notes:** Students, these mural slogans weren't just for show. They signaled a permanent shift in how Iran viewed the West and the strategic chokepoints they controlled.
+**Speaker Notes:** Students, these mural slogans weren't just for show. They signaled a permanent shift in how Iran viewed the West.
 
 ---
 
-## Slide 7: 1980 - THE TANKER WAR
-**Image:** [NEW] Burning Oil Tanker in the Gulf (hormuz_history_tanker_war.png)
-**Headline:** The Tanker War
+## Slide 10: 50 YEARS OF SANCTIONS
+**Image:** [NEW] Empty store shelves and closed currency exchange (hormuz_2026_sanctions.png)
+**Headline:** Decades of Tension
 **Bullet Points:**
-- Iran and Iraq begin attacking neutral merchant ships.
-- 543 ships attacked; 320 sailors killed.
-- The US Navy enters to "re-flag" and escort oil.
-**Speaker Notes:** This was the most sustained assault on merchant shipping since WWII. The Gulf was literally on fire.
+- Nearly 50 years of friction between Iran and the West.
+- The West counters political threats with crushing economic sanctions.
+- Sanctions target oil exports and banking, aiming to starve the regime.
+**Speaker Notes:** This isn't a new fight. It's a half-century of economic warfare that has hollowed out the Iranian economy.
 
 ---
 
-## Slide 8: THE TRAGEDY - VINCENNES
-**Image:** [NEW] USS Vincennes firing missiles (hormuz_history_vincennes.png)
-**Headline:** Flight 655 Tragedy
+## Slide 11: THE NUCLEAR STANDOFF
+**Image:** [NEW] Tactical view of a nuclear facility cooling tower (hormuz_2026_nuclear.png)
+**Headline:** Nuclear Ambition
 **Bullet Points:**
-- US Navy accidentally shoots down a commercial plane.
-- 290 civilians killed over the Strait.
-- Tension reaches its absolute breaking point.
-**Speaker Notes:** In the heat of the Tanker War, a catastrophic mistake cost 290 civilian lives. The Strait is a graveyard of miscalculations.
+- Iran continues development of its nuclear program.
+- International community imposes further sanctions to prevent proliferation.
+- The Strait of Hormuz is used as "Nuclear Leverage."
+**Speaker Notes:** The chokepoint is the only card the regime has left to play against nuclear sanctions.
 
 ---
 
-## Slide 9: THE INELASTICITY TRAP
+## Slide 12: RESISTANCE FROM WITHIN
+**Image:** [NEW] Urban, modern Iranians in a cafe vs a conservative backdrop (hormuz_2026_internal.png)
+**Headline:** A Generational Divide
+**Bullet Points:**
+- Modern, urban Iranians grow increasingly disconnected from the Islamist regime.
+- Discontent simmers for decades among the youth and tech-savvy middle class.
+- Demands for secularization and reform reach a fever pitch.
+**Speaker Notes:** The real threat to the regime isn't just the US Navy—it's their own citizens who want a modern, open life.
+
+---
+
+## Slide 13: THE INTERNET BLACKOUT
+**Image:** [NEW] Tactical HUD showing "Signal Lost" and riot police (hormuz_2026_crackdown.png)
+**Headline:** Crushing the Opposition
+**Bullet Points:**
+- Protests are brutally crushed every few years to maintain control.
+- Internet is cut nationwide to stop opposition organization.
+- Information blackout prevents images of gov't brutality from reaching the world.
+**Speaker Notes:** When the people rise, the regime hits the 'kill switch' on the digital world.
+
+---
+
+## [CHECKPOINT BRAVO] - INTERNAL VS EXTERNAL PRESSURE
+**Question:** "Advisor, if the Iranian regime is facing both crippling sanctions (External) and massive internal protests (Internal), why is closing the Strait of Hormuz a logical—if desperate—next move for them?"
+**Logic:** Requires synthesis of distraction tactics, economic blackmail, or survival instinct.
+
+---
+
+## Slide 14: JANUARY 2026 - THE BREAKPOINT
+**Image:** [NEW] Million-person march in Tehran (hormuz_2026_january.png)
+**Headline:** The Great Uprising
+**Bullet Points:**
+- January 2026: The largest protests in Iranian history involving millions.
+- Discontent spreads to shopkeepers and the traditional "Bazaar" class.
+- Regime response is the most violent in 50 years.
+**Speaker Notes:** This was the breaking point. Even the people who usually support the government—the shopkeepers—joined the march.
+
+---
+
+## Slide 15: FEBRUARY 2026 - KINETIC CONFLICT
+**Image:** [NEW] Satellite imagery of tactical air strikes (hormuz_2026_february.png)
+**Headline:** The War of February
+**Bullet Points:**
+- US and Israel begin precision bombing of Iranian strategic assets.
+- Iran retaliates by attacking US Arab allies (UAE, Kuwait, Qatar, Bahrain).
+- Total regional destabilization begins.
+**Speaker Notes:** The shadow war came into the light. February saw the first direct strikes of the 2026 conflict.
+
+---
+
+## Slide 16: MARCH 2026 - THE BLOCKADE
+**Image:** [NEW] Iranian speedboats swarming a tanker in the Strait (hormuz_2026_blockade.png)
+**Headline:** March 2026: The Choke
+**Bullet Points:**
+- Iran halts ALL oil tankers from passing through the Strait.
+- Global oil prices shoot up instantly as the artery is severed.
+- **This is the world you are about to enter.**
+**Speaker Notes:** This is it. The tankers have stopped. The oil is trapped. The price spike is happening right now.
+
+---
+
+## Slide 17: WHY HALIFAX CARES
+**Image:** [NEW] Container terminal in Halifax (hormuz_history_halifax.png)
+**Headline:** The Global Butterfly Effect
+**Bullet Points:**
+- 70% of world's oil is traded on the "Spot Market."
+- Conflict 10,000km away = Price spike at Shell on Spring Garden Rd.
+**Speaker Notes:** We aren't just looking at history. We are looking at why YOUR gas prices are tied to the events of the last three months.
+
+---
+
+## Slide 18: THE INELASTICITY TRAP
 **Image:** Glowing 3D Inelastic Demand Curve (slide_shock.png)
 **Headline:** Why Gas is "Different"
 **Bullet Points:**
 - **No Substitutes:** You can't put milk in your engine.
 - **The Must-Have:** Prices rise 50%, but demand only falls 5%.
 - This creates the "Price Spike" we see in the sim.
-**Speaker Notes:** This is why a 4% drop in global supply can cause a 100% rise in price. Inelasticity is the trap.
+**Speaker Notes:** Inelasticity is the reason why a blockade in Hormuz turns into a crisis in Nova Scotia.
 
 ---
 
-## Slide 10: STEP 1 - CALIBRATION
+## Slide 19: STEP 1 - CALIBRATION
 **Image:** Tactical Grid (hormuz_calibration_ui.png)
 **Headline:** Calibrating your Terminal
 **Bullet Points:**
-- Pass the 7-stage Training Module.
-- Master the Y-Axis (Price) and X-Axis (Qty).
-- Pass the Socratic Clearance with the Chief of Staff.
-**Speaker Notes:** Before you handle the live crisis, you must master the tools. Calibrate now.
+- Pass the 8-stage Training Module to gain simulator access.
+- Identify the X (Qty) and Y (Price) axes.
+- Master the quadratic curve drawing logic.
+**Speaker Notes:** Before you handle the live crisis, you must master the tools.
 
 ---
 
-## Slide 11: STEP 2 - THE LIVE SHOCK
-**Image:** Strategic Briefing Map (slide_map.png)
-**Headline:** Mapping the Blockade
-**Bullet Points:**
-- Launch the Live Data Terminal.
-- Trigger the **Supply Shock** (Leftward Shift).
-- Calculate the new Equilibrium for Halifax.
-**Speaker Notes:** Once trained, you enter the War Room. You will see the math of 1979 unfold in your own simulator.
-
----
-
-## Slide 12: STEP 3 - ADVISING THE PREMIER
-**Image:** Encrypted Tablet (hormuz_briefing_folder.png)
-**Headline:** Part 3: Policy Mandate
-**Bullet Points:**
-- Advise the Premier on gas tax holidays.
-- Predict the impact on local heating oil.
-- Submit for AI Chief of Staff review.
-**Speaker Notes:** Your final task is to tell the Premier how to save Nova Scotia's economy. The Chief of Staff is watching.
-
----
-
-## Slide 13: MISSION START
+## Slide 20: MISSION START
 **Image:** Access Granted Terminal (hormuz_terminal_access.png)
 **Headline:** COMMAND INITIALIZED
 **URL:** [https://dwaugh-edsim.github.io/projectimages/Hormuz/](https://dwaugh-edsim.github.io/projectimages/Hormuz/)
 **Directive:** Proceed with Level 4 Clearance. Good luck.
-**Speaker Notes:** The province is waiting. Advisor, take your seat.
+**Speaker Notes:** The tankers are stopped. The price is rising. The Premier is waiting. Proceed.

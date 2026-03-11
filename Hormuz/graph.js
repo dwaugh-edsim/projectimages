@@ -59,17 +59,14 @@ class EconomicsGraph {
         this.ctx.lineTo(this.width - this.pRight, this.height - this.pBottom);
         this.ctx.stroke();
 
-        // Labels
         this.ctx.fillStyle = '#94a3b8';
-        this.ctx.font = '14px Inter';
+        this.ctx.font = 'bold 16px Inter';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Quantity (Q)', this.width / 2, this.height - 10);
 
-        this.ctx.save();
-        this.ctx.translate(15, this.height / 2);
-        this.ctx.rotate(-Math.PI / 2);
-        this.ctx.fillText('Price ($)', 0, 0);
-        this.ctx.restore();
+        // Price Label (Vertical but non-rotated for easier reading/clicking in training)
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText('Price ($)', 10, 20);
 
         // Numerical Axis Marks
         this.ctx.font = '10px JetBrains Mono';
