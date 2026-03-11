@@ -34,12 +34,14 @@ const AI = {
     },
 
     async verifyComprehension(studentName, actionDescription, studentExplanation) {
-        const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their graphing decisions. 
-        Be professional but firm. If their explanation is logical and uses correct economic reasoning (like the Law of Demand or Supply), praise them by name and tell them to proceed. 
-        If it's wrong or too brief, correct them by name and ask them to try explaining again. 
-        Return your response in JSON format: { "passed": boolean, "feedback": "your message" }`;
+        const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their reasoning regarding: "${actionDescription}". 
+        CRITICAL EVALUATION RULES: 
+        1. If the explanation is gibberish, random letters, too brief, or economically incorrect, they MUST FAIL.
+        2. If they fail, return "passed": false, and instead of just telling them they are wrong, ask a targeted, Socratic clarifying question based on their specific error to guide them toward the correct economic concept.
+        3. If their explanation is logical and uses correct economic reasoning, return "passed": true and praise them.
+        You MUST return your response in strictly parseable JSON format: { "passed": boolean, "feedback": "your message" }`;
 
-        const prompt = `Advisor ${studentName} just ${actionDescription}. Their explanation: "${studentExplanation}". Is this correct? Provide feedback.`;
+        const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Is this correct? Provide feedback in JSON.`;
 
         try {
             const data = await API.fetchAI(MODEL_NAME, [
@@ -49,20 +51,19 @@ const AI = {
 
             if (data && data.choices && data.choices[0]) {
                 const content = data.choices[0].message.content;
-                // Attempt to parse JSON from the AI response
                 try {
                     const start = content.indexOf('{');
                     const end = content.lastIndexOf('}') + 1;
                     return JSON.parse(content.substring(start, end));
                 } catch (e) {
-                    // Fallback if AI doesn't return perfect JSON
-                    return { passed: true, feedback: content };
+                    // Fallback if AI doesn't return perfect JSON: Do NOT let them pass automatically.
+                    return { passed: false, feedback: "HQ could not parse your transmission. Please provide a clearer, more detailed economic explanation." };
                 }
             }
-            return { passed: true, feedback: "I'll let you proceed for now, Advisor." };
+            return { passed: false, feedback: "HQ COMMS DOWN. Try re-transmitting your analysis." };
         } catch (error) {
             console.error("AI Socratic Error:", error);
-            return { passed: true, feedback: "Error connecting to HQ. Proceed." };
+            return { passed: false, feedback: "Error connecting to HQ. Re-evaluate and try again." };
         }
     },
 
