@@ -1,72 +1,140 @@
-# OPERATION: HORMUZ - Crisis Briefing Slide Deck
-## Unit: Economics 12 - Supply, Demand, and Inelasticity
+# OPERATION: HORMUZ - Expanded Strategic Briefing (13 Slides)
+## Unit: Economics 12 - Supply, Demand, and the History of Scarcity
 
 ---
 
-## Slide 1: TITLE
+## Slide 1: TITLE - THE UPLINK
 **Image:** Premium NSC Seal (premier_office_seal.png)
 **Headline:** OPERATION: HORMUZ
-**Subheadline:** Economic Advisory Council Emergency Briefing
-**Speaker Notes:** Welcome, Advisors. Today, you are no longer students. You are the Economic Advisory Council to the Premier of Nova Scotia. A global crisis is unfolding, and Halifax is in the crosshairs.
+**Subheadline:** Economic Advisory Council // Emergency Briefing
+**Speaker Notes:** Welcome back, Advisors. The situation has shifted from "Theoretical" to "Historical." Today, we look at why the world is currently on a knife's edge.
 
 ---
 
-## Slide 2: THE GEOPOLITICS
+## Slide 2: THE CHOKEPOINT - GEOGRAPHY
 **Image:** Strait of Hormuz Tactical Map (strait_of_hormuz_map_dashboard.png)
-**Headline:** The Chokepoint
+**Headline:** The World's Artery
 **Bullet Points:**
-- 21 million barrels of oil pass through here daily.
-- 20% of global petroleum consumption.
-- **THE FLASHPOINT:** A sudden naval blockade has closed the Strait.
-**Speaker Notes:** The Strait of Hormuz is the world's most important energy artery. With one naval maneuver, 20% of the world's oil has just been cut off from the global market.
+- 21 miles wide at its narrowest point.
+- 20.5 million barrels of oil transit daily.
+- There is NO viable alternative.
+**Speaker Notes:** If you block this 21-mile stretch of water, you stop the global heart from beating. 
 
 ---
 
-## Slide 3: THE LOCAL IMPACT
-**Headline:** Why Nova Scotia Cares
+## Slide 3: 1973 - THE FIRST SHOCK
+**Image:** [NEW] 1970s Gas Lines (hormuz_history_1973.png)
+**Headline:** 1973: The Embargo
 **Bullet Points:**
-- Global oil prices spike instantly.
-- Halifax relies on imported fuel for heating, shipping, and commuting.
-- **THE MANDATE:** We must predict the economic fallout and advise the Premier on policy.
-**Speaker Notes:** When the world's supply drops, prices everywhere go up. But for a place like Halifax, where we drive long distances and heat our homes with oil, this is a Tier 1 emergency.
+- OPEC cuts supply to the West.
+- Oil prices quadruple ($3 to $12) overnight.
+- Halifax families see gas lines for the first time.
+**Speaker Notes:** History shows that when supply is used as a weapon, the world feels it instantly. Gas went from $3 to $12 in months.
 
 ---
 
-## Slide 4: TOOL CALIBRATION (Practice Sim) 
-**Headline:** Step 1: Training the AI
+## Slide 4: 1979 - THE FIRE RISES
+**Image:** [NEW] Iranian Revolution Protests (hormuz_history_1979.png)
+**Headline:** 1979: The Revolution
 **Bullet Points:**
-- You must calibrate your data terminal before accessing live data.
-- **THE 7 STAGES:**
-  1. Y-Axis (Price) & X-Axis (Quantity)
-  2. The Law of Demand (Buyer Logic)
-  3. The Law of Supply (Seller Logic)
-  4. **CRITICAL:** High Inelasticity (The Gas Factor)
-**Speaker Notes:** Before we give you the live data, you must pass the 7-stage training module. You'll learn how Price and Quantity interact, and specifically how "Inelasticity" makes gasoline markets so dangerous during a crisis.
+- The Shah falls; the Islamic Republic begins.
+- Global oil production drops 4%.
+- **Price Shock:** Gas jumps from $15 to $39 per barrel.
+**Speaker Notes:** In 1979, the Iranian Revolution didn't just change the map—it changed the price of everything you buy.
 
 ---
 
-## Slide 5: GRAPHING THE SHOCK
-**Headline:** Step 2: Live Terminal Simulation
+## Slide 5: 444 DAYS - THE HOSTAGE CRISIS
+**Image:** [NEW] US Embassy Blindfolded Hostages (hormuz_history_hostages.png)
+**Headline:** 444 Days of Crisis
 **Bullet Points:**
-- Plot the Halifax market.
-- Trigger the **SUPPLY SHOCK**.
-- Observe the Price Spike (P1 to P2).
-**Speaker Notes:** Once trained, you'll enter the "War Room." You'll map the market, trigger the blockade, and watch the math of supply and demand unfold in real-time.
+- 52 American citizens held in Tehran.
+- US-Iran relations are severed permanently.
+- **Economic Fallout:** US halts all oil imports from Iran.
+**Speaker Notes:** This wasn't just diplomacy—it was a total economic divorce. 444 days that define the tension we see in the Strait today.
 
 ---
 
-## Slide 6: THE ADVISOR BRIEFING
-**Headline:** Step 3: Advice to the Premier
+## Slide 6: DEATH TO USA - THE TENSION
+**Image:** [NEW] "Death to USA" Mural (hormuz_history_mural.png)
+**Headline:** Ideological War
 **Bullet Points:**
-- Predict the consequences for Halifax families.
-- Propose a specific policy (Tax Holiday? Transit Subsidies?).
-- **AI REVIEW:** Your work will be critiqued by the Premier's Chief of Staff.
-**Speaker Notes:** Finally, you'll write your briefing. The Premier's Chief of Staff—powered by AI—will review your advice instantly. Make it professional, make it realistic, and justify your choices.
+- The start of the "Great Satan" rhetoric.
+- The Strait becomes a tool for asymmetric pressure.
+- Strategic mistrust becomes the "New Normal."
+**Speaker Notes:** Students, these mural slogans weren't just for show. They signaled a permanent shift in how Iran viewed the West and the strategic chokepoints they controlled.
 
 ---
 
-## Slide 7: MISSION START
-**Headline:** Secure Terminal Access
+## Slide 7: 1980 - THE TANKER WAR
+**Image:** [NEW] Burning Oil Tanker in the Gulf (hormuz_history_tanker_war.png)
+**Headline:** The Tanker War
+**Bullet Points:**
+- Iran and Iraq begin attacking neutral merchant ships.
+- 543 ships attacked; 320 sailors killed.
+- The US Navy enters to "re-flag" and escort oil.
+**Speaker Notes:** This was the most sustained assault on merchant shipping since WWII. The Gulf was literally on fire.
+
+---
+
+## Slide 8: THE TRAGEDY - VINCENNES
+**Image:** [NEW] USS Vincennes firing missiles (hormuz_history_vincennes.png)
+**Headline:** Flight 655 Tragedy
+**Bullet Points:**
+- US Navy accidentally shoots down a commercial plane.
+- 290 civilians killed over the Strait.
+- Tension reaches its absolute breaking point.
+**Speaker Notes:** In the heat of the Tanker War, a catastrophic mistake cost 290 civilian lives. The Strait is a graveyard of miscalculations.
+
+---
+
+## Slide 9: THE INELASTICITY TRAP
+**Image:** Glowing 3D Inelastic Demand Curve (slide_shock.png)
+**Headline:** Why Gas is "Different"
+**Bullet Points:**
+- **No Substitutes:** You can't put milk in your engine.
+- **The Must-Have:** Prices rise 50%, but demand only falls 5%.
+- This creates the "Price Spike" we see in the sim.
+**Speaker Notes:** This is why a 4% drop in global supply can cause a 100% rise in price. Inelasticity is the trap.
+
+---
+
+## Slide 10: STEP 1 - CALIBRATION
+**Image:** Tactical Grid (hormuz_calibration_ui.png)
+**Headline:** Calibrating your Terminal
+**Bullet Points:**
+- Pass the 7-stage Training Module.
+- Master the Y-Axis (Price) and X-Axis (Qty).
+- Pass the Socratic Clearance with the Chief of Staff.
+**Speaker Notes:** Before you handle the live crisis, you must master the tools. Calibrate now.
+
+---
+
+## Slide 11: STEP 2 - THE LIVE SHOCK
+**Image:** Strategic Briefing Map (slide_map.png)
+**Headline:** Mapping the Blockade
+**Bullet Points:**
+- Launch the Live Data Terminal.
+- Trigger the **Supply Shock** (Leftward Shift).
+- Calculate the new Equilibrium for Halifax.
+**Speaker Notes:** Once trained, you enter the War Room. You will see the math of 1979 unfold in your own simulator.
+
+---
+
+## Slide 12: STEP 3 - ADVISING THE PREMIER
+**Image:** Encrypted Tablet (hormuz_briefing_folder.png)
+**Headline:** Part 3: Policy Mandate
+**Bullet Points:**
+- Advise the Premier on gas tax holidays.
+- Predict the impact on local heating oil.
+- Submit for AI Chief of Staff review.
+**Speaker Notes:** Your final task is to tell the Premier how to save Nova Scotia's economy. The Chief of Staff is watching.
+
+---
+
+## Slide 13: MISSION START
+**Image:** Access Granted Terminal (hormuz_terminal_access.png)
+**Headline:** COMMAND INITIALIZED
 **URL:** [https://dwaugh-edsim.github.io/projectimages/Hormuz/](https://dwaugh-edsim.github.io/projectimages/Hormuz/)
-**Directive:** Initialize Secure Uplink with your Name and 4-Digit PIN.
-**Speaker Notes:** Good luck, Advisors. The province is counting on you.
+**Directive:** Proceed with Level 4 Clearance. Good luck.
+**Speaker Notes:** The province is waiting. Advisor, take your seat.
