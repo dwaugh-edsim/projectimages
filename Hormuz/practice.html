@@ -189,6 +189,7 @@
         let currentStage = 1;
         let isInteracting = false;
         let errorCount = 0;
+        let trainingPoint = null; // Used for intuition stages
 
         // Custom Graphing Overrides for "Slow Ramp"
         graph.render = function () {
@@ -196,6 +197,19 @@
             this.drawCurvedLine(this.demandCurve, '#3b82f6', 'D', 'demand');
             this.drawCurvedLine(this.supplyCurve1, '#10b981', 'S1', 'supply');
             this.drawAnnotations();
+            if (trainingPoint) this.drawTrainingPoint(trainingPoint);
+        };
+
+        graph.drawTrainingPoint = function (pt) {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#fff';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#3b82f6';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            this.drawLabel(pt.x + 15, pt.y - 15, "ADJUST THIS POINT", '#fff');
         };
 
         graph.drawAnnotations = function () {
@@ -247,6 +261,11 @@
                 instructions.innerText = getStageInstruction(currentStage);
                 errorCount = 0;
                 document.getElementById('ai-hint-box').style.display = 'none';
+
+                // Setup intuition points
+                if (currentStage === 3 || currentStage === 5) {
+                    trainingPoint = { x: graph.width / 2 + 50, y: graph.height / 2 - 50 };
+                }
             } else {
                 document.getElementById('proceed-container').style.display = 'block';
                 instructions.innerText = "Training Complete.";
@@ -256,13 +275,13 @@
 
         function getStageInstruction(s) {
             switch (s) {
-                case 1: return "Click the top of the Price axis.";
-                case 2: return "Click the end of the Quantity axis.";
-                case 3: return "Show what happens when price goes UP. Move point LEFT.";
-                case 4: return "Draw a Demand curve (Down and Right).";
-                case 5: return "Price is UP. Show what a Business wants: move point RIGHT.";
-                case 6: return "Draw a Supply curve (Up and Right).";
-                case 7: return "Draw a STEEP Demand curve for gasoline.";
+                case 1: return "Click the very top of the vertical Price axis ($).";
+                case 2: return "Click the far right of the horizontal Quantity axis (Q).";
+                case 3: return "DRAG THE GLOWING POINT LEFT. If gas is more expensive ($3.00), would people buy more or less?";
+                case 4: return "CLICK AND DRAG to draw the Demand curve from Top-Left to Bottom-Right.";
+                case 5: return "DRAG THE POINT RIGHT. If you sell gas for more money, do you want to provide more or less to the market?";
+                case 6: return "CLICK AND DRAG to draw the Supply curve from Bottom-Left to Top-Right.";
+                case 7: return "Draw a nearly vertical (STEEP) Demand curve to show people HAVE to buy gas.";
                 default: return "";
             }
         }
@@ -277,15 +296,49 @@
                 if (y < graph.height / 3 && x < graph.pLeft + 50) {
                     nextStage();
                 } else {
-                    handleError("You need to click the top of the Y-Axis to prove you see high prices.");
+                    handleError("Click the top part of the vertical Price axis.");
                 }
             } else if (currentStage === 2) {
                 if (x > graph.width / 1.5 && y > graph.height - graph.pBottom - 50) {
                     nextStage();
                 } else {
-                    handleError("You need to click the end of the X-Axis to prove you see more quantity.");
+                    handleError("Click the right part of the horizontal Quantity axis.");
+                }
+            } else if (currentStage === 3 || currentStage === 5) {
+                // Check if clicking near training point
+                const dist = Math.sqrt((x - trainingPoint.x) ** 2 + (y - trainingPoint.y) ** 2);
+                if (dist < 30) isInteracting = true;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isInteracting || ![3, 5].includes(currentStage)) return;
+            const rect = canvas.getBoundingClientRect();
+            trainingPoint.x = e.clientX - rect.left;
+            trainingPoint.y = e.clientY - rect.top;
+            graph.render();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isInteracting || ![3, 5].includes(currentStage)) return;
+            isInteracting = false;
+
+            if (currentStage === 3) {
+                if (trainingPoint.x < graph.width / 2) {
+                    trainingPoint = null;
+                    nextStage();
+                } else {
+                    handleError("Incorrect. If gas is expensive, consumers buy LESS. Move the point further LEFT.");
+                }
+            } else if (currentStage === 5) {
+                if (trainingPoint.x > graph.width / 2) {
+                    trainingPoint = null;
+                    nextStage();
+                } else {
+                    handleError("Incorrect. If price is high, businesses want to sell MORE. Move the point further RIGHT.");
                 }
             }
+            graph.render();
         });
 
         // Drawing Logic for stages 4, 6, 7
