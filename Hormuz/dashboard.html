@@ -15,7 +15,7 @@
     <div class="dashboard-wrapper">
         <header class="dashboard-header">
             <div class="header-left">
-                <div class="seal"></div>
+                <div class="seal" style="background-image: url('premier_office_seal.png');"></div>
                 <div class="header-titles">
                     <h1>OFFICE OF THE PREMIER</h1>
                     <h2>Economic Advisory Council</h2>
@@ -37,6 +37,10 @@
                     <h3>SITREP: OPERATION HORMUZ</h3>
                 </div>
 
+                <div class="map-monitor"
+                    style="width: 100%; height: 200px; background: url('strait_of_hormuz_map_dashboard.png'); background-size: cover; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border); box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                </div>
+
                 <div class="scenario-feed" id="scenario-feed">
                     <div class="briefing-card urgent">
                         <span class="timestamp">08:00 AST</span>
@@ -55,6 +59,16 @@
                     <div class="panel-header" style="margin-top: 2rem;">
                         <h3>ADVISOR BRIEFING (PART 2)</h3>
                     </div>
+                    <div id="ai-review-wrapper" style="display: none; margin-bottom: 1.5rem;">
+                        <div class="briefing-card"
+                            style="border-left-color: var(--accent); background: rgba(59, 130, 246, 0.05);">
+                            <span class="ai-tag"
+                                style="font-size: 0.65rem; font-weight: 800; color: var(--accent); letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">CHIEF
+                                OF STAFF FEEDBACK</span>
+                            <p id="ai-review-text" style="font-style: italic; color: var(--text-primary);"></p>
+                        </div>
+                    </div>
+
                     <form id="submission-form">
                         <div class="input-group">
                             <label for="predictions">1. Predictions (Consequences)</label>
@@ -113,6 +127,7 @@
     <div id="toast" class="toast"></div>
 
     <script src="api.js"></script>
+    <script src="ai.js"></script>
     <script src="graph.js"></script>
 
     <script>
@@ -259,7 +274,7 @@
             graphEngine.render();
         });
 
-        // Submission via new API
+        // Submission via new API with AI Review step
         document.getElementById('submission-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
@@ -268,6 +283,29 @@
             const pol = document.getElementById('policy').value;
             const b64 = canvas.toDataURL('image/png');
 
+            // AI REVIEW FIRST
+            if (btn.innerText.indexOf("FINAL") === -1) {
+                btn.innerText = "CHIEF OF STAFF REVIEWING...";
+                btn.disabled = true;
+
+                const review = await AI.reviewPolicy(pol, pred);
+                if (review) {
+                    document.getElementById('ai-review-wrapper').style.display = 'block';
+                    document.getElementById('ai-review-text').innerText = review;
+                    btn.innerText = "SUBMIT FINAL TO PREMIER";
+                    btn.disabled = false;
+                    showToast("Chief of Staff Review Complete.");
+                } else {
+                    submitFinal(pred, pol, b64);
+                }
+                return;
+            }
+
+            submitFinal(pred, pol, b64);
+        });
+
+        async function submitFinal(pred, pol, b64) {
+            const btn = document.getElementById('submit-btn');
             btn.innerText = "TRANSMITTING SECURELY...";
             btn.disabled = true;
 
@@ -276,12 +314,13 @@
             if (res.status === 'success') {
                 showToast("Briefing Transmitted Successfully!");
                 btn.innerText = "TRANSMISSION COMPLETE";
+                btn.style.background = 'var(--success)';
             } else {
                 alert("Error transmitting. Check network or PIN.");
                 btn.innerText = "TRANSMIT BRIEFING TO PREMIER";
                 btn.disabled = false;
             }
-        });
+        }
 
         // Initialize clock
         setInterval(() => {

@@ -9,6 +9,60 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
+    <style>
+        .stage-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stage-box.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .stage-box.locked {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+            pointer-events: none;
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .feedback.error {
+            color: var(--urgent);
+        }
+
+        .feedback.success {
+            color: var(--success);
+        }
+
+        #ai-hint-box {
+            display: none;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--accent);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .ai-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,47 +89,63 @@
                     <h3>TRAINING PROTOCOLS</h3>
                 </div>
 
-                <div class="scenario-feed" id="tutorial-feed">
-
-                    <div class="briefing-card" id="stage-1" style="border-left-color: var(--accent);">
-                        <h4>STAGE 1: THE LAW OF DEMAND</h4>
-                        <p>Before touching the live Hormuz data, you must calibrate your graphing tool.</p>
-                        <hr>
-                        <p class="instruction"><strong>DIRECTIVE:</strong> Draw a standard DEMAND curve on the terminal.
-                            It should slope downward from Top-Left to Bottom-Right.</p>
+                <div id="stages-container">
+                    <div class="stage-box active" id="stage-1">
+                        <h4>STAGE 1: THE Y-AXIS (PRICE)</h4>
+                        <p>The vertical axis represents <b>Price ($)</b>. As you move UP, things get more expensive.</p>
+                        <div class="feedback" id="feedback-1"></div>
                     </div>
 
-                    <div class="briefing-card" id="stage-2"
-                        style="display: none; border-left-color: var(--success); opacity: 0; animation: fadeIn 1s forwards;">
-                        <h4>STAGE 2: CALIBRATING SUPPLY</h4>
-                        <p>Demand calibrated. Now we need the Sellers.</p>
-                        <hr>
-                        <p class="instruction"><strong>DIRECTIVE:</strong> Draw a normal SUPPLY curve sloping upward
-                            from Bottom-Left to Top-Right so that it crosses your Demand curve to form an Equilibrium.
-                        </p>
+                    <div class="stage-box locked" id="stage-2">
+                        <h4>STAGE 2: THE X-AXIS (QUANTITY)</h4>
+                        <p>The horizontal axis represents <b>Quantity (Q)</b>. As you move RIGHT, there is more stuff
+                            being bought/sold.</p>
+                        <div class="feedback" id="feedback-2"></div>
                     </div>
 
-                    <div class="briefing-card urgent" id="stage-3"
-                        style="display: none; opacity: 0; animation: fadeIn 1s forwards;">
-                        <h4>STAGE 3: INELASTICITY</h4>
-                        <p>Gasoline is an essential good. People need it to drive to work. This means its demand curve
-                            is highly <strong>inelastic</strong> (steep).</p>
-                        <hr>
-                        <p class="instruction"><strong>DIRECTIVE:</strong> Reset the graph. Draw a very steep, nearly
-                            vertical DEMAND curve to represent Gasoline.</p>
+                    <div class="stage-box locked" id="stage-3">
+                        <h4>STAGE 3: BUYER INTUITION</h4>
+                        <p>Scenario: Gasoline prices just jumped to <b>$3.00/L</b>. What happens to the amount consumers
+                            want to buy?</p>
+                        <div class="feedback" id="feedback-3"></div>
+                    </div>
+
+                    <div class="stage-box locked" id="stage-4">
+                        <h4>STAGE 4: DRAWING DEMAND</h4>
+                        <p>Connect your logic. Draw the <b>Demand</b> curve showing that as price goes UP, quantity goes
+                            DOWN.</p>
+                        <div class="feedback" id="feedback-4"></div>
+                    </div>
+
+                    <div class="stage-box locked" id="stage-5">
+                        <h4>STAGE 5: SELLER INTUITION</h4>
+                        <p>Scenario: You own a gas station. If the price goes UP, do you want to sell <b>more or
+                                less</b> relative to the cheaper price?</p>
+                        <div class="feedback" id="feedback-5"></div>
+                    </div>
+
+                    <div class="stage-box locked" id="stage-6">
+                        <h4>STAGE 6: DRAWING SUPPLY</h4>
+                        <p>Draw the <b>Supply</b> curve showing that businesses provide more at higher prices.</p>
+                        <div class="feedback" id="feedback-6"></div>
+                    </div>
+
+                    <div class="stage-box locked" id="stage-7">
+                        <h4>STAGE 7: INELASTICITY</h4>
+                        <p>Gasoline is a "Must-Have." Draw a <b>STEEP</b> Demand curve to represent that behavior.</p>
+                        <div class="feedback" id="feedback-7"></div>
                     </div>
                 </div>
 
-                <div class="policy-form" id="proceed-container"
-                    style="display: none; opacity: 0; animation: fadeIn 1s forwards;">
+                <div id="ai-hint-box">
+                    <span class="ai-tag">CHIEF OF STAFF GUIDANCE</span>
+                    <p id="ai-hint-text"></p>
+                </div>
+
+                <div class="policy-form" id="proceed-container" style="display: none; margin-top: 2rem;">
                     <button class="submit-btn" id="proceed-btn">
-                        <span class="btn-text">ENTER LIVE SIMULATION</span>
-                        <span class="btn-icon">➔</span>
+                        <span class="btn-text">ACCESS LIVE TERMINAL</span>
                     </button>
-                    <p
-                        style="font-size: 0.75rem; text-align: center; color: var(--text-secondary); margin-top: 0.5rem;">
-                        Training complete. State will be saved.
-                    </p>
                 </div>
             </section>
 
@@ -83,15 +153,14 @@
                 <div class="panel-header">
                     <h3>DATA TERMINAL: TRAINING MODE</h3>
                     <div class="graph-controls">
-                        <button class="tool-btn active" id="tool-draw" title="Draw Curves">✎ Draw</button>
-                        <button class="tool-btn ghost" id="tool-reset">Reset</button>
+                        <button class="tool-btn danger" id="tool-reset">RESET STAGE</button>
                     </div>
                 </div>
 
                 <div class="canvas-container">
                     <canvas id="market-graph" width="600" height="500"></canvas>
                     <div class="overlay-ui" id="graph-instructions">
-                        Awaiting input. Click and drag to draw.
+                        Click near the Y-axis to start Stage 1.
                     </div>
                 </div>
             </section>
@@ -103,164 +172,189 @@
     <div id="toast" class="toast"></div>
 
     <script src="api.js"></script>
+    <script src="ai.js"></script>
     <script src="graph.js"></script>
     <script>
         // Check Auth
         const pin = Session.getPin();
         const name = Session.getName();
         if (!pin) window.location.href = 'index.html';
-
         document.getElementById('user-greeting').innerText = `ADVISOR ${name.toUpperCase()}`;
 
-        // Graphing Engine
         const graph = new EconomicsGraph('market-graph');
         const canvas = graph.canvas;
+        const ctx = graph.ctx;
         const instructions = document.getElementById('graph-instructions');
-        const btnReset = document.getElementById('tool-reset');
 
-        // Tutorial State
-        let stage = 1;
+        let currentStage = 1;
+        let isInteracting = false;
+        let errorCount = 0;
 
-        // Interaction State
-        let isDrawing = false;
-        let startX, startY;
-        let expectedDraw = 'demand';
+        // Custom Graphing Overrides for "Slow Ramp"
+        graph.render = function () {
+            this.drawBase();
+            this.drawCurvedLine(this.demandCurve, '#3b82f6', 'D', 'demand');
+            this.drawCurvedLine(this.supplyCurve1, '#10b981', 'S1', 'supply');
+            this.drawAnnotations();
+        };
 
-        function setStage(num) {
-            stage = num;
-            if (stage === 2) {
-                document.getElementById('stage-2').style.display = 'block';
-                expectedDraw = 'supply';
-                instructions.innerText = "Draw an upward SUPPLY curve.";
-                instructions.style.display = 'block';
+        graph.drawAnnotations = function () {
+            if (currentStage === 1) {
+                this.drawArrow(this.pLeft, this.height - this.pBottom, this.pLeft, this.pTop, 'Price ($)', '#3b82f6');
+                this.drawLabel(this.pLeft + 10, this.pTop + 20, "↑ Higher = More Expensive", '#3b82f6');
             }
-            if (stage === 3) {
-                document.getElementById('stage-3').style.display = 'block';
-                expectedDraw = 'demand_inelastic';
-                instructions.innerText = "Draw a STEEP Demand curve.";
-                instructions.style.display = 'block';
+            if (currentStage === 2) {
+                this.drawArrow(this.pLeft, this.height - this.pBottom, this.width - this.pRight, this.height - this.pBottom, 'Quantity (Q)', '#10b981');
+                this.drawLabel(this.width / 2, this.height - this.pBottom - 10, "→ More Stuff", '#10b981');
+            }
+        };
+
+        graph.drawArrow = function (x1, y1, x2, y2, label, color) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Arrowhead
+            const headlen = 10;
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headlen * Math.cos(angle - Math.PI / 6), y2 - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headlen * Math.cos(angle + Math.PI / 6), y2 - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(x2, y2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        };
+
+        graph.drawLabel = function (x, y, text, color) {
+            ctx.fillStyle = color;
+            ctx.font = 'bold 12px Inter';
+            ctx.fillText(text, x, y);
+        };
+
+        async function nextStage() {
+            document.getElementById(`stage-${currentStage}`).classList.remove('active');
+            document.getElementById(`feedback-${currentStage}`).innerHTML = "✓ Stage Complete";
+            document.getElementById(`feedback-${currentStage}`).className = "feedback success";
+
+            currentStage++;
+            if (currentStage <= 7) {
+                document.getElementById(`stage-${currentStage}`).classList.remove('locked');
+                document.getElementById(`stage-${currentStage}`).classList.add('active');
+                instructions.innerText = getStageInstruction(currentStage);
+                errorCount = 0;
+                document.getElementById('ai-hint-box').style.display = 'none';
+            } else {
+                document.getElementById('proceed-container').style.display = 'block';
+                instructions.innerText = "Training Complete.";
+            }
+            graph.render();
+        }
+
+        function getStageInstruction(s) {
+            switch (s) {
+                case 1: return "Click the top of the Price axis.";
+                case 2: return "Click the end of the Quantity axis.";
+                case 3: return "Show what happens when price goes UP. Move point LEFT.";
+                case 4: return "Draw a Demand curve (Down and Right).";
+                case 5: return "Price is UP. Show what a Business wants: move point RIGHT.";
+                case 6: return "Draw a Supply curve (Up and Right).";
+                case 7: return "Draw a STEEP Demand curve for gasoline.";
+                default: return "";
             }
         }
 
         canvas.addEventListener('mousedown', (e) => {
-            if (expectedDraw === 'done') return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Assessment Logic
+            if (currentStage === 1) {
+                if (y < graph.height / 3 && x < graph.pLeft + 50) {
+                    nextStage();
+                } else {
+                    handleError("You need to click the top of the Y-Axis to prove you see high prices.");
+                }
+            } else if (currentStage === 2) {
+                if (x > graph.width / 1.5 && y > graph.height - graph.pBottom - 50) {
+                    nextStage();
+                } else {
+                    handleError("You need to click the end of the X-Axis to prove you see more quantity.");
+                }
+            }
+        });
+
+        // Drawing Logic for stages 4, 6, 7
+        let startX, startY;
+        canvas.addEventListener('mousedown', (e) => {
+            if (![4, 6, 7].includes(currentStage)) return;
             const rect = canvas.getBoundingClientRect();
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
-            isDrawing = true;
+            isInteracting = true;
         });
 
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const curX = e.clientX - rect.left;
-            const curY = e.clientY - rect.top;
-
-            graph.render();
-
-            // Draw temp line
-            graph.ctx.beginPath();
-            graph.ctx.strokeStyle = expectedDraw.includes('demand') ? 'rgba(59, 130, 246, 0.5)' : 'rgba(16, 185, 129, 0.5)';
-            graph.ctx.lineWidth = 4;
-            graph.ctx.moveTo(startX, startY);
-            graph.ctx.lineTo(curX, curY);
-            graph.ctx.stroke();
-        });
-
-        canvas.addEventListener('mouseup', (e) => {
-            if (!isDrawing) return;
-            isDrawing = false;
-
+        canvas.addEventListener('mouseup', async (e) => {
+            if (!isInteracting) return;
+            isInteracting = false;
             const rect = canvas.getBoundingClientRect();
             const endX = e.clientX - rect.left;
             const endY = e.clientY - rect.top;
 
-            // Need a minimum length
-            if (Math.abs(endX - startX) < 40 && Math.abs(endY - startY) < 40) return;
-
-            // Geometry checks based on stage
-            if (stage === 1 && expectedDraw === 'demand') {
-                // Must go down and right
+            if (currentStage === 4) {
                 if (endX > startX && endY > startY) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
-                    graph.render();
-                    instructions.style.display = 'none';
-                    showToast("Demand Curve Detected.");
-                    setTimeout(() => setStage(2), 1000);
+                    nextStage();
                 } else {
-                    alert("Demand slopes downward. Try again from Top-Left to Bottom-Right.");
-                    graph.render();
+                    handleError("Incorrect. Demand must slope DOWNWARD (Top-Left to Bottom-Right).");
                 }
-            }
-            else if (stage === 2 && expectedDraw === 'supply') {
-                // Must go up and right (start bottom left, end top right)
+            } else if (currentStage === 6) {
                 if (endX > startX && endY < startY) {
                     graph.supplyCurve1 = { x1: startX, y1: startY, x2: endX, y2: endY };
-                    graph.render();
-
-                    if (graph.estimateIntersection(graph.demandCurve, graph.supplyCurve1)) {
-                        instructions.style.display = 'none';
-                        showToast("Equilibrium found.");
-                        setTimeout(() => setStage(3), 1500);
-                    } else {
-                        alert("The lines didn't cross! Reset and try again.");
-                    }
+                    nextStage();
                 } else {
-                    alert("Supply slopes upward. Try again from Bottom-Left to Top-Right.");
-                    graph.render();
+                    handleError("Incorrect. Supply must slope UPWARD (Bottom-Left to Top-Right).");
                 }
-            }
-            else if (stage === 3 && expectedDraw === 'demand_inelastic') {
-                // Must be steep (y diff > x diff by at least 2x)
-                const dx = Math.abs(endX - startX);
+            } else if (currentStage === 7) {
                 const dy = Math.abs(endY - startY);
-
-                if (endX > startX && endY > startY && dy > dx * 1.5) {
+                const dx = Math.abs(endX - startX);
+                if (dy > dx * 1.5 && endX > startX && endY > startY) {
                     graph.demandCurve = { x1: startX, y1: startY, x2: endX, y2: endY };
-                    graph.render();
-                    instructions.style.display = 'none';
-                    expectedDraw = 'done';
-                    showToast("Inelastic Curve Calibrated.");
-                    document.getElementById('proceed-container').style.display = 'block';
+                    nextStage();
                 } else {
-                    alert("Not steep enough. Gasoline demand is highly inelastic. Draw it almost vertically.");
-                    graph.render();
+                    handleError("Not steep enough! Gasoline demand is inelastic; people buy it no matter the price.");
                 }
             }
         });
 
-        btnReset.addEventListener('click', () => {
-            graph.demandCurve = null;
-            graph.supplyCurve1 = null;
-            graph.supplyCurve2 = null;
-            graph.render();
+        async function handleError(msg) {
+            document.getElementById(`feedback-${currentStage}`).innerText = msg;
+            document.getElementById(`feedback-${currentStage}`).className = "feedback error";
+            errorCount++;
 
-            if (stage === 1) expectedDraw = 'demand';
-            if (stage === 2) expectedDraw = 'supply';
-            if (stage === 3) expectedDraw = 'demand_inelastic';
+            if (errorCount >= 2) {
+                const hint = await AI.getHint(msg, getStageInstruction(currentStage));
+                if (hint) {
+                    document.getElementById('ai-hint-box').style.display = 'block';
+                    document.getElementById('ai-hint-text').innerText = hint;
+                }
+            }
+        }
 
-            instructions.style.display = 'block';
-        });
-
-        document.getElementById('proceed-btn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('proceed-btn');
-            btn.innerText = "SAVING STATE...";
-            btn.disabled = true;
-
-            // Save state to backend
+        document.getElementById('proceed-btn').addEventListener('click', async () => {
             await API.saveState(pin, 'dashboard');
-
-            // Move to final sim
             window.location.href = 'dashboard.html';
         });
 
-        graph.render();
+        document.getElementById('tool-reset').addEventListener('click', () => {
+            graph.demandCurve = null; graph.supplyCurve1 = null; graph.render();
+        });
 
-        // Animation helper class
-        const style = document.createElement('style');
-        style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`;
-        document.head.appendChild(style);
+        graph.render();
     </script>
 </body>
 
