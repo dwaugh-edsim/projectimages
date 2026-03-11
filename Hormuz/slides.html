@@ -7,15 +7,26 @@
     <title>Crisis Briefing | Operation Hormuz</title>
     <link rel="stylesheet" href="styles.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=JetBrains+Mono:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <style>
+        :root {
+            --accent: #3b82f6;
+            --bg: #020617;
+            --bg-card: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
         body,
         html {
             height: 100%;
             margin: 0;
             overflow: hidden;
-            background: #020617;
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
         }
 
         .slide-container {
@@ -55,23 +66,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.95));
+            background: radial-gradient(circle at center, rgba(2, 6, 23, 0.4) 0%, rgba(2, 6, 23, 0.95) 80%);
             z-index: 1;
         }
 
         .content {
             position: relative;
             z-index: 2;
-            max-width: 1000px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .seal-img {
+            max-width: 250px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
         }
 
         h1 {
-            font-size: 4rem;
+            font-size: 4.5rem;
             font-weight: 800;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #60a5fa, #3b82f6);
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #60a5fa, #3b82f6, #60a5fa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
@@ -82,21 +100,24 @@
             color: var(--text-secondary);
             margin-bottom: 3rem;
             line-height: 1.6;
+            font-weight: 500;
+            letter-spacing: 0.05em;
         }
 
         .bullet-list {
             text-align: left;
             display: inline-block;
             list-style: none;
-            font-family: var(--font-mono);
-            font-size: 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
             color: var(--text-primary);
         }
 
         .bullet-list li {
             margin-bottom: 1.5rem;
-            padding-left: 2rem;
+            padding-left: 2.5rem;
             position: relative;
+            line-height: 1.4;
         }
 
         .bullet-list li::before {
@@ -104,8 +125,45 @@
             position: absolute;
             left: 0;
             color: var(--accent);
+            font-weight: bold;
         }
 
+        /* Stats Section */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-val {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Controls */
         .controls {
             position: fixed;
             bottom: 2rem;
@@ -116,22 +174,31 @@
         }
 
         .control-btn {
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid var(--border);
             color: white;
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.75rem;
             border-radius: 4px;
             cursor: pointer;
-            font-family: var(--font-mono);
-            font-size: 0.875rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
             transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .control-btn:hover {
             border-color: var(--accent);
-            background: var(--bg-card);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
 
+        .control-btn.accent {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Progress Bar */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -141,35 +208,56 @@
             width: 0%;
             transition: width 0.3s ease;
             z-index: 200;
+            box-shadow: 0 0 10px var(--accent);
         }
 
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
+        /* Comms Log (Speaker Notes) */
+        .comms-toggle {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            z-index: 100;
         }
 
-        .stat-card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border);
-            padding: 2rem;
+        .comms-log {
+            position: fixed;
+            bottom: 6rem;
+            left: 2rem;
+            width: 400px;
+            background: rgba(2, 6, 23, 0.95);
+            border: 1px solid var(--accent);
+            padding: 1.5rem;
             border-radius: 8px;
-            backdrop-filter: blur(4px);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #60a5fa;
+            z-index: 99;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            display: none;
+            line-height: 1.5;
+            animation: slideUp 0.3s ease;
         }
 
-        .stat-val {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--accent);
+        .comms-log::before {
+            content: "SECURE COMMS LOG ENTRY:";
             display: block;
+            font-weight: 800;
+            font-size: 0.7rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.7;
+            letter-spacing: 0.2em;
         }
 
-        .stat-label {
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-secondary);
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .back-link {
@@ -179,16 +267,22 @@
             z-index: 100;
             color: var(--text-secondary);
             text-decoration: none;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
             letter-spacing: 0.1em;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            transition: color 0.2s;
         }
 
         .back-link:hover {
             color: var(--accent);
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 800;
         }
     </style>
 </head>
@@ -198,92 +292,149 @@
 
     <a href="index.html" class="back-link">← RETURN TO TERMINAL</a>
 
+    <div class="comms-toggle">
+        <button class="control-btn" id="toggle-notes">UPLINK LOG</button>
+    </div>
+    <div class="comms-log" id="notes-content">
+        Select a slide to initialize comms.
+    </div>
+
     <div class="slide-container">
-        <!-- Slide 1: Welcome -->
+        <!-- Slide 1: TITLE -->
         <div class="slide active" id="slide-0" style="background-image: url('slide_bg_1.png');">
             <div class="overlay"></div>
             <div class="content">
-                <h1 style="font-size: 5rem;">OPERATION HORMUZ</h1>
-                <p class="sub-desc">Geo-Economic Strategic Briefing<br>Economic Advisory Council (EAC)</p>
-                <p class="stat-label">Restricted Access // Level 4 Clearance Required</p>
-            </div>
-        </div>
-
-        <!-- Slide 2: The Geography -->
-        <div class="slide" id="slide-1" style="background-image: url('slide_map.png');">
-            <div class="overlay"></div>
-            <div class="content">
-                <h1>The Logistic Reality</h1>
-                <p class="sub-desc">The Strait is the world's most critical energy artery.</p>
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <span class="stat-val">21%</span>
-                        <span class="stat-label">of Global Petroleum consumption flows through Hormuz Daily</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-val">NO ALTERNATIVE</span>
-                        <span class="stat-label">bypass is sufficient to replace this volume</span>
-                    </div>
+                <img src="premier_office_seal.png" alt="NS Council Seal" class="seal-img">
+                <h1>OPERATION: HORMUZ</h1>
+                <p class="sub-desc">Economic Advisory Council Emergency Briefing</p>
+                <div
+                    style="font-family:'JetBrains Mono'; font-size: 0.8rem; color: var(--accent); letter-spacing: 0.3em;">
+                    UNIT: ECONOMICS 12 // SUPPLY & DEMAND
                 </div>
             </div>
+            <div class="hidden-notes" style="display:none">Welcome, Advisors. Today, you are no longer students. You are
+                the Economic Advisory Council to the Premier of Nova Scotia. A global crisis is unfolding, and Halifax
+                is in the crosshairs.</div>
         </div>
 
-        <!-- Slide 3: Economic Theory -->
-        <div class="slide" id="slide-2">
+        <!-- Slide 2: THE GEOPOLITICS -->
+        <div class="slide" id="slide-1" style="background-image: url('strait_of_hormuz_map_dashboard.png');">
             <div class="overlay"></div>
             <div class="content">
-                <h1>Market Forces</h1>
-                <p class="sub-desc">Understanding Demand & Supply as Social Behavior</p>
-                <ul class="bullet-list">
-                    <li><b>Buyers:</b> Respond to Price. Higher Price = Lower Quantity Demanded.</li>
-                    <li><b>Sellers:</b> Respond to Profit. Higher Price = Higher Quantity Supplied.</li>
-                    <li><b>Equilibrium:</b> The point where Buyer and Seller naturally agree.</li>
+                <h1>The Chokepoint</h1>
+                <p class="sub-desc">Strategic Reality of the Strait of Hormuz</p>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-val">21M</span>
+                        <span class="stat-label">Barrels Daily</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val">20%</span>
+                        <span class="stat-label">Global Consumption</span>
+                    </div>
+                </div>
+                <ul class="bullet-list" style="margin-top: 2rem;">
+                    <li><span class="highlight">THE FLASHPOINT:</span> A sudden naval blockade has closed the Strait.
+                    </li>
                 </ul>
+            </div>
+            <div class="hidden-notes" style="display:none">The Strait of Hormuz is the world's most important energy
+                artery. With one naval maneuver, 20% of the world's oil has just been cut off from the global market.
             </div>
         </div>
 
-        <!-- Slide 4: The Supply Shock -->
-        <div class="slide" id="slide-3" style="background-image: url('slide_shock.png');">
+        <!-- Slide 3: THE LOCAL IMPACT -->
+        <div class="slide" id="slide-2" style="background-image: url('slide_map.png');">
             <div class="overlay"></div>
             <div class="content">
-                <h1>The Supply Shock</h1>
-                <p class="sub-desc">What happens during a blockade?</p>
+                <h1>Why Nova Scotia Cares</h1>
+                <p class="sub-desc">Projected Impact on the Halifax Region</p>
                 <ul class="bullet-list">
-                    <li><b>Leftward Shift:</b> Less gas is physically available globally.</li>
-                    <li><b>Competition:</b> Buyers fight over the remaining supply.</li>
-                    <li><b>Scarcity:</b> This drives the price UP automatically.</li>
+                    <li>Global oil prices spike instantly across all markets.</li>
+                    <li>Halifax relies on imported fuel for <span class="highlight">Heating, Shipping, and
+                            Commuting</span>.</li>
+                    <li><span class="highlight">THE MANDATE:</span> Predict the economic fallout and advise the Premier.
+                    </li>
                 </ul>
             </div>
+            <div class="hidden-notes" style="display:none">When the world's supply drops, prices everywhere go up. But
+                for a place like Halifax, where we drive long distances and heat our homes with oil, this is a Tier 1
+                emergency.</div>
         </div>
 
-        <!-- Slide 5: The Inelasticity Trap -->
-        <div class="slide" id="slide-4">
+        <!-- Slide 4: TOOL CALIBRATION -->
+        <div class="slide" id="slide-3" style="background-image: url('hormuz_calibration_ui.png');">
             <div class="overlay"></div>
             <div class="content">
-                <h1>The Inelasticity Trap</h1>
-                <p class="sub-desc">Why oil is dangerous for an economy</p>
+                <h1>Step 1: Training the AI</h1>
+                <p class="sub-desc">Calibration of the Economic Data Terminal</p>
                 <ul class="bullet-list">
-                    <li><b>No Substitutes:</b> People HAVE to drive to work.</li>
-                    <li><b>Vertical Demand:</b> People pay almost any price to keep moving.</li>
-                    <li><b>Economic Bleed:</b> High gas prices suck money out of other sectors.</li>
+                    <li>Calibrate your terminal before accessing live crisis data.</li>
+                    <li><span class="highlight">THE 7-STAGE RAMP:</span>
+                        <ul>
+                            <li>Y-Axis (Price) & X-Axis (Quantity)</li>
+                            <li>The Law of Demand (Buyer Logic)</li>
+                            <li>The Law of Supply (Seller Logic)</li>
+                            <li><span class="highlight">CRITICAL:</span> High Inelasticity</li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
+            <div class="hidden-notes" style="display:none">Before we give you the live data, you must pass the 7-stage
+                training module. You'll learn how Price and Quantity interact, and specifically how "Inelasticity" makes
+                gasoline markets so dangerous during a crisis.</div>
         </div>
 
-        <!-- Slide 6: Your Mission -->
-        <div class="slide" id="slide-5">
+        <!-- Slide 5: GRAPHING THE SHOCK -->
+        <div class="slide" id="slide-4" style="background-image: url('slide_shock.png');">
             <div class="overlay"></div>
             <div class="content">
-                <h1>Advisor Protocol</h1>
-                <p class="sub-desc">Analyze. Predict. Advise.</p>
+                <h1>Step 2: Live Terminal</h1>
+                <p class="sub-desc">Market Simulation & Predictive Mapping</p>
                 <ul class="bullet-list">
-                    <li><b>PHASE 1:</b> Graph the initial market equilibrium.</li>
-                    <li><b>PHASE 2:</b> Implement the Supply Shock on the live terminal.</li>
-                    <li><b>PHASE 3:</b> Submit your briefings directly to the Premier.</li>
+                    <li>Plot the current Halifax market equilibrium.</li>
+                    <li>Trigger the <span class="highlight">STRATEGIC SUPPLY SHOCK</span>.</li>
+                    <li>Observe the Price Spike sequence (<span class="highlight">P1 → P2</span>).</li>
                 </ul>
-                <p style="margin-top: 3rem; font-family: var(--font-mono); color: var(--accent);">INITIALIZE SIMULATION
-                    WHEN READY.</p>
             </div>
+            <div class="hidden-notes" style="display:none">Once trained, you'll enter the "War Room." You'll map the
+                market, trigger the blockade, and watch the math of supply and demand unfold in real-time.</div>
+        </div>
+
+        <!-- Slide 6: THE ADVISOR BRIEFING -->
+        <div class="slide" id="slide-5" style="background-image: url('hormuz_briefing_folder.png');">
+            <div class="overlay"></div>
+            <div class="content">
+                <h1>Step 3: Advice to Premier</h1>
+                <p class="sub-desc">Policy Recommendations & Human Impact</p>
+                <ul class="bullet-list">
+                    <li>Predict the consequences for Nova Scotia families.</li>
+                    <li>Propose specific policy solutions (Transit? Taxes?).</li>
+                    <li><span class="highlight">AI VALIDATION:</span> Work critiqued by the Chief of Staff.</li>
+                </ul>
+            </div>
+            <div class="hidden-notes" style="display:none">Finally, you'll write your briefing. The Premier's Chief of
+                Staff—powered by AI—will review your advice instantly. Make it professional, make it realistic, and
+                justify your choices.</div>
+        </div>
+
+        <!-- Slide 7: MISSION START -->
+        <div class="slide" id="slide-6" style="background-image: url('hormuz_terminal_access.png');">
+            <div class="overlay"></div>
+            <div class="content">
+                <h1>Secure Terminal Access</h1>
+                <p class="sub-desc">Initialize Uplink Sequence</p>
+                <div class="stat-card" style="display:inline-block; margin-bottom: 2rem;">
+                    <div class="stat-label">DIRECTIVE:</div>
+                    <div style="font-size: 1.5rem; font-family:'JetBrains Mono'; margin-top: 1rem;">
+                        Identify with <span class="highlight">NAME</span> and <span class="highlight">4-DIGIT PIN</span>
+                    </div>
+                </div>
+                <br>
+                <button class="control-btn accent" onclick="window.location.href='index.html'"
+                    style="padding: 1.5rem 3rem; font-size: 1.2rem;">ENTER MISSION TERMINAL</button>
+            </div>
+            <div class="hidden-notes" style="display:none">Good luck, Advisors. The province is counting on you.</div>
         </div>
     </div>
 
@@ -296,11 +447,20 @@
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const progress = document.getElementById('progress');
+        const notesContent = document.getElementById('notes-content');
+        const notesPanel = document.getElementById('notes-content');
+        const toggleBtn = document.getElementById('toggle-notes');
+
+        function updateNotes() {
+            const note = slides[currentSlide].querySelector('.hidden-notes').innerText;
+            notesContent.innerText = note;
+        }
 
         function showSlide(index) {
             slides.forEach(s => s.classList.remove('active'));
             slides[index].classList.add('active');
             progress.style.width = ((index + 1) / slides.length) * 100 + '%';
+            updateNotes();
         }
 
         document.getElementById('next').addEventListener('click', () => {
@@ -313,6 +473,13 @@
             showSlide(currentSlide);
         });
 
+        toggleBtn.addEventListener('click', () => {
+            const isVisible = notesPanel.style.display === 'block';
+            notesPanel.style.display = isVisible ? 'none' : 'block';
+            toggleBtn.style.background = isVisible ? 'rgba(15, 23, 42, 0.9)' : '#334155';
+            toggleBtn.style.borderColor = isVisible ? 'var(--border)' : 'var(--accent)';
+        });
+
         // Keyboard support
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ') {
@@ -323,7 +490,13 @@
                 currentSlide = (currentSlide - 1 + slides.length) % slides.length;
                 showSlide(currentSlide);
             }
+            if (e.key === 'L' || e.key === 'l') {
+                toggleBtn.click();
+            }
         });
+
+        // Init
+        updateNotes();
     </script>
 </body>
 
