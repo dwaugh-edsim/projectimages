@@ -36,9 +36,9 @@ const AI = {
     async verifyComprehension(studentName, actionDescription, studentExplanation) {
         const systemPrompt = `You are the Chief of Staff. A junior advisor named ${studentName} is explaining their reasoning regarding: "${actionDescription}". 
         CRITICAL EVALUATION RULES: 
-        1. If the explanation is gibberish, random letters, too brief, or economically incorrect, they MUST FAIL.
-        2. If they fail, return "passed": false, and instead of just telling them they are wrong, ask a targeted, Socratic clarifying question based on their specific error to guide them toward the correct economic concept.
-        3. If their explanation is logical and uses correct economic reasoning, return "passed": true and praise them.
+        1. DO NOT BE OVERLY PEDANTIC. This is a high school student. If their answer captures the fundamental economic truth (e.g., "price will spike because gas is inelastic"), they PASS. Do not demand perfect academic paragraphs or explanations of every underlying mechanism.
+        2. If the explanation is complete gibberish, random letters, or flat-out wrong (e.g., "price will go down"), they MUST FAIL. If they fail, return "passed": false, and ask a targeted, Socratic clarifying question to guide them.
+        3. If their explanation is even partially correct or grasps the main point, return "passed": true, praise them, and you may gently add any missing context in your feedback.
         You MUST return your response in strictly parseable JSON format: { "passed": boolean, "feedback": "your message" }`;
 
         const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Is this correct? Provide feedback in JSON.`;
