@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITUATION ROOM | Performance Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #020617; /* Even darker for LCD */
+            height: 100vh;
+            overflow: hidden;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .leaderboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+
+        .lcd-clock {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        /* Sector Cards */
+        .sector {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sector::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--text-secondary);
+            opacity: 0.3;
+        }
+
+        .sector.active::before { background: var(--accent); opacity: 1; }
+        .sector.calibration::before { background: var(--warning); opacity: 1; }
+        .sector.terminal::before { background: var(--success); opacity: 1; }
+        .sector.complete::before { background: #fff; opacity: 1; }
+
+        .sector h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .count-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-family: var(--font-mono);
+        }
+
+        /* Student List */
+        .student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .student-row {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .student-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .student-status {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .refresh-tag {
+            position: fixed;
+            bottom: 1rem;
+            right: 2rem;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header class="leaderboard-header">
+        <div>
+            <h2>OPERATION HORMUZ</h2>
+            <h1>Situtation Room</h1>
+        </div>
+        <div class="lcd-clock" id="clock">12:16:00</div>
+    </header>
+
+    <div class="stats-grid">
+        <!-- 1. PRE-FLIGHT (Slides) -->
+        <div class="sector" id="sector-slides">
+            <h3><span>01 // PRE-FLIGHT</span> <span class="count-badge" id="count-slides">0</span></h3>
+            <div class="student-list" id="list-slides"></div>
+        </div>
+
+        <!-- 2. CALIBRATION (Practice) -->
+        <div class="sector calibration" id="sector-practice">
+            <h3><span>02 // CALIBRATION</span> <span class="count-badge" id="count-practice">0</span></h3>
+            <div class="student-list" id="list-practice"></div>
+        </div>
+
+        <!-- 3. LIVE TERMINAL (Dashboard) -->
+        <div class="sector terminal" id="sector-dashboard">
+            <h3><span>03 // LIVE TERMINAL</span> <span class="count-badge" id="count-dashboard">0</span></h3>
+            <div class="student-list" id="list-dashboard"></div>
+        </div>
+
+        <!-- 4. SUBMITTED (Complete) -->
+        <div class="sector complete" id="sector-completed">
+            <h3><span>04 // ARCHIVED</span> <span class="count-badge" id="count-completed">0</span></h3>
+            <div class="student-list" id="list-completed"></div>
+        </div>
+    </div>
+
+    <div class="refresh-tag">UPLINK ACTIVE // AUTO-REFRESH EVERY 15S</div>
+
+    <script src="api.js"></script>
+    <script>
+        async function refreshLeaderboard() {
+            const data = await API.getLeaderboard();
+            if (data.status !== 'success') return;
+
+            const students = data.students;
+            
+            // Clear lists
+            const lists = {
+                slides: document.getElementById('list-slides'),
+                practice: document.getElementById('list-practice'),
+                dashboard: document.getElementById('list-dashboard'),
+                completed: document.getElementById('list-completed')
+            };
+            Object.values(lists).forEach(l => l.innerHTML = '');
+
+            const counts = { slides: 0, practice: 0, dashboard: 0, completed: 0 };
+
+            students.forEach(s => {
+                let category = 'slides';
+                let progress = 0;
+                let statusLabel = 'BRIEFING IN PROGRESS';
+
+                if (s.stage.startsWith('practice')) {
+                    category = 'practice';
+                    const num = parseInt(s.stage.split('-')[1]) || 0;
+                    progress = (num / 8) * 100;
+                    statusLabel = `CALIBRATING STAGE ${num}/8`;
+                } else if (s.stage === 'dashboard') {
+                    category = 'dashboard';
+                    progress = 100;
+                    statusLabel = 'ACTIVE CRISIS TERMINAL';
+                } else if (s.stage === 'completed') {
+                    category = 'completed';
+                    progress = 100;
+                    statusLabel = 'TRANSMISSION SENT';
+                }
+
+                counts[category]++;
+                
+                const row = document.createElement('div');
+                row.className = 'student-row';
+                row.innerHTML = `
+                    <div class="student-info">
+                        <span class="student-name">${s.name}</span>
+                        <span class="student-status">${statusLabel}</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                `;
+                lists[category].appendChild(row);
+            });
+
+            // Update badges
+            document.getElementById('count-slides').innerText = counts.slides;
+            document.getElementById('count-practice').innerText = counts.practice;
+            document.getElementById('count-dashboard').innerText = counts.dashboard;
+            document.getElementById('count-completed').innerText = counts.completed;
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = 
+                now.getHours().toString().padStart(2, '0') + ":" + 
+                now.getMinutes().toString().padStart(2, '0') + ":" + 
+                now.getSeconds().toString().padStart(2, '0');
+        }
+
+        setInterval(updateClock, 1000);
+        setInterval(refreshLeaderboard, 15000); // 15 seconds
+        refreshLeaderboard();
+        updateClock();
+    </script>
+</body>
+</html>

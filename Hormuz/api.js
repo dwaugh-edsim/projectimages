@@ -61,6 +61,19 @@ const API = {
         }
     },
 
+    async getLeaderboard() {
+        try {
+            const res = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'get_leaderboard', pin: '0000' }) // Dummy PIN
+            });
+            return await res.json();
+        } catch (e) {
+            console.error(e);
+            return { status: 'error' };
+        }
+    },
+
     // Internal helper for when Session isn't available or we need a quick PIN
     getPinFallback() {
         return sessionStorage.getItem('hormuz_pin') || '0000';
