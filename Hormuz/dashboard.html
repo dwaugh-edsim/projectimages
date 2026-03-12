@@ -161,19 +161,29 @@
         const instructions = document.getElementById('graph-instructions');
         const p1Readout = document.getElementById('readout-p1');
 
-        canvas.addEventListener('mousedown', (e) => {
-            if (state !== 'drawing_d' && state !== 'drawing_s') return;
+        function getCanvasPos(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left;
-            startY = e.clientY - rect.top;
-            isDrawing = true;
-        });
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
 
-        canvas.addEventListener('mousemove', (e) => {
+        function handleStart(clientX, clientY) {
+            if (state !== 'drawing_d' && state !== 'drawing_s') return;
+            const pos = getCanvasPos(clientX, clientY);
+            startX = pos.x;
+            startY = pos.y;
+            isDrawing = true;
+        }
+
+        function handleMove(clientX, clientY) {
             if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const curX = e.clientX - rect.left;
-            const curY = e.clientY - rect.top;
+            const pos = getCanvasPos(clientX, clientY);
+            const curX = pos.x;
+            const curY = pos.y;
 
             graphEngine.render();
             graphEngine.ctx.beginPath();
@@ -182,15 +192,16 @@
             graphEngine.ctx.moveTo(startX, startY);
             graphEngine.ctx.lineTo(curX, curY);
             graphEngine.ctx.stroke();
-        });
+        }
 
-        canvas.addEventListener('mouseup', (e) => {
+        function handleEnd(clientX, clientY) {
             if (!isDrawing) return;
             isDrawing = false;
 
-            const rect = canvas.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
+            const pos = getCanvasPos(clientX, clientY);
+            const endX = pos.x;
+            const endY = pos.y;
+            
             if (Math.abs(endX - startX) < 20) return;
 
             if (state === 'drawing_d') {
@@ -217,6 +228,23 @@
                 }
             }
             graphEngine.render();
+        }
+
+        // Event Listeners
+        canvas.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        window.addEventListener('mouseup', (e) => handleEnd(e.clientX, e.clientY));
+
+        // Touch Support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+        window.addEventListener('touchmove', (e) => {
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+        window.addEventListener('touchend', (e) => {
+            handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
         });
 
         // Controls
