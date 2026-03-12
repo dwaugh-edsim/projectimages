@@ -1,0 +1,1319 @@
+﻿")
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 - Project Dashboard</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #475569;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            font-size: 1.25rem;
+            /* Larger base font for classroom */
+        }
+
+        /* Navigation / Tabs */
+        .nav-header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1600px;
+            /* Wider for projector */
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        .site-footer {
+            background-color: var(--card-bg);
+            border-top: 2px solid var(--border);
+            padding: 1rem 2rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .footer-title {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.4rem;
+            min-width: 350px;
+        }
+
+        .footer-list {
+            list-style-type: disc;
+            margin: 0;
+            padding-left: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .footer-list li {
+            margin: 0;
+        }
+
+        /* Container padding adjustment for footer */
+        .container {
+            max-width: 1600px;
+            /* Wider for projector */
+            margin: 2rem auto;
+            padding: 0 2rem;
+            padding-bottom: 8rem;
+            /* More room for the larger footer */
+        }
+
+        /* Instructions Page Styles */
+        .instructions-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 4rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-size: 1.4rem;
+            /* Larger for projection */
+        }
+
+        .instructions-card h1 {
+            color: var(--primary);
+            font-size: 3.5rem;
+            margin-top: 0;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .instructions-card h2 {
+            color: var(--secondary);
+            font-size: 2.4rem;
+            margin-top: 3rem;
+        }
+
+        .alert-box {
+            background-color: #fef2f2;
+            border-left: 6px solid var(--danger);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+            container-type: inline-size;
+        }
+
+        .alert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .alert-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            border-top: 5px solid var(--danger);
+        }
+
+        .alert-card strong {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--danger);
+            font-size: 1.4rem;
+        }
+
+        @container (max-width: 800px) {
+            .alert-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @container (max-width: 500px) {
+            .alert-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert-box h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+
+        .rubric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .rubric-item {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .rubric-item h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        /* Master List Page Styles */
+        .group-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .group-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .group-title {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .group-members {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--secondary);
+            margin: 0.5rem 0 0 0;
+        }
+
+        .group-topic {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .link-site {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .link-site:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .link-missing {
+            background-color: var(--danger);
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .link-resource {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .link-resource:hover {
+            background-color: #059669;
+        }
+
+        /* Feedback Toggle */
+        .feedback-toggle {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feedback-toggle:hover {
+            background-color: #334155;
+        }
+
+        .feedback-content {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .feedback-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .roles-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 1rem 0 0 0;
+            background: #e2e8f0;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .roles-list li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .roles-list strong {
+            color: var(--primary);
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-needs-link {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-has-link {
+            background: #dcfce3;
+            color: #166534;
+        }
+
+        .site-updated-badge {
+            background-color: var(--success);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-header">
+        <button class="tab-btn active" onclick="switchTab('instructions')">General Instructions</button>
+        <button class="tab-btn" onclick="switchTab('master-list')">Master Group List</button>
+        <div class="site-updated-badge">Site Updated: March 12, 2026 at 7:17 AM</div>
+    </div>
+
+    <div class="container">
+        <!-- INSTRUCTIONS TAB -->
+        <div id="instructions" class="tab-content active">
+            <div class="instructions-card">
+                <h1>Citizenship 9: <a href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                        style="color: var(--primary); font-weight: bold;">Global Goals</a> &amp; Local Action</h1>
+
+                <img src="https://raw.githubusercontent.com/dwaugh-edsim/projectimages/main/citizenship9_banner.png"
+                    alt="Global Goals and Local Action — Citizenship 9 Project Banner"
+                    style="width: 100%; border-radius: 10px; margin-bottom: 2rem; display: block; object-fit: cover; max-height: 220px;">
+
+                <div class="alert-box" style="font-size: 1.1rem;">
+                    <h3>TODAY'S TO-DO LIST</h3>
+                    <div class="alert-grid" style="font-size: 0.95rem;">
+                        <div class="alert-card">
+                            <strong>1. SEND YOUR LINK:</strong>
+                            If you haven't given me your Google Site link, do it <strong>now</strong> using the <a
+                                href="https://docs.google.com/forms/d/e/1FAIpQLSeSC4raQGkz9rTgQLcGkrphtOk8Zwd3pI14ahpzAE6p1Vc35g/viewform"
+                                target="_blank" style="color: var(--danger); font-weight: bold;">Google Form</a> in
+                            Google Classroom.
+                        </div>
+                        <div class="alert-card">
+                            <strong>2. CHECK SHARING:</strong>
+                            Set site sharing to "Anyone at gnspes.ca with the link can view." Need help? Just ask me!
+                        </div>
+                        <div class="alert-card">
+                            <strong>3. PUBLISH OFTEN:</strong>
+                            I can only grade what is <strong>Published</strong>. Hit that button!
+                        </div>
+                        <div class="alert-card">
+                            <strong>4. USE BYLINES:</strong>
+                            Every single page needs an Author Byline (e.g., "Authored by: [Name]").
+                        </div>
+                        <div class="alert-card">
+                            <strong>5. ADD VISUALS:</strong>
+                            Take advantage of Google Sites! Add photos, charts, infographics, and other visual materials
+                            to make your site more engaging and professional.
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="background: var(--background); padding: 2rem; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                    <h2 style="margin-top: 0; color: var(--primary);">Your Mission: Local Research, Global Impact
+                    </h2>
+                    <p>Act as a digital advocate. You are researching a major issue in Nova Scotia/Canada, linking it to
+                        the <a href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                            style="color: var(--primary); font-weight: bold;">UN Global Goals</a>, and proposing a
+                        realistic "Call to Action."</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+                        <div>
+                            <h3 style="color: var(--secondary); font-size: 1.2rem; margin-bottom: 0.5rem;">The Power
+                                Team Roles</h3>
+                            <ul style="padding-left: 1.2rem; font-size: 1rem;">
+                                <li><strong>The Researcher:</strong> Leading the <em>Canada's Response</em> and
+                                    <em>Global Connection</em> facts.
+                                </li>
+                                <li><strong>The Storyteller:</strong> Leading the <em>Human Impact</em> and <em>Future
+                                        Consequences</em> narrative.</li>
+                                <li><strong>The Tech Lead:</strong> Leading the <em>Site Design</em> and <em>Action
+                                        Project</em> media (Video/Briefing).</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--secondary); font-size: 1.2rem; margin-bottom: 0.5rem;">The 5-Page
+                                Strategy</h3>
+                            <ol style="padding-left: 1.2rem; font-size: 1rem;">
+                                <li><strong>Home:</strong> The Mission & Bios</li>
+                                <li><strong>Investigation:</strong> Human Impact &amp; <a
+                                        href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                        style="color: var(--primary); font-weight: bold;">UN Goals</a></li>
+                                <li><strong>Canada's Response:</strong> Evaluating Policies</li>
+                                <li><strong>Action Project:</strong> Your Video or PDF Briefing</li>
+                                <li><strong>Sources:</strong> Give credit where it's due</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Portfolio Requirements Checklist</h2>
+                <ul style="list-style-type: square; font-size: 1.1rem;">
+                    <li><strong>1. Home (The Mission):</strong> The Hook, Mission Statement, and Team Bios.</li>
+                    <li><strong>2. The Investigation Log:</strong> Global Connection, Human Impact (Lived Experience),
+                        and Consequences of Inaction.</li>
+                    <li><strong>3. Canada's Response:</strong> Evaluation of a current law or program backed by
+                        <strong>Evidence</strong>.
+                    </li>
+                    <li><strong>4. The Action Project:</strong> Embed a 60-second PSA video OR a 1-page MLA Briefing
+                        PDF. Also include a Map of the issue.</li>
+                    <li><strong>5. Final Reflection & Sources:</strong> Ensure all sources used are cited.</li>
+                </ul>
+
+                <h2>Grading Rubric Focus</h2>
+                <div class="rubric-grid">
+                    <div class="rubric-item">
+                        <h3>1. Collaboration </h3>
+                        <p>Does the version history show everyone contributed? Are Author Bylines clear on every
+                            section?</p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>2. Evidence </h3>
+                        <p>Is your "Canada's Response" evaluation backed by a real fact, specific law, or government
+                            program?</p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>3. Connection </h3>
+                        <p>Is the link between your local Nova Scotia/Canada issue and the chosen <a
+                                href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                style="color: var(--primary); font-weight: bold;">UN Global Goal</a> clearly
+                            explained?</p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>4. Citizenship </h3>
+                        <p>Does your "Call to Action" (Briefing or Video) actually propose a concrete, realistic way to
+                            make a change?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MASTER LIST TAB -->
+        <div id="master-list" class="tab-content">
+            <div class="group-grid">
+
+                <!-- Group 1 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 1: The "Blue Economy"</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Nolan</p>
+                    <p class="group-topic">Job creation through sustainable ocean-based businesses.</p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/the-blue-economy" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://oceansupercluster.ca/wp-content/uploads/Blue-Economy-101_Toolkit_English.pdf"
+                            target="_blank" class="action-link link-resource">Overview: Blue Economy 101</a>
+                        <a href="https://www.canada.ca/en/atlantic-canada-opportunities/news/2021/02/strengthening-atlantic-canadas-blue-economy.html"
+                            target="_blank" class="action-link link-resource">Policy: Strengthening Blue Economy</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb1')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb1" class="feedback-content">
+                        <p><strong>Note: Make sure your site is shared so I can view it (set to "Anyone at gnspes.ca
+                                with the link can view").</strong></p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>This is a real topic for NS jobs, Nolan. Since you are working solo, every page needs your
+                            Author Byline.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Which <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">UN Goal</a> best matches the Blue
+                                Economy? Explain the
+                                link in your own words &mdash; don&rsquo;t just name the goal, say why it fits.</li>
+                            <li><strong>Evidence:</strong> Check the <em>Policy: Strengthening Blue Economy</em> link
+                                above. Find one specific government investment and use it to judge whether
+                                Canada&rsquo;s response is working.</li>
+                            <li><strong>Citizenship:</strong> Your Call to Action should be specific &mdash; who should
+                                do what, and why should a student your age care?</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Nolan (All Roles):</strong> Research, Storytelling, and Site Design</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://novascotia.ca/green-hydrogen/docs/green-hydrogen-action-plan.pdf"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Green Hydrogen Action Plan &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 2 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 2: Lobster Fisheries</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Sarah, Rifa, and Yunho</p>
+                    <p class="group-topic">Rising ocean temperatures affecting the SW Nova Scotia lobster industry.</p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/rising-ocean-temperatures" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://www.cbc.ca/news/canada/nova-scotia/nova-scotia-lobster-climate-change-1.5333684"
+                            target="_blank" class="action-link link-resource">Overview: Lobster & Climate Change</a>
+                        <a href="https://www.cbc.ca/news/canada/nova-scotia/climate-change-nova-scotia-lobster-bad-weather-report-1.7137424"
+                            target="_blank" class="action-link link-resource">Policy: Climate Vulnerability
+                            Assessment</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb2')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb2" class="feedback-content">
+                        <p>📢 <strong>PUBLISH REMINDER:</strong> I can see you've shared your site, but I'm only seeing
+                            the template. Remember to hit the <strong>PUBLISH</strong> button after making changes so I
+                            can see your actual work!</p>
+                        <p>Great topic choice for NS fishing communities - this is a real and important issue! Make sure
+                            all three Author Bylines are visible on the pages each of you wrote.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> How does a warmer ocean hurt NS lobster fishing? Connect
+                                that to a specific <a href="https://www.undp.org/sustainable-development-goals"
+                                    target="_blank" style="color: var(--primary); font-weight: bold;">UN Goal</a> about
+                                ocean life or
+                                climate action, and explain it clearly.
+                            </li>
+                            <li><strong>Evidence:</strong> The <em>Lobster &amp; Climate Change</em> overview link has
+                                real facts. Pick one and use it to evaluate what Canada is doing &mdash; or not doing.
+                            </li>
+                            <li><strong>Citizenship:</strong> Propose something doable &mdash; a petition, an awareness
+                                campaign, or a message to the federal fisheries office.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Sarah (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Rifa (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Yunho (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a href="https://sp.copernicus.org/articles/6-osr9/8/2025/"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Ocean Reanalysis &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 3 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 3: AI in the Workforce</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Farhan</p>
+                    <p class="group-topic">How AI will change "decent work" and economic growth by 2030.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://www.canada.ai/posts/ai-could-disrupt-workforce-in-every-sector-by-2030-brookfield-institute-report-finds"
+                            target="_blank" class="action-link link-resource">Overview: AI Work Disruption</a>
+                        <a href="https://ised-isde.canada.ca/site/ai-strategy/en" target="_blank"
+                            class="action-link link-resource">Policy: Pan-Canadian AI Strategy</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb3')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb3" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>AI affecting jobs is happening right now &mdash; relevant choice, Farhan. Since you are
+                            working solo, your Author Byline needs to appear on every page.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> AI and job loss connects to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 8 (Decent Work). Explain
+                                in
+                                plain language why that matters for young people starting careers soon.</li>
+                            <li><strong>Evidence:</strong> The <em>AI Work Disruption</em> overview link has a real
+                                statistic about jobs at risk. Use it to evaluate whether Canada&rsquo;s AI Strategy
+                                actually protects workers.</li>
+                            <li><strong>Citizenship:</strong> What can someone your age actually do? Suggest schools add
+                                digital skills courses, or write to an MP about retraining programs. Keep it realistic.
+                            </li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Farhan (All Roles):</strong> Research, Storytelling, and Site Design</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://ised-isde.canada.ca/site/innovation-better-canada/en/artificial-intelligence-and-data-act"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading: AI
+                                and Data Act &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 4 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 4: Gender Pay Gap</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Fatima</p>
+                    <p class="group-topic">Researching the current state of pay equality for women in the workforce.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://www.canada.ca/en/women-gender-equality/gender-equality/facts-stats-impact.html"
+                            target="_blank" class="action-link link-resource">Overview: Gender Wage Gap</a>
+                        <a href="https://www.canada.ca/en/services/jobs/workplace/human-rights/overview-pay-equity-act.html"
+                            target="_blank" class="action-link link-resource">Policy: Pay Equity Act</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb4')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb4" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>Important topic that affects almost everyone, Fatima. Since you are working solo, make sure
+                            your Author Byline is on every single page.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> The pay gap connects to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 5 (Gender
+                                Equality) and <a href="https://www.undp.org/sustainable-development-goals"
+                                    target="_blank" style="color: var(--primary); font-weight: bold;">SDG</a> 8
+                                (Decent Work). Choose one and explain in plain terms why women earning less than men is
+                                a global problem, not just a Canadian one.</li>
+                            <li><strong>Evidence:</strong> The <em>Gender Wage Gap</em> overview link has clear facts
+                                and numbers. Use one to judge whether Canada&rsquo;s Pay Equity Act is actually working
+                                &mdash; and give your honest opinion.</li>
+                            <li><strong>Citizenship:</strong> Your Call to Action could be something simple: sign a
+                                petition, write to an MP, or raise awareness at school. Be specific about what you want
+                                readers to do.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Fatima (All Roles):</strong> Research, Storytelling, and Site Design</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://www.chrc-ccdp.gc.ca/resources/publications/pay-equity-commissioners-2024-2025-annual-report"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading: Pay
+                                Equity Commissioner&rsquo;s Report &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 5 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 5: Youth Mental Health</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Isaac and Leo</p>
+                    <p class="group-topic">Analyzing accessibility of support within the NS school system.</p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/youth-mental-1/home" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://mha.nshealth.ca/en/services/school-mental-health-schoolsplus" target="_blank"
+                            class="action-link link-resource">Overview: School Mental Health</a>
+                        <a href="https://www.iys-sij.ca/news/government-of-nova-scotia-announces-funding-to-launch-iys-ns"
+                            target="_blank" class="action-link link-resource">Policy: IYS Funding</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb5')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb5" class="feedback-content">
+                        <p>🌟 <strong>Great start!</strong> I can see your home page is up. Keep building out the other
+                            pages and remember to hit <strong>PUBLISH</strong> after each session!</p>
+                        <p>Your topic hits close to home for many students &mdash; strong choice! Both Author Bylines
+                            need to be visible on the pages each of you wrote.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Youth mental health connects to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 3 (Good Health).
+                                Explain why not having enough school counsellors is a bigger-than-local problem.</li>
+                            <li><strong>Evidence:</strong> The <em>School Mental Health</em> overview talks about the
+                                SchoolsPlus program. Use it to evaluate whether NS is doing enough &mdash; and say why
+                                you think so, in your own words.</li>
+                            <li><strong>Citizenship:</strong> What could students actually push for? A student-led
+                                awareness campaign, a letter to the school board, or a video PSA. Pick one and be
+                                specific.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Isaac (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Leo (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Both (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://mha.nshealth.ca/en/services/school-mental-health-schoolsplus"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                SchoolsPlus Model &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 6 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 6: Indigenous Water Rights</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Jessica and Zankia</p>
+                    <p class="group-topic">Legal/social fight for First Nations' control over water governance.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://www.wcel.org/blog/undrip-has-implications-fresh-water-governance-canada"
+                            target="_blank" class="action-link link-resource">Overview: UNDRIP & Water</a>
+                        <a href="https://www.canada.ca/en/indigenous-services-canada/news/2023/12/bill-c--first-nations-clean-water-act-short-title-or-an-act-respecting-water-source-water-drinking-water-wastewater-and-related-infrastructure-on-f.html"
+                            target="_blank" class="action-link link-resource">Policy: First Nations Clean Water Act</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb6')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb6" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>One of the most important issues in Canada right now. Both Author Bylines need to show up on
+                            the pages each of you wrote.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Access to safe drinking water is a basic right. Connect
+                                this to <a href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 6 and explain clearly why
+                                First Nations communities still not having safe
+                                water in 2025 is a human rights issue.</li>
+                            <li><strong>Evidence:</strong> The <em>First Nations Clean Water Act</em> policy link
+                                explains a law Canada passed in 2023. Use it to evaluate: has the government done
+                                enough? Give your honest take.</li>
+                            <li><strong>Citizenship:</strong> Go beyond &ldquo;raise awareness.&rdquo; Ask readers to
+                                contact their MP, donate to a water advocacy group, or support a specific Indigenous-led
+                                organization. One clear action.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Jessica (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Zankia (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Both (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://jfklaw.ca/canada-introduces-bill-c-61-first-nations-clean-water-act/"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Analysis of Bill C-61 &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 7 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 7: Green Hydrogen</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Kai and Ali</p>
+                    <p class="group-topic">Evaluating the risks and rewards of the "Wind West" export project.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://www.cbc.ca/lite/story/1.6740003" target="_blank"
+                            class="action-link link-resource">Overview: Point Tupper Project</a>
+                        <a href="https://novascotia.ca/nse/ea/everwind-point-tupper-green-hydrogen-ammonia-project/"
+                            target="_blank" class="action-link link-resource">Policy: Env. Assessment Decision</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb7')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb7" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>This project is happening right here in NS &mdash; very timely. Both Author Bylines need to
+                            show up on the pages each of you wrote.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Green hydrogen is clean energy &mdash; connect it to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 7
+                                and explain how the Wind West project could help or hurt NS communities depending on how
+                                it&rsquo;s handled.</li>
+                            <li><strong>Evidence:</strong> The <em>Env. Assessment Decision</em> link shows what the NS
+                                government decided about Point Tupper. Use that decision to judge Canada&rsquo;s
+                                response &mdash; was it good for the environment? For jobs?</li>
+                            <li><strong>Citizenship:</strong> Should local residents have more say in projects like this
+                                near their communities? Your Call to Action could encourage people to attend public
+                                consultations or write to their MLA.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Kai (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection</li>
+                            <li><strong>Ali (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Both (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://greenjobsnetwork.ca/app/uploads/2023/11/Green-Hydrogen-and-Just-Transition.pdf"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Green Hydrogen Framework &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 8 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 8: Youth Employment</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Lachlan, Lachlan and Josh</p>
+                    <p class="group-topic">Challenges for students entering the modern workforce.</p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/gatekeep-2-0/home?authuser=0" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://lmic-cimt.ca/the-state-of-youth-employment-in-canada/" target="_blank"
+                            class="action-link link-resource">Overview: Youth Employment State</a>
+                        <a href="https://www.canada.ca/en/employment-social-development/programs/youth-employment-strategy.html"
+                            target="_blank" class="action-link link-resource">Policy: Youth Employment Strategy</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb8')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb8" class="feedback-content">
+                        <p>🌟 <strong>Great start!</strong> I can see you've identified SDG8 (Decent Work and Economic
+                            Growth) and made personal connections to your own experiences with youth employment.</p>
+                        <p>Love how you've connected this to real-life experiences &mdash; Lachlan McMahon's job at
+                            Canada Games Centre adds authentic perspective! All three Author Bylines need to appear so
+                            your collaboration is clear.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> This connects to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 8 (Decent
+                                Work). Explain why young
+                                Canadians struggling to find good jobs is a global problem, not just a local complaint.
+                            </li>
+                            <li><strong>Evidence:</strong> The <em>Youth Employment Strategy</em> policy link shows what
+                                Canada is doing for young workers. Use it honestly &mdash; is this program actually
+                                helping teens like you? Why or why not?</li>
+                            <li><strong>Citizenship:</strong> Your Call to Action should be something other students
+                                could actually do &mdash; like pushing for better co-op programs in school, or asking a
+                                local business to hire teens.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Lachlan (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Lachlan 2 (Storyteller):</strong> Human Impact &amp; What Happens If We Do
+                                Nothing</li>
+                            <li><strong>Josh (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://policyalternatives.ca/publications/reports/youth-employment-outlooks-canada"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading: CCPA
+                                Youth Employment Report &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 9 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 9: Refugee Integration</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Laila and Josie</p>
+                    <p class="group-topic">Successes and challenges of settling new immigrants in NS.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://isans.ca/program/settlement-support-program/" target="_blank"
+                            class="action-link link-resource">Overview: ISANS Settlement</a>
+                        <a href="https://www.canada.ca/content/dam/ircc/documents/pdf/english/corporate/settlement-resettlement-service-provider-information/data-research-reports/quick-facts-nova-scotia.pdf"
+                            target="_blank" class="action-link link-resource">Policy: IRCC Quick Facts NS</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb9')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb9" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>A powerful, human topic. Both Author Bylines need to show up on the pages each of you wrote.
+                        </p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Settling refugees connects to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 10 (Reduced
+                                Inequalities). Tell the story of what it actually feels like to arrive in NS as a
+                                newcomer &mdash; make it real for readers.</li>
+                            <li><strong>Evidence:</strong> The <em>ISANS Settlement</em> overview link shows a real NS
+                                program helping newcomers. Use it to evaluate: is Canada doing enough? What is missing?
+                            </li>
+                            <li><strong>Citizenship:</strong> Your Call to Action could encourage classmates to
+                                volunteer with a settlement group, or push for more English-language support in NS
+                                schools. Keep it doable.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Laila (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Josie (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Both (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://irpp.org/research-studies/canadas-refugee-system-a-call-for-comprehensive-reform/"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Refugee System Reform &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 10 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 10: Living Wage vs Min Wage</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Madhavan, Brody and Remy</p>
+                    <p class="group-topic">The gap between the provincial minimum and actual living costs in Halifax.
+                    </p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/living-wage-vs-minimum-wage" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://www.cbc.ca/news/canada/nova-scotia/halifax-living-wage-gap-new-report-canadian-centre-policy-alternatives-1.7306754"
+                            target="_blank" class="action-link link-resource">Overview: Halifax Living Wage Gap</a>
+                        <a href="https://news.novascotia.ca/en/2025/12/02/minimum-wage-increase-twice-2026-reaching-17-october"
+                            target="_blank" class="action-link link-resource">Policy: NS Min Wage Increase</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb10')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb10" class="feedback-content">
+                        <p>🌟 <strong>Excellent work on your home page!</strong> Your introduction is engaging and
+                            you've clearly identified SDG1 and SDG8. Keep building out the other sections!</p>
+                        <p>Great writing style &mdash; you've made the living wage issue relatable and urgent! All three
+                            Author Bylines need to show up on your site.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> This is an <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 1 (No
+                                Poverty) and <a href="https://www.undp.org/sustainable-development-goals"
+                                    target="_blank" style="color: var(--primary); font-weight: bold;">SDG</a> 8 (Decent
+                                Work)
+                                issue. Explain in plain language why earning minimum wage in Halifax still leaves people
+                                struggling to get by.</li>
+                            <li><strong>Evidence:</strong> Use both links above &mdash; the <em>Halifax Living Wage
+                                    Gap</em> overview and the <em>NS Min Wage Increase</em> policy &mdash; to say
+                                whether NS is making real progress or just barely keeping up.</li>
+                            <li><strong>Citizenship:</strong> Be direct: who needs to do what? For example, &ldquo;Tell
+                                your MLA to support a $20 living wage.&rdquo; The more specific the ask, the stronger
+                                the project.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Madhavan (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Brody (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Remy (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://policyalternatives.ca/publications/reports/working-poverty-nova-scotia"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Working Poverty in NS &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 11 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 11: Drinking Water Advisories</h3>
+                        <span class="status-badge status-needs-link">Needs Link</span>
+                    </div>
+                    <p class="group-members">Natalia and Delisha</p>
+                    <p class="group-topic">Why Indigenous communities face "boil water" orders for 25+ years.</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Please submit your Google Site link today!'); return false;">Google Site:
+                            Missing/Restricted</a>
+                        <a href="https://theconversation.com/tip-of-the-iceberg-the-true-state-of-drinking-water-advisories-in-first-nations-156190"
+                            target="_blank" class="action-link link-resource">Overview: True State of Advisories</a>
+                        <a href="https://www.canada.ca/en/indigenous-services-canada/news/2021/05/government-of-canada-progress-update-on-improving-access-to-clean-water-in-first-nations-communities.html"
+                            target="_blank" class="action-link link-resource">Policy: Govt Progress Update</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb11')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb11" class="feedback-content">
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> You've shared a URL, but I can't access it yet. Please
+                            change your sharing settings to <strong>"Anyone at gnspes.ca with the link can
+                                view"</strong> so I can see your work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>Some communities in Canada have had boil-water orders for over 25 years &mdash; this is one
+                            of the most serious issues in the country. Both Author Bylines need to be visible on the
+                            pages each of you wrote.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Safe drinking water is a basic human right and connects to
+                                <a href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 6. Explain clearly why
+                                it&rsquo;s unacceptable that this is still an issue in Canada
+                                in 2025.
+                            </li>
+                            <li><strong>Evidence:</strong> Use both links above. The <em>True State of Advisories</em>
+                                overview shows how bad the problem is; the <em>Govt Progress Update</em> shows what
+                                Canada promised to fix. Compare them &mdash; did the government follow through?</li>
+                            <li><strong>Citizenship:</strong> Pick one clear action: sign a petition, donate to a water
+                                advocacy group, or write to your MP asking what they&rsquo;ve done about this. Make it
+                                something a reader can actually do in five minutes.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Natalia (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection
+                            </li>
+                            <li><strong>Delisha (Storyteller):</strong> Human Impact &amp; What Happens If We Do Nothing
+                            </li>
+                            <li><strong>Both (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://yellowheadinstitute.org/wp-content/uploads/2021/02/Yellowhead-Institute-Water-Crisis-Report.pdf"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                Yellowhead Institute Water Report &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 12 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 12: Wildfires & Air Quality</h3>
+                        <span class="status-badge status-has-link">Link Provided</span>
+                    </div>
+                    <p class="group-members">Alia, Elizabeth, Huda</p>
+                    <p class="group-topic">Health impacts of smoke following record-breaking fire seasons.</p>
+
+                    <div class="links-container">
+                        <a href="https://sites.google.com/gnspes.ca/aliahudaandelizabethsustainabi" target="_blank"
+                            class="action-link link-site">Open Google Site</a>
+                        <a href="https://www.cbc.ca/news/canada/nova-scotia/air-quality-annapolis-county-wildfire-1.7617762"
+                            target="_blank" class="action-link link-resource">Overview: Wildfire Air Quality</a>
+                        <a href="https://www.phsd.ca/protect-yourself-from-wildfire-smoke/" target="_blank"
+                            class="action-link link-resource">Policy: Health Unit Advisory</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb12')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb12" class="feedback-content">
+                        <p>🌟 <strong>Great progress!</strong> I can see you've identified SDG13 (Climate Action) and
+                            clearly defined your roles. Your mission statement is clear and focused.</p>
+                        <p>Excellent work connecting wildfires to M'ikmaq communities &mdash; this shows strong
+                            research! All three Author Bylines need to show up on your site.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Wildfires and air quality connect to <a
+                                    href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 3 (Good Health)
+                                and <a href="https://www.undp.org/sustainable-development-goals" target="_blank"
+                                    style="color: var(--primary); font-weight: bold;">SDG</a> 13 (Climate Action). Show
+                                how smoke affects specific groups &mdash; kids,
+                                seniors, people with asthma &mdash; to make the human cost concrete.</li>
+                            <li><strong>Evidence:</strong> The <em>Health Unit Advisory</em> link shows what the NS
+                                public health unit told people to do during smoke events. Use it to judge whether the
+                                government&rsquo;s response was fast enough and effective.</li>
+                            <li><strong>Citizenship:</strong> Ask readers to support wildfire prevention funding, or to
+                                advocate for better air quality monitoring in NS schools. One clear, specific ask is
+                                more powerful than a general statement.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Alia (Researcher):</strong> Canada&rsquo;s Response &amp; Global Connection</li>
+                            <li><strong>Elizabeth (Storyteller):</strong> Human Impact &amp; What Happens If We Do
+                                Nothing</li>
+                            <li><strong>Huda (Tech Lead):</strong> Site Layout &amp; Action Project Media</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://science.gc.ca/site/science/en/national-climate-change-science-and-knowledge-plan"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                National Climate Plan &rarr;</a></p>
+                    </div>
+                </div>
+
+                <!-- Group 13 -->
+                <div class="group-card">
+                    <div class="group-header">
+                        <h3 class="group-title">Group 13: Ghost Fishing Gear</h3>
+                        <span class="status-badge status-needs-link">Needs Correct Link</span>
+                    </div>
+                    <p class="group-members">Clark</p>
+                    <p class="group-topic">Abandoned gear harming marine life and the "Blue Economy."</p>
+
+                    <div class="links-container">
+                        <a href="#" class="action-link link-missing"
+                            onclick="alert('Clark, please submit the link to your ACTUAL project site, not an external webpage.'); return false;">Google
+                            Site: Incorrect Link Provided</a>
+                        <a href="https://www.cbc.ca/news/canada/nova-scotia/ghost-gear-retrieved-fishing-grounds-1.5642259"
+                            target="_blank" class="action-link link-resource">Overview: Ghost Gear Removal</a>
+                        <a href="https://www.canada.ca/en/fisheries-oceans/news/2021/01/government-of-canada-program-helps-remove-63-tonnes-of-lost-fishing-gear-from-atlantic-ocean-in-2020.html"
+                            target="_blank" class="action-link link-resource">Policy: Ghost Gear Fund</a>
+                    </div>
+
+                    <button class="feedback-toggle" onclick="toggleFeedback('fb13')">
+                        View Teacher Feedback <span>▼</span>
+                    </button>
+                    <div id="fb13" class="feedback-content">
+                        <p>🔗 <strong>LINK NEEDED:</strong> Please submit your actual Google Site link, not an external
+                            webpage.</p>
+                        <p>🔒 <strong>SHARING REQUIRED:</strong> Once you have the correct link, make sure your sharing
+                            is set to <strong>"Anyone at gnspes.ca with the link can view"</strong> so I can see your
+                            work.</p>
+                        <p>Remember to hit <strong>PUBLISH</strong> regularly &mdash; I can only see published changes!
+                        </p>
+                        <p>Strong topic, Clark. Since you are working solo, your Author Byline needs to appear on every
+                            page.</p>
+                        <ul style="padding-left: 1.2rem;">
+                            <li><strong>Connection:</strong> Ghost gear kills marine life and connects clearly to SDG 14
+                                (Life Below Water). Explain in plain terms what abandoned nets and traps actually do to
+                                ocean ecosystems near NS.</li>
+                            <li><strong>Evidence:</strong> The <em>Ghost Gear Fund</em> policy link shows a real federal
+                                program to clean up lost gear. Use it to evaluate whether Canada&rsquo;s response is
+                                doing enough &mdash; and give your honest verdict.</li>
+                            <li><strong>Citizenship:</strong> Your Call to Action could ask readers to support fishing
+                                gear recycling programs, write to DFO, or push for tougher rules on abandoned gear. One
+                                specific action is best.</li>
+                        </ul>
+                        <ul class="roles-list">
+                            <li><strong>Clark (All Roles):</strong> Research, Storytelling, and Site Design</li>
+                        </ul>
+                        <p style="margin-top: 1rem;"><a
+                                href="https://www.dfo-mpo.gc.ca/species-especes/publications/ghost-gear-eng.html"
+                                target="_blank" style="color: var(--primary); font-weight: bold;">Advanced Reading:
+                                National Action Plan on Ghost Gear &rarr;</a></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Pinned Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-title">
+                Unit 6: Global Citizenship<br>
+                <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">Learners will evaluate
+                    the consequences of action and inaction as twenty-first century global citizens.</span>
+            </div>
+            <ul class="footer-list">
+                <li>Investigate a global issue from differing perspectives (CZ/COM/CT)</li>
+                <li>Evaluate the intended and unintended consequences of an action or inaction in regard to a global
+                    issue (CZ/COM/CT)</li>
+                <li>Analyse the relationship between universal human rights and globalization (CZ/COM/CT)</li>
+                <li>Evaluate Canada’s response to a selected global issue (CZ/COM/CT)</li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function toggleFeedback(id) {
+            const content = document.getElementById(id);
+            const button = event.currentTarget;
+            const span = button.querySelector('span');
+
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                span.textContent = '▼';
+            } else {
+                content.classList.add('show');
+                span.textContent = '▲';
+            }
+        }
+    </script>
+</body>
+
+</html>
