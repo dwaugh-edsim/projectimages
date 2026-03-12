@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Practice Simulator | Operation Hormuz</title>
     <link rel="stylesheet" href="styles.css">
     <link
@@ -341,13 +341,17 @@
                 </div>
 
                 <div class="policy-form" id="proceed-container" style="display: none; margin-top: 2rem;">
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 2rem; border-radius: 8px; margin-bottom: 2rem; text-align: center;">
+                        <h4 style="color: var(--success); font-size: 1.5rem; margin-bottom: 1rem;">TRAINING CALIBRATION COMPLETE</h4>
+                        <p style="color: var(--text-dim);">Your economic analysis has been verified. You now have full clearance to access the NS Economic Dashboard and live crisis terminal.</p>
+                    </div>
                     <button class="submit-btn" id="proceed-btn">
                         <span class="btn-text">ACCESS LIVE TERMINAL</span>
                     </button>
                 </div>
             </section>
 
-            <section class="panel graph-panel">
+            <section class="panel graph-panel" id="graph-panel">
                 <div class="panel-header">
                     <h3>DATA TERMINAL: TRAINING MODE</h3>
                     <div class="graph-controls">
@@ -575,7 +579,8 @@
                 }
             } else {
                 // Training complete, execute final checkpoints
-                document.getElementById('graph-container').style.display = 'none'; // Clear the screen for the final questions
+                showToast("✓ CALIBRATION SUCCESS: CLEARANCE UNLOCKED");
+                document.getElementById('graph-panel').style.display = 'none'; // Fixed ID
 
                 triggerSocraticCheck(
                     "SECURITY CLEARANCE: Q4 (CLIMATE)",
@@ -588,7 +593,8 @@
                             "predicting the long-term macroeconomic fallout for the province",
                             () => {
                                 document.getElementById('proceed-container').style.display = 'block';
-                                instructions.innerText = "Training Complete. Advisor, you are ready for the live terminal.";
+                                document.getElementById('stages-container').style.display = 'none'; // Hide the 8 stage boxes to clean up
+                                console.log("Advisor Clearance: FULL");
                             }
                         );
                     }
@@ -773,6 +779,12 @@
             graph.render();
         }
 
+        // Prevent accidental zooming/scrolling on the canvas for trackpad users
+        canvas.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });
+        canvas.addEventListener('gesturestart', (e) => e.preventDefault());
+        canvas.addEventListener('gesturechange', (e) => e.preventDefault());
+        canvas.addEventListener('gestureend', (e) => e.preventDefault());
+
         // Mouse Events
         canvas.addEventListener('mousedown', (e) => handleInputStart(e.clientX, e.clientY));
         window.addEventListener('mousemove', (e) => handleInputMove(e.clientX, e.clientY));
@@ -805,6 +817,13 @@
                     document.getElementById('ai-hint-text').innerText = hint;
                 }
             }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         // --- Help Chat Logic ---
