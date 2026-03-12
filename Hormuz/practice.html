@@ -333,6 +333,16 @@
                         </ul>
                         <div class="feedback" id="feedback-8"></div>
                     </div>
+
+                    <div class="stage-box locked" id="stage-9">
+                        <h4>STAGE 9: THE VOLATILITY TEST</h4>
+                        <p>Contrast <b>Coffee</b> (Elastic) with <b>Gasoline</b> (Inelastic). Observe how a small -5% supply shock affects prices in each market.</p>
+                        <ul class="bullet-list" style="font-size: 0.9rem; margin-top: 0.5rem;">
+                            <li>Toggle between markets and move the supply slider to -5%.</li>
+                            <li>Observe the "Real World" price and happiness impact.</li>
+                        </ul>
+                        <div class="feedback" id="feedback-9"></div>
+                    </div>
                 </div>
 
                 <div id="ai-hint-box">
@@ -363,6 +373,38 @@
                     <canvas id="market-graph" width="600" height="500"></canvas>
                     <div class="overlay-ui" id="graph-instructions">
                         Click near the Y-axis to start Stage 1.
+                    </div>
+                </div>
+
+                <div class="sim-controls" id="sim-controls">
+                    <div class="sim-toggle-group">
+                        <button class="sim-toggle-btn active" id="toggle-coffee">COFFEE (ELASTIC)</button>
+                        <button class="sim-toggle-btn" id="toggle-oil">GASOLINE (INELASTIC)</button>
+                    </div>
+                    
+                    <div class="sim-slider-group">
+                        <div class="sim-slider-label">
+                            <span>Shortage (-10%)</span>
+                            <span id="supply-value-display">Supply: 0%</span>
+                            <span>Surplus (+10%)</span>
+                        </div>
+                        <input type="range" min="-10" max="10" value="0" class="sim-slider" id="supply-slider">
+                    </div>
+
+                    <div class="happiness-container">
+                        <div class="happiness-label">
+                            <span>CITIZEN HAPPINESS</span>
+                            <span id="happiness-val">100%</span>
+                        </div>
+                        <div class="happiness-bar-bg">
+                            <div class="happiness-bar-fill" id="happiness-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="real-world-visual">
+                        <div class="label" style="font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase;">Current Market Price</div>
+                        <div class="sim-price-readout" id="sim-price">$3.00</div>
+                        <div id="sim-status" style="font-size: 0.75rem; color: var(--text-secondary);">STABLE CONDITIONS</div>
                     </div>
                 </div>
             </section>
@@ -441,13 +483,26 @@
         let errorCount = 0;
         let trainingPoint = null; // Used for intuition stages
 
+        // Stage 9 State
+        let currentGood = 'coffee';
+        let supplyShift = 0;
+        let seenCoffeeShock = false;
+        let seenOilShock = false;
+
         // Custom Graphing Overrides for "Slow Ramp"
         graph.render = function () {
             this.drawBase();
-            this.drawCurvedLine(this.demandCurve, '#3b82f6', 'D', 'demand');
-            this.drawCurvedLine(this.supplyCurve1, '#10b981', 'S1', 'supply');
-            this.drawAnnotations();
-            if (trainingPoint) this.drawTrainingPoint(trainingPoint);
+            const dColor = '#3b82f6';
+            const sColor = currentStage === 9 ? '#ef4444' : '#10b981';
+            const sLabel = currentStage === 9 ? 'S (SHIFT)' : 'S1';
+            
+            this.drawCurvedLine(this.demandCurve, dColor, 'D', 'demand');
+            this.drawCurvedLine(this.supplyCurve1, sColor, sLabel, 'supply');
+            
+            if (currentStage !== 9) {
+                this.drawAnnotations();
+                if (trainingPoint) this.drawTrainingPoint(trainingPoint);
+            }
         };
 
         graph.drawTrainingPoint = function (pt) {
@@ -559,6 +614,89 @@
             };
         }
 
+        // --- Stage 9 Logic ---
+        function initStage9() {
+            document.getElementById('sim-controls').style.display = 'flex';
+            document.getElementById('tool-reset').style.display = 'none';
+            updateSim();
+        }
+
+        const toggleCoffee = document.getElementById('toggle-coffee');
+        const toggleOil = document.getElementById('toggle-oil');
+        const supplySlider = document.getElementById('supply-slider');
+        const supplyValueDisplay = document.getElementById('supply-value-display');
+        const happinessBar = document.getElementById('happiness-bar');
+        const happinessVal = document.getElementById('happiness-val');
+        const simPrice = document.getElementById('sim-price');
+        const simStatus = document.getElementById('sim-status');
+
+        toggleCoffee.onclick = () => {
+            currentGood = 'coffee';
+            toggleCoffee.classList.add('active');
+            toggleOil.classList.remove('active');
+            updateSim();
+        };
+
+        toggleOil.onclick = () => {
+            currentGood = 'oil';
+            toggleOil.classList.add('active');
+            toggleCoffee.classList.remove('active');
+            updateSim();
+        };
+
+        supplySlider.oninput = (e) => {
+            supplyShift = parseInt(e.target.value);
+            supplyValueDisplay.innerText = `Supply: ${supplyShift > 0 ? '+' : ''}${supplyShift}%`;
+            updateSim();
+        };
+
+        function updateSim() {
+            if (currentGood === 'coffee' && supplyShift <= -5) seenCoffeeShock = true;
+            if (currentGood === 'oil' && supplyShift <= -5) seenOilShock = true;
+
+            const basePrice = 3.00;
+            let price, happiness;
+
+            if (currentGood === 'coffee') {
+                price = (basePrice - (supplyShift * 0.03)).toFixed(2);
+                happiness = Math.min(100, Math.max(0, 100 + (supplyShift * 2)));
+            } else {
+                price = (basePrice - (supplyShift * 0.70)).toFixed(2);
+                happiness = Math.min(100, Math.max(0, 100 + (supplyShift * 15)));
+            }
+
+            simPrice.innerText = `$${price}`;
+            happinessVal.innerText = `${happiness}%`;
+            happinessBar.style.width = `${happiness}%`;
+            
+            if (happiness > 75) happinessBar.style.backgroundColor = 'var(--success)';
+            else if (happiness > 40) happinessBar.style.backgroundColor = 'var(--warning)';
+            else happinessBar.style.backgroundColor = 'var(--urgent)';
+
+            simStatus.innerText = happiness < 50 ? "URGENT: CITIZEN DISTRESS" : (supplyShift < 0 ? "MARKET SHORTAGE" : "STABLE CONDITIONS");
+
+            // Update Graph for Stage 9 visually
+            if (currentGood === 'coffee') {
+                graph.demandCurve = { x1: graph.pLeft, y1: graph.priceToY(1.30), x2: graph.width - graph.pRight, y2: graph.priceToY(1.00) };
+            } else {
+                graph.demandCurve = { x1: graph.quantityToX(145), y1: graph.pTop, x2: graph.quantityToX(155), y2: graph.height - graph.pBottom };
+            }
+            
+            const shiftX = supplyShift * 15;
+            graph.supplyCurve1 = { x1: graph.quantityToX(50) + shiftX, y1: graph.height - graph.pBottom, x2: graph.quantityToX(250) + shiftX, y2: graph.pTop };
+
+            graph.render();
+
+            if (seenCoffeeShock && seenOilShock && currentStage === 9) {
+                document.getElementById('feedback-9').innerHTML = "✓ COMPARISON COMPLETE. HQ is impressed with your analysis.";
+                document.getElementById('feedback-9').className = "feedback success";
+                if (!window.stage9Completed) {
+                    window.stage9Completed = true;
+                    setTimeout(nextStage, 2000);
+                }
+            }
+        }
+
         async function nextStage() {
             document.getElementById(`stage-${currentStage}`).classList.remove('active');
             document.getElementById(`feedback-${currentStage}`).innerHTML = "✓ Stage Complete";
@@ -568,7 +706,7 @@
             // Update the leaderboard/backend state for tracking
             API.saveState(pin, 'practice-' + currentStage);
 
-            if (currentStage <= 8) {
+            if (currentStage <= 9) {
                 const nextBox = document.getElementById(`stage-${currentStage}`);
                 nextBox.classList.remove('locked');
                 nextBox.classList.add('active');
@@ -582,6 +720,8 @@
                 if (currentStage === 4 || currentStage === 6) {
                     trainingPoint = { x: graph.width / 2 + 50, y: graph.height / 2 - 50 };
                 }
+
+                if (currentStage === 9) initStage9();
             } else {
                 // Training complete, execute final checkpoints
                 showToast("✓ CALIBRATION SUCCESS: CLEARANCE UNLOCKED");
@@ -618,6 +758,7 @@
                 case 6: return "Seller Logic. Drag the Market Equilibrium dot RIGHT to 250 units ($3.00 Profit).";
                 case 7: return "Connecting Logic. Draw Supply starting at ($0.50, 0) and dragging Up-Right.";
                 case 8: return "Inelasticity Tutorial. For 'Must-Haves' like Gas, draw a NEAR-VERTICAL line starting from the top and dragging DOWN.";
+                case 9: return "Simulation: The Volatility Test. Observe how coffee (elastic) and oil (inelastic) react differently to supply shifts.";
                 default: return "";
             }
         }
