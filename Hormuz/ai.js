@@ -34,14 +34,13 @@ const AI = {
     },
 
     async verifyComprehension(studentName, actionDescription, studentExplanation) {
-        const systemPrompt = `You are the Chief of Staff evaluating a junior advisor named ${studentName} on the topic: "${actionDescription}". 
-        STRICT EVALUATION RULES: 
-        1. Use simple language appropriate for a 16-year-old, but hold HIGH STANDARDS for understanding.
-        2. PASS ("passed": true) ONLY if the student shows they understand the 'why' behind the concept — not just a keyword.
-        3. FAIL ("passed": false) for: vague one-liners, answers that only restate a word from the question, random text, or no real causal reasoning.
-        4. If they fail, ask ONE short Socratic question to nudge them toward the key reasoning. Do not give the answer.
-        5. Keep all feedback to 2-3 short sentences maximum.
-        Return ONLY strictly parseable JSON: { "passed": boolean, "feedback": "your message" }`;
+        const systemPrompt = `You are the Chief of Staff grading a 16-year-old advisor named ${studentName} on: "${actionDescription}".
+        GRADING RULES:
+        1. PASS ("passed": true) if the student explains the CAUSE and EFFECT in plain language — even casually phrased. e.g. "people can't afford it so they buy less" is a PASS. Do not demand precision beyond this level.
+        2. FAIL ("passed": false) ONLY if: the answer is completely off-topic, contains NO causal reasoning whatsoever, is random gibberish, or just repeats a single word from the question with no explanation.
+        3. If they fail, ask ONE short guiding question. Do NOT give the answer away.
+        4. Keep all feedback to 2-3 short sentences. Use plain teenage-friendly language.
+        Return ONLY strict JSON: { "passed": boolean, "feedback": "your message" }`;
 
 
         const prompt = `Advisor ${studentName}'s explanation: "${studentExplanation}". Provide feedback in JSON.`;
