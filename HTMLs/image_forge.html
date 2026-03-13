@@ -347,6 +347,8 @@
                 </div>
 
                 <button class="btn secondary" onclick="clearAll()">CLEAR ALL</button>
+                <button class="btn secondary" onclick="saveAllToGit()" style="background:#234; color:#fff;">SAVE ALL TO
+                    GIT</button>
                 <button class="btn secondary" onclick="saveAllToR2()" style="background:#046; color:#fff;">SAVE ALL TO
                     R2</button>
             </div>
@@ -924,6 +926,7 @@
             const btn = document.getElementById(`git-${id}`);
             const url = btn.dataset.url;
             const prompt = document.getElementById(`prompt-${id}`).value;
+            const status = document.getElementById(`status-${id}`);
             if (!url) return;
 
             const token = localStorage.getItem('GITHUB_TOKEN');
@@ -981,10 +984,24 @@
                 }
 
                 const data = await res.json();
-                log(`Git Save: SUCCESS - ${data.content.html_url}`, 'INBOUND');
-                showToast("SAVED TO GITHUB!");
+                const publicUrl = data.content.html_url;
+                const rawUrl = data.content.raw_url;
+
+                log(`Git Save: SUCCESS - ${publicUrl}`, 'INBOUND');
+
+                // Copy URL to clipboard
+                await navigator.clipboard.writeText(rawUrl);
+
+                // Update status to show the URL
+                status.innerText = "GIT: " + rawUrl.substring(0, 35) + "...";
+                status.style.color = "#0f0";
+                status.title = rawUrl; // Full URL on hover
+
+                showToast(`SAVED TO GITHUB! Raw URL copied: ${rawUrl}`);
                 btn.style.background = '#060';
                 btn.innerText = '✓ GIT';
+                btn.dataset.giturl = rawUrl;
+
             } catch (e) {
                 log(`Git Save FAILED: ${e.message}`, 'ERROR');
                 showToast("GIT SAVE FAILED");
@@ -995,6 +1012,44 @@
             }
         }
 
+        // Batch GitHub Upload
+        async function saveAllToGit() {
+            const slots = [];
+            for (let i = 1; i <= 20; i++) {
+                const btn = document.getElementById(`git-${i}`);
+                if (btn && !btn.disabled && btn.dataset.url) {
+                    slots.push(i);
+                }
+            }
+
+            if (slots.length === 0) {
+                showToast("NO IMAGES TO UPLOAD");
+                return;
+            }
+
+            if (!confirm(`Upload ${slots.length} images to GitHub?`)) return;
+
+            const uploadedUrls = [];
+            for (const id of slots) {
+                await saveToGit(id);
+                const btn = document.getElementById(`git-${id}`);
+                if (btn.dataset.giturl) {
+                    uploadedUrls.push({ id: id, url: btn.dataset.giturl });
+                }
+                await new Promise(r => setTimeout(r, 500)); // Rate limiting
+            }
+
+            // Create summary with all URLs
+            if (uploadedUrls.length > 0) {
+                const urlList = uploadedUrls.map(u => `Slot ${u.id}: ${u.url}`).join('\n');
+                await navigator.clipboard.writeText(urlList);
+                showToast(`BATCH UPLOAD COMPLETE! ${uploadedUrls.length} URLs copied to clipboard`);
+                log(`Batch Git Upload Complete. All URLs copied to clipboard:\n${urlList}`, 'RESPONSE');
+            } else {
+                showToast("BATCH GIT UPLOAD COMPLETE");
+            }
+        }
+
         // R2 (Cloudflare) Upload Functions
         const R2_WORKER_URL = 'https://proud-tooth-42cf.icumusicvideo.workers.dev';
 
@@ -1002,6 +1057,7 @@
             const btn = document.getElementById(`r2-${id}`);
             const url = btn.dataset.url;
             const prompt = document.getElementById(`prompt-${id}`).value;
+            const status = document.getElementById(`status-${id}`);
             if (!url) return;
 
             try {
@@ -1035,11 +1091,21 @@
                 const data = await res.json();
                 if (!data.success) throw new Error(data.error);
 
-                log(`R2 Upload SUCCESS: ${data.url}`, 'RESPONSE');
-                showToast("SAVED TO R2!");
+                const publicUrl = data.url;
+                log(`R2 Upload SUCCESS: ${publicUrl}`, 'RESPONSE');
+
+                // Copy URL to clipboard
+                await navigator.clipboard.writeText(publicUrl);
+
+                // Update status to show the URL
+                status.innerText = "R2: " + publicUrl.substring(0, 35) + "...";
+                status.style.color = "#0af";
+                status.title = publicUrl; // Full URL on hover
+
+                showToast(`SAVED TO R2! URL copied: ${publicUrl}`);
                 btn.style.background = '#060';
                 btn.innerText = '✓ R2';
-                btn.dataset.r2url = data.url;
+                btn.dataset.r2url = publicUrl;
 
             } catch (e) {
                 log(`R2 Upload FAILED: ${e.message}`, 'ERROR');
@@ -1063,11 +1129,25 @@
 
             if (!confirm(`Upload ${slots.length} images to R2 storage?`)) return;
 
+            const uploadedUrls = [];
             for (const id of slots) {
                 await saveToR2(id);
+                const btn = document.getElementById(`r2-${id}`);
+                if (btn.dataset.r2url) {
+                    uploadedUrls.push({ id: id, url: btn.dataset.r2url });
+                }
                 await new Promise(r => setTimeout(r, 500)); // Rate limiting
             }
-            showToast("BATCH R2 UPLOAD COMPLETE");
+
+            // Create summary with all URLs
+            if (uploadedUrls.length > 0) {
+                const urlList = uploadedUrls.map(u => `Slot ${u.id}: ${u.url}`).join('\n');
+                await navigator.clipboard.writeText(urlList);
+                showToast(`BATCH UPLOAD COMPLETE! ${uploadedUrls.length} URLs copied to clipboard`);
+                log(`Batch R2 Upload Complete. All URLs copied to clipboard:\n${urlList}`, 'RESPONSE');
+            } else {
+                showToast("BATCH R2 UPLOAD COMPLETE");
+            }
         }
 
         function clearAll() {
