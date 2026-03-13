@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Country</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #12121a;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e5e7eb;
+            --text-muted: #6b7280;
+            --border: #1f2937;
+            --font-main: 'Inter', sans-serif;
+            --font-display: 'Oswald', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Main Menu */
+        #menu-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 30%, #1a1a2e 0%, var(--bg) 70%);
+            padding: 20px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+        }
+
+        .logo-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 50px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .menu-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .menu-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Gameplay Screen */
+        #game-screen {
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .image-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10, 10, 15, 0.9) 0%, transparent 50%);
+        }
+
+        .game-controls {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 20px 30px;
+        }
+
+        .clues-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .clue-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            min-width: 250px;
+            max-width: 350px;
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+
+        .clue-card.revealed {
+            opacity: 1;
+            border-color: var(--accent);
+            animation: clueReveal 0.5s ease;
+        }
+
+        @keyframes clueReveal {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .clue-number {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .clue-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .guess-container {
+            display: flex;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .guess-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: var(--font-main);
+            transition: border-color 0.2s;
+        }
+
+        .guess-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .guess-input.correct {
+            border-color: var(--success);
+        }
+
+        .guess-input.wrong {
+            border-color: var(--danger);
+        }
+
+        .guess-btn {
+            padding: 15px 30px;
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .guess-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .guess-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results Screen */
+        #results-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at 50% 30%, #1a1a2e 0%, var(--bg) 70%);
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .result-title.correct {
+            color: var(--success);
+        }
+
+        .result-title.wrong {
+            color: var(--danger);
+        }
+
+        .result-country {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #374151;
+        }
+
+        /* Learn More Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .clues-container {
+                flex-direction: column;
+            }
+
+            .clue-card {
+                min-width: 100%;
+                max-width: 100%;
+            }
+
+            .guess-container {
+                flex-direction: column;
+            }
+
+            .guess-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Menu Screen -->
+    <div id="menu-screen" class="screen active">
+        <div class="logo">🌍 Guess the Country</div>
+        <div class="logo-subtitle">Can you identify the country from the clues?</div>
+
+        <div class="menu-grid">
+            <div class="menu-card" onclick="startGame('classic')">
+                <div class="menu-icon">🎯</div>
+                <div class="menu-title">Classic Mode</div>
+                <div class="menu-desc">5 rounds, progressive difficulty</div>
+            </div>
+
+            <div class="menu-card" onclick="startGame('time-attack')">
+                <div class="menu-icon">⏱️</div>
+                <div class="menu-title">Time Attack</div>
+                <div class="menu-desc">60 seconds per round</div>
+            </div>
+
+            <div class="menu-card" onclick="startGame('streak')">
+                <div class="menu-icon">🔥</div>
+                <div class="menu-title">Streak Mode</div>
+                <div class="menu-desc">Keep going until you miss</div>
+            </div>
+
+            <div class="menu-card" onclick="startGame('daily')">
+                <div class="menu-icon">📅</div>
+                <div class="menu-title">Daily Challenge</div>
+                <div class="menu-desc">Same challenge for everyone</div>
+            </div>
+
+            <div class="menu-card" onclick="showLeaderboard()">
+                <div class="menu-icon">🏆</div>
+                <div class="menu-title">Leaderboard</div>
+                <div class="menu-desc">View top scores</div>
+            </div>
+
+            <div class="menu-card" onclick="showAchievements()">
+                <div class="menu-icon">🎖️</div>
+                <div class="menu-title">Achievements</div>
+                <div class="menu-desc">Your accomplishments</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gameplay Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-value" id="round-display">1/5</div>
+                    <div class="stat-label">Round</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="score-display">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="timer-display">--</div>
+                    <div class="stat-label">Time</div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="quitGame()">✕ Quit</button>
+        </div>
+
+        <div class="game-main">
+            <div class="image-container">
+                <img class="game-image" id="game-image" src="" alt="Guess the country">
+                <div class="image-overlay"></div>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <div class="clues-container" id="clues-container">
+                <!-- Clues will be dynamically added -->
+            </div>
+
+            <div class="guess-container">
+                <input type="text" class="guess-input" id="guess-input" placeholder="Type your guess..."
+                    autocomplete="off">
+                <button class="guess-btn" id="guess-btn" onclick="submitGuess()">Guess</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+        <div class="result-card">
+            <div class="result-icon" id="result-icon">🎉</div>
+            <div class="result-title" id="result-title">Correct!</div>
+            <div class="result-country" id="result-country">Japan</div>
+            <div class="result-score" id="result-score">+800</div>
+            <div class="result-details" id="result-details">You guessed after 2 clues</div>
+            <div class="result-actions">
+                <button class="btn btn-secondary" onclick="showLearnMore()">📚 Learn More</button>
+                <button class="btn btn-primary" onclick="nextRound()">Next Round →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learn More Modal -->
+    <div class="modal" id="learn-more-modal">
+        <button class="modal-close" onclick="closeLearnMore()">&times;</button>
+        <div class="modal-content">
+            <h2 class="modal-title" id="modal-country-name">Country Name</h2>
+            <div class="modal-body" id="modal-body">
+                <!-- Country facts will be dynamically added -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            mode: 'classic',
+            currentRound: 0,
+            totalRounds: 5,
+            score: 0,
+            currentCountry: null,
+            cluesRevealed: 0,
+            timer: null,
+            timeRemaining: 0,
+            roundStartTime: 0,
+            streak: 0,
+            countries: []
+        };
+
+        // Default game data (will be loaded from localStorage or file)
+        let gameData = {
+            title: 'Guess the Country',
+            defaultMode: 'classic',
+            clueTimings: [0, 10, 20, 30, 45],
+            countries: []
+        };
+
+        // Country names for autocomplete
+        const allCountries = [
+            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
+            'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+            'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+            'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia',
+            'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica',
+            'Dominican Republic', 'East Timor', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia',
+            'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada',
+            'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia',
+            'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya',
+            'Kiribati', 'Kosovo', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya',
+            'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali',
+            'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia',
+            'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand',
+            'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama',
+            'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda',
+            'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe',
+            'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands',
+            'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Swaziland', 'Sweden',
+            'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia',
+            'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States',
+            'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+        ];
+
+        // Initialize
+        function init() {
+            loadGameData();
+            setupAutocomplete();
+            setupKeyboardListeners();
+        }
+
+        function loadGameData() {
+            // Try to load from localStorage first
+            const saved = localStorage.getItem('GUESS_COUNTRY_DATA');
+            if (saved) {
+                try {
+                    gameData = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Failed to load game data:', e);
+                }
+            }
+
+            // If no countries, load sample data
+            if (!gameData.countries || gameData.countries.length === 0) {
+                loadSampleData();
+            }
+        }
+
+        function loadSampleData() {
+            gameData.countries = [
+                {
+                    id: 1,
+                    name: 'Japan',
+                    imageUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200',
+                    clues: [
+                        'The morning mist rises over terraced rice paddies...',
+                        'This nation has over 6,800 islands...',
+                        'Notice the distinctive wooden architecture with tiled roofs...',
+                        'Located in the Ring of Fire with frequent seismic activity...',
+                        'The capital city begins with "T"...'
+                    ],
+                    difficulty: 'medium'
+                },
+                {
+                    id: 2,
+                    name: 'Italy',
+                    imageUrl: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1200',
+                    clues: [
+                        'Golden afternoon light bathes narrow cobblestone streets...',
+                        'This boot-shaped peninsula has been the center of Western civilization...',
+                        'Notice the colorful buildings with wrought iron balconies...',
+                        'Mediterranean climate with hot, dry summers...',
+                        'The capital city was once the center of a vast empire...'
+                    ],
+                    difficulty: 'medium'
+                }
+            ];
+        }
+
+        function setupAutocomplete() {
+            const input = document.getElementById('guess-input');
+            let suggestions = [];
+
+            input.addEventListener('input', function () {
+                const value = this.value.toLowerCase();
+                if (value.length < 2) {
+                    clearSuggestions();
+                    return;
+                }
+
+                suggestions = allCountries.filter(country =>
+                    country.toLowerCase().startsWith(value)
+                ).slice(0, 5);
+
+                showSuggestions(suggestions);
+            });
+
+            input.addEventListener('blur', function () {
+                setTimeout(clearSuggestions, 200);
+            });
+        }
+
+        function showSuggestions(suggestions) {
+            clearSuggestions();
+
+            if (suggestions.length === 0) return;
+
+            const container = document.createElement('div');
+            container.id = 'suggestions';
+            container.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 0 0 10px 10px;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 10;
+            `;
+
+            suggestions.forEach(country => {
+                const item = document.createElement('div');
+                item.textContent = country;
+                item.style.cssText = `
+                    padding: 12px 20px;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                `;
+                item.addEventListener('mouseenter', () => item.style.background = 'var(--bg)');
+                item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+                item.addEventListener('click', () => {
+                    document.getElementById('guess-input').value = country;
+                    clearSuggestions();
+                });
+                container.appendChild(item);
+            });
+
+            document.querySelector('.guess-container').style.position = 'relative';
+            document.querySelector('.guess-container').appendChild(container);
+        }
+
+        function clearSuggestions() {
+            const container = document.getElementById('suggestions');
+            if (container) container.remove();
+        }
+
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const activeScreen = document.querySelector('.screen.active');
+                    if (activeScreen.id === 'game-screen') {
+                        submitGuess();
+                    }
+                }
+            });
+        }
+
+        // Screen Management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Game Start
+        function startGame(mode) {
+            if (gameData.countries.length === 0) {
+                alert('No game data available. Please use the Game Manager to create countries.');
+                return;
+            }
+
+            gameState = {
+                mode: mode,
+                currentRound: 0,
+                totalRounds: mode === 'streak' ? Infinity : 5,
+                score: 0,
+                currentCountry: null,
+                cluesRevealed: 0,
+                timer: null,
+                timeRemaining: 0,
+                roundStartTime: 0,
+                streak: 0,
+                countries: shuffleArray([...gameData.countries])
+            };
+
+            showScreen('game-screen');
+            startRound();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Round Management
+        function startRound() {
+            gameState.currentRound++;
+            gameState.cluesRevealed = 0;
+            gameState.currentCountry = gameState.countries[(gameState.currentRound - 1) % gameState.countries.length];
+            gameState.roundStartTime = Date.now();
+
+            updateUI();
+            loadImage();
+            setupClueReveal();
+            startTimer();
+        }
+
+        function loadImage() {
+            const img = document.getElementById('game-image');
+            img.src = gameState.currentCountry.imageUrl;
+        }
+
+        function setupClueReveal() {
+            const container = document.getElementById('clues-container');
+            container.innerHTML = '';
+
+            gameState.currentCountry.clues.forEach((clue, index) => {
+                const card = document.createElement('div');
+                card.className = 'clue-card';
+                card.id = `clue-${index}`;
+                card.innerHTML = `
+                    <div class="clue-number">Clue ${index + 1}</div>
+                    <div class="clue-text">${clue}</div>
+                `;
+                container.appendChild(card);
+
+                // Schedule clue reveal
+                const timing = gameData.clueTimings[index] || (index * 10);
+                setTimeout(() => {
+                    if (gameState.currentCountry === gameState.countries[(gameState.currentRound - 1) % gameState.countries.length]) {
+                        revealClue(index);
+                    }
+                }, timing * 1000);
+            });
+        }
+
+        function revealClue(index) {
+            const card = document.getElementById(`clue-${index}`);
+            if (card && !card.classList.contains('revealed')) {
+                card.classList.add('revealed');
+                gameState.cluesRevealed = index + 1;
+            }
+        }
+
+        function startTimer() {
+            if (gameState.mode === 'time-attack') {
+                gameState.timeRemaining = 60;
+                updateTimerDisplay();
+
+                gameState.timer = setInterval(() => {
+                    gameState.timeRemaining--;
+                    updateTimerDisplay();
+
+                    if (gameState.timeRemaining <= 0) {
+                        clearInterval(gameState.timer);
+                        endRound(false);
+                    }
+                }, 1000);
+            } else {
+                document.getElementById('timer-display').textContent = '--';
+            }
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            if (gameState.mode === 'time-attack') {
+                display.textContent = gameState.timeRemaining;
+                display.style.color = gameState.timeRemaining <= 10 ? 'var(--danger)' : 'var(--accent)';
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('round-display').textContent =
+                gameState.mode === 'streak' ? gameState.streak + 1 : `${gameState.currentRound}/${gameState.totalRounds}`;
+            document.getElementById('score-display').textContent = gameState.score;
+
+            // Clear input
+            const input = document.getElementById('guess-input');
+            input.value = '';
+            input.className = 'guess-input';
+            input.focus();
+        }
+
+        // Guess Submission
+        function submitGuess() {
+            const input = document.getElementById('guess-input');
+            const guess = input.value.trim();
+
+            if (!guess) return;
+
+            const isCorrect = checkGuess(guess);
+
+            if (isCorrect) {
+                input.classList.add('correct');
+                endRound(true);
+            } else {
+                input.classList.add('wrong');
+                setTimeout(() => input.classList.remove('wrong'), 500);
+
+                if (gameState.mode === 'streak') {
+                    endRound(false);
+                }
+            }
+        }
+
+        function checkGuess(guess) {
+            const correctName = gameState.currentCountry.name.toLowerCase();
+            const userGuess = guess.toLowerCase();
+
+            // Exact match
+            if (correctName === userGuess) return true;
+
+            // Check common variations
+            const variations = getCountryVariations(correctName);
+            return variations.some(v => v === userGuess);
+        }
+
+        function getCountryVariations(name) {
+            const variations = [name];
+
+            // Common variations
+            if (name === 'united states') variations.push('usa', 'us', 'america');
+            if (name === 'united kingdom') variations.push('uk', 'britain', 'england');
+            if (name === 'south korea') variations.push('korea');
+            if (name === 'united arab emirates') variations.push('uae');
+            if (name === 'russia') variations.push('russian federation');
+
+            return variations;
+        }
+
+        // Round End
+        function endRound(isCorrect) {
+            clearInterval(gameState.timer);
+
+            if (isCorrect) {
+                gameState.streak++;
+                const points = calculatePoints();
+                gameState.score += points;
+                showResults(true, points);
+            } else {
+                gameState.streak = 0;
+                showResults(false, 0);
+            }
+        }
+
+        function calculatePoints() {
+            const basePoints = 1000;
+            const penaltyPerClue = 200;
+            const points = Math.max(100, basePoints - (gameState.cluesRevealed * penaltyPerClue));
+
+            // Streak bonus
+            if (gameState.streak > 1) {
+                return points + (gameState.streak * 50);
+            }
+
+            return points;
+        }
+
+        function showResults(isCorrect, points) {
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const country = document.getElementById('result-country');
+            const score = document.getElementById('result-score');
+            const details = document.getElementById('result-details');
+
+            if (isCorrect) {
+                icon.textContent = '🎉';
+                title.textContent = 'Correct!';
+                title.className = 'result-title correct';
+                score.textContent = `+${points}`;
+                score.style.color = 'var(--success)';
+                details.textContent = `You guessed after ${gameState.cluesRevealed} clue${gameState.cluesRevealed !== 1 ? 's' : ''}`;
+                createConfetti();
+            } else {
+                icon.textContent = '😔';
+                title.textContent = 'Wrong!';
+                title.className = 'result-title wrong';
+                score.textContent = '+0';
+                score.style.color = 'var(--text-muted)';
+                details.textContent = `The correct answer was ${gameState.currentCountry.name}`;
+            }
+
+            country.textContent = gameState.currentCountry.name;
+
+            // Update button text based on game state
+            const nextBtn = document.querySelector('.result-actions .btn-primary');
+            if (gameState.mode === 'streak' && !isCorrect) {
+                nextBtn.textContent = 'Try Again →';
+            } else if (gameState.currentRound >= gameState.totalRounds) {
+                nextBtn.textContent = 'View Final Score →';
+            } else {
+                nextBtn.textContent = 'Next Round →';
+            }
+
+            showScreen('results-screen');
+        }
+
+        function createConfetti() {
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // Next Round / End Game
+        function nextRound() {
+            if (gameState.mode === 'streak' && document.getElementById('result-title').textContent === 'Wrong!') {
+                // Restart streak mode
+                startGame('streak');
+                return;
+            }
+
+            if (gameState.currentRound >= gameState.totalRounds) {
+                endGame();
+            } else {
+                showScreen('game-screen');
+                startRound();
+            }
+        }
+
+        function endGame() {
+            // Save score to leaderboard
+            saveScore();
+
+            // Show final score screen
+            alert(`Game Over!\n\nFinal Score: ${gameState.score}\nRounds Played: ${gameState.currentRound}`);
+            showScreen('menu-screen');
+        }
+
+        function saveScore() {
+            const scores = JSON.parse(localStorage.getItem('GUESS_COUNTRY_SCORES') || '[]');
+            scores.push({
+                mode: gameState.mode,
+                score: gameState.score,
+                date: new Date().toISOString()
+            });
+            scores.sort((a, b) => b.score - a.score);
+            localStorage.setItem('GUESS_COUNTRY_SCORES', JSON.stringify(scores.slice(0, 100)));
+        }
+
+        // Learn More
+        function showLearnMore() {
+            const modal = document.getElementById('learn-more-modal');
+            const title = document.getElementById('modal-country-name');
+            const body = document.getElementById('modal-body');
+
+            title.textContent = gameState.currentCountry.name;
+
+            // Generate fun facts (in a real app, these would be in the game data)
+            const facts = generateCountryFacts(gameState.currentCountry.name);
+            body.innerHTML = facts.map(fact => `<p style="margin-bottom: 15px;">${fact}</p>`).join('');
+
+            modal.classList.add('show');
+        }
+
+        function closeLearnMore() {
+            document.getElementById('learn-more-modal').classList.remove('show');
+        }
+
+        function generateCountryFacts(countryName) {
+            // This is a placeholder - in a real app, you'd have actual facts in the data
+            return [
+                `<strong>${countryName}</strong> is a fascinating country with rich cultural heritage.`,
+                'The image you just saw captures the essence of daily life in this beautiful nation.',
+                'Each clue was carefully crafted to help you discover the answer through observation and deduction.',
+                'Geography, architecture, and cultural elements all played a role in identifying this location.'
+            ];
+        }
+
+        // Quit Game
+        function quitGame() {
+            if (confirm('Are you sure you want to quit? Your progress will be lost.')) {
+                clearInterval(gameState.timer);
+                showScreen('menu-screen');
+            }
+        }
+
+        // Leaderboard
+        function showLeaderboard() {
+            const scores = JSON.parse(localStorage.getItem('GUESS_COUNTRY_SCORES') || '[]');
+            if (scores.length === 0) {
+                alert('No scores yet. Play a game to get on the leaderboard!');
+                return;
+            }
+
+            let message = '🏆 LEADERBOARD 🏆\n\n';
+            scores.slice(0, 10).forEach((score, index) => {
+                const date = new Date(score.date).toLocaleDateString();
+                message += `${index + 1}. ${score.score} pts (${score.mode}) - ${date}\n`;
+            });
+
+            alert(message);
+        }
+
+        // Achievements
+        function showAchievements() {
+            const achievements = [
+                { name: 'First Steps', desc: 'Complete your first game', unlocked: true },
+                { name: 'Perfect Score', desc: 'Get 5000 points in one game', unlocked: false },
+                { name: 'Streak Master', desc: 'Get 10 correct in a row', unlocked: false },
+                { name: 'Speed Demon', desc: 'Guess before any clues', unlocked: false },
+                { name: 'World Traveler', desc: 'Play all game modes', unlocked: false }
+            ];
+
+            let message = '🎖️ ACHIEVEMENTS 🎖️\n\n';
+            achievements.forEach(ach => {
+                const icon = ach.unlocked ? '✅' : '🔒';
+                message += `${icon} ${ach.name}\n   ${ach.desc}\n\n`;
+            });
+
+            alert(message);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+
+</html>
