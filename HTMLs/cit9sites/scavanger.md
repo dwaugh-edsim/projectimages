@@ -47,5 +47,15 @@
 
 ---
 
-### 🌟 Bonus Reflection Question
-*   **The Federal Connection:** Find a mention of the "Fisheries Act" or "Parks Canada." Based on what you read, what is one way the Canadian government is currently intervening to manage either our natural resources or community safety?
+### 📥 How to Respond
+To complete this assignment, copy the table below into a new **Google Doc**.
+
+| # | Question | Answer | Source Project (Student Name) |
+|---|---|---|---|
+| 1 | How many Nova Scotian children... | | |
+| 2 | By what percentage did... | | |
+| 3 | Poverty rate projection for 2046... | | |
+| ... | ... (Continue for all 30) | | |
+
+> [!TIP]
+> **Pro Tip:** Keep two tabs open—one for the [Project Gallery](index.html) and one for your Google Doc!
