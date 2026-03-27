@@ -19,7 +19,8 @@ function doGet(e) {
             return successJSON({
                 status: 'success',
                 name: data[i][2],
-                responses: data[i][3]
+                responses: data[i][3],
+                reflections: data[i].length > 4 ? data[i][4] : "[]" 
             });
         }
     }
@@ -47,10 +48,11 @@ function doPost(e) {
       }
 
       const responses = payload.responses || [];
-      const flatResponses = [];
+      const reflections = payload.reflections || [];
+      const flatData = [];
       responses.forEach(r => {
-        flatResponses.push(r.definition);
-        flatResponses.push(r.match);
+        flatData.push(r.definition);
+        flatData.push(r.match);
       });
 
       const rowData = [
@@ -58,7 +60,9 @@ function doPost(e) {
         pin,
         payload.name || 'Anonymous',
         JSON.stringify(responses),
-        ...flatResponses
+        JSON.stringify(reflections),
+        ...reflections, // Add reflections as separate columns too
+        ...flatData
       ];
 
       // Find existing row for this PIN to avoid duplicates
@@ -105,7 +109,7 @@ function setup() {
   let sheet = ss.getSheetByName(DEBRIEF_SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(DEBRIEF_SHEET_NAME);
-    sheet.appendRow(['Timestamp', 'PIN', 'Name', 'Responses (JSON)', 'Flat Data...']);
+    sheet.appendRow(['Timestamp', 'PIN', 'Name', 'Responses (JSON)', 'Reflections (JSON)', 'Ref 1', 'Ref 2', 'Ref 3', 'Flat Data...']);
     sheet.setFrozenRows(1);
   }
 }

@@ -7,15 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0e14;
-            --panel: rgba(255, 255, 255, 0.03);
+            --bg: #05080a;
+            --panel: rgba(255, 255, 255, 0.05);
             --panel-border: rgba(255, 255, 255, 0.1);
             --accent: #00d2ff;
-            --secondary: #e67e22;
+            --secondary: #ff8c00;
             --success: #00ff88;
             --text: #ffffff;
             --text-dim: rgba(255, 255, 255, 0.6);
-            --card-bg: rgba(20, 25, 35, 0.8);
+            --card-bg: rgba(15, 20, 30, 0.7);
         }
 
         * { box-sizing: border-box; }
@@ -23,170 +23,248 @@
             margin: 0; padding: 0; 
             background: var(--bg); color: var(--text);
             font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle at 50% 50%, #1a2a44 0%, #0a0e14 100%);
             min-height: 100vh;
             padding: 40px 20px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; position: relative; }
+        /* DYNAMIC BACKGROUND */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 210, 255, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 60%);
+            filter: blur(80px);
+            animation: moveGlow 20s infinite alternate ease-in-out;
+        }
 
-        header { text-align: center; margin-bottom: 60px; }
-        .tag { background: var(--accent); color: black; padding: 5px 15px; font-weight: bold; text-transform: uppercase; border-radius: 4px; font-size: 0.8rem; display: inline-block; margin-bottom: 15px; }
-        h1 { font-size: 3.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -1px; }
-        p.subtitle { font-size: 1.2rem; color: var(--text-dim); margin-top: 10px; }
+        @keyframes moveGlow {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(20px, -20px); }
+            100% { transform: scale(1) translate(-20px, 20px); }
+        }
 
-        /* LOGIN BOX */
+        .container { max-width: 1100px; margin: 0 auto; position: relative; }
+
+        header { text-align: center; margin-bottom: 80px; }
+        .tag { 
+            background: linear-gradient(90deg, var(--accent), var(--success)); 
+            color: black; padding: 6px 18px; font-weight: 800; 
+            text-transform: uppercase; border-radius: 50px; font-size: 0.75rem; 
+            display: inline-block; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+        h1 { 
+            font-size: 4.5rem; font-weight: 900; margin: 0; 
+            text-transform: uppercase; letter-spacing: -2px;
+            background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p.subtitle { font-size: 1.3rem; color: var(--text-dim); margin-top: 15px; font-weight: 300; }
+
+        /* LOGIN BOX - GLASSMORPISM */
         .login-box {
             background: var(--panel);
             border: 1px solid var(--panel-border);
-            padding: 30px;
-            border-radius: 15px;
+            padding: 40px;
+            border-radius: 24px;
             display: flex;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
-            margin-bottom: 40px;
-            backdrop-filter: blur(10px);
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
         .login-box input {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.4);
             border: 1px solid var(--panel-border);
             color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 15px 25px;
+            border-radius: 12px;
             font-family: 'Outfit';
-            font-size: 1rem;
-            width: 250px;
+            font-size: 1.1rem;
+            width: 300px;
+            transition: 0.3s;
         }
-        .login-box input:focus { border-color: var(--accent); outline: none; }
+        .login-box input:focus { 
+            border-color: var(--accent); 
+            outline: none; 
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .load-btn {
+            padding: 15px 25px; 
+            font-size: 0.9rem; 
+            font-weight: 800;
+            background: white; 
+            color: black;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .load-btn:hover { background: var(--accent); transform: translateY(-2px); }
 
         /* THE TABLE */
         .assignment-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0 10px;
-            margin-bottom: 60px;
+            border-spacing: 0 15px;
+            margin-bottom: 80px;
         }
-        th { text-align: left; padding: 0 15px 10px 15px; color: var(--text-dim); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        th { text-align: left; padding: 0 20px 10px 20px; color: var(--text-dim); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 2px; }
         .row {
             background: var(--card-bg);
             border: 1px solid var(--panel-border);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
         }
-        .row:hover { border-color: rgba(255,255,255,0.2); transform: translateX(5px); }
-        td { padding: 20px 15px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
-        td:first-child { border-left: 1px solid var(--panel-border); border-radius: 12px 0 0 12px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
-        td:last-child { border-right: 1px solid var(--panel-border); border-radius: 0 12px 12px 0; width: 350px; }
+        .row:hover { 
+            border-color: rgba(255,255,255,0.3); 
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        td { padding: 25px 20px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+        td:first-child { border-left: 1px solid var(--panel-border); border-radius: 16px 0 0 16px; font-weight: 800; color: var(--accent); font-size: 1.1rem; width: 220px; }
+        td:last-child { border-right: 1px solid var(--panel-border); border-radius: 0 16px 16px 0; width: 400px; }
 
         textarea {
             width: 100%;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.4);
             border: 1px solid var(--panel-border);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 12px;
             font-family: 'Outfit';
             resize: vertical;
-            min-height: 60px;
+            min-height: 80px;
             transition: 0.3s;
+            font-size: 1rem;
+            line-height: 1.5;
         }
-        textarea:focus { border-color: var(--secondary); outline: none; background: rgba(0,0,0,0.4); }
+        textarea:focus { border-color: var(--secondary); outline: none; background: rgba(0,0,0,0.6); }
 
         /* ITEM SLOTS */
         .match-slot {
-            background: rgba(0,210,255,0.05);
-            border: 2px dashed var(--panel-border);
-            padding: 15px;
-            border-radius: 8px;
-            min-height: 80px;
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 1rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            color: var(--text-dim);
         }
-        .match-slot:hover { border-color: var(--accent); background: rgba(0,210,255,0.1); }
-        .match-slot.filled { border-style: solid; border-color: var(--success); background: rgba(0, 255, 136, 0.1); color: var(--success); font-weight: 500; }
-        .match-slot.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
+        .match-slot:hover { border-color: var(--accent); background: rgba(0, 210, 255, 0.05); color: white; }
+        .match-slot.filled { 
+            border-style: solid; 
+            border-color: var(--success); 
+            background: rgba(0, 255, 136, 0.08); 
+            color: var(--success); 
+            font-weight: 600; 
+            box-shadow: inset 0 0 15px rgba(0, 255, 136, 0.1);
+        }
+        .match-slot.active { border-color: var(--accent); box-shadow: 0 0 25px rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.1); }
 
         /* ITEM BANK */
         .item-bank {
             background: var(--panel);
             border: 1px solid var(--panel-border);
-            padding: 30px;
-            border-radius: 20px;
-            margin-top: 40px;
+            padding: 40px;
+            border-radius: 32px;
+            margin-top: 60px;
+            backdrop-filter: blur(20px);
         }
-        .item-bank h3 { margin-top: 0; color: var(--secondary); text-transform: uppercase; letter-spacing: 2px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .item-bank h3 { margin-top: 0; color: var(--secondary); text-transform: uppercase; letter-spacing: 4px; font-weight: 900; font-size: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         
         .market-item {
-            background: var(--card-bg);
+            background: rgba(0,0,0,0.3);
             border: 1px solid var(--panel-border);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 16px;
             cursor: pointer;
-            font-size: 0.95rem;
-            transition: 0.3s;
+            font-size: 1rem;
+            transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
+            line-height: 1.4;
         }
-        .market-item:hover { transform: translateY(-3px); border-color: var(--accent); }
-        .market-item.selected { border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.15); }
-        .market-item.used { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+        .market-item:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(0, 210, 255, 0.05); }
+        .market-item.selected { border-width: 2px; border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 210, 255, 0.4); background: rgba(0, 210, 255, 0.15); }
+        .market-item.used { opacity: 0.1; pointer-events: none; filter: grayscale(1); transform: scale(0.95); }
 
-        .submit-section { text-align: center; margin-top: 60px; padding-bottom: 100px; }
+        .submit-section { text-align: center; margin-top: 80px; padding-bottom: 120px; }
         button#submit-btn {
-            background: var(--success);
+            background: linear-gradient(135deg, var(--success) 0%, #00cc6a 100%);
             color: black;
             border: none;
-            padding: 18px 50px;
-            font-size: 1.2rem;
+            padding: 22px 70px;
+            font-size: 1.4rem;
             font-weight: 900;
-            border-radius: 50px;
+            border-radius: 60px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            letter-spacing: 3px;
+            transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.4);
         }
-        button#submit-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 255, 136, 0.5); }
-        button#submit-btn:active { transform: scale(0.98); }
-        button#submit-btn:disabled { background: #444; color: #888; box-shadow: none; cursor: not-allowed; }
+        button#submit-btn:hover { transform: scale(1.08) translateY(-5px); box-shadow: 0 20px 60px rgba(0, 255, 136, 0.6); }
+        button#submit-btn:active { transform: scale(0.96); }
+        button#submit-btn:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+        .nav-links { display: flex; justify-content: center; gap: 30px; margin-top: 30px; }
+        .nav-link { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: 0.3s; padding: 10px 20px; border-radius: 8px; border: 1px solid transparent; }
+        .nav-link:hover { color: white; border-color: var(--panel-border); background: var(--panel); }
 
         /* ANIMATIONS */
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .assignment-table .row { animation: slideIn 0.8s ease backwards; }
+        .row { opacity: 0; } /* Hidden initially for GSAP */
         
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .login-box { flex-direction: column; }
+            h1 { font-size: 2.8rem; }
+            .login-box { flex-direction: column; padding: 25px; }
             .login-box input { width: 100%; }
-            td { display: block; width: 100% !important; }
-            td:first-child { border-radius: 12px 12px 0 0; }
-            td:last-child { border-radius: 0 0 12px 12px; }
+            td { display: block; width: 100% !important; padding: 15px 20px !important; }
+            td:first-child { border-radius: 16px 16px 0 0; text-align: center; padding-top: 25px !important; }
+            td:last-child { border-radius: 0 0 16px 16px; padding-bottom: 30px !important; }
         }
     </style>
+    <!-- LIBS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
+<div class="bg-glow"></div>
+
 <div class="container">
     <header>
-        <div class="tag">Post-Activity Debrief</div>
-        <h1>Market Debrief</h1>
-        <p class="subtitle">Complete the table by defining the terms and matching them to the events we saw in the activity.</p>
+        <div class="tag">Adam Smith Market Project</div>
+        <h1>Interactive Debrief</h1>
+        <p class="subtitle">Personalized for Mr Waugh's Class</p>
     </header>
 
     <div class="login-box">
-        <input type="text" id="studentName" placeholder="Full Name(s)" required>
-        <div style="display: flex; flex-direction: column; gap: 5px;">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="studentPin" placeholder="6-Digit PIN or Secret Word" style="width: 250px;" required>
-                <button onclick="loadDebrief()" style="padding: 10px 15px; font-size: 0.9rem; background: var(--accent); color: black;">LOAD PROGRESS</button>
+        <input type="text" id="studentName" placeholder="Student Name(s)" required>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; gap: 12px;">
+                <input type="text" id="studentPin" placeholder="6-Digit PIN or Secret Word" style="width: 280px;" required>
+                <button onclick="loadDebrief()" class="load-btn">LOAD PROGRESS</button>
             </div>
-            <small style="color: var(--text-dim); font-size: 0.7rem;">(Avoid common patterns like 111111 or 123456)</small>
+            <small style="color: var(--text-dim); font-size: 0.75rem;">(Avoid weak patterns like 111111 or 123456)</small>
         </div>
     </div>
 
@@ -203,6 +281,32 @@
         </tbody>
     </table>
 
+    <!-- REFLECTION QUESTIONS -->
+    <div class="item-bank" style="margin-top: 0; margin-bottom: 60px; border-color: var(--secondary);">
+        <h3 style="color: var(--secondary);">Part 2: Final Reflection</h3>
+        <p style="color: var(--text-dim); margin-bottom: 30px;">Answer these 3 questions to sum up your experience in the Adam Smith Market.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            <div class="reflection-q">
+                <p style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">1. The Invisible Hand in Action</p>
+                <p style="font-size: 0.95rem; color: var(--text-dim); margin-bottom: 15px;">In the first few minutes, was the market chaotic or organized? Why do you think prices eventually settled into a "natural price" (like $1 for apples) without Mr Waugh telling anyone what to charge?</p>
+                <textarea id="q1" placeholder="Type your reflection here..."></textarea>
+            </div>
+
+            <div class="reflection-q">
+                <p style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">2. Scarcity & Strategy</p>
+                <p style="font-size: 0.95rem; color: var(--text-dim); margin-bottom: 15px;">How did your strategy change when the 'Drought' hit and resources became scarce? Did you find yourself cooperating with others more, or becoming more competitive to ensure your own survival?</p>
+                <textarea id="q2" placeholder="Type your reflection here..."></textarea>
+            </div>
+
+            <div class="reflection-q">
+                <p style="font-weight: 700; margin-bottom: 10px; color: var(--accent);">3. The Power of Specialization</p>
+                <p style="font-size: 0.95rem; color: var(--text-dim); margin-bottom: 15px;">Looking back at the bookmark-making "corporations," what was more efficient: one person making a whole bookmark themselves, or a team using Division of Labor? Why?</p>
+                <textarea id="q3" placeholder="Type your reflection here..."></textarea>
+            </div>
+        </div>
+    </div>
+
     <div class="item-bank">
         <h3>The Market Moment Bank</h3>
         <p style="color: var(--text-dim); margin-bottom: 20px;">1. Click an event below to select it. <br>2. Click an empty "Market Moment Match" slot in the table above to assign it.</p>
@@ -213,10 +317,10 @@
 
     <div class="submit-section">
         <button id="submit-btn" onclick="submitDebrief()">Submit to Mr Waugh</button>
-        <div style="margin-top: 20px;">
-            <button onclick="downloadCSV()" style="background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); font-size: 0.8rem;">DOWNLOAD DATA (CSV)</button>
+        <div class="nav-links">
+            <a href="#" onclick="downloadCSV(); return false;" class="nav-link">Download Data (CSV)</a>
         </div>
-        <p id="status-msg" style="margin-top: 15px; color: var(--text-dim);"></p>
+        <p id="status-msg" style="margin-top: 25px; color: var(--text-dim); font-weight: 500;"></p>
     </div>
 </div>
 
@@ -378,7 +482,12 @@
                 term: t.name,
                 definition: document.getElementById(`def-${t.id}`).value,
                 match: assignments[t.id] !== undefined ? items[assignments[t.id]] : ""
-            }))
+            })),
+            reflections: [
+                document.getElementById('q1').value,
+                document.getElementById('q2').value,
+                document.getElementById('q3').value
+            ]
         };
 
         try {
@@ -425,6 +534,15 @@
                         }
                     }
                 });
+
+                // Load Reflections
+                if (data.reflections) {
+                    const refs = JSON.parse(data.reflections);
+                    if (refs[0]) document.getElementById('q1').value = refs[0];
+                    if (refs[1]) document.getElementById('q2').value = refs[1];
+                    if (refs[2]) document.getElementById('q3').value = refs[2];
+                }
+
                 status.innerText = "Re-loaded your progress! You can continue now.";
                 status.style.color = "var(--success)";
             } else {
@@ -492,33 +610,55 @@
                 term: t.name,
                 definition: document.getElementById(`def-${t.id}`).value,
                 match: items[assignments[t.id]]
-            }))
+            })),
+            reflections: [
+                document.getElementById('q1').value,
+                document.getElementById('q2').value,
+                document.getElementById('q3').value
+            ]
         };
 
         try {
             const response = await fetch(WEBHOOK_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Apps Script handles no-cors
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(submissionData)
             });
 
-            // Since mode is 'no-cors', we can't reliably read the body, but we can assume success if no catch
+            // MAGIC CELEBRATION
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#00d2ff', '#00ff88', '#ff8c00']
+            });
+
             status.style.color = "var(--success)";
-            status.innerHTML = "🎉 SUBMITTED SUCCESSFULLY! Your debrief has been recorded.";
-            btn.innerText = "DONE";
-            alert("Submission complete! Well done on the market activity.");
+            status.innerHTML = "✨ SUBMITTED SUCCESSFULLY! Your debrief has been recorded.";
+            btn.innerText = "WELL DONE!";
             
         } catch (error) {
             console.error(error);
             status.style.color = "var(--error)";
-            status.innerText = "Error submitting. Please show this screen to your teacher.";
+            status.innerText = "Error submitting. Please show this to Mr Waugh.";
             btn.disabled = false;
             btn.innerText = "RETRY SUBMISSION";
         }
     }
 
-    init();
+    // GSAP INTRO
+    window.onload = () => {
+        init();
+        gsap.to(".row", {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+            delay: 0.5
+        });
+    }
 </script>
 
 </body>
