@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Activity Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e14;
+            --panel: rgba(255, 255, 255, 0.05);
+            --accent: #00d2ff;
+            --money: #00ff88;
+            --error: #ff4757;
+            --text: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: var(--bg); color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+        }
+
+        /* BACKGROUND GRADIENT ANIMATION */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1a2a44 0%, #0a0e14 100%);
+            z-index: -1;
+            transition: background 1s ease;
+        }
+
+        .drought-mode .bg-gradient {
+            background: radial-gradient(circle at 50% 50%, #441a1a 0%, #140a0a 100%);
+        }
+
+        /* SLIDE SYSTEM */
+        .slide-container {
+            width: 100%; h-eight: 100%; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; padding: 40px;
+        }
+
+        .slide {
+            display: none; width: 100%; max-width: 1100px;
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .slide.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* UI ELEMENTS */
+        h1 { font-size: 5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -2px; line-height: 0.9; }
+        h2 { font-size: 2.5rem; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; }
+        p { font-size: 1.5rem; opacity: 0.8; line-height: 1.6; max-width: 800px; margin: 20px auto; }
+
+        .tag { background: var(--accent); color: black; padding: 5px 15px; font-weight: bold; text-transform: uppercase; border-radius: 4px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; }
+
+        /* TIMER */
+        .timer-display { font-size: 10rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -5px; color: var(--money); text-shadow: 0 0 30px rgba(0, 255, 136, 0.3); }
+        .timer-controls { margin-top: 20px; display: flex; gap: 15px; justify-content: center; }
+
+        /* BUTTONS */
+        button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 25px; font-size: 1.1rem; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; font-family: 'Outfit'; }
+        button:hover { background: var(--accent); color: black; border-color: var(--accent); }
+        .btn-main { background: var(--accent); color: black; }
+
+        /* DROUGHT SHOCK OVERLAY */
+        .shock-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--error); z-index: 100;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column; animation: pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { background: #ff4757; }
+            to { background: #b33939; }
+        }
+
+        .shock-text { font-size: 8rem; font-weight: 900; color: white; text-transform: uppercase; }
+
+        /* NAVIGATION OVERLAY */
+        .nav-hints { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); opacity: 0.3; display: flex; gap: 20px; transition: 0.3s; }
+        .nav-hints:hover { opacity: 1; }
+
+        .instr-list { text-align: left; background: var(--panel); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); display: inline-block; }
+        .instr-list li { font-size: 1.8rem; margin: 15px 0; color: #ddd; }
+        .instr-list b { color: var(--accent); }
+    </style>
+</head>
+<body id="body">
+
+    <div class="bg-gradient" id="bg"></div>
+
+    <div class="shock-overlay" id="shock">
+        <div class="shock-text">DROUGHT SHOCK</div>
+        <p style="color: white; font-weight: bold; font-size: 2rem;">WHEAT & BREAD SUPPLY RECLAMATION IN PROGRESS</p>
+    </div>
+
+    <div class="slide-container">
+        
+        <!-- SLIDE 1: INTRO -->
+        <div class="slide active" id="s1">
+            <div class="tag">Adam Smith Market Activity</div>
+            <h1>The Wealth<br>Of Nations</h1>
+            <p>"It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest."</p>
+            <div style="margin-top: 40px;">
+                <button onclick="nextSlide()" class="btn-main">BEGIN MARKET</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: SETUP -->
+        <div class="slide" id="s2">
+            <h2>Market Setup</h2>
+            <div class="instr-list">
+                <ul style="list-style: none; padding: 0;">
+                    <li>💰 Each student receives <b>$5 starting capital</b>.</li>
+                    <li>📜 Read your <b>Secret Mission Card</b>.</li>
+                    <li>🤝 <b>Trade with other students</b> to meet your goal.</li>
+                    <li>💰 You are free to negotiate <b>Any Price</b>.</li>
+                </ul>
+            </div>
+            <div style="margin-top: 40px;">
+                <button onclick="nextSlide()" class="btn-main">OPEN TRADING PHASE 1</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: PHASE 1 TRADE -->
+        <div class="slide" id="s3">
+            <h2>Phase 1: Free Trade</h2>
+            <div class="timer-display" id="timer">02:00</div>
+            <p>Negotiate. Trade. Survive. Watch the market discover the price.</p>
+            <div class="timer-controls">
+                <button onclick="startTimer(120)">START 2M</button>
+                <button onclick="startTimer(60)">START 1M</button>
+                <button onclick="resetTimer()">RESET</button>
+            </div>
+            <div style="margin-top: 60px;">
+                <button onclick="triggerShock()" style="border-color: var(--error); color: var(--error);">TRIGGER DROUGHT SHOCK</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: PHASE 2 TRADE -->
+        <div class="slide" id="s4">
+            <div class="tag" style="background: var(--error); color: white;">Crisis Mode</div>
+            <h1 style="color: var(--error);">Post-Shock Trade</h1>
+            <div class="timer-display" id="timer2" style="color: var(--error);">01:00</div>
+            <p>Supply of Wheat & Bread has been halved. Adjust your prices.</p>
+            <div class="timer-controls">
+                <button onclick="startTimer2(60)">START 1M</button>
+                <button onclick="resetTimer2()">RESET</button>
+            </div>
+            <div style="margin-top: 40px;">
+                <button onclick="nextSlide()" class="btn-main">FINALIZE MARKET</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: DEBRIEF -->
+        <div class="slide" id="s5">
+            <h2>Market Debrief</h2>
+            <div class="instr-list">
+                <ul style="list-style: none; padding: 0;">
+                    <li>📉 <b>The Shock:</b> Did the price of everything go up, or just the bread? If you had wheat, did you feel more powerful after the drought?</li>
+                    <li>🖐️ <b>Invisible Hand:</b> Did anyone tell you to raise prices, or did it happen naturally? Was there a "desperation" moment?</li>
+                    <li>💰 <b>Wealth vs Survival:</b> Who had the most money but failed their mission? Is money useful if there's no bread left?</li>
+                    <li>🌍 <b>Real World:</b> Can you think of a real-life event (a storm or pandemic) where a "shock" changed prices overnight?</li>
+                </ul>
+            </div>
+            <p>The market is now CLOSED. Return to your seats.</p>
+            <button onclick="goToSlide(1)">RESET ACTIVITY</button>
+        </div>
+
+    </div>
+
+    <div class="nav-hints no-print">
+        <button onclick="prevSlide()">&larr; BACK</button>
+        <button onclick="nextSlide()">NEXT &rarr;</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 5;
+        let timerInterval;
+
+        function goToSlide(n) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            currentSlide = n;
+            
+            // Revert background if not in shock
+            if (n !== 4) {
+                document.getElementById('body').classList.remove('drought-mode');
+            } else {
+                document.getElementById('body').classList.add('drought-mode');
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) goToSlide(currentSlide - 1);
+        }
+
+        // TIMER 1 LOGIC
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            let time = seconds;
+            const display = document.getElementById('timer');
+            
+            timerInterval = setInterval(() => {
+                let m = Math.floor(time / 60);
+                let s = time % 60;
+                display.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    beep();
+                }
+                time--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = "02:00";
+        }
+
+        // TIMER 2 LOGIC
+        function startTimer2(seconds) {
+            clearInterval(timerInterval);
+            let time = seconds;
+            const display = document.getElementById('timer2');
+            
+            timerInterval = setInterval(() => {
+                let m = Math.floor(time / 60);
+                let s = time % 60;
+                display.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    beep();
+                }
+                time--;
+            }, 1000);
+        }
+
+        function triggerShock() {
+            const shock = document.getElementById('shock');
+            shock.style.display = 'flex';
+            
+            // Beep sound
+            beep(800, 500);
+            
+            setTimeout(() => {
+                shock.style.display = 'none';
+                nextSlide();
+            }, 5000);
+        }
+
+        function beep(freq = 440, duration = 300) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+            oscillator.start();
+            setTimeout(() => { oscillator.stop(); audioCtx.close(); }, duration);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>
