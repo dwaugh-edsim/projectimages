@@ -116,9 +116,16 @@ function parseSubmissions(data) {
                 const defKey = `${term}_definition`;
                 const matchKey = `${term}_match`;
 
+                let definition = submission[defKey] || submission[`definition_${term.toLowerCase().replace(/\s+/g, '_')}`] || '';
+                let match = submission[matchKey] || submission[`match_${term.toLowerCase().replace(/\s+/g, '_')}`] || '';
+
+                // Replace "Prof Smith" with "Mr Waugh" in student responses
+                definition = definition.replace(/Prof Smith/g, 'Mr Waugh');
+                match = match.replace(/Prof Smith/g, 'Mr Waugh');
+
                 students[name].responses[term] = {
-                    definition: submission[defKey] || submission[`definition_${term.toLowerCase().replace(/\s+/g, '_')}`] || '',
-                    match: submission[matchKey] || submission[`match_${term.toLowerCase().replace(/\s+/g, '_')}`] || ''
+                    definition: definition,
+                    match: match
                 };
             });
         });
