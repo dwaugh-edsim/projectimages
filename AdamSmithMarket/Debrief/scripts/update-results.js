@@ -74,10 +74,12 @@ function fetchWithRedirects(url, redirectCount) {
             let data = '';
             res.on('data', (chunk) => data += chunk);
             res.on('end', () => {
+                // Debug: log first 200 chars of response
+                console.log('Webhook response (first 200 chars):', data.substring(0, 200));
                 try {
                     resolve(JSON.parse(data));
                 } catch (e) {
-                    reject(new Error('Failed to parse JSON: ' + e.message));
+                    reject(new Error('Failed to parse JSON: ' + e.message + '. Response starts with: ' + data.substring(0, 50)));
                 }
             });
         }).on('error', reject);
