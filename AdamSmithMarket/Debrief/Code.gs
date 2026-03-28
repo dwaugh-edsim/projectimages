@@ -4,9 +4,19 @@ const DEBRIEF_SHEET_NAME = 'Debriefs';
  * Handles GET requests (Loading progress via PIN)
  */
 function doGet(e) {
+  // Handle case when called without parameters (for GitHub Actions automation)
+  if (!e || !e.parameter) {
+    return fetchDebriefStatsAsJSON();
+  }
+  
   const action = e.parameter.action;
   const pin = e.parameter.pin;
   const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Return all debriefs when action is 'all' (for GitHub Actions)
+  if (action === 'all') {
+    return fetchDebriefStatsAsJSON();
+  }
   
   if (action === 'fetch_debrief' && pin) {
     const dbSheet = ss.getSheetByName(DEBRIEF_SHEET_NAME);
@@ -20,12 +30,59 @@ function doGet(e) {
                 status: 'success',
                 name: data[i][2],
                 responses: data[i][3],
-                reflections: data[i].length > 4 ? data[i][4] : "[]" 
+                reflections: data[i].length > 4 ? data[i][4] : "[]"
             });
         }
     }
   }
+  
+  if (action === 'display') {
+    return HtmlService.createTemplateFromFile('classdisplay').evaluate()
+        .setTitle('Adam Smith Market - Live Results')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+  
   return successJSON({ status: 'not_found' });
+}
+
+/**
+ * Returns all debrief data as JSON array (for automation)
+ */
+function fetchDebriefStatsAsJSON() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(DEBRIEF_SHEET_NAME);
+  
+  if (!sheet) {
+    return successJSON({ status: 'error', message: 'Sheet not found' });
+  }
+  
+  const data = sheet.getDataRange().getValues();
+  const results = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    const obj = { timestamp: row[0], pin: row[1], name: row[2] };
+    
+    // Parse responses JSON
+    try {
+      obj.responses = JSON.parse(row[3]);
+    } catch (e) {
+      obj.responses = row[3];
+    }
+    
+    // Parse reflections if present
+    if (row.length > 4) {
+      try {
+        obj.reflections = JSON.parse(row[4]);
+      } catch (e) {
+        obj.reflections = row[4];
+      }
+    }
+    
+    results.push(obj);
+  }
+  
+  return successJSON(results);
 }
 
 /**
