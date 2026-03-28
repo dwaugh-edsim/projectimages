@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adam Smith Market - Debrief Marking Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- SheetJS for Excel support -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        /* Definition Analysis Styles */
+        .definition-analysis {
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(0, 210, 255, 0.08);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .definition-analysis .analysis-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .definition-analysis .key-terms {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .definition-analysis .key-terms span {
+            display: inline-block;
+            background: rgba(0, 210, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+
+        .definition-analysis .quality-indicator {
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
+
+        .quality-good {
+            color: var(--success);
+        }
+
+        .quality-partial {
+            color: var(--secondary);
+        }
+
+        .quality-weak {
+            color: var(--error);
+        }
+
+        .quality-missing {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* Auto-score badge */
+        .auto-score-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .auto-score-correct {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .auto-score-incorrect {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--error);
+        }
+
+        :root {
+            --bg: #05080a;
+            --panel: rgba(255, 255, 255, 0.05);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --accent: #00d2ff;
+            --secondary: #ff8c00;
+            --success: #00ff88;
+            --error: #ff4757;
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --card-bg: rgba(15, 20, 30, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tag {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            color: black;
+            padding: 6px 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-top: 15px;
+        }
+
+        /* UPLOAD SECTION */
+        .upload-section {
+            background: var(--panel);
+            border: 2px dashed var(--panel-border);
+            border-radius: 24px;
+            padding: 60px;
+            text-align: center;
+            margin-bottom: 40px;
+            transition: 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: var(--accent);
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .upload-section.dragover {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4);
+        }
+
+        #csv-input {
+            display: none;
+        }
+
+        /* DASHBOARD */
+        .dashboard {
+            display: none;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .dashboard.active {
+            display: grid;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            color: var(--accent);
+            margin-top: 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .student-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .student-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .student-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--panel-border);
+        }
+
+        .student-item.active {
+            background: rgba(0, 210, 255, 0.15);
+            border-color: var(--accent);
+        }
+
+        .student-item.graded {
+            border-left: 3px solid var(--success);
+        }
+
+        .student-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .student-pin {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .student-status {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .status-pending {
+            background: rgba(255, 140, 0, 0.2);
+            color: var(--secondary);
+        }
+
+        .status-graded {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* STUDENT HEADER */
+        .student-header {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-info h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        .student-meta {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .grade-display {
+            text-align: right;
+        }
+
+        .grade-display .score {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--success);
+        }
+
+        .grade-display .label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* RESPONSE CARDS */
+        .response-section {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* TERM TABLE */
+        .term-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .term-table th {
+            text-align: left;
+            padding: 10px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .term-table td {
+            padding: 15px 10px;
+            vertical-align: top;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .term-name {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .student-answer {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .correct-answer {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 255, 136, 0.08);
+            border-radius: 6px;
+        }
+
+        .match-correct {
+            color: var(--success);
+        }
+
+        .match-incorrect {
+            color: var(--error);
+        }
+
+        /* GRADING INPUTS */
+        .grading-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 25px;
+            position: sticky;
+            bottom: 20px;
+        }
+
+        .grading-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .grade-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grade-input-group label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .grade-input-group input {
+            width: 80px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .grade-input-group input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .comment-input {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Outfit';
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .comment-input:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, var(--success) 0%, #00cc6a 100%);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .save-btn.saved {
+            background: var(--panel);
+            color: var(--text-dim);
+        }
+
+        /* REFLECTION SECTION */
+        .reflection-answer {
+            margin-bottom: 20px;
+        }
+
+        .reflection-question {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .reflection-text {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            padding: 15px 25px;
+            background: var(--panel);
+            border-radius: 12px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* EXPORT SECTION */
+        .export-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--panel);
+            border-radius: 12px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .export-section.active {
+            display: block;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, #cc7000 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.4);
+        }
+
+        /* NAVIGATION */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* ANSWER KEY TOGGLE */
+        .answer-key-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .answer-key-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .answer-key-toggle label {
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="tag">Adam Smith Market Project</div>
+            <h1>Debrief Marking Tool</h1>
+            <p class="subtitle">Upload your Google Sheets CSV export to review and grade student submissions</p>
+        </header>
+
+        <!-- UPLOAD SECTION -->
+        <div class="upload-section" id="upload-section">
+            <div class="upload-icon">📊</div>
+            <h2>Upload Student Data</h2>
+            <p style="color: var(--text-dim); max-width: 500px; margin: 15px auto;">
+                Upload your Google Sheets export directly - supports both <strong>Excel (.xlsx)</strong> and
+                <strong>CSV</strong> formats.
+            </p>
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                Choose File
+            </button>
+            <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileSelect(event)">
+            <p style="margin-top: 20px; color: var(--text-dim); font-size: 0.85rem;">
+                or drag and drop the file here
+            </p>
+            <p id="file-error" style="margin-top: 15px; color: var(--error); font-size: 0.85rem; display: none;"></p>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="dashboard" id="dashboard">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <h3>📋 Students (<span id="total-count">0</span>)</h3>
+                <div class="stats-bar" style="padding: 10px; margin-bottom: 15px;">
+                    <div class="stat-item">
+                        <span class="stat-value" id="graded-count">0</span>
+                        <span class="stat-label">Graded</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="pending-count">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+                <ul class="student-list" id="student-list"></ul>
+
+                <div class="export-section" id="export-section">
+                    <h3 style="color: var(--success); margin-bottom: 15px;">Export Grades</h3>
+                    <button class="export-btn" onclick="exportGradesCSV()">Download CSV</button>
+                    <button class="export-btn" style="background: var(--panel);" onclick="exportGradesJSON()">Download
+                        JSON</button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="main-content">
+                <!-- STUDENT HEADER -->
+                <div class="student-header">
+                    <div class="student-info">
+                        <h2 id="current-student-name">Select a student</h2>
+                        <div class="student-meta" id="current-student-meta">--</div>
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="nav-btn" id="prev-btn" onclick="navigateStudent(-1)">← Previous</button>
+                        <button class="nav-btn" id="next-btn" onclick="navigateStudent(1)">Next →</button>
+                    </div>
+                    <div class="grade-display">
+                        <div class="score" id="current-score">--</div>
+                        <div class="label">Total Score</div>
+                    </div>
+                </div>
+
+                <!-- ANSWER KEY TOGGLE -->
+                <div class="answer-key-toggle">
+                    <input type="checkbox" id="show-answers" onchange="toggleAnswerKey()">
+                    <label for="show-answers">Show Answer Key (correct matches highlighted)</label>
+                </div>
+
+                <!-- TERM DEFINITIONS & MATCHES -->
+                <div class="response-section">
+                    <h3 class="section-title">📚 Part 1: Economic Terms & Market Matches</h3>
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">Term</th>
+                                <th style="width: 35%;">Student Definition</th>
+                                <th style="width: 35%;">Market Moment Match</th>
+                                <th style="width: 10%;">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="terms-body"></tbody>
+                    </table>
+                </div>
+
+                <!-- REFLECTION QUESTIONS -->
+                <div class="response-section">
+                    <h3 class="section-title">✍️ Part 2: Reflection Questions</h3>
+                    <div id="reflections-container"></div>
+                </div>
+
+                <!-- GRADING PANEL -->
+                <div class="grading-panel">
+                    <div class="grading-row">
+                        <div class="grade-input-group">
+                            <label>Definitions (/15):</label>
+                            <input type="number" id="def-score" min="0" max="15" value="0"
+                                onchange="updateTotalScore()">
+                        </div>
+                        <div class="grade-input-group">
+                            <label>Matches (/15):</label>
+                            <input type="number" id="match-score" min="0" max="15" value="0"
+                                onchange="updateTotalScore()">
+                        </div>
+                        <div class="grade-input-group">
+                            <label>Reflections (/20):</label>
+                            <input type="number" id="ref-score" min="0" max="20" value="0"
+                                onchange="updateTotalScore()">
+                        </div>
+                        <textarea class="comment-input" id="grader-comment"
+                            placeholder="Add overall feedback for this student..."></textarea>
+                        <button class="save-btn" id="save-btn" onclick="saveGrade()">Save Grade</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // CORRECT ANSWER KEY - Market Moment matches
+        const CORRECT_MATCHES = {
+            "Barter": "Trading a power bank directly for a box of tissues without using any money.",
+            "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has.",
+            "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples.",
+            "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards.",
+            "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money.",
+            "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system.",
+            "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price.",
+            "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading.",
+            "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition.",
+            "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks.",
+            "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task.",
+            "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals.",
+            "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market.",
+            "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price.",
+            "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality."
+        };
+
+        const REFLECTION_QUESTIONS = [
+            "1. The Invisible Hand in Action - In the first few minutes, was the market chaotic or organized? Why do you think prices eventually settled into a 'natural price' (like $1 for apples) without Prof Smith telling anyone what to charge?",
+            "2. Scarcity & Strategy - How did your strategy change when the 'Drought' hit and resources became scarce? Did you find yourself cooperating with others more, or becoming more competitive to ensure your own survival?",
+            "3. The Power of Specialization - Looking back at the bookmark-making 'corporations,' what was more efficient: one person making a whole bookmark themselves, or a team using Division of Labor? Why?"
+        ];
+
+        // KEY TERMS for definition analysis (keywords that indicate understanding)
+        const KEY_TERMS = {
+            "Barter": ["trade", "exchange", "swap", "direct", "without money", "goods for goods"],
+            "Double Coincidence of Wants": ["both want", "mutual", "each other", "match", "simultaneous"],
+            "Medium of Exchange": ["money", "currency", "accepted", "intermediate", "facilitate", "coins"],
+            "Scarcity": ["limited", "not enough", "finite", "insufficient", "short supply", "fundamental"],
+            "Shortage": ["temporary", "can't find", "unavailable", "demand exceeds", "at current price"],
+            "Inflation": ["prices rise", "increase", "more money", "general rise", "purchasing power"],
+            "Deflation": ["prices fall", "decrease", "drop", "deflation", "less money"],
+            "Liquidity": ["cash", "easy to convert", "available", "flow", "access", "money supply"],
+            "Monopoly": ["single seller", "no competition", "only one", "control", "market power", "exclusive"],
+            "Specialization": ["focus", "specific", "one thing", "concentrate", "expert", "narrow"],
+            "Division of Labor": ["split", "separate tasks", "different jobs", "assembly", "specialize", "break down"],
+            "Incentives": ["motivation", "reward", "encourage", "reason to", "benefit", "motivate"],
+            "Rational Self-Interest": ["own benefit", "selfish", "personal gain", "own interest", "maximize"],
+            "The Invisible Hand": ["natural", "without control", "market forces", "unintended", "spontaneous", "no planning"],
+            "Competition": ["rivalry", "compete", "multiple sellers", "choice", "pressure", "alternatives"]
+        };
+
+        // STATE
+        let students = [];
+        let currentIndex = -1;
+        let grades = {}; // pin -> { defScore, matchScore, refScore, comment, timestamp }
+
+        // REPAIR MALFORMED JSON (handles Google Sheets export issues)
+        function repairJSON(str) {
+            if (!str || str.trim() === '') return [];
+
+            // Try normal parse first
+            try {
+                const parsed = JSON.parse(str);
+                return Array.isArray(parsed) ? parsed : [parsed];
+            } catch (e) {
+                // Need to repair
+            }
+
+            let repaired = str;
+
+            // Step 1: Fix unquoted keys: {term: -> {"term":
+            repaired = repaired.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+
+            // Step 2: Handle empty values like definition:,
+            repaired = repaired.replace(/:\s*,/g, ': "",');
+            repaired = repaired.replace(/:\s*\}/g, ': ""}');
+
+            // Step 3: Fix unquoted string values
+            // Match : followed by content up to , or }
+            // But NOT if already quoted
+            repaired = repaired.replace(/:\s*([^"{}\[\],\s][^,}\]]*?)([,\}])/g, function (match, value, delimiter) {
+                const trimmed = value.trim();
+                // Don't quote if it looks like a number, boolean, or null
+                if (/^(true|false|null|\d+\.?\d*)$/i.test(trimmed)) {
+                    return ': ' + trimmed + delimiter;
+                }
+                // Escape any double quotes in the value
+                const escaped = trimmed.replace(/"/g, '\\"');
+                return ': "' + escaped + '"' + delimiter;
+            });
+
+            // Step 4: Clean up any trailing commas before } or ]
+            repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+            try {
+                const parsed = JSON.parse(repaired);
+                return Array.isArray(parsed) ? parsed : [parsed];
+            } catch (e2) {
+                console.log('JSON repair failed:', e2.message);
+                console.log('Repaired string (first 500 chars):', repaired.substring(0, 500));
+                // Last resort - return empty array
+                return [];
+            }
+        }
+
+        // FILE PARSING (CSV and Excel)
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        // Drag and drop
+        const uploadSection = document.getElementById('upload-section');
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+
+        function processFile(file) {
+            const errorEl = document.getElementById('file-error');
+            errorEl.style.display = 'none';
+
+            const fileName = file.name.toLowerCase();
+
+            // Handle Excel files
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // Get first sheet
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                        // Convert to array of arrays
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                        if (jsonData.length < 2) {
+                            showError('Excel file appears to be empty or has no data rows');
+                            return;
+                        }
+
+                        parseExcelData(jsonData);
+                    } catch (err) {
+                        showError('Error reading Excel file: ' + err.message);
+                        console.error(err);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            // Handle CSV files
+            else if (fileName.endsWith('.csv')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    parseCSV(e.target.result);
+                };
+                reader.readAsText(file);
+            }
+            else {
+                showError('Please upload a CSV or Excel file (.csv, .xlsx, or .xls)');
+            }
+        }
+
+        function showError(msg) {
+            const errorEl = document.getElementById('file-error');
+            errorEl.textContent = msg;
+            errorEl.style.display = 'block';
+        }
+
+        function parseExcelData(rows) {
+            // First row is header
+            const header = rows[0].map(h => String(h).toLowerCase().trim());
+            const colIndex = {};
+            header.forEach((col, i) => {
+                colIndex[col] = i;
+            });
+
+            students = [];
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length < 3) continue;
+
+                const pin = String(row[colIndex['pin'] || 1] || '').trim();
+                const name = String(row[colIndex['name'] || 2] || 'Anonymous').trim();
+                const responsesJson = String(row[colIndex['responses (json)'] || 3] || '[]').trim();
+                const reflectionsJson = String(row[colIndex['reflections (json)'] || 4] || '[]').trim();
+                const timestamp = String(row[colIndex['timestamp'] || 0] || '').trim();
+
+                try {
+                    const responses = repairJSON(responsesJson);
+                    const reflections = repairJSON(reflectionsJson);
+
+                    students.push({
+                        pin: pin,
+                        name: name,
+                        timestamp: timestamp,
+                        responses: responses,
+                        reflections: Array.isArray(reflections) ? reflections : []
+                    });
+                } catch (err) {
+                    console.error('Error parsing row', i, err);
+                }
+            }
+
+            finalizeLoad();
+        }
+
+        function parseCSV(csvText) {
+            console.log('=== CSV Debug ===');
+            console.log('CSV Text length:', csvText.length);
+            console.log('First 1000 chars:', csvText.substring(0, 1000));
+
+            const lines = csvText.split(/\r?\n/);
+            console.log('Number of lines:', lines.length);
+
+            if (lines.length < 2) {
+                showError('Invalid CSV file - no data found. File has ' + lines.length + ' line(s). Check console (F12) for details.');
+                return;
+            }
+
+            // Parse header to find column indices
+            const header = parseCSVLine(lines[0]);
+            console.log('Header columns:', header);
+
+            const colIndex = {};
+            header.forEach((col, i) => {
+                colIndex[col.toLowerCase().trim()] = i;
+            });
+            console.log('Column index map:', colIndex);
+
+            // Expected columns: Timestamp, PIN, Name, Responses (JSON), Reflections (JSON), ...
+            students = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+
+                const values = parseCSVLine(lines[i]);
+                console.log('Row', i, 'values count:', values.length, 'values:', values);
+
+                if (values.length < 4) {
+                    console.log('Skipping row', i, '- not enough columns');
+                    continue;
+                }
+
+                const pin = values[colIndex['pin'] || 1] || '';
+                const name = values[colIndex['name'] || 2] || 'Anonymous';
+                const responsesJson = values[colIndex['responses (json)'] || 3] || '[]';
+                const reflectionsJson = values[colIndex['reflections (json)'] || 4] || '[]';
+                const timestamp = values[colIndex['timestamp'] || 0] || '';
+
+                console.log('Row', i, 'parsed - PIN:', pin, 'Name:', name, 'Responses JSON length:', responsesJson.length);
+
+                try {
+                    const responses = repairJSON(responsesJson);
+                    const reflections = repairJSON(reflectionsJson);
+
+                    students.push({
+                        pin: pin.trim(),
+                        name: name.trim(),
+                        timestamp: timestamp,
+                        responses: responses,
+                        reflections: Array.isArray(reflections) ? reflections : []
+                    });
+                } catch (err) {
+                    console.error('Error parsing row', i, 'responses:', responsesJson.substring(0, 200), 'error:', err.message);
+                }
+            }
+
+            console.log('Total students parsed:', students.length);
+
+            if (students.length === 0) {
+                showError('No valid student data found in CSV. Check console (F12) for parsing details.');
+                return;
+            }
+
+            // Sort by name
+            students.sort((a, b) => a.name.localeCompare(b.name));
+
+            finalizeLoad();
+        }
+
+        function finalizeLoad() {
+            if (students.length === 0) {
+                showError('No valid student data found in file');
+                return;
+            }
+
+            // Show dashboard
+            document.getElementById('upload-section').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('total-count').textContent = students.length;
+            document.getElementById('pending-count').textContent = students.length;
+
+            renderStudentList();
+            selectStudent(0);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function renderStudentList() {
+            const list = document.getElementById('student-list');
+            list.innerHTML = '';
+
+            students.forEach((student, index) => {
+                const li = document.createElement('li');
+                li.className = 'student-item' + (index === currentIndex ? ' active' : '') +
+                    (grades[student.pin] ? ' graded' : '');
+                li.onclick = () => selectStudent(index);
+                li.innerHTML = `
+                    <span class="student-name">${student.name}</span>
+                    <span class="student-status ${grades[student.pin] ? 'status-graded' : 'status-pending'}">
+                        ${grades[student.pin] ? 'Graded' : 'Pending'}
+                    </span>
+                    <div class="student-pin">PIN: ${student.pin}</div>
+                `;
+                list.appendChild(li);
+            });
+
+            // Show export if any graded
+            const gradedCount = Object.keys(grades).length;
+            document.getElementById('graded-count').textContent = gradedCount;
+            document.getElementById('pending-count').textContent = students.length - gradedCount;
+
+            if (gradedCount > 0) {
+                document.getElementById('export-section').classList.add('active');
+            }
+        }
+
+        function selectStudent(index) {
+            if (index < 0 || index >= students.length) return;
+            currentIndex = index;
+            const student = students[index];
+
+            // Update UI
+            document.getElementById('current-student-name').textContent = student.name;
+            document.getElementById('current-student-meta').textContent =
+                `PIN: ${student.pin} | Submitted: ${student.timestamp || 'Unknown'}`;
+
+            // Load existing grade if any
+            const existingGrade = grades[student.pin];
+            if (existingGrade) {
+                document.getElementById('def-score').value = existingGrade.defScore || 0;
+                document.getElementById('match-score').value = existingGrade.matchScore || 0;
+                document.getElementById('ref-score').value = existingGrade.refScore || 0;
+                document.getElementById('grader-comment').value = existingGrade.comment || '';
+                document.getElementById('current-score').textContent =
+                    (existingGrade.defScore || 0) + (existingGrade.matchScore || 0) + (existingGrade.refScore || 0);
+                document.getElementById('save-btn').classList.add('saved');
+                document.getElementById('save-btn').textContent = 'Saved ✓';
+            } else {
+                document.getElementById('def-score').value = 0;
+                document.getElementById('match-score').value = 0;
+                document.getElementById('ref-score').value = 0;
+                document.getElementById('grader-comment').value = '';
+                document.getElementById('current-score').textContent = '--';
+                document.getElementById('save-btn').classList.remove('saved');
+                document.getElementById('save-btn').textContent = 'Save Grade';
+            }
+
+            // Render terms table
+            renderTermsTable(student);
+
+            // Render reflections
+            renderReflections(student);
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = index === 0;
+            document.getElementById('next-btn').disabled = index === students.length - 1;
+
+            // Update list highlighting
+            renderStudentList();
+        }
+
+        function renderTermsTable(student) {
+            const tbody = document.getElementById('terms-body');
+            tbody.innerHTML = '';
+
+            const showAnswers = document.getElementById('show-answers').checked;
+            let correctCount = 0;
+
+            student.responses.forEach((resp, idx) => {
+                const tr = document.createElement('tr');
+                const correctMatch = CORRECT_MATCHES[resp.term];
+                const isMatchCorrect = resp.match === correctMatch;
+                if (isMatchCorrect) correctCount++;
+
+                // Analyze definition
+                const definitionAnalysis = analyzeDefinition(resp.term, resp.definition);
+
+                tr.innerHTML = `
+                    <td><span class="term-name">${resp.term}</span></td>
+                    <td>
+                        <div class="student-answer">${resp.definition || '<em>No answer</em>'}</div>
+                        ${definitionAnalysis.html}
+                    </td>
+                    <td>
+                        <div class="student-answer ${isMatchCorrect ? 'match-correct' : 'match-incorrect'}">
+                            ${resp.match || '<em>No match</em>'}
+                            <span class="auto-score-badge ${isMatchCorrect ? 'auto-score-correct' : 'auto-score-incorrect'}">
+                                ${isMatchCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
+                            </span>
+                        </div>
+                        ${showAnswers && correctMatch ? `
+                            <div class="correct-answer">
+                                ✓ ${correctMatch}
+                            </div>
+                        ` : ''}
+                    </td>
+                    <td>
+                        <input type="number" min="0" max="1" value="${isMatchCorrect ? 1 : 0}"
+                               style="width: 50px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border);
+                                      color: white; padding: 5px; border-radius: 4px; text-align: center;"
+                               onchange="quickScoreTerm(this, ${idx})">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update the match score input to reflect auto-checked matches
+            const matchInput = document.getElementById('match-score');
+            if (matchInput && !matchInput.matches(':focus')) {
+                matchInput.value = correctCount;
+                updateTotalScore();
+            }
+        }
+
+        function analyzeDefinition(term, definition) {
+            if (!definition || definition.trim() === '') {
+                return {
+                    html: `<div class="definition-analysis"><span class="quality-missing">No definition provided</span></div>`,
+                    quality: 'missing',
+                    keyTermsFound: []
+                };
+            }
+
+            const defLower = definition.toLowerCase();
+            const keywords = KEY_TERMS[term] || [];
+            const foundTerms = keywords.filter(kw => defLower.includes(kw));
+
+            let quality, qualityClass;
+            const matchRatio = foundTerms.length / Math.max(keywords.length, 1);
+
+            if (foundTerms.length >= 2 || matchRatio >= 0.5) {
+                quality = 'Good understanding - key concepts identified';
+                qualityClass = 'quality-good';
+            } else if (foundTerms.length >= 1) {
+                quality = 'Partial understanding - some key concepts';
+                qualityClass = 'quality-partial';
+            } else {
+                quality = 'Weak or off-topic definition';
+                qualityClass = 'quality-weak';
+            }
+
+            const termsHtml = foundTerms.length > 0
+                ? foundTerms.map(t => `<span>✓ ${t}</span>`).join('')
+                : '<span style="color: var(--error)">No key terms found</span>';
+
+            return {
+                html: `
+                    <div class="definition-analysis">
+                        <div class="analysis-label">Definition Analysis</div>
+                        <div class="key-terms">${termsHtml}</div>
+                        <div class="quality-indicator ${qualityClass}">${quality}</div>
+                    </div>
+                `,
+                quality: qualityClass,
+                keyTermsFound: foundTerms
+            };
+        }
+
+        function renderReflections(student) {
+            const container = document.getElementById('reflections-container');
+            container.innerHTML = '';
+
+            student.reflections.forEach((ref, idx) => {
+                const div = document.createElement('div');
+                div.className = 'reflection-answer';
+                div.innerHTML = `
+                    <div class="reflection-question">${REFLECTION_QUESTIONS[idx]}</div>
+                    <div class="reflection-text">${ref || '<em>No answer</em>'}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleAnswerKey() {
+            if (currentIndex >= 0) {
+                renderTermsTable(students[currentIndex]);
+            }
+        }
+
+        function quickScoreTerm(input, idx) {
+            // Quick scoring for individual terms - could be expanded
+            console.log('Term', idx, 'scored:', input.value);
+        }
+
+        function updateTotalScore() {
+            const defScore = parseInt(document.getElementById('def-score').value) || 0;
+            const matchScore = parseInt(document.getElementById('match-score').value) || 0;
+            const refScore = parseInt(document.getElementById('ref-score').value) || 0;
+            document.getElementById('current-score').textContent = defScore + matchScore + refScore;
+            document.getElementById('save-btn').classList.remove('saved');
+            document.getElementById('save-btn').textContent = 'Save Grade';
+        }
+
+        function saveGrade() {
+            if (currentIndex < 0) return;
+
+            const student = students[currentIndex];
+            grades[student.pin] = {
+                defScore: parseInt(document.getElementById('def-score').value) || 0,
+                matchScore: parseInt(document.getElementById('match-score').value) || 0,
+                refScore: parseInt(document.getElementById('ref-score').value) || 0,
+                comment: document.getElementById('grader-comment').value,
+                timestamp: new Date().toISOString()
+            };
+
+            document.getElementById('save-btn').classList.add('saved');
+            document.getElementById('save-btn').textContent = 'Saved ✓';
+
+            renderStudentList();
+        }
+
+        function navigateStudent(direction) {
+            selectStudent(currentIndex + direction);
+        }
+
+        function exportGradesCSV() {
+            let csv = 'PIN,Name,Definitions Score,Matches Score,Reflections Score,Total Score,Comments,Timestamp\n';
+
+            students.forEach(student => {
+                const grade = grades[student.pin] || { defScore: 0, matchScore: 0, refScore: 0, comment: '', timestamp: '' };
+                const total = grade.defScore + grade.matchScore + grade.refScore;
+                const comment = grade.comment.replace(/"/g, '""');
+                csv += `"${student.pin}","${student.name}",${grade.defScore},${grade.matchScore},${grade.refScore},${total},"${comment}","${grade.timestamp}"\n`;
+            });
+
+            downloadFile(csv, 'adams_market_grades.csv', 'text/csv');
+        }
+
+        function exportGradesJSON() {
+            const exportData = students.map(student => ({
+                pin: student.pin,
+                name: student.name,
+                timestamp: student.timestamp,
+                responses: student.responses,
+                reflections: student.reflections,
+                grade: grades[student.pin] || null
+            }));
+
+            downloadFile(JSON.stringify(exportData, null, 2), 'adams_market_grades.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
