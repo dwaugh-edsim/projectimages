@@ -1,6 +1,10 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+
+// Cache file for detecting changes
+const CACHE_FILE = path.join(__dirname, '.student_data_hash');
 
 // Configuration
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby_pTyiIRIzIG2I66N3r3h8wPvXu6yrC4iLwL7lzDnLjuCAFaZBH_H-6Yfaw4Ytvk_tWg/exec";
@@ -94,6 +98,7 @@ function parseSubmissions(data) {
         data.forEach(submission => {
             const name = submission.studentName || submission.name;
             if (!name) return;
+            if (name === 'Dave') return; // Skip test entry
 
             if (!students[name]) {
                 students[name] = {
@@ -555,6 +560,27 @@ function generateHTMLTemplate() {
 </html>`;
 }
 
+// Generate hash of student data for change detection
+function generateDataHash(students) {
+    const hash = crypto.createHash('sha256');
+    hash.update(JSON.stringify(students));
+    return hash.digest('hex');
+}
+
+// Check if data has changed since last run
+function hasDataChanged(newHash) {
+    if (!fs.existsSync(CACHE_FILE)) {
+        return true;
+    }
+    const oldHash = fs.readFileSync(CACHE_FILE, 'utf8').trim();
+    return oldHash !== newHash;
+}
+
+// Save hash for next comparison
+function saveDataHash(hash) {
+    fs.writeFileSync(CACHE_FILE, hash, 'utf8');
+}
+
 // Main execution
 async function main() {
     console.log('Fetching student submissions from webhook...');
@@ -564,7 +590,20 @@ async function main() {
         console.log('Data fetched successfully');
 
         const students = parseSubmissions(data);
-        console.log(`Parsed ${Object.keys(students).length} student submissions`);
+        const studentCount = Object.keys(students).length;
+        console.log(`Parsed ${studentCount} student submissions`);
+
+        // Generate hash to detect changes
+        const dataHash = generateDataHash(students);
+
+        // Check if data has changed since last run
+        if (!hasDataChanged(dataHash)) {
+            console.log('No changes detected in student data. Skipping regeneration.');
+            console.log('Exiting without making changes.');
+            process.exit(0);
+        }
+
+        console.log('Changes detected. Regenerating results...');
 
         // Generate AI assessments for each student
         const aiAssessments = {};
@@ -583,8 +622,11 @@ async function main() {
         const stuWorkPath = path.join(OUTPUT_DIR, 'stuwork3-28');
         fs.writeFileSync(stuWorkPath, JSON.stringify(students, null, 2), 'utf8');
 
+        // Save hash for next comparison
+        saveDataHash(dataHash);
+
         console.log(`Successfully generated ${outputPath}`);
-        console.log(`Total students processed: ${Object.keys(students).length}`);
+        console.log(`Total students processed: ${studentCount}`);
 
     } catch (error) {
         console.error('Error:', error.message);
