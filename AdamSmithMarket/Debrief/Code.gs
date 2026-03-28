@@ -5,7 +5,8 @@ const DEBRIEF_SHEET_NAME = 'Debriefs';
  */
 function doGet(e) {
   // Handle case when called without parameters (for GitHub Actions automation)
-  if (!e || !e.parameter) {
+  // Note: e.parameter is {} when no params, not undefined
+  if (!e || !e.parameter || !e.parameter.action) {
     return fetchDebriefStatsAsJSON();
   }
   
