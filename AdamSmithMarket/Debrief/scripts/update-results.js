@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwAMmRYUkDwWb9u1IRW7oI0txVc6PjZ-2nXJt307dQZrgD_07G-uax2xyQoAOC5WGMUDA/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz2nRa0N37_4uRSEjgEZVCeO9pfI4g2zQeD-kk4mzZw7zNq6oPB97HHUaoQxJ83qllKNg/exec";
 const Z_AI_API_KEY = process.env.Z_AI_API_KEY; // From GitHub Secrets
 const Z_AI_API_URL = "https://api.z.ai/api/coding/paas/v4";
 const OUTPUT_DIR = path.join(__dirname, '..');
@@ -48,10 +48,29 @@ const DEFINITION_KEY = {
     "Competition": "Rivalry between sellers; multiple producers create choices and pressure on prices/quality"
 };
 
-// Fetch data from webhook
+// Fetch data from webhook (handles Google Apps Script redirects)
 function fetchData() {
     return new Promise((resolve, reject) => {
-        https.get(WEBHOOK_URL, (res) => {
+        fetchWithRedirects(WEBHOOK_URL, 0)
+            .then(resolve)
+            .catch(reject);
+    });
+}
+
+function fetchWithRedirects(url, redirectCount) {
+    return new Promise((resolve, reject) => {
+        if (redirectCount > 5) {
+            reject(new Error('Too many redirects'));
+            return;
+        }
+
+        https.get(url, (res) => {
+            if (res.statusCode === 302 || res.statusCode === 301) {
+                // Follow redirect
+                fetchWithRedirects(res.headers.location, redirectCount + 1).then(resolve).catch(reject);
+                return;
+            }
+
             let data = '';
             res.on('data', (chunk) => data += chunk);
             res.on('end', () => {
