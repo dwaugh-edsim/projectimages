@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz2nRa0N37_4uRSEjgEZVCeO9pfI4g2zQeD-kk4mzZw7zNq6oPB97HHUaoQxJ83qllKNg/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby_pTyiIRIzIG2I66N3r3h8wPvXu6yrC4iLwL7lzDnLjuCAFaZBH_H-6Yfaw4Ytvk_tWg/exec";
 const Z_AI_API_KEY = process.env.Z_AI_API_KEY; // From GitHub Secrets
 const Z_AI_API_URL = "https://api.z.ai/api/coding/paas/v4";
 const OUTPUT_DIR = path.join(__dirname, '..');
