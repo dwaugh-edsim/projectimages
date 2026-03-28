@@ -52,6 +52,9 @@ const DEFINITION_KEY = {
     "Competition": "Rivalry between sellers; multiple producers create choices and pressure on prices/quality"
 };
 
+// AI cache file for storing per-student AI assessments
+const AI_CACHE_FILE = path.join(__dirname, '.ai_assessments');
+
 // Fetch data from webhook (handles Google Apps Script redirects)
 function fetchData() {
     return new Promise((resolve, reject) => {
@@ -560,25 +563,45 @@ function generateHTMLTemplate() {
 </html>`;
 }
 
-// Generate hash of student data for change detection
-function generateDataHash(students) {
+// Generate hash of individual student data
+function generateStudentHash(student) {
     const hash = crypto.createHash('sha256');
-    hash.update(JSON.stringify(students));
+    hash.update(JSON.stringify(student));
     return hash.digest('hex');
 }
 
-// Check if data has changed since last run
-function hasDataChanged(newHash) {
+// Load student hash cache
+function loadStudentHashCache() {
     if (!fs.existsSync(CACHE_FILE)) {
-        return true;
+        return {};
     }
-    const oldHash = fs.readFileSync(CACHE_FILE, 'utf8').trim();
-    return oldHash !== newHash;
+    try {
+        return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+    } catch (e) {
+        return {};
+    }
 }
 
-// Save hash for next comparison
-function saveDataHash(hash) {
-    fs.writeFileSync(CACHE_FILE, hash, 'utf8');
+// Save student hash cache
+function saveStudentHashCache(cache) {
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2), 'utf8');
+}
+
+// Load AI assessments cache
+function loadAICache() {
+    if (!fs.existsSync(AI_CACHE_FILE)) {
+        return {};
+    }
+    try {
+        return JSON.parse(fs.readFileSync(AI_CACHE_FILE, 'utf8'));
+    } catch (e) {
+        return {};
+    }
+}
+
+// Save AI assessments cache
+function saveAICache(cache) {
+    fs.writeFileSync(AI_CACHE_FILE, JSON.stringify(cache, null, 2), 'utf8');
 }
 
 // Main execution
@@ -593,24 +616,39 @@ async function main() {
         const studentCount = Object.keys(students).length;
         console.log(`Parsed ${studentCount} student submissions`);
 
-        // Generate hash to detect changes
-        const dataHash = generateDataHash(students);
+        // Load caches
+        const hashCache = loadStudentHashCache();
+        const aiCache = loadAICache();
 
-        // Check if data has changed since last run
-        if (!hasDataChanged(dataHash)) {
-            console.log('No changes detected in student data. Skipping regeneration.');
-            console.log('Exiting without making changes.');
-            process.exit(0);
+        // Generate AI assessments for each student (only regenerate if data changed)
+        const aiAssessments = {};
+        let changedCount = 0;
+        let unchangedCount = 0;
+
+        for (const [name, student] of Object.entries(students)) {
+            const newHash = generateStudentHash(student);
+            const oldHash = hashCache[name];
+
+            if (oldHash !== newHash) {
+                console.log(`Data changed for ${name}. Generating AI assessment...`);
+                const graded = gradeSubmission(student);
+                aiAssessments[name] = await generateAIAssessment(student, graded);
+                hashCache[name] = newHash;
+                aiCache[name] = aiAssessments[name];
+                changedCount++;
+            } else {
+                console.log(`No changes for ${name}. Using cached AI assessment.`);
+                aiAssessments[name] = aiCache[name] || 'Assessment not available.';
+                unchangedCount++;
+            }
         }
 
-        console.log('Changes detected. Regenerating results...');
+        console.log(`\nSummary: ${changedCount} students with new/changed data, ${unchangedCount} students unchanged.`);
 
-        // Generate AI assessments for each student
-        const aiAssessments = {};
-        for (const [name, student] of Object.entries(students)) {
-            console.log(`Generating AI assessment for ${name}...`);
-            const graded = gradeSubmission(student);
-            aiAssessments[name] = await generateAIAssessment(student, graded);
+        // Only write files if there were changes
+        if (changedCount === 0) {
+            console.log('No student data changes detected. Skipping file regeneration.');
+            process.exit(0);
         }
 
         const html = generateHTML(students, aiAssessments);
@@ -622,8 +660,9 @@ async function main() {
         const stuWorkPath = path.join(OUTPUT_DIR, 'stuwork3-28');
         fs.writeFileSync(stuWorkPath, JSON.stringify(students, null, 2), 'utf8');
 
-        // Save hash for next comparison
-        saveDataHash(dataHash);
+        // Save caches
+        saveStudentHashCache(hashCache);
+        saveAICache(aiCache);
 
         console.log(`Successfully generated ${outputPath}`);
         console.log(`Total students processed: ${studentCount}`);
