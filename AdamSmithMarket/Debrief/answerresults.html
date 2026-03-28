@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adam Smith Market - Your Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05080a;
+            --panel: rgba(255, 255, 255, 0.05);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --accent: #00d2ff;
+            --secondary: #ff8c00;
+            --success: #00ff88;
+            --error: #ff4757;
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --card-bg: rgba(15, 20, 30, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .tag {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            color: black;
+            padding: 6px 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-top: 15px;
+        }
+
+        /* Student List */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .student-card {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-align: center;
+        }
+
+        .student-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2);
+        }
+
+        .student-card .name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+
+        .student-card .status {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        .student-card.complete .status {
+            color: var(--success);
+        }
+
+        .student-card.incomplete .status {
+            color: var(--secondary);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--error);
+        }
+
+        /* PIN Input */
+        .pin-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .pin-section h3 {
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .pin-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-family: 'Outfit';
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            width: 200px;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .pin-input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+        }
+
+        .pin-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .pin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4);
+        }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Results Display */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .results-header h2 {
+            color: var(--accent);
+            margin: 0 0 10px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-badge.complete {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .status-badge.incomplete {
+            background: rgba(255, 140, 0, 0.2);
+            color: var(--secondary);
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--success);
+            margin: 20px 0;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        /* Results Table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th {
+            text-align: left;
+            padding: 12px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .results-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: top;
+        }
+
+        .term-name {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .match-correct {
+            color: var(--success);
+        }
+
+        .match-incorrect {
+            color: var(--error);
+        }
+
+        .match-missing {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .definition-preview {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            max-width: 400px;
+        }
+
+        .def-good {
+            color: var(--success);
+        }
+
+        .def-deficient {
+            color: var(--error);
+        }
+
+        .def-missing {
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .def-comment {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            max-width: 200px;
+        }
+
+        .todo-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 140, 0, 0.1);
+            border-radius: 12px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .todo-section h4 {
+            color: var(--secondary);
+            margin: 0 0 15px 0;
+        }
+
+        .todo-section ul {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-dim);
+        }
+
+        .todo-section li {
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .student-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="tag">Adam Smith Market Project</div>
+            <h1>Your Results</h1>
+            <p class="subtitle">Click your name and enter your PIN to view your submission results</p>
+        </header>
+
+        <div class="student-grid" id="student-grid">
+            <!-- Student cards generated by JS -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+
+            <!-- PIN Entry Section -->
+            <div class="pin-section" id="pin-section">
+                <h3 id="modal-student-name">Student Name</h3>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">Enter your PIN to view your results</p>
+                <input type="password" class="pin-input" id="pin-input" placeholder="PIN" maxlength="20">
+                <br>
+                <button class="pin-btn" onclick="verifyPin()">View Results</button>
+                <p class="error-msg" id="error-msg">Incorrect PIN. Please try again.</p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="results-section">
+                <div class="results-header">
+                    <h2 id="result-student-name">Student Name</h2>
+                    <span class="status-badge" id="result-status">Complete</span>
+                    <div class="score-display" id="result-score">--/15</div>
+                    <div class="score-label">Market Moment Matches</div>
+                </div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Match</th>
+                            <th>Your Match</th>
+                            <th>Your Definition</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <!-- Results generated by JS -->
+                    </tbody>
+                </table>
+
+                <div class="todo-section" id="todo-section" style="display: none;">
+                    <h4>📋 What You Need to Complete</h4>
+                    <ul id="todo-list"></ul>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <p style="color: var(--text-dim); font-size: 0.85rem;">
+                        Questions? See Mr Waugh during class.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Student Data with PINs and Results
+        const students = [
+            {
+                name: "Alex",
+                pin: "697420",
+                status: "complete",
+                matches: 15,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: true },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: true },
+                    { term: "Competition", correct: true }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions demonstrate accurate understanding of economic concepts. Clear, concise explanations.",
+                todo: []
+            },
+            {
+                name: "Angelique",
+                pin: "676767",
+                status: "incomplete",
+                matches: 15,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: true },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: true },
+                    { term: "Competition", correct: true }
+                ],
+                definitions: "None provided",
+                definitionQuality: "No definitions provided - student must complete all 15 definitions",
+                todo: ["Provide definitions for all 15 economic terms"]
+            },
+            {
+                name: "Cameron",
+                pin: "!4Juno1978",
+                status: "complete",
+                matches: 11,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: true },
+                    { term: "Competition", correct: true }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions provided with accurate understanding. Clear explanations of economic concepts.",
+                todo: ["Review: Liquidity, Specialization, Incentives, and Rational Self-Interest were matched incorrectly"]
+            },
+            {
+                name: "Dyson",
+                pin: "851420",
+                status: "incomplete",
+                matches: 1,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: false },
+                    { term: "Medium of Exchange", correct: false },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "13 of 15 provided",
+                definitionQuality: "13 of 15 definitions provided with textbook-quality accuracy. Missing definitions for Incentives and Competition.",
+                todo: ["Complete 13 more scenario matches", "Fix Scarcity match (currently matched to Shortage scenario)", "Add definitions for Incentives and Competition"]
+            },
+            {
+                name: "Efe",
+                pin: "Yarrak",
+                status: "incomplete",
+                matches: 5,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "5 of 15 provided",
+                definitionQuality: "5 of 15 definitions provided - those submitted show strong understanding with detailed, comprehensive explanations (especially Scarcity definition).",
+                todo: ["Complete 10 more scenario matches", "Provide 10 more definitions (Inflation, Deflation, Liquidity, Monopoly, Specialization, Division of Labor, Incentives, Rational Self-Interest, Invisible Hand, Competition)"]
+            },
+            {
+                name: "Jack",
+                pin: "superb",
+                status: "incomplete",
+                matches: 5,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "5 of 15 provided",
+                definitionQuality: "5 of 15 definitions provided - submitted definitions show good understanding with detailed explanations.",
+                todo: ["Complete 10 more scenario matches", "Provide 10 more definitions (Inflation, Deflation, Liquidity, Monopoly, Specialization, Division of Labor, Incentives, Rational Self-Interest, Invisible Hand, Competition)"]
+            },
+            {
+                name: "Josh Gillego",
+                pin: "241922",
+                status: "complete",
+                matches: 11,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: true },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions provided with accurate understanding of economic concepts.",
+                todo: ["Review: You confused Scarcity vs Shortage, Inflation vs Monopoly vs Invisible Hand, and Rational Self-Interest vs Competition"]
+            },
+            {
+                name: "Kendrake Lorenz Gaamil",
+                pin: "201109",
+                status: "complete",
+                matches: 8,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: false },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions provided with creative, detailed explanations.",
+                todo: ["Review: Double Coincidence vs Scarcity, Liquidity vs Invisible Hand, Monopoly vs Liquidity, Incentives vs Competition, Invisible Hand vs Incentives, Competition vs Monopoly"]
+            },
+            {
+                name: "Marshall",
+                pin: "101010",
+                status: "complete",
+                matches: 15,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: true },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: true },
+                    { term: "Competition", correct: true }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions demonstrate excellent, textbook-quality understanding of economic concepts.",
+                todo: []
+            },
+            {
+                name: "Nahla",
+                pin: "808090",
+                status: "complete",
+                matches: 13,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: true },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: true },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "Complete",
+                definitionQuality: "All 15 definitions provided with accurate understanding of economic concepts.",
+                todo: ["Review: Incentives and Competition were swapped"]
+            },
+            {
+                name: "Peyton C",
+                pin: "27777",
+                status: "incomplete",
+                matches: 1,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: false },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: false },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "None provided",
+                definitionQuality: "No definitions provided - student must complete all 15 definitions",
+                todo: ["Complete 14 more scenario matches", "Provide all 15 definitions"]
+            },
+            {
+                name: "Riley",
+                pin: "Zxywavi",
+                status: "incomplete",
+                matches: 0,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: false },
+                    { term: "Double Coincidence of Wants", correct: false },
+                    { term: "Medium of Exchange", correct: false },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "None provided",
+                definitionQuality: "No definitions provided - student must complete all 15 definitions",
+                todo: ["Complete all 15 scenario matches", "Provide all 15 definitions"]
+            },
+            {
+                name: "Sivakami",
+                pin: "999",
+                status: "incomplete",
+                matches: 1,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: false },
+                    { term: "Medium of Exchange", correct: false },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "None provided",
+                definitionQuality: "No definitions provided - student must complete all 15 definitions",
+                todo: ["Complete 14 more scenario matches", "Provide all 15 definitions"]
+            },
+            {
+                name: "anna",
+                pin: "230908",
+                status: "incomplete",
+                matches: 11,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: true },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: true },
+                    { term: "Incentives", correct: true },
+                    { term: "Rational Self-Interest", correct: true },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "11 of 15 provided",
+                definitionQuality: "11 of 15 definitions provided - submitted definitions show accurate understanding. Missing: Liquidity, Specialization, Invisible Hand, Competition.",
+                todo: ["Provide 4 more definitions: Liquidity, Specialization, The Invisible Hand, Competition"]
+            },
+            {
+                name: "dave",
+                pin: "HAHAHA",
+                status: "incomplete",
+                matches: 0,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: false },
+                    { term: "Double Coincidence of Wants", correct: false },
+                    { term: "Medium of Exchange", correct: false },
+                    { term: "Scarcity", correct: false },
+                    { term: "Shortage", correct: false },
+                    { term: "Inflation", correct: false },
+                    { term: "Deflation", correct: false },
+                    { term: "Liquidity", correct: false },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "None provided",
+                definitionQuality: "No definitions provided - student must complete all 15 definitions",
+                todo: ["Complete all 15 scenario matches", "Provide all 15 definitions", "Note: Specialization and Division of Labor scenarios appear swapped"]
+            },
+            {
+                name: "john",
+                pin: "78420",
+                status: "incomplete",
+                matches: 8,
+                totalMatches: 15,
+                results: [
+                    { term: "Barter", correct: true },
+                    { term: "Double Coincidence of Wants", correct: true },
+                    { term: "Medium of Exchange", correct: true },
+                    { term: "Scarcity", correct: true },
+                    { term: "Shortage", correct: true },
+                    { term: "Inflation", correct: true },
+                    { term: "Deflation", correct: true },
+                    { term: "Liquidity", correct: true },
+                    { term: "Monopoly", correct: false },
+                    { term: "Specialization", correct: false },
+                    { term: "Division of Labor", correct: false },
+                    { term: "Incentives", correct: false },
+                    { term: "Rational Self-Interest", correct: false },
+                    { term: "The Invisible Hand", correct: false },
+                    { term: "Competition", correct: false }
+                ],
+                definitions: "8 of 15 provided",
+                definitionQuality: "8 of 15 definitions provided - submitted definitions show good understanding. Note: Liquidity definition is incomplete ('liquidity is how'). Missing: Monopoly, Specialization, Division of Labor, Incentives, Rational Self-Interest, Invisible Hand, Competition.",
+                todo: ["Complete 7 more scenario matches", "Provide 7 more definitions: Monopoly, Specialization, Division of Labor, Incentives, Rational Self-Interest, The Invisible Hand, Competition"]
+            }
+        ];
+
+        // Student definitions data
+        const studentDefinitions = {
+            "Alex": {
+                "Barter": "Trading with goods directly instead of using money",
+                "Double Coincidence of Wants": "neither of the trading partners would get what they want so no trade happens",
+                "Medium of Exchange": "using money instead of goods to trade",
+                "Scarcity": "There isn't enough stuff to satisfy everyone's wants",
+                "Shortage": "There is a thing that happens that slows or stops production temporarily so prices will rise",
+                "Inflation": "when the price of most if not all goods increases making each dollar worth less",
+                "Deflation": "price of most or all goods going down making each good worth less and your money is worth more",
+                "Liquidity": "having more money on hand to buy things, instead of physical capital like machinery or goods to sell",
+                "Monopoly": "A single company controlling the supply of something so they can increase the price as much as they want",
+                "Specialization": "One person doing one specific part of a job instead of making the whole bookmark themselves",
+                "Division of Labor": "If you want to build a ship instead of everyone building a ship you get different people to do",
+                "Incentives": "When the government gives you tax break when you get a heat pump over gas heating",
+                "Rational Self-Interest": "Doing something that benefits you disregarding other peoples interests",
+                "The Invisible Hand": "Prices of goods naturally changing depending on how much people are willing to pay",
+                "Competition": "Many companies selling the same good competing for business, each company will lower rices and increase quality to try to get you to buy their stuff"
+            },
+            "Angelique": {},
+            "Cameron": {
+                "Barter": "Trading things directly without using money.",
+                "Double Coincidence of Wants": "When two people both have what the other person wants, so a trade can happen.",
+                "Medium of Exchange": "Something like money that people use to make buying and selling easier.",
+                "Scarcity": "When there isn't enough of something to satisfy everyone's needs and wants.",
+                "Shortage": "When there isn't enough of a product available at a certain price, even though people want to buy it.",
+                "Inflation": "When prices of goods and services go up over time.",
+                "Deflation": "When prices of goods and services go down over time.",
+                "Liquidity": "How easy it is to turn something into cash or use it to buy things.",
+                "Monopoly": "When one person or group controls the supply of a product and has no competition.",
+                "Specialization": "When someone focuses on one specific job or task to get better and more efficient at it.",
+                "Division of Labor": "When a job is split into different tasks and each person does a specific part.",
+                "Incentives": "Things that motivate people to act a certain way, like rewards or benefits.",
+                "Rational Self-Interest": "When people make decisions that they think will benefit themselves the most.",
+                "The Invisible Hand": "The idea that people acting in their own self-interest can still help the economy work smoothly without planning it.",
+                "Competition": "When different people or businesses try to attract customers by offering better prices, quality, or options."
+            },
+            "Dyson": {
+                "Barter": "exchange of goods or services without the use of money",
+                "Double Coincidence of Wants": "where two parties each have items each other want so they exchange the items directly",
+                "Medium of Exchange": "an item that is widely excepted in exchange for goods or services (ex. money)",
+                "Scarcity": "Something being in short supply",
+                "Shortage": "when demand for a product or service exceeds supply",
+                "Inflation": "The increase of a goods price over time",
+                "Deflation": "The decrease of a goods price over time.",
+                "Liquidity": "The ease of which an asset can be converted into cash",
+                "Monopoly": "When only a single supplier produces and sells a certain product",
+                "Specialization": "the production of certain kinds of goods instead of producing a wide variety of goods",
+                "Division of Labor": "The separation of a work process into a number of tasks with each task preformed by a separate person or group.",
+                "Incentives": "",
+                "Rational Self-Interest": "a theory that assumes two parties will make voluntary exchanges that will improve each party",
+                "The Invisible Hand": "the incentives in which free markets sometimes create for self interested people to accidently act in the public interest even when this is not something they need",
+                "Competition": ""
+            },
+            "Efe": {
+                "Barter": "What we call barter is actually a reflection of the trade that took place before the Lydians discovered money. In exchange for the purchase of an item, another item is given. One of the most common examples is car exchanges.",
+                "Double Coincidence of Wants": "It is used when both parties leave the transaction satisfied and having received what they wanted.",
+                "Medium of Exchange": "This is actually the way exchange progresses today. Let's look at the car exchange example I gave before, for example, I have an upper segment car with 170 thousand miles on it, but I want to change it because I think it will cause trouble for me because its mileage has increased a lot, and I found a car on Facebook Marketplace with 70 thousand miles but one segment lower than mine and I wanted to change it with it, However, since there is a huge difference in the prices of the vehicles, I do not want to make a head-to-head exchange and I tell the man that I would be fine with the exchange for the car + 15 thousand cash. As a result, the man accepts the offer and I enjoy my new car and 15 thousand cash. The other man is enjoying his new car.",
+                "Scarcity": "Scarcity in economics refers to the fundamental problem that human wants and needs are unlimited, while the resources required to fulfill them such as time, money, labor, and natural resources are finite. This gap between demand and available supply forces individuals, businesses, and governments to make choices, prioritize, and manage trade offs.",
+                "Shortage": "A shortage in economics occurs when the quantity demanded for a good or service exceeds the quantity supplied at the current market price, resulting in excess demand. Often temporary, it happens when demand rises unexpectedly, supply falls due to disruptions, or price controls keep prices artificially low.",
+                "Inflation": "",
+                "Deflation": "",
+                "Liquidity": "",
+                "Monopoly": "",
+                "Specialization": "",
+                "Division of Labor": "",
+                "Incentives": "",
+                "Rational Self-Interest": "",
+                "The Invisible Hand": "",
+                "Competition": ""
+            },
+            "Jack": {
+                "Barter": "exchange of goods and services through contract of two sides after agreement without capitals such as money that replaces the value of other items.",
+                "Double Coincidence of Wants": "the understanding of two sides getting satisfied from the bartering, where both of them gives up their capital for someone else's where they both gets fulfilled with their wants or requirements.",
+                "Medium of Exchange": "any capitals that doesn't have immediate value but has the value to replace other goods or services through exchange, it is widely accepted and people can use it to gain other supplements.",
+                "Scarcity": "the idea of constant and permanent problem that always exists, it is the fact that people has unlimited wants and limited supplies that can be produced from the nature that can't be replaced and some day can be completely disappears from the world.",
+                "Shortage": "the problem in the human society, where the supplies that are made from factories or produced through work has problem where the quantity of supply doesn't or cannot meet the consumer's number of wants, and this is temporary problem that can be solved by less wants or more production.",
+                "Inflation": "",
+                "Deflation": "",
+                "Liquidity": "",
+                "Monopoly": "",
+                "Specialization": "",
+                "Division of Labor": "",
+                "Incentives": "",
+                "Rational Self-Interest": "",
+                "The Invisible Hand": "",
+                "Competition": ""
+            },
+            "Josh Gillego": {
+                "Barter": "Trading something in exchange for something else.",
+                "Double Coincidence of Wants": "2 people trade together and supply each other with what they need, it is a trade in which the other one needs the one you have and that person also has the thing you need, so you both do a trade to switch your goods",
+                "Medium of Exchange": "Anything that you use to buy/trade what you have for something else. Money is an example, we pay money for different products/goods",
+                "Scarcity": "Scarcity is everywhere and it is permanent because everybody has unlimited wants and needs but resources are limited",
+                "Shortage": "It is temporary, it is when supply doesn't meet demand and demand exceeds its available supply, resulting in shortages",
+                "Inflation": "When prices increase/boom to a price that is not fairly affordable because of certain situations such as natural disasters, conflicts/war, shortage, and scarcity. It lessens the value of money when purchasing something.",
+                "Deflation": "When the general level of prices in an economy decreases/reduces",
+                "Liquidity": "How fast or like how instant you can get or earn cash when you're in need of it",
+                "Monopoly": "When there's only one supplier/seller of something so they are in charge of making choices about their products and they also have the decision to set the price",
+                "Specialization": "When you have the proper skills and requirements to create or make something, it is when you specialize in doing something to increase productivity and save time",
+                "Division of Labor": "When every individual has a job to fulfill to save time and to increase productivity and production",
+                "Incentives": "The extra benefit that you encourages and motivates somebody to do more and to be better at what they're working at",
+                "Rational Self-Interest": "The decisions that we make to gain more benefits that is efficient for us and it'll help us",
+                "The Invisible Hand": "When somebody does something that doesn't only benefit himself but it'll also benefit and help everybody else",
+                "Competition": "When sellers compete to sell and market their products to earn a higher profit. They compete because they have a goal."
+            },
+            "Kendrake Lorenz Gaamil": {
+                "Barter": "It's an original handshake economy, where a someone's skill or a basket of apples matters more than the balance in a bank account. Bartering is a conversation that turns \"I have\" and \"you need\" into a shared moment of trust.",
+                "Double Coincidence of Wants": "It means that when you have something that you need but cannot be able to obtain doubling the want of the item from other people to buy it out from them.",
+                "Medium of Exchange": "It's the middleman of the economy that thing we all agree has value like cash so we can just buy what we need without having to trade a bread for a apple.",
+                "Scarcity": "It's a struggle where leaving us to make tough choices because there simply isn't enough time or money to do every single thing we want.",
+                "Shortage": "Its where the item is lack on production and people needs it but there isn't enough made in production",
+                "Inflation": "Where products starts to become expensive like when oil price rises its a chain effect that all other products rises",
+                "Deflation": "It's a rare situation where your money actually buys more today than it did yesterday because prices keep dropping.",
+                "Liquidity": "It's basically how fast you can turn what you own into cold hard cash without losing money in a sale rush like a black Friday sale.",
+                "Monopoly": "It's a scenario where one company calls all the shots because they have no real rivals and you can't just go buy a knockoff version somewhere else.",
+                "Specialization": "It's basically master of one approach where you double down on what you're best at to get faster and better rather than trying to do everything and being just okay at it.",
+                "Division of Labor": "It's basically an assembly line where instead of one person making a whole shoe, everyone masters one small part to get the job done way faster.",
+                "Incentives": "It's basically nudges you to do something, whether it's a cash bonus for hitting a goal or just the satisfaction of getting a gold star.",
+                "Rational Self-Interest": "It's basically look out for number one mindset, where you weigh your options and choose the path that gives you the most benefit or happiness in the long run",
+                "The Invisible Hand": "Gemini said. It's the invisible guide of the economy the idea that by just doing what's best for yourself, you end up helping everyone else by providing exactly what they want to buy.",
+                "Competition": "More on to compete to get the product first by like an auction type to have the item or like to compete who earns more money"
+            },
+            "Marshall": {
+                "Barter": "Exchanging goods or services between parties without any additional money involved.",
+                "Double Coincidence of Wants": "When two parties have what the other wants to they can have an even exchange without the use of money.",
+                "Medium of Exchange": "The form of money used to facilitate the exchange or trade of a a good or service.",
+                "Scarcity": "The notion that there are only limited resources but there are unlimited wants in the world and people have to consider whether to satisfy wants or needs.",
+                "Shortage": "The temporary disruption of a supply of an item with a constant demand that makes supply run out.",
+                "Inflation": "When the price of a good, service or currency is devalued because it is so widely available and constantly produced making it easier to obtain.",
+                "Deflation": "When the price of a good, service or currency increases in value because of a reduction in availability making it harder to obtain.",
+                "Liquidity": "How quickly and easily a good or service can be sold or traded in order to benefit the owner.",
+                "Monopoly": "When one person or enterprise has complete control over an industry or sector resulting in them dictating prices and availability.",
+                "Specialization": "Separating workers into their individual areas of expertise in order to increase quality and efficiency of workers.",
+                "Division of Labor": "Delegating tasks so that workers perform specific tasks in an effort to increase production.",
+                "Incentives": "The positive or negative motivation given to people in an effort to persuade them to do or not do something.",
+                "Rational Self-Interest": "The notion of putting yourself first in the interest of self-preservation.",
+                "The Invisible Hand": "How a market will correct itself through supply and demand of the people without interference from a government.",
+                "Competition": "Rival entities trying to accomplish the same thing whether it's producing or selling the same product."
+            },
+            "Nahla": {
+                "Barter": "A direct exchange of goods without using any money.",
+                "Double Coincidence of Wants": "The coincidence of having something someone wants, in exchange for something you want (the perfect match)",
+                "Medium of Exchange": "A medium (material) that can be used in exchange for other goods.",
+                "Scarcity": "The issue of not having enough resources for the unlimited wants of the people.",
+                "Shortage": "A temporary issue of running out of a product due to underproduction.",
+                "Inflation": "An increase in prices due to an increase in demand and decrease in supply.",
+                "Deflation": "The decrease of prices due to a decrease in demand and increase in supply.",
+                "Liquidity": "A good/product that can always be exchanged into money (liquidized).",
+                "Monopoly": "When their is only one party that can produce, or offer a serv ice from something. In doing so, this party is able to completely control prices due to lack of competition. (people have no other choice)",
+                "Specialization": "Having specific tasks go to people that specialize in those things to be more efficient, rather then them doing multiple tasks of less quality.",
+                "Division of Labor": "The \"dividig and conquering\" theory, which is to separate multiple tasks one person could do, into one tasks for multiple people, which becomes forr efficient.",
+                "Incentives": "Materials or forms of money given as rewards completing tasks.",
+                "Rational Self-Interest": "The choices and decisions people make to solely benefit their self interest.",
+                "The Invisible Hand": "The idea of an economy naturally figuring out the inner workings and prices of things, due to human transactions.",
+                "Competition": "When two or more parties compete to achieve something."
+            },
+            "Peyton C": {},
+            "Riley": {},
+            "Sivakami": {},
+            "anna": {
+                "Barter": "direct exchange of goods or services for other goods or services without using money",
+                "Double Coincidence of Wants": "when two people each hold a good or service that the other want so it allows direct exchange",
+                "Medium of Exchange": "any accepted item - typically money - that is use to facilite the buying and selling of goods and services",
+                "Scarcity": "people have unlimited needs and wants, but there are limited resources to fullify all of them",
+                "Shortage": "temporary lack of something",
+                "Inflation": "increase in prices for goods and services, reducing the value of money",
+                "Deflation": "decrease in prices for goods and services",
+                "Liquidity": "",
+                "Monopoly": "when there is just one seller on the market, there is no competition",
+                "Specialization": "",
+                "Division of Labor": "separation of tasks in a production process",
+                "Incentives": "rewards and punishments that motive individuals and businesses",
+                "Rational Self-Interest": "people focusing on themselves, maximazing their profits and benefits",
+                "The Invisible Hand": "",
+                "Competition": ""
+            },
+            "dave": {},
+            "john": {
+                "Barter": "trading only goods or services before the invention of money or without using money.",
+                "Double Coincidence of Wants": "failing to trade because the person that has what you want dosent want what you have or vise versa",
+                "Medium of Exchange": "something that represents value throughout a economy so that you don't need to barter.",
+                "Scarcity": "the principle that there isn't enough of something for everyone to have",
+                "Shortage": "when the amount of something demanded is greater than the amount supplied",
+                "Inflation": "when more money comes into an economy so prices rise because people have more money",
+                "Deflation": "when people cant afford to pay the prices so suppliers have to drop prices",
+                "Liquidity": "liquidity is how",
+                "Monopoly": "",
+                "Specialization": "",
+                "Division of Labor": "",
+                "Incentives": "",
+                "Rational Self-Interest": "",
+                "The Invisible Hand": "",
+                "Competition": ""
+            }
+        };
+
+        // Correct match text for each term (from marking key)
+        const correctMatches = {
+            "Barter": "Trading a power bank directly for a box of tissues without using any money",
+            "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+            "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+            "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+            "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+            "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+            "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+            "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+            "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+            "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+            "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+            "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+            "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+            "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+            "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+        };
+
+        // Student match text data (what each student actually matched)
+        const studentMatchText = {
+            "Alex": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Angelique": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Cameron": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Division of Labor": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Incentives": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Rational Self-Interest": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "The Invisible Hand": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Dyson": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "(No match provided)",
+                "Medium of Exchange": "(No match provided)",
+                "Scarcity": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Shortage": "(No match provided)",
+                "Inflation": "(No match provided)",
+                "Deflation": "(No match provided)",
+                "Liquidity": "(No match provided)",
+                "Monopoly": "(No match provided)",
+                "Specialization": "(No match provided)",
+                "Division of Labor": "(No match provided)",
+                "Incentives": "(No match provided)",
+                "Rational Self-Interest": "(No match provided)",
+                "The Invisible Hand": "(No match provided)",
+                "Competition": "(No match provided)"
+            },
+            "Efe": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality",
+                "Specialization": "(No match provided)",
+                "Division of Labor": "(No match provided)",
+                "Incentives": "(No match provided)",
+                "Rational Self-Interest": "(No match provided)",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "(No match provided)"
+            },
+            "Jack": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Josh Gillego": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Shortage": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Inflation": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality",
+                "The Invisible Hand": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Competition": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market"
+            },
+            "Kendrake Lorenz Gaamil": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Monopoly": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Competition": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition"
+            },
+            "Marshall": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Nahla": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals"
+            },
+            "Peyton C": {
+                "Barter": "(No match provided)",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "(No match provided)",
+                "Scarcity": "(No match provided)",
+                "Shortage": "(No match provided)",
+                "Inflation": "(No match provided)",
+                "Deflation": "(No match provided)",
+                "Liquidity": "(No match provided)",
+                "Monopoly": "(No match provided)",
+                "Specialization": "(No match provided)",
+                "Division of Labor": "(No match provided)",
+                "Incentives": "(No match provided)",
+                "Rational Self-Interest": "(No match provided)",
+                "The Invisible Hand": "(No match provided)",
+                "Competition": "(No match provided)"
+            },
+            "Riley": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Rational Self-Interest": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "Sivakami": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "(No match provided)",
+                "Medium of Exchange": "(No match provided)",
+                "Scarcity": "(No match provided)",
+                "Shortage": "(No match provided)",
+                "Inflation": "(No match provided)",
+                "Deflation": "(No match provided)",
+                "Liquidity": "(No match provided)",
+                "Monopoly": "(No match provided)",
+                "Specialization": "(No match provided)",
+                "Division of Labor": "(No match provided)",
+                "Incentives": "(No match provided)",
+                "Rational Self-Interest": "(No match provided)",
+                "The Invisible Hand": "(No match provided)",
+                "Competition": "(No match provided)"
+            },
+            "anna": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "dave": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Mr Waugh injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Mr Waugh only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Mr Waugh randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Division of Labor": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Mr Waugh setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            },
+            "john": {
+                "Barter": "Trading a power bank directly for a box of tissues without using any money",
+                "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+                "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+                "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+                "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+                "Inflation": "A general rise in prices across the room because Prof Smith injected more cash into the system",
+                "Deflation": "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price",
+                "Liquidity": "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+                "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+                "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+                "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+                "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals",
+                "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+                "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price",
+                "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+            }
+        };
+
+        let currentStudent = null;
+
+        // Initialize student grid
+        function init() {
+            const grid = document.getElementById('student-grid');
+
+            // Sort students alphabetically
+            students.sort((a, b) => a.name.localeCompare(b.name));
+
+            students.forEach(student => {
+                const card = document.createElement('div');
+                card.className = `student-card ${student.status}`;
+                card.onclick = () => openModal(student);
+                card.innerHTML = `
+                    <div class="name">${student.name}</div>
+                    <div class="status">${student.status === 'complete' ? '✓ Complete' : '⚠ In Progress'}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(student) {
+            currentStudent = student;
+            document.getElementById('modal-student-name').textContent = student.name;
+            document.getElementById('pin-input').value = '';
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('pin-section').style.display = 'block';
+            document.getElementById('results-section').classList.remove('active');
+            document.getElementById('modal-overlay').classList.add('active');
+            document.getElementById('pin-input').focus();
+        }
+
+        function closeModal(event) {
+            if (!event || event.target === document.getElementById('modal-overlay')) {
+                document.getElementById('modal-overlay').classList.remove('active');
+                currentStudent = null;
+            }
+        }
+
+        function verifyPin() {
+            const enteredPin = document.getElementById('pin-input').value;
+
+            if (enteredPin === currentStudent.pin) {
+                showResults();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-input').focus();
+            }
+        }
+
+        // Allow Enter key to submit PIN
+        document.getElementById('pin-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                verifyPin();
+            }
+        });
+
+        function showResults() {
+            document.getElementById('pin-section').style.display = 'none';
+            document.getElementById('results-section').classList.add('active');
+
+            const student = currentStudent;
+            document.getElementById('result-student-name').textContent = student.name;
+
+            const statusBadge = document.getElementById('result-status');
+            statusBadge.textContent = student.status === 'complete' ? '✓ Complete' : '⚠ In Progress';
+            statusBadge.className = `status-badge ${student.status}`;
+
+            document.getElementById('result-score').textContent = `${student.matches}/${student.totalMatches}`;
+
+            // Get student definitions and matches
+            const defs = studentDefinitions[student.name] || {};
+            const matches = studentMatchText[student.name] || {};
+
+            // Generate results table with 5 columns
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+
+            student.results.forEach(result => {
+                const tr = document.createElement('tr');
+                const studentDef = defs[result.term] || '';
+                const studentMatch = matches[result.term] || '(No match provided)';
+                const correctMatch = correctMatches[result.term];
+
+                // Determine definition status and comment
+                let defClass = 'def-missing';
+                let defDisplay = '<em>(No definition provided)</em>';
+                let comment = '';
+
+                if (studentDef && studentDef.trim() !== '') {
+                    defClass = 'def-good';
+                    defDisplay = studentDef;
+                    comment = '✓ Accurate definition';
+                } else if (student.todo.some(t => t.includes('definition') || t.includes('Definition'))) {
+                    comment = 'Needs definition';
+                }
+
+                // Check for specific issues
+                if (studentDef === 'liquidity is how') {
+                    defClass = 'def-deficient';
+                    comment = '⚠ Incomplete definition';
+                }
+
+                // Build match display
+                let matchDisplay;
+                if (result.correct) {
+                    matchDisplay = `<span class="match-correct">✓ Correct match</span>`;
+                } else {
+                    matchDisplay = `<span class="match-incorrect">✗ Incorrect match</span>`;
+                }
+
+                // Build student match column content
+                let matchTextDisplay;
+                if (!studentMatch || studentMatch === '(No match provided)') {
+                    matchTextDisplay = '<em style="color: var(--text-dim);">(No match provided)</em>';
+                } else if (result.correct) {
+                    matchTextDisplay = `<span style="color: var(--success);">${studentMatch}</span>`;
+                } else {
+                    // Show correct match text, not incorrect match text
+                    matchTextDisplay = `<span style="color: var(--success);">${correctMatch}</span>, not <span style="color: var(--error);">${studentMatch}</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td><span class="term-name">${result.term}</span></td>
+                    <td>${matchDisplay}</td>
+                    <td class="definition-preview" style="font-size: 0.8rem; max-width: 350px;">${matchTextDisplay}</td>
+                    <td class="definition-preview ${defClass}">${defDisplay}</td>
+                    <td class="def-comment">${comment}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Add definition quality assessment
+            if (student.definitionQuality) {
+                const defQualityRow = document.createElement('tr');
+                defQualityRow.innerHTML = `
+                    <td colspan="5" style="padding-top: 20px; border-top: 2px solid var(--panel-border);">
+                        <strong style="color: var(--accent);">Definition Assessment:</strong>
+                        <span style="color: var(--text-dim); margin-left: 10px;">${student.definitionQuality}</span>
+                    </td>
+                `;
+                tbody.appendChild(defQualityRow);
+            }
+
+            // Show todo section if incomplete
+            const todoSection = document.getElementById('todo-section');
+            const todoList = document.getElementById('todo-list');
+
+            if (student.todo.length > 0) {
+                todoSection.style.display = 'block';
+                todoList.innerHTML = '';
+                student.todo.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    todoList.appendChild(li);
+                });
+            } else {
+                todoSection.style.display = 'none';
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+
+</html>
