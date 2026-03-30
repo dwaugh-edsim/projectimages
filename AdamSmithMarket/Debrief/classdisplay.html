@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adam Smith Market - Live Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        :root {
+            --bg: #05080a;
+            --accent: #00d2ff;
+            --success: #00ff88;
+            --warning: #ff8c00;
+        }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Premium Glow Background */
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 210, 255, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 140, 0, 0.05) 0%, transparent 40%);
+            filter: blur(80px);
+        }
+
+        .student-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .student-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2);
+        }
+
+        @keyframes pulse-success {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+        .perfect-score {
+            animation: pulse-success 2s infinite;
+            border-color: var(--success) !important;
+        }
+    </style>
+</head>
+<body class="p-8 min-h-screen">
+    <div class="bg-glow"></div>
+
+    <header class="flex justify-between items-end mb-12 border-b border-white/10 pb-6">
+        <div>
+            <div class="badge badge-outline border-cyan-400 text-cyan-400 uppercase tracking-widest font-bold mb-2">Adam Smith Market</div>
+            <h1 class="text-6xl font-black uppercase tracking-tighter leading-none">The Invisible Hand <span class="text-white/20">//</span> <span class="text-cyan-400">Debrief</span></h1>
+        </div>
+        <div class="text-right">
+            <div id="status-tag" class="badge badge-success gap-2 mb-2 font-bold px-4 py-3">
+                <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span> LIVE FEED
+            </div>
+            <p class="text-white/40 font-mono text-sm uppercase tracking-widest" id="last-updated">Updating now...</p>
+        </div>
+    </header>
+
+    <main id="results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Student cards will be injected here -->
+        <div class="col-span-full py-20 text-center opacity-50">
+            <span class="loading loading-ring loading-lg mb-4"></span>
+            <p class="text-xl uppercase tracking-widest">Waiting for submissions...</p>
+        </div>
+    </main>
+
+    <div class="fixed bottom-8 left-8 flex gap-8 text-white/20 font-mono text-xs uppercase tracking-[0.3em]">
+        <div>Sheet: Debriefs</div>
+        <div>Scale: 15 Points</div>
+        <div>Filter: Excl. Reflections</div>
+    </div>
+
+    <script>
+        const items = [
+            "Trading a power bank directly for a box of tissues without using any money.",
+            "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has.",
+            "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples.",
+            "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards.",
+            "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money.",
+            "A general rise in prices across the room because Prof Smith injected more cash into the system.",
+            "Prices for bookmarks dropping because Prof Smith only had 29 gold coins and couldn't afford to pay the original price.",
+            "Prof Smith randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading.",
+            "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition.",
+            "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks.",
+            "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task.",
+            "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals.",
+            "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market.",
+            "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Prof Smith setting a price.",
+            "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality."
+        ];
+
+        function calculateScore(responsesJSON) {
+            try {
+                const responses = JSON.parse(responsesJSON);
+                let score = 0;
+                responses.forEach((res, index) => {
+                    if (res.match === items[index]) {
+                        score++;
+                    }
+                });
+                return score;
+            } catch (e) {
+                console.error("Error parsing responses", e);
+                console.error("Error calculating score", e);
+                return 0;
+            }
+        }
+
+        }
+
+        function renderStats(data) {
+            const grid = document.getElementById('results-grid');
+            if (!data || data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 uppercase tracking-[0.5em]">No Data Recorded Yet</div>`;
+                return;
+            }
+
+            // Sort by score (descending)
+            const processed = data.map(s => ({
+                ...s,
+                score: calculateScore(s.responses)
+            })).sort((a, b) => b.score - a.score);
+
+            grid.innerHTML = '';
+            processed.forEach(student => {
+                const isPerfect = student.score === 15;
+                const percent = (student.score / 15) * 100;
+                
+                const card = document.createElement('div');
+                card.className = `student-card p-6 rounded-2xl flex flex-col justify-between ${isPerfect ? 'perfect-score' : ''}`;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold truncate max-w-[70%] text-white/90">${student.name}</h3>
+                            <div class="text-2xl font-black ${isPerfect ? 'text-success' : 'text-cyan-400'}">
+                                ${student.score}<span class="text-xs text-white/30 ml-1">/15</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-2">
+                            <div class="h-full ${isPerfect ? 'bg-success' : 'bg-cyan-400'}" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex gap-1">
+                            ${Array(15).fill(0).map((_, i) => {
+                                const responses = JSON.parse(student.responses);
+                                const isCorrect = responses[i] && responses[i].match === items[i];
+                                return `<div class="w-1.5 h-1.5 rounded-full ${isCorrect ? 'bg-success' : 'bg-white/10'}"></div>`;
+                            }).join('')}
+                        </div>
+                        <div class="text-[10px] font-mono opacity-20 uppercase tracking-tighter">${isPerfect ? 'MASTERED' : 'ANALYZING'}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.getElementById('last-updated').innerText = `Last Refreshed: ${new Date().toLocaleTimeString()}`;
+        }
+
+        // AUTO REFRESH
+        updateDisplay();
+        setInterval(updateDisplay, 10000); // 10s refresh
+    </script>
+</body>
+</html>

@@ -24,7 +24,6 @@ function doGet(e) {
     if (!dbSheet) return successJSON({ status: 'not_found' });
     
     const data = dbSheet.getDataRange().getValues();
-    // Search for PIN in column B (index 1)
     for (let i = 1; i < data.length; i++) {
         if (String(data[i][1]).trim() === String(pin).trim()) {
             return successJSON({
@@ -36,13 +35,12 @@ function doGet(e) {
         }
     }
   }
-  
   if (action === 'display') {
     return HtmlService.createTemplateFromFile('classdisplay').evaluate()
         .setTitle('Adam Smith Market - Live Results')
         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
-  
+
   return successJSON({ status: 'not_found' });
 }
 
@@ -84,6 +82,29 @@ function fetchDebriefStatsAsJSON() {
   }
   
   return successJSON(results);
+}
+
+/**
+ * Fetches ALL debriefs for the classroom display
+ */
+function fetchDebriefStats() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(DEBRIEF_SHEET_NAME);
+  if (!sheet) return [];
+  
+  const data = sheet.getDataRange().getValues();
+  const results = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    results.push({
+      timestamp: data[i][0],
+      pin: data[i][1],
+      name: data[i][2],
+      responses: data[i][3], // JSON string
+      reflections: data[i].length > 4 ? data[i][4] : "[]"
+    });
+  }
+  return results;
 }
 
 /**
