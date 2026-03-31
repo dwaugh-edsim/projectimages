@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 | Election Headquarters</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body id="hq-body">
+
+    <div class="container">
+        <header>
+            <div class="logo">Elections Caledonia</div>
+            <nav class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('register')">Register Party</button>
+                <button class="tab-btn" onclick="switchTab('about')">The Challenge</button>
+            </nav>
+        </header>
+
+        <!-- DASHBOARD TAB -->
+        <main id="dashboard-tab" class="tab-content fade-in">
+            <div style="margin-bottom: 2rem;">
+                <h2>Current Registered Parties</h2>
+                <p class="text-muted">Parties competing in the upcoming election for Nova Scotia.</p>
+            </div>
+            
+            <div id="party-grid" class="party-grid">
+                <!-- Parties will be loaded here dynamically -->
+                 <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
+                    <p style="color: var(--text-muted);">No parties registered yet. Be the first!</p>
+                 </div>
+            </div>
+        </main>
+
+        <!-- REGISTER TAB -->
+        <main id="register-tab" class="tab-content fade-in" style="display: none;">
+            <div class="card">
+                <h2 style="margin-bottom: 2rem;">Party Registration Form</h2>
+                
+                <form id="party-form" onsubmit="handlePartyRegistration(event)">
+                    <div class="form-grid">
+                        <section>
+                            <div class="form-group">
+                                <label for="party-name">Party Name</label>
+                                <input type="text" id="party-name" placeholder="e.g. The Halifax Progress Party" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="party-leader">Party Leader</label>
+                                <input type="text" id="party-leader" placeholder="Full name of leader" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="party-color">Party Color</label>
+                                <input type="color" id="party-color" value="#3b82f6" style="padding: 0.2rem; cursor: pointer;">
+                            </div>
+                            <div class="form-group">
+                                <label for="party-pin">Management PIN (Used for future edits/login)</label>
+                                <input type="password" id="party-pin" placeholder="Create a 4-digit PIN" pattern="[0-9]{4}" required>
+                            </div>
+                        </section>
+
+                        <section>
+                            <div class="form-group">
+                                <label for="party-members">Team Members (Comma separated names)</label>
+                                <textarea id="party-members" rows="3" placeholder="e.g. Sarah J., Mike D., Alex P." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="party-slogan">Party Slogan</label>
+                                <input type="text" id="party-slogan" placeholder="Your catchphrase for the campaign" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Core Platform Issues (Pick top 3)</label>
+                                <div id="platform-issues-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 10px;">
+                                    <!-- Populated from data.js -->
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button type="reset" class="btn-secondary">Clear Form</button>
+                        <button type="submit" class="btn-primary">Official Registration</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- ABOUT TAB -->
+        <main id="about-tab" class="tab-content fade-in" style="display: none;">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <h1 style="margin-bottom: 1.5rem;">Caledonia Election Challenge</h1>
+                <p style="margin-bottom: 2rem; color: var(--text-muted); line-height: 1.6;">
+                    Your group is forming a political party to solve the major issues facing our province and country. 
+                    You must build a platform, design a logo, and prepare for a school-wide election.
+                </p>
+                
+                <h3 style="margin-bottom: 1rem;">The Road to Election Day:</h3>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+                        <span style="background: var(--right-color); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">1</span>
+                        <span><b>Register:</b> Form your group and submit your party details here.</span>
+                    </li>
+                    <li style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+                        <span style="background: var(--right-color); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">2</span>
+                        <span><b>Campaign:</b> Design posters, logos, and a 2.5-minute persuasive speech.</span>
+                    </li>
+                    <li style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+                        <span style="background: var(--right-color); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">3</span>
+                        <span><b>The Polls:</b> Register voters and await the final ballot count!</span>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Registration Successful!</div>
+
+    <!-- Navigation to Presenter -->
+    <a href="spectrum-presenter.html" style="position: fixed; bottom: 2rem; left: 2rem; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; opacity: 0.5;">Back to Spectrum Activity</a>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Specific init for HQ
+        document.addEventListener('DOMContentLoaded', () => {
+            initHQ();
+        });
+    </script>
+</body>
+</html>
