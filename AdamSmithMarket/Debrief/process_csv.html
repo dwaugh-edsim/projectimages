@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Processor - Adam Smith Market Debrief</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+        }
+
+        .upload-section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 2px dashed var(--primary);
+        }
+
+        .upload-section:hover {
+            border-color: var(--secondary);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: var(--primary);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .student-card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .student-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .student-card.complete {
+            border-left: 4px solid var(--success);
+        }
+
+        .student-card.partial {
+            border-left: 4px solid var(--secondary);
+        }
+
+        .student-card.incomplete {
+            border-left: 4px solid var(--error);
+        }
+
+        .student-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .student-pin {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .student-score {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--error), var(--secondary), var(--success));
+            transition: width 0.5s;
+        }
+
+        .export-section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .export-btn {
+            background: var(--success);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .export-btn.html {
+            background: var(--primary);
+        }
+
+        .export-btn.md {
+            background: var(--secondary);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .modal {
+            background: var(--card);
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .results-table th {
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--primary);
+        }
+
+        .results-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-correct {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .status-incorrect {
+            color: var(--error);
+            font-weight: bold;
+        }
+
+        .status-empty {
+            color: var(--text-dim);
+        }
+
+        .todo-list {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .todo-list h4 {
+            color: var(--error);
+            margin-bottom: 10px;
+        }
+
+        .todo-list ul {
+            margin-left: 20px;
+        }
+
+        .todo-list li {
+            margin-bottom: 5px;
+            color: var(--text-dim);
+        }
+
+        .reflection-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary);
+        }
+
+        .reflection-section h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .reflection-answer {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 CSV Processor - Adam Smith Market Debrief</h1>
+            <p class="subtitle">Process student submissions and generate results</p>
+        </header>
+
+        <div class="upload-section" id="upload-section">
+            <label class="upload-btn">
+                📁 Choose CSV File
+                <input type="file" id="csvInput" accept=".csv">
+            </label>
+            <p style="margin-top: 20px; color: var(--text-dim);">
+                Upload the Google Sheets CSV export to process student submissions
+            </p>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalStudents">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completeCount">0</div>
+                    <div class="stat-label">Complete (15/15)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="partialCount">0</div>
+                    <div class="stat-label">Partial Work</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="incompleteCount">0</div>
+                    <div class="stat-label">Incomplete</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 15px;">Student Submissions</h2>
+            <div class="student-grid" id="studentGrid"></div>
+
+            <div class="export-section">
+                <h3 style="margin-bottom: 15px;">Export Results</h3>
+                <button class="export-btn html" onclick="exportHTML()">📄 Export HTML Results</button>
+                <button class="export-btn md" onclick="exportMarkdown()">📝 Export Markdown Summary</button>
+                <button class="export-btn" onclick="exportJSON()">💾 Export JSON Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Correct matches for the 15 economic terms
+        const CORRECT_MATCHES = {
+            "Barter": "Trading a power bank directly for a box of tissues without using any money",
+            "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has",
+            "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples",
+            "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards",
+            "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money",
+            "Inflation": "A general rise in prices across the room because Mr Waugh injected more cash into the system",
+            "Deflation": "Prices for bookmarks dropping because Mr Waugh only had 29 gold coins and couldn't afford to pay the original price",
+            "Liquidity": "Mr Waugh randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading",
+            "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition",
+            "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks",
+            "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task",
+            "Incentives": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality",
+            "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market",
+            "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Mr Waugh setting a price",
+            "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality"
+        };
+
+        let studentsData = [];
+        let selectedStudent = null;
+
+        document.getElementById('csvInput').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const csvText = e.target.result;
+                processCSV(csvText);
+            };
+            reader.readAsText(file);
+        }
+
+        function processCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim());
+            const students = new Map();
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                // Parse CSV line - handle quoted fields with commas
+                const fields = parseCSVLine(line);
+                if (fields.length < 4) continue;
+
+                const timestamp = fields[0];
+                const pin = fields[1];
+                const name = fields[2];
+                const responsesJson = fields[3];
+
+                if (!pin || !name) continue;
+
+                // Parse the JSON responses
+                const responses = parseResponses(responsesJson);
+                if (!responses || responses.length === 0) continue;
+
+                const studentKey = pin;
+                const existing = students.get(studentKey);
+
+                // Keep the most recent submission based on timestamp
+                if (!existing || timestamp > existing.timestamp) {
+                    students.set(studentKey, {
+                        pin: pin,
+                        name: name.trim(),
+                        timestamp: timestamp,
+                        responses: responses
+                    });
+                }
+            }
+
+            // Convert to array and grade each student
+            studentsData = Array.from(students.values()).map(student => {
+                const graded = gradeStudent(student);
+                return { ...student, ...graded };
+            });
+
+            // Sort by name
+            studentsData.sort((a, b) => a.name.localeCompare(b.name));
+
+            updateDashboard();
+        }
+
+        function parseCSVLine(line) {
+            const fields = [];
+            let current = '';
+            let inQuotes = false;
+            let i = 0;
+
+            while (i < line.length) {
+                const char = line[i];
+
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    fields.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+                i++;
+            }
+            fields.push(current);
+
+            return fields;
+        }
+
+        function parseResponses(jsonStr) {
+            if (!jsonStr || jsonStr.trim() === '') return [];
+
+            try {
+                // Try direct parse first
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                // Repair malformed JSON from Google Sheets
+                let repaired = jsonStr.replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":');
+                repaired = repaired.replace(/:\s*,/g, ': "",');
+                repaired = repaired.replace(/:\s*\}/g, ': ""}');
+                repaired = repaired.replace(/:\s*([^"{}\[\],\s][^,}\]]*?)([,\}])/g, function (match, value, delimiter) {
+                    const trimmed = value.trim();
+                    if (/^(true|false|null|\d+\.?\d*)$/i.test(trimmed)) {
+                        return ': ' + trimmed + delimiter;
+                    }
+                    const escaped = trimmed.replace(/"/g, '\\"');
+                    return ': "' + escaped + '"' + delimiter;
+                });
+                repaired = repaired.replace(/,(\s*[}\]])/g, '$1');
+
+                try {
+                    return JSON.parse(repaired);
+                } catch (e2) {
+                    return [];
+                }
+            }
+        }
+
+        function gradeStudent(student) {
+            let correctMatches = 0;
+            const termResults = [];
+
+            for (const response of student.responses) {
+                const term = response.term;
+                const studentMatch = (response.match || '').trim();
+                const correctMatch = CORRECT_MATCHES[term] || '';
+
+                const isCorrect = studentMatch.toLowerCase() === correctMatch.toLowerCase();
+                if (isCorrect) correctMatches++;
+
+                termResults.push({
+                    term: term,
+                    definition: response.definition || '',
+                    studentMatch: studentMatch,
+                    correctMatch: correctMatch,
+                    isCorrect: isCorrect,
+                    isEmpty: !studentMatch
+                });
+            }
+
+            const hasDefinitions = student.responses.some(r => r.definition && r.definition.trim());
+            const definitionCount = student.responses.filter(r => r.definition && r.definition.trim()).length;
+
+            return {
+                correctMatches: correctMatches,
+                totalTerms: 15,
+                termResults: termResults,
+                hasDefinitions: hasDefinitions,
+                definitionCount: definitionCount,
+                score: correctMatches,
+                status: correctMatches === 15 ? 'complete' : (correctMatches >= 8 ? 'partial' : 'incomplete')
+            };
+        }
+
+        function updateDashboard() {
+            document.getElementById('upload-section').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+
+            const total = studentsData.length;
+            const complete = studentsData.filter(s => s.status === 'complete').length;
+            const partial = studentsData.filter(s => s.status === 'partial').length;
+            const incomplete = studentsData.filter(s => s.status === 'incomplete').length;
+
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('completeCount').textContent = complete;
+            document.getElementById('partialCount').textContent = partial;
+            document.getElementById('incompleteCount').textContent = incomplete;
+
+            const grid = document.getElementById('studentGrid');
+            grid.innerHTML = '';
+
+            for (const student of studentsData) {
+                const card = document.createElement('div');
+                card.className = `student-card ${student.status}`;
+                card.onclick = () => showStudentDetails(student);
+
+                const percentage = (student.correctMatches / 15) * 100;
+
+                card.innerHTML = `
+                    <div class="student-name">${escapeHtml(student.name)}</div>
+                    <div class="student-pin">PIN: ${student.pin}</div>
+                    <div class="student-score">
+                        <span>${student.correctMatches}/15 matches</span>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        function showStudentDetails(student) {
+            selectedStudent = student;
+            const modal = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+
+            const incompleteTerms = student.termResults.filter(r => !r.isCorrect && !r.isEmpty);
+            const emptyTerms = student.termResults.filter(r => r.isEmpty);
+
+            let todoHtml = '';
+            if (incompleteTerms.length > 0 || emptyTerms.length > 0) {
+                todoHtml = `
+                    <div class="todo-list">
+                        <h4>⚠️ Incomplete Work</h4>
+                        <ul>
+                            ${incompleteTerms.map(r => `<li><strong>${r.term}</strong> - Incorrect match</li>`).join('')}
+                            ${emptyTerms.map(r => `<li><strong>${r.term}</strong> - No answer provided</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 5px;">${escapeHtml(student.name)}</h2>
+                <p style="color: var(--text-dim); margin-bottom: 20px;">PIN: ${student.pin} | Submitted: ${student.timestamp}</p>
+                
+                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(${student.status === 'complete' ? 'success' : 'error'});">${student.correctMatches}/15</div>
+                        <div style="color: var(--text-dim);">Correct Matches</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--secondary);">${student.definitionCount}/15</div>
+                        <div style="color: var(--text-dim);">Definitions Written</div>
+                    </div>
+                </div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Student's Match</th>
+                            <th>Correct Match</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${student.termResults.map(r => `
+                            <tr>
+                                <td><strong>${r.term}</strong></td>
+                                <td style="${r.isEmpty ? 'color: var(--text-dim); font-style: italic;' : ''}">${r.isEmpty ? '(no answer)' : escapeHtml(r.studentMatch)}</td>
+                                <td>${escapeHtml(r.correctMatch)}</td>
+                                <td class="${r.isEmpty ? 'status-empty' : (r.isCorrect ? 'status-correct' : 'status-incorrect')}">
+                                    ${r.isEmpty ? 'Empty' : (r.isCorrect ? '✓ Correct' : '✗ Incorrect')}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                ${todoHtml}
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal(event) {
+            if (!event || event.target === document.getElementById('modalOverlay')) {
+                document.getElementById('modalOverlay').classList.remove('active');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function exportHTML() {
+            const html = generateHTMLResults();
+            downloadFile(html, 'answerresults.html', 'text/html');
+        }
+
+        function exportMarkdown() {
+            const md = generateMarkdownSummary();
+            downloadFile(md, 'markingresults3-30.md', 'text/markdown');
+        }
+
+        function exportJSON() {
+            const json = JSON.stringify(studentsData, null, 2);
+            downloadFile(json, 'student-data.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateHTMLResults() {
+            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adam Smith Market Project - Debrief Results (${date})</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+        }
+        h1 { color: var(--primary); font-size: 2rem; margin-bottom: 10px; }
+        .subtitle { color: var(--text-dim); }
+        
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .student-card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .student-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .student-card.complete { border-left: 4px solid var(--success); }
+        .student-card.partial { border-left: 4px solid var(--secondary); }
+        .student-card.incomplete { border-left: 4px solid var(--error); }
+        
+        .student-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-badge.complete { background: var(--success); }
+        .status-badge.partial { background: var(--secondary); }
+        .status-badge.incomplete { background: var(--error); }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            background: var(--card);
+            max-width: 1000px;
+            margin: 0 auto;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+        .modal-close:hover { color: var(--text); }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .results-table th, .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .results-table th { background: rgba(0,0,0,0.2); color: var(--primary); }
+        .status-correct { color: var(--success); font-weight: bold; }
+        .status-incorrect { color: var(--error); font-weight: bold; }
+        .status-empty { color: var(--text-dim); }
+        
+        .todo-section {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .todo-section h4 { color: var(--error); margin-bottom: 10px; }
+        .todo-section ul { margin-left: 20px; }
+        .todo-section li { margin-bottom: 5px; color: var(--text-dim); }
+        
+        .pin-input-section {
+            text-align: center;
+            padding: 40px;
+        }
+        .pin-input {
+            font-size: 2rem;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        .pin-btn {
+            background: var(--primary);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .pin-btn:hover { background: var(--primary-dark); }
+        
+        .results-view { display: none; }
+        .results-view.active { display: block; }
+        
+        .back-btn {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Adam Smith Market Project - Debrief Results</h1>
+            <p class="subtitle">Generated: ${date}</p>
+        </header>
+        
+        <div class="pin-input-section" id="pinSection">
+            <h2 style="margin-bottom: 20px;">Enter Your PIN to View Results</h2>
+            <input type="text" class="pin-input" id="pinInput" placeholder="Enter PIN" maxlength="10">
+            <br>
+            <button class="pin-btn" onclick="checkPIN()">View My Results</button>
+            <p id="pinError" style="color: var(--error); margin-top: 15px; display: none;">PIN not found. Please check and try again.</p>
+        </div>
+        
+        <div class="results-view" id="resultsView">
+            <button class="back-btn" onclick="showPINSection()">← Back to PIN Entry</button>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const students = ${JSON.stringify(studentsData)};
+        
+        function checkPIN() {
+            const pin = document.getElementById('pinInput').value.trim();
+            const student = students.find(s => s.pin === pin);
+            
+            if (!student) {
+                document.getElementById('pinError').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('pinSection').style.display = 'none';
+            document.getElementById('resultsView').classList.add('active');
+            
+            const incompleteTerms = student.termResults.filter(r => !r.isCorrect && !r.isEmpty);
+            const emptyTerms = student.termResults.filter(r => r.isEmpty);
+            
+            let todoHtml = '';
+            if (incompleteTerms.length > 0 || emptyTerms.length > 0) {
+                todoHtml = \`
+                    <div class="todo-section" id="todo-section">
+                        <h4>⚠️ TODO - Incomplete Work</h4>
+                        <ul>
+                            \${incompleteTerms.map(r => \`<li><strong>\${r.term}</strong> - Your match was incorrect</li>\`).join('')}
+                            \${emptyTerms.map(r => \`<li><strong>\${r.term}</strong> - No answer provided</li>\`).join('')}
+                        </ul>
+                    </div>
+                \`;
+            }
+            
+            document.getElementById('resultsContent').innerHTML = \`
+                <h2 style="color: var(--primary);">Results for: \${student.name}</h2>
+                <p style="color: var(--text-dim); margin: 10px 0 30px;">PIN: \${student.pin}</p>
+                
+                <div style="display: flex; gap: 30px; margin-bottom: 30px;">
+                    <div style="text-align: center; padding: 20px; background: var(--card); border-radius: 12px; flex: 1;">
+                        <div style="font-size: 3rem; color: \${student.correctMatches === 15 ? 'var(--success)' : 'var(--error)'};">\${student.correctMatches}/15</div>
+                        <div style="color: var(--text-dim);">Correct Matches</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: var(--card); border-radius: 12px; flex: 1;">
+                        <div style="font-size: 3rem; color: var(--secondary);">\${student.definitionCount}/15</div>
+                        <div style="color: var(--text-dim);">Definitions Written</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 15px;">Detailed Results</h3>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Your Answer</th>
+                            <th>Correct Answer</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        \${student.termResults.map(r => \`
+                            <tr>
+                                <td><strong>\${r.term}</strong></td>
+                                <td style="\${r.isEmpty ? 'color: var(--text-dim); font-style: italic;' : ''}">\${r.isEmpty ? '(no answer)' : escapeHtml(r.studentMatch)}</td>
+                                <td>\${escapeHtml(r.correctMatch)}</td>
+                                <td class="\${r.isEmpty ? 'status-empty' : (r.isCorrect ? 'status-correct' : 'status-incorrect')}">
+                                    \${r.isEmpty ? 'Empty' : (r.isCorrect ? '✓ Correct' : '✗ Incorrect')}
+                                </td>
+                            </tr>
+                        \`).join('')}
+                    </tbody>
+                </table>
+                
+                \${todoHtml}
+            \`;
+        }
+        
+        function showPINSection() {
+            document.getElementById('pinSection').style.display = 'block';
+            document.getElementById('resultsView').classList.remove('active');
+            document.getElementById('pinError').style.display = 'none';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function closeModal(event) {
+            if (!event || event.target === document.getElementById('modalOverlay')) {
+                document.getElementById('modalOverlay').classList.remove('active');
+            }
+        }
+    <\/script>
+</body>
+</html>`;
+        }
+
+        function generateMarkdownSummary() {
+            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            let md = `# Student Marking Results - March 30, ${new Date().getFullYear()}\n\n`;
+            md += `**Generated:** ${date}\n\n`;
+            md += `---\n\n`;
+
+            // Summary stats
+            const total = studentsData.length;
+            const complete = studentsData.filter(s => s.status === 'complete').length;
+            const partial = studentsData.filter(s => s.status === 'partial').length;
+            const incomplete = studentsData.filter(s => s.status === 'incomplete').length;
+
+            md += `## Summary\n\n`;
+            md += `| Metric | Count |\n|--------|-------|\n`;
+            md += `| Total Students | ${total} |\n`;
+            md += `| Complete (15/15) | ${complete} |\n`;
+            md += `| Partial Work | ${partial} |\n`;
+            md += `| Incomplete | ${incomplete} |\n\n`;
+
+            md += `---\n\n`;
+            md += `## Student Results\n\n`;
+            md += `| Name | PIN | Matches | Definitions | Status |\n`;
+            md += `|------|-----|---------|-------------|--------|\n`;
+
+            for (const student of studentsData) {
+                const statusIcon = student.status === 'complete' ? '✅' : (student.status === 'partial' ? '⚠️' : '❌');
+                md += `| ${student.name} | ${student.pin} | ${student.correctMatches}/15 | ${student.definitionCount}/15 | ${statusIcon} ${student.status} |\n`;
+            }
+
+            md += `\n---\n\n`;
+            md += `## Detailed Student Analysis\n\n`;
+
+            for (const student of studentsData) {
+                md += `### ${student.name} (PIN: ${student.pin})\n\n`;
+                md += `- **Correct Matches:** ${student.correctMatches}/15\n`;
+                md += `- **Definitions Written:** ${student.definitionCount}/15\n`;
+                md += `- **Status:** ${student.status.toUpperCase()}\n\n`;
+
+                const incorrectTerms = student.termResults.filter(r => !r.isCorrect);
+                if (incorrectTerms.length > 0) {
+                    md += `**Incorrect/Empty Responses:**\n\n`;
+                    for (const r of incorrectTerms) {
+                        md += `- **${r.term}:** ${r.isEmpty ? '(no answer)' : 'Incorrect match'}\n`;
+                    }
+                    md += `\n`;
+                }
+
+                md += `---\n\n`;
+            }
+
+            return md;
+        }
+    </script>
+</body>
+
+</html>

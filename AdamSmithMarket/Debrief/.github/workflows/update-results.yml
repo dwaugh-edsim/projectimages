@@ -1,0 +1,45 @@
+name: Update Student Results
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Every 12 hours (at minute 0)
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  update-results:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd projectimages/AdamSmithMarket/Debrief/scripts
+          npm install
+
+      - name: Run update script
+        run: |
+          cd projectimages/AdamSmithMarket/Debrief/scripts
+          node update-results.js
+        env:
+          ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+
+      - name: Commit and push results
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m 'Auto-update student results [skip ci]'
+            git push
+          fi
