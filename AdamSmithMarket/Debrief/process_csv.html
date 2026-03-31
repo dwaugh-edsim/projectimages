@@ -812,7 +812,10 @@
         }
 
         function generateHTMLResults() {
-            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const now = new Date();
+            const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+            const isoTimestamp = now.toISOString();
 
             return `<!DOCTYPE html>
 <html lang="en">
@@ -820,6 +823,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adam Smith Market Project - Debrief Results (${date})</title>
+    <meta name="last-updated" content="${isoTimestamp}">
     <style>
         :root {
             --primary: #6366f1;
@@ -848,7 +852,29 @@
             margin-bottom: 30px;
         }
         h1 { color: var(--primary); font-size: 2rem; margin-bottom: 10px; }
-        .subtitle { color: var(--text-dim); }
+        .subtitle {
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .freshness-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .freshness-badge::before {
+            content: '✓';
+            display: inline-block;
+        }
         
         .student-grid {
             display: grid;
@@ -981,7 +1007,10 @@
     <div class="container">
         <header>
             <h1>📊 Adam Smith Market Project - Debrief Results</h1>
-            <p class="subtitle">Generated: ${date}</p>
+            <p class="subtitle">
+                <span>Generated: ${date} at ${time}</span>
+                <span class="freshness-badge">Fresh Data</span>
+            </p>
         </header>
         
         <div class="pin-input-section" id="pinSection">
