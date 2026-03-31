@@ -7,23 +7,23 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-# Correct answers for matching
+# Correct answers for matching (from debrief_assignment.html items array)
 CORRECT_MATCHES = {
-    "Barter": "Trading a power bank directly for a box of tissues without using any money",
+    "Barter": "Trading a power bank directly for a box of tissues without using any money.",
     "Double Coincidence of Wants": "Failing to trade because you have cards but the other person needs tissues, and neither of you wants what the other has.",
     "Medium of Exchange": "Using gold coins to buy an apple instead of having to find a specific trade partner who wants your spare staples.",
     "Scarcity": "The fundamental problem that there wasn't enough bread printed for everyone in the room to finish their mission cards.",
-    "Shortage": "Not being able to buy bread even though you had money because there wasn't enough printed",
+    "Shortage": "The situation after the 'drought' where the sudden removal of wheat meant many students couldn't find any, despite having the money.",
     "Inflation": "A general rise in prices across the room because Mr Waugh injected more cash into the system.",
     "Deflation": "Prices for bookmarks dropping because Mr Waugh only had 29 gold coins and couldn't afford to pay the original price.",
     "Liquidity": "Mr Waugh randomly dropping extra dollar bills onto students' desks to increase the amount of cash available for trading.",
     "Monopoly": "The 'Dead' students in the graveyard being the only ones left with wheat and charging whatever they wanted because there was no competition.",
-    "Specialization": "One student only making bread while another only made bookmarks",
-    "Division of Labor": "Breaking down the production process so different people handle different steps",
-    "Incentives": "The extra credit offer for completing all 15 terms",
-    "Rational Self-Interest": "Students trying to complete their missions and get the best grade possible",
-    "The Invisible Hand": "The market naturally finding balance without Mr Waugh controlling every trade",
-    "Competition": "Multiple sellers trying to get the same customers"
+    "Specialization": "One student focusing only on cutting paper while another focused only on taping to increase their total output of bookmarks.",
+    "Division of Labor": "Breaking the bookmark-making process into a 'factory line' where each person performed one specific task.",
+    "Incentives": "Students forming 'corporations' because they realized they could earn more gold coins by working together than as individuals.",
+    "Rational Self-Interest": "Students focusing solely on completing their own mission cards to 'survive,' regardless of how it impacted the rest of the market.",
+    "The Invisible Hand": "Prices for bread and wheat adjusting naturally based on student demand after the drought, without Mr Waugh setting a price.",
+    "Competition": "The 'Artisan' student producing a single high-quality bookmark while the 'Corporation' next to him produced ten faster, forcing everyone to consider price vs. quality."
 }
 
 # Definition keywords for grading
@@ -58,6 +58,8 @@ def compare_matches(student: str, correct: str) -> bool:
         s = re.sub(r'[.,!?;:]+$', '', s.lower())
         # Normalize multiple spaces
         s = re.sub(r'\s+', ' ', s)
+        # Accept either "Mr Waugh" or "Prof Smith" (teacher name variations)
+        s = re.sub(r'\b(professor|prof|mr|mr\.?)\s+smith\b', 'mr waugh', s, flags=re.IGNORECASE)
         return s.strip()
     
     return normalize(student) == normalize(correct)
