@@ -543,8 +543,12 @@
                 const studentMatch = (response.match || '').trim();
                 const correctMatch = CORRECT_MATCHES[term] || '';
 
-                const isCorrect = studentMatch.toLowerCase() === correctMatch.toLowerCase();
+                // Use lenient comparison - ignore trailing punctuation, extra spaces, case
+                const isCorrect = compareMatches(studentMatch, correctMatch);
                 if (isCorrect) correctMatches++;
+
+                // Grade definition using keyword matching
+                const definitionGrade = gradeDefinition(term, response.definition || '');
 
                 termResults.push({
                     term: term,
@@ -552,7 +556,8 @@
                     studentMatch: studentMatch,
                     correctMatch: correctMatch,
                     isCorrect: isCorrect,
-                    isEmpty: !studentMatch
+                    isEmpty: !studentMatch,
+                    definitionGrade: definitionGrade
                 });
             }
 
@@ -567,6 +572,72 @@
                 definitionCount: definitionCount,
                 score: correctMatches,
                 status: correctMatches === 15 ? 'complete' : (correctMatches >= 8 ? 'partial' : 'incomplete')
+            };
+        }
+
+        // Lenient comparison - normalizes text before comparing
+        function compareMatches(student, correct) {
+            if (!student && !correct) return true;
+            if (!student || !correct) return false;
+
+            const normalize = (str) => {
+                return str
+                    .toLowerCase()
+                    .replace(/[.,!?;:]+$/g, '')  // Remove trailing punctuation
+                    .replace(/\s+/g, ' ')         // Normalize multiple spaces
+                    .trim();
+            };
+
+            return normalize(student) === normalize(correct);
+        }
+
+        // Grade definition quality using keyword matching
+        function gradeDefinition(term, definition) {
+            if (!definition || definition.trim() === '') {
+                return { score: 0, maxScore: 3, feedback: 'No definition provided' };
+            }
+
+            const defLower = definition.toLowerCase();
+
+            // Keywords for each term's definition
+            const definitionKeywords = {
+                "Barter": ["trade", "exchange", "goods", "services", "money", "direct", "swap"],
+                "Double Coincidence of Wants": ["both", "want", "each other", "mutual", "trade", "match"],
+                "Medium of Exchange": ["money", "accepted", "payment", "facilitate", "buy", "sell", "intermediary"],
+                "Scarcity": ["limited", "unlimited", "resources", "wants", "fundamental", "problem"],
+                "Shortage": ["temporary", "not enough", "demand", "supply", "available"],
+                "Inflation": ["prices", "increase", "rise", "general", "purchasing", "fall"],
+                "Deflation": ["prices", "decrease", "drop", "fall", "general"],
+                "Liquidity": ["easily", "quickly", "convert", "cash", "asset", "spent"],
+                "Monopoly": ["one", "single", "control", "no competition", "exclusive"],
+                "Specialization": ["focus", "specific", "skill", "task", "efficient", "expert"],
+                "Division of Labor": ["break", "smaller", "parts", "different people", "tasks", "steps"],
+                "Incentives": ["motivate", "reward", "encourage", "behavior", "action"],
+                "Rational Self-Interest": ["benefit", "choices", "self", "best", "decision"],
+                "The Invisible Hand": ["natural", "balance", "market", "without interference", "adjust"],
+                "Competition": ["rival", "compete", "multiple", "sellers", "buyers", "choice"]
+            };
+
+            const keywords = definitionKeywords[term] || [];
+            let matchCount = 0;
+
+            for (const keyword of keywords) {
+                if (defLower.includes(keyword.toLowerCase())) {
+                    matchCount++;
+                }
+            }
+
+            // Score based on keyword matches (need at least 2 keywords for full marks)
+            const score = Math.min(3, Math.floor((matchCount / keywords.length) * 4));
+            const quality = score >= 3 ? 'good' : (score >= 2 ? 'partial' : 'weak');
+
+            return {
+                score: score,
+                maxScore: 3,
+                quality: quality,
+                keywordMatches: matchCount,
+                totalKeywords: keywords.length,
+                feedback: score >= 3 ? 'Good definition with key concepts' : (score >= 2 ? 'Partial understanding' : 'Needs more detail')
             };
         }
 
@@ -644,6 +715,7 @@
                     </div>
                 </div>
 
+                <h3 style="margin: 20px 0 10px;">Match Results</h3>
                 <table class="results-table">
                     <thead>
                         <tr>
@@ -661,6 +733,34 @@
                                 <td>${escapeHtml(r.correctMatch)}</td>
                                 <td class="${r.isEmpty ? 'status-empty' : (r.isCorrect ? 'status-correct' : 'status-incorrect')}">
                                     ${r.isEmpty ? 'Empty' : (r.isCorrect ? '✓ Correct' : '✗ Incorrect')}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <h3 style="margin: 20px 0 10px;">Definition Quality Analysis</h3>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Term</th>
+                            <th>Student's Definition</th>
+                            <th>Quality</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${student.termResults.map(r => `
+                            <tr>
+                                <td><strong>${r.term}</strong></td>
+                                <td style="${!r.definition ? 'color: var(--text-dim); font-style: italic;' : ''}">${!r.definition ? '(no definition)' : escapeHtml(r.definition)}</td>
+                                <td>
+                                    ${!r.definition
+                    ? '<span style="color: var(--text-dim);">Not written</span>'
+                    : `<span style="color: var(--${r.definitionGrade.quality === 'good' ? 'success' : (r.definitionGrade.quality === 'partial' ? 'secondary' : 'error')}); font-weight: bold;">
+                                            ${r.definitionGrade.quality === 'good' ? '✓ Good' : (r.definitionGrade.quality === 'partial' ? '⚠ Partial' : '✗ Weak')}
+                                           </span>
+                                           <span style="color: var(--text-dim); margin-left: 5px;">(${r.definitionGrade.feedback})</span>`
+                }
                                 </td>
                             </tr>
                         `).join('')}
