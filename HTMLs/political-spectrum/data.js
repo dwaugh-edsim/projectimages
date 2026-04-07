@@ -118,6 +118,66 @@ const politicalStatements = [
     text: "Lowering taxes on corporations encourages them to invest more and create more jobs.",
     alignment: "Right",
     category: "Economic"
+  },
+  {
+    id: 21,
+    text: "The provincial government should invest more in protecting Nova Scotia's coastline from sea level rise, even if it means higher taxes.",
+    alignment: "Left",
+    category: "Environment"
+  },
+  {
+    id: 22,
+    text: "Nova Scotia should prioritize attracting new residents from other provinces to help grow our economy and fill labour shortages.",
+    alignment: "Left",
+    category: "Social"
+  },
+  {
+    id: 23,
+    text: "The government should reduce regulations on small businesses in Nova Scotia to help them compete and grow.",
+    alignment: "Right",
+    category: "Economic"
+  },
+  {
+    id: 24,
+    text: "Public transit should be made free for all students in Nova Scotia to encourage its use and reduce traffic.",
+    alignment: "Left",
+    category: "Transportation"
+  },
+  {
+    id: 25,
+    text: "Nova Scotia should focus on developing our offshore oil and gas resources to create jobs and generate revenue.",
+    alignment: "Right",
+    category: "Energy"
+  },
+  {
+    id: 26,
+    text: "The government should spend more on building affordable housing in Halifax and other Nova Scotia cities.",
+    alignment: "Left",
+    category: "Housing"
+  },
+  {
+    id: 27,
+    text: "Nova Scotia's fishing industry should be protected with stricter regulations, even if it limits some commercial activities.",
+    alignment: "Left",
+    category: "Fishing"
+  },
+  {
+    id: 28,
+    text: "Taxes on alcohol and tobacco should be increased in Nova Scotia to discourage use and fund healthcare.",
+    alignment: "Left",
+    category: "Healthcare"
+  },
+  {
+    id: 29,
+    text: "The provincial government should reduce spending on political advertising and focus on core services.",
+    alignment: "Right",
+    category: "Spending"
+  },
+  {
+    id: 30,
+    text: "Nova Scotia should invest more in preserving our Mi'kmaq heritage and supporting reconciliation efforts.",
+    alignment: "Left",
+    category: "Reconciliation"
   }
 ];
 
@@ -129,5 +189,11 @@ const platformIssues = [
   "Halifax Local Issue",
   "Cost of Living/Inflation",
   "Foreign Policy",
-  "Inequality/Reconciliation"
+  "Inequality/Reconciliation",
+  "Nova Scotia Coastline Protection",
+  "Offshore Oil and Gas",
+  "Affordable Housing",
+  "Public Transit",
+  "Fishing Industry",
+  "Mi'kmaq Reconciliation"
 ];
