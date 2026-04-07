@@ -14,6 +14,18 @@
 
 ---
 
+## The 3 Levels of Government
+
+In Canada, power is shared between three distinct levels:
+
+1. **Federal (National)**: Deals with the whole country (Defense, Immigration, Trade, Criminal Law). Led by the Prime Minister.
+2. **Provincial**: Deals with provincial needs (Healthcare, Education, Highways, Natural Resources). Led by the Premier.
+3. **Municipal (Local)**: Deals with your city or town (Garbage, Parks, Libraries, Fire services). Led by the Mayor.
+
+> 📝 **For our challenge:** We are going to "blur" these lines. You can pick issues from **any** level to build your party platform!
+
+---
+
 ## How Many Parties Are There?
 
 Canada has **many** registered parties, but only a handful win seats:

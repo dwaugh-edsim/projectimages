@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HFX Stock Exchange | Holiday Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --accent-glow: rgba(56, 189, 248, 0.3);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #0f172a, #020617);
+            color: #f8fafc;
+            min-height: 100-vh;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glow-border:focus-within {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .news-marquee {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .news-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .week-row {
+            transition: all 0.2s ease;
+        }
+        
+        .week-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: scale(1.01);
+        }
+
+        /* Modal Styles */
+        #newsModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.95);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            width: 1000px;
+            animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header Section -->
+        <header class="text-center mb-10 mt-6 slide-up">
+            <div class="inline-block px-4 py-1 rounded-full bg-red-500/10 text-red-400 text-sm font-semibold mb-4 border border-red-500/20 uppercase tracking-widest animate-pulse">
+                🔴 LIVE MARKET CRISIS: STRAIT OF HORMUZ
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-2 uppercase">
+                HFX <span class="bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-orange-500">Conflict Exchange</span>
+            </h1>
+            <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+                Track your $10,000 portfolio through the Q4 holiday surge. 
+                Enter the weekly bulletins to see your final performance.
+            </p>
+        </header>
+
+        <!-- Portfolio Setup -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass-card rounded-2xl p-6 glow-border transition">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Initial Investment</label>
+                <div class="flex items-center text-3xl font-bold text-white">
+                    <span class="text-slate-500 mr-2">$</span>
+                    <input type="number" id="startValue" value="10000" step="100" class="bg-transparent border-none focus:ring-0 w-full p-0">
+                </div>
+            </div>
+            
+            <div class="glass-card rounded-2xl p-6">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Selected Ticker</label>
+                <div class="text-3xl font-bold text-blue-400" id="currentTicker">MULTI-STOCK</div>
+                <div class="text-xs text-slate-500 italic mt-1" id="tickerDescription">Economics 12 | Select Stock on Sheet</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 bg-blue-500/5">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Net Profit/Loss</label>
+                <div id="netChangeDisplay" class="text-3xl font-bold text-emerald-400">+0.00%</div>
+                <div id="finalCashDisplay" class="text-xs text-slate-400 mt-1">$10,000.00 Final Value</div>
+            </div>
+        </div>
+
+        <!-- Weekly Tracker -->
+        <div class="glass-card rounded-3xl overflow-hidden mb-12">
+            <div class="bg-slate-800/50 p-4 border-b border-white/10 grid grid-cols-4 md:grid-cols-6 text-xs font-bold text-slate-500 uppercase tracking-widest text-center">
+                <div class="col-span-1">Week</div>
+                <div class="col-span-1">Manual % Input</div>
+                <div class="hidden md:block col-span-2">Headline Reveal</div>
+                <div class="col-span-1">Share Price</div>
+                <div class="col-span-1">Calc Value</div>
+            </div>
+
+            <div id="weeklyContainer" class="divide-y divide-white/5">
+                <!-- Rows injected by JS -->
+            </div>
+        </div>
+
+        <audio id="newsTheme" src="breaking_news.mp3" preload="auto"></audio>
+        
+        <footer class="text-center pb-12 opacity-50 text-sm">
+            HFX Stock Market Challenge &copy; 2026 | Economics 12 Professional Edition
+        </footer>
+    </div>
+
+    <!-- News Modal -->
+    <div id="newsModal">
+        <div class="modal-content glass-card rounded-3xl overflow-hidden border-2 border-white/20">
+            <div id="modalImageContainer" class="aspect-video bg-slate-900 flex items-center justify-center relative">
+                <img id="modalImage" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent"></div>
+                <div class="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded animate-pulse uppercase tracking-widest">Live Broadcast</div>
+            </div>
+            <div class="p-8 text-center bg-slate-950">
+                <h2 id="modalHeadline" class="text-3xl font-extrabold mb-4 text-white uppercase tracking-tight"></h2>
+                <p id="modalImpact" class="text-blue-400 font-mono text-lg mb-8"></p>
+                <button onclick="closeModal()" class="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition">Back to Tracker</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const WEEKS = 10;
+        const INITIAL_PRICE_PER_SHARE = 100;
+        
+        // News DB (Re-skinned for Hormuz/Aritzia theme)
+        const newsData = [
+            { week: 1, headline: "Rogue Drone Strike: Tensions unexpectedly boil over.", impact: "Fear grips market. CVE spikes (+12%) / Supply chain drops", img: "hormuz_landscape_news_1775000028658.png" },
+            { week: 2, headline: "The 'Stealth Drop' & Price Hike: NFLX shocker.", impact: "Tech Surge (NFLX +25%) / Foot traffic dies", img: "nflx_holiday_livingroom.png" },
+            { week: 3, headline: "Celebrity Ambush: Viral moment triggers mega-run.", impact: "Massive Retail Spike (ARTS +35%)", img: "artisia_landscape_ad_1775000044773.png" },
+            { week: 4, headline: "TOTAL SHUTDOWN: Ship traps 20% of global oil.", impact: "Energy Explosion (CVE +45%) / Total Bear Market Crash", img: "hormuz_landscape_news_1775000028658.png" },
+            { week: 5, headline: "Live-Stream Scandal: Rogue executive tanks McD.", impact: "Viral Boycott (MCD -25%)", img: "mcd_winter_store.png" },
+            { week: 6, headline: "Secret Bailout: Government funnels cash through RBC.", impact: "Financial Fortress (RBC +15%)", img: "rbc_winter_tower.png" },
+            { week: 7, headline: "Holiday Coup: Tech glitch results in massive sales.", impact: "Broad Recovery (LULU +18% / ARTS +15%)", img: "artisia_landscape_ad_1775000044773.png" },
+            { week: 8, headline: "The Squeeze: Hacker burns shorts to fuel GME.", impact: "Mother of Squeezes (GME +150%) / Hedge losses", img: "gme_digital_grid.png" },
+            { week: 9, headline: "Secret Formula: LULU acquires super supplement.", impact: "Health/Wellness (LULU +30%)", img: "lulu_winter_studio.png" },
+            { week: 10, headline: "Q4 Earnings Chaos & MAJOR TWISTS: Final reports!", impact: "Special Dividends & Bankruptcies. Massive Spread!", img: "hormuz_landscape_news_1775000028658.png" }
+        ];
+
+        const container = document.getElementById('weeklyContainer');
+        const startValInput = document.getElementById('startValue');
+        const netDisplay = document.getElementById('netChangeDisplay');
+        const cashDisplay = document.getElementById('finalCashDisplay');
+
+        function init() {
+            for (let i = 1; i <= WEEKS; i++) {
+                const row = document.createElement('div');
+                row.className = 'week-row grid grid-cols-4 md:grid-cols-6 items-center p-6 text-center';
+                
+                row.innerHTML = `
+                    <div class="col-span-1 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center text-xs font-mono text-slate-300 border border-white/5">W${i}</span>
+                    </div>
+                    <div class="col-span-1">
+                        <input type="number" id="input-w${i}" value="0" step="0.1" class="bg-indigo-950/30 border border-indigo-500/30 rounded-lg py-2 px-3 w-20 text-center font-bold text-white focus:ring-1 focus:ring-blue-400 outline-none">
+                    </div>
+                    <div class="hidden md:block col-span-2 text-left px-4">
+                        <div class="group relative">
+                            <div class="text-xs text-slate-500 italic truncate" id="news-w${i}">Headline Pending...</div>
+                            <button onclick="revealNews(${i})" class="absolute right-0 top-0 opacity-0 group-hover:opacity-100 bg-blue-500 text-[10px] px-2 py-1 rounded text-white transition">REVEAL</button>
+                        </div>
+                    </div>
+                    <div class="col-span-1 font-mono text-slate-300" id="price-w${i}">$100.00</div>
+                    <div class="col-span-1 font-bold text-indigo-300" id="val-w${i}">$10,000</div>
+                `;
+                container.appendChild(row);
+
+                document.getElementById(`input-w${i}`).addEventListener('input', calculate);
+            }
+            startValInput.addEventListener('input', calculate);
+            calculate();
+        }
+
+        function revealNews(week) {
+            const data = newsData.find(d => d.week === week);
+            const modal = document.getElementById('newsModal');
+            
+            // Audio trigger
+            const theme = document.getElementById('newsTheme');
+            if(theme) {
+                theme.currentTime = 0;
+                theme.play().catch(e => console.log("Audio play blocked: interaction required?"));
+            }
+
+            document.getElementById('modalImage').src = data.img;
+            document.getElementById('modalHeadline').innerText = data.headline;
+            document.getElementById('modalImpact').innerText = data.impact;
+            modal.style.display = 'flex';
+
+            // Also update the row text
+            const inlineEl = document.getElementById(`news-w${week}`);
+            inlineEl.innerHTML = `<span class='text-blue-400 font-semibold'>${data.headline}</span>`;
+            inlineEl.classList.remove('truncate');
+        }
+
+        function closeModal() {
+            document.getElementById('newsModal').style.display = 'none';
+        }
+
+        function calculate() {
+            let currentSum = parseFloat(startValInput.value) || 10000;
+            const startSum = currentSum;
+            let currentPrice = 100;
+            const shares = currentSum / currentPrice;
+
+            for (let i = 1; i <= WEEKS; i++) {
+                const percent = parseFloat(document.getElementById(`input-w${i}`).value) || 0;
+                
+                // Price math
+                const multiplier = 1 + (percent / 100);
+                currentPrice = Math.round(currentPrice * multiplier * 100) / 100;
+                
+                // Portfolio value
+                const weekVal = shares * currentPrice;
+                
+                // UI updates
+                const priceEl = document.getElementById(`price-w${i}`);
+                const valEl = document.getElementById(`val-w${i}`);
+                const inputEl = document.getElementById(`input-w${i}`);
+
+                priceEl.innerText = `$${currentPrice.toFixed(2)}`;
+                valEl.innerText = `$${Math.round(weekVal).toLocaleString()}`;
+
+                // Color coding
+                if (percent > 0) inputEl.className = inputEl.className.replace(/text-(slate|red|white)-(\d+)/g, '') + ' text-emerald-400';
+                else if (percent < 0) inputEl.className = inputEl.className.replace(/text-(slate|emerald|white)-(\d+)/g, '') + ' text-rose-400';
+            }
+
+            // Final Tally
+            const totalChange = ((currentPrice - 100) / 100) * 100;
+            netDisplay.innerText = `${totalChange > 0 ? '+' : ''}${totalChange.toFixed(2)}%`;
+            netDisplay.className = `text-3xl font-bold ${totalChange >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            
+            const finalCash = shares * currentPrice;
+            cashDisplay.innerText = `$${Math.round(finalCash).toLocaleString()} Final Portfolio Value`;
+        }
+
+        init();
+    </script>
+</body>
+</html>

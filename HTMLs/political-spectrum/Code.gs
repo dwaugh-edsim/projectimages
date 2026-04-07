@@ -1,69 +1,87 @@
 /**
- * CITIZENSHIP 9: ELECTION HQ BACKEND
- * 
- * Instructions:
- * 1. Create a new Google Spreadsheet.
- * 2. Go to Extensions > Apps Script.
- * 3. Replace the Code.gs content with this code.
- * 4. In Apps Script, go to Project Settings > Script Properties.
- * 5. Add a property called 'Z_AI_API_KEY' with your actual key.
- * 6. Deploy as a Web App (Execute as: Me, Who has access: Anyone).
- * 7. Copy the Web App URL and paste it into the 'scriptURL' variable in your app.js file.
+ * CITIZENSHIP 9: ELECTION HQ BACKEND (Multi-Sheet Version v2)
  */
 
 function doGet(e) {
-  return handleResponse(fetchParties());
+  return handleResponse({
+    parties: fetchData("Parties"),
+    profiles: fetchData("Profiles")
+  });
 }
 
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    var type = data.type || "party"; 
     
-    // Add to spreadsheet
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheets()[0];
-    
-    // Create headers if empty
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(['Timestamp', 'Party Name', 'Leader', 'Color', 'PIN', 'Members', 'Slogan', 'Platforms']);
+    if (type === "profile") {
+      saveProfile(data);
+    } else {
+      saveParty(data);
     }
     
-    sheet.appendRow([
-      new Date(),
-      data.name,
-      data.leader,
-      data.color,
-      data.pin,
-      data.members,
-      data.slogan,
-      data.platforms
-    ]);
-    
-    return handleResponse({ status: 'success', message: 'Party registered successfully' });
+    return handleResponse({ status: 'success', message: type + ' saved successfully' });
   } catch (err) {
     return handleResponse({ status: 'error', message: err.toString() });
   }
 }
 
-function fetchParties() {
+function saveProfile(data) {
+  // We use Name and PIN for security/updates
+  var sheet = getOrCreateSheet("Profiles", ['Timestamp', 'Name', 'PIN', 'Orientation', 'Priority Issue']);
+  sheet.appendRow([
+    new Date(),
+    data.name,
+    data.pin,
+    data.orientation,
+    data.priorityIssue
+  ]);
+}
+
+function saveParty(data) {
+  var sheet = getOrCreateSheet("Parties", ['Timestamp', 'Party Name', 'Leader', 'Color', 'PIN', 'Members', 'Slogan', 'Platforms']);
+  sheet.appendRow([
+    new Date(),
+    data.name,
+    data.leader,
+    data.color,
+    data.pin,
+    data.members,
+    data.slogan,
+    data.platforms
+  ]);
+}
+
+function fetchData(sheetName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheets()[0];
-  var data = sheet.getDataRange().getValues();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
   
+  var data = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
   
-  var parties = [];
+  var items = [];
   var headers = data[0];
   
   for (var i = 1; i < data.length; i++) {
-    var party = {};
+    var item = {};
     for (var j = 0; j < headers.length; j++) {
-      party[headers[j].toLowerCase().replace(' ', '')] = data[i][j];
+      var key = headers[j].toLowerCase().replace(/\s+/g, '');
+      item[key] = data[i][j];
     }
-    parties.push(party);
+    items.push(item);
   }
-  
-  return parties;
+  return items;
+}
+
+function getOrCreateSheet(name, headers) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.appendRow(headers);
+  }
+  return sheet;
 }
 
 function handleResponse(response) {
@@ -72,11 +90,11 @@ function handleResponse(response) {
 }
 
 /**
- * PROXY FOR LLM (For Tomorrow's Task)
+ * PROXY FOR LLM (Optional Feature)
  */
 function callAIJournalist(prompt) {
   var apiKey = PropertiesService.getScriptProperties().getProperty('Z_AI_API_KEY');
-  var endpoint = 'https://api.z.ai/api/coding/paas/v4/';
+  var endpoint = 'https://api.ax.ai/api/coding/paas/v4/';
   
   var payload = {
     "model": "gemini-1.5-pro",
