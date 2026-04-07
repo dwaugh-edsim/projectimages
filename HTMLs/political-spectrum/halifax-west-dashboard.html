@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halifax West | Live Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent: #10b981;
+            --left-color: #3b82f6;
+            --right-color: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 3rem;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(239, 68, 68, 0.15) 0%, transparent 50%);
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .logo-area h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .refresh-status {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            padding: 2.5rem;
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+        }
+
+        /* SPECTRUM SECTION */
+        .spectrum-area {
+            margin-bottom: 4rem;
+        }
+
+        .spectrum-bar {
+            height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 40px;
+            display: flex;
+            overflow: hidden;
+            border: 4px solid rgba(255,255,255,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            transition: width 1s ease;
+            font-size: 1.2rem;
+        }
+
+        .seg-left { background: var(--left-color); }
+        .seg-center { background: #fbbf24; color: #000; }
+        .seg-right { background: var(--right-color); }
+
+        /* PARTY GRID */
+        .parties-title {
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .party-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .party-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            animation: slide-in 0.5s ease-out;
+        }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .party-accent {
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 8px;
+        }
+
+        .party-name { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .party-leader { color: var(--text-muted); margin-bottom: 1rem; }
+        .party-slogan { font-style: italic; color: var(--accent); margin-bottom: 1.5rem; font-size: 1.1rem; }
+        
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(255,255,255,0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>ELECTION HEADQUARTERS</h1>
+            <p style="color: var(--text-muted); font-size: 1.2rem;">Halifax West Live Intelligence Dashboard</p>
+        </div>
+        <div class="refresh-status">
+            <div class="pulse"></div>
+            <span id="countdown">Updating in 20s</span>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="profile-count">0</div>
+            <div class="stat-label">Student Profiles Synced</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="party-count">0</div>
+            <div class="stat-label">Parties Registered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="issue-count">0</div>
+            <div class="stat-label">Unique Policy Proposals</div>
+        </div>
+    </div>
+
+    <div class="spectrum-area">
+        <div class="parties-title">
+            <span>🗳️ ideological Spectrum Balance</span>
+        </div>
+        <div class="spectrum-bar">
+            <div id="seg-left" class="segment seg-left" style="width: 33%">LEFT</div>
+            <div id="seg-center" class="segment seg-center" style="width: 34%">CENTER</div>
+            <div id="seg-right" class="segment seg-right" style="width: 33%">RIGHT</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-muted);">
+            <span>Progressive Viewpoints</span>
+            <span>Conservative Viewpoints</span>
+        </div>
+    </div>
+
+    <div class="parties-title">
+        <span>📢 Official Registered Parties</span>
+    </div>
+    <div class="party-grid" id="party-grid">
+        <!-- Cards injected via JS -->
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyjZESIp2PF_mZLbNrdbGANBRcWDbB1ic0m8rj2I9vAc3pLOUg1w5pEUontpUqE2er6/exec';
+        let countdown = 20;
+
+        async function updateDashboard() {
+            try {
+                const response = await fetch(scriptURL);
+                const data = await response.json();
+                
+                // Update Counts
+                document.getElementById('profile-count').innerText = data.profiles.length;
+                document.getElementById('party-count').innerText = data.parties.length;
+                
+                // Calculate Issues
+                const allPlatforms = data.parties.flatMap(p => p.platforms.split(', '));
+                document.getElementById('issue-count').innerText = [...new Set(allPlatforms)].length;
+
+                // Update Spectrum
+                const profileTotal = data.profiles.length;
+                if (profileTotal > 0) {
+                    const l = data.profiles.filter(p => p.orientation === 'left').length;
+                    const c = data.profiles.filter(p => p.orientation === 'center').length;
+                    const r = data.profiles.filter(p => p.orientation === 'right').length;
+
+                    const lp = (l / profileTotal) * 100;
+                    const cp = (c / profileTotal) * 100;
+                    const rp = (r / profileTotal) * 100;
+
+                    document.getElementById('seg-left').style.width = lp + '%';
+                    document.getElementById('seg-left').innerText = lp > 5 ? `LEFT (${Math.round(lp)}%)` : '';
+                    
+                    document.getElementById('seg-center').style.width = cp + '%';
+                    document.getElementById('seg-center').innerText = cp > 5 ? `CENTER (${Math.round(cp)}%)` : '';
+                    
+                    document.getElementById('seg-right').style.width = rp + '%';
+                    document.getElementById('seg-right').innerText = rp > 5 ? `RIGHT (${Math.round(rp)}%)` : '';
+                }
+
+                // Render Parties (only if count changed or grid is empty)
+                const grid = document.getElementById('party-grid');
+                grid.innerHTML = ''; // Fresh render
+                data.parties.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'party-card';
+                    card.innerHTML = `
+                        <div class="party-accent" style="background: ${p.color};"></div>
+                        <div class="party-name">${p.partyname}</div>
+                        <div class="party-leader">Led by ${p.leader}</div>
+                        <div class="party-slogan">"${p.slogan}"</div>
+                        <div class="tag-row">
+                            ${p.platforms.split(', ').map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error("Fetch failed", err);
+            }
+        }
+
+        // Countdown Timer
+        setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                updateDashboard();
+                countdown = 20;
+            }
+            document.getElementById('countdown').innerText = `Updating in ${countdown}s`;
+        }, 1000);
+
+        // Initial load
+        updateDashboard();
+
+    </script>
+</body>
+</html>
