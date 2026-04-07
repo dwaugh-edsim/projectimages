@@ -89,4 +89,33 @@ function handleResponse(response) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+
+/**
+ * PROXY FOR LLM (AI Journalist Feature)
+ */
+function callAIJournalist(prompt) {
+  var apiKey = PropertiesService.getScriptProperties().getProperty('Z_AI_API_KEY');
+  var endpoint = 'https://api.z.ai/api/coding/paas/v4';
+  
+  var payload = {
+    "model": "gemini-1.5-pro",
+    "messages": [
+      {
+        "role": "system", 
+        "content": "You are a tough, skeptical political journalist in Nova Scotia. You ask challenging questions to student political parties about their platforms. Be professional and age-appropriate."
+      },
+      { "role": "user", "content": prompt }
+    ]
+  };
+  
+  var options = {
+    "method": "post",
+    "contentType": "application/json",
+    "headers": { "Authorization": "Bearer " + apiKey },
+    "payload": JSON.stringify(payload),
+    "muteHttpExceptions": true
+  };
+  
+  var response = UrlFetchApp.fetch(endpoint, options);
+  return response.getContentText();
 }
