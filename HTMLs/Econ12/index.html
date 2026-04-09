@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>Econ 12 AI Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      padding: 1.5rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .reset-btn {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reset-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.5; }
+    }
+
+    /* Chat Area */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    #chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+    }
+
+    #chat-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 1.25rem;
+      border-radius: 16px;
+      line-height: 1.6;
+      font-size: 1rem;
+      position: relative;
+      animation: messageSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes messageSlideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+    }
+
+    .message p {
+      margin-bottom: 0.75rem;
+    }
+
+    .message p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message strong {
+      color: #fff;
+    }
+
+    /* Input Area */
+    .input-wrapper {
+      margin-top: 1.5rem;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(20px);
+    }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: none;
+      max-height: 150px;
+      outline: none;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .send-btn:hover {
+      background: var(--primary-hover);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .send-btn:disabled {
+      background: #334155;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Typing Indicator */
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      width: fit-content;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .typing.visible {
+      opacity: 1;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    /* Login Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3rem;
+      border-radius: 32px;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      animation: modalPop 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.9) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .modal p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .modal input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 1rem;
+    }
+
+    .login-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      main { padding: 1rem; }
+      .message { max-width: 90%; }
+      header { padding: 1rem; }
+      .modal { padding: 2rem; margin: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">E</div>
+      <div class="logo-text">
+        <h1 id="header-title">Economics 12</h1>
+        <p id="student-name-display">AI Review Tutor</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button onclick="resetChat()" class="reset-btn" title="Clear chat history">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+        Reset
+      </button>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        GLM-4.7 Online
+      </div>
+    </div>
+  </header>
+
+  <div id="login-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="logo-icon" style="margin: 0 auto 1.5rem;">E</div>
+      <h2>Student Login</h2>
+      <p>Enter your details to track your progress.</p>
+      
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" id="login-name" placeholder="Enter your name" required>
+      </div>
+      
+      <div class="input-group">
+        <label>4-Letter Password</label>
+        <input type="password" id="login-pwd" placeholder="e.g. ECON" maxlength="4" required>
+      </div>
+      
+      <button onclick="handleLogin()" class="login-btn" id="login-submit">Start Learning</button>
+    </div>
+  </div>
+
+  <main>
+    <div id="chat-container">
+      <!-- Welcome message -->
+      <div class="message ai">
+        <p>Welcome! I'm your Economics Review Assistant. I'm here to help you prepare for your upcoming test. Would you like to start with a concept review, or should I throw a practice scenario at you?</p>
+      </div>
+    </div>
+
+    <div id="typing-indicator" class="typing">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="input-wrapper">
+      <textarea id="user-input" placeholder="Type your response here..." rows="1"></textarea>
+      <button id="send-btn" class="send-btn" title="Send message">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const loginModal = document.getElementById('login-modal');
+    const nameDisplay = document.getElementById('student-name-display');
+
+    let chatHistory = [];
+    let studentData = null;
+    let studentPwd = "";
+
+    function handleLogin() {
+      const name = document.getElementById('login-name').value.trim();
+      const pwd = document.getElementById('login-pwd').value.trim().toUpperCase();
+      const loginBtn = document.getElementById('login-submit');
+
+      if (!name || pwd.length !== 4) {
+        alert("Please enter your full name and a 4-letter password.");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Connecting...";
+
+      google.script.run
+        .withSuccessHandler((data) => {
+          studentData = data;
+          studentPwd = pwd;
+          chatHistory = data.history || [];
+          
+          loginModal.classList.add('hidden');
+          nameDisplay.textContent = `Tutor: Learning with ${data.name}`;
+          
+          if (chatHistory.length > 0) {
+            renderHistory();
+          } else {
+            addMessage(`Welcome, ${data.name}! I'm your Economics Review Assistant. Ready to dive into some Grade 12 Economics concepts?`, 'ai');
+          }
+        })
+        .withFailureHandler((err) => {
+          alert("Login error: " + err.message);
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Start Learning";
+        })
+        .getStudentData(name, pwd);
+    }
+
+    function renderHistory() {
+      chatContainer.innerHTML = '';
+      chatHistory.forEach(msg => {
+        addMessage(msg.content, msg.role === 'assistant' ? 'ai' : 'user');
+      });
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function autoSave() {
+      if (!studentData) return;
+      
+      // Analyze history for strengths/weaknesses (simplified for now, AI will contribute)
+      const strengths = studentData.strengths || "";
+      const weaknesses = studentData.weaknesses || "";
+      
+      google.script.run.saveStudentProgress(
+        studentData.name,
+        studentPwd,
+        chatHistory,
+        strengths,
+        weaknesses
+      );
+    }
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Handle Enter key
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function resetChat() {
+      if (confirm('Clear chat history and start over?')) {
+        chatHistory = [];
+        chatContainer.innerHTML = `
+          <div class="message ai">
+            <p>Welcome! I'm your Economics Review Assistant. I've reset our session. Would you like to start with a concept review, or should I throw a practice scenario at you?</p>
+          </div>
+        `;
+      }
+    }
+
+    function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      // Add user message to UI
+      addMessage(text, 'user');
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      
+      // Update history
+      chatHistory.push({ role: 'user', content: text });
+
+      // Show typing indicator
+      typingIndicator.classList.add('visible');
+      sendBtn.disabled = true;
+
+      // Call GAS backend
+      google.script.run
+        .withSuccessHandler((response) => {
+          typingIndicator.classList.remove('visible');
+          sendBtn.disabled = false;
+          addMessage(response, 'ai');
+          chatHistory.push({ role: 'assistant', content: response });
+          
+          // Auto-save after AI response
+          autoSave();
+        })
+        .withFailureHandler((err) => {
+          typingIndicator.classList.remove('visible');
+          sendBtn.disabled = false;
+          addMessage("Sorry, something went wrong. " + err, 'ai');
+        })
+        .getAIResponse(chatHistory, studentData.name);
+    }
+
+    function addMessage(content, role) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${role}`;
+      
+      if (role === 'ai') {
+        msgDiv.innerHTML = marked.parse(content);
+      } else {
+        msgDiv.textContent = content;
+      }
+      
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  </script>
+</body>
+</html>
