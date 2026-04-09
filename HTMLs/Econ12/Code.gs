@@ -38,7 +38,7 @@ function doPost(e) {
 function getAIResponse(chatHistory, studentName) {
   const SCRIPT_PROP = PropertiesService.getScriptProperties();
   const API_KEY = SCRIPT_PROP.getProperty('ZAI_KEY');
-  const API_URL = 'https://api.z.ai/api/coding/paas/v4';
+  const API_URL = 'https://api.z.ai/api/coding/paas/v4/chat/completions';
   
   if (!API_KEY) {
     return "Error: API Key 'ZAI_KEY' not found in Script Properties.";
@@ -85,12 +85,21 @@ SCORING & DIALOG STRATEGY:
 
   try {
     const response = UrlFetchApp.fetch(API_URL, options);
-    const json = JSON.parse(response.getContentText());
+    const responseText = response.getContentText();
+    let json;
+    
+    try {
+      json = JSON.parse(responseText);
+    } catch (e) {
+      return "Error: Could not parse AI response. Status: " + response.getResponseCode() + ". Response: " + responseText.substring(0, 100);
+    }
     
     if (json.choices && json.choices.length > 0) {
       return json.choices[0].message.content;
     } else {
-      return "Error: " + (json.error ? json.error.message : "Malformed response from AI.");
+      // Detailed error reporting for ZAI API
+      const errorMsg = json.error ? (json.error.message || json.error.detail || JSON.stringify(json.error)) : "Malformed response from AI.";
+      return "Error: " + errorMsg;
     }
   } catch (e) {
     return "Error: " + e.toString();
