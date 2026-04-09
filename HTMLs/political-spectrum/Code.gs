@@ -37,16 +37,24 @@ function doPost(e) {
 }
 
 function authenticateParty(name, pin) {
+  var userQuery = name.toLowerCase().trim();
+  var pinQuery = pin.toUpperCase().trim();
   var parties = fetchData("Parties");
-  var party = parties.find(p => 
-    p.partyname.toLowerCase().trim() === name.toLowerCase().trim() && 
-    p.pin.toUpperCase().trim() === pin.toUpperCase().trim()
-  );
+  
+  var party = parties.find(p => {
+    // Match against any of the names linked to the party
+    var matchName = (p.partyname || "").toLowerCase().includes(userQuery);
+    var matchLeader = (p.leader || "").toLowerCase().includes(userQuery);
+    var matchMembers = (p.members || "").toLowerCase().includes(userQuery);
+    var matchPin = (p.pin || "").toUpperCase().trim() === pinQuery;
+    
+    return (matchName || matchLeader || matchMembers) && matchPin;
+  });
   
   if (party) {
     return handleResponse({ status: 'success', party: party });
   } else {
-    return handleResponse({ status: 'error', message: 'Invalid Party Name or PIN' });
+    return handleResponse({ status: 'error', message: 'Invalid Username or PIN' });
   }
 }
 
@@ -66,7 +74,7 @@ function saveParty(data) {
   var sheet = getOrCreateSheet("Parties", ['Timestamp', 'Party Name', 'Leader', 'Color', 'PIN', 'Members', 'Slogan', 'Platforms', 'Approval']);
   sheet.appendRow([
     new Date(),
-    data.name,
+    data.partyname || data.name,
     data.leader,
     data.color,
     data.pin,
@@ -208,4 +216,41 @@ function parseAIResponse(responseText) {
   } catch (err) {
     return { status: 'error', message: 'JSON Parse Error: ' + err.toString() };
   }
+}
+
+function fetchData(sheetName) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) return [];
+  
+  var data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return [];
+  
+  var items = [];
+  var headers = data[0];
+  
+  for (var i = 1; i < data.length; i++) {
+    var item = {};
+    for (var j = 0; j < headers.length; j++) {
+      var key = headers[j].toLowerCase().replace(/\s+/g, '');
+      item[key] = data[i][j];
+    }
+    items.push(item);
+  }
+  return items;
+}
+
+function getOrCreateSheet(name, headers) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.appendRow(headers);
+  }
+  return sheet;
+}
+
+function handleResponse(response) {
+  return ContentService.createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON);
 }

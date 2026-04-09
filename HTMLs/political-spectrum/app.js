@@ -39,55 +39,57 @@ function navigate(direction) {
     const revealContainer = document.getElementById('alignment-reveal');
     const card = document.getElementById('statement-card');
 
-    // Reset UI
     if (revealContainer) revealContainer.classList.remove('show');
-    document.getElementById('reveal-left').classList.remove('active-reveal');
-    document.getElementById('reveal-right').classList.remove('active-reveal');
+    const leftRev = document.getElementById('reveal-left');
+    const rightRev = document.getElementById('reveal-right');
+    if (leftRev) leftRev.classList.remove('active-reveal');
+    if (rightRev) rightRev.classList.remove('active-reveal');
 
-    // Reset vote buttons
-    agreeBtn.style.display = 'none';
-    disagreeBtn.style.display = 'none';
+    if (agreeBtn) agreeBtn.style.display = 'none';
+    if (disagreeBtn) disagreeBtn.style.display = 'none';
 
-    // Animation trigger
-    card.classList.remove('fade-in');
-    void card.offsetWidth; // Trigger reflow
-    card.classList.add('fade-in');
+    if (card) {
+        card.classList.remove('fade-in');
+        void card.offsetWidth; 
+        card.classList.add('fade-in');
+    }
 
     if (currentQuestionIndex === -1) {
-        statementText.innerText = "Ready to begin the Political Spectrum activity?";
-        counter.style.display = 'none';
-        prevBtn.style.display = 'none';
-        revealBtn.style.display = 'none';
-        nextBtn.innerText = "Start Activity";
+        if (statementText) statementText.innerText = "Ready to begin the Political Spectrum activity?";
+        if (counter) counter.style.display = 'none';
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (revealBtn) revealBtn.style.display = 'none';
+        if (nextBtn) nextBtn.innerText = "Start Activity";
     } else if (currentQuestionIndex < politicalStatements.length) {
         const q = politicalStatements[currentQuestionIndex];
-        statementText.innerText = q.text;
-        counter.innerText = `Question ${currentQuestionIndex + 1} of ${politicalStatements.length}`;
-        counter.style.display = 'block';
-        prevBtn.style.display = 'block';
-        revealBtn.style.display = 'block';
-        agreeBtn.style.display = 'block';
-        disagreeBtn.style.display = 'block';
-        nextBtn.innerText = "Next Statement";
-
-        if (currentQuestionIndex === politicalStatements.length - 1) {
-            nextBtn.innerText = "Finish Activity";
+        if (statementText) statementText.innerText = q.text;
+        if (counter) {
+            counter.innerText = `Question ${currentQuestionIndex + 1} of ${politicalStatements.length}`;
+            counter.style.display = 'block';
+        }
+        if (prevBtn) prevBtn.style.display = 'block';
+        if (revealBtn) revealBtn.style.display = 'block';
+        if (agreeBtn) agreeBtn.style.display = 'block';
+        if (disagreeBtn) disagreeBtn.style.display = 'block';
+        if (nextBtn) {
+            nextBtn.style.display = 'block';
+            nextBtn.innerText = currentQuestionIndex === politicalStatements.length - 1 ? "Finish Activity" : "Next Statement";
         }
     } else {
-        statementText.innerText = "Activity Complete! Good luck building your parties.";
-        counter.style.display = 'none';
-        prevBtn.style.display = 'block';
-        revealBtn.style.display = 'none';
-        agreeBtn.style.display = 'none';
-        disagreeBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
+        if (statementText) statementText.innerText = "Activity Complete! Good luck building your parties.";
+        if (counter) counter.style.display = 'none';
+        if (prevBtn) prevBtn.style.display = 'block';
+        if (revealBtn) revealBtn.style.display = 'none';
+        if (agreeBtn) agreeBtn.style.display = 'none';
+        if (disagreeBtn) disagreeBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
     }
 }
 
 function revealAlignment() {
     const revealContainer = document.getElementById('alignment-reveal');
     const q = politicalStatements[currentQuestionIndex];
-    revealContainer.classList.add('show');
+    if (revealContainer) revealContainer.classList.add('show');
     if (q.alignment === "Left") {
         document.getElementById('reveal-left').classList.add('active-reveal');
     } else {
@@ -113,60 +115,44 @@ function handleVote(isAgree) {
 // --- ELECTION HQ LOGIC ---
 
 async function initHQ() {
+    console.log("HQ Init Sequence Started...");
     populatePlatformIssues();
     loadLocalData();
-    checkSession(); // Restore login state if exists
+    checkSession(); 
     
-    // Fetch latest class data from the cloud
     showToast("Syncing with HQ...");
     try {
         const response = await fetch(scriptURL);
         const data = await response.json();
         if (data && data.parties) {
-            // Deduplicate: Keep only the LATEST entry for each unique party name (FUZZY)
             const parties = [];
             data.parties.forEach(p => {
                 const name = (p.partyname || p.name || "Unknown").trim();
                 const slogan = (p.slogan || "").trim();
-                
-                // Check if we already have a "similar" party
                 const existingIndex = parties.findIndex(existing => {
-                    const existingName = (existing.partyname || existing.name).trim();
-                    const existingSlogan = (existing.slogan || "").trim();
-                    
-                    // Match if slogan is identical OR names are 85% similar
-                    const isSameSlogan = slogan.length > 5 && slogan === existingSlogan;
-                    const isSimilarName = name.toLowerCase().includes(existingName.toLowerCase()) || 
-                                         existingName.toLowerCase().includes(name.toLowerCase());
-                                         
-                    return isSameSlogan || (isSimilarName && slogan === existingSlogan);
+                    const exName = (existing.partyname || existing.name).trim();
+                    const exSlogan = (existing.slogan || "").trim();
+                    return (slogan.length > 5 && slogan === exSlogan) || 
+                           (name.toLowerCase().includes(exName.toLowerCase()) && slogan === exSlogan);
                 });
-
-                if (existingIndex > -1) {
-                    parties[existingIndex] = p; // Overwrite with newer
-                } else {
-                    parties.push(p);
-                }
+                if (existingIndex > -1) parties[existingIndex] = p;
+                else parties.push(p);
             });
             registeredParties = parties;
         }
     } catch (err) {
-        console.error("Cloud fetch failed, using local fallback", err);
+        console.error("Cloud fetch failed", err);
     }
-    
     renderParties();
 }
 
-/**
- * AUTH LOGIC: Secure Party Login
- */
 async function loginToHQ() {
     const name = document.getElementById('login-party-name').value.trim();
     const pin = document.getElementById('login-party-pin').value.trim().toUpperCase();
     const errorEl = document.getElementById('login-error');
 
     if (!name || !pin) {
-        showToast("Enter Party Name & PIN");
+        showToast("Enter Name & PIN");
         return;
     }
 
@@ -196,11 +182,10 @@ function setSessionState(party) {
     sessionStorage.setItem('active_party', JSON.stringify(party));
     document.getElementById('login-overlay').classList.remove('active');
     
-    // Show approval gauge
-    document.getElementById('approval-gauge-container').style.display = 'flex';
+    // SUSPENSE: We track approval but hide the bar
     updateApprovalUI(party.approval || 50);
+    initWarRoom();
 
-    // If platform is already set, unlock press
     if (party.platforms && party.platforms.length > 20) {
         unlockMediaTab();
     }
@@ -212,31 +197,45 @@ function checkSession() {
         activeParty = JSON.parse(saved);
         const overlay = document.getElementById('login-overlay');
         if (overlay) overlay.classList.remove('active');
-        
-        document.getElementById('approval-gauge-container').style.display = 'flex';
-        updateApprovalUI(activeParty.approval || 50);
-        
+        initWarRoom(); 
         if (activeParty.platforms && activeParty.platforms.length > 20) {
             unlockMediaTab();
         }
     }
 }
 
-async function commitPlatform() {
-    const goal = document.getElementById('conf-goal').value.trim();
-    const platform = document.getElementById('conf-platform').value.trim();
-    const funding = document.getElementById('conf-funding').value.trim();
+// WAR ROOM LOGIC
+function initWarRoom() {
+    const fields = ['role-comms', 'role-policy', 'role-finance'];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('keyup', () => {
+                const c = document.getElementById('role-comms').value.length;
+                const p = document.getElementById('role-policy').value.length;
+                const f = document.getElementById('role-finance').value.length;
+                let progress = ((Math.min(c, 20) + Math.min(p, 30) + Math.min(f, 20)) / 70) * 100;
+                const bar = document.getElementById('readiness-bar');
+                if (bar) bar.style.width = progress + '%';
+            });
+        }
+    });
+}
 
-    if (goal.length < 5 || platform.length < 15 || funding.length < 5) {
-        showToast("Strategy incomplete. Your party needs more detail!");
+async function commitPlatform() {
+    const comms = document.getElementById('role-comms').value.trim();
+    const policy = document.getElementById('role-policy').value.trim();
+    const finance = document.getElementById('role-finance').value.trim();
+
+    if (comms.length < 15 || policy.length < 20 || finance.length < 15) {
+        showToast("Strategy incomplete. All roles must finish their deliverables!");
         return;
     }
 
-    const fullPlatform = `PRIORITY: ${goal}\nCOMMITMENT: ${platform}\nFUNDING: ${funding}`;
+    const fullPlatform = `COMMS: ${comms}\nPOLICY: ${policy}\nFINANCE: ${finance}`;
     activeParty.platforms = fullPlatform;
     
-    showToast("Publishing Strategy...");
-    // We update the same registration sheet but with the new platform
+    showToast("Launching Campaign...");
     const partyData = {
         type: 'party',
         partyname: activeParty.partyname,
@@ -251,14 +250,13 @@ async function commitPlatform() {
     try {
         await fetch(scriptURL, { method: 'POST', body: JSON.stringify(partyData) });
         sessionStorage.setItem('active_party', JSON.stringify(activeParty));
-        showToast("Strategy Locked. Media tab unlocked!");
+        showToast("Campaign Launched!");
         unlockMediaTab();
         switchTab('press-room');
         
-        // AUTOMATIC OPENING: Journalist fires first shot
+        // AUTOMATIC OPENING
         setTimeout(() => {
-            const introMsg = `OFFICIAL STRATEGY BROADCAST:\n${fullPlatform}`;
-            submitToPress(introMsg);
+            submitToPress(`OFFICIAL CAMPAIGN LAUNCH BROADCAST:\n${fullPlatform}`);
         }, 800);
         
     } catch (err) {
@@ -281,330 +279,221 @@ function updateApprovalUI(score) {
         const value = Math.round(score);
         bar.style.width = value + '%';
         pct.innerText = value + '%';
-        // Suspense: Removed color logic to keep student UI neutralized while hidden
     }
 }
 
 function switchTab(tabId) {
-    const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+    const btn = document.querySelector(`button[onclick=\"switchTab('${tabId}')\"]`);
     if (btn && btn.classList.contains('disabled')) {
-        showToast("Authorization required. Finish the Party Conference first.");
+        showToast("Finish the War Room strategist phase first.");
         return;
     }
-
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
     const target = document.getElementById(`${tabId}-tab`);
     if (target) target.style.display = 'block';
-    
     if (btn) btn.classList.add('active');
 }
 
 function populatePlatformIssues() {
     const list = document.getElementById('platform-issues-list');
     if (!list) return;
+    list.innerHTML = '';
     platformIssues.forEach(issue => {
         const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.gap = '0.5rem';
-        div.style.alignItems = 'center';
-        div.innerHTML = `<input type="checkbox" name="platform" value="${issue}" style="width: auto;">
-                         <label style="margin-bottom: 0; font-size: 0.8rem;">${issue}</label>`;
+        div.style.cssText = 'display: flex; gap: 0.5rem; align-items: center;';
+        div.innerHTML = `<input type="checkbox" name="platform" value="${issue}" style=\"width: auto;\">
+                         <label style=\"margin-bottom: 0; font-size: 0.8rem;\">${issue}</label>`;
         list.appendChild(div);
     });
 }
 
-
-async function submitToPress() {
+async function submitToPress(manualMsg) {
     const inputEl = document.getElementById('press-chat-input');
-    const message = inputEl.value.trim();
+    const message = manualMsg || inputEl.value.trim();
+    if (!message) return;
 
-    if (!message) {
-        showToast("Enter a message first.");
-        return;
+    // Auto-broadcast shows as system note, not student bubble
+    if (manualMsg) {
+        appendMessage('system', '📡 Your campaign platform has been broadcast to the press.');
+    } else {
+        appendMessage('student', message);
+        inputEl.value = '';
     }
-
-    // Append student message to UI
-    appendMessage('student', message);
-    inputEl.value = '';
-
-    // Track history for AI
     chatHistory.push({ role: 'user', content: message });
 
     try {
-        const payload = {
-            type: 'chat',
-            messages: chatHistory,
-            partyContext: {
-                name: activeParty.partyname,
-                leader: activeParty.leader,
-                slogan: activeParty.slogan
-            }
-        };
-
         const res = await fetch(scriptURL, { 
             method: 'POST', 
-            body: JSON.stringify(payload) 
+            body: JSON.stringify({
+                type: 'chat',
+                messages: chatHistory,
+                partyContext: { name: activeParty.partyname, leader: activeParty.leader, slogan: activeParty.slogan }
+            }) 
         });
         const result = await res.json();
-        
         if (result.status === 'success') {
-            const aiMsg = result.response;
-            const delta = result.approvalDelta || 0;
+            appendMessage('journalist', result.response);
+            chatHistory.push({ role: 'assistant', content: result.response });
             
-            appendMessage('journalist', aiMsg);
-            chatHistory.push({ role: 'assistant', content: aiMsg });
-
-            // UPDATE CLOUD APPROVAL
+            // Approval tracking (Silent)
             const authRes = await fetch(scriptURL, {
                 method: 'POST',
-                body: JSON.stringify({ type: 'update_approval', name: activeParty.partyname, delta })
+                body: JSON.stringify({ type: 'update_approval', name: activeParty.partyname, delta: result.approvalDelta || 0 })
             });
             const authData = await authRes.json();
-            
             if (authData.status === 'success') {
                 activeParty.approval = authData.newVal;
                 sessionStorage.setItem('active_party', JSON.stringify(activeParty));
-                updateApprovalUI(activeParty.approval);
-                
-                // --- CRISIS RESET CHECK ---
-                if (activeParty.approval < 20) {
-                    handleCampaignCrisis();
-                }
+                if (activeParty.approval < 20) handleCampaignCrisis();
             }
-        } else {
-            appendMessage('journalist', "The newsroom is currently offline.");
         }
-    } catch (err) {
-        console.error("AI Chat failed:", err);
-        appendMessage('journalist', "Broadcast interrupted. Check connection.");
-    }
+    } catch (err) { console.error(err); }
 }
 
 function handleCampaignCrisis() {
-    setTimeout(() => {
-        showToast("🚨 CAMPAIGN IN CRISIS: Public trust has collapsed!");
-        
-        // Reset Chat
-        chatHistory = [];
-        document.getElementById('press-chat-window').innerHTML = `
-            <div class="journalist-msg" style="border-left: 4px solid #ef4444;">
-                <div style="font-size: 0.7rem; color: #ef4444; font-weight: 800; margin-bottom: 0.5rem;">CRISIS RESET</div>
-                Your party has been dropped by the media due to lack of public trust. Go back to your conference and find a platform that works.
-            </div>`;
-            
-        // Lock Media
-        const mediaBtn = document.getElementById('press-scrutiny-btn');
-        mediaBtn.classList.add('disabled');
-        mediaBtn.title = "Platform required for media access.";
-        
-        // Return to Conference
-        switchTab('conference');
-    }, 2000);
+    showToast("🚨 CAMPAIGN IN CRISIS: Redesigning Platform...");
+    chatHistory = [];
+    document.getElementById('press-chat-window').innerHTML = `<div class=\"journalist-msg\" style=\"border-left: 4px solid #ef4444;\">Your party has lost all public trust. The media has dropped your campaign. Go back to the War Room and re-draft a platform that Nova Scotians can believe in.</div>`;
+    const mediaBtn = document.getElementById('press-scrutiny-btn');
+    if (mediaBtn) mediaBtn.classList.add('disabled');
+    // Clear the War Room fields so they must re-draft
+    ['role-comms', 'role-policy', 'role-finance'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const bar = document.getElementById('readiness-bar');
+    if (bar) bar.style.width = '0%';
+    switchTab('conference');
 }
 
 function appendMessage(role, text) {
-    const window = document.getElementById('press-chat-window');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = role === 'student' ? 'student-msg' : 'journalist-msg';
-    
-    if (role === 'journalist') {
-        msgDiv.innerHTML = `
-            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: 1px;">LIVE: INDEPENDENT NEWSROOM</div>
-            <div>${text}</div>
-        `;
+    const win = document.getElementById('press-chat-window');
+    if (!win) return;
+    const msg = document.createElement('div');
+    if (role === 'system') {
+        msg.style.cssText = 'text-align: center; font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem; font-style: italic;';
+        msg.innerText = text;
+    } else if (role === 'journalist') {
+        msg.className = 'journalist-msg';
+        msg.innerHTML = `<div style=\"font-size: 0.7rem; color: #ef4444; font-weight: 800; margin-bottom: 0.5rem;\">LIVE: INDEPENDENT NEWSROOM</div><div>${text}</div>`;
     } else {
-        msgDiv.innerText = text;
+        msg.className = 'student-msg';
+        msg.innerText = text;
     }
-    
-    window.appendChild(msgDiv);
-    window.scrollTop = window.scrollHeight; // Auto-scroll
+    win.appendChild(msg);
+    win.scrollTop = win.scrollHeight;
 }
 
 function renderParties() {
     const grid = document.getElementById('party-grid');
     if (!grid) return;
-    
-    // FILTER: Hide "TEST" entries or parties with PINs starting with 'T'
-    const displayParties = registeredParties.filter(p => {
-        const nameMatch = (p.partyname || p.name || "").toUpperCase().startsWith("TEST");
-        const pinMatch = (p.pin || "").toUpperCase().startsWith("T");
-        return !nameMatch && !pinMatch;
-    });
-
+    const displayParties = registeredParties.filter(p => !(p.pin || '').toUpperCase().startsWith('T'));
     if (displayParties.length === 0) {
-        grid.innerHTML = `<div class="card" style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
-                            <p style="color: var(--text-muted);">No parties registered yet. Be the first!</p>
-                          </div>`;
+        grid.innerHTML = `<p style=\"grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;\">No parties yet.</p>`;
         return;
     }
-    grid.innerHTML = '';
-    displayParties.forEach(party => {
-        const pName = party.partyname || party.name;
-        const card = document.createElement('div');
-        card.className = 'card party-card fade-in';
-        card.innerHTML = `<div class="party-accent" style="background: ${party.color};"></div>
-            <div class="party-content">
-                <h3>${pName}</h3>
-                <div class="party-meta">Led by ${party.leader}</div>
-                <p style="font-style: italic; margin-bottom: 1rem;">"${party.slogan}"</p>
-                <div class="tag-list">
-                    ${party.platforms.split(', ').map(p => `<span class="tag">${p}</span>`).join('')}
-                </div>
-                <div style="margin-top: 1rem; font-size: 0.7rem; color: var(--text-muted);">Team: ${party.members}</div>
-            </div>`;
-        grid.appendChild(card);
-    });
+    grid.innerHTML = displayParties.map(p => `
+        <div class=\"card party-card fade-in\">
+            <div class=\"party-accent\" style=\"background: ${p.color};\"></div>
+            <div class=\"party-content\">
+                <h3>${p.partyname}</h3>
+                <p>Led by ${p.leader}</p>
+                <div class=\"tag-list\">${(p.platforms || "").split(', ').map(tag => `<span class=\"tag\">${tag}</span>`).join('')}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 async function handlePartyRegistration(event) {
     event.preventDefault();
-    const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platform"]:checked'))
-        .map(cb => cb.value);
+    const selected = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
     const partyData = {
         type: 'party',
-        partyname: document.getElementById('party-name').value, // Fixed: Standardized to partyname
+        partyname: document.getElementById('party-name').value,
         leader: document.getElementById('party-leader').value,
         color: document.getElementById('party-color').value,
         pin: document.getElementById('party-pin').value.toUpperCase(),
         members: document.getElementById('party-members').value,
         slogan: document.getElementById('party-slogan').value,
-        platforms: selectedPlatforms.join(', ')
+        platforms: selected.join(', ')
     };
-    showToast("Registering with Elections Halifax West...");
+    showToast("Registering Party...");
     try {
-        if (scriptURL) {
-            const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(partyData) });
-            const result = await res.json();
-            if (result.status === 'success') showToast("Official Registration Successful!");
-        }
-    } catch (err) {
-        console.error("Cloud registration failed:", err);
-        showToast("Saved locally (Sync pending)");
-    }
-    registeredParties.push(partyData);
-    saveLocalData();
-    renderParties();
-    document.getElementById('party-form').reset();
-    setTimeout(() => switchTab('dashboard'), 1500);
+        await fetch(scriptURL, { method: 'POST', body: JSON.stringify(partyData) });
+        showToast("Registered Successfully!");
+        registeredParties.push(partyData);
+        renderParties();
+        document.getElementById('party-form').reset();
+        setTimeout(() => switchTab('dashboard'), 1500);
+    } catch (err) { console.error(err); }
 }
-
-// --- TEAM IDENTITY ---
 
 async function submitGroupSurvey() {
     const orientation = document.querySelector('input[name="political-orientation"]:checked')?.value;
     const priorityIssue = document.getElementById('priority-issue').value;
-    const studentName = document.getElementById('student-name').value.trim();
-    const studentPin = document.getElementById('student-pin').value.trim().toUpperCase();
-
-    if (!orientation || !priorityIssue || !studentName || !studentPin) {
-        showToast("Please complete all fields.");
+    const name = document.getElementById('student-name').value.trim();
+    const pin = document.getElementById('student-pin').value.trim().toUpperCase();
+    if (!orientation || !priorityIssue || !name || pin.length !== 5) {
+        showToast("Finish survey correctly.");
         return;
     }
-    if (studentPin.length !== 5) {
-        showToast("PIN must be 5 characters.");
-        return;
-    }
-
-    const studentProfile = { type: 'profile', name: studentName, pin: studentPin, orientation, priorityIssue };
-    showToast("Syncing profile to cloud...");
+    showToast("Syncing Profile...");
     try {
-        if (scriptURL) {
-            const res = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(studentProfile) });
-            const result = await res.json();
-            if (result.status === 'success') showToast("Profile synced to class sheet!");
-        }
-    } catch (err) {
-        console.error("Cloud sync failed:", err);
-    }
-    const saved = JSON.parse(localStorage.getItem('citizenship_surveys') || '[]');
-    const idx = saved.findIndex(s => s.name.toLowerCase() === studentName.toLowerCase());
-    if (idx >= 0) saved[idx] = studentProfile; else saved.push(studentProfile);
-    localStorage.setItem('citizenship_surveys', JSON.stringify(saved));
+        await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ type: 'profile', name, pin, orientation, priorityIssue }) });
+        showToast("Profile Synced!");
+    } catch (err) { console.error(err); }
 }
 
 async function analyzeTeamIdentity() {
-    const n1 = document.getElementById('member-1-name').value.trim();
-    const n2 = document.getElementById('member-2-name').value.trim();
-    const n3 = document.getElementById('member-3-name').value.trim();
-    const names = [n1, n2, n3].filter(n => n !== "");
-    if (names.length < 1) { showToast("Enter at least one name."); return; }
-
-    showToast("Fetching class data...");
-    let allProfiles = [];
+    const names = [1,2,3].map(i => document.getElementById(`member-${i}-name`).value.trim()).filter(n => n !== "");
+    if (names.length < 1) return;
     try {
-        if (scriptURL) {
-            const res = await fetch(scriptURL);
-            const data = await res.json();
-            allProfiles = data.profiles || [];
-        }
-    } catch (err) {
-        allProfiles = JSON.parse(localStorage.getItem('citizenship_surveys') || '[]');
-    }
-
-    const found = names.map(n => allProfiles.find(p => p.name.toLowerCase() === n.toLowerCase())).filter(p => p);
-    if (found.length < names.length) {
-        showToast("Some profiles missing. Save Step 1 first.");
-        return;
-    }
-
-    const orientations = found.map(m => m.orientation);
-    const left = orientations.filter(o => o === 'left').length;
-    const right = orientations.filter(o => o === 'right').length;
-    const center = orientations.filter(o => o === 'center').length;
-
-    let lean = "", color = "var(--text-main)";
-    if (left > right && left > center) { lean = "Solid Left"; color = "var(--left-color)"; }
-    else if (right > left && right > center) { lean = "Solid Right"; color = "var(--right-color)"; }
-    else if (left > 0 && right > 0) { lean = "Politically Diverse"; color = "orange"; }
-    else if (center > 0) { lean = "Moderate / Center"; color = "#fbbf24"; }
-    else lean = "Balanced / Mixed";
-
-    const issues = [...new Set(found.map(m => m.priorityissue || m.priorityIssue))];
-    document.getElementById('matches-list').innerHTML = `
-        <div class="card" style="border: 2px solid var(--accent); background: rgba(255,255,255,0.05);">
-            <h3 style="text-align: center; margin-bottom: 1.5rem;">Team Identity Analysis</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">Group Lean</div>
-                    <div style="font-size: 1.3rem; font-weight: 800; color: ${color};">${lean}</div>
-                </div>
-                <div style="text-align: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px;">
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">Team Size</div>
-                    <div style="font-size: 1.3rem; font-weight: 800;">${found.length}</div>
-                </div>
-            </div>
-            <div style="margin-top: 1.5rem;">
-                <h4>Shared Priorities:</h4>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-                    ${issues.map(i => `<span class="tag" style="background: var(--right-color);">${i}</span>`).join('')}
-                </div>
-            </div>
-        </div>`;
-    document.getElementById('find-group-results').style.display = 'block';
-    showToast("Analysis complete!");
+        const res = await fetch(scriptURL);
+        const data = await res.json();
+        const found = names.map(n => data.profiles.find(p => p.name.toLowerCase() === n.toLowerCase())).filter(p => p);
+        if (found.length < names.length) { showToast("Profiles missing."); return; }
+        const orientations = found.map(m => m.orientation);
+        const left = orientations.filter(o => o === 'left').length;
+        const right = orientations.filter(o => o === 'right').length;
+        let lean = (left > right) ? "Solid Left" : (right > left ? "Solid Right" : "Mixed");
+        let color = (left > right) ? "var(--left-color)" : (right > left ? "var(--right-color)" : "orange");
+        document.getElementById('matches-list').innerHTML = `<div class=\"card\"><h4>Team Lean: <span style=\"color:${color}\">${lean}</span></h4></div>`;
+        document.getElementById('find-group-results').style.display = 'block';
+    } catch (err) { console.error(err); }
 }
 
 function resetGroupSurvey() {
-    document.getElementById('find-group-survey').reset();
-    document.getElementById('find-group-results').style.display = 'none';
+    const survey = document.getElementById('find-group-survey');
+    if (survey) {
+        survey.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.type === 'radio') el.checked = false;
+            else el.value = '';
+        });
+    }
+    const results = document.getElementById('find-group-results');
+    if (results) results.style.display = 'none';
 }
 
-// --- UTILS ---
+// Enter-key sends message in press room
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        const input = document.getElementById('press-chat-input');
+        if (input && document.activeElement === input) {
+            e.preventDefault();
+            submitToPress();
+        }
+    }
+});
 
 function showToast(m) {
     const t = document.getElementById('toast');
-    t.innerText = m;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    if (t) {
+        t.innerText = m;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
 }
 
-function saveLocalData() {
-    localStorage.setItem('citizenship_parties', JSON.stringify(registeredParties));
-}
-
-function loadLocalData() {
-    const saved = localStorage.getItem('citizenship_parties');
-    if (saved) registeredParties = JSON.parse(saved);
-}
+function loadLocalData() {}
+function saveLocalData() {}

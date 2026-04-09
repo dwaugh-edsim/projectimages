@@ -53,10 +53,10 @@
 
         <div class="card animate" style="animation-delay: 0.5s;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h3>Live Public Opinion Polls</h3>
+                <h3>Live Opinion Polls & Campaign Status</h3>
                 <a href="party-profiles.html" target="_blank" class="btn-primary" style="text-decoration: none; font-size: 0.75rem; padding: 0.6rem 1.2rem;">Open Big Screen Gallery</a>
             </div>
-            <div id="party-list" class="party-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+            <div id="party-list" class="party-grid" style="grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));">
                 <!-- Parties here -->
             </div>
         </div>
@@ -71,11 +71,9 @@
                 const response = await fetch(scriptURL);
                 const data = await response.json();
                 
-                // FILTER: Hide test data
                 const filteredProfiles = data.profiles.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
                 const rawParties = data.parties.filter(p => !p.partyname.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
                 
-                // DEDUPLICATE: Keep only latest for each party name (FUZZY)
                 const filteredParties = [];
                 rawParties.forEach(p => {
                     const name = (p.partyname || p.name || "Unknown").trim();
@@ -91,7 +89,6 @@
                     else filteredParties.push(p);
                 });
 
-                // Update Counts
                 document.getElementById('profile-count').innerText = filteredProfiles.length;
                 document.getElementById('party-count').innerText = filteredParties.length;
                 document.getElementById('status-percent').innerText = Math.min(100, Math.round(filteredParties.length / 8 * 100)) + '%';
@@ -99,13 +96,10 @@
                 updateCharts(filteredProfiles);
                 updateIssues(filteredProfiles);
                 
-                // SORT BY APPROVAL
                 filteredParties.sort((a,b) => (parseFloat(b.approval) || 0) - (parseFloat(a.approval) || 0));
                 renderPartyList(filteredParties);
 
-            } catch (err) {
-                console.error("Dashboard Sync Failed", err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         function updateCharts(profiles) {
@@ -114,10 +108,8 @@
                 const orient = (p.orientation || p.politicalorientation || "").toLowerCase();
                 if(counts[orient] !== undefined) counts[orient]++;
             });
-
             const ctx = document.getElementById('spectrumChart').getContext('2d');
             if (spectrumChart) spectrumChart.destroy();
-
             spectrumChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -132,21 +124,11 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: { 
-                            grid: { display: false },
-                            ticks: { color: '#f8fafc', font: { weight: 'bold' } }
-                        }
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#f8fafc', font: { weight: 'bold' } } }
                     }
                 }
             });
@@ -158,17 +140,11 @@
                 const issue = p.priorityissue || "Unknown";
                 issues[issue] = (issues[issue] || 0) + 1;
             });
-
             const sorted = Object.entries(issues).sort((a,b) => b[1] - a[1]).slice(0, 5);
             const list = document.getElementById('issue-list');
             list.innerHTML = sorted.map(([name, count]) => `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 600;">${name}</span>
-                    <span style="background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">${count}</span>
-                </div>
-                <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px;">
-                    <div style="width: ${(count/profiles.length*100)}%; height: 100%; background: var(--primary); border-radius: 2px;"></div>
-                </div>
+                <div style=\"display: flex; justify-content: space-between; align-items: center;\"><span>${name}</span><span style=\"background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: 4px;\">${count}</span></div>
+                <div style=\"width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px;\"><div style=\"width: ${(count/profiles.length*100)}%; height: 100%; background: var(--primary);\"></div></div>
             `).join('');
         }
 
@@ -176,39 +152,76 @@
             const list = document.getElementById('party-list');
             list.innerHTML = parties.map((p, index) => {
                 const approval = Math.round(parseFloat(p.approval) || 50);
+                const barColor = approval >= 80 ? '#10b981' : (approval < 30 ? '#ef4444' : 'var(--primary)');
+                const pId = `strategy-${index}`;
+
+                // Status badges
                 let badge = "";
                 if (approval >= 90) badge = `<div class="tag" style="background: #fbbf24; color: black; font-weight: 900;">🏆 POLL LEADER</div>`;
                 else if (approval < 20) badge = `<div class="tag" style="background: #ef4444; color: white;">🚨 CAMPAIGN CRISIS</div>`;
                 else if (index === 0 && parties.length > 1) badge = `<div class="tag" style="background: rgba(99, 102, 241, 0.2); color: var(--primary);">#1 TRENDING</div>`;
+                
+                // Parse the role-based platform fields
+                const plat = p.platforms || "";
+                const commsMatch = plat.match(/COMMS: (.*?)(?=\nPOLICY:|$)/s);
+                const policyMatch = plat.match(/POLICY: (.*?)(?=\nFINANCE:|$)/s);
+                const financeMatch = plat.match(/FINANCE: (.*?)(?=$)/s);
 
-                const barColor = approval >= 80 ? '#10b981' : (approval < 30 ? '#ef4444' : 'var(--primary)');
+                const brandText = commsMatch ? commsMatch[1].trim() : "Pending...";
+                const policyText = policyMatch ? policyMatch[1].trim() : "Pending...";
+                const financeText = financeMatch ? financeMatch[1].trim() : "Pending...";
 
                 return `
-                <div class="card animate" style="padding: 1.5rem; position: relative; overflow: hidden; min-height: auto; border: 1px solid ${approval < 20 ? '#ef444455' : 'var(--glass-border)'};">
-                    <div class="party-accent" style="background: ${p.color}; height: 4px; top: 0; left: 0; right: 0; position: absolute;"></div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div class="card animate" style=\"padding: 1.5rem; position: relative; border: 1px solid ${approval < 20 ? '#ef444455' : 'var(--glass-border)'};\">
+                    <div class=\"party-accent\" style=\"background: ${p.color}; height: 4px; top: 0; left: 0; right: 0; position: absolute;\"></div>
+                    <div style=\"display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;\">
                         <div>
-                            <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 0.25rem;">${p.partyname}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Lead: ${p.leader}</div>
+                            <div style=\"font-weight: 800; font-size: 1.1rem;\">${p.partyname}</div>
+                            <div style=\"font-size: 0.8rem; color: var(--text-muted);\">Lead: ${p.leader}</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-family: monospace; font-size: 1.2rem; font-weight: 900; color: ${barColor};">${approval}%</div>
-                            <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Public Trust</div>
+                        <div style=\"text-align: right;\">
+                            <div style=\"font-family: monospace; font-size: 1.2rem; font-weight: 900; color: ${barColor};\">${approval}%</div>
+                            <div style=\"font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;\">Approval</div>
                         </div>
                     </div>
                     
-                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-bottom: 1rem; overflow: hidden;">
-                        <div style="width: ${approval}%; height: 100%; background: ${barColor}; transition: width 1s ease;"></div>
+                    <div style=\"width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-bottom: 1rem; overflow: hidden;\">
+                        <div style=\"width: ${approval}%; height: 100%; background: ${barColor};\"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;\">
                         ${badge || "<span></span>"}
-                        <div style="background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.7rem; border: 1px solid var(--glass-border);">
-                            KEY: ${p.pin}
+                        <small style=\"color: var(--text-muted); font-size: 0.7rem; font-family: monospace;\">KEY: ${p.pin}</small>
+                    </div>
+
+                    <button class=\"btn-primary\" onclick=\"toggleStrategy('${pId}')\" style=\"width: 100%; font-size: 0.7rem; padding: 0.5rem; background: rgba(255,255,255,0.05);\">View Campaign Strategy</button>
+                    
+                    <div id="${pId}" style=\"display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); font-size: 0.8rem;\">
+                        <div style=\"margin-bottom: 1rem;\">
+                            <div style=\"color: #f472b6; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">📣 Communications Director</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${brandText}</div>
+                        </div>
+                        <div style=\"margin-bottom: 1rem;\">
+                            <div style=\"color: #60a5fa; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">🛡️ Strategy Lead</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${policyText}</div>
+                        </div>
+                        <div>
+                            <div style=\"color: #34d399; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">💰 Financial Chief</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${financeText}</div>
                         </div>
                     </div>
-                </div>
-            `}).join('');
+                </div>`;
+            }).join('');
+        }
+
+        function toggleStrategy(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                el.classList.add('fade-in');
+            } else {
+                el.style.display = 'none';
+            }
         }
 
         updateDashboard();
