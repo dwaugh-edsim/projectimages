@@ -187,10 +187,18 @@
                 const data = await response.json();
                 
                 // FILTER: Hide test data
-                const filtered = data.parties.filter(p => 
-                    !p.partyname.toUpperCase().startsWith("TEST") && 
-                    !p.pin.toUpperCase().startsWith("T")
+                const raw = data.parties.filter(p => 
+                    !(p.partyname || p.name || "").toUpperCase().startsWith("TEST") && 
+                    !(p.pin || "").toUpperCase().startsWith("T")
                 );
+
+                // DEDUPLICATE: Keep only latest for each party name
+                const partyMap = new Map();
+                raw.forEach(p => {
+                    const nameKey = (p.partyname || p.name || "Unknown").trim().toLowerCase();
+                    partyMap.set(nameKey, p);
+                });
+                const filtered = Array.from(partyMap.values());
                 
                 renderCards(filtered);
             } catch (err) {

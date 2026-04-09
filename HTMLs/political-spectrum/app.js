@@ -120,7 +120,15 @@ async function initHQ() {
         const response = await fetch(scriptURL);
         const data = await response.json();
         if (data && data.parties) {
-            registeredParties = data.parties;
+            // Deduplicate: Keep only the LATEST entry for each unique party name
+            // We use a Map keyed by lowercase party name
+            const partyMap = new Map();
+            data.parties.forEach(p => {
+                const nameKey = (p.partyname || p.name || "Unknown").trim().toLowerCase();
+                // Map overwrites previous entries, so the LATEST one survives (assuming data is chronological)
+                partyMap.set(nameKey, p);
+            });
+            registeredParties = Array.from(partyMap.values());
         }
     } catch (err) {
         console.error("Cloud fetch failed, using local fallback", err);

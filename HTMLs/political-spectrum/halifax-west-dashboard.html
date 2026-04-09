@@ -249,7 +249,15 @@
                 
                 // FILTER: Hide test data
                 const filteredProfiles = data.profiles.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
-                const filteredParties = data.parties.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+                const rawParties = data.parties.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+                
+                // DEDUPLICATE: Keep only latest for each party name
+                const partyMap = new Map();
+                rawParties.forEach(p => {
+                    const nameKey = (p.partyname || p.name || "Unknown").trim().toLowerCase();
+                    partyMap.set(nameKey, p);
+                });
+                const filteredParties = Array.from(partyMap.values());
 
                 // Update Counts
                 document.getElementById('profile-count').innerText = filteredProfiles.length;
