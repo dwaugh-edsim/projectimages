@@ -16,6 +16,11 @@ function doPost(e) {
     
     if (type === "profile") {
       saveProfile(data);
+    } else if (type === "authenticate") {
+      return authenticateParty(data.name, data.pin);
+    } else if (type === "chat") {
+      var aiResponse = callAIJournalistChat(data.messages, data.partyContext);
+      return handleResponse({ status: 'success', response: aiResponse });
     } else if (type === "interview") {
       var aiResponse = callAIJournalist(data.prompt);
       return handleResponse({ status: 'success', response: aiResponse });
@@ -26,6 +31,20 @@ function doPost(e) {
     return handleResponse({ status: 'success', message: type + ' saved successfully' });
   } catch (err) {
     return handleResponse({ status: 'error', message: err.toString() });
+  }
+}
+
+function authenticateParty(name, pin) {
+  var parties = fetchData("Parties");
+  var party = parties.find(p => 
+    p.partyname.toLowerCase().trim() === name.toLowerCase().trim() && 
+    p.pin.toUpperCase().trim() === pin.toUpperCase().trim()
+  );
+  
+  if (party) {
+    return handleResponse({ status: 'success', party: party });
+  } else {
+    return handleResponse({ status: 'error', message: 'Invalid Party Name or PIN' });
   }
 }
 
@@ -94,21 +113,20 @@ function handleResponse(response) {
 
 
 /**
- * PROXY FOR LLM (AI Journalist Feature)
+ * MULTI-TURN CHAT PROXY (AI Journalist v2)
  */
-function callAIJournalist(prompt) {
+function callAIJournalistChat(messages, partyContext) {
   var apiKey = PropertiesService.getScriptProperties().getProperty('Z_AI_API_KEY');
   var endpoint = 'https://api.z.ai/api/coding/paas/v4';
   
+  var systemPrompt = "You are a tough, skeptical political journalist in Nova Scotia. You are currently interviewing " + partyContext.name + " (" + partyContext.leader + "), whose slogan is '" + partyContext.slogan + "'.\n" +
+                     "Your goal is to ask challenging questions about their platform. Be professional, age-appropriate (Grade 9), and call out vague promises. Respond in a concise broadcast style.";
+  
+  var fullMessages = [{ "role": "system", "content": systemPrompt }].concat(messages);
+  
   var payload = {
     "model": "gemini-1.5-pro",
-    "messages": [
-      {
-        "role": "system", 
-        "content": "You are a tough, skeptical political journalist in Nova Scotia. You ask challenging questions to student political parties about their platforms. Be professional and age-appropriate."
-      },
-      { "role": "user", "content": prompt }
-    ]
+    "messages": fullMessages
   };
   
   var options = {

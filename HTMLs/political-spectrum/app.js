@@ -7,6 +7,8 @@ let currentQuestionIndex = -1; // -1 means intro screen
 let registeredParties = [];
 let scriptURL = 'https://script.google.com/macros/s/AKfycbyjZESIp2PF_mZLbNrdbGANBRcWDbB1ic0m8rj2I9vAc3pLOUg1w5pEUontpUqE2er6/exec'; // Google Apps Script URL
 let studentResponses = []; // Store student votes
+let chatHistory = []; // Multi-turn chat history for AI Journalist
+let activeParty = null; // Current logged-in party context
 
 // --- PRESENTER LOGIC ---
 
@@ -113,9 +115,10 @@ function handleVote(isAgree) {
 async function initHQ() {
     populatePlatformIssues();
     loadLocalData();
+    checkSession(); // Restore login state if exists
     
     // Fetch latest class data from the cloud
-    showToast("Loading class data...");
+    showToast("Syncing with HQ...");
     try {
         const response = await fetch(scriptURL);
         const data = await response.json();
@@ -154,6 +157,60 @@ async function initHQ() {
     renderParties();
 }
 
+/**
+ * AUTH LOGIC: Secure Party Login
+ */
+async function loginToHQ() {
+    const name = document.getElementById('login-party-name').value.trim();
+    const pin = document.getElementById('login-party-pin').value.trim().toUpperCase();
+    const errorEl = document.getElementById('login-error');
+
+    if (!name || !pin) {
+        showToast("Enter Party Name & PIN");
+        return;
+    }
+
+    showToast("Verifying Credentials...");
+    try {
+        const res = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({ type: 'authenticate', name, pin })
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+            setSessionState(result.party);
+            showToast(`Welcome back, ${result.party.leader}!`);
+        } else {
+            errorEl.style.display = 'block';
+            errorEl.innerText = result.message;
+        }
+    } catch (err) {
+        console.error("Login Failed:", err);
+        showToast("Server Connection Error");
+    }
+}
+
+function setSessionState(party) {
+    activeParty = party;
+    sessionStorage.setItem('active_party', JSON.stringify(party));
+    document.getElementById('login-overlay').classList.remove('active');
+    
+    // Auto-fill platform if it exists in the registration
+    if (document.getElementById('press-platform')) {
+        document.getElementById('press-platform').value = party.platforms || "";
+    }
+}
+
+function checkSession() {
+    const saved = sessionStorage.getItem('active_party');
+    if (saved) {
+        activeParty = JSON.parse(saved);
+        const overlay = document.getElementById('login-overlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+}
+
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -180,22 +237,36 @@ function populatePlatformIssues() {
 
 
 async function submitToPress() {
-    const platformText = document.getElementById('press-platform').value.trim();
-    const container = document.getElementById('press-response-container');
-    const responseText = document.getElementById('press-response-text');
+    const inputEl = document.getElementById('press-chat-input');
+    const message = inputEl.value.trim();
+    const chatWindow = document.getElementById('press-chat-window');
 
-    if (!platformText) {
-        showToast("Please enter your platform ideas first.");
+    if (!message) {
+        showToast("Enter a message or your platform first.");
         return;
     }
 
-    container.style.display = 'block';
-    responseText.innerHTML = '<span class="pulse-text">Reporter is typing...</span>';
-    
+    if (!activeParty) {
+        showToast("Access Denied: Please login to your party first.");
+        return;
+    }
+
+    // Append student message to UI
+    appendMessage('student', message);
+    inputEl.value = '';
+
+    // Track history
+    chatHistory.push({ role: 'user', content: message });
+
     try {
         const payload = {
-            type: 'interview',
-            prompt: `I am a student political party. Our platform is: ${platformText}. Challenge us with a tough question as a skeptical Nova Scotian journalist.`
+            type: 'chat',
+            messages: chatHistory,
+            partyContext: {
+                name: activeParty.partyname,
+                leader: activeParty.leader,
+                slogan: activeParty.slogan
+            }
         };
 
         const res = await fetch(scriptURL, { 
@@ -205,14 +276,34 @@ async function submitToPress() {
         const result = await res.json();
         
         if (result.status === 'success') {
-            responseText.innerText = result.response;
+            const aiMsg = result.response;
+            appendMessage('journalist', aiMsg);
+            chatHistory.push({ role: 'assistant', content: aiMsg });
         } else {
-            responseText.innerText = "The reporter is unavailable right now. Try again in a moment.";
+            appendMessage('journalist', "The newsroom is currently offline. Please try again soon.");
         }
     } catch (err) {
-        console.error("AI Interview failed:", err);
-        responseText.innerText = "Connection lost to the Press Room. Check your internet.";
+        console.error("AI Chat failed:", err);
+        appendMessage('journalist', "Broadcast interrupted. Check your network connection.");
     }
+}
+
+function appendMessage(role, text) {
+    const window = document.getElementById('press-chat-window');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = role === 'student' ? 'student-msg' : 'journalist-msg';
+    
+    if (role === 'journalist') {
+        msgDiv.innerHTML = `
+            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: 1px;">LIVE: INDEPENDENT NEWSROOM</div>
+            <div>${text}</div>
+        `;
+    } else {
+        msgDiv.innerText = text;
+    }
+    
+    window.appendChild(msgDiv);
+    window.scrollTop = window.scrollHeight; // Auto-scroll
 }
 
 function renderParties() {
