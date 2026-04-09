@@ -5,6 +5,36 @@ function doGet() {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
+function doPost(e) {
+  try {
+    const request = JSON.parse(e.postData.contents);
+    const action = request.action;
+    
+    if (action === "login") {
+      const data = getStudentData(request.name, request.password);
+      return ContentService.createTextOutput(JSON.stringify({ success: true, data: data }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } 
+    else if (action === "chat") {
+      const chatResponse = getAIResponse(request.chatHistory, request.name);
+      return ContentService.createTextOutput(JSON.stringify({ success: true, response: chatResponse }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    else if (action === "save") {
+      saveStudentProgress(request.name, request.password, request.history, request.strengths, request.weaknesses);
+      return ContentService.createTextOutput(JSON.stringify({ success: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: "Unknown action" }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function getAIResponse(chatHistory, studentName) {
   const SCRIPT_PROP = PropertiesService.getScriptProperties();
   const API_KEY = SCRIPT_PROP.getProperty('ZAI_KEY');

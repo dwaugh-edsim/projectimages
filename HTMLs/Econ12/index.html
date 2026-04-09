@@ -496,8 +496,22 @@
     let chatHistory = [];
     let studentData = null;
     let studentPwd = "";
+    
+    // The deployed Google Apps Script URL
+    const GAS_URL = "https://script.google.com/a/macros/gnspes.ca/s/AKfycbyDpLeSoRZH5Waap_LWw_cz6qO7XDBTeoLJ76FaXdtm4PyNMKNijpf6MRpSccFAMnSyRw/exec";
 
-    function handleLogin() {
+    async function apiRequest(action, payload) {
+      const response = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action, ...payload })
+      });
+      const result = await response.json();
+      if (!result.success) throw new Error(result.error);
+      return result;
+    }
+
+    async function handleLogin() {
       const name = document.getElementById('login-name').value.trim();
       const pwd = document.getElementById('login-pwd').value.trim().toUpperCase();
       const loginBtn = document.getElementById('login-submit');
@@ -510,27 +524,25 @@
       loginBtn.disabled = true;
       loginBtn.textContent = "Connecting...";
 
-      google.script.run
-        .withSuccessHandler((data) => {
-          studentData = data;
-          studentPwd = pwd;
-          chatHistory = data.history || [];
-          
-          loginModal.classList.add('hidden');
-          nameDisplay.textContent = `Tutor: Learning with ${data.name}`;
-          
-          if (chatHistory.length > 0) {
-            renderHistory();
-          } else {
-            addMessage(`Welcome, ${data.name}! I'm your Economics Review Assistant. Ready to dive into some Grade 12 Economics concepts?`, 'ai');
-          }
-        })
-        .withFailureHandler((err) => {
-          alert("Login error: " + err.message);
-          loginBtn.disabled = false;
-          loginBtn.textContent = "Start Learning";
-        })
-        .getStudentData(name, pwd);
+      try {
+        const result = await apiRequest('login', { name, password: pwd });
+        studentData = result.data;
+        studentPwd = pwd;
+        chatHistory = studentData.history || [];
+        
+        loginModal.classList.add('hidden');
+        nameDisplay.textContent = `Tutor: Learning with ${studentData.name}`;
+        
+        if (chatHistory.length > 0) {
+          renderHistory();
+        } else {
+          addMessage(`Welcome, ${studentData.name}! I'm your Economics Review Assistant. Ready to dive into some Grade 12 Economics concepts?`, 'ai');
+        }
+      } catch (err) {
+        alert("Login error: " + err.message);
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Start Learning";
+      }
     }
 
     function renderHistory() {
@@ -548,13 +560,13 @@
       const strengths = studentData.strengths || "";
       const weaknesses = studentData.weaknesses || "";
       
-      google.script.run.saveStudentProgress(
-        studentData.name,
-        studentPwd,
-        chatHistory,
-        strengths,
-        weaknesses
-      );
+      apiRequest('save', {
+        name: studentData.name,
+        password: studentPwd,
+        history: chatHistory,
+        strengths: strengths,
+        weaknesses: weaknesses
+      }).catch(err => console.error("Auto-save failed:", err));
     }
 
     // Auto-resize textarea
@@ -584,7 +596,7 @@
       }
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       const text = userInput.value.trim();
       if (!text) return;
 
@@ -601,22 +613,20 @@
       sendBtn.disabled = true;
 
       // Call GAS backend
-      google.script.run
-        .withSuccessHandler((response) => {
-          typingIndicator.classList.remove('visible');
-          sendBtn.disabled = false;
-          addMessage(response, 'ai');
-          chatHistory.push({ role: 'assistant', content: response });
-          
-          // Auto-save after AI response
-          autoSave();
-        })
-        .withFailureHandler((err) => {
-          typingIndicator.classList.remove('visible');
-          sendBtn.disabled = false;
-          addMessage("Sorry, something went wrong. " + err, 'ai');
-        })
-        .getAIResponse(chatHistory, studentData.name);
+      try {
+        const result = await apiRequest('chat', { chatHistory: chatHistory, name: studentData.name });
+        typingIndicator.classList.remove('visible');
+        sendBtn.disabled = false;
+        addMessage(result.response, 'ai');
+        chatHistory.push({ role: 'assistant', content: result.response });
+        
+        // Auto-save after AI response
+        autoSave();
+      } catch (err) {
+        typingIndicator.classList.remove('visible');
+        sendBtn.disabled = false;
+        addMessage("Sorry, something went wrong. " + err.message, 'ai');
+      }
     }
 
     function addMessage(content, role) {
