@@ -196,9 +196,13 @@ function setSessionState(party) {
     sessionStorage.setItem('active_party', JSON.stringify(party));
     document.getElementById('login-overlay').classList.remove('active');
     
-    // Auto-fill platform if it exists in the registration
-    if (document.getElementById('press-platform')) {
-        document.getElementById('press-platform').value = party.platforms || "";
+    // Show approval gauge
+    document.getElementById('approval-gauge-container').style.display = 'flex';
+    updateApprovalUI(party.approval || 50);
+
+    // If platform is already set, unlock press
+    if (party.platforms && party.platforms.length > 20) {
+        unlockMediaTab();
     }
 }
 
@@ -208,17 +212,90 @@ function checkSession() {
         activeParty = JSON.parse(saved);
         const overlay = document.getElementById('login-overlay');
         if (overlay) overlay.classList.remove('active');
+        
+        document.getElementById('approval-gauge-container').style.display = 'flex';
+        updateApprovalUI(activeParty.approval || 50);
+        
+        if (activeParty.platforms && activeParty.platforms.length > 20) {
+            unlockMediaTab();
+        }
+    }
+}
+
+async function commitPlatform() {
+    const goal = document.getElementById('conf-goal').value.trim();
+    const platform = document.getElementById('conf-platform').value.trim();
+    const funding = document.getElementById('conf-funding').value.trim();
+
+    if (goal.length < 5 || platform.length < 15 || funding.length < 5) {
+        showToast("Strategy incomplete. Your party needs more detail!");
+        return;
+    }
+
+    const fullPlatform = `PRIORITY: ${goal}\nCOMMITMENT: ${platform}\nFUNDING: ${funding}`;
+    activeParty.platforms = fullPlatform;
+    
+    showToast("Publishing Strategy...");
+    // We update the same registration sheet but with the new platform
+    const partyData = {
+        type: 'party',
+        partyname: activeParty.partyname,
+        leader: activeParty.leader,
+        color: activeParty.color,
+        pin: activeParty.pin,
+        members: activeParty.members,
+        slogan: activeParty.slogan,
+        platforms: fullPlatform
+    };
+
+    try {
+        await fetch(scriptURL, { method: 'POST', body: JSON.stringify(partyData) });
+        sessionStorage.setItem('active_party', JSON.stringify(activeParty));
+        showToast("Strategy Locked. Media tab unlocked!");
+        unlockMediaTab();
+        setTimeout(() => switchTab('press-room'), 1000);
+    } catch (err) {
+        console.error("Platform commit failed:", err);
+    }
+}
+
+function unlockMediaTab() {
+    const btn = document.getElementById('press-scrutiny-btn');
+    if (btn) {
+        btn.classList.remove('disabled');
+        btn.title = "Media Scrutiny Active";
+    }
+}
+
+function updateApprovalUI(score) {
+    const bar = document.getElementById('approval-bar');
+    const pct = document.getElementById('approval-pct');
+    if (bar && pct) {
+        const value = Math.round(score);
+        bar.style.width = value + '%';
+        pct.innerText = value + '%';
+        
+        // Dynamic colors
+        if (value > 80) bar.style.background = '#10b981'; // Success Green
+        else if (value < 30) bar.style.background = '#ef4444'; // Crisis Red
+        else bar.style.background = '#6366f1'; // Normal Blue
     }
 }
 
 function switchTab(tabId) {
+    const btn = document.querySelector(`button[onclick="switchTab('${tabId}')"]`);
+    if (btn && btn.classList.contains('disabled')) {
+        showToast("Authorization required. Finish the Party Conference first.");
+        return;
+    }
+
     document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(`${tabId}-tab`).style.display = 'block';
-    const activeBtn = Array.from(document.querySelectorAll('.tab-btn'))
-        .find(b => b.innerText.toLowerCase().includes(tabId) || 
-                   (tabId === 'find-group' && b.innerText.toLowerCase().includes('team profile')));
-    if (activeBtn) activeBtn.classList.add('active');
+    
+    const target = document.getElementById(`${tabId}-tab`);
+    if (target) target.style.display = 'block';
+    
+    if (btn) btn.classList.add('active');
 }
 
 function populatePlatformIssues() {
@@ -239,15 +316,9 @@ function populatePlatformIssues() {
 async function submitToPress() {
     const inputEl = document.getElementById('press-chat-input');
     const message = inputEl.value.trim();
-    const chatWindow = document.getElementById('press-chat-window');
 
     if (!message) {
-        showToast("Enter a message or your platform first.");
-        return;
-    }
-
-    if (!activeParty) {
-        showToast("Access Denied: Please login to your party first.");
+        showToast("Enter a message first.");
         return;
     }
 
@@ -255,7 +326,7 @@ async function submitToPress() {
     appendMessage('student', message);
     inputEl.value = '';
 
-    // Track history
+    // Track history for AI
     chatHistory.push({ role: 'user', content: message });
 
     try {
@@ -277,15 +348,57 @@ async function submitToPress() {
         
         if (result.status === 'success') {
             const aiMsg = result.response;
+            const delta = result.approvalDelta || 0;
+            
             appendMessage('journalist', aiMsg);
             chatHistory.push({ role: 'assistant', content: aiMsg });
+
+            // UPDATE CLOUD APPROVAL
+            const authRes = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ type: 'update_approval', name: activeParty.partyname, delta })
+            });
+            const authData = await authRes.json();
+            
+            if (authData.status === 'success') {
+                activeParty.approval = authData.newVal;
+                sessionStorage.setItem('active_party', JSON.stringify(activeParty));
+                updateApprovalUI(activeParty.approval);
+                
+                // --- CRISIS RESET CHECK ---
+                if (activeParty.approval < 20) {
+                    handleCampaignCrisis();
+                }
+            }
         } else {
-            appendMessage('journalist', "The newsroom is currently offline. Please try again soon.");
+            appendMessage('journalist', "The newsroom is currently offline.");
         }
     } catch (err) {
         console.error("AI Chat failed:", err);
-        appendMessage('journalist', "Broadcast interrupted. Check your network connection.");
+        appendMessage('journalist', "Broadcast interrupted. Check connection.");
     }
+}
+
+function handleCampaignCrisis() {
+    setTimeout(() => {
+        showToast("🚨 CAMPAIGN IN CRISIS: Public trust has collapsed!");
+        
+        // Reset Chat
+        chatHistory = [];
+        document.getElementById('press-chat-window').innerHTML = `
+            <div class="journalist-msg" style="border-left: 4px solid #ef4444;">
+                <div style="font-size: 0.7rem; color: #ef4444; font-weight: 800; margin-bottom: 0.5rem;">CRISIS RESET</div>
+                Your party has been dropped by the media due to lack of public trust. Go back to your conference and find a platform that works.
+            </div>`;
+            
+        // Lock Media
+        const mediaBtn = document.getElementById('press-scrutiny-btn');
+        mediaBtn.classList.add('disabled');
+        mediaBtn.title = "Platform required for media access.";
+        
+        // Return to Conference
+        switchTab('conference');
+    }, 2000);
 }
 
 function appendMessage(role, text) {

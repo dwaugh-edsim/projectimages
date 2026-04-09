@@ -53,7 +53,7 @@
 
         <div class="card animate" style="animation-delay: 0.5s;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h3>Active Campaign Parties</h3>
+                <h3>Live Public Opinion Polls</h3>
                 <a href="party-profiles.html" target="_blank" class="btn-primary" style="text-decoration: none; font-size: 0.75rem; padding: 0.6rem 1.2rem;">Open Big Screen Gallery</a>
             </div>
             <div id="party-list" class="party-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
@@ -98,6 +98,9 @@
 
                 updateCharts(filteredProfiles);
                 updateIssues(filteredProfiles);
+                
+                // SORT BY APPROVAL
+                filteredParties.sort((a,b) => (parseFloat(b.approval) || 0) - (parseFloat(a.approval) || 0));
                 renderPartyList(filteredParties);
 
             } catch (err) {
@@ -108,7 +111,8 @@
         function updateCharts(profiles) {
             const counts = { 'left': 0, 'center': 0, 'right': 0 };
             profiles.forEach(p => {
-                if(counts[p.politicalorientation] !== undefined) counts[p.politicalorientation]++;
+                const orient = (p.orientation || p.politicalorientation || "").toLowerCase();
+                if(counts[orient] !== undefined) counts[orient]++;
             });
 
             const ctx = document.getElementById('spectrumChart').getContext('2d');
@@ -170,22 +174,43 @@
 
         function renderPartyList(parties) {
             const list = document.getElementById('party-list');
-            list.innerHTML = parties.map(p => `
-                <div class="card" style="padding: 1.5rem; position: relative; overflow: hidden; min-height: auto;">
+            list.innerHTML = parties.map((p, index) => {
+                const approval = Math.round(parseFloat(p.approval) || 50);
+                let badge = "";
+                if (approval >= 90) badge = `<div class="tag" style="background: #fbbf24; color: black; font-weight: 900;">🏆 POLL LEADER</div>`;
+                else if (approval < 20) badge = `<div class="tag" style="background: #ef4444; color: white;">🚨 CAMPAIGN CRISIS</div>`;
+                else if (index === 0 && parties.length > 1) badge = `<div class="tag" style="background: rgba(99, 102, 241, 0.2); color: var(--primary);">#1 TRENDING</div>`;
+
+                const barColor = approval >= 80 ? '#10b981' : (approval < 30 ? '#ef4444' : 'var(--primary)');
+
+                return `
+                <div class="card animate" style="padding: 1.5rem; position: relative; overflow: hidden; min-height: auto; border: 1px solid ${approval < 20 ? '#ef444455' : 'var(--glass-border)'};">
                     <div class="party-accent" style="background: ${p.color}; height: 4px; top: 0; left: 0; right: 0; position: absolute;"></div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <div>
                             <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 0.25rem;">${p.partyname}</div>
                             <div style="font-size: 0.8rem; color: var(--text-muted);">Lead: ${p.leader}</div>
                         </div>
-                        <div style="background: rgba(255,255,255,0.05); padding: 0.3rem 0.6rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; border: 1px solid var(--glass-border);">
+                        <div style="text-align: right;">
+                            <div style="font-family: monospace; font-size: 1.2rem; font-weight: 900; color: ${barColor};">${approval}%</div>
+                            <div style="font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">Public Trust</div>
+                        </div>
+                    </div>
+                    
+                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-bottom: 1rem; overflow: hidden;">
+                        <div style="width: ${approval}%; height: 100%; background: ${barColor}; transition: width 1s ease;"></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        ${badge || "<span></span>"}
+                        <div style="background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.7rem; border: 1px solid var(--glass-border);">
                             KEY: ${p.pin}
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
- Broadway
+
         updateDashboard();
         setInterval(updateDashboard, 60000);
     </script>
