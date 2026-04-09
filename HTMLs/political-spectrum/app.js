@@ -253,7 +253,14 @@ async function commitPlatform() {
         sessionStorage.setItem('active_party', JSON.stringify(activeParty));
         showToast("Strategy Locked. Media tab unlocked!");
         unlockMediaTab();
-        setTimeout(() => switchTab('press-room'), 1000);
+        switchTab('press-room');
+        
+        // AUTOMATIC OPENING: Journalist fires first shot
+        setTimeout(() => {
+            const introMsg = `OFFICIAL STRATEGY BROADCAST:\n${fullPlatform}`;
+            submitToPress(introMsg);
+        }, 800);
+        
     } catch (err) {
         console.error("Platform commit failed:", err);
     }
@@ -274,11 +281,7 @@ function updateApprovalUI(score) {
         const value = Math.round(score);
         bar.style.width = value + '%';
         pct.innerText = value + '%';
-        
-        // Dynamic colors
-        if (value > 80) bar.style.background = '#10b981'; // Success Green
-        else if (value < 30) bar.style.background = '#ef4444'; // Crisis Red
-        else bar.style.background = '#6366f1'; // Normal Blue
+        // Suspense: Removed color logic to keep student UI neutralized while hidden
     }
 }
 
