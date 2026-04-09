@@ -282,6 +282,11 @@ function updateApprovalUI(score) {
     }
 }
 
+function bypassToRegister() {
+    document.getElementById('login-overlay').classList.remove('active');
+    switchTab('register');
+}
+
 function switchTab(tabId) {
     const btn = document.querySelector(`button[onclick=\"switchTab('${tabId}')\"]`);
     if (btn && btn.classList.contains('disabled')) {
