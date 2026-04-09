@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NS Citizenship 9 | Official Party Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card-glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 4rem;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .party-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
+        }
+
+        .party-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .party-accent {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 12px;
+        }
+
+        .party-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+
+        .party-leader {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .party-slogan {
+            font-size: 1.3rem;
+            font-style: italic;
+            font-weight: 300;
+            line-height: 1.4;
+            margin-bottom: 2rem;
+            color: #e2e8f0;
+            border-left: 3px solid rgba(255,255,255,0.2);
+            padding-left: 1rem;
+        }
+
+        .team-list {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .platforms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .outcome-badge {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+            padding: 0.8rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeUp 0.8s ease forwards;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="animate">
+        <p>Elections Halifax West 2026</p>
+        <h1>Official Party Gallery</h1>
+    </header>
+
+    <div class="gallery" id="gallery">
+        <!-- Cards injected dynamically -->
+    </div>
+
+    <div class="outcome-badge animate">
+        Outcome 5.3: Platform & Policy Advocacy
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyjZESIp2PF_mZLbNrdbGANBRcWDbB1ic0m8rj2I9vAc3pLOUg1w5pEUontpUqE2er6/exec';
+
+        async function loadParties() {
+            try {
+                const response = await fetch(scriptURL);
+                const data = await response.json();
+                
+                // FILTER: Hide test data
+                const filtered = data.parties.filter(p => 
+                    !p.partyname.toUpperCase().startsWith("TEST") && 
+                    !p.pin.toUpperCase().startsWith("T")
+                );
+                
+                renderCards(filtered);
+            } catch (err) {
+                console.error("Failed to fetch party data", err);
+            }
+        }
+
+        function renderCards(parties) {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+
+            // Reverse to show newest first, or keep order
+            parties.forEach((party, index) => {
+                const card = document.createElement('div');
+                card.className = 'party-card animate';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                const platforms = party.platforms.split(', ').map(p => `
+                    <span class="tag">${p}</span>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="party-accent" style="background: ${party.color}"></div>
+                    <div class="party-name">${party.partyname}</div>
+                    <div class="party-leader">Leader: ${party.leader}</div>
+                    <div class="party-slogan">"${party.slogan}"</div>
+                    
+                    <span class="label">Core Platform Focus</span>
+                    <div class="platforms">${platforms}</div>
+                    
+                    <div class="team-list">
+                        <span class="label">Official Roster</span>
+                        <div style="font-weight: 600; font-size: 0.9rem;">${party.members}</div>
+                    </div>
+                `;
+                gallery.appendChild(card);
+            });
+        }
+
+        loadParties();
+        // Auto-refresh every minute to catch new registrations
+        setInterval(loadParties, 60000);
+    </script>
+</body>
+</html>

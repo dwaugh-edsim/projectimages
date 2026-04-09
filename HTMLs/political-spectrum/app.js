@@ -140,17 +140,61 @@ function populatePlatformIssues() {
     });
 }
 
+
+async function submitToPress() {
+    const platformText = document.getElementById('press-platform').value.trim();
+    const container = document.getElementById('press-response-container');
+    const responseText = document.getElementById('press-response-text');
+
+    if (!platformText) {
+        showToast("Please enter your platform ideas first.");
+        return;
+    }
+
+    container.style.display = 'block';
+    responseText.innerHTML = '<span class="pulse-text">Reporter is typing...</span>';
+    
+    try {
+        const payload = {
+            type: 'interview',
+            prompt: `I am a student political party. Our platform is: ${platformText}. Challenge us with a tough question as a skeptical Nova Scotian journalist.`
+        };
+
+        const res = await fetch(scriptURL, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        const result = await res.json();
+        
+        if (result.status === 'success') {
+            responseText.innerText = result.response;
+        } else {
+            responseText.innerText = "The reporter is unavailable right now. Try again in a moment.";
+        }
+    } catch (err) {
+        console.error("AI Interview failed:", err);
+        responseText.innerText = "Connection lost to the Press Room. Check your internet.";
+    }
+}
+
 function renderParties() {
     const grid = document.getElementById('party-grid');
     if (!grid) return;
-    if (registeredParties.length === 0) {
+    
+    // FILTER: Hide "TEST" entries or parties with PINs starting with 'T'
+    const displayParties = registeredParties.filter(p => 
+        !p.name.toUpperCase().startsWith("TEST") && 
+        !p.pin.toUpperCase().startsWith("T")
+    );
+
+    if (displayParties.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
                             <p style="color: var(--text-muted);">No parties registered yet. Be the first!</p>
                           </div>`;
         return;
     }
     grid.innerHTML = '';
-    registeredParties.forEach(party => {
+    displayParties.forEach(party => {
         const card = document.createElement('div');
         card.className = 'card party-card fade-in';
         card.innerHTML = `<div class="party-accent" style="background: ${party.color};"></div>

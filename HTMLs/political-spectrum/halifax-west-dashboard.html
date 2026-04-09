@@ -46,6 +46,7 @@
             font-weight: 800;
             background: linear-gradient(to right, #60a5fa, #10b981);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -2px;
         }
@@ -246,20 +247,24 @@
                 const response = await fetch(scriptURL);
                 const data = await response.json();
                 
+                // FILTER: Hide test data
+                const filteredProfiles = data.profiles.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+                const filteredParties = data.parties.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+
                 // Update Counts
-                document.getElementById('profile-count').innerText = data.profiles.length;
-                document.getElementById('party-count').innerText = data.parties.length;
+                document.getElementById('profile-count').innerText = filteredProfiles.length;
+                document.getElementById('party-count').innerText = filteredParties.length;
                 
                 // Calculate Issues
-                const allPlatforms = data.parties.flatMap(p => p.platforms.split(', '));
+                const allPlatforms = filteredParties.flatMap(p => p.platforms.split(', '));
                 document.getElementById('issue-count').innerText = [...new Set(allPlatforms)].length;
 
                 // Update Spectrum
-                const profileTotal = data.profiles.length;
+                const profileTotal = filteredProfiles.length;
                 if (profileTotal > 0) {
-                    const l = data.profiles.filter(p => p.orientation === 'left').length;
-                    const c = data.profiles.filter(p => p.orientation === 'center').length;
-                    const r = data.profiles.filter(p => p.orientation === 'right').length;
+                    const l = filteredProfiles.filter(p => p.orientation === 'left').length;
+                    const c = filteredProfiles.filter(p => p.orientation === 'center').length;
+                    const r = filteredProfiles.filter(p => p.orientation === 'right').length;
 
                     const lp = (l / profileTotal) * 100;
                     const cp = (c / profileTotal) * 100;

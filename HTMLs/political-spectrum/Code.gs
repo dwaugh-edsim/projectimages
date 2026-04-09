@@ -16,6 +16,9 @@ function doPost(e) {
     
     if (type === "profile") {
       saveProfile(data);
+    } else if (type === "interview") {
+      var aiResponse = callAIJournalist(data.prompt);
+      return handleResponse({ status: 'success', response: aiResponse });
     } else {
       saveParty(data);
     }
