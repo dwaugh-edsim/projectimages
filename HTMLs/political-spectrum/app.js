@@ -110,9 +110,22 @@ function handleVote(isAgree) {
 
 // --- ELECTION HQ LOGIC ---
 
-function initHQ() {
+async function initHQ() {
     populatePlatformIssues();
     loadLocalData();
+    
+    // Fetch latest class data from the cloud
+    showToast("Loading class data...");
+    try {
+        const response = await fetch(scriptURL);
+        const data = await response.json();
+        if (data && data.parties) {
+            registeredParties = data.parties;
+        }
+    } catch (err) {
+        console.error("Cloud fetch failed, using local fallback", err);
+    }
+    
     renderParties();
 }
 
@@ -182,10 +195,11 @@ function renderParties() {
     if (!grid) return;
     
     // FILTER: Hide "TEST" entries or parties with PINs starting with 'T'
-    const displayParties = registeredParties.filter(p => 
-        !p.name.toUpperCase().startsWith("TEST") && 
-        !p.pin.toUpperCase().startsWith("T")
-    );
+    const displayParties = registeredParties.filter(p => {
+        const nameMatch = (p.partyname || p.name || "").toUpperCase().startsWith("TEST");
+        const pinMatch = (p.pin || "").toUpperCase().startsWith("T");
+        return !nameMatch && !pinMatch;
+    });
 
     if (displayParties.length === 0) {
         grid.innerHTML = `<div class="card" style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
@@ -195,11 +209,12 @@ function renderParties() {
     }
     grid.innerHTML = '';
     displayParties.forEach(party => {
+        const pName = party.partyname || party.name;
         const card = document.createElement('div');
         card.className = 'card party-card fade-in';
         card.innerHTML = `<div class="party-accent" style="background: ${party.color};"></div>
             <div class="party-content">
-                <h3>${party.name}</h3>
+                <h3>${pName}</h3>
                 <div class="party-meta">Led by ${party.leader}</div>
                 <p style="font-style: italic; margin-bottom: 1rem;">"${party.slogan}"</p>
                 <div class="tag-list">
@@ -217,7 +232,7 @@ async function handlePartyRegistration(event) {
         .map(cb => cb.value);
     const partyData = {
         type: 'party',
-        name: document.getElementById('party-name').value,
+        partyname: document.getElementById('party-name').value, // Fixed: Standardized to partyname
         leader: document.getElementById('party-leader').value,
         color: document.getElementById('party-color').value,
         pin: document.getElementById('party-pin').value.toUpperCase(),
