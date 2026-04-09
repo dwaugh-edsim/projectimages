@@ -37,11 +37,11 @@ function doPost(e) {
 
 function getAIResponse(chatHistory, studentName) {
   const SCRIPT_PROP = PropertiesService.getScriptProperties();
-  const API_KEY = SCRIPT_PROP.getProperty('ZAI_KEY');
-  const API_URL = 'https://api.z.ai/api/coding/paas/v4/chat/completions';
+  const API_KEY = SCRIPT_PROP.getProperty('OPENROUTER_KEY');
+  const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
   
   if (!API_KEY) {
-    return "Error: API Key 'ZAI_KEY' not found in Script Properties.";
+    return "Error: API Key 'OPENROUTER_KEY' not found in Script Properties.";
   }
 
   const systemContent = `You are a sophisticated Economics Tutor for Grade 12 students. 
@@ -52,7 +52,7 @@ STUDY MATERIAL:
 ${getStudyMaterial()}
 
 SCORING & DIALOG STRATEGY:
-1. **Initial Inquiry**: Start with a welcoming message and ask a high-level conceptual question or present a scenario from the "Sample questions" section.
+1. **Initial Inquiry**: Start with a welcoming message and ask a high-level conceptual question or present a scenario from the provided material.
 2. **Conceptual Probing**: When a student answers, do NOT just say "correct" or "incorrect". 
    - If they are correct, ask a **follow-up question** that pushes them to apply the concept to a different or more complex scenario.
    - If they are partially correct, guide them towards the full answer with a "scaffolding" question.
@@ -68,7 +68,7 @@ SCORING & DIALOG STRATEGY:
   ];
 
   const payload = {
-    model: "GLM-4.7",
+    model: "qwen/qwen3-235b-a22b-thinking-2507",
     messages: messages,
     temperature: 0.7
   };
@@ -77,7 +77,9 @@ SCORING & DIALOG STRATEGY:
     method: 'post',
     contentType: 'application/json',
     headers: {
-      'Authorization': 'Bearer ' + API_KEY
+      'Authorization': 'Bearer ' + API_KEY,
+      'HTTP-Referer': 'https://github.com/dwaugh-edsim/projectimages', // Optional: for OpenRouter rankings
+      'X-Title': 'Econ12 AI Review'
     },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true
@@ -91,14 +93,13 @@ SCORING & DIALOG STRATEGY:
     try {
       json = JSON.parse(responseText);
     } catch (e) {
-      return "Error: Could not parse AI response. Status: " + response.getResponseCode() + ". Response: " + responseText.substring(0, 100);
+      return "Error: Could not parse OpenRouter response. Status: " + response.getResponseCode() + ". Response: " + responseText.substring(0, 100);
     }
     
     if (json.choices && json.choices.length > 0) {
       return json.choices[0].message.content;
     } else {
-      // Detailed error reporting for ZAI API
-      const errorMsg = json.error ? (json.error.message || json.error.detail || JSON.stringify(json.error)) : "Malformed response from AI.";
+      const errorMsg = json.error ? (json.error.message || JSON.stringify(json.error)) : "Malformed response from AI.";
       return "Error: " + errorMsg;
     }
   } catch (e) {
