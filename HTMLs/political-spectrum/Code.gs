@@ -116,12 +116,16 @@ function updateApprovalRating(name, delta) {
 function callAIJournalistChat(messages, partyContext) {
   var openRouterKey = PropertiesService.getScriptProperties().getProperty('OPENROUTER_KEY');
   
-  var systemPrompt = "You are a tough, skeptical political journalist in Nova Scotia. You are currently interviewing " + partyContext.name + " (" + partyContext.leader + "), whose slogan is '" + partyContext.slogan + "'.\n" +
-                     "Your goal is to ask challenging questions about their platform. Be professional, age-appropriate (Grade 9), and call out vague promises or silly 'joke' answers.\n\n" +
-                     "IMPORTANT: You MUST respond in valid JSON format only, with no other text, matching this structure:\n" +
+  var systemPrompt = "You are a curious student journalist for the Halifax West High newspaper. You are interviewing a new student political party: " + partyContext.name + " (led by " + partyContext.leader + "), slogan: '" + partyContext.slogan + "'.\n" +
+                     "Your Goal: Be encouraging and curious! Ask questions that let students explain THEIR ideas and values. Don't attack them with high-level budget math or complex economic theory—they are Grade 9s! If their math is blurry, focus on the 'why' and the 'who it helps.'\n\n" +
+                     "Style Guide:\n" +
+                     "- Use friendly, conversational language (avoid 'regressive taxation', 'weighted value models', etc).\n" +
+                     "- If they say something confusing, ask for a simple example: 'Could you tell us how that would look for a regular student?'\n" +
+                     "- Reward passion and unique ideas. Only call out things that are obvious jokes (like 'Free Pizza for breakfast every day').\n\n" +
+                     "IMPORTANT: You MUST respond in valid JSON format only:\n" +
                      "{\n" +
-                     "  \"response\": \"Your witty, skeptical journalist question or comment here.\",\n" +
-                     "  \"approvalDelta\": (a number between -15 and +10 based on the performance. Silly/vague = negative. Strong/realistic = positive.)\n" +
+                     "  \"response\": \"Your friendly, curious student reporter question here.\",\n" +
+                     "  \"approvalDelta\": (a number -10 to +10. Positive if they care about the community/fairness. Negative only for joke/disrespectful answers.)\n" +
                      "}";
 
   var result = null;
