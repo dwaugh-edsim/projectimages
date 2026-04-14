@@ -41,8 +41,9 @@ function authenticateParty(name, pin) {
   var pinQuery = pin.toUpperCase().trim();
   var parties = fetchData("Parties");
   
-  var party = parties.find(p => {
-    // Match against any of the names linked to the party
+  // CRITICAL: Use filter + last match, NOT .find() (which returns the oldest row).
+  // saveParty appends new rows, so the latest submission is always at the end.
+  var matches = parties.filter(function(p) {
     var matchName = (p.partyname || "").toLowerCase().includes(userQuery);
     var matchLeader = (p.leader || "").toLowerCase().includes(userQuery);
     var matchMembers = (p.members || "").toLowerCase().includes(userQuery);
@@ -51,7 +52,8 @@ function authenticateParty(name, pin) {
     return (matchName || matchLeader || matchMembers) && matchPin;
   });
   
-  if (party) {
+  if (matches.length > 0) {
+    var party = matches[matches.length - 1]; // Always return the MOST RECENT row
     return handleResponse({ status: 'success', party: party });
   } else {
     return handleResponse({ status: 'error', message: 'Invalid Username or PIN' });
