@@ -3,87 +3,74 @@
 
 ---
 
-## 🚨 BREAKING NEWS HEADLINE  
-
-**🎉 EXCITING UPDATE!** Five political parties have officially **LOCKED IN** their platforms and are now **READY FOR THE STAGE**!  
-
-The War Room is now CLOSED for these groups—they have successfully completed their Communications, Policy, and Finance sections and are ready to deliver their **2-Minute Campaign Launch Speeches**!  
-
----
-
-## 🏆 THE LEADERBOARD  
+## 🚨 THE LEADERBOARD: Status Report
 
 ### ✅ READY FOR THE STAGE (5 Parties)  
+*These groups have successfully locked in their platforms and are cleared for the Press Scrum.*
 
 | Party Name | Leader | Members | Status |
 |------------|--------|---------|--------|
-| **The Party De Solution** | MadhavanK | MadhavanK, RemyP, YunhoP | ✅ WAR ROOM COMPLETE |
-| **The Healthier Future** | Joshua Abraham | Clark, Joshua | ✅ WAR ROOM COMPLETE |
-| **The Islamic Associations of Halifax** | MD Farhan Rahman | Abdul, Farhan | ✅ WAR ROOM COMPLETE |
-| **The Niche Halligonians** | Lachlan McM | Lachlan McM, Lachlan Mac, Nolan | ✅ WAR ROOM COMPLETE |
-| **Team tomorrow** | Laila Awad | Laila A, Josie S, Huda B | ✅ WAR ROOM COMPLETE |
+| **The Party De Solution** | MadhavanK | MadhavanK, RemyP, YunhoP | ✅ QUALIFIED |
+| **The Healthier Future** | Joshua Abraham | Clark, Joshua | ✅ QUALIFIED |
+| **The Islamic Associations** | MD Farhan Rahman | Abdul, Farhan | ✅ QUALIFIED |
+| **The Niche Halligonians** | Lachlan McM | Lachlan McM, Lachlan Mac, Nolan | ✅ QUALIFIED |
+| **Team tomorrow** | Laila Awad | Laila A, Josie S, Huda B | ✅ QUALIFIED |
 
 ---
 
-### 🟡 PENDING APPROVAL (6 Parties + 1 New)  
+### 🟡 PENDING APPROVAL (7 Parties)  
+*You have 20 minutes to complete your platform and click "LOCK IN"!*
 
-| Party Name | Leader | Members | Status |
-|------------|--------|---------|--------|
-| **Communist Party Of Halifax (CPOH)** | Leo | Brody, Leo | ⏳ DRAFTING |
-| **The Unity Party** | Elizabeth | Elizabeth, Alia, Fatima | ⏳ DRAFTING |
-| **Equitable Rights Party Of Halifax** | Rifa | Rifa, Sarah | ⏳ DRAFTING |
-| **Environmentalists at Work** | Natalia | Natalia, Delisha, Jessa | ⏳ DRAFTING |
-| **The Yellow Progression Party** | Kendra | Kendra, Zankia | ⏳ DRAFTING |
-| **The Equity Party** | Evie | Evie, Jana | ⏳ DRAFTING |
-| **Halifax Climate Protection Party** *(NEW!)* | Ali | Ali, Kai | ⏳ NEW PARTY |
-
----
-
-## 🎤 TASK FOR QUALIFIED PARTIES  
-
-### Your Mission: Prepare Your 2-Minute Campaign Launch Speech!  
-
-You are **READY FOR THE STAGE**! Here's what you need to do:  
-
-1. **Open your party's summary** in [`party-summaries.md`](party-summaries.md)  
-2. **Copy your Communications Director's message** (the section starting with 📣)  
-3. **Copy your Strategy Lead's policy points** (the section starting with 🛡️)  
-4. **Combine these two sections** to create your speech script  
-5. **Practice delivering it**—keep it under 2 minutes!  
-6. **Be ready to present** to the AI Journalist (who is now acting like a student reporter!)  
-
-### 📝 Speech Structure Tips:  
-- **Opening:** Introduce your party and leader  
-- **Middle:** Share 2-3 key policy points from your Strategy section  
-- **Closing:** End with your slogan and a call to action!  
+| Party Name | Status |
+|------------|--------|
+| **Communist Party Of Halifax (CPOH)** | ⏳ DRAFTING |
+| **The Unity Party** | ⏳ DRAFTING |
+| **Equitable Rights Party Of Halifax** | ⏳ DRAFTING |
+| **Environmentalists at Work** | ⏳ DRAFTING |
+| **The Yellow Progression Party** | ⏳ DRAFTING |
+| **The Equity Party** | ⏳ DRAFTING |
+| **Halifax Climate Protection Party** *(NEW)* | ⏳ NEW PARTY |
 
 ---
 
-## ✅ TASK FOR PENDING PARTIES  
+## 🎤 MISSION: Prepare Your 2-Minute Launch Speech!
 
-### You Have 20 Minutes to Qualify!  
+If you are **QUALIFIED**, your mission today is to prepare for the Newsroom.
 
-Here's your checklist to get **READY FOR THE STAGE**:  
-
-- [ ] **Communications Director** section is complete  
-- [ ] **Strategy Lead** section is complete  
-- [ ] **Financial Chief** section is complete  
-- [ ] **ALL THREE sections** are filled out in your party profile  
-- [ ] Click the **"LOCK IN"** button to submit your platform  
-
-### ⚠️ Important Reminders:  
-- Your platform must be **COMPLETE** before clicking "LOCK IN"  
-- Once locked in, you CANNOT make changes  
-- The AI Journalist is now **SOFTENED**—no more impossible math traps!  
-- Ask your teacher for help if you're stuck!  
+1.  **Read your Summary**: Open [`party-summaries.md`](party-summaries.md).
+2.  **The Formula**: [Communications Message] + [Three Policy Points] + [Slogan] = **Your Speech.**
+3.  **Practice**: Keep it under 2 minutes. Be ready to face the Newsroom.
 
 ---
 
-## 🎓 TEACHER'S TIP  
+## 📊 CAMPAIGN BRIEFINGS: Expert Suggestions
 
-> **"The AI Journalist has been 'softened' to act like a student reporter—no more impossible math traps!**  
->   
-> This means the questions will be fair, relevant, and focused on your actual platform. Think of them as a fellow student journalist doing research for the school newspaper. Be confident, speak clearly, and remember: **your ideas matter!**"  
+*Use these tailored tips to win over the voters and the AI Journalist!*
+
+### 1. The Party De Solution
+*   **The Vibe:** High-energy, efficient, and anti-lazy.
+*   **Suggestion:** In your speech, name one specific thing in Halifax that is "procrastinated" (like road repairs or school tech).
+*   **Be Ready For:** "How do you enforce speed? Will you fire people for being slow?"
+
+### 2. The Healthier Future
+*   **The Vibe:** Ambitious, health-obsessed, and bold.
+*   **Suggestion:** Lean into your "Sin Tax." Tell voters: "We aren't just taxing sugar; we are buying doctors."
+*   **Be Ready For:** "Where do you find 50,000 doctors? Is there space for them all?"
+
+### 3. The Islamic Associations of Halifax
+*   **The Vibe:** Ethical, humanitarian, and honest.
+*   **Suggestion:** Focus on "Social Welfare." Explain that a safe community is a productive community.
+*   **Be Ready For:** "How do you define corruption? Is it just lying, or is it misusing money?"
+
+### 4. The Niche Halligonians
+*   **The Vibe:** Provocative and unique.
+*   **Suggestion:** Fleshing out your plan to move Military Tuition funds to Schools. It’s a "Robin Hood" move—explain the benefit!
+*   **Be Ready For:** "What about our soldiers? Do they lose out so we get better clinics?"
+
+### 5. Team tomorrow
+*   **The Vibe:** Professional, policy-heavy, and realistic.
+*   **Suggestion:** You have great numbers (20% tuition cut). Repeat that number 3 times in your speech so people remember it.
+*   **Be Ready For:** "What counts as a 'luxury' car or 'luxury' home? Will I be taxed for a nice phone?"
 
 ---
 
@@ -91,21 +78,13 @@ Here's your checklist to get **READY FOR THE STAGE**:
 
 | Time | Activity |
 |------|----------|
-| 0:00 | Review this instruction document |
-| 0:05 | Qualified parties begin speech prep |
-| 0:10 | Pending parties finalize platforms |
-| 0:20 | "LOCK IN" deadline for pending parties |
-| 0:25 | Press Scrum / Speeches begin! |
+| 0:00 | Review this Briefing & Group Suggestions |
+| 0:05 | Qualified parties prep speeches; Pending parties finalize |
+| 0:20 | "LOCK IN" Deadline & Tech Check |
+| 0:25 | **PRESS SCRUM BEGINS!** |
 
 ---
 
 ## 🏁 GOOD LUCK, FUTURE LEADERS!  
 
-Remember: **Every great leader starts with a vision, a plan, and the courage to share it!**  
-
-Whether you're ready for the stage or still finishing up—**keep pushing forward!** 🚀  
-
----
-
-*Document generated on April 14, 2026*  
-*For Halifax West Citizenship 9 Election Simulation 2026*
+*Generated on April 14, 2026 — Projector-Ready Version*  
