@@ -1,3 +1,4 @@
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyjZESIp2PF_mZLbNrdbGANBRcWDbB1ic0m8rj2I9vAc3pLOUg1w5pEUontpUqE2er6/exec';
 const politicalStatements = [
   {
     id: 1,

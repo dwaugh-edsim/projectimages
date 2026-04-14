@@ -5,7 +5,6 @@
 // --- STATE MANAGEMENT ---
 let currentQuestionIndex = -1; // -1 means intro screen
 let registeredParties = [];
-let scriptURL = 'https://script.google.com/macros/s/AKfycbyjZESIp2PF_mZLbNrdbGANBRcWDbB1ic0m8rj2I9vAc3pLOUg1w5pEUontpUqE2er6/exec'; // Google Apps Script URL
 let studentResponses = []; // Store student votes
 let chatHistory = []; // Multi-turn chat history for AI Journalist
 let activeParty = null; // Current logged-in party context
