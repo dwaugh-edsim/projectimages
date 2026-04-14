@@ -1,38 +1,11 @@
 # 🗳️ Halifax West 2026 — Party Campaign Records
-### All student work recovered from cloud data as of April 14, 2026
+### Updated Student Progress — April 14, 2026
+
+*Note: The login issue earlier today caused some groups to lose momentum, but several parties managed to push their platforms through regardless.*
 
 ---
 
-## 1. The Healthier Future ✅ WAR ROOM COMPLETE
-**Leader:** Joshua Abraham  
-**Members:** Clark, Joshua  
-**PIN:** EDCBA  
-**Color:** Blue (#3b82f6)  
-**Slogan:** *"The Path to the Healthy Future starts with a Healthy Body"*  
-**Core Issues:** Healthcare, Education, Halifax Local Issue  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Joshua A | Left | Healthcare |
-| Clark | Right | Education |
-
-### 📣 Communications Director — Opening Broadcast Statement
-> The people of Nova Scotia deserve benefits with their free healthcare like not waiting 8 hours for lines to get in while you suffer. My party will with guarantee get those times dropped for you to have a pleasent experience and be in and out of the hospital by at least 1 - 2 hours using maximum effiecientcy to quickly move those waiting with lower priorities to rooms that are fit for low priority doctors while the higher priorities get the full attention by the best doctors.
-
-### 🛡️ Strategy Lead — Three Core Platform Promises
-> 1. Include upwards of 50,000 doctors, nurses and physicians by reducing the 10 years needed to 5 years to move doctors in and out of medical school with a advanced understanding of the human body enough to quickly and carefully identifying problems patients suffer with to effieciently move patients out of rooms.
-> 
-> 2. With every newer Canadian, more and more doctors and nurses will be recruited or selected by a course of trials to see whether they are fit to become a family doctor to many so the hospital doesn't become crowded with minorities that clinics can solve.
-> 
-> 3. Start modernizing hospitals and the patients within it to speed up diagnosis by uploading secure information to patients and using e-prescriptions by describing the issue or go to a family doctor and for the doctor to list the symptoms to the pharmacy to make a decision on what type of medication they need to recover from their issue and e-referals to specific doctors that follow the minor issue you have.
-
-### 💰 Financial Chief — Funding & Feasibility Plan
-> Many people use "sinful" products like tobacco, alcohol and extremely high sugary drinks and this is a problem. The sugary drinks, tobacco and alcohol all have their own cons and bring people to the hospital in the first place bringing our idea to tax on "sinful" products by taxing either 10% and upwards to 50% of the product's price to reduce the amount of sin products brought reducing the amount of problems patients have with sin products increasing effieciency in the hospital to clear more rooms and make way for waiting rooms.
-
----
-
-## 2. The Party De Solution ✅ WAR ROOM COMPLETE
+## 1. The Party De Solution ✅ WAR ROOM COMPLETE
 **Leader:** MadhavanK  
 **Members:** MadhavanK, RemyP, YunhoP  
 **PIN:** BONKE  
@@ -40,224 +13,170 @@
 **Slogan:** *"Procrastination is for the weak"*  
 **Core Issues:** Healthcare, Education, Public Transit  
 
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| MadhavanKaria | Center | Education |
-| YunhoPark | Center | Education |
+### 📈 Latest Progress
+*They resubmitted several times today (13:31, 13:39) adjusting their finance plan.*
 
-### 📣 Communications Director — Opening Broadcast Statement
-> The People of Nova Scotia deserve a government that makes sure that Absolutely NOTHING is procrastinated or put off to a later date. This will lead our schools, our environment, and our community into a happy and fulfilled future that can nurture happy lives that do not get hurt because of cheap things bought in bulk because of bad funding.
+### 📣 Communications Director
+> The People of Nova Scotia deserve a government that makes sure that Absolutely NOTHING is procrastinated or put off to a later date. This will lead our schools, our environment,and our community into a happy and fulfilled future that can nurture happy lives that do not get hurt because of cheap things bought in bulk because of bad funding.
 
-### 🛡️ Strategy Lead — Three Core Platform Promises
-> 1. Give schools more funding to get better education (more space, better technology, more extra curriculars) for all students.
-> 2. Aquire safer buses for school kids to ride in (actually add seatbelts, etc.)
-> 3. Build more specialized in-school nurse's offices to have more than ice available to be given by more trained school nurses
+### 🛡️ Strategy Lead
+> 1. Give schools more funding to get better education (more space, better technology, more extra curriculars) for all students. 
+> 2. Aquire safer buses for school kids to ride in (actually add seatbelts, etc.) 
+> 3. Build more specialized in-school nurse's offices to have more than ice available to be given by more trained school nurses 
 > 4. DO NOT PROCRASTINATE
 
-### 💰 Financial Chief — Funding & Feasibility Plan
-> We will fund all of those schools by starting a school donation campaign targeted toward graduates to get all that money to make sure that their successor's school will not be nearly as bad as theirs could have been.
+### 💰 Financial Chief
+> There is plenty of ways that we can make money, a couple of which I am sharing, the first one is very simple, and it has to do with partnering with any food outlet, lets use Subway for this example: if a person donates money up to 500$, they can get a limited time discount on the entire Subway menu, or, they can choose to unlock a secret menu for a set amount of time, which can be ordered from and contains more exclusive and exotic products (for example, pomegranate), the amount of time they have either a discount in the store or access to the secret menu is directly proportional to the amount of money they donated, if it was 500$, then they get 5 days, if it was 50$, they get 6 hours, and so on. The second relies on doing exclusive events for payers, by inviting someone very near and dear to the heart of the people who they would want to see very much, it could be anyone from a film star to a popular influencer, someone like (for example) Justin Beiber, the show would be teased on social media, and then according to the hype and popularity of the idea, the tickets will be priced accordingly.
 
 ---
 
-## 3. Communist Party Of Halifax (CPOH)
-**Leader:** Brody Downs  
-**Members:** Brody, Leo  
-**PIN:** OREOS  
-**Color:** Red (#ff0000)  
-**Slogan:** *"That's not my government it's our government"*  
-**Core Issues:** Cost of Living/Inflation, Affordable Housing, Public Transit  
+## 2. The Healthier Future ✅ WAR ROOM COMPLETE
+**Leader:** Joshua Abraham  
+**Members:** Clark, Joshua  
+**PIN:** ABCDD *(Note: PIN changed from EDCBA)*  
+**Color:** Blue (#3b82f6)  
+**Slogan:** *"The Path to the Healthy Future starts with a Healthy Body"*  
+**Core Issues:** Healthcare, Education, Halifax Local Issue  
 
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Brody | Center | Transportation |
-| Leo | Center | Transportation |
+### 📈 Latest Progress
+*They locked in again today at 13:46 keeping their original platform intact.*
 
-### War Room Status: ❌ NOT STARTED
+### 📣 Communications Director
+> The people of Nova Scotia deserve benefits with their free healthcare like not waiting 8 hours for lines to get in while you suffer. My party will with guarantee get those times dropped for you to have a pleasent experience and be in and out of the hospital by at least 1 - 2 hours using maximum effiecientcy to quickly move those waiting with lower priorities to rooms that are fit for low priority doctors while the higher priorities get the full attention by the best doctors.
 
----
+### 🛡️ Strategy Lead
+> - Include upwards of 50,000 doctorsnurses and physicians by reducing the 10 years needed to 5 years to move doctors in and out of medical school with a advanced understanding of the human body enough to quickly and carefully identifying problems patients suffer with to effieciently move patients out of rooms. 
+> - With every newer Canadian, more and more doctors and nurses will be recruited or selected by a course of trials to see whether they are fit to become a family doctor to many so the hospital doesn't become crowded with minorities that clinics can solve. 
+> - Start modernizing hospitals and the patients within it to speed up diagnosis by uploading secure information to patients and using e - prescriptions by describing the issue or go to a family doctor and for the doctor to list the symptoms to the pharmacy to make a decision on what type of medication they need to recover from their issue and e - referals to specific doctors that follow the minor issue you have.
 
-## 4. The Unity Party
-**Leader:** Elizabeth  
-**Members:** Fatima, Alia, Elizabeth  
-**PIN:** PAINT  
-**Color:** Cyan (#3bf4f7)  
-**Slogan:** *"For the better tomorrow"*  
-**Core Issues:** Healthcare, Affordable Housing, Public Transit  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Elizabeth | Center | Healthcare |
-| Alia | Center | Transportation |
-| Fatima Al hilal | Left | Transportation |
-
-### War Room Status: ❌ NOT STARTED
+### 💰 Financial Chief
+> Many people use "sinful" products like tobaccoalcohol and extremely high sugary drinks and this is a problem. The sugary drinkstobacco and alcohol all have their own cons and bring people to the hospital in the first place bringing our idea to tax on "sinful" products by taxing either 10% and upwards to 50% of the product's price to reduce the amount of sin products brought reducing the amount of problems patients have with sin products increasing effieciency in the hospital to clear more rooms and make way for waiting rooms.
 
 ---
 
-## 5. The Niche Haligonians
-**Leader:** Lachlan McMahon  
-**Members:** Lachlan McM, Lachlan Mac, Nolan  
+## 3. The Islamic Associations of Halifax ✅ WAR ROOM COMPLETE *(NEW)*
+**Leader:** MD Farhan Rahman  
+**Members:** Abdul and Farhan  
+**PIN:** ISLAM  
+**Color:** Green (#1d6825)  
+**Slogan:** *"Islam is Peace,Justice and Unity"*  
+
+### 📈 Latest Progress
+*Huge progress! They managed to submit a massive platform at 13:54.*
+
+### 📣 Communications Director
+> The people of Halifax should vote for a Government that puts Ethics Over Profits & People Over Politics. The people should vote for a government that fights corruption, forbids it, and promotes social welfare.
+
+### 🛡️ Strategy Lead
+> Humanitarian.
+> Humanity is obligatory, must to do, must to act upon and must save a person’s life; that's what our party will fund from taxes to invest, just for the people, for lives that are at risk in Canada and in the entire globe. Build homes for people to live.
+> Anti-corruption government.
+> Governments in the past were corrupt, and economic inflation, which ended the party, which is a fact, but this government will focus on unity, a state of being one, undivided, which means no sects and no conflicts, peace and harmony.
+> Social welfare.
+> Building a strong social space for people, a safe society where people can hang out and host events. We ensure the protection of our most vulnerable neighbours.
+> Economic justice.ggggbbggg
+> Prioritizing and promoting fair wealth given to people and interest-free business finance. Our goal is an economy where everyone has the opportunity to grow.
+> Pluralism
+> Many different groups of people live together peacefully while keeping their own unique traditions and beliefs. Instead of everyone being the same, it’s about respecting those differences and sharing power fairly.
+> Responsible for the Environment.
+> Our duty to respect the environment, which includes wildlife, camping, forests and marine life. If we all respect the environment, it will respect and treat you back as a non-toxic garbage littered place in the HRM were u happyly and enjoyably rest and breathe in peace.
+> Honest Administrations of the Government.
+> Honesty about the state of our party, no lying (especially Abdul), we want Halifax to be the honest province in Canada and the most truthful place in the globe.
+> Healthcare.
+> This also falls under the humanitarian goals. Responsible for lives, free healthcare for all ages, and tax-funded hospitals
+
+### 💰 Financial Chief
+> Our funds will be focused on people and the environment, making living and working conditions more efficient for the economy. And we will create the teams for our humanitarian and environment goal just to sustain the people of Halifax’s satisfaction. The team will consist of taking care of the marine, forest, livestock, eco-society, and humanitarian, with this, our budget will withhold 13% of the tax.          
+> Here’s our list to break it down
+> Marine/livestock gets 1.5%
+> Court and law 2%
+> forest/eco-society gets 3.5%
+> Decrease housing prices with the carried budget via increasing job salaries 1.3%
+> Lastly, the humanitarian gets the closest attention of the remaining 5.7%
+> For the reason being humanitarian reasons, we want Housing and Eco to be the best place for people in poverty and people who sought refuge, who are the refugees from variation nation, to recognize and feel that this nation is the kindest and most hospitable.
+
+---
+
+## 4. The Niche Halligonians ✅ WAR ROOM COMPLETE *(NEW)*
+**Leader:** Lachlan McM  
+**Members:** Lachlan McM, Lachlan Mac and Nolan  
 **PIN:** NOLAN  
 **Color:** White (#ffffff)  
 **Slogan:** *"If not now, then when?"*  
-**Core Issues:** Healthcare, Education, Affordable Housing  
 
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Lachlan McM | Center | Healthcare |
-| Lachlan Mac | Center | Healthcare |
-| Nolan | Center | Healthcare |
+### 📈 Latest Progress
+*They locked in at 13:57. Their Comms and Policy are identical. Their Finance plan involves reducing military post-service tuition payments.*
 
-### War Room Status: ❌ NOT STARTED
+### 📣 Communications Director
+> The people of Nova Scotia deserve a government that. cares about the people.. IT needs to provideHealth Care
+> - renovate all walk-in clinics, new gear and expanded spaces
+> 
+> Education
+> - building more schools, smaller schools smaller classrooms (more student-focused)
+> 
+> Affordable Housing
+> - individuals who make below a threshold will be eligible for government funds
 
----
+### 🛡️ Strategy Lead
+> Health Care
+> - renovate all walk-in clinics, new gear and expanded spaces
+> 
+> Education
+> - building more schools, smaller schools smaller classrooms (more student-focused)
+> 
+> Affordable Housing
+> - individuals who make below a threshold will be eligible for government funds
 
-## 6. Equitable Rights Party Of Halifax
-**Leader:** Rifa  
-**Members:** Rifa, Sarah  
-**PIN:** ILYSM  
-**Color:** Dark Red (#5c0000)  
-**Slogan:** *"You decide for your rights, Fight or Flight."*  
-**Core Issues:** Healthcare, Cost of Living/Inflation, Foreign Policy  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Sarah | Center | Economic Policy |
-| Rifa | Center | Economic Policy |
-
-### War Room Status: ❌ NOT STARTED
+### 💰 Financial Chief
+> *(Drafting)* We will fund our goals by restructuring and reducing military post-service tuition payments.
 
 ---
 
-## 7. Environmentalists at Work
-**Leader:** Natalia Joan Filipovic  
-**Members:** Natalia F, Delisha D, Jessa S  
-**PIN:** GREEN / DUCKT  
-**Color:** Green (#77bb41)  
-**Slogan:** *"Strong Actions. Green Results."*  
-**Core Issues:** Environment, Cost of Living/Inflation, Nova Scotia Coastline Protection, Offshore Oil and Gas  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Natalia | Left | Environment |
-| Jessa | Left | Environment / Healthcare |
-| Delisha | Center | Environment / Economic Policy |
-
-### War Room Status: ❌ NOT STARTED
-
----
-
-## 8. The Yellow Progression Party
-**Leader:** Kendra  
-**Members:** Zankia, Kendra  
-**PIN:** ABCDE  
-**Color:** Yellow (#ecee81)  
-**Slogan:** *"The future — Hello! Vote for Yellow, for a sunnier tomorrow!"*  
-**Core Issues:** Healthcare, Environment, Cost of Living/Inflation  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Zankia | Left | Healthcare |
-| Kendra | Left | Healthcare |
-
-### War Room Status: ❌ NOT STARTED
-
----
-
-## 9. Team Tomorrow
+## 5. Team tomorrow ✅ WAR ROOM COMPLETE *(NEW)*
 **Leader:** Laila Awad  
 **Members:** Laila A, Josie S, Huda B  
 **PIN:** LAILA  
 **Color:** Pink (#f43bf7)  
-**Slogan:** *"See you tomorrow!"*  
-**Core Issues:** Healthcare, Education, Affordable Housing  
+**Slogan:** *"See you tommorow!"*  
 
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Laila | Left | Healthcare |
-| Josie | Left | Healthcare |
-| Huda | Left | Healthcare |
+### 📈 Latest Progress
+*A very solid submission right at 13:57. Real, measurable numbers in their policy.*
 
-### War Room Status: ❌ NOT STARTED
+### 📣 Communications Director
+> The people of Nova Scotia deserve a government that puts healthcare, education and affordable housing first.Our party will start to lower the long hours people have to wait to get assistance for health, we will also make sure that more people have access to family doctors, and make mental health care more available to everyone. Our party will also be reducing tuition costs for post secondary schools over a few years and make financial aid higher for students who need it. Another thing that we would bring to the people is making more affordable housing units through the next 5 years and try to limit rent increases so costs stay fair. We will ensure that our party will bring better healthcare, education and housing to all the communities!
 
----
+### 🛡️ Strategy Lead
+> 1.reducing college and university tuition costs by 20% over the next four years and increase the financial aid for students who need it.
+> 2. Make sure everyone has a family doctor by 2030 by hiring more doctors and opening at least  10 new clinics.
+> 3.Build 5,000 affordable housing units in the next 5 years and limit rent increases to keep housing costs fair.
 
-## 10. The Equity Party
-**Leader:** Evie Wilde-McDowell  
-**Members:** JanaA, EvieW  
-**PIN:** IDK  
-**Color:** Purple (#ce3bf7)  
-**Slogan:** *"Taking the 'all' out of equality"*  
-**Core Issues:** Environment, Foreign Policy, Inequality/Reconciliation  
-
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| Evie W-M | Left | Social Issues |
-| JanaA | Right | Social Issues |
-
-### War Room Status: ❌ NOT STARTED
+### 💰 Financial Chief
+> We will fund our plan in a few ways. Firstly, we would  work with the federal government to get more funding since they already help provinces pay for things like healthcare and housing.  Second, we’ll cut waste by making government spending more efficient and focusing the money on the most important services. Finally, we’ll add small taxes on luxury goods (like expensive cars or high end items) and also on empty homes that are being kept as investments, so we can raise money without increasing taxes on everyday Nova Scotians.
 
 ---
 
-## 11. The Islamic Associations of Halifax
-**Leader:** MD Farhan Rahman  
-**Members:** Abdul, Farhan  
-**PIN:** ISLAM  
-**Color:** Green (#1d6825)  
-**Slogan:** *"Islam is Peace, Justice and Unity"*  
-**Core Issues:** Healthcare, Education, Environment, Foreign Policy  
+## 6. The Halifax Climate Protection Party 🟡 NEW PARTY / NEEDS WAR ROOM
+**Leader:** Ali  
+**Members:** Ali and Kai  
+**PIN:** ABCDE  
+**Color:** Blue (#3b82f6)  
+**Slogan:** *"Were tryin' to make the enviroment better for yall don't stress"*  
 
-### Member Profiles
-| Name | Orientation | Priority Issue |
-|------|------------|----------------|
-| ABDUL | Right | Social Issues |
-| MDFarhanRahman | Center | Social Issues |
-
-### War Room Status: ❌ NOT STARTED
+### 📈 Latest Progress
+*Registered at 14:12 today. Ali finally found a party! Have not locked in War Room.*
 
 ---
 
-## 📋 Individual Profile Summary (All Students)
-
-| Student | Orientation | Priority Issue | Party |
-|---------|------------|----------------|-------|
-| Brody | Center | Transportation | CPOH |
-| Leo | Center | Transportation | CPOH |
-| Lachlan McM | Center | Healthcare | Niche Haligonians |
-| Lachlan Mac | Center | Healthcare | Niche Haligonians |
-| Nolan | Center | Healthcare | Niche Haligonians |
-| Abdul | Right | Social Issues | Islamic Assoc. |
-| MDFarhanRahman | Center | Social Issues | Islamic Assoc. |
-| Evie W-M | Left | Social Issues | Equity Party |
-| JanaA | Right | Social Issues | Equity Party |
-| Elizabeth | Center | Healthcare | Unity Party |
-| Alia | Center | Transportation | Unity Party |
-| Fatima Al hilal | Left | Transportation | Unity Party |
-| Natalia | Left | Environment | Environmentalists |
-| Jessa | Left | Environment | Environmentalists |
-| Delisha | Center | Environment | Environmentalists |
-| Zankia | Left | Healthcare | Yellow Progression |
-| Kendra | Left | Healthcare | Yellow Progression |
-| MadhavanKaria | Center | Education | Party De Solution |
-| YunhoPark | Center | Education | Party De Solution |
-| Sarah | Center | Economic Policy | Equitable Rights |
-| Rifa | Center | Economic Policy | Equitable Rights |
-| Joshua A | Left | Healthcare | Healthier Future |
-| Clark | Right | Education | Healthier Future |
-| Laila | Left | Healthcare | Team Tomorrow |
-| Josie | Left | Healthcare | Team Tomorrow |
-| Huda | Left | Healthcare | Team Tomorrow |
-| Ali | Left | Housing | *(no party match)* |
+## Still Need the War Room (6 Parties)
+1. **Communist Party Of Halifax (CPOH)** (Brody, Leo)
+2. **The Unity Party** (Elizabeth, Alia, Fatima)
+3. **Equitable Rights Party Of Halifax** (Rifa, Sarah)
+4. **Environmentalists at Work** (Natalia, Delisha, Jessa)
+5. **The Yellow Progression Party** (Kendra, Zankia)
+6. **The Equity Party** (Evie, Jana)
 
 ---
 
-*Generated from Cit9 Politics cloud data — April 14, 2026*
+## 📋 Student Profile Updates
+* **Ali** updated his profile to Left / Environment (was Left / Housing) and formed "The Halifax Climate Protection Party" with Kai.
+* All other profiles remain the same.
