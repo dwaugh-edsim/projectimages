@@ -496,6 +496,7 @@ async function submitToPress(manualMsg) {
         if (!res.ok) throw new Error("Server overloaded (404/500)");
 
         const result = await res.json();
+        let isFinished = false;
         
         // Remove typing indicator
         const typingEl = document.getElementById(typingId);
@@ -512,6 +513,15 @@ async function submitToPress(manualMsg) {
                 updateApprovalUI(activeParty.approval);
                 if (activeParty.approval < 20) handleCampaignCrisis();
             }
+
+            if (result.isComplete) {
+                isFinished = true;
+                setTimeout(() => {
+                    appendMessage('system', "🎙️ PRESS SCRUM CONCLUDED: The journalists have filed their stories. Well done!");
+                    if (inputEl) { inputEl.disabled = true; inputEl.placeholder = "Interview Complete. Wait for teacher instructions."; }
+                    if (sendBtn) { sendBtn.disabled = true; sendBtn.innerText = "DONE"; sendBtn.style.opacity = "0.5"; }
+                }, 1500);
+            }
         } else {
             appendMessage('system', "⚠️ The journalist is busy. Please try again in a moment.");
         }
@@ -523,6 +533,8 @@ async function submitToPress(manualMsg) {
     } finally {
         // Cooldown before re-enabling
         setTimeout(() => {
+            if (typeof isFinished !== 'undefined' && isFinished) return; // Don't re-enable if done
+            
             if (sendBtn) {
                 sendBtn.disabled = false;
                 sendBtn.style.opacity = "1";

@@ -153,12 +153,20 @@ function callAIJournalistChat(messages, partyContext) {
                      "Style Guide:\n" +
                      "- Use friendly, conversational language (avoid 'regressive taxation', 'weighted value models', etc).\n" +
                      "- If they say something confusing, ask for a simple example: 'Could you tell us how that would look for a regular student?'\n" +
-                     "- Reward passion and unique ideas. Only call out things that are obvious jokes (like 'Free Pizza for breakfast every day').\n\n" +
-                     "IMPORTANT: You MUST respond in valid JSON format only:\n" +
-                     "{\n" +
-                     "  \"response\": \"Your friendly, curious student reporter question here.\",\n" +
-                     "  \"approvalDelta\": (a number -10 to +10. Positive if they care about the community/fairness. Negative only for joke/disrespectful answers.)\n" +
-                     "}";
+                     "- Reward passion and unique ideas. Only call out things that are obvious jokes (like 'Free Pizza for breakfast every day').\n\n";
+
+  var isFinalTurn = messages.length >= 7;
+  
+  if (isFinalTurn) {
+    systemPrompt += "CRITICAL INSTRUCTION: This is the final turn of the interview! You MUST wrap up the interview, thank them for their time, and give a brief concluding encouraging remark on their platform in the 'response' field. You must set the 'isComplete' field in the JSON to true.\n\n";
+  }
+
+  systemPrompt += "IMPORTANT: You MUST respond in valid JSON format only:\n" +
+                  "{\n" +
+                  "  \"response\": \"Your friendly, curious student reporter question or concluding remarks here.\",\n" +
+                  "  \"approvalDelta\": (a number -10 to +10. Positive if they care about the community/fairness. Negative only for joke/disrespectful answers.),\n" +
+                  "  \"isComplete\": " + (isFinalTurn ? "true" : "false (or simply omit this field)") + "\n" +
+                  "}";
 
   var result = null;
 
