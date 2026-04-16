@@ -34,7 +34,7 @@ Canada has **many** registered parties, but only a handful win seats:
 |-------|--------------|-----------------|
 | Liberal Party | Mark Carney | Centre / Centre-Left |
 | Conservative Party | Pierre Poilievre | Centre-Right |
-| NDP (New Democratic Party) | Jagmeet Singh | Left |
+| NDP (New Democratic Party) | Avi Lewis | Left |
 | Bloc Québécois | Yves-François Blanchet | Quebec interests |
 | Green Party | Elizabeth May | Environmental focus |
 

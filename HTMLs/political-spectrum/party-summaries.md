@@ -1,7 +1,7 @@
 # 🗳️ Halifax West 2026 — Party Campaign Records
-### Updated Student Progress — April 14, 2026
+### Consolidated Records — April 16, 2026
 
-*Note: The login issue earlier today caused some groups to lose momentum, but several parties managed to push their platforms through regardless.*
+*Note: Data has been consolidated from fragmented entries to ensure all student progress is preserved.*
 
 ---
 
@@ -9,12 +9,9 @@
 **Leader:** MadhavanK  
 **Members:** MadhavanK, RemyP, YunhoP  
 **PIN:** BONKE  
-**Color:** White (#ffffff)  
+**Color:** #ffffff  
 **Slogan:** *"Procrastination is for the weak"*  
 **Core Issues:** Healthcare, Education, Public Transit  
-
-### 📈 Latest Progress
-*They resubmitted several times today (13:31, 13:39) adjusting their finance plan.*
 
 ### 📣 Communications Director
 > The People of Nova Scotia deserve a government that makes sure that Absolutely NOTHING is procrastinated or put off to a later date. This will lead our schools, our environment,and our community into a happy and fulfilled future that can nurture happy lives that do not get hurt because of cheap things bought in bulk because of bad funding.
@@ -33,13 +30,10 @@
 ## 2. The Healthier Future ✅ WAR ROOM COMPLETE
 **Leader:** Joshua Abraham  
 **Members:** Clark, Joshua  
-**PIN:** ABCDD *(Note: PIN changed from EDCBA)*  
-**Color:** Blue (#3b82f6)  
+**PIN:** ABCDD  
+**Color:** #3b82f6  
 **Slogan:** *"The Path to the Healthy Future starts with a Healthy Body"*  
 **Core Issues:** Healthcare, Education, Halifax Local Issue  
-
-### 📈 Latest Progress
-*They locked in again today at 13:46 keeping their original platform intact.*
 
 ### 📣 Communications Director
 > The people of Nova Scotia deserve benefits with their free healthcare like not waiting 8 hours for lines to get in while you suffer. My party will with guarantee get those times dropped for you to have a pleasent experience and be in and out of the hospital by at least 1 - 2 hours using maximum effiecientcy to quickly move those waiting with lower priorities to rooms that are fit for low priority doctors while the higher priorities get the full attention by the best doctors.
@@ -54,129 +48,105 @@
 
 ---
 
-## 3. The Islamic Associations of Halifax ✅ WAR ROOM COMPLETE *(NEW)*
+## 3. The Islamic Associations of Halifax ✅ WAR ROOM COMPLETE
 **Leader:** MD Farhan Rahman  
 **Members:** Abdul and Farhan  
 **PIN:** ISLAM  
-**Color:** Green (#1d6825)  
+**Color:** #1d6825  
 **Slogan:** *"Islam is Peace,Justice and Unity"*  
-
-### 📈 Latest Progress
-*Huge progress! They managed to submit a massive platform at 13:54.*
 
 ### 📣 Communications Director
 > The people of Halifax should vote for a Government that puts Ethics Over Profits & People Over Politics. The people should vote for a government that fights corruption, forbids it, and promotes social welfare.
 
 ### 🛡️ Strategy Lead
-> Humanitarian.
-> Humanity is obligatory, must to do, must to act upon and must save a person’s life; that's what our party will fund from taxes to invest, just for the people, for lives that are at risk in Canada and in the entire globe. Build homes for people to live.
-> Anti-corruption government.
-> Governments in the past were corrupt, and economic inflation, which ended the party, which is a fact, but this government will focus on unity, a state of being one, undivided, which means no sects and no conflicts, peace and harmony.
-> Social welfare.
-> Building a strong social space for people, a safe society where people can hang out and host events. We ensure the protection of our most vulnerable neighbours.
-> Economic justice.ggggbbggg
-> Prioritizing and promoting fair wealth given to people and interest-free business finance. Our goal is an economy where everyone has the opportunity to grow.
-> Pluralism
-> Many different groups of people live together peacefully while keeping their own unique traditions and beliefs. Instead of everyone being the same, it’s about respecting those differences and sharing power fairly.
-> Responsible for the Environment.
-> Our duty to respect the environment, which includes wildlife, camping, forests and marine life. If we all respect the environment, it will respect and treat you back as a non-toxic garbage littered place in the HRM were u happyly and enjoyably rest and breathe in peace.
-> Honest Administrations of the Government.
-> Honesty about the state of our party, no lying (especially Abdul), we want Halifax to be the honest province in Canada and the most truthful place in the globe.
-> Healthcare.
-> This also falls under the humanitarian goals. Responsible for lives, free healthcare for all ages, and tax-funded hospitals
+> Humanitarian. Humanity is obligatory, must to do, must to act upon and must save a person’s life; that's what our party will fund from taxes to invest, just for the people, for lives that are at risk in Canada and in the entire globe. Build homes for people to live. Anti-corruption government. Governments in the past were corrupt, and economic inflation, which ended the party, which is a fact, but this government will focus on unity, a state of being one, undivided, which means no sects and no conflicts, peace and harmony. Social welfare. Building a strong social space for people, a safe society where people can hang out and host events. We ensure the protection of our most vulnerable neighbours. Economic justice. Prioritizing and promoting fair wealth given to people and interest-free business finance. Our goal is an economy where everyone has the opportunity to grow. Pluralism. Many different groups of people live together peacefully while keeping their own unique traditions and beliefs. Instead of everyone being the same, it’s about respecting those differences and sharing power fairly. Responsible for the Environment. Our duty to respect the environment, which includes wildlife, camping, forests and marine life. If we all respect the environment, it will respect and treat you back as a non-toxic garbage littered place in the HRM were u happyly and enjoyably rest and breathe in peace. Honest Administrations of the Government. Honesty about the state of our party, no lying (especially Abdul), we want Halifax to be the honest province in Canada and the most truthful place in the globe. Healthcare. This also falls under the humanitarian goals. Responsible for lives, free healthcare for all ages, and tax-funded hospitals.
 
 ### 💰 Financial Chief
-> Our funds will be focused on people and the environment, making living and working conditions more efficient for the economy. And we will create the teams for our humanitarian and environment goal just to sustain the people of Halifax’s satisfaction. The team will consist of taking care of the marine, forest, livestock, eco-society, and humanitarian, with this, our budget will withhold 13% of the tax.          
-> Here’s our list to break it down
-> Marine/livestock gets 1.5%
-> Court and law 2%
-> forest/eco-society gets 3.5%
-> Decrease housing prices with the carried budget via increasing job salaries 1.3%
-> Lastly, the humanitarian gets the closest attention of the remaining 5.7%
-> For the reason being humanitarian reasons, we want Housing and Eco to be the best place for people in poverty and people who sought refuge, who are the refugees from variation nation, to recognize and feel that this nation is the kindest and most hospitable.
+> Our funds will be focused on people and the environment, making living and working conditions more efficient for the economy. And we will create the teams for our humanitarian and environment goal just to sustain the people of Halifax’s satisfaction. The team will consist of taking care of the marine, forest, livestock, eco-society, and humanitarian, with this, our budget will withhold 13% of the tax. Here’s our list to break it down: Marine/livestock gets 1.5%, Court and law 2%, forest/eco-society gets 3.5%, Decrease housing prices with the carried budget via increasing job salaries 1.3%, Lastly, the humanitarian gets the closest attention of the remaining 5.7%. For the reason being humanitarian reasons, we want Housing and Eco to be the best place for people in poverty and people who sought refuge, who are the refugees from variation nation, to recognize and feel that this nation is the kindess and most hospitable.
 
 ---
 
-## 4. The Niche Halligonians ✅ WAR ROOM COMPLETE *(NEW)*
+## 4. The Niche Halligonians ✅ WAR ROOM COMPLETE
 **Leader:** Lachlan McM  
 **Members:** Lachlan McM, Lachlan Mac and Nolan  
 **PIN:** NOLAN  
-**Color:** White (#ffffff)  
+**Color:** #ffffff  
 **Slogan:** *"If not now, then when?"*  
 
-### 📈 Latest Progress
-*They locked in at 13:57. Their Comms and Policy are identical. Their Finance plan involves reducing military post-service tuition payments.*
-
 ### 📣 Communications Director
-> The people of Nova Scotia deserve a government that. cares about the people.. IT needs to provideHealth Care
-> - renovate all walk-in clinics, new gear and expanded spaces
-> 
-> Education
-> - building more schools, smaller schools smaller classrooms (more student-focused)
-> 
-> Affordable Housing
-> - individuals who make below a threshold will be eligible for government funds
+> The people of Nova Scotia deserve a government that. cares about the people.. IT needs to provideHealth Care - renovate all walk-in clinics, new gear and expanded spaces. Education - building more schools, smaller schools smaller classrooms (more student-focused). Affordable Housing - individuals who make below a threshold will be eligible for government funds.
 
 ### 🛡️ Strategy Lead
-> Health Care
-> - renovate all walk-in clinics, new gear and expanded spaces
-> 
-> Education
-> - building more schools, smaller schools smaller classrooms (more student-focused)
-> 
-> Affordable Housing
-> - individuals who make below a threshold will be eligible for government funds
+> Health Care - renovate all walk-in clinics, new gear and expanded spaces. Education - building more schools, smaller schools smaller classrooms (more student-focused). Affordable Housing - individuals who make below a threshold will be eligible for government funds.
 
 ### 💰 Financial Chief
-> *(Drafting)* We will fund our goals by restructuring and reducing military post-service tuition payments.
+> Well, Santa. Honestlly, we're getting into the North Pole business. We provide the toys.
 
 ---
 
-## 5. Team tomorrow ✅ WAR ROOM COMPLETE *(NEW)*
+## 5. Team tomorrow ✅ WAR ROOM COMPLETE
 **Leader:** Laila Awad  
 **Members:** Laila A, Josie S, Huda B  
 **PIN:** LAILA  
-**Color:** Pink (#f43bf7)  
+**Color:** #f43bf7  
 **Slogan:** *"See you tommorow!"*  
-
-### 📈 Latest Progress
-*A very solid submission right at 13:57. Real, measurable numbers in their policy.*
 
 ### 📣 Communications Director
 > The people of Nova Scotia deserve a government that puts healthcare, education and affordable housing first.Our party will start to lower the long hours people have to wait to get assistance for health, we will also make sure that more people have access to family doctors, and make mental health care more available to everyone. Our party will also be reducing tuition costs for post secondary schools over a few years and make financial aid higher for students who need it. Another thing that we would bring to the people is making more affordable housing units through the next 5 years and try to limit rent increases so costs stay fair. We will ensure that our party will bring better healthcare, education and housing to all the communities!
 
 ### 🛡️ Strategy Lead
-> 1.reducing college and university tuition costs by 20% over the next four years and increase the financial aid for students who need it.
-> 2. Make sure everyone has a family doctor by 2030 by hiring more doctors and opening at least  10 new clinics.
-> 3.Build 5,000 affordable housing units in the next 5 years and limit rent increases to keep housing costs fair.
+> 1.reducing college and university tuition costs by 20% over the next four years and increase the financial aid for students who need it. 2. Make sure everyone has a family doctor by 2030 by hiring more doctors and opening at least 10 new clinics. 3.Build 5,000 affordable housing units in the next 5 years and limit rent increases to keep housing costs fair.
 
 ### 💰 Financial Chief
-> We will fund our plan in a few ways. Firstly, we would  work with the federal government to get more funding since they already help provinces pay for things like healthcare and housing.  Second, we’ll cut waste by making government spending more efficient and focusing the money on the most important services. Finally, we’ll add small taxes on luxury goods (like expensive cars or high end items) and also on empty homes that are being kept as investments, so we can raise money without increasing taxes on everyday Nova Scotians.
+> We will fund our plan in a few ways. Firstly, we would work with the federal government to get more funding since they already help provinces pay for things like healthcare and housing. Second, we’ll cut waste by making government spending more efficient and focusing the money on the most important services. Finally, we’ll add small taxes on luxury goods (like expensive cars or high end items) and also on empty homes that are being kept as investments, so we can raise money without increasing taxes on everyday Nova Scotians.
 
 ---
 
-## 6. The Halifax Climate Protection Party 🟡 NEW PARTY / NEEDS WAR ROOM
+## 6. The Halifax Climate Protection Party 🟡 NEEDS WAR ROOM
 **Leader:** Ali  
 **Members:** Ali and Kai  
 **PIN:** ABCDE  
-**Color:** Blue (#3b82f6)  
+**Color:** #3b82f6  
 **Slogan:** *"Were tryin' to make the enviroment better for yall don't stress"*  
 
-### 📈 Latest Progress
-*Registered at 14:12 today. Ali finally found a party! Have not locked in War Room.*
+---
+
+## 7. Communist Party Of Halifax (CPOH) 🟡 NEEDS WAR ROOM
+**Leader:** Brody Downs  
+**PIN:** OREOS  
+**Members:** Brody, Leo  
 
 ---
 
-## Still Need the War Room (6 Parties)
-1. **Communist Party Of Halifax (CPOH)** (Brody, Leo)
-2. **The Unity Party** (Elizabeth, Alia, Fatima)
-3. **Equitable Rights Party Of Halifax** (Rifa, Sarah)
-4. **Environmentalists at Work** (Natalia, Delisha, Jessa)
-5. **The Yellow Progression Party** (Kendra, Zankia)
-6. **The Equity Party** (Evie, Jana)
+## 8. The Unity Party 🟡 NEEDS WAR ROOM
+**Leader:** Elizabeth  
+**PIN:** PAINT  
+**Members:** Fatima, Alia, Elizabeth  
 
 ---
 
-## 📋 Student Profile Updates
-* **Ali** updated his profile to Left / Environment (was Left / Housing) and formed "The Halifax Climate Protection Party" with Kai.
-* All other profiles remain the same.
+## 9. Equitable Rights Party Of Halifax 🟡 NEEDS WAR ROOM
+**Leader:** Rifa  
+**PIN:** ILYSM  
+**Members:** Rifa, Sarah  
+
+---
+
+## 10. Environmentalists at Work 🟡 NEEDS WAR ROOM
+**Leader:** Natalia  
+**PIN:** DUCKT  
+**Members:** Natalia F., Jessa S., Delisha D.  
+
+---
+
+## 11. The yellow progression party 🟡 NEEDS WAR ROOM
+**Leader:** Kendra  
+**PIN:** ABCDE  
+**Members:** Zankia, Kendra  
+
+---
+
+## 12. The Equity Party 🟡 NEEDS WAR ROOM
+**Leader:** Evie Wilde-McDowell  
+**PIN:** IDK  
+**Members:** JanaA, EvieW  
