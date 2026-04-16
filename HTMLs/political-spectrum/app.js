@@ -279,6 +279,8 @@ function initWarRoom() {
     // Populate with existing data if available
     if (activeParty.platforms) {
         parseAndDistributePlatform(activeParty.platforms);
+        const lockBtn = document.getElementById('lock-in-btn');
+        if (lockBtn) lockBtn.innerText = "📢 Update Strategy & Re-Sync";
     }
 }
 
@@ -374,8 +376,6 @@ async function commitPlatform() {
     const fullPlatform = `COMMS: ${comms}\nPOLICY: ${policy}\nFINANCE: ${finance}`;
     activeParty.platforms = fullPlatform;
     
-    if (syncInterval) clearInterval(syncInterval);
-    
     showToast("Launching Campaign...");
     const partyData = {
         type: 'party',
@@ -391,13 +391,17 @@ async function commitPlatform() {
     try {
         await fetch(scriptURL, { method: 'POST', body: JSON.stringify(partyData) });
         sessionStorage.setItem('active_party', JSON.stringify(activeParty));
-        showToast("Campaign Launched!");
+        
+        const lockBtn = document.getElementById('lock-in-btn');
+        if (lockBtn) lockBtn.innerText = "📢 Update Strategy & Re-Sync";
+        
+        showToast("Campaign Updated!");
         unlockMediaTab();
         switchTab('press-room');
         
-        // AUTOMATIC OPENING
+        // AUTOMATIC OPENING (Only on first launch ideally, but harmless to re-send)
         setTimeout(() => {
-            submitToPress(`OFFICIAL CAMPAIGN LAUNCH BROADCAST:\n${fullPlatform}`);
+            submitToPress(`STRATEGY UPDATE BROADCAST:\n${fullPlatform}`);
         }, 800);
         
     } catch (err) {
@@ -439,6 +443,13 @@ function switchTab(tabId) {
     const target = document.getElementById(`${tabId}-tab`);
     if (target) target.style.display = 'block';
     if (btn) btn.classList.add('active');
+
+    // RESTART SYNC if entering War Room
+    if (tabId === 'conference') {
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(syncTeamProgress, 20000);
+        syncTeamProgress();
+    }
 }
 
 function populatePlatformIssues() {
