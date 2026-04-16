@@ -283,9 +283,13 @@ function initWarRoom() {
 }
 
 function updateReadinessBar() {
-    const c = document.getElementById('role-comms').value.length;
-    const p = document.getElementById('role-policy').value.length;
-    const f = document.getElementById('role-finance').value.length;
+    const commsEl = document.getElementById('role-comms');
+    const policyEl = document.getElementById('role-policy');
+    const financeEl = document.getElementById('role-finance');
+    if (!commsEl || !policyEl || !financeEl) return;
+    const c = commsEl.value.length;
+    const p = policyEl.value.length;
+    const f = financeEl.value.length;
     let progress = ((Math.min(c, 20) + Math.min(p, 30) + Math.min(f, 20)) / 70) * 100;
     const bar = document.getElementById('readiness-bar');
     if (bar) bar.style.width = progress + '%';
@@ -319,12 +323,10 @@ async function syncTeamProgress() {
     if (indicator) indicator.style.opacity = "1";
     
     try {
-        // Fetch latest platform from server
-        const res = await fetch(scriptURL + "?action=sync"); 
-        // Note: Code.gs returns all parties on GET, we filter for ours
+        // Fetch latest party data from server
         const response = await fetch(scriptURL);
         const data = await response.json();
-        const serverParty = data.parties.find(p => p.partyname.toLowerCase() === activeParty.partyname.toLowerCase());
+        const serverParty = data.parties.find(p => (p.partyname || '').toLowerCase() === activeParty.partyname.toLowerCase());
         
         if (serverParty && serverParty.platforms) {
             parseAndDistributePlatform(serverParty.platforms);
@@ -332,10 +334,11 @@ async function syncTeamProgress() {
 
         // AUTO-SAVE our own role data to the server if we've typed something
         if (claimedRoles.length > 0) {
-            const currentComms = document.getElementById('role-comms').value.trim();
-            const currentPolicy = document.getElementById('role-policy').value.trim();
-            const currentFinance = document.getElementById('role-finance').value.trim();
-            const fullPlatform = `COMMS: ${currentComms}\nPOLICY: ${currentPolicy}\nFINANCE: ${currentFinance}`;
+            const commsEl = document.getElementById('role-comms');
+            const policyEl = document.getElementById('role-policy');
+            const financeEl = document.getElementById('role-finance');
+            if (!commsEl || !policyEl || !financeEl) return;
+            const fullPlatform = `COMMS: ${commsEl.value.trim()}\nPOLICY: ${policyEl.value.trim()}\nFINANCE: ${financeEl.value.trim()}`;
             
             await fetch(scriptURL, {
                 method: 'POST',
@@ -534,6 +537,7 @@ async function submitToPress(manualMsg) {
 function handleCampaignCrisis() {
     showToast("🚨 CAMPAIGN IN CRISIS: Redesigning Platform...");
     chatHistory = [];
+    if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
     document.getElementById('press-chat-window').innerHTML = `<div class=\"journalist-msg\" style=\"border-left: 4px solid #ef4444;\">Your party has lost all public trust. The media has dropped your campaign. Go back to the War Room and re-draft a platform that Nova Scotians can believe in.</div>`;
     const mediaBtn = document.getElementById('press-scrutiny-btn');
     if (mediaBtn) mediaBtn.classList.add('disabled');
