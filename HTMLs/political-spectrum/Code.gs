@@ -20,7 +20,13 @@ function doPost(e) {
       return authenticateParty(data.name, data.pin);
     } else if (type === "chat") {
       var aiResponse = callAIJournalistChat(data.messages, data.partyContext);
-      return handleResponse(aiResponse); // Now returns { status, response, approvalDelta }
+      if (aiResponse.status === 'success' && aiResponse.approvalDelta) {
+        var approvalResult = updateApprovalRating(data.partyContext.name, aiResponse.approvalDelta);
+        if (approvalResult.status === 'success') {
+          aiResponse.newApproval = approvalResult.newVal;
+        }
+      }
+      return handleResponse(aiResponse);
     } else if (type === "update_approval") {
       return updateApprovalRating(data.name, data.delta);
     } else if (type === "interview") {
@@ -209,7 +215,7 @@ function callZai(messages, systemPrompt) {
   var fullMessages = [{ "role": "system", "content": systemPrompt }].concat(messages);
   
   var payload = {
-    "model": "gemini-1.5-pro",
+    "model": "xiaomi/mimo-v2-flash",
     "messages": fullMessages,
     "response_format": { "type": "json_object" }
   };

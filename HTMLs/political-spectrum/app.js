@@ -453,8 +453,18 @@ function populatePlatformIssues() {
 
 async function submitToPress(manualMsg) {
     const inputEl = document.getElementById('press-chat-input');
+    const sendBtn = document.getElementById('send-btn');
     const message = manualMsg || inputEl.value.trim();
-    if (!message) return;
+    
+    if (!message || (sendBtn && sendBtn.disabled)) return;
+
+    // UI Throttling: Disable everything
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = "0.5";
+        sendBtn.innerText = "WAIT...";
+    }
+    inputEl.disabled = true;
 
     // Auto-broadcast shows as system note, not student bubble
     if (manualMsg) {
@@ -463,7 +473,12 @@ async function submitToPress(manualMsg) {
         appendMessage('student', message);
         inputEl.value = '';
     }
+    
     chatHistory.push({ role: 'user', content: message });
+
+    // Show Typing Indicator
+    const typingId = "journalist-typing-" + Date.now();
+    appendMessage('journalist', "📰 <i style='opacity:0.6'>Journalist is drafting a follow-up...</i>", typingId);
 
     try {
         const res = await fetch(scriptURL, { 
@@ -474,24 +489,46 @@ async function submitToPress(manualMsg) {
                 partyContext: { name: activeParty.partyname, leader: activeParty.leader, slogan: activeParty.slogan }
             }) 
         });
+        
+        if (!res.ok) throw new Error("Server overloaded (404/500)");
+
         const result = await res.json();
+        
+        // Remove typing indicator
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+
         if (result.status === 'success') {
             appendMessage('journalist', result.response);
             chatHistory.push({ role: 'assistant', content: result.response });
             
-            // Approval tracking (Silent)
-            const authRes = await fetch(scriptURL, {
-                method: 'POST',
-                body: JSON.stringify({ type: 'update_approval', name: activeParty.partyname, delta: result.approvalDelta || 0 })
-            });
-            const authData = await authRes.json();
-            if (authData.status === 'success') {
-                activeParty.approval = authData.newVal;
+            // Consolidated approval update (no second fetch needed!)
+            if (result.newApproval !== undefined) {
+                activeParty.approval = result.newApproval;
                 sessionStorage.setItem('active_party', JSON.stringify(activeParty));
+                updateApprovalUI(activeParty.approval);
                 if (activeParty.approval < 20) handleCampaignCrisis();
             }
+        } else {
+            appendMessage('system', "⚠️ The journalist is busy. Please try again in a moment.");
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+        console.error(err);
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        appendMessage('system', "⚠️ Connection lost. The newsroom is currently congested. (404/Timeout)");
+    } finally {
+        // Cooldown before re-enabling
+        setTimeout(() => {
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = "1";
+                sendBtn.innerText = "SEND";
+            }
+            inputEl.disabled = false;
+            inputEl.focus();
+        }, 3000); // 3-second mandatory cooldown
+    }
 }
 
 function handleCampaignCrisis() {
@@ -510,10 +547,12 @@ function handleCampaignCrisis() {
     switchTab('conference');
 }
 
-function appendMessage(role, text) {
+function appendMessage(role, text, id) {
     const win = document.getElementById('press-chat-window');
     if (!win) return;
     const msg = document.createElement('div');
+    if (id) msg.id = id;
+    
     if (role === 'system') {
         msg.style.cssText = 'text-align: center; font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem; font-style: italic;';
         msg.innerText = text;
