@@ -8,6 +8,9 @@ let registeredParties = [];
 let studentResponses = []; // Store student votes
 let chatHistory = []; // Multi-turn chat history for AI Journalist
 let activeParty = null; // Current logged-in party context
+let claimedRoles = []; // Roles pick by THIS current user
+let syncInterval = null; 
+let lastSyncData = null; // Store string of last fetched platform to avoid jitter
 
 // --- PRESENTER LOGIC ---
 
@@ -164,8 +167,9 @@ async function loginToHQ() {
         const result = await res.json();
 
         if (result.status === 'success') {
-            setSessionState(result.party);
-            showToast(`Welcome back, ${result.party.leader}!`);
+            activeParty = result.party;
+            document.getElementById('login-overlay').classList.remove('active');
+            document.getElementById('role-selection-overlay').classList.add('active');
         } else {
             errorEl.style.display = 'block';
             errorEl.innerText = result.message;
@@ -179,7 +183,9 @@ async function loginToHQ() {
 function setSessionState(party) {
     activeParty = party;
     sessionStorage.setItem('active_party', JSON.stringify(party));
+    sessionStorage.setItem('claimed_roles', JSON.stringify(claimedRoles));
     document.getElementById('login-overlay').classList.remove('active');
+    document.getElementById('role-selection-overlay').classList.remove('active');
     
     // SUSPENSE: We track approval but hide the bar
     updateApprovalUI(party.approval || 50);
@@ -188,40 +194,171 @@ function setSessionState(party) {
     if (party.platforms && party.platforms.length > 20) {
         unlockMediaTab();
     }
+    
+    // Start Background Sync
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(syncTeamProgress, 20000); // Every 20 seconds
+    syncTeamProgress(); // Initial sync
+}
+
+function confirmRoles() {
+    claimedRoles = [];
+    if (document.getElementById('claim-comms').checked) claimedRoles.push('role-comms');
+    if (document.getElementById('claim-strategy').checked) claimedRoles.push('role-strategy');
+    if (document.getElementById('claim-finance').checked) claimedRoles.push('role-finance');
+
+    if (claimedRoles.length === 0) {
+        showToast("Select at least one role!");
+        return;
+    }
+    
+    setSessionState(activeParty);
+    showToast("Roles Confirmed. Entering War Room...");
+    switchTab('conference');
 }
 
 function checkSession() {
     const saved = sessionStorage.getItem('active_party');
+    const savedRoles = sessionStorage.getItem('claimed_roles');
     if (saved) {
         activeParty = JSON.parse(saved);
+        if (savedRoles) claimedRoles = JSON.parse(savedRoles);
+
         const overlay = document.getElementById('login-overlay');
         if (overlay) overlay.classList.remove('active');
+        
+        const roleOverlay = document.getElementById('role-selection-overlay');
+        if (roleOverlay) roleOverlay.classList.remove('active');
+
         initWarRoom(); 
         if (activeParty.platforms && activeParty.platforms.length > 20) {
             unlockMediaTab();
         }
+        
+        // Resume sync
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(syncTeamProgress, 20000);
+        syncTeamProgress();
     }
 }
 
 // WAR ROOM LOGIC
 function initWarRoom() {
     const fields = ['role-comms', 'role-policy', 'role-finance'];
+    
+    // Update IDs because policy was mapped to strategy in the overlay but policy in HTML
+    const roleMap = {
+        'role-comms': 'role-comms',
+        'role-strategy': 'role-policy',
+        'role-finance': 'role-finance'
+    };
+
     fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
+            // Only enable fields that this user has claimed
+            const isClaimed = claimedRoles.some(roleId => roleMap[roleId] === id);
+            
+            if (!isClaimed) {
+                el.disabled = true;
+                el.style.opacity = "0.6";
+                el.style.background = "rgba(0,0,0,0.1)";
+                el.placeholder = "Reading teammate's live progress...";
+            } else {
+                el.disabled = false;
+                el.style.opacity = "1";
+                el.style.background = "var(--card-bg)";
+            }
+
             el.addEventListener('keyup', () => {
-                const c = document.getElementById('role-comms').value.length;
-                const p = document.getElementById('role-policy').value.length;
-                const f = document.getElementById('role-finance').value.length;
-                let progress = ((Math.min(c, 20) + Math.min(p, 30) + Math.min(f, 20)) / 70) * 100;
-                const bar = document.getElementById('readiness-bar');
-                if (bar) bar.style.width = progress + '%';
+                updateReadinessBar();
             });
         }
     });
+    
+    // Populate with existing data if available
+    if (activeParty.platforms) {
+        parseAndDistributePlatform(activeParty.platforms);
+    }
+}
+
+function updateReadinessBar() {
+    const c = document.getElementById('role-comms').value.length;
+    const p = document.getElementById('role-policy').value.length;
+    const f = document.getElementById('role-finance').value.length;
+    let progress = ((Math.min(c, 20) + Math.min(p, 30) + Math.min(f, 20)) / 70) * 100;
+    const bar = document.getElementById('readiness-bar');
+    if (bar) bar.style.width = progress + '%';
+}
+
+function parseAndDistributePlatform(text) {
+    if (!text || text === lastSyncData) return;
+    lastSyncData = text;
+
+    const commsPart = text.split('POLICY:')[0].replace('COMMS:', '').trim();
+    const policyPart = (text.split('POLICY:')[1] || "").split('FINANCE:')[0].trim();
+    const financePart = (text.split('FINANCE:')[1] || "").trim();
+
+    const roleMap = {
+        'role-comms': 'role-comms',
+        'role-strategy': 'role-policy',
+        'role-finance': 'role-finance'
+    };
+
+    if (!claimedRoles.some(r => r === 'role-comms')) document.getElementById('role-comms').value = commsPart;
+    if (!claimedRoles.some(r => r === 'role-strategy')) document.getElementById('role-policy').value = policyPart;
+    if (!claimedRoles.some(r => r === 'role-finance')) document.getElementById('role-finance').value = financePart;
+    
+    updateReadinessBar();
+}
+
+async function syncTeamProgress() {
+    if (!activeParty) return;
+    
+    const indicator = document.getElementById('sync-indicator');
+    if (indicator) indicator.style.opacity = "1";
+    
+    try {
+        // Fetch latest platform from server
+        const res = await fetch(scriptURL + "?action=sync"); 
+        // Note: Code.gs returns all parties on GET, we filter for ours
+        const response = await fetch(scriptURL);
+        const data = await response.json();
+        const serverParty = data.parties.find(p => p.partyname.toLowerCase() === activeParty.partyname.toLowerCase());
+        
+        if (serverParty && serverParty.platforms) {
+            parseAndDistributePlatform(serverParty.platforms);
+        }
+
+        // AUTO-SAVE our own role data to the server if we've typed something
+        if (claimedRoles.length > 0) {
+            const currentComms = document.getElementById('role-comms').value.trim();
+            const currentPolicy = document.getElementById('role-policy').value.trim();
+            const currentFinance = document.getElementById('role-finance').value.trim();
+            const fullPlatform = `COMMS: ${currentComms}\nPOLICY: ${currentPolicy}\nFINANCE: ${currentFinance}`;
+            
+            await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'sync_platform',
+                    name: activeParty.partyname,
+                    platforms: fullPlatform
+                })
+            });
+        }
+    } catch (err) {
+        console.warn("Sync failed, trying again later...");
+    }
+    
+    setTimeout(() => {
+        if (indicator) indicator.style.opacity = "0.5";
+    }, 2000);
 }
 
 async function commitPlatform() {
+    // Final Sync to avoid clobbering
+    await syncTeamProgress();
+    
     const comms = document.getElementById('role-comms').value.trim();
     const policy = document.getElementById('role-policy').value.trim();
     const finance = document.getElementById('role-finance').value.trim();
@@ -233,6 +370,8 @@ async function commitPlatform() {
 
     const fullPlatform = `COMMS: ${comms}\nPOLICY: ${policy}\nFINANCE: ${finance}`;
     activeParty.platforms = fullPlatform;
+    
+    if (syncInterval) clearInterval(syncInterval);
     
     showToast("Launching Campaign...");
     const partyData = {

@@ -26,6 +26,8 @@ function doPost(e) {
     } else if (type === "interview") {
       var aiResponse = callAIJournalist(data.prompt);
       return handleResponse({ status: 'success', response: aiResponse });
+    } else if (type === "sync_platform") {
+      return syncPlatformData(data.name, data.platforms);
     } else {
       saveParty(data);
     }
@@ -108,6 +110,30 @@ function updateApprovalRating(name, delta) {
     }
   }
   return handleResponse({ status: 'error', message: 'Party not found' });
+}
+
+function syncPlatformData(name, platformText) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Parties");
+  if (!sheet) return handleResponse({ status: 'error', message: 'Sheet not found' });
+  
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var nameIdx = headers.indexOf('Party Name');
+  var platformIdx = headers.indexOf('Platforms');
+  
+  if (nameIdx === -1 || platformIdx === -1) return handleResponse({ status: 'error', message: 'Columns missing' });
+  
+  // Find the LAST row for this party (latest submission)
+  for (var i = data.length - 1; i >= 1; i--) {
+    if (data[i][nameIdx].toString().toLowerCase() === name.toLowerCase()) {
+      sheet.getRange(i + 1, platformIdx + 1).setValue(platformText);
+      return handleResponse({ status: 'success', message: 'Sync complete' });
+    }
+  }
+  
+  // If no entry exists, we fallback to saving a new one
+  return handleResponse({ status: 'error', message: 'Party profile not found' });
 }
 
 /**
