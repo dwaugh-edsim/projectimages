@@ -5,7 +5,7 @@
 | Leo Ewing | 6/10 | 6/10 | 6/10 | 6/10 | ✓ Correct |
 | Remy Perks | 5/10 | 5.5/10 | 5.5/10 | 5.5/10 | ✓ Correct |
 | Madhavan Karia | 8/10 | 9/10 | 9/10 | 9/10 | ✓ Correct |
-| Kendra Bell | 7/10 | 8/10 | 9/10 | 9/10 | ✓ Correct** |
+| Kendra Bell | 7/10 | 9/10 | 9/10 | 9/10 | ✓ Correct** |
 | Zankia van der Walt | 7/10 | 8/10 | 8/10 | 8/10 | ✓ Correct |
 | Alia Doaia | 7/10 | 7.5/10 | 7.5/10 | 7.5/10 | ✓ Correct |
 | Elizabeth Sanyaolu | 6/10 | 7/10 | 7/10 | 7/10 | ✓ Correct |
@@ -16,7 +16,7 @@
 | Natalia Filipovic | 7/10 | 7.5/10 | 7.5/10 | 7.5/10 | ✓ Correct |
 | Sarah Tiga | 7/10 | 8.5/10 | 8.5/10 | 8.5/10 | ✓ Correct |
 | Clark Feng | 8/10 | 9/10 | 9.5/10 | 9.5/10 | ✓ Correct* |
-| Yunho Park | 7/10 | 6/10 | 7/10 | 7/10 | ✓ Correct |
+| Yunho Park | 7/10 | 7/10 | 7/10 | 7/10 | ✓ Correct |
 | Evie | 6/10 | 9.5/10 | 9.5/10 | 9.5/10 | ✓ Correct |
 | Abdul Rahman Aboukoura | 5/10 | 5/10 | 5/10 | 5/10 | ✓ Correct |
 | Lachlan McMahon | 7/10 | 9/10 | 9.5/10 | 9.5/10 | ✓ Correct* |

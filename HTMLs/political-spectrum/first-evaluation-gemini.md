@@ -18,8 +18,8 @@ Each response has been assessed and graded out of 10. The evaluations focus heav
 * **Feedback:** Fantastic detail across the board! Your definitions in Part 1 were excellent, especially explaining what a minister does. The reasoning you used for the SDGs and the barriers to good jobs showed deep thinking. Your political spectrum analysis was interesting and you defended your positions very well. Outstanding work!
 
 ### 4. Kendra Bell
-* **Score:** 8 / 10
-* **Feedback:** Very strong answers in Part 1 and Part 3! You understood the party leadership selection process perfectly. Your analysis of "The Party De Solution" and their Subway fundraising idea was incredibly sharp. You missed answering Part 2A entirely, which held your score back, but what you did complete showed a great overall understanding of the topics.
+* **Score:** 9 / 10
+* **Feedback:** Very strong answers in Part 1 and Part 3! You understood the party leadership selection process perfectly. Your analysis of "The Party De Solution" and their Subway fundraising idea was incredibly sharp. Since you are a new student, you were exempt from Part 2A, but what you did complete in the rest of the assessment showed a great overall understanding of the topics. Excellent work getting caught up!
 
 ### 5. Zankia
 * **Score:** 8 / 10
@@ -62,8 +62,8 @@ Each response has been assessed and graded out of 10. The evaluations focus heav
 * **Feedback:** Extremely well reasoned! You clearly understand how party leaders are elected internally. Your analysis of the ghost fishing gear problem and the AI job displacement showed great critical thought. Furthermore, your breakdown of how taxes align with left-wing governments in Part 3 was perfect. Great job!
 
 ### 15. Yunho Park
-* **Score:** 6 / 10
-* **Feedback:** You did a good job finding the right SDGs for the problems and you correctly identified the political spectrum positions in Part 3 based on the use of taxes to enact change. However, you need a major refresh on Part 1; a government minister is definitely not a member of the clergy! Focus on reviewing Canada's political structure. 
+* **Score:** 7 / 10
+* **Feedback:** You did a good job finding the right SDGs for the problems and you correctly identified the political spectrum positions in Part 3 based on the use of taxes to enact change. I noticed the translation app mixed up the political definition of a "minister" with the religious definition (clergy)—that completely explains the confusion in Part 1! Great effort applying these English concepts. 
 
 ### 16. Evie
 * **Score:** 9.5 / 10
