@@ -80,7 +80,7 @@
 > Health Care - renovate all walk-in clinics, new gear and expanded spaces. Education - building more schools, smaller schools smaller classrooms (more student-focused). Affordable Housing - individuals who make below a threshold will be eligible for government funds.
 
 ### 💰 Financial Chief
-> Well, Santa. Honestlly, we're getting into the North Pole business. We provide the toys.
+> We use money from post-military scholarships to pay for our programs.
 
 ---
 
