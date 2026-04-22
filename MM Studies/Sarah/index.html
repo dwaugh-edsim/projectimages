@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helping Sarah: Indian Act Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Color Palette */
+            --primary-color: #1a5c5e;     /* Deep Teal */
+            --primary-light: #2c8c8f;
+            --primary-dark: #0f3d3e;
+            --accent-color: #d4930d;      /* Warm Amber */
+            --accent-hover: #b57a05;
+            --bg-color: #f7f5f0;          /* Off-white / Cream */
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --status-green: #2ecc71;
+            --status-red: #e74c3c;
+            --status-yellow: #f1c40f;
+            --status-gray: #bdc3c7;
+            
+            /* Typography */
+            --font-headings: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+            
+            /* Spacing & Layout */
+            --max-width: 900px;
+            --nav-height: 70px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: var(--font-headings);
+            color: var(--primary-dark);
+            line-height: 1.3;
+        }
+
+        a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* --- Navigation --- */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            height: var(--nav-height);
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-container {
+            width: 100%;
+            max-width: var(--max-width);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: 100%;
+        }
+
+        .nav-brand {
+            font-family: var(--font-headings);
+            font-size: 1.2rem;
+            color: white;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .nav-tabs {
+            display: flex;
+            height: 100%;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .nav-tabs::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0 15px;
+            cursor: pointer;
+            height: 100%;
+            position: relative;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab.active {
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--accent-color);
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            max-width: var(--max-width);
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-panel {
+            display: none;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 40px;
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .section-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Common Components --- */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: var(--primary-color);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+        }
+
+        .callout {
+            background-color: rgba(212, 147, 13, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .callout strong {
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            border: 1px solid #eaeaea;
+            border-radius: var(--radius-sm);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        
+        .info-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .border-red { border-top: 4px solid var(--status-red); }
+        .border-green { border-top: 4px solid var(--status-green); }
+        .border-blue { border-top: 4px solid var(--primary-light); }
+
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-family: var(--font-body);
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* --- Specific Section Styles --- */
+        
+        /* Interactive Toggles (Benefits) */
+        .toggle-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        .toggle-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .toggle-btn:hover {
+            background-color: rgba(26, 92, 94, 0.1);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .benefit-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .benefit-content.active {
+            display: block;
+        }
+
+        /* Expandable Details (2026 Changes) */
+        details {
+            background: var(--bg-color);
+            border: 1px solid #eaeaea;
+            border-radius: var(--radius-sm);
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        details:hover {
+            border-color: var(--primary-light);
+        }
+
+        summary {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            outline: none;
+            list-style: none; /* Hide default arrow in webkit */
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            content: '+';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        details[open] summary::after {
+            content: '−';
+        }
+
+        details p {
+            margin-top: 15px;
+            margin-bottom: 0;
+            color: var(--text-muted);
+            border-top: 1px solid #eaeaea;
+            padding-top: 15px;
+        }
+
+        /* Status Math & Calculator */
+        .equation-box {
+            background-color: var(--bg-color);
+            border: 1px solid #eaeaea;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            border-radius: var(--radius-sm);
+        }
+
+        .status-61 { color: var(--status-green); }
+        .status-62 { color: var(--accent-color); }
+        .status-none { color: var(--status-red); }
+
+        .battery-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 25px 0;
+            gap: 15px;
+        }
+
+        .battery-item {
+            text-align: center;
+        }
+
+        .battery {
+            border: 2px solid var(--text-main);
+            width: 60px;
+            height: 30px;
+            position: relative;
+            border-radius: 3px;
+            margin: 0 auto 5px;
+            padding: 2px;
+        }
+
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 6px;
+            width: 4px;
+            height: 14px;
+            background: var(--text-main);
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .charge-fill {
+            height: 100%;
+            border-radius: 1px;
+        }
+
+        .charge-full { background: var(--status-green); width: 100%; }
+        .charge-half { background: var(--accent-color); width: 50%; }
+        .charge-empty { background: transparent; width: 0%; }
+
+        /* Calculator Tool */
+        .calculator-tool {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 30px;
+            border-radius: var(--radius-md);
+            margin-top: 40px;
+        }
+
+        .calc-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .calc-select-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .calc-select-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .calc-select {
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.2);
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .calc-select option {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+
+        .calc-math-sign {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .calc-result {
+            background-color: white;
+            color: var(--text-main);
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .checklist {
+            background-color: var(--bg-color);
+            border: 1px solid #eaeaea;
+            padding: 25px;
+            border-radius: var(--radius-sm);
+            margin-top: 30px;
+        }
+
+        .checklist ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding-left: 30px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .checklist li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--status-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid #eaeaea;
+            margin-top: 60px;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                position: fixed;
+                top: var(--nav-height);
+                left: -100%;
+                width: 250px;
+                height: calc(100vh - var(--nav-height));
+                background-color: var(--primary-dark);
+                flex-direction: column;
+                padding: 20px 0;
+                transition: var(--transition);
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            }
+
+            .nav-tabs.open {
+                left: 0;
+            }
+
+            .nav-tab {
+                height: 50px;
+                width: 100%;
+                text-align: left;
+                padding: 0 20px;
+            }
+
+            .nav-tab.active::after {
+                width: 4px;
+                height: 100%;
+                top: 0;
+                left: 0;
+                border-radius: 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .section-panel {
+                padding: 25px;
+            }
+
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .calc-controls {
+                flex-direction: column;
+            }
+            
+            .calc-math-sign {
+                transform: rotate(90deg);
+                margin: -10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">Sarah's Case</div>
+            <button class="mobile-menu-btn" id="mobileBtn">☰</button>
+            <div class="nav-tabs" id="navTabs">
+                <button class="nav-tab active" data-target="home">Home</button>
+                <button class="nav-tab" data-target="pre1985">Before 1985</button>
+                <button class="nav-tab" data-target="pressure">The Fight</button>
+                <button class="nav-tab" data-target="benefits">Status Benefits</button>
+                <button class="nav-tab" data-target="math">Status Math</button>
+                <button class="nav-tab" data-target="changes">2026 Changes</button>
+                <button class="nav-tab" data-target="calculator">Calculator Tool</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+
+        <!-- 1. Home / Intro Section -->
+        <section id="home" class="section-panel active">
+            <div class="page-header">
+                <h1>Sarah and the Indian Act</h1>
+                <p>An investigation into identity, law, and history</p>
+            </div>
+            
+            <img src="./images/historical_documents.png" alt="Historical Documents" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=1200&auto=format&fit=crop'">
+
+            <div class="callout">
+                <strong>Your Client: Sarah Johnson</strong>
+                <p>Sarah believes the new Bill S-2 might finally grant her Indian Status. To give her an accurate answer, you must investigate the history of the laws that excluded her family.</p>
+                <p style="margin-bottom: 0;"><em>Use the tabs above to navigate through the legal database and gather your evidence.</em></p>
+            </div>
+
+            <p>Imagine there was a single book of rules that decided who you were, where you could live, and what rights you had. For over a century, that's exactly what <strong>The Indian Act</strong> has been for First Nations people in Canada.</p>
+            
+            <p>This isn't just dusty history. It's a living, breathing debate about identity and justice. The files in this database tell the story of a law that has controlled lives for generations.</p>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://docs.google.com/document/d/YOUR_DOC_ID/copy" target="_blank" class="btn" style="background-color: var(--accent-color);">Open Your Student Worksheet</a>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">(Opens external Google Doc)</p>
+            </div>
+        </section>
+
+        <!-- 2. Before 1985 Section -->
+        <section id="pre1985" class="section-panel">
+            <div class="page-header">
+                <h1>The Law Before 1985</h1>
+                <p>Gender Discrimination and the "Marrying-Out" Rule</p>
+            </div>
+            
+            <img src="./images/indigenous_family_generations.png" alt="Generations" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=1200&auto=format&fit=crop'">
+
+            <p>Before 1985, the rules were incredibly strict and often unfair. The <em>Indian Act</em> operated almost exclusively through the male line. Whether you were legally recognized as an "Indian" depended entirely on the Status of your husband or father.</p>
+
+            <div class="card-grid">
+                <div class="info-card border-red">
+                    <h3>The Punishment: "Marry-Out"</h3>
+                    <p>If an Indigenous woman married a man who did not have Status (a non-Status man), she automatically <strong>lost her own Indian Status</strong>. Her children also lost their Status. She was effectively exiled from her community.</p>
+                </div>
+                
+                <div class="info-card border-green">
+                    <h3>The Privilege: "Marry-In"</h3>
+                    <p>If an Indigenous man married a non-Indigenous woman (e.g., a white woman), that woman automatically <strong>gained Indian Status</strong>. Their children were guaranteed Status.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>Context is Key</strong>
+                <p>When the <em>Canadian Charter of Rights and Freedoms</em> was introduced in 1982, it guaranteed equality rights. The government realized the "marry-out" rule was now unconstitutional and had to change.</p>
+            </div>
+        </section>
+
+        <!-- 3. The Fight (Pressure) Section -->
+        <section id="pressure" class="section-panel">
+            <div class="page-header">
+                <h1>The Fight for Status</h1>
+                <p>Domestic Activism, International Pressure, and the 1985 "Compromise"</p>
+            </div>
+
+            <p>For over a century, the <em>Indian Act</em> enforced a patrilineal system that discriminated against Indigenous women. By the mid-1980s, a convergence of grassroots activism, international humiliation at the United Nations, and new constitutional laws forced the Canadian government to act.</p>
+
+            <h3>Domestic Pressure: Indian Rights for Indian Women</h3>
+            <p>In 1967, Indigenous women mobilized to form <strong>Indian Rights for Indian Women (IRIW)</strong>. Led by figures like Mary Two-Axe Earley, Nellie Carlson, and Kathleen Steinhauer, the group fought against significant opposition from both the federal government and male-dominated Band Councils.</p>
+            <p>They faced intense challenges, including lack of funding and community ostracization, yet they succeeded in bringing the issue of gender discrimination to the national stage.</p>
+
+            <h3>International Pressure: The Lovelace Case</h3>
+            <p>When Canadian courts failed to protect Indigenous women, activists took their fight to the international stage.</p>
+            
+            <div class="info-card border-blue" style="margin: 20px 0;">
+                <h4>Sandra Lovelace v. Canada (1981)</h4>
+                <p>Sandra Lovelace Nicholas, a Maliseet woman from the Tobique First Nation, lost her status after marrying a non-Indigenous man. When the marriage ended, she and her children were denied housing and education on her reserve.</p>
+                <p>She brought her case to the <strong>United Nations Human Rights Committee</strong>. In 1981, the UN ruled that Canada was in violation of Article 27 of the <em>International Covenant on Civil and Political Rights</em> by denying her the right to enjoy her culture.</p>
+            </div>
+            
+            <p>This ruling was a major embarrassment for Canada on the world stage, labeling the country as a violator of human rights.</p>
+
+            <h3 style="margin-top: 40px;">The "Compromise": Bill C-31 (1985)</h3>
+            <p>Passed in June 1985, <strong>Bill C-31</strong> was the government's response. It was framed as a "compromise" between three competing interests: Women's Rights, First Nations Self-Determination, and Government Fiscal Restraint.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>The Changes</h4>
+                    <ul>
+                        <li><strong>Reinstatement:</strong> Women who had lost status for "marrying out" were reinstated.</li>
+                        <li><strong>Abolition:</strong> The "marrying out" rule was abolished.</li>
+                        <li><strong>Band Control:</strong> Bands were given control over their own membership lists.</li>
+                    </ul>
+                </div>
+                <div class="info-card border-red">
+                    <h4>The Flaws</h4>
+                    <p>To limit the number of new Status Indians (and federal costs), the government created the "Second Generation Cut-Off."</p>
+                    <ul>
+                        <li>Created a hierarchy of status: <strong>6(1)</strong> full status vs <strong>6(2)</strong> partial status.</li>
+                        <li>Residual discrimination against reinstated women compared to their brothers.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Indian Act Benefits Section -->
+        <section id="benefits" class="section-panel">
+            <div class="page-header">
+                <h1>Status Benefits & Motivations</h1>
+                <p>What does Indian Status actually provide, and why restrict it?</p>
+            </div>
+
+            <img src="./images/symbolic_feather.png" alt="Benefits" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?q=80&w=1200&auto=format&fit=crop'">
+
+            <p>Indian Status is a legal recognition by the Canadian government that a person is registered under the <em>Indian Act</em>. This registration provides access to specific rights and benefits that are not available to other Canadians.</p>
+            
+            <h3>Explore the Benefits</h3>
+            <p>Click the buttons below to learn about each area of benefits.</p>
+
+            <div class="toggle-container">
+                <button class="toggle-btn active" onclick="showBenefit('health', this)">Health Benefits</button>
+                <button class="toggle-btn" onclick="showBenefit('education', this)">Education Support</button>
+                <button class="toggle-btn" onclick="showBenefit('housing', this)">Housing & Land</button>
+                <button class="toggle-btn" onclick="showBenefit('rights', this)">Other Rights</button>
+            </div>
+
+            <div id="benefit-health" class="benefit-content active">
+                <div class="info-card border-green">
+                    <h4>Non-Insured Health Benefits (NIHB)</h4>
+                    <p>The NIHB Program provides a range of medically necessary health benefits that are not covered by other public or private insurance plans. This includes coverage for things like prescription drugs, dental care, vision care, medical transportation, and medical equipment. This program is crucial for many First Nations individuals and families, especially those living in remote communities.</p>
+                </div>
+            </div>
+
+            <div id="benefit-education" class="benefit-content">
+                <div class="info-card border-green">
+                    <h4>Post-Secondary Education Support</h4>
+                    <p>Indigenous Services Canada provides funding to eligible Status Indians to help cover the cost of tuition, books, and living allowances while attending college or university. This program is designed to increase the participation of First Nations students in post-secondary education.</p>
+                </div>
+            </div>
+
+            <div id="benefit-housing" class="benefit-content">
+                <div class="info-card border-green">
+                    <h4>Housing on Reserve</h4>
+                    <p>The federal government provides funding to First Nations to support the construction, renovation, and maintenance of housing on reserves. While the system is often criticized for underfunding, this support is a key component of the government's responsibility for the well-being of Status Indians living on-reserve.</p>
+                </div>
+            </div>
+
+            <div id="benefit-rights" class="benefit-content">
+                <div class="card-grid" style="margin-top: 0;">
+                    <div class="info-card border-green">
+                        <h4>Hunting & Fishing Rights</h4>
+                        <p>Status Indians have specific rights to hunt and fish for food, social, and ceremonial purposes without a license on Crown land. These rights are constitutionally protected and are a vital part of Indigenous culture.</p>
+                    </div>
+                    <div class="info-card border-green">
+                        <h4>Exemption from Taxes</h4>
+                        <p>Under Section 87 of the <em>Indian Act</em>, the personal property of a Status Indian situated on a reserve is exempt from taxation. This most commonly applies to goods purchased on a reserve and income earned on a reserve.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 50px;">Why Restrict Status in 1985?</h3>
+            <p>When Bill C-31 was passed in 1985, it fixed the overtly sexist "marry-out" rule. However, it introduced the "Second-Generation Cut-Off." This was a political compromise driven by two primary, unstated motivations:</p>
+
+            <div class="card-grid">
+                <div class="info-card border-red">
+                    <h4>1. Controlling Government Costs</h4>
+                    <p>Every new Status Indian represents a financial liability for the government due to the benefits listed above. By creating the two-tier system and the cut-off rule, the government could limit the future growth of the Status population, thereby controlling long-term costs.</p>
+                </div>
+                <div class="info-card border-red">
+                    <h4>2. Gradual Assimilation</h4>
+                    <p>The <em>Indian Act</em> was originally designed to absorb First Nations people into mainstream Canadian population. The Cut-Off is a modern mechanism for this goal. By ensuring that Status "runs out" after two generations of intermarriage, the law is designed to gradually reduce the number of recognized Status Indians.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Status Math Section -->
+        <section id="math" class="section-panel">
+            <div class="page-header">
+                <h1>The "Status Math" Decoder</h1>
+                <p>How the 1985 rules actually work in practice</p>
+            </div>
+
+            <div class="callout" style="border-color: var(--primary-color); background-color: rgba(26, 92, 94, 0.05);">
+                <strong>MISSION:</strong> The Indian Act is full of confusing legal writing. To solve Sarah’s case, you need to stop reading the big words and start <strong>counting the parents.</strong>
+            </div>
+
+            <h3>RULE #1: The "Power" of Parents</h3>
+            <p>Under the 1985 rules (Bill C-31), there are two main categories of Status. Think of them as <strong>Strong Status (6.1)</strong> and <strong>Partial Status (6.2)</strong>.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>Category A: Section 6(1)</h4>
+                    <p><strong>The Logic:</strong> You have 2 parents with Status (or you are a grandmother like Mary who was reinstated).</p>
+                    <p><strong>The Power:</strong> You are an "Anchor." You can pass Status to your children no matter who you marry.</p>
+                    <div class="equation-box">
+                        <span class="status-61">Status Parent</span> + <span class="status-61">Status Parent</span> = <br><span class="status-61">6(1) FULL STATUS</span>
+                    </div>
+                    <div class="battery-container">
+                        <div class="battery-item">
+                            <div class="battery"><div class="charge-fill charge-full"></div></div>
+                            <small>Battery is 100%</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4>Category B: Section 6(2)</h4>
+                    <p><strong>The Logic:</strong> You have only <strong>1</strong> parent with Status.</p>
+                    <p><strong>The Power:</strong> You have Status yourself, but you are on the edge. You cannot pass it on alone.</p>
+                    <div class="equation-box">
+                        <span class="status-61">Status Parent</span> + <span class="status-none">Non-Status</span> = <br><span class="status-62">6(2) PARTIAL STATUS</span>
+                    </div>
+                    <div class="battery-container">
+                        <div class="battery-item">
+                            <div class="battery"><div class="charge-fill charge-half"></div></div>
+                            <small>Battery is 50%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>RULE #2: The "Second-Generation Cut-Off"</h3>
+            <p>This is the rule that excluded Sarah. It happens when Status gets "diluted" over two generations.</p>
+
+            <div class="info-card border-red" style="margin-bottom: 30px;">
+                <h4>The "Dead End" Equation</h4>
+                <p>If a <strong>6(2)</strong> parent marries a <strong>Non-Status</strong> person, the Status ends.</p>
+                
+                <div class="equation-box">
+                    <span class="status-62">6(2) Parent</span> + <span class="status-none">Non-Status Parent</span> = <span class="status-none">NON-STATUS CHILD</span>
+                </div>
+
+                <div class="battery-container">
+                    <div class="battery-item">
+                        <div class="battery"><div class="charge-fill charge-half"></div></div>
+                        <small>Parent (6.2)</small>
+                    </div>
+                    <div style="font-size: 24px; color: #999; font-weight: bold;">+</div>
+                    <div class="battery-item">
+                        <div class="battery"><div class="charge-fill charge-empty"></div></div>
+                        <small>Parent (None)</small>
+                    </div>
+                    <div style="font-size: 24px; color: #999; font-weight: bold;">=</div>
+                    <div class="battery-item">
+                        <div class="battery"><div class="charge-fill charge-empty"></div></div>
+                        <small>Child (Cut-off)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <h3>Applying It To Sarah: Summary Checklist</h3>
+                <ul>
+                    <li><strong>Step 1:</strong> Sarah's Dad had only <strong>one</strong> status parent (Grandma Mary). That makes him <span class="status-62" style="font-weight:bold;">6(2)</span>.</li>
+                    <li><strong>Step 2:</strong> Sarah's Dad married a <span class="status-none" style="font-weight:bold;">Non-Status</span> woman.</li>
+                    <li><strong>Step 3:</strong> Because a 6(2) married a Non-Status, the "Second-Generation Cut-off" was triggered. Sarah gets <span class="status-none" style="font-weight:bold;">Zero Status</span>.</li>
+                </ul>
+                <p style="margin-top: 20px; font-weight: 500; color: var(--primary-dark);">Does the new <strong>Bill S-2</strong> change this math? Check the 2026 Changes tab!</p>
+            </div>
+        </section>
+
+        <!-- 6. 2026 Changes Section -->
+        <section id="changes" class="section-panel">
+            <div class="page-header">
+                <h1>2026 Proposed Changes</h1>
+                <p>Senate Votes to Protect Indigenous Identity</p>
+            </div>
+
+            <img src="./images/canadian_senate.png" alt="Senate" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1575320181282-9afab399332c?q=80&w=1200&auto=format&fit=crop'">
+
+            <div class="callout">
+                <strong>The Core Story:</strong> On Thursday, the Canadian Senate voted unanimously (63-0) to pass <strong>Bill S-2</strong>. This bill aims to change the <em>Indian Act</em> to stop Indigenous children from losing their legal status due to who their parents marry.
+            </div>
+
+            <h3>Understanding the Basics</h3>
+            <p>Click the boxes below to learn more.</p>
+
+            <details>
+                <summary>What is the Indian Act?</summary>
+                <p>Passed in 1876, the <strong>Indian Act</strong> is a federal law that gives the government control over First Nations identity, political structures, and land. It is a controversial law that was originally designed to assimilate Indigenous people into Canadian society.</p>
+            </details>
+
+            <details>
+                <summary>What is the "Second-Generation Cut-off"?</summary>
+                <p>This is a rule (Subsection 6(2)) that says after two generations of parenting with non-Status partners, a child loses their Indigenous Status. Senator Paul Prosper calls this a tool for assimilation—designed to make Status "expire" over time.</p>
+            </details>
+
+            <h3>Why This Vote Matters</h3>
+            <p>Originally, Bill S-2 was designed to fix gender discrimination (treating men and women differently) in the Act. However, after hearing heartbreaking stories from families who were separated legally by the "cut-off" rule, the Senate decided to go further.</p>
+            
+            <p><strong>Senator Paul Prosper</strong> (Mi'kmaw, Nova Scotia) led the charge. He noted that the old rules forced people to "marry among ourselves" to preserve their rights, which was unfair and harmful.</p>
+
+            <div class="info-card border-blue" style="margin: 30px 0; background-color: var(--primary-dark); color: white;">
+                <h4 style="color: var(--accent-color);">The Impact by the Numbers</h4>
+                <ul style="margin-bottom: 0;">
+                    <li style="margin-bottom: 10px;"><strong>Vote Count:</strong> 63 Senators in favour, 0 against.</li>
+                    <li><strong>Future Impact:</strong> Approximately <strong>300,000 people</strong> could regain or obtain Status over the next 40 years.</li>
+                </ul>
+            </div>
+
+            <h3>What Happens Next?</h3>
+            <p>The Bill has passed the Senate, but it is not a law yet. It now moves to the <strong>House of Commons</strong>. Elected Members of Parliament (MPs) must debate and vote on these changes. If they agree, the "Second-Generation Cut-off" could finally be history.</p>
+        </section>
+
+        <!-- 7. Calculator Tool Section -->
+        <section id="calculator" class="section-panel">
+            <div class="page-header">
+                <h1>Interactive Status Calculator</h1>
+                <p>Test out the Second Generation Cut-Off rules for yourself</p>
+            </div>
+
+            <p style="text-align: center;">Use this tool to see how the <strong>Second Generation Cut-Off</strong> works. Select the status of both parents to see if their child qualifies for Indian Status.</p>
+
+            <div class="calculator-tool">
+                <div class="calc-controls">
+                    <div class="calc-select-group">
+                        <label for="parent1">Parent 1 Status:</label>
+                        <select id="parent1" class="calc-select">
+                            <option value="6-1">Section 6(1) Full</option>
+                            <option value="6-2">Section 6(2) Partial</option>
+                            <option value="non">Non-Status</option>
+                        </select>
+                    </div>
+                    
+                    <div class="calc-math-sign">+</div>
+                    
+                    <div class="calc-select-group">
+                        <label for="parent2">Parent 2 Status:</label>
+                        <select id="parent2" class="calc-select">
+                            <option value="non">Non-Status</option>
+                            <option value="6-1">Section 6(1) Full</option>
+                            <option value="6-2">Section 6(2) Partial</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <button class="btn" style="background-color: var(--accent-color);" onclick="calculateStatus()">Calculate Child's Status</button>
+                </div>
+
+                <div id="calc-result" class="calc-result">
+                    Select parents and click Calculate
+                </div>
+            </div>
+
+            <div class="callout" style="margin-top: 40px;">
+                <strong>Analogy Reminder:</strong> Think of it like a membership card with a countdown timer. 6(1) is a full membership. 6(2) is a membership that works for you, but cannot be passed down unless you marry another member.
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Mi'kmaw Studies 11 | Helping Sarah Assignment Resource</p>
+        <p>Based on reporting by Sis'moqon (CBC Indigenous). Adapted for student audiences.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // --- Navigation Logic ---
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const sectionPanels = document.querySelectorAll('.section-panel');
+        const mobileBtn = document.getElementById('mobileBtn');
+        const navTabsContainer = document.getElementById('navTabs');
+
+        // Tab Switching
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.getAttribute('data-target');
+                
+                // Update active tab styling
+                navTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show target panel
+                sectionPanels.forEach(panel => {
+                    panel.classList.remove('active');
+                    if (panel.id === targetId) {
+                        panel.classList.add('active');
+                    }
+                });
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Close mobile menu if open
+                if (window.innerWidth <= 768) {
+                    navTabsContainer.classList.remove('open');
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        mobileBtn.addEventListener('click', () => {
+            navTabsContainer.classList.toggle('open');
+        });
+
+        // --- Benefit Toggles Logic ---
+        function showBenefit(id, btnElement) {
+            // Hide all benefit contents
+            document.querySelectorAll('.benefit-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show target content and activate button
+            document.getElementById('benefit-' + id).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // --- Calculator Logic ---
+        function calculateStatus() {
+            const p1 = document.getElementById('parent1').value;
+            const p2 = document.getElementById('parent2').value;
+            const resultBox = document.getElementById('calc-result');
+            
+            let resultText = "";
+            let bgColor = "";
+            let textColor = "#333";
+
+            // Logic based on Indian Act rules
+            if (p1 === 'non' && p2 === 'non') {
+                resultText = "Child is: Non-Status";
+                bgColor = "#bdc3c7"; // Gray
+            } 
+            else if ((p1 === '6-2' && p2 === 'non') || (p1 === 'non' && p2 === '6-2')) {
+                resultText = "Child is: NON-STATUS (The Cut-Off Applied)";
+                bgColor = "#e74c3c"; // Red
+                textColor = "white";
+            } 
+            else if ((p1 === '6-1' && p2 === 'non') || (p1 === 'non' && p2 === '6-1')) {
+                resultText = "Child is: Section 6(2) Status";
+                bgColor = "#f1c40f"; // Yellow
+            }
+            else if (p1 === '6-2' && p2 === '6-2') {
+                resultText = "Child is: Section 6(1) Status";
+                bgColor = "#2ecc71"; // Green
+                textColor = "white";
+            }
+            else {
+                // Any combination involving two 6(1)s or a 6(1) + 6(2)
+                resultText = "Child is: Section 6(1) Status";
+                bgColor = "#2ecc71"; // Green
+                textColor = "white";
+            }
+
+            // Apply styles
+            resultBox.style.backgroundColor = bgColor;
+            resultBox.style.color = textColor;
+            resultBox.innerText = resultText;
+            
+            // Add a little pop animation
+            resultBox.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                resultBox.style.transform = 'scale(1)';
+            }, 200);
+        }
+    </script>
+</body>
+</html>
