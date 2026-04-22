@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NS Economics: The 1% HST Controversy Audit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1a3a5f;
+            --orange: #f97316;
+            --light-bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--navy);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .section-label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--navy);
+            margin-bottom: 15px;
+            display: block;
+            border-left: 3px solid var(--orange);
+            padding-left: 10px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        select,
+        input {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 0 4px rgba(26, 58, 95, 0.1);
+        }
+
+        .btn-calculate {
+            background: var(--navy);
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(26, 58, 95, 0.2);
+        }
+
+        .btn-calculate:hover {
+            background: #11253d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26, 58, 95, 0.3);
+        }
+
+        .results-box {
+            display: none;
+            animation: slideUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: scale(1.03);
+        }
+
+        .metric-val {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .analysis-container {
+            background: rgba(249, 115, 22, 0.05);
+            border-left: 4px solid var(--orange);
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 25px;
+        }
+
+        .analysis-container h3 {
+            font-size: 0.9rem;
+            color: var(--orange);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .analysis-container p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .controversy-summary {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .controversy-summary b {
+            color: var(--navy);
+        }
+
+        .reflection-section {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .reflection-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            color: var(--navy);
+        }
+
+        .reflection-q {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .reflection-q::before {
+            content: '?';
+            position: absolute;
+            left: 0;
+            color: var(--orange);
+            font-weight: 800;
+        }
+
+        .aftermath-box {
+            background: #fff1f2;
+            border: 2px solid #fda4af;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .aftermath-box h4 {
+            color: #be123c;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .aftermath-text {
+            font-size: 0.9rem;
+            color: #881337;
+            line-height: 1.5;
+        }
+
+        .verdict-section {
+            text-align: center;
+            padding: 30px;
+            background: var(--navy);
+            color: white;
+            border-radius: 20px;
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 1s ease;
+        }
+
+        .verdict-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .verdict-section p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Mode Switcher pill */
+        .mode-switcher {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 50px;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--navy);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-definition {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: -15px;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        @media (max-width: 500px) {
+
+            .input-grid,
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Controversy Audit</h1>
+        <p class="subtitle">The Halifax 1% HST Shift: Wealth vs. Utility</p>
+
+        <div class="controversy-summary">
+            In Oct 2024, Nova Scotia cut the HST from 15% to 14%. The government called it <b>"Essential Relief,"</b>
+            but critics called it an <b>"Election Gimmick"</b> that cost the province <b>$260 Million</b> a year in lost
+            revenue. That's money that could fund healthcare and housing.
+        </div>
+
+        <div class="mode-switcher">
+            <button class="mode-btn active" onclick="setMode('regressive', this)">HST (Regressive Effect)</button>
+            <button class="mode-btn" onclick="setMode('proportional', this)">Flat Tax (Proportional)</button>
+            <button class="mode-btn" onclick="setMode('progressive', this)">Income Tax (Progressive)</button>
+        </div>
+
+        <div id="modeDef" class="mode-definition">
+            HST applies a flat rate to purchases, but has a "Regressive" effect because lower earners spend a larger share of their paycheck on necessities.
+        </div>
+
+        <span class="section-label">Financial Profile</span>
+
+        <div class="input-grid">
+            <div class="input-group full-width">
+                <label>Select Template</label>
+                <select id="pSelect" onchange="loadProfile()">
+                    <option value="custom">-- Custom Analysis --</option>
+                    <option value="student">Student ($15.5k income)</option>
+                    <option value="parent">Single Parent ($46k income)</option>
+                    <option value="driver">Transit Driver ($72k income)</option>
+                    <option value="nurse">Registered Nurse ($98k income)</option>
+                    <option value="tech">Tech Manager ($165k income)</option>
+                    <option value="lawyer">South End Lawyer ($390k income)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Annual Income ($)</label>
+                <input type="number" id="inc" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>Hourly Wage ($)</label>
+                <input type="number" id="wage" placeholder="0">
+            </div>
+            <div class="input-group full-width" id="spendGroup">
+                <label>Annual Taxable Spending ($)</label>
+                <input type="number" id="spend" placeholder="Items hit by HST">
+            </div>
+        </div>
+
+        <button class="btn-calculate" onclick="calculate()">Analyze Fairness Impact</button>
+
+        <div id="results" class="results-box">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span id="resSaved" class="metric-val">$0</span>
+                    <span class="metric-label">Absolute Savings</span>
+                </div>
+                <div class="metric-card">
+                    <span id="resHrs" class="metric-val">0</span>
+                    <span class="metric-label">Hours of Life Saved</span>
+                </div>
+                <div class="metric-card">
+                    <span id="resPct" class="metric-val">0%</span>
+                    <span class="metric-label">% of Total Income</span>
+                </div>
+            </div>
+
+            <div class="analysis-container">
+                <h3 id="analysisHeader">PEDAGOGICAL ANALYSIS</h3>
+                <p id="resMsg"></p>
+            </div>
+
+            <div class="reflection-section">
+                <div class="reflection-title">CLASSROOM REFLECTION</div>
+                <div class="reflection-q"><strong>The Spend vs. Save Gap:</strong> Why is the Lawyer's taxable spending
+                    so low compared to their total income? (Hint: Savings/Investments).</div>
+                <div class="reflection-q"><strong>The Culture Trade-off:</strong> If 1,000 lawyers save $1,250 each
+                    ($1.25M total), that money is cut from things like the Jazz Fest. Who wins?</div>
+            </div>
+
+            <div id="aftermath" class="aftermath-box">
+                <h4>Feb 2026: The Bill Comes Due</h4>
+                <p class="aftermath-text">
+                    Just 16 months after the tax cut, Nova Scotia announced a <b>$1.2 Billion Deficit</b>. To cover the
+                    hole, the province cut <b>$300 Million</b> from programs, resulting in over <b>1,000 job losses</b>
+                    and the closure of museums and visitor centers.
+                </p>
+            </div>
+
+            <div id="verdict" class="verdict-section">
+                <h2>The Billion-Dollar Question</h2>
+                <p>According to your math, who's right? Does the individual "Absolute Saving" for the wealthy or the
+                    "Relative Utility" for the student justify the 2026 cuts to public jobs and services?</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'regressive';
+
+        const profiles = {
+            student: { i: 15500, w: 15.50, s: 13000 },
+            parent: { i: 46000, w: 23.50, s: 32000 },
+            driver: { i: 72000, w: 36.90, s: 38000 },
+            nurse: { i: 98000, w: 50.25, s: 52000 },
+            tech: { i: 165000, w: 84.60, s: 65000 },
+            lawyer: { i: 390000, w: 200.00, s: 125000 }
+        };
+
+        function setMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update Definition text
+            const defs = {
+                regressive: 'HST applies a flat rate to purchases, but has a "Regressive" effect because lower earners spend a larger share of their paycheck on necessities.',
+                proportional: 'A "Flat Tax" model on income: Everyone pays the exact same percentage of their total paycheck.',
+                progressive: 'An "Ability to Pay" model: The tax rate increases as income goes up, meaning higher earners pay a larger percentage.'
+            };
+            document.getElementById('modeDef').innerText = defs[mode];
+
+            // UI Tweaks based on mode
+            const spendGroup = document.getElementById('spendGroup');
+            if (mode === 'regressive') {
+                spendGroup.style.display = 'flex';
+            } else {
+                spendGroup.style.display = 'none';
+            }
+
+            if (document.getElementById('results').style.display === 'block') {
+                calculate();
+            }
+        }
+
+        function loadProfile() {
+            const p = profiles[document.getElementById('pSelect').value];
+            if (p) {
+                document.getElementById('inc').value = p.i;
+                document.getElementById('wage').value = p.w;
+                document.getElementById('spend').value = p.s;
+            }
+        }
+
+        function calculate() {
+            const inc = parseFloat(document.getElementById('inc').value) || 0;
+            const wage = parseFloat(document.getElementById('wage').value) || 1;
+            const spend = parseFloat(document.getElementById('spend').value) || 0;
+
+            let savings = 0;
+            let typeNote = "";
+
+            if (currentMode === 'regressive') {
+                // HST Math (Taxed on spending)
+                savings = spend * 0.01;
+                typeNote = "HST is a tax on consumption. It has a <b>Regressive Effect</b> because lower earners must spend a larger share of their paycheck on necessities, meaning the tax takes a bigger bite out of their total income compared to the wealthy.";
+            } else if (currentMode === 'proportional') {
+                // Flat Tax Math (Taxed on total income)
+                savings = inc * 0.01;
+                typeNote = "This is a <b>Proportional (Flat) Income Tax</b>. A 1% cut gives everyone exactly 1% of their gross income back. The math is simple, but critics argue it disproportionately benefits the wealthy in absolute dollars.";
+            } else {
+                // Progressive Math (Simplified: Bracket cut above 75k)
+                if (inc > 75000) {
+                    savings = (inc - 75000) * 0.01;
+                } else {
+                    savings = 0;
+                }
+                typeNote = "This is a <b>Progressive Income Tax</b>. It uses an 'ability to pay' model. By shifting brackets at the top (e.g., over $75k), middle and high-income earners see a change, while lower income profiles see $0 in savings.";
+            }
+
+            const hrsSaved = savings / wage;
+            const pctOfInc = (savings / inc) * 100;
+
+            // UI Updates
+            document.getElementById('resSaved').innerText = "$" + savings.toLocaleString(undefined, { maximumFractionDigits: 0 });
+            document.getElementById('resHrs').innerText = hrsSaved.toFixed(1);
+            document.getElementById('resPct').innerText = (inc > 0 ? pctOfInc.toFixed(2) : "0") + "%";
+
+            let analysis = typeNote + "<br><br>";
+            
+            if (currentMode === 'regressive') {
+                if (inc > 200000) {
+                    analysis += `<b>Profile Analysis:</b> The <b>Lawyer</b> is the "Absolute Winner" saving <b>$${savings.toFixed(0)}</b>. While this is a significant total, notice it is a tiny fraction of their income. They likely won't feel the change in their daily life.`;
+                } else if (inc < 30000) {
+                    analysis += `<b>Profile Analysis:</b> The <b>Student</b> is the "Relative Winner." That <b>$130</b> represents multiple weeks of groceries. They gain back <b>${hrsSaved.toFixed(1)} hours</b> of work back to their life. This is the definition of high utility.`;
+                } else {
+                    analysis += `<b>Profile Analysis:</b> The <b>Middle Class</b> sees moderate savings. Critics argue this cut was a distraction from years of <b>"Bracket Creep"</b> (the government over-taxing citizens by not indexing brackets to inflation).`;
+                }
+            } else if (currentMode === 'proportional') {
+                analysis += `<b>Profile Analysis:</b> Under a flat system, a student making $15k saves $150, while a lawyer making $390k saves $3,900. The percentage is "fair" (1%), but the absolute dollar gap is massive.`;
+            } else {
+                if (inc > 75000) {
+                    analysis += `<b>Profile Analysis:</b> This profile saves <b>$${savings.toFixed(0)}</b> because their income crosses the $75,000 threshold. Progressivity ensures those with more disposable income bear more of the tax burden.`;
+                } else {
+                    analysis += `<b>Profile Analysis:</b> This profile saves <b>$0</b>. Because they make under $75,000, they aren't impacted by cuts to the higher tax brackets.`;
+                }
+            }
+
+            analysis += `<br><br><small><b>The Trade-off:</b> This 1% cut costs the NS Treasury <b>$260 Million</b> per year—money that critics argue should be spent on the healthcare and housing crises.</small>`;
+
+            document.getElementById('resMsg').innerHTML = analysis;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('aftermath').style.display = 'block';
+            document.getElementById('verdict').style.display = 'block';
+        }
+    </script>
+
+</body>
+
+</html>
