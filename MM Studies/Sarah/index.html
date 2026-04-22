@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="icon" href="./images/favicon.png" type="image/png">
     <style>
         :root {
             --primary-color: #1a5c5e;
@@ -646,6 +647,143 @@
                 margin: -10px 0;
             }
         }
+        /* --- New Components --- */
+
+        /* Case Tracker Checklist */
+        .case-tracker {
+            background: linear-gradient(145deg, #ffffff 0%, #f9f7f2 100%);
+            border: 1px solid rgba(26,92,94,0.1);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tracker-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-family: var(--font-headings);
+            font-size: 1.3rem;
+        }
+
+        .tracker-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tracker-item:last-child { border-bottom: none; }
+
+        .tracker-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        .tracker-item span {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .tracker-item.completed span {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 40px auto;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-light), var(--accent-color));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -31px;
+            top: 5px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 4px solid var(--primary-color);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        /* Glossary Tooltips */
+        .glossary-term {
+            text-decoration: underline dotted var(--accent-color);
+            cursor: help;
+            position: relative;
+            color: inherit;
+        }
+
+        .glossary-term::before {
+            content: attr(data-definition);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 15px;
+            background: var(--primary-dark);
+            color: white;
+            font-size: 0.85rem;
+            border-radius: var(--radius-sm);
+            width: 220px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+            pointer-events: none;
+            font-family: var(--font-body);
+            font-weight: normal;
+        }
+
+        .glossary-term:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .case-intro-container {
             display: flex;
             flex-direction: column;
@@ -729,6 +867,28 @@
                 <p style="margin-bottom: 0;"><em>Use the tabs above to navigate through the legal database and gather your evidence.</em></p>
             </div>
 
+            <div class="case-tracker">
+                <div class="tracker-title">
+                    <span>🕵️</span> Investigation Progress
+                </div>
+                <div class="tracker-item" onclick="toggleTracker(this)">
+                    <input type="checkbox">
+                    <span>Read Sarah's Email & Case Brief</span>
+                </div>
+                <div class="tracker-item" onclick="toggleTracker(this)">
+                    <input type="checkbox">
+                    <span>Investigated Grandma Mary's History (Pre-1985)</span>
+                </div>
+                <div class="tracker-item" onclick="toggleTracker(this)">
+                    <input type="checkbox">
+                    <span>Calculated Dad's Status (Section 6.1 vs 6.2)</span>
+                </div>
+                <div class="tracker-item" onclick="toggleTracker(this)">
+                    <input type="checkbox">
+                    <span>Evaluated the impact of Bill S-2</span>
+                </div>
+            </div>
+
             <p>Imagine there was a single book of rules that decided who you were, where you could live, and what rights you had. For over a century, that's exactly what <strong>The Indian Act</strong> has been for First Nations people in Canada.</p>
             
             <p>This isn't just dusty history. It's a living, breathing debate about identity and justice. The files in this database tell the story of a law that has controlled lives for generations.</p>
@@ -775,15 +935,39 @@
                 <p>Domestic Activism, International Pressure, and the 1985 "Compromise"</p>
             </div>
 
-            <p>For over a century, the <em>Indian Act</em> enforced a patrilineal system that discriminated against Indigenous women. By the mid-1980s, a convergence of grassroots activism, international humiliation at the United Nations, and new constitutional laws forced the Canadian government to act.</p>
+            <p>For over a century, the <em>Indian Act</em> enforced a <span class="glossary-term" data-definition="Relating to or based on relationship to the father or descent through the male line.">patrilineal system</span> that discriminated against Indigenous women. By the mid-1980s, a convergence of grassroots activism, international humiliation at the United Nations, and new constitutional laws forced the Canadian government to act.</p>
 
-            <h3>Domestic Pressure: Indian Rights for Indian Women</h3>
-            <p>In 1967, Indigenous women mobilized to form <strong>Indian Rights for Indian Women (IRIW)</strong>. Led by figures like Mary Two-Axe Earley, Nellie Carlson, and Kathleen Steinhauer, the group fought against significant opposition from both the federal government and male-dominated Band Councils.</p>
-            <p>They faced intense challenges, including lack of funding and community ostracization, yet they succeeded in bringing the issue of gender discrimination to the national stage.</p>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">1967</div>
+                        <p><strong>Grassroots Mobilization:</strong> Indigenous women form <em>Indian Rights for Indian Women (IRIW)</em> to fight gender discrimination in the Indian Act.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">1981</div>
+                        <p><strong>United Nations Victory:</strong> Sandra Lovelace Nicholas takes Canada to the UN. The Human Rights Committee rules that Canada is violating international law.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">1982</div>
+                        <p><strong>New Constitution:</strong> The <em>Charter of Rights and Freedoms</em> is signed, making it illegal to discriminate based on gender.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">1985</div>
+                        <p><strong>Bill C-31:</strong> The government passes a compromise law. It reinstates thousands of women but creates the <span class="glossary-term" data-definition="The rule that stops status from being passed down after two generations of marrying non-status partners.">Second-Generation Cut-off</span>.</p>
+                    </div>
+                </div>
+            </div>
 
-            <h3>International Pressure: The Lovelace Case</h3>
-            <p>When Canadian courts failed to protect Indigenous women, activists took their fight to the international stage.</p>
-            
             <div class="info-card border-blue" style="margin: 20px 0;">
                 <h4>Sandra Lovelace v. Canada (1981)</h4>
                 <p>Sandra Lovelace Nicholas, a Maliseet woman from the Tobique First Nation, lost her status after marrying a non-Indigenous man. When the marriage ended, she and her children were denied housing and education on her reserve.</p>
@@ -826,6 +1010,11 @@
 
             <p>Indian Status is a legal recognition by the Canadian government that a person is registered under the <em>Indian Act</em>. This registration provides access to specific rights and benefits that are not available to other Canadians.</p>
             
+            <div class="callout">
+                <strong>Why the Restrictions?</strong>
+                <p>The government and some First Nations communities have different views on status. The government often uses the "Cut-off" rules to limit the cost of providing benefits, while some communities view status as a matter of <span class="glossary-term" data-definition="The right of a people to determine its own destiny and choose its own political status and form of economic, cultural and social development.">self-determination</span>.</p>
+            </div>
+
             <h3>Explore the Benefits</h3>
             <p>Click the buttons below to learn about each area of benefits.</p>
 
@@ -1182,6 +1371,12 @@
             setTimeout(() => {
                 resultBox.style.transform = 'scale(1)';
             }, 200);
+        }
+        // --- Tracker Toggle Logic ---
+        function toggleTracker(element) {
+            const checkbox = element.querySelector('input');
+            checkbox.checked = !checkbox.checked;
+            element.classList.toggle('completed');
         }
     </script>
 </body>
