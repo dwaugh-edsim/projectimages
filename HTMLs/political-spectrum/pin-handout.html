@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Halifax West 2026 — Student PIN Handout</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap');
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',sans-serif; background:#f8fafc; color:#0f172a; padding:1cm; }
+    h1 { font-size:1.1rem; font-weight:900; text-align:center; margin-bottom:0.3rem; }
+    p.sub { font-size:0.7rem; text-align:center; color:#64748b; margin-bottom:1cm; }
+    .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:0.4cm; }
+    .card {
+      border:2px solid #e2e8f0; border-radius:10px; padding:0.5cm;
+      page-break-inside:avoid; break-inside:avoid;
+    }
+    .card-header { display:flex; align-items:center; gap:0.3rem; margin-bottom:0.3rem; }
+    .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .name { font-size:0.95rem; font-weight:900; }
+    .party { font-size:0.62rem; color:#475569; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem; }
+    .pin-row { display:flex; align-items:center; gap:0.5rem; }
+    .pin-label { font-size:0.6rem; color:#94a3b8; font-weight:700; text-transform:uppercase; }
+    .pin-val { font-family:'JetBrains Mono','Courier New',monospace; font-size:1.4rem; font-weight:700; letter-spacing:0.15rem; color:#6366f1; }
+    .url-section { margin-top:0.3rem; font-size:0.6rem; color:#64748b; }
+    .url-val { font-family:monospace; color:#0f172a; font-size:0.65rem; }
+    .leader-badge { background:#10b981; color:white; font-size:0.55rem; font-weight:900; padding:0.1rem 0.35rem; border-radius:4px; text-transform:uppercase; }
+    @media print {
+      body { padding:0.5cm; }
+      .grid { grid-template-columns: repeat(3, 1fr); gap:0.3cm; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Halifax West 2026 — Town Hall Debate</h1>
+  <p class="sub">Your personal login card. Do not share your PIN. Keep this safe.</p>
+  <div class="grid" id="cards"></div>
+<script>
+const COLORS = {
+  islamic:'#10b981', healthier:'#3b82f6', solution:'#8b5cf6',
+  niche:'#f59e0b',   tomorrow:'#06b6d4',  cpoh:'#ef4444',
+  unity:'#ec4899',   equitable:'#f97316', environment:'#22c55e',
+  yellow:'#eab308',  equity:'#a855f7',    climate:'#0ea5e9'
+};
+const STUDENTS = [
+  {name:'Farhan',      pin:'HRNH', party:'Islamic Assoc of Halifax',    partyId:'islamic',     role:'leader'},
+  {name:'Abdul',       pin:'ALZZ', party:'Islamic Assoc of Halifax',    partyId:'islamic',     role:'member'},
+  {name:'Joshua A',    pin:'RUXG', party:'The Healthier Future',         partyId:'healthier',   role:'leader'},
+  {name:'Clark',       pin:'9F3K', party:'The Healthier Future',         partyId:'healthier',   role:'member'},
+  {name:'Madhavan',    pin:'R4MT', party:'The Party De Solution',        partyId:'solution',    role:'leader'},
+  {name:'Remy',        pin:'YMRP', party:'The Party De Solution',        partyId:'solution',    role:'member'},
+  {name:'Yunho',       pin:'T4N5', party:'The Party De Solution',        partyId:'solution',    role:'member'},
+  {name:'Lachlan McM', pin:'FFAN', party:'The Niche Halligonians',       partyId:'niche',       role:'leader'},
+  {name:'Lachlan Mac', pin:'25VT', party:'The Niche Halligonians',       partyId:'niche',       role:'member'},
+  {name:'Nolan',       pin:'KFK6', party:'The Niche Halligonians',       partyId:'niche',       role:'member'},
+  {name:'Laila',       pin:'V4BC', party:'Team Tomorrow',                partyId:'tomorrow',    role:'leader'},
+  {name:'Josie',       pin:'MVQW', party:'Team Tomorrow',                partyId:'tomorrow',    role:'member'},
+  {name:'Huda',        pin:'6SUB', party:'Team Tomorrow',                partyId:'tomorrow',    role:'member'},
+  {name:'Brody',       pin:'JY2P', party:'Communist Party of Halifax',   partyId:'cpoh',        role:'leader'},
+  {name:'Leo',         pin:'RKKJ', party:'Communist Party of Halifax',   partyId:'cpoh',        role:'member'},
+  {name:'Elizabeth',   pin:'FNG3', party:'The Unity Party',              partyId:'unity',       role:'leader'},
+  {name:'Fatima',      pin:'T6U2', party:'The Unity Party',              partyId:'unity',       role:'member'},
+  {name:'Alia',        pin:'LJFM', party:'The Unity Party',              partyId:'unity',       role:'member'},
+  {name:'Rifa',        pin:'57G5', party:'Equitable Rights Party',       partyId:'equitable',   role:'leader'},
+  {name:'Sarah',       pin:'96EU', party:'Equitable Rights Party',       partyId:'equitable',   role:'member'},
+  {name:'Natalia',     pin:'2F8V', party:'Environmentalists at Work',    partyId:'environment', role:'leader'},
+  {name:'Jessa',       pin:'HSZU', party:'Environmentalists at Work',    partyId:'environment', role:'member'},
+  {name:'Delisha',     pin:'Q2YA', party:'Environmentalists at Work',    partyId:'environment', role:'member'},
+  {name:'Kendra',      pin:'MTGG', party:'Yellow Progression Party',     partyId:'yellow',      role:'leader'},
+  {name:'Zankia',      pin:'CA3J', party:'Yellow Progression Party',     partyId:'yellow',      role:'member'},
+  {name:'Evie',        pin:'R7SX', party:'The Equity Party',             partyId:'equity',      role:'leader'},
+  {name:'Jana',        pin:'TT8D', party:'The Equity Party',             partyId:'equity',      role:'member'},
+  {name:'Ali',         pin:'D2ZD', party:'Halifax Climate Protection',   partyId:'climate',     role:'leader'},
+  {name:'Kai',         pin:'VFW8', party:'Halifax Climate Protection',   partyId:'climate',     role:'member'},
+];
+// URL base — update with your actual GitHub Pages URL
+const BASE = 'https://dwaugh-edsim.github.io/projectimages/HTMLs/political-spectrum/';
+const g = document.getElementById('cards');
+STUDENTS.forEach(s => {
+  const url = s.role === 'leader' ? BASE + 'candidate-panel.html' : BASE + 'audience.html';
+  const c = COLORS[s.partyId] || '#6366f1';
+  g.innerHTML += `<div class="card" style="border-color:${c}44">
+    <div class="card-header">
+      <div class="dot" style="background:${c}"></div>
+      <span class="name">${s.name}</span>
+      ${s.role==='leader' ? '<span class="leader-badge">Leader</span>' : ''}
+    </div>
+    <div class="party">${s.party}</div>
+    <div class="pin-row">
+      <span class="pin-label">PIN</span>
+      <span class="pin-val">${s.pin}</span>
+    </div>
+    <div class="url-section">
+      Go to: <span class="url-val">${s.role==='leader' ? 'candidate-panel.html' : 'audience.html'}</span>
+    </div>
+  </div>`;
+});
+</script>
+</body>
+</html>
