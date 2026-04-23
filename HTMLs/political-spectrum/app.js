@@ -597,7 +597,7 @@ function appendMessage(role, text, id) {
 function renderParties() {
     const grid = document.getElementById('party-grid');
     if (!grid) return;
-    const displayParties = registeredParties.filter(p => !(p.pin || '').toUpperCase().startsWith('T'));
+    const displayParties = registeredParties.filter(p => !(p.pin || '').toUpperCase().startsWith('T') && !(p.partyname || p.name || '').toUpperCase().includes('MRWAUGH'));
     if (displayParties.length === 0) {
         grid.innerHTML = `<p style=\"grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;\">No parties yet.</p>`;
         return;
