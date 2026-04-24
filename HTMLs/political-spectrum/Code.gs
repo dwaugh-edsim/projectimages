@@ -63,9 +63,9 @@ function lookupStudent(pin) {
 }
 
 function isTeacherPin(pin) {
-  var tp = PropertiesService.getScriptProperties().getProperty('TEACHER_PIN') || '9999';
-  var p = (pin || '').trim();
-  // Support both the script property and a hardcoded '9999' safety fallback
+  var rawTp = PropertiesService.getScriptProperties().getProperty('TEACHER_PIN');
+  var tp = (rawTp || '9999').toString().trim();
+  var p = (pin || '').toString().trim();
   return p === tp || p === '9999';
 }
 
@@ -181,11 +181,13 @@ function doPost(e) {
 
 // ─── TOWN HALL: AUTH ─────────────────────────────────────────────────────────
 function thAuth(pin) {
-  var p = (pin || '').toUpperCase().trim();
+  var p = (pin || '').toString().trim().toUpperCase();
   if (isTeacherPin(p)) return handleResponse({ status: 'success', role: 'teacher' });
+  
   var student = lookupStudent(p);
   if (student) return handleResponse({ status: 'success', role: 'student', student: student });
-  return handleResponse({ status: 'error', message: 'PIN not found. Check with Mr. Waugh.' });
+  
+  return handleResponse({ status: 'error', message: 'Invalid PIN. Check with Mr. Waugh.' });
 }
 
 // ─── TOWN HALL: MESSAGES ─────────────────────────────────────────────────────
