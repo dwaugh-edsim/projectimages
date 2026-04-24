@@ -743,7 +743,7 @@
     let unreadCounts = {}; // partyId → count
     let consecutiveFailures = 0; // Issue #4
     let pollTimer = null;
-    let pendingSessionChange = null; // Track pending state change to ignore stale polls
+    let sessionChangeTimestamp = 0; // Timestamp of last session change — ignore stale polls for 5s
 
     // ── LOGIN ────────────────────────────────────────────────────────────────────
     document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -789,9 +789,10 @@
 
         const session = data.session || {};
 
-        // Ignore stale poll if we have a pending session change (don't clear flag here — let openVoting/closeVoting clear it)
-        if (pendingSessionChange) {
-          console.log('[DEBUG doPoll] Ignoring stale poll - pending change:', pendingSessionChange);
+        // Ignore session state from polls for 5s after a state change (Sheets propagation delay)
+        const now = Date.now();
+        if (now - sessionChangeTimestamp < 5000) {
+          console.log('[DEBUG doPoll] Ignoring session state — recent change (' + (now - sessionChangeTimestamp) + 'ms ago)');
         } else {
           votingOpen = !!session.votingOpen;
           showingResults = !!session.showResults;
@@ -949,36 +950,28 @@
 
       if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
 
-      // Set pending flag BEFORE calling setSession to ignore stale polls
-      pendingSessionChange = { votingOpen: true, phase, finalists };
+      // Record timestamp BEFORE calling setSession — polls within 5s will ignore session state
+      sessionChangeTimestamp = Date.now();
       console.log('[DEBUG openVoting] Calling setSession with votingOpen=true');
       const result = await setSession(getCurrentActiveParty(), true, false, phase, finalists);
       console.log('[DEBUG openVoting] setSession returned:', result);
 
-      // Clear flag and apply UI, then force a fresh poll
-      pendingSessionChange = null;
+      // Apply UI immediately — don't wait for poll to confirm
       votingOpen = true;
       currentVotePhase = phase;
       currentFinalists = finalists;
       applyVotingUI(true);
-      // Cancel any pending poll timer and do an immediate fresh poll
-      if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
-      doPoll();
     }
 
     async function closeVoting() {
       if (!confirm('Close voting? Students can no longer vote.')) return;
 
-      // Set pending flag BEFORE calling setSession
-      pendingSessionChange = { votingOpen: false };
+      // Record timestamp BEFORE calling setSession — polls within 5s will ignore session state
+      sessionChangeTimestamp = Date.now();
       const result = await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
-      // Clear flag and apply UI, then force a fresh poll
-      pendingSessionChange = null;
+      // Apply UI immediately — don't wait for poll to confirm
       votingOpen = false;
       applyVotingUI(false);
-      // Cancel any pending poll timer and do an immediate fresh poll
-      if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
-      doPoll();
     }
 
     async function showResults() {
