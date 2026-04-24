@@ -743,6 +743,7 @@
     let unreadCounts = {}; // partyId → count
     let consecutiveFailures = 0; // Issue #4
     let pollTimer = null;
+    let pendingSessionChange = null; // Track pending state change to ignore stale polls
 
     // ── LOGIN ────────────────────────────────────────────────────────────────────
     document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -787,10 +788,16 @@
         document.getElementById('conn-dot').className = 'conn-dot';
 
         const session = data.session || {};
-        votingOpen = !!session.votingOpen;
-        showingResults = !!session.showResults;
-        currentVotePhase = session.votePhase || 'prelim';
-        currentFinalists = session.finalists || '';
+
+        // Ignore stale poll if we have a pending session change
+        if (pendingSessionChange) {
+          console.log('[DEBUG doPoll] Ignoring stale poll - pending change:', pendingSessionChange);
+        } else {
+          votingOpen = !!session.votingOpen;
+          showingResults = !!session.showResults;
+          currentVotePhase = session.votePhase || 'prelim';
+          currentFinalists = session.finalists || '';
+        }
 
         console.log('[DEBUG doPoll] session.votingOpen=' + session.votingOpen + ', votePhase=' + session.votePhase + ', finalists=' + session.finalists);
 
@@ -942,16 +949,28 @@
 
       if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
 
+      // Set pending flag BEFORE calling setSession to ignore stale polls
+      pendingSessionChange = { votingOpen: true, phase, finalists };
       console.log('[DEBUG openVoting] Calling setSession with votingOpen=true');
       const result = await setSession(getCurrentActiveParty(), true, false, phase, finalists);
       console.log('[DEBUG openVoting] setSession returned:', result);
 
+      // Clear pending flag and apply UI
+      pendingSessionChange = null;
+      votingOpen = true;
+      currentVotePhase = phase;
+      currentFinalists = finalists;
       applyVotingUI(true);
     }
 
     async function closeVoting() {
       if (!confirm('Close voting? Students can no longer vote.')) return;
-      await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
+
+      // Set pending flag BEFORE calling setSession
+      pendingSessionChange = { votingOpen: false };
+      const result = await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
+      pendingSessionChange = null;
+      votingOpen = false;
       applyVotingUI(false);
     }
 
