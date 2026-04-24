@@ -72,15 +72,27 @@ function generateId() {
   return Utilities.getUuid();
 }
 
-// Issue #12: salt stored in ScriptProperties, auto-generated on first use
+// Round 2 fix: double-checked lock prevents race condition on first call.
+// Fast path: if salt already exists, no lock needed (99.9% of calls).
 function getVoteSalt() {
   var props = PropertiesService.getScriptProperties();
   var salt  = props.getProperty('VOTE_SALT');
-  if (!salt) {
-    salt = Utilities.getUuid();
-    props.setProperty('VOTE_SALT', salt);
+  if (salt) return salt; // fast path — already set
+
+  // Salt doesn't exist yet — serialize its creation
+  var lock = LockService.getScriptLock();
+  var acquired = lock.tryLock(15000);
+  try {
+    // Re-read inside lock: another instance may have written it while we waited
+    salt = props.getProperty('VOTE_SALT');
+    if (!salt) {
+      salt = Utilities.getUuid();
+      props.setProperty('VOTE_SALT', salt);
+    }
+    return salt;
+  } finally {
+    if (acquired) lock.releaseLock();
   }
-  return salt;
 }
 
 // Issue #5: atomic session key update — never clears the whole sheet
@@ -277,19 +289,19 @@ function thCastVote(pin, partyId) {
     return handleResponse({ status: 'error', message: 'You cannot vote for your own party.' });
   }
 
-  var session = thGetSession();
-  if (!session.votingOpen) {
-    return handleResponse({ status: 'error', message: 'Voting is not open yet. Wait for Mr. Waugh.' });
-  }
-
-  // Issue #12: salt from ScriptProperties, not hardcoded
+  // Compute hash before the lock (getVoteSalt uses its own lock safely)
   var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + getVoteSalt())
     .map(function(b) { return (b & 0xFF).toString(16).padStart(2, '0'); }).join('');
 
-  // Issue #1: lock BEFORE duplicate check — read-check-write must be atomic
+  // Round 2 fix: ALL vote checks happen INSIDE the lock.
+  // voingOpen re-read here prevents a student slipping a vote in after teacher closes voting.
   var lock = acquireLock();
   if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
+    var session = thGetSession(); // authoritative inside lock
+    if (!session.votingOpen)
+      return handleResponse({ status: 'error', message: 'Voting is now closed.' });
+
     var sheet = getOrCreateSheet('TH_Votes', ['Timestamp','HashedPin','PartyVoted']);
     if (sheet.getLastRow() >= 2) {
       var data = sheet.getDataRange().getValues();
@@ -352,29 +364,21 @@ function pollStudent(pin, sinceMs) {
     }
   }
 
-  // On-stage question (leaders only)
+  // Round 2 fix: single read of TH_Questions replaces the previous double-read.
+  // One forward pass handles both on-stage detection (leaders) + own question statuses.
   var onStageQ = null;
-  if (student.role === 'leader') {
-    var qSheet = ss.getSheetByName('TH_Questions');
-    if (qSheet && qSheet.getLastRow() >= 2) {
-      var qData = qSheet.getDataRange().getValues();
-      for (var j = qData.length - 1; j >= 1; j--) {
-        if (qData[j][6] === 'on_stage') {
-          onStageQ = { id: qData[j][0], text: qData[j][5] };
-          break;
-        }
-      }
-    }
-  }
-
-  // Own question statuses (status only — no text leak)
   var myQuestions = [];
-  var qSheet2 = ss.getSheetByName('TH_Questions');
-  if (qSheet2 && qSheet2.getLastRow() >= 2) {
-    var qData2 = qSheet2.getDataRange().getValues();
-    for (var k = 1; k < qData2.length; k++) {
-      if (qData2[k][2] === pin) {
-        myQuestions.push({ id: qData2[k][0], status: qData2[k][6] });
+  var qSheet = ss.getSheetByName('TH_Questions');
+  if (qSheet && qSheet.getLastRow() >= 2) {
+    var qData = qSheet.getDataRange().getValues();
+    for (var j = 1; j < qData.length; j++) {
+      // Track most recent on_stage question (leaders only; overwrite to get last)
+      if (student.role === 'leader' && qData[j][6] === 'on_stage') {
+        onStageQ = { id: qData[j][0], text: qData[j][5] };
+      }
+      // Own submitted questions — status only, text intentionally withheld
+      if (qData[j][2] === pin) {
+        myQuestions.push({ id: qData[j][0], status: qData[j][6] });
       }
     }
   }
