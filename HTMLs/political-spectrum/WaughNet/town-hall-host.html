@@ -270,6 +270,8 @@ let onStageQuestion = null;
 let votingOpen = false;
 let showingResults = false;
 let unreadCounts = {}; // partyId → count
+let consecutiveFailures = 0; // Issue #4
+let pollTimer = null;
 
 // ── LOGIN ────────────────────────────────────────────────────────────────────
 document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
@@ -299,28 +301,27 @@ function initApp() {
   document.getElementById('app').style.display = 'flex';
   buildPartyTabs();
   doPoll();
-  setInterval(doPoll, POLL_INTERVAL);
+  pollTimer = null; // managed inside doPoll
 }
 
-// ── POLL ─────────────────────────────────────────────────────────────────────
+// Issue #4 + #6 + #9: backoff, fetch timeout, server-time sync
 async function doPoll() {
   try {
     const url = `${scriptURL}?type=poll&pin=${encodeURIComponent(teacherPin)}&since=${lastPollTs}`;
-    const res  = await fetch(url);
+    const res  = await fetch(url, { signal: AbortSignal.timeout(10000) });
     const data = await res.json();
-    if (data.status !== 'success') return;
-    lastPollTs = Date.now();
+    if (data.status !== 'success') throw new Error('bad status');
+    lastPollTs = data.serverTime || Date.now();
+    consecutiveFailures = 0;
     document.getElementById('conn-dot').className = 'conn-dot';
 
     const session = data.session || {};
-    votingOpen    = !!session.votingOpen;
+    votingOpen     = !!session.votingOpen;
     showingResults = !!session.showResults;
 
-    // Update question list (replace with fresh list each poll)
     allQuestions = data.questions || [];
     renderQuestions();
 
-    // Accumulate new messages
     (data.messages || []).forEach(m => {
       if (!allMessages[m.partyId]) allMessages[m.partyId] = [];
       if (!allMessages[m.partyId].some(x => x.id === m.id)) {
@@ -333,16 +334,13 @@ async function doPoll() {
     });
     if (currentSpyParty) renderSpyFeed(currentSpyParty);
 
-    // Vote count
     document.getElementById('vote-count').textContent =
       data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
 
-    // Update voting buttons
     document.getElementById('btn-open-vote').style.display  = votingOpen ? 'none' : '';
     document.getElementById('btn-close-vote').style.display = votingOpen ? '' : 'none';
     document.getElementById('btn-show-results').style.display = (!votingOpen && !showingResults) ? '' : 'none';
 
-    // On-stage question
     const staged = allQuestions.find(q => q.status === 'on_stage');
     if (staged) {
       onStageQuestion = staged;
@@ -351,19 +349,22 @@ async function doPoll() {
       document.getElementById('on-stage-meta').textContent = `Sent by: ${staged.party}`;
     }
 
-    // Stats
-    const total = allQuestions.length;
+    const total   = allQuestions.length;
     const pending = allQuestions.filter(q=>q.status==='pending').length;
     document.getElementById('q-pending-count').textContent = pending > 0 ? `${pending} pending` : '';
     document.getElementById('stats').innerHTML =
       `Questions submitted: ${total}<br>Pending review: ${pending}<br>Votes cast: ${data.voteCount || 0}`;
 
-    // Show results if flagged
     if (showingResults) fetchAndShowResults();
 
   } catch(e) {
+    consecutiveFailures++;
     document.getElementById('conn-dot').className = 'conn-dot offline';
   }
+
+  // Teacher polls faster — tighter backoff ceiling (15s max)
+  const delay = Math.min(15000, POLL_INTERVAL * Math.pow(2, Math.max(0, consecutiveFailures - 1)));
+  pollTimer = setTimeout(doPoll, delay);
 }
 
 // ── QUESTIONS ────────────────────────────────────────────────────────────────
@@ -512,7 +513,8 @@ function renderSpyFeed(partyId) {
 // ── UTILS ────────────────────────────────────────────────────────────────────
 async function post(body) {
   const res = await fetch(scriptURL, {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body),
+    signal: AbortSignal.timeout(10000)  // Issue #6
   });
   return res.json();
 }

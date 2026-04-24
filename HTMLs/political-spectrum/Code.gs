@@ -54,6 +54,8 @@ var STUDENT_ROSTER = [
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function lookupStudent(pin) {
   var p = (pin || '').toUpperCase().trim();
+  // Issue #13: validate exactly 4 alphanumeric chars before table scan
+  if (!/^[A-Z0-9]{4}$/.test(p)) return null;
   for (var i = 0; i < STUDENT_ROSTER.length; i++) {
     if (STUDENT_ROSTER[i].pin === p) return STUDENT_ROSTER[i];
   }
@@ -63,6 +65,43 @@ function lookupStudent(pin) {
 function isTeacherPin(pin) {
   var tp = PropertiesService.getScriptProperties().getProperty('TEACHER_PIN') || '';
   return tp.length > 0 && (pin || '').trim() === tp;
+}
+
+// Issue #3: UUID-based IDs prevent millisecond collisions under concurrent load
+function generateId() {
+  return Utilities.getUuid();
+}
+
+// Issue #12: salt stored in ScriptProperties, auto-generated on first use
+function getVoteSalt() {
+  var props = PropertiesService.getScriptProperties();
+  var salt  = props.getProperty('VOTE_SALT');
+  if (!salt) {
+    salt = Utilities.getUuid();
+    props.setProperty('VOTE_SALT', salt);
+  }
+  return salt;
+}
+
+// Issue #5: atomic session key update — never clears the whole sheet
+function updateSessionValue(sheet, key, value) {
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === key) {
+      sheet.getRange(i + 1, 2).setValue(value);
+      return;
+    }
+  }
+  // Key not found yet — append it
+  sheet.appendRow([key, value]);
+}
+
+// Convenience: acquire a script lock or return a busy error immediately
+function acquireLock() {
+  var lock = LockService.getScriptLock();
+  // Issue #7: tryLock(30000) instead of waitLock(8000) — returns null on timeout
+  if (!lock.tryLock(30000)) return null;
+  return lock;
 }
 
 // ─── MAIN ROUTES ─────────────────────────────────────────────────────────────
@@ -146,11 +185,11 @@ function thSendMessage(pin, text) {
 
   var toLeaderOnly = (student.role === 'member');
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(8000);
+  var lock = acquireLock();
+  if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
     var sheet = getOrCreateSheet('TH_Messages', ['ID','Timestamp','PartyId','SenderName','SenderRole','Text','ToLeaderOnly']);
-    var id = new Date().getTime().toString();
+    var id = generateId();
     sheet.appendRow([id, new Date(), student.partyId, student.name, student.role, text.trim(), toLeaderOnly]);
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
@@ -163,11 +202,11 @@ function thSubmitQuestion(pin, text) {
   var student = lookupStudent(pin);
   if (!student) return handleResponse({ status: 'error', message: 'Invalid PIN.' });
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(8000);
+  var lock = acquireLock();
+  if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
     var sheet = getOrCreateSheet('TH_Questions', ['ID','Timestamp','SenderPin','SenderName','SenderParty','Text','Status']);
-    var id = new Date().getTime().toString();
+    var id = generateId();
     sheet.appendRow([id, new Date(), pin, student.name, student.party, text.trim(), 'pending']);
     return handleResponse({ status: 'success', id: id });
   } finally { lock.releaseLock(); }
@@ -183,12 +222,14 @@ function thModerateQuestion(pin, questionId, status) {
   var sheet = ss.getSheetByName('TH_Questions');
   if (!sheet) return handleResponse({ status: 'error', message: 'No questions yet.' });
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(8000);
+  var lock = acquireLock();
+  if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
     var data = sheet.getDataRange().getValues();
     for (var i = 1; i < data.length; i++) {
       if (data[i][0].toString() === questionId.toString()) {
+        // Issue #15: idempotent — if already in target state, that's fine
+        if (data[i][6] === status) return handleResponse({ status: 'success' });
         sheet.getRange(i + 1, 7).setValue(status);
         return handleResponse({ status: 'success' });
       }
@@ -215,14 +256,13 @@ function thGetSession() {
 function thSetSession(pin, activeParty, votingOpen, showResults) {
   if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
   var sheet = getOrCreateSheet('TH_Session', ['Key', 'Value']);
-  var lock = LockService.getScriptLock();
-  lock.waitLock(8000);
+  var lock = acquireLock();
+  if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
-    sheet.clearContents();
-    sheet.appendRow(['Key', 'Value']);
-    sheet.appendRow(['activeParty',  activeParty  || '']);
-    sheet.appendRow(['votingOpen',   votingOpen   ? 'TRUE' : 'FALSE']);
-    sheet.appendRow(['showResults',  showResults  ? 'TRUE' : 'FALSE']);
+    // Issue #5: atomic per-key updates — never wipe the whole sheet
+    updateSessionValue(sheet, 'activeParty',  activeParty  || '');
+    updateSessionValue(sheet, 'votingOpen',   votingOpen   ? 'TRUE' : 'FALSE');
+    updateSessionValue(sheet, 'showResults',  showResults  ? 'TRUE' : 'FALSE');
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
 }
@@ -242,12 +282,13 @@ function thCastVote(pin, partyId) {
     return handleResponse({ status: 'error', message: 'Voting is not open yet. Wait for Mr. Waugh.' });
   }
 
-  // Hash PIN so sheet doesn't contain raw PINs
-  var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + '_HWX26')
+  // Issue #12: salt from ScriptProperties, not hardcoded
+  var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + getVoteSalt())
     .map(function(b) { return (b & 0xFF).toString(16).padStart(2, '0'); }).join('');
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(8000);
+  // Issue #1: lock BEFORE duplicate check — read-check-write must be atomic
+  var lock = acquireLock();
+  if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
     var sheet = getOrCreateSheet('TH_Votes', ['Timestamp','HashedPin','PartyVoted']);
     if (sheet.getLastRow() >= 2) {
@@ -338,11 +379,11 @@ function pollStudent(pin, sinceMs) {
     }
   }
 
-  // Has this student already voted?
+  // Has this student already voted? (use same salt as castVote)
   var hasVoted = false;
   var vSheet = ss.getSheetByName('TH_Votes');
   if (vSheet && vSheet.getLastRow() >= 2) {
-    var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + '_HWX26')
+    var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + getVoteSalt())
       .map(function(b) { return (b & 0xFF).toString(16).padStart(2, '0'); }).join('');
     var vData = vSheet.getDataRange().getValues();
     for (var v = 1; v < vData.length; v++) {
@@ -357,7 +398,8 @@ function pollStudent(pin, sinceMs) {
     messages: messages,
     myQuestions: myQuestions,
     onStageQuestion: onStageQ,
-    hasVoted: hasVoted
+    hasVoted: hasVoted,
+    serverTime: new Date().getTime()  // Issue #9: clients use server time for next since=
   });
 }
 
@@ -402,7 +444,8 @@ function pollTeacher(sinceMs) {
 
   return handleResponse({
     status: 'success', session: session,
-    questions: questions, messages: messages, voteCount: voteCount
+    questions: questions, messages: messages, voteCount: voteCount,
+    serverTime: new Date().getTime()  // Issue #9: clock sync
   });
 }
 
