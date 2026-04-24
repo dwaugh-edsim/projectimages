@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,419 +9,854 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:      #dbeafe;
-      --surface: rgba(255,255,255,0.80);
-      --card:    rgba(255,255,255,0.85);
-      --border:  rgba(99,102,241,0.15);
+      --bg: #dbeafe;
+      --surface: rgba(255, 255, 255, 0.80);
+      --card: rgba(255, 255, 255, 0.85);
+      --border: rgba(99, 102, 241, 0.15);
       --primary: #4f46e5;
-      --green:   #059669;
-      --red:     #dc2626;
-      --amber:   #d97706;
-      --text:    #1e293b;
-      --muted:   #64748b;
-      --radius:  12px;
+      --green: #059669;
+      --red: #dc2626;
+      --amber: #d97706;
+      --text: #1e293b;
+      --muted: #64748b;
+      --radius: 12px;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    html,body { height:100%; font-family:'Inter',sans-serif; background:linear-gradient(135deg, #c7e0f9 0%, #e0ecff 50%, #ddf4f7 100%); color:var(--text); overflow:hidden; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #c7e0f9 0%, #e0ecff 50%, #ddf4f7 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
 
     /* ── AUTH ── */
     #login-screen {
-      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: transparent;
     }
-    .login-box { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:min(360px,90vw); text-align:center; }
-    .login-box h1 { font-size:1.4rem; font-weight:900; margin-bottom:0.4rem; }
-    .login-box p  { color:var(--muted); font-size:0.85rem; margin-bottom:1.75rem; }
-    .pin-input {
-      width:100%; padding:0.9rem; font-size:1.8rem; font-weight:900; text-align:center;
-      letter-spacing:0.4rem; text-transform:uppercase;
-      background:rgba(255,255,255,0.6); color:var(--text);
-      border:2px solid var(--border); border-radius:var(--radius); outline:none; transition:border-color 0.2s;
+
+    .login-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: min(360px, 90vw);
+      text-align: center;
     }
-    .pin-input:focus { border-color:var(--primary); }
-    .btn { width:100%; margin-top:1rem; padding:0.85rem; font-size:0.95rem; font-weight:800; border:none; border-radius:var(--radius); cursor:pointer; transition:0.2s; }
-    .btn-primary { background:var(--primary); color:white; }
-    .btn-primary:hover { filter:brightness(1.12); }
-    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
-    .err { color:var(--red); font-size:0.8rem; margin-top:0.6rem; min-height:1.1em; }
+
+    .login-box h1 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      margin-bottom: 0.4rem;
+    }
+
+    .login-box p {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1.8rem;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.4rem;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .pin-input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.12);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .err {
+      color: var(--red);
+      font-size: 0.8rem;
+      margin-top: 0.6rem;
+      min-height: 1.1em;
+    }
 
     /* ── MAIN LAYOUT ── */
-    #app { display:none; height:100vh; flex-direction:column; }
+    #app {
+      display: none;
+      height: 100vh;
+      flex-direction: column;
+    }
 
     /* Header */
     .app-header {
-      background:rgba(255,255,255,0.80); backdrop-filter:blur(16px);
-      border-bottom:1px solid var(--border); padding:0.5rem 1.25rem;
-      display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:1rem; flex-wrap:wrap;
+      background: rgba(255, 255, 255, 0.80);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
-    .brand { font-weight:900; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); flex:1; }
-    .conn-dot { width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; margin-right:0.35rem; animation:pulse 2s infinite; }
-    .conn-dot.offline { background:var(--red); animation:none; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .brand {
+      font-weight: 900;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .conn-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 0.35rem;
+      animation: pulse 2s infinite;
+    }
+
+    .conn-dot.offline {
+      background: var(--red);
+      animation: none;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
 
     /* Session controls */
-    .controls { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; }
-    .ctrl-btn {
-      padding:0.4rem 0.9rem; font-size:0.75rem; font-weight:800;
-      border:none; border-radius:8px; cursor:pointer; transition:0.2s; white-space:nowrap;
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
     }
-    .ctrl-btn:disabled { opacity:0.4; cursor:not-allowed; }
-    .ctrl-btn-danger  { background:var(--red);   color:white; }
-    .ctrl-btn-green   { background:var(--green);  color:white; }
-    .ctrl-btn-amber   { background:var(--amber);  color:white; }
-    .ctrl-btn-primary { background:var(--primary);color:white; }
-    .ctrl-btn:not(:disabled):hover { filter:brightness(1.1); }
+
+    .ctrl-btn {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .ctrl-btn-green {
+      background: var(--green);
+      color: white;
+    }
+
+    .ctrl-btn-amber {
+      background: var(--amber);
+      color: white;
+    }
+
+    .ctrl-btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .ctrl-btn:not(:disabled):hover {
+      filter: brightness(1.1);
+    }
 
     .party-select {
-      background:#e8f0fe; color:var(--text);
-      border:1px solid var(--border); border-radius:8px;
-      padding:0.4rem 0.6rem; font-size:0.75rem; font-weight:700; outline:none;
-      cursor:pointer;
+      background: #e8f0fe;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
     }
-    .party-select option { background:white; color:#1e293b; }
-    .vote-count { font-size:0.75rem; font-weight:800; color:var(--amber); white-space:nowrap; }
+
+    .party-select option {
+      background: white;
+      color: #1e293b;
+    }
+
+    .vote-count {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--amber);
+      white-space: nowrap;
+    }
 
     /* 3-col grid */
-    .grid { flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; overflow:hidden; gap:0; border-top:1px solid var(--border); }
-    .col { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
-    .col:last-child { border-right:none; }
-    .col-header {
-      padding:0.65rem 1rem; font-size:0.65rem; font-weight:900; text-transform:uppercase;
-      letter-spacing:1px; color:var(--muted); background:rgba(0,0,0,0.2);
-      border-bottom:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    .grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      overflow: hidden;
+      gap: 0;
+      border-top: 1px solid var(--border);
     }
-    .col-body { flex:1; overflow-y:auto; padding:0.6rem; display:flex; flex-direction:column; gap:0.5rem; }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+
+    .col:last-child {
+      border-right: none;
+    }
+
+    .col-header {
+      padding: 0.65rem 1rem;
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .col-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
 
     /* ── QUESTION CARDS ── */
     .q-card {
-      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-      padding:0.8rem; position:relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.8rem;
+      position: relative;
     }
-    .q-card.status-pending  { border-left:3px solid var(--amber); }
-    .q-card.status-approved { border-left:3px solid var(--green); opacity:0.7; }
-    .q-card.status-rejected { opacity:0.35; }
-    .q-card.status-on_stage { border-left:3px solid var(--primary); border-color:var(--primary); }
-    .q-card.status-asked    { opacity:0.4; }
 
-    .q-meta { font-size:0.65rem; color:var(--muted); margin-bottom:0.4rem; font-weight:700; }
-    .q-text { font-size:0.85rem; line-height:1.4; margin-bottom:0.6rem; }
-    .q-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
-    .q-btn { padding:0.3rem 0.65rem; font-size:0.7rem; font-weight:800; border:none; border-radius:6px; cursor:pointer; transition:0.15s; }
-    .q-btn:disabled { opacity:0.35; cursor:not-allowed; }
-    .q-btn-stage   { background:var(--primary); color:white; }
-    .q-btn-approve { background:var(--green);   color:white; }
-    .q-btn-reject  { background:rgba(239,68,68,0.2); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
-    .q-btn-asked   { background:rgba(99,102,241,0.15); color:var(--primary); border:1px solid rgba(99,102,241,0.3); }
+    .q-card.status-pending {
+      border-left: 3px solid var(--amber);
+    }
+
+    .q-card.status-approved {
+      border-left: 3px solid var(--green);
+      opacity: 0.7;
+    }
+
+    .q-card.status-rejected {
+      opacity: 0.35;
+    }
+
+    .q-card.status-on_stage {
+      border-left: 3px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    .q-card.status-asked {
+      opacity: 0.4;
+    }
+
+    .q-meta {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+
+    .q-text {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-bottom: 0.6rem;
+    }
+
+    .q-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .q-btn {
+      padding: 0.3rem 0.65rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .q-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .q-btn-stage {
+      background: var(--primary);
+      color: white;
+    }
+
+    .q-btn-approve {
+      background: var(--green);
+      color: white;
+    }
+
+    .q-btn-reject {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .q-btn-asked {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
 
     /* ── STAGE PANEL (col 2) ── */
     .on-stage-box {
-      background:var(--card); border:2px solid var(--primary);
-      border-radius:var(--radius); padding:1rem; margin-bottom:0.75rem;
-      box-shadow:0 0 20px rgba(99,102,241,0.15);
+      background: var(--card);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
     }
-    .on-stage-label { font-size:0.65rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; color:var(--primary); margin-bottom:0.5rem; }
-    .on-stage-q { font-size:0.95rem; font-weight:700; line-height:1.4; }
-    .on-stage-meta { font-size:0.7rem; color:var(--muted); margin-top:0.4rem; }
-    .on-stage-empty { color:var(--muted); font-style:italic; font-size:0.85rem; }
 
-    .stage-section-label { font-size:0.65rem; font-weight:900; text-transform:uppercase; color:var(--muted); letter-spacing:1px; margin-bottom:0.5rem; }
+    .on-stage-label {
+      font-size: 0.65rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .on-stage-q {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .on-stage-meta {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .on-stage-empty {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    .stage-section-label {
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
 
     /* Vote results */
-    .vote-result-bar { margin-bottom:0.5rem; }
-    .vr-label { font-size:0.75rem; font-weight:700; margin-bottom:0.2rem; display:flex; justify-content:space-between; }
-    .vr-track { width:100%; height:10px; background:rgba(255,255,255,0.05); border-radius:5px; overflow:hidden; }
-    .vr-fill  { height:100%; border-radius:5px; transition:width 0.5s; }
+    .vote-result-bar {
+      margin-bottom: 0.5rem;
+    }
+
+    .vr-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .vr-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .vr-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.5s;
+    }
 
     /* ── SPY PANEL (col 3) ── */
-    .party-tabs { display:flex; overflow-x:auto; gap:0.3rem; padding:0.5rem; border-bottom:1px solid var(--border); flex-shrink:0; }
-    .party-tab {
-      padding:0.3rem 0.6rem; font-size:0.65rem; font-weight:800;
-      border-radius:6px; cursor:pointer; white-space:nowrap;
-      background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid rgba(255,255,255,0.1); transition:0.15s;
+    .party-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 0.3rem;
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
-    .party-tab.active { color:white; }
-    .party-tab .unread { background:var(--red); color:white; font-size:0.55rem; font-weight:900; padding:0.1rem 0.3rem; border-radius:999px; margin-left:0.3rem; }
 
-    .spy-feed { flex:1; overflow-y:auto; padding:0.5rem; display:flex; flex-direction:column; gap:0.4rem; }
-    .spy-msg { padding:0.5rem 0.7rem; border-radius:8px; font-size:0.8rem; line-height:1.35; }
-    .spy-msg-member { background:rgba(255,255,255,0.05); border:1px solid var(--border); }
-    .spy-msg-leader { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2); }
-    .spy-msg-sender { font-size:0.62rem; font-weight:800; color:var(--muted); margin-bottom:0.15rem; }
-    .spy-msg-sender.leader-lbl { color:var(--green); }
+    .party-tab {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.65rem;
+      font-weight: 800;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: 0.15s;
+    }
 
-    .empty-state { color:var(--muted); font-size:0.8rem; text-align:center; padding:2rem 0.5rem; }
+    .party-tab.active {
+      color: white;
+    }
+
+    .party-tab .unread {
+      background: var(--red);
+      color: white;
+      font-size: 0.55rem;
+      font-weight: 900;
+      padding: 0.1rem 0.3rem;
+      border-radius: 999px;
+      margin-left: 0.3rem;
+    }
+
+    .spy-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .spy-msg {
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
+    .spy-msg-member {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    .spy-msg-leader {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .spy-msg-sender {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .spy-msg-sender.leader-lbl {
+      color: var(--green);
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 2rem 0.5rem;
+    }
 
     /* Phase Selection */
-    .phase-panel { 
-      background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); padding:0.5rem 1rem;
-      display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+    .phase-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
     }
-    .phase-toggle { display:flex; gap:0.5rem; align-items:center; font-size:0.75rem; font-weight:700; }
-    .phase-toggle input { cursor:pointer; }
-    .finalist-selector { display:flex; flex-wrap:wrap; gap:0.4rem; font-size:0.6rem; max-width:800px; }
-    .finalist-chip { 
-      background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:0.15rem 0.4rem; 
-      border-radius:4px; cursor:pointer; transition:0.1s; display:flex; align-items:center; gap:0.3rem;
+
+    .phase-toggle {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 700;
     }
-    .finalist-chip input { margin:0; }
-    .finalist-chip:hover { background:rgba(255,255,255,0.1); }
+
+    .phase-toggle input {
+      cursor: pointer;
+    }
+
+    .finalist-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      font-size: 0.6rem;
+      max-width: 800px;
+    }
+
+    .finalist-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .finalist-chip input {
+      margin: 0;
+    }
+
+    .finalist-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ── LOGIN ── -->
-<div id="login-screen">
-  <div class="login-box">
-    <div style="font-size:2.5rem;margin-bottom:1rem;">🏛️</div>
-    <h1>Moderator Console</h1>
-    <p>Enter the teacher PIN to access the control panel.</p>
-    <input id="pin-input" class="pin-input" type="password" maxlength="20" placeholder="Teacher PIN">
-    <button id="login-btn" class="btn btn-primary">Enter →</button>
-    <div id="login-err" class="err"></div>
-  </div>
-</div>
-
-<!-- ── APP ── -->
-<div id="app">
-  <!-- Header -->
-  <header class="app-header">
-    <div class="brand">
-      <span class="conn-dot" id="conn-dot"></span>
-      Moderator Console — Halifax West 2026
-    </div>
-    <button class="ctrl-btn ctrl-btn-danger" style="width:auto; margin-top:0; padding:0.3rem 0.6rem; font-size:0.6rem;" onclick="resetSystem()">🗑️ Reset System</button>
-    <div class="controls">
-      <!-- Active Party -->
-      <span style="font-size:0.7rem;color:var(--muted);font-weight:700;">On Stage:</span>
-      <select class="party-select" id="active-party-select">
-        <option value="">— None —</option>
-        <option value="islamic">Islamic Assoc (Farhan)</option>
-        <option value="healthier">Healthier Future (Joshua A)</option>
-        <option value="solution">Solution Party (Madhavan)</option>
-        <option value="niche">Niche Halligonians (Lachlan McM)</option>
-        <option value="tomorrow">Team tomorrow (Laila)</option>
-        <option value="cpoh">CPOH (Brody)</option>
-        <option value="unity">Unity Party (Elizabeth)</option>
-        <option value="equitable">Equitable Rights (Rifa)</option>
-        <option value="environment">Environmentalists (Natalia)</option>
-        <option value="yellow">Yellow Progression (Kendra)</option>
-        <option value="equity">Equity Party (Evie)</option>
-        <option value="climate">Climate Protection (Ali)</option>
-      </select>
-      <button class="ctrl-btn ctrl-btn-primary" id="btn-set-active" onclick="setActiveParty()">Set</button>
-      <!-- Voting Toggle -->
-      <button class="ctrl-btn ctrl-btn-green" id="btn-toggle-vote" onclick="toggleVoting()">🗳️ Open Voting</button>
-      <button class="ctrl-btn ctrl-btn-amber"   id="btn-show-results" onclick="showResults()" style="display:none;">📊 Reveal Results!</button>
-      <span class="vote-count" id="vote-count"></span>
-    </div>
-  </header>
-
-  <div class="phase-panel" id="phase-panel">
-    <div class="phase-toggle">
-      <label><input type="radio" name="vote-phase" value="prelim" checked onchange="toggleFinalistUI()"> 🗳️ Prelim Round</label>
-      <label><input type="radio" name="vote-phase" value="final" onchange="toggleFinalistUI()"> 🏆 Final Round</label>
-    </div>
-    <div id="finalist-container" class="finalist-selector" style="display:none;">
-      <!-- Finalist chips will be injected here -->
-    </div>
-    <div id="phase-status-msg" style="font-size:0.65rem; color:var(--muted); font-style:italic;"></div>
-  </div>
-
-  <div class="grid">
-    <!-- ── COL 1: Questions ── -->
-    <div class="col">
-      <div class="col-header">
-        <span>❓ Question Queue</span>
-        <span id="q-pending-count" style="background:rgba(245,158,11,0.2);color:var(--amber);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.65rem;"></span>
-      </div>
-      <div class="col-body" id="q-col"></div>
-    </div>
-
-    <!-- ── COL 2: Stage / Results ── -->
-    <div class="col">
-      <div class="col-header">
-        <span>🎤 Stage Control</span>
-      </div>
-      <div class="col-body">
-        <div class="on-stage-box">
-          <div class="on-stage-label">Currently On Stage</div>
-          <div id="on-stage-display" class="on-stage-empty">No question pushed yet.</div>
-          <div id="on-stage-meta" class="on-stage-meta"></div>
-        </div>
-
-        <!-- Vote results (hidden until revealed) -->
-        <div id="results-panel" style="display:none;">
-          <div class="stage-section-label" style="margin-top:1rem;">📊 Election Results</div>
-          <div id="results-bars"></div>
-        </div>
-
-        <!-- VOTING BIG TOGGLE -->
-        <div id="voting-status-bar" style="margin-top:1rem; padding:1rem; border-radius:12px; border:2px solid var(--border); text-align:center; transition:0.3s;">
-          <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:0.6rem;">Voting Status</div>
-          <div id="voting-status-label" style="font-size:1.1rem; font-weight:900; margin-bottom:0.75rem; color:var(--muted);">🔒 Closed</div>
-          <button id="btn-big-toggle" onclick="toggleVoting()" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:900; border:none; border-radius:10px; cursor:pointer; background:var(--green); color:white; transition:0.2s;">Open Voting</button>
-          <div id="vote-count-large" style="font-size:0.75rem; margin-top:0.5rem; color:var(--muted);"></div>
-        </div>
-
-        <!-- Stats -->
-        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
-          <div class="stage-section-label">Quick Stats</div>
-          <div id="stats" style="font-size:0.8rem;color:var(--muted);line-height:2;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── COL 3: Party Spy ── -->
-    <div class="col">
-      <div class="col-header"><span>🔍 Party War Rooms</span></div>
-      <div class="party-tabs" id="party-tabs"></div>
-      <div class="spy-feed" id="spy-feed">
-        <div class="empty-state">Select a party to view their war room.</div>
-      </div>
+  <!-- ── LOGIN ── -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">🏛️</div>
+      <h1>Moderator Console</h1>
+      <p>Enter the teacher PIN to access the control panel.</p>
+      <input id="pin-input" class="pin-input" type="password" maxlength="20" placeholder="Teacher PIN">
+      <button id="login-btn" class="btn btn-primary">Enter →</button>
+      <div id="login-err" class="err"></div>
     </div>
   </div>
-</div>
 
-<script src="../data.js"></script>
-<script>
-const POLL_INTERVAL = 3000;
-const PARTY_COLORS = {
-  islamic:'#1d6825', healthier:'#3b82f6', solution:'#ffffff',
-  niche:'#ffffff',   tomorrow:'#f43bf7',  cpoh:'#ff0000',
-  unity:'#3bf4f7',   equitable:'#5c0000', environment:'#144a0d',
-  yellow:'#ecee81',  equity:'#ce3bf7',    climate:'#3b82f6'
-};
-const PARTY_LABELS = {
-  islamic:'Islamic Assoc', healthier:'Healthier Future', solution:'Solution Party',
-  niche:'Niche Halligonians', tomorrow:'Team tomorrow', cpoh:'CPOH (Communist)',
-  unity:'Unity Party', equitable:'Equitable Rights', environment:'Environmentalists',
-  yellow:'Yellow Progression', equity:'Equity Party', climate:'Climate Protection'
-};
+  <!-- ── APP ── -->
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="conn-dot" id="conn-dot"></span>
+        Moderator Console — Halifax West 2026
+      </div>
+      <button class="ctrl-btn ctrl-btn-danger"
+        style="width:auto; margin-top:0; padding:0.3rem 0.6rem; font-size:0.6rem;" onclick="resetSystem()">🗑️ Reset
+        System</button>
+      <div class="controls">
+        <!-- Active Party -->
+        <span style="font-size:0.7rem;color:var(--muted);font-weight:700;">On Stage:</span>
+        <select class="party-select" id="active-party-select">
+          <option value="">— None —</option>
+          <option value="islamic">Islamic Assoc (Farhan)</option>
+          <option value="healthier">Healthier Future (Joshua A)</option>
+          <option value="solution">Solution Party (Madhavan)</option>
+          <option value="niche">Niche Halligonians (Lachlan McM)</option>
+          <option value="tomorrow">Team tomorrow (Laila)</option>
+          <option value="cpoh">CPOH (Brody)</option>
+          <option value="unity">Unity Party (Elizabeth)</option>
+          <option value="equitable">Equitable Rights (Rifa)</option>
+          <option value="environment">Environmentalists (Natalia)</option>
+          <option value="yellow">Yellow Progression (Kendra)</option>
+          <option value="equity">Equity Party (Evie)</option>
+          <option value="climate">Climate Protection (Ali)</option>
+        </select>
+        <button class="ctrl-btn ctrl-btn-primary" id="btn-set-active" onclick="setActiveParty()">Set</button>
+        <!-- Voting Toggle -->
+        <button class="ctrl-btn ctrl-btn-green" id="btn-toggle-vote" onclick="toggleVoting()">🗳️ Open Voting</button>
+        <button class="ctrl-btn ctrl-btn-amber" id="btn-show-results" onclick="showResults()" style="display:none;">📊
+          Reveal Results!</button>
+        <span class="vote-count" id="vote-count"></span>
+      </div>
+    </header>
 
-let teacherPin = '';
-let lastPollTs = 0;
-let allQuestions = [];    // full question list
-let allMessages  = {};    // partyId → [{id,name,role,text,toLeaderOnly}]
-let currentSpyParty = '';
-let onStageQuestion = null;
-let votingOpen = false;
-let showingResults = false;
-let currentVotePhase = 'prelim';
-let currentFinalists = '';
-let unreadCounts = {}; // partyId → count
-let consecutiveFailures = 0; // Issue #4
-let pollTimer = null;
+    <div class="phase-panel" id="phase-panel">
+      <div class="phase-toggle">
+        <label><input type="radio" name="vote-phase" value="prelim" checked onchange="toggleFinalistUI()"> 🗳️ Prelim
+          Round</label>
+        <label><input type="radio" name="vote-phase" value="final" onchange="toggleFinalistUI()"> 🏆 Final Round</label>
+      </div>
+      <div id="finalist-container" class="finalist-selector" style="display:none;">
+        <!-- Finalist chips will be injected here -->
+      </div>
+      <div id="phase-status-msg" style="font-size:0.65rem; color:var(--muted); font-style:italic;"></div>
+    </div>
 
-// ── LOGIN ────────────────────────────────────────────────────────────────────
-document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-document.getElementById('login-btn').addEventListener('click', doLogin);
+    <div class="grid">
+      <!-- ── COL 1: Questions ── -->
+      <div class="col">
+        <div class="col-header">
+          <span>❓ Question Queue</span>
+          <span id="q-pending-count"
+            style="background:rgba(245,158,11,0.2);color:var(--amber);padding:0.1rem 0.4rem;border-radius:4px;font-size:0.65rem;"></span>
+        </div>
+        <div class="col-body" id="q-col"></div>
+      </div>
 
-async function doLogin() {
-  const pin = document.getElementById('pin-input').value.trim();
-  if (!pin) return;
-  const btn = document.getElementById('login-btn');
-  btn.disabled = true; btn.textContent = 'Checking…';
-  try {
-    const res = await post({ type:'th_auth', pin });
-    if (res.status === 'success' && res.role === 'teacher') {
-      teacherPin = pin;
-      initApp();
-    } else {
-      document.getElementById('login-err').textContent = res.message || 'Invalid PIN.';
-    }
-  } catch(e) {
-    document.getElementById('login-err').textContent = 'Connection error.';
-  }
-  btn.disabled = false; btn.textContent = 'Enter →';
-}
+      <!-- ── COL 2: Stage / Results ── -->
+      <div class="col">
+        <div class="col-header">
+          <span>🎤 Stage Control</span>
+        </div>
+        <div class="col-body">
+          <div class="on-stage-box">
+            <div class="on-stage-label">Currently On Stage</div>
+            <div id="on-stage-display" class="on-stage-empty">No question pushed yet.</div>
+            <div id="on-stage-meta" class="on-stage-meta"></div>
+          </div>
 
-function initApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  buildPartyTabs();
-  doPoll();
-  pollTimer = null; // managed inside doPoll
-}
+          <!-- Vote results (hidden until revealed) -->
+          <div id="results-panel" style="display:none;">
+            <div class="stage-section-label" style="margin-top:1rem;">📊 Election Results</div>
+            <div id="results-bars"></div>
+          </div>
 
-// Issue #4 + #6 + #9: backoff, fetch timeout, server-time sync
-async function doPoll() {
-  try {
-    const url = `${scriptURL}?type=poll&pin=${encodeURIComponent(teacherPin)}&since=${lastPollTs}&_=${Date.now()}`;
-    const res  = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    const data = await res.json();
-    if (data.status !== 'success') throw new Error('bad status');
-    lastPollTs = data.serverTime || Date.now();
-    consecutiveFailures = 0;
-    document.getElementById('conn-dot').className = 'conn-dot';
+          <!-- VOTING BIG TOGGLE -->
+          <div id="voting-status-bar"
+            style="margin-top:1rem; padding:1rem; border-radius:12px; border:2px solid var(--border); text-align:center; transition:0.3s;">
+            <div
+              style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:0.6rem;">
+              Voting Status</div>
+            <div id="voting-status-label"
+              style="font-size:1.1rem; font-weight:900; margin-bottom:0.75rem; color:var(--muted);">🔒 Closed</div>
+            <button id="btn-big-toggle" onclick="toggleVoting()"
+              style="width:100%; padding:0.85rem; font-size:1rem; font-weight:900; border:none; border-radius:10px; cursor:pointer; background:var(--green); color:white; transition:0.2s;">Open
+              Voting</button>
+            <div id="vote-count-large" style="font-size:0.75rem; margin-top:0.5rem; color:var(--muted);"></div>
+          </div>
 
-    const session = data.session || {};
-    votingOpen     = !!session.votingOpen;
-    showingResults = !!session.showResults;
-    currentVotePhase = session.votePhase || 'prelim';
-    currentFinalists = session.finalists || '';
-    updatePhaseUI();
-    applyVotingUI(votingOpen);
-    document.getElementById('vote-count-large').textContent =
-      data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
+          <!-- Stats -->
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+            <div class="stage-section-label">Quick Stats</div>
+            <div id="stats" style="font-size:0.8rem;color:var(--muted);line-height:2;"></div>
+          </div>
+        </div>
+      </div>
 
-    allQuestions = data.questions || [];
-    renderQuestions();
+      <!-- ── COL 3: Party Spy ── -->
+      <div class="col">
+        <div class="col-header"><span>🔍 Party War Rooms</span></div>
+        <div class="party-tabs" id="party-tabs"></div>
+        <div class="spy-feed" id="spy-feed">
+          <div class="empty-state">Select a party to view their war room.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    (data.messages || []).forEach(m => {
-      if (!allMessages[m.partyId]) allMessages[m.partyId] = [];
-      if (!allMessages[m.partyId].some(x => x.id === m.id)) {
-        allMessages[m.partyId].push(m);
-        if (m.partyId !== currentSpyParty) {
-          unreadCounts[m.partyId] = (unreadCounts[m.partyId] || 0) + 1;
-          updateTabBadge(m.partyId);
+  <script src="../data.js"></script>
+  <script>
+    const POLL_INTERVAL = 3000;
+    const PARTY_COLORS = {
+      islamic: '#1d6825', healthier: '#3b82f6', solution: '#ffffff',
+      niche: '#ffffff', tomorrow: '#f43bf7', cpoh: '#ff0000',
+      unity: '#3bf4f7', equitable: '#5c0000', environment: '#144a0d',
+      yellow: '#ecee81', equity: '#ce3bf7', climate: '#3b82f6'
+    };
+    const PARTY_LABELS = {
+      islamic: 'Islamic Assoc', healthier: 'Healthier Future', solution: 'Solution Party',
+      niche: 'Niche Halligonians', tomorrow: 'Team tomorrow', cpoh: 'CPOH (Communist)',
+      unity: 'Unity Party', equitable: 'Equitable Rights', environment: 'Environmentalists',
+      yellow: 'Yellow Progression', equity: 'Equity Party', climate: 'Climate Protection'
+    };
+
+    let teacherPin = '';
+    let lastPollTs = 0;
+    let allQuestions = [];    // full question list
+    let allMessages = {};    // partyId → [{id,name,role,text,toLeaderOnly}]
+    let currentSpyParty = '';
+    let onStageQuestion = null;
+    let votingOpen = false;
+    let showingResults = false;
+    let currentVotePhase = 'prelim';
+    let currentFinalists = '';
+    let unreadCounts = {}; // partyId → count
+    let consecutiveFailures = 0; // Issue #4
+    let pollTimer = null;
+
+    // ── LOGIN ────────────────────────────────────────────────────────────────────
+    document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    document.getElementById('login-btn').addEventListener('click', doLogin);
+
+    async function doLogin() {
+      const pin = document.getElementById('pin-input').value.trim();
+      if (!pin) return;
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'Checking…';
+      try {
+        const res = await post({ type: 'th_auth', pin });
+        if (res.status === 'success' && res.role === 'teacher') {
+          teacherPin = pin;
+          initApp();
+        } else {
+          document.getElementById('login-err').textContent = res.message || 'Invalid PIN.';
         }
+      } catch (e) {
+        document.getElementById('login-err').textContent = 'Connection error.';
       }
-    });
-    if (currentSpyParty) renderSpyFeed(currentSpyParty);
-
-    document.getElementById('vote-count').textContent =
-      data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
-
-
-    const staged = allQuestions.find(q => q.status === 'on_stage');
-    if (staged) {
-      onStageQuestion = staged;
-      document.getElementById('on-stage-display').textContent = staged.text;
-      document.getElementById('on-stage-display').className = 'on-stage-q';
-      document.getElementById('on-stage-meta').textContent = `Sent by: ${staged.party}`;
+      btn.disabled = false; btn.textContent = 'Enter →';
     }
 
-    const total   = allQuestions.length;
-    const pending = allQuestions.filter(q=>q.status==='pending').length;
-    document.getElementById('q-pending-count').textContent = pending > 0 ? `${pending} pending` : '';
-    document.getElementById('stats').innerHTML =
-      `Questions submitted: ${total}<br>Pending review: ${pending}<br>Votes cast: ${data.voteCount || 0}`;
+    function initApp() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      buildPartyTabs();
+      doPoll();
+      pollTimer = null; // managed inside doPoll
+    }
 
-    if (showingResults) fetchAndShowResults();
+    // Issue #4 + #6 + #9: backoff, fetch timeout, server-time sync
+    async function doPoll() {
+      try {
+        const url = `${scriptURL}?type=poll&pin=${encodeURIComponent(teacherPin)}&since=${lastPollTs}&_=${Date.now()}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+        const data = await res.json();
+        if (data.status !== 'success') throw new Error('bad status');
+        lastPollTs = data.serverTime || Date.now();
+        consecutiveFailures = 0;
+        document.getElementById('conn-dot').className = 'conn-dot';
 
-  } catch(e) {
-    consecutiveFailures++;
-    document.getElementById('conn-dot').className = 'conn-dot offline';
-  }
+        const session = data.session || {};
+        votingOpen = !!session.votingOpen;
+        showingResults = !!session.showResults;
+        currentVotePhase = session.votePhase || 'prelim';
+        currentFinalists = session.finalists || '';
 
-  // Teacher polls faster — tighter backoff ceiling (15s max)
-  const delay = Math.min(15000, POLL_INTERVAL * Math.pow(2, Math.max(0, consecutiveFailures - 1)));
-  pollTimer = setTimeout(doPoll, delay);
-}
+        console.log('[DEBUG doPoll] session.votingOpen=' + session.votingOpen + ', votePhase=' + session.votePhase + ', finalists=' + session.finalists);
 
-// ── QUESTIONS ────────────────────────────────────────────────────────────────
-function renderQuestions() {
-  const col = document.getElementById('q-col');
-  const order = ['on_stage','pending','approved','asked','rejected'];
-  const sorted = [...allQuestions].sort((a,b) => order.indexOf(a.status) - order.indexOf(b.status));
+        updatePhaseUI();
+        applyVotingUI(votingOpen);
+        document.getElementById('vote-count-large').textContent =
+          data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
 
-  if (sorted.length === 0) {
-    col.innerHTML = '<div class="empty-state">No questions yet.</div>';
-    return;
-  }
-  col.innerHTML = sorted.map(q => {
-    const isDone = ['rejected','asked'].includes(q.status);
-    return `<div class="q-card status-${q.status}">
+        allQuestions = data.questions || [];
+        renderQuestions();
+
+        (data.messages || []).forEach(m => {
+          if (!allMessages[m.partyId]) allMessages[m.partyId] = [];
+          if (!allMessages[m.partyId].some(x => x.id === m.id)) {
+            allMessages[m.partyId].push(m);
+            if (m.partyId !== currentSpyParty) {
+              unreadCounts[m.partyId] = (unreadCounts[m.partyId] || 0) + 1;
+              updateTabBadge(m.partyId);
+            }
+          }
+        });
+        if (currentSpyParty) renderSpyFeed(currentSpyParty);
+
+        document.getElementById('vote-count').textContent =
+          data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
+
+
+        const staged = allQuestions.find(q => q.status === 'on_stage');
+        if (staged) {
+          onStageQuestion = staged;
+          document.getElementById('on-stage-display').textContent = staged.text;
+          document.getElementById('on-stage-display').className = 'on-stage-q';
+          document.getElementById('on-stage-meta').textContent = `Sent by: ${staged.party}`;
+        }
+
+        const total = allQuestions.length;
+        const pending = allQuestions.filter(q => q.status === 'pending').length;
+        document.getElementById('q-pending-count').textContent = pending > 0 ? `${pending} pending` : '';
+        document.getElementById('stats').innerHTML =
+          `Questions submitted: ${total}<br>Pending review: ${pending}<br>Votes cast: ${data.voteCount || 0}`;
+
+        if (showingResults) fetchAndShowResults();
+
+      } catch (e) {
+        consecutiveFailures++;
+        document.getElementById('conn-dot').className = 'conn-dot offline';
+      }
+
+      // Teacher polls faster — tighter backoff ceiling (15s max)
+      const delay = Math.min(15000, POLL_INTERVAL * Math.pow(2, Math.max(0, consecutiveFailures - 1)));
+      pollTimer = setTimeout(doPoll, delay);
+    }
+
+    // ── QUESTIONS ────────────────────────────────────────────────────────────────
+    function renderQuestions() {
+      const col = document.getElementById('q-col');
+      const order = ['on_stage', 'pending', 'approved', 'asked', 'rejected'];
+      const sorted = [...allQuestions].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
+
+      if (sorted.length === 0) {
+        col.innerHTML = '<div class="empty-state">No questions yet.</div>';
+        return;
+      }
+      col.innerHTML = sorted.map(q => {
+        const isDone = ['rejected', 'asked'].includes(q.status);
+        return `<div class="q-card status-${q.status}">
       <div class="q-meta">${q.name} · ${q.party}</div>
       <div class="q-text">${escHtml(q.text)}</div>
       <div class="q-actions">
@@ -431,242 +867,256 @@ function renderQuestions() {
         ${isDone ? `<span style="font-size:0.7rem;color:var(--muted);">${q.status}</span>` : ''}
       </div>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-async function moderate(questionId, status) {
-  try {
-    const res = await post({ type:'th_moderate', pin:teacherPin, questionId, status });
-    if (res.status !== 'success') alert(res.message || 'Error');
-    else await doPoll(); // immediate refresh
-  } catch(e) { alert('Connection error.'); }
-}
+    async function moderate(questionId, status) {
+      try {
+        const res = await post({ type: 'th_moderate', pin: teacherPin, questionId, status });
+        if (res.status !== 'success') alert(res.message || 'Error');
+        else await doPoll(); // immediate refresh
+      } catch (e) { alert('Connection error.'); }
+    }
 
-// ── VOTING UI STATE ──────────────────────────────────────────────────────────
-function applyVotingUI(isOpen) {
-  votingOpen = isOpen;
+    // ── VOTING UI STATE ──────────────────────────────────────────────────────────
+    function applyVotingUI(isOpen) {
+      votingOpen = isOpen;
 
-  // Big toggle in stage panel
-  const bigBtn = document.getElementById('btn-big-toggle');
-  const statusLabel = document.getElementById('voting-status-label');
-  const statusBar = document.getElementById('voting-status-bar');
-  if (isOpen) {
-    bigBtn.textContent = '⏹ Close Voting';
-    bigBtn.style.background = 'var(--red)';
-    statusLabel.textContent = '🟢 OPEN';
-    statusLabel.style.color = 'var(--green)';
-    statusBar.style.border = '2px solid var(--green)';
-    statusBar.style.background = 'rgba(5,150,105,0.08)';
-  } else {
-    bigBtn.textContent = 'Open Voting';
-    bigBtn.style.background = 'var(--green)';
-    statusLabel.textContent = '🔒 Closed';
-    statusLabel.style.color = 'var(--muted)';
-    statusBar.style.border = '2px solid var(--border)';
-    statusBar.style.background = '';
-  }
+      // Big toggle in stage panel
+      const bigBtn = document.getElementById('btn-big-toggle');
+      const statusLabel = document.getElementById('voting-status-label');
+      const statusBar = document.getElementById('voting-status-bar');
+      if (isOpen) {
+        bigBtn.textContent = '⏹ Close Voting';
+        bigBtn.style.background = 'var(--red)';
+        statusLabel.textContent = '🟢 OPEN';
+        statusLabel.style.color = 'var(--green)';
+        statusBar.style.border = '2px solid var(--green)';
+        statusBar.style.background = 'rgba(5,150,105,0.08)';
+      } else {
+        bigBtn.textContent = 'Open Voting';
+        bigBtn.style.background = 'var(--green)';
+        statusLabel.textContent = '🔒 Closed';
+        statusLabel.style.color = 'var(--muted)';
+        statusBar.style.border = '2px solid var(--border)';
+        statusBar.style.background = '';
+      }
 
-  // Small header toggle
-  const headerBtn = document.getElementById('btn-toggle-vote');
-  if (headerBtn) {
-    headerBtn.textContent = isOpen ? '⏹️ Close Voting' : '🗳️ Open Voting';
-    headerBtn.className = isOpen ? 'ctrl-btn ctrl-btn-danger' : 'ctrl-btn ctrl-btn-green';
-  }
+      // Small header toggle
+      const headerBtn = document.getElementById('btn-toggle-vote');
+      if (headerBtn) {
+        headerBtn.textContent = isOpen ? '⏹️ Close Voting' : '🗳️ Open Voting';
+        headerBtn.className = isOpen ? 'ctrl-btn ctrl-btn-danger' : 'ctrl-btn ctrl-btn-green';
+      }
 
-  // Phase panel lockout
-  document.getElementById('btn-show-results').style.display = (!isOpen && !showingResults) ? '' : 'none';
-  document.getElementById('phase-panel').style.opacity = isOpen ? '0.5' : '1';
-  document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = isOpen);
-}
+      // Phase panel lockout
+      document.getElementById('btn-show-results').style.display = (!isOpen && !showingResults) ? '' : 'none';
+      document.getElementById('phase-panel').style.opacity = isOpen ? '0.5' : '1';
+      document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = isOpen);
+    }
 
-// ── SESSION CONTROLS ─────────────────────────────────────────────────────────
-async function setActiveParty() {
-  const select = document.getElementById('active-party-select');
-  const party  = select.value;
-  await setSession(party, votingOpen, showingResults);
-}
+    // ── SESSION CONTROLS ─────────────────────────────────────────────────────────
+    async function setActiveParty() {
+      const select = document.getElementById('active-party-select');
+      const party = select.value;
+      await setSession(party, votingOpen, showingResults);
+    }
 
-async function toggleVoting() {
-  if (votingOpen) {
-    await closeVoting();
-  } else {
-    await openVoting();
-  }
-}
+    async function toggleVoting() {
+      if (votingOpen) {
+        await closeVoting();
+      } else {
+        await openVoting();
+      }
+    }
 
-async function openVoting() {
-  const phase = document.querySelector('input[name="vote-phase"]:checked').value;
-  const finalists = Array.from(document.querySelectorAll('.finalist-check:checked')).map(c => c.value).join(',');
-  
-  if (phase === 'final' && !finalists) {
-    if (!confirm('Open FINAL vote for ALL parties? (Usually you pick 4 finalists first)')) return;
-  }
-  
-  if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
-  await setSession(getCurrentActiveParty(), true, false, phase, finalists);
-  applyVotingUI(true);
-}
+    async function openVoting() {
+      const phase = document.querySelector('input[name="vote-phase"]:checked').value;
+      const finalists = Array.from(document.querySelectorAll('.finalist-check:checked')).map(c => c.value).join(',');
 
-async function closeVoting() {
-  if (!confirm('Close voting? Students can no longer vote.')) return;
-  await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
-  applyVotingUI(false);
-}
+      console.log('[DEBUG openVoting] phase=' + phase + ', finalists=' + finalists);
 
-async function showResults() {
-  if (!confirm(`REVEAL the ${currentVotePhase.toUpperCase()} election results? Students will see this!`)) return;
-  await setSession(getCurrentActiveParty(), false, true, currentVotePhase, currentFinalists);
-  fetchAndShowResults();
-  document.getElementById('btn-show-results').style.display = 'none';
-}
+      if (phase === 'final' && !finalists) {
+        if (!confirm('Open FINAL vote for ALL parties? (Usually you pick 4 finalists first)')) return;
+      }
 
-function getCurrentActiveParty() {
-  return document.getElementById('active-party-select').value || '';
-}
+      if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
 
-async function resetSystem() {
-  if (!confirm('DANGER: This will delete ALL messages, questions, and votes. This cannot be undone.')) return;
-  if (!confirm('ARE YOU ABSOLUTELY SURE? Everything will be wiped for the real election.')) return;
-  const pin = prompt('Enter Teacher PIN to confirm reset:');
-  if (pin !== teacherPin && pin !== '9999') { alert('Incorrect PIN.'); return; }
-  
-  try {
-    const res = await post({ type: 'th_reset_system', pin: teacherPin });
-    if (res.status === 'success') {
-      alert('System has been wiped and reset.');
-      location.reload();
-    } else { alert(res.message); }
-  } catch(e) { alert('Reset failed.'); }
-}
+      console.log('[DEBUG openVoting] Calling setSession with votingOpen=true');
+      const result = await setSession(getCurrentActiveParty(), true, false, phase, finalists);
+      console.log('[DEBUG openVoting] setSession returned:', result);
 
-async function setSession(activeParty, vOpen, sResults, vPhase, flists) {
-  try {
-    await post({ 
-      type:'th_set_session', pin:teacherPin, activeParty, 
-      votingOpen:vOpen, showResults:sResults,
-      votePhase: vPhase || 'prelim',
-      finalists: flists || ''
-    });
-  } catch(e) { alert('Connection error.'); }
-}
+      applyVotingUI(true);
+    }
 
-async function fetchAndShowResults() {
-  try {
-    const res = await post({ type:'th_get_votes', pin:teacherPin, phase: currentVotePhase });
-    if (res.status !== 'success') return;
-    renderResultBars(res.totals, res.total);
-    document.getElementById('results-panel').style.display = 'block';
-  } catch(e) {}
-}
+    async function closeVoting() {
+      if (!confirm('Close voting? Students can no longer vote.')) return;
+      await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
+      applyVotingUI(false);
+    }
 
-function toggleFinalistUI() {
-  const isFinal = document.querySelector('input[name="vote-phase"]:checked').value === 'final';
-  document.getElementById('finalist-container').style.display = isFinal ? 'flex' : 'none';
-}
+    async function showResults() {
+      if (!confirm(`REVEAL the ${currentVotePhase.toUpperCase()} election results? Students will see this!`)) return;
+      await setSession(getCurrentActiveParty(), false, true, currentVotePhase, currentFinalists);
+      fetchAndShowResults();
+      document.getElementById('btn-show-results').style.display = 'none';
+    }
 
-function updatePhaseUI() {
-  // Issue #12: Always update the phase status message (for teacher reference)
-  document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
-  
-  if (votingOpen) return; // don't flick UI while voting is live
-  
-  const radios = document.getElementsByName('vote-phase');
-  radios.forEach(r => { if (r.value === currentVotePhase) r.checked = true; });
-  
-  const chips = document.querySelectorAll('.finalist-check');
-  const flist = currentFinalists.split(',');
-  chips.forEach(c => { c.checked = flist.includes(c.value); });
-  
-  toggleFinalistUI();
-}
+    function getCurrentActiveParty() {
+      return document.getElementById('active-party-select').value || '';
+    }
 
-function renderResultBars(totals, total) {
-  const container = document.getElementById('results-bars');
-  if (!total) { container.innerHTML = '<div class="empty-state">No votes yet.</div>'; return; }
-  const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
-  const max = sorted[0][1];
-  container.innerHTML = sorted.map(([pid, count]) => {
-    const pct   = Math.round(count/total*100);
-    const color = PARTY_COLORS[pid] || '#6366f1';
-    const label = PARTY_LABELS[pid] || pid;
-    return `<div class="vote-result-bar">
+    async function resetSystem() {
+      if (!confirm('DANGER: This will delete ALL messages, questions, and votes. This cannot be undone.')) return;
+      if (!confirm('ARE YOU ABSOLUTELY SURE? Everything will be wiped for the real election.')) return;
+      const pin = prompt('Enter Teacher PIN to confirm reset:');
+      if (pin !== teacherPin && pin !== '9999') { alert('Incorrect PIN.'); return; }
+
+      try {
+        const res = await post({ type: 'th_reset_system', pin: teacherPin });
+        if (res.status === 'success') {
+          alert('System has been wiped and reset.');
+          location.reload();
+        } else { alert(res.message); }
+      } catch (e) { alert('Reset failed.'); }
+    }
+
+    async function setSession(activeParty, vOpen, sResults, vPhase, flists) {
+      console.log('[DEBUG setSession] Calling server: votingOpen=' + vOpen + ', votePhase=' + vPhase + ', finalists=' + flists);
+      try {
+        const result = await post({
+          type: 'th_set_session', pin: teacherPin, activeParty,
+          votingOpen: vOpen, showResults: sResults,
+          votePhase: vPhase || 'prelim',
+          finalists: flists || ''
+        });
+        console.log('[DEBUG setSession] Server response:', result);
+        return result;
+      } catch (e) {
+        console.error('[DEBUG setSession] Exception:', e);
+        alert('Connection error.');
+        return { status: 'error', message: 'Connection error' };
+      }
+    }
+
+    async function fetchAndShowResults() {
+      try {
+        const res = await post({ type: 'th_get_votes', pin: teacherPin, phase: currentVotePhase });
+        if (res.status !== 'success') return;
+        renderResultBars(res.totals, res.total);
+        document.getElementById('results-panel').style.display = 'block';
+      } catch (e) { }
+    }
+
+    function toggleFinalistUI() {
+      const isFinal = document.querySelector('input[name="vote-phase"]:checked').value === 'final';
+      document.getElementById('finalist-container').style.display = isFinal ? 'flex' : 'none';
+    }
+
+    function updatePhaseUI() {
+      // Issue #12: Always update the phase status message (for teacher reference)
+      document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
+
+      if (votingOpen) return; // don't flick UI while voting is live
+
+      const radios = document.getElementsByName('vote-phase');
+      radios.forEach(r => { if (r.value === currentVotePhase) r.checked = true; });
+
+      const chips = document.querySelectorAll('.finalist-check');
+      const flist = currentFinalists.split(',');
+      chips.forEach(c => { c.checked = flist.includes(c.value); });
+
+      toggleFinalistUI();
+    }
+
+    function renderResultBars(totals, total) {
+      const container = document.getElementById('results-bars');
+      if (!total) { container.innerHTML = '<div class="empty-state">No votes yet.</div>'; return; }
+      const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+      const max = sorted[0][1];
+      container.innerHTML = sorted.map(([pid, count]) => {
+        const pct = Math.round(count / total * 100);
+        const color = PARTY_COLORS[pid] || '#6366f1';
+        const label = PARTY_LABELS[pid] || pid;
+        return `<div class="vote-result-bar">
       <div class="vr-label"><span>${label}</span><span style="color:${color}">${count} (${pct}%)</span></div>
-      <div class="vr-track"><div class="vr-fill" style="width:${Math.round(count/max*100)}%;background:${color}"></div></div>
+      <div class="vr-track"><div class="vr-fill" style="width:${Math.round(count / max * 100)}%;background:${color}"></div></div>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-// ── PARTY SPY ────────────────────────────────────────────────────────────────
-function buildPartyTabs() {
-  const tabs = document.getElementById('party-tabs');
-  const chipsContainer = document.getElementById('finalist-container');
-  const parties = Object.entries(PARTY_LABELS);
-  
-  tabs.innerHTML = parties.map(([id,name]) =>
-    `<div class="party-tab" id="ptab-${id}" onclick="selectSpyParty('${id}')"
+    // ── PARTY SPY ────────────────────────────────────────────────────────────────
+    function buildPartyTabs() {
+      const tabs = document.getElementById('party-tabs');
+      const chipsContainer = document.getElementById('finalist-container');
+      const parties = Object.entries(PARTY_LABELS);
+
+      tabs.innerHTML = parties.map(([id, name]) =>
+        `<div class="party-tab" id="ptab-${id}" onclick="selectSpyParty('${id}')"
       style="border-color:${PARTY_COLORS[id]}44;">
       <span style="color:${PARTY_COLORS[id]}">${name.split(' ')[0]}</span>
       <span class="unread" id="unread-${id}" style="display:none;"></span>
     </div>`
-  ).join('');
+      ).join('');
 
-  chipsContainer.innerHTML = parties.map(([id,name]) => 
-    `<label class="finalist-chip"><input type="checkbox" class="finalist-check" value="${id}"> ${name}</label>`
-  ).join('');
-}
+      chipsContainer.innerHTML = parties.map(([id, name]) =>
+        `<label class="finalist-chip"><input type="checkbox" class="finalist-check" value="${id}"> ${name}</label>`
+      ).join('');
+    }
 
-function selectSpyParty(partyId) {
-  currentSpyParty = partyId;
-  unreadCounts[partyId] = 0;
-  updateTabBadge(partyId);
-  document.querySelectorAll('.party-tab').forEach(t => t.classList.remove('active'));
-  const tab = document.getElementById('ptab-' + partyId);
-  if (tab) { tab.classList.add('active'); tab.style.background = `${PARTY_COLORS[partyId]}22`; }
-  renderSpyFeed(partyId);
-}
+    function selectSpyParty(partyId) {
+      currentSpyParty = partyId;
+      unreadCounts[partyId] = 0;
+      updateTabBadge(partyId);
+      document.querySelectorAll('.party-tab').forEach(t => t.classList.remove('active'));
+      const tab = document.getElementById('ptab-' + partyId);
+      if (tab) { tab.classList.add('active'); tab.style.background = `${PARTY_COLORS[partyId]}22`; }
+      renderSpyFeed(partyId);
+    }
 
-function updateTabBadge(partyId) {
-  const badge = document.getElementById('unread-' + partyId);
-  if (!badge) return;
-  const count = unreadCounts[partyId] || 0;
-  badge.style.display = count > 0 ? '' : 'none';
-  badge.textContent   = count > 0 ? count : '';
-}
+    function updateTabBadge(partyId) {
+      const badge = document.getElementById('unread-' + partyId);
+      if (!badge) return;
+      const count = unreadCounts[partyId] || 0;
+      badge.style.display = count > 0 ? '' : 'none';
+      badge.textContent = count > 0 ? count : '';
+    }
 
-function renderSpyFeed(partyId) {
-  const feed  = document.getElementById('spy-feed');
-  const msgs  = allMessages[partyId] || [];
-  if (msgs.length === 0) {
-    feed.innerHTML = '<div class="empty-state">No messages from this party yet.</div>';
-    return;
-  }
-  const prevScrollAtBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 10;
-  feed.innerHTML = msgs.map(m => {
-    const isLeader = m.role === 'leader';
-    const tip = m.toLeaderOnly ? ' → 🔒 leader only' : ' → 📢 broadcast';
-    return `<div class="spy-msg ${isLeader ? 'spy-msg-leader' : 'spy-msg-member'}">
+    function renderSpyFeed(partyId) {
+      const feed = document.getElementById('spy-feed');
+      const msgs = allMessages[partyId] || [];
+      if (msgs.length === 0) {
+        feed.innerHTML = '<div class="empty-state">No messages from this party yet.</div>';
+        return;
+      }
+      const prevScrollAtBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 10;
+      feed.innerHTML = msgs.map(m => {
+        const isLeader = m.role === 'leader';
+        const tip = m.toLeaderOnly ? ' → 🔒 leader only' : ' → 📢 broadcast';
+        return `<div class="spy-msg ${isLeader ? 'spy-msg-leader' : 'spy-msg-member'}">
       <div class="spy-msg-sender ${isLeader ? 'leader-lbl' : ''}">${m.name} (${m.role})${tip}</div>
       ${escHtml(m.text)}
     </div>`;
-  }).join('');
-  if (prevScrollAtBottom) feed.scrollTop = feed.scrollHeight;
-}
+      }).join('');
+      if (prevScrollAtBottom) feed.scrollTop = feed.scrollHeight;
+    }
 
-// ── UTILS ────────────────────────────────────────────────────────────────────
-// Issue #14: Removed Content-Type to enable "Simple Request" (no preflight)
-async function post(body) {
-  const res = await fetch(scriptURL, {
-    method:'POST',
-    // headers:{'Content-Type':'application/json'}, // REMOVED for CORS compatibility
-    body:JSON.stringify(body),
-    signal: AbortSignal.timeout(10000)
-  });
-  return res.json();
-}
+    // ── UTILS ────────────────────────────────────────────────────────────────────
+    // Issue #14: Removed Content-Type to enable "Simple Request" (no preflight)
+    async function post(body) {
+      const res = await fetch(scriptURL, {
+        method: 'POST',
+        // headers:{'Content-Type':'application/json'}, // REMOVED for CORS compatibility
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10000)
+      });
+      return res.json();
+    }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-</script>
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+  </script>
 </body>
+
 </html>

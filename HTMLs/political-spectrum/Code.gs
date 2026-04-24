@@ -167,7 +167,7 @@ function doPost(e) {
     if (type === 'th_auth')            return thAuth(data.pin);
     if (type === 'th_send_message')    return thSendMessage(data.pin, data.text);
     if (type === 'th_submit_question') return thSubmitQuestion(data.pin, data.text);
-    if (type === 'th_moderate_question') return thModerateQuestion(data.pin, data.id, data.status);
+    if (type === 'th_moderate')          return thModerateQuestion(data.pin, data.id, data.status);
     if (type === 'th_reset_system')      return thResetSystem(data.pin);
     if (type === 'th_set_session')     return thSetSession(data.pin, data.activeParty, data.votingOpen, data.showResults, data.votePhase, data.finalists);
     if (type === 'th_cast_vote')       return thCastVote(data.pin, data.partyId, data.phase);
@@ -229,7 +229,7 @@ function thSendMessage(pin, text) {
   try {
     var sheet = getOrCreateSheet('TH_Messages', ['ID','Timestamp','PartyId','SenderName','SenderRole','Text','ToLeaderOnly']);
     var id = generateId();
-    sheet.appendRow([id, new Date(), student.partyId, student.name, student.role, text.trim(), toLeaderOnly]);
+    sheet.appendRow([id, new Date(), student.partyid, student.name, student.role, text.trim(), toLeaderOnly]);
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
 }
@@ -281,11 +281,12 @@ function thModerateQuestion(pin, questionId, status) {
 function thGetSession() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('TH_Session');
-  if (!sheet || sheet.getLastRow() < 2) return { activeParty: '', votingOpen: false, showResults: false, votePhase: '', finalists: '' };
+  if (!sheet) return { activeParty: '', votingOpen: false, showResults: false, votePhase: 'prelim', finalists: '' };
+  
   var data = sheet.getDataRange().getValues();
   var kv = {};
-  for (var i = 0; i < data.length; i++) { 
-    if (data[i][0]) kv[String(data[i][0]).trim()] = data[i][1]; 
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) kv[String(data[i][0]).trim()] = data[i][1];
   }
   return {
     activeParty:  kv['activeParty']  || '',
@@ -299,23 +300,20 @@ function thGetSession() {
 function thSetSession(pin, activeParty, votingOpen, showResults, votePhase, finalists) {
   if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
 
-  // Issue #13: Validate finalists against known party IDs
-  var validPartyIds = ['islamic','healthier','solution','niche','tomorrow','cpoh','unity','equitable','environment','yellow','equity','climate'];
-  var finalistsArray = (finalists || '').split(',').filter(function(f) { return f.trim() !== ''; });
-  var invalidFinalists = finalistsArray.filter(function(f) { return !validPartyIds.includes(f.trim()); });
-  if (invalidFinalists.length > 0) {
-    return handleResponse({ status: 'error', message: 'Invalid party IDs in finalists: ' + invalidFinalists.join(', ') });
-  }
-
   var sheet = getOrCreateSheet('TH_Session', ['Key', 'Value']);
   var lock = acquireLock();
   if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
+  
   try {
     updateSessionValue(sheet, 'activeParty',  activeParty  || '');
     updateSessionValue(sheet, 'votingOpen',   votingOpen   ? 'TRUE' : 'FALSE');
     updateSessionValue(sheet, 'showResults',  showResults  ? 'TRUE' : 'FALSE');
     updateSessionValue(sheet, 'votePhase',    votePhase    || 'prelim');
     updateSessionValue(sheet, 'finalists',    finalists    || '');
+    
+    // CRITICAL: Flush changes immediately so polling clients don't see stale data
+    SpreadsheetApp.flush();
+    
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
 }
@@ -328,6 +326,7 @@ function thResetSystem(pin) {
     var s = ss.getSheetByName(sName);
     if (s && s.getLastRow() >= 2) s.deleteRows(2, s.getLastRow() - 1);
   });
+  
   var sSheet = ss.getSheetByName('TH_Session');
   if (sSheet) {
     updateSessionValue(sSheet, 'activeParty', '');
@@ -335,6 +334,7 @@ function thResetSystem(pin) {
     updateSessionValue(sSheet, 'showResults', 'FALSE');
     updateSessionValue(sSheet, 'votePhase', 'prelim');
     updateSessionValue(sSheet, 'finalists', '');
+    SpreadsheetApp.flush();
   }
   return handleResponse({ status: 'success', message: 'System reset complete.' });
 }
@@ -345,7 +345,7 @@ function thCastVote(pin, partyId, phase) {
   if (!student) return handleResponse({ status: 'error', message: 'Invalid PIN.' });
 
   // Server-side: cannot vote for own party
-  if (student.partyId === partyId) {
+  if (student.partyid === partyId) {
     return handleResponse({ status: 'error', message: 'You cannot vote for your own party.' });
   }
 
@@ -416,7 +416,7 @@ function pollStudent(pin, sinceMs) {
       var row = mData[i];
       var ts = row[1] instanceof Date ? row[1].getTime() : parseFloat(row[1]);
       if (ts <= sinceMs) continue;
-      if (row[2] !== student.partyId) continue; // wrong party
+      if (row[2] !== student.partyid) continue; // wrong party
       var toLeaderOnly = (row[6] === true || row[6] === 'TRUE');
       var include = false;
       if (student.role === 'leader') {
