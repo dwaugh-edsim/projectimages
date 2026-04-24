@@ -792,6 +792,8 @@
         // Ignore stale poll if we have a pending session change
         if (pendingSessionChange) {
           console.log('[DEBUG doPoll] Ignoring stale poll - pending change:', pendingSessionChange);
+          // Clear the flag now that we've processed a fresh poll
+          pendingSessionChange = null;
         } else {
           votingOpen = !!session.votingOpen;
           showingResults = !!session.showResults;
@@ -955,8 +957,7 @@
       const result = await setSession(getCurrentActiveParty(), true, false, phase, finalists);
       console.log('[DEBUG openVoting] setSession returned:', result);
 
-      // Clear pending flag and apply UI
-      pendingSessionChange = null;
+      // Don't clear pendingSessionChange here — let doPoll() clear it after processing a fresh poll
       votingOpen = true;
       currentVotePhase = phase;
       currentFinalists = finalists;
@@ -969,7 +970,7 @@
       // Set pending flag BEFORE calling setSession
       pendingSessionChange = { votingOpen: false };
       const result = await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
-      pendingSessionChange = null;
+      // Don't clear pendingSessionChange here — let doPoll() clear it after processing a fresh poll
       votingOpen = false;
       applyVotingUI(false);
     }
