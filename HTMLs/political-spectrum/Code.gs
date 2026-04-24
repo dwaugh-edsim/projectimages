@@ -144,9 +144,9 @@ function doPost(e) {
     if (type === 'th_send_message')    return thSendMessage(data.pin, data.text);
     if (type === 'th_submit_question') return thSubmitQuestion(data.pin, data.text);
     if (type === 'th_moderate')        return thModerateQuestion(data.pin, data.questionId, data.status);
-    if (type === 'th_set_session')     return thSetSession(data.pin, data.activeParty, data.votingOpen, data.showResults);
-    if (type === 'th_cast_vote')       return thCastVote(data.pin, data.partyId);
-    if (type === 'th_get_votes')       return thGetVotes(data.pin);
+    if (type === 'th_set_session')     return thSetSession(data.pin, data.activeParty, data.votingOpen, data.showResults, data.votePhase, data.finalists);
+    if (type === 'th_cast_vote')       return thCastVote(data.pin, data.partyId, data.phase);
+    if (type === 'th_get_votes')       return thGetVotes(data.pin, data.phase);
 
     // ── Legacy endpoints ─────────────────────────────────────────────────────
     if (type === 'profile') {
@@ -254,33 +254,36 @@ function thModerateQuestion(pin, questionId, status) {
 function thGetSession() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('TH_Session');
-  if (!sheet || sheet.getLastRow() < 2) return { activeParty: '', votingOpen: false, showResults: false };
+  if (!sheet || sheet.getLastRow() < 2) return { activeParty: '', votingOpen: false, showResults: false, votePhase: '', finalists: '' };
   var data = sheet.getDataRange().getValues();
   var kv = {};
   for (var i = 0; i < data.length; i++) { if (data[i][0]) kv[String(data[i][0])] = data[i][1]; }
   return {
     activeParty:  kv['activeParty']  || '',
     votingOpen:   kv['votingOpen']   === 'TRUE',
-    showResults:  kv['showResults']  === 'TRUE'
+    showResults:  kv['showResults']  === 'TRUE',
+    votePhase:    kv['votePhase']    || 'prelim',
+    finalists:    kv['finalists']    || ''
   };
 }
 
-function thSetSession(pin, activeParty, votingOpen, showResults) {
+function thSetSession(pin, activeParty, votingOpen, showResults, votePhase, finalists) {
   if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
   var sheet = getOrCreateSheet('TH_Session', ['Key', 'Value']);
   var lock = acquireLock();
   if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   try {
-    // Issue #5: atomic per-key updates — never wipe the whole sheet
     updateSessionValue(sheet, 'activeParty',  activeParty  || '');
     updateSessionValue(sheet, 'votingOpen',   votingOpen   ? 'TRUE' : 'FALSE');
     updateSessionValue(sheet, 'showResults',  showResults  ? 'TRUE' : 'FALSE');
+    updateSessionValue(sheet, 'votePhase',    votePhase    || 'prelim');
+    updateSessionValue(sheet, 'finalists',    finalists    || '');
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
 }
 
 // ─── TOWN HALL: VOTING ───────────────────────────────────────────────────────
-function thCastVote(pin, partyId) {
+function thCastVote(pin, partyId, phase) {
   var student = lookupStudent(pin);
   if (!student) return handleResponse({ status: 'error', message: 'Invalid PIN.' });
 
@@ -301,31 +304,39 @@ function thCastVote(pin, partyId) {
     var session = thGetSession(); // authoritative inside lock
     if (!session.votingOpen)
       return handleResponse({ status: 'error', message: 'Voting is now closed.' });
+    if (phase !== session.votePhase)
+      return handleResponse({ status: 'error', message: 'Phase mismatch. Refresh please.' });
 
-    var sheet = getOrCreateSheet('TH_Votes', ['Timestamp','HashedPin','PartyVoted']);
+    var sheet = getOrCreateSheet('TH_Votes', ['Timestamp','HashedPin','PartyVoted','Phase']);
     if (sheet.getLastRow() >= 2) {
       var data = sheet.getDataRange().getValues();
       for (var i = 1; i < data.length; i++) {
-        if (data[i][1] === hash) return handleResponse({ status: 'error', message: 'You have already voted.' });
+        // Check if voted in THIS phase
+        if (data[i][1] === hash && data[i][3] === phase) 
+          return handleResponse({ status: 'error', message: 'You have already voted in this round.' });
       }
     }
-    sheet.appendRow([new Date(), hash, partyId]);
+    sheet.appendRow([new Date(), hash, partyId, phase]);
     return handleResponse({ status: 'success', message: 'Your vote has been cast!' });
   } finally { lock.releaseLock(); }
 }
 
-function thGetVotes(pin) {
+function thGetVotes(pin, phase) {
   if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('TH_Votes');
   if (!sheet || sheet.getLastRow() < 2) return handleResponse({ status: 'success', totals: {}, total: 0 });
   var data = sheet.getDataRange().getValues();
   var totals = {};
+  var total = 0;
   for (var i = 1; i < data.length; i++) {
-    var p = data[i][2];
-    totals[p] = (totals[p] || 0) + 1;
+    if (data[i][3] === phase) {
+      var p = data[i][2];
+      totals[p] = (totals[p] || 0) + 1;
+      total++;
+    }
   }
-  return handleResponse({ status: 'success', totals: totals, total: data.length - 1 });
+  return handleResponse({ status: 'success', totals: totals, total: total });
 }
 
 // ─── TOWN HALL: POLL (GET) ───────────────────────────────────────────────────
@@ -383,15 +394,19 @@ function pollStudent(pin, sinceMs) {
     }
   }
 
-  // Has this student already voted? (use same salt as castVote)
-  var hasVoted = false;
+  // Has this student already voted in both phases?
+  var hasVotedPrelim = false;
+  var hasVotedFinal  = false;
   var vSheet = ss.getSheetByName('TH_Votes');
   if (vSheet && vSheet.getLastRow() >= 2) {
     var hash = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, pin + getVoteSalt())
       .map(function(b) { return (b & 0xFF).toString(16).padStart(2, '0'); }).join('');
     var vData = vSheet.getDataRange().getValues();
     for (var v = 1; v < vData.length; v++) {
-      if (vData[v][1] === hash) { hasVoted = true; break; }
+      if (vData[v][1] === hash) {
+        if (vData[v][3] === 'prelim') hasVotedPrelim = true;
+        if (vData[v][3] === 'final')  hasVotedFinal  = true;
+      }
     }
   }
 
@@ -402,8 +417,9 @@ function pollStudent(pin, sinceMs) {
     messages: messages,
     myQuestions: myQuestions,
     onStageQuestion: onStageQ,
-    hasVoted: hasVoted,
-    serverTime: new Date().getTime()  // Issue #9: clients use server time for next since=
+    hasVotedPrelim: hasVotedPrelim,
+    hasVotedFinal: hasVotedFinal,
+    serverTime: new Date().getTime()
   });
 }
 
@@ -441,10 +457,15 @@ function pollTeacher(sinceMs) {
     }
   }
 
-  // Vote count
+  // Vote count for CURRENT phase
   var voteCount = 0;
   var vSheet = ss.getSheetByName('TH_Votes');
-  if (vSheet) voteCount = Math.max(0, vSheet.getLastRow() - 1);
+  if (vSheet && vSheet.getLastRow() >= 2) {
+    var vData = vSheet.getDataRange().getValues();
+    for (var k = 1; k < vData.length; k++) {
+      if (vData[k][3] === session.votePhase) voteCount++;
+    }
+  }
 
   return handleResponse({
     status: 'success', session: session,

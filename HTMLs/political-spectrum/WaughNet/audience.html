@@ -277,15 +277,16 @@
       <p>Mr. Waugh will unlock voting when it's time.<br>Check back here then.</p>
     </div>
     <!-- State B: Active -->
-    <div id="vote-active" style="display:none;">
-      <div class="vote-panel">
-        <h3>Cast Your Ballot</h3>
-        <p>Select ONE party. You cannot vote for your own party. This is a secret ballot — you can only vote once.</p>
-        <div class="party-vote-list" id="party-vote-list"></div>
-        <button class="btn btn-primary" id="vote-submit" disabled>Cast My Vote →</button>
-        <div id="vote-err" class="err"></div>
-      </div>
-    </div>
+        <div id="vote-active" style="display:none;">
+          <div class="vote-panel">
+            <h3>Cast Your Ballot</h3>
+            <p id="vote-round-msg" style="font-weight:700; color:var(--primary); margin-bottom:0.5rem;"></p>
+            <p>Select ONE party. You cannot vote for your own party. This is a secret ballot — you can only vote once per round.</p>
+            <div class="party-vote-list" id="party-vote-list"></div>
+            <button class="btn btn-primary" id="vote-submit" disabled>Cast My Vote →</button>
+            <div id="vote-err" class="err"></div>
+          </div>
+        </div>
     <!-- State C: Already voted -->
     <div class="voted-success" id="vote-done" style="display:none;">
       <div class="icon2">✅</div>
@@ -331,7 +332,9 @@ let lastPollTs = 0;
 let knownQuestions = [];
 let knownMessages = [];
 let selectedVoteParty = null;
-let hasVoted = false;
+let currentVotePhase = '';
+let hasVotedPrelim = false;
+let hasVotedFinal = false;
 let warRoomNewCount = 0;
 let currentTab = 'q';
 let consecutiveFailures = 0; // Issue #4: exponential backoff state
@@ -409,7 +412,9 @@ async function doPoll() {
     setOnline(true);
 
     const session = data.session || {};
-    updateVotingState(session, data.hasVoted);
+    hasVotedPrelim = !!data.hasVotedPrelim;
+    hasVotedFinal  = !!data.hasVotedFinal;
+    updateVotingState(session);
 
     if (data.messages && data.messages.length > 0) {
       appendMessages(data.messages);
@@ -576,10 +581,17 @@ function appendMessages(msgs) {
 }
 
 // ── VOTING ───────────────────────────────────────────────────────────────────
-function buildBallot() {
+function buildBallot(finalistsString) {
   const list = document.getElementById('party-vote-list');
   const myPartyId = myStudent ? myStudent.partyId : '';
-  all_parties_ballot = ALL_PARTIES.filter(p => p.id !== myPartyId);
+  const finalists = finalistsString ? finalistsString.split(',') : [];
+  
+  all_parties_ballot = ALL_PARTIES.filter(p => {
+    if (p.id === myPartyId) return false;
+    if (finalists.length > 0 && !finalists.includes(p.id)) return false;
+    return true;
+  });
+
   list.innerHTML = all_parties_ballot.map(p => `
     <div class="party-vote-card" onclick="selectParty('${p.id}', this)" data-pid="${p.id}">
       <div class="party-dot" style="background:${PARTY_COLORS[p.id] || '#6366f1'}"></div>
@@ -605,9 +617,10 @@ document.getElementById('vote-submit').addEventListener('click', async () => {
   const voteErr = document.getElementById('vote-err');
   voteErr.textContent = '';
   try {
-    const res = await post({ type: 'th_cast_vote', pin: myPin, partyId: selectedVoteParty });
+    const res = await post({ type: 'th_cast_vote', pin: myPin, partyId: selectedVoteParty, phase: currentVotePhase });
     if (res.status === 'success') {
-      hasVoted = true;
+      if (currentVotePhase === 'prelim') hasVotedPrelim = true;
+      else hasVotedFinal = true;
       showVoteState('done');
     } else {
       voteErr.textContent = res.message || 'Something went wrong.';
@@ -621,14 +634,23 @@ document.getElementById('vote-submit').addEventListener('click', async () => {
   }
 });
 
-function updateVotingState(session, voted) {
-  hasVoted = voted;
-  if (voted) {
+function updateVotingState(session) {
+  const open = !!session.votingOpen;
+  const phase = session.votePhase || 'prelim';
+  const finalists = session.finalists || '';
+  const votedThisPhase = (phase === 'prelim' ? hasVotedPrelim : hasVotedFinal);
+
+  if (currentVotePhase !== phase || document.getElementById('tab-vote').dataset.finalists !== finalists) {
+    currentVotePhase = phase;
+    document.getElementById('tab-vote').dataset.finalists = finalists;
+    buildBallot(finalists);
+    document.getElementById('vote-round-msg').textContent = `Round: ${phase.toUpperCase()}`;
+  }
+
+  if (votedThisPhase) {
     showVoteState('done');
     updateBadge('vote', 0);
-    return;
-  }
-  if (session.votingOpen) {
+  } else if (open) {
     showVoteState('open');
     updateBadge('vote', 1);
     document.getElementById('badge-vote').textContent = 'OPEN';

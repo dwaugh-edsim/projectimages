@@ -147,6 +147,21 @@
     .spy-msg-sender.leader-lbl { color:var(--green); }
 
     .empty-state { color:var(--muted); font-size:0.8rem; text-align:center; padding:2rem 0.5rem; }
+
+    /* Phase Selection */
+    .phase-panel { 
+      background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); padding:0.5rem 1rem;
+      display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+    }
+    .phase-toggle { display:flex; gap:0.5rem; align-items:center; font-size:0.75rem; font-weight:700; }
+    .phase-toggle input { cursor:pointer; }
+    .finalist-selector { display:flex; flex-wrap:wrap; gap:0.4rem; font-size:0.6rem; max-width:800px; }
+    .finalist-chip { 
+      background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:0.15rem 0.4rem; 
+      border-radius:4px; cursor:pointer; transition:0.1s; display:flex; align-items:center; gap:0.3rem;
+    }
+    .finalist-chip input { margin:0; }
+    .finalist-chip:hover { background:rgba(255,255,255,0.1); }
   </style>
 </head>
 <body>
@@ -197,6 +212,17 @@
       <span class="vote-count" id="vote-count"></span>
     </div>
   </header>
+
+  <div class="phase-panel" id="phase-panel">
+    <div class="phase-toggle">
+      <label><input type="radio" name="vote-phase" value="prelim" checked onchange="toggleFinalistUI()"> 🗳️ Prelim Round</label>
+      <label><input type="radio" name="vote-phase" value="final" onchange="toggleFinalistUI()"> 🏆 Final Round</label>
+    </div>
+    <div id="finalist-container" class="finalist-selector" style="display:none;">
+      <!-- Finalist chips will be injected here -->
+    </div>
+    <div id="phase-status-msg" style="font-size:0.65rem; color:var(--muted); font-style:italic;"></div>
+  </div>
 
   <div class="grid">
     <!-- ── COL 1: Questions ── -->
@@ -269,6 +295,8 @@ let currentSpyParty = '';
 let onStageQuestion = null;
 let votingOpen = false;
 let showingResults = false;
+let currentVotePhase = 'prelim';
+let currentFinalists = '';
 let unreadCounts = {}; // partyId → count
 let consecutiveFailures = 0; // Issue #4
 let pollTimer = null;
@@ -318,6 +346,12 @@ async function doPoll() {
     const session = data.session || {};
     votingOpen     = !!session.votingOpen;
     showingResults = !!session.showResults;
+    currentVotePhase = session.votePhase || 'prelim';
+    currentFinalists = session.finalists || '';
+    updatePhaseUI();
+    currentVotePhase = session.votePhase || 'prelim';
+    currentFinalists = session.finalists || '';
+    updatePhaseUI();
 
     allQuestions = data.questions || [];
     renderQuestions();
@@ -340,6 +374,9 @@ async function doPoll() {
     document.getElementById('btn-open-vote').style.display  = votingOpen ? 'none' : '';
     document.getElementById('btn-close-vote').style.display = votingOpen ? '' : 'none';
     document.getElementById('btn-show-results').style.display = (!votingOpen && !showingResults) ? '' : 'none';
+    document.getElementById('phase-panel').style.opacity = votingOpen ? '0.5' : '1';
+    document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = votingOpen);
+    document.getElementById('voting-phase-ctrl').style.display = votingOpen ? 'none' : 'flex';
 
     const staged = allQuestions.find(q => q.status === 'on_stage');
     if (staged) {
@@ -413,14 +450,26 @@ async function openVoting() {
   await setSession(getCurrentActiveParty(), true, false);
 }
 
+async function openVoting() {
+  const phase = document.querySelector('input[name="vote-phase"]:checked').value;
+  const finalists = Array.from(document.querySelectorAll('.finalist-check:checked')).map(c => c.value).join(',');
+  
+  if (phase === 'final' && !finalists) {
+    if (!confirm('Open FINAL vote for ALL parties? (Usually you pick 4 finalists first)')) return;
+  }
+  
+  if (!confirm(`Open the web application for the ${phase.toUpperCase()} round?`)) return;
+  await setSession(getCurrentActiveParty(), true, false, phase, finalists);
+}
+
 async function closeVoting() {
   if (!confirm('Close voting? Students can no longer vote.')) return;
-  await setSession(getCurrentActiveParty(), false, false);
+  await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
 }
 
 async function showResults() {
-  if (!confirm('REVEAL the election results? Students will see this!')) return;
-  await setSession(getCurrentActiveParty(), false, true);
+  if (!confirm(`REVEAL the ${currentVotePhase.toUpperCase()} election results? Students will see this!`)) return;
+  await setSession(getCurrentActiveParty(), false, true, currentVotePhase, currentFinalists);
   fetchAndShowResults();
   document.getElementById('btn-show-results').style.display = 'none';
 }
@@ -429,19 +478,43 @@ function getCurrentActiveParty() {
   return document.getElementById('active-party-select').value || '';
 }
 
-async function setSession(activeParty, vOpen, sResults) {
+async function setSession(activeParty, vOpen, sResults, vPhase, flists) {
   try {
-    await post({ type:'th_set_session', pin:teacherPin, activeParty, votingOpen:vOpen, showResults:sResults });
+    await post({ 
+      type:'th_set_session', pin:teacherPin, activeParty, 
+      votingOpen:vOpen, showResults:sResults,
+      votePhase: vPhase || 'prelim',
+      finalists: flists || ''
+    });
   } catch(e) { alert('Connection error.'); }
 }
 
 async function fetchAndShowResults() {
   try {
-    const res = await post({ type:'th_get_votes', pin:teacherPin });
+    const res = await post({ type:'th_get_votes', pin:teacherPin, phase: currentVotePhase });
     if (res.status !== 'success') return;
     renderResultBars(res.totals, res.total);
     document.getElementById('results-panel').style.display = 'block';
   } catch(e) {}
+}
+
+function toggleFinalistUI() {
+  const isFinal = document.querySelector('input[name="vote-phase"]:checked').value === 'final';
+  document.getElementById('finalist-container').style.display = isFinal ? 'flex' : 'none';
+}
+
+function updatePhaseUI() {
+  if (votingOpen) return; // don't flick UI while voting is live
+  
+  const radios = document.getElementsByName('vote-phase');
+  radios.forEach(r => { if (r.value === currentVotePhase) r.checked = true; });
+  
+  const chips = document.querySelectorAll('.finalist-check');
+  const flist = currentFinalists.split(',');
+  chips.forEach(c => { c.checked = flist.includes(c.value); });
+  
+  toggleFinalistUI();
+  document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
 }
 
 function renderResultBars(totals, total) {
@@ -463,13 +536,19 @@ function renderResultBars(totals, total) {
 // ── PARTY SPY ────────────────────────────────────────────────────────────────
 function buildPartyTabs() {
   const tabs = document.getElementById('party-tabs');
+  const chipsContainer = document.getElementById('finalist-container');
   const parties = Object.entries(PARTY_LABELS);
+  
   tabs.innerHTML = parties.map(([id,name]) =>
     `<div class="party-tab" id="ptab-${id}" onclick="selectSpyParty('${id}')"
       style="border-color:${PARTY_COLORS[id]}44;">
       <span style="color:${PARTY_COLORS[id]}">${name.split(' ')[0]}</span>
       <span class="unread" id="unread-${id}" style="display:none;"></span>
     </div>`
+  ).join('');
+
+  chipsContainer.innerHTML = parties.map(([id,name]) => 
+    `<label class="finalist-chip"><input type="checkbox" class="finalist-check" value="${id}"> ${name}</label>`
   ).join('');
 }
 
