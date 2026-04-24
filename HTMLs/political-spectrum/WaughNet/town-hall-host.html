@@ -254,8 +254,16 @@
           <div id="results-bars"></div>
         </div>
 
+        <!-- VOTING BIG TOGGLE -->
+        <div id="voting-status-bar" style="margin-top:1rem; padding:1rem; border-radius:12px; border:2px solid var(--border); text-align:center; transition:0.3s;">
+          <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:0.6rem;">Voting Status</div>
+          <div id="voting-status-label" style="font-size:1.1rem; font-weight:900; margin-bottom:0.75rem; color:var(--muted);">🔒 Closed</div>
+          <button id="btn-big-toggle" onclick="toggleVoting()" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:900; border:none; border-radius:10px; cursor:pointer; background:var(--green); color:white; transition:0.2s;">Open Voting</button>
+          <div id="vote-count-large" style="font-size:0.75rem; margin-top:0.5rem; color:var(--muted);"></div>
+        </div>
+
         <!-- Stats -->
-        <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);">
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
           <div class="stage-section-label">Quick Stats</div>
           <div id="stats" style="font-size:0.8rem;color:var(--muted);line-height:2;"></div>
         </div>
@@ -351,6 +359,9 @@ async function doPoll() {
     currentVotePhase = session.votePhase || 'prelim';
     currentFinalists = session.finalists || '';
     updatePhaseUI();
+    applyVotingUI(votingOpen);
+    document.getElementById('vote-count-large').textContent =
+      data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
 
     allQuestions = data.questions || [];
     renderQuestions();
@@ -370,19 +381,6 @@ async function doPoll() {
     document.getElementById('vote-count').textContent =
       data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
 
-    const btnToggle = document.getElementById('btn-toggle-vote');
-    if (votingOpen) {
-      btnToggle.textContent = '⏹️ Close Voting';
-      btnToggle.className = 'ctrl-btn ctrl-btn-danger';
-    } else {
-      btnToggle.textContent = '🗳️ Open Voting';
-      btnToggle.className = 'ctrl-btn ctrl-btn-green';
-    }
-    
-    document.getElementById('btn-show-results').style.display = (!votingOpen && !showingResults) ? '' : 'none';
-    document.getElementById('phase-panel').style.opacity = votingOpen ? '0.5' : '1';
-    document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = votingOpen);
-    document.getElementById('voting-phase-ctrl').style.display = votingOpen ? 'none' : 'flex';
 
     const staged = allQuestions.find(q => q.status === 'on_stage');
     if (staged) {
@@ -444,6 +442,43 @@ async function moderate(questionId, status) {
   } catch(e) { alert('Connection error.'); }
 }
 
+// ── VOTING UI STATE ──────────────────────────────────────────────────────────
+function applyVotingUI(isOpen) {
+  votingOpen = isOpen;
+
+  // Big toggle in stage panel
+  const bigBtn = document.getElementById('btn-big-toggle');
+  const statusLabel = document.getElementById('voting-status-label');
+  const statusBar = document.getElementById('voting-status-bar');
+  if (isOpen) {
+    bigBtn.textContent = '⏹ Close Voting';
+    bigBtn.style.background = 'var(--red)';
+    statusLabel.textContent = '🟢 OPEN';
+    statusLabel.style.color = 'var(--green)';
+    statusBar.style.border = '2px solid var(--green)';
+    statusBar.style.background = 'rgba(5,150,105,0.08)';
+  } else {
+    bigBtn.textContent = 'Open Voting';
+    bigBtn.style.background = 'var(--green)';
+    statusLabel.textContent = '🔒 Closed';
+    statusLabel.style.color = 'var(--muted)';
+    statusBar.style.border = '2px solid var(--border)';
+    statusBar.style.background = '';
+  }
+
+  // Small header toggle
+  const headerBtn = document.getElementById('btn-toggle-vote');
+  if (headerBtn) {
+    headerBtn.textContent = isOpen ? '⏹️ Close Voting' : '🗳️ Open Voting';
+    headerBtn.className = isOpen ? 'ctrl-btn ctrl-btn-danger' : 'ctrl-btn ctrl-btn-green';
+  }
+
+  // Phase panel lockout
+  document.getElementById('btn-show-results').style.display = (!isOpen && !showingResults) ? '' : 'none';
+  document.getElementById('phase-panel').style.opacity = isOpen ? '0.5' : '1';
+  document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = isOpen);
+}
+
 // ── SESSION CONTROLS ─────────────────────────────────────────────────────────
 async function setActiveParty() {
   const select = document.getElementById('active-party-select');
@@ -467,13 +502,15 @@ async function openVoting() {
     if (!confirm('Open FINAL vote for ALL parties? (Usually you pick 4 finalists first)')) return;
   }
   
-  if (!confirm(`Open the web application for the ${phase.toUpperCase()} round?`)) return;
+  if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
   await setSession(getCurrentActiveParty(), true, false, phase, finalists);
+  applyVotingUI(true);
 }
 
 async function closeVoting() {
   if (!confirm('Close voting? Students can no longer vote.')) return;
   await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
+  applyVotingUI(false);
 }
 
 async function showResults() {
