@@ -896,11 +896,7 @@
         const res = await post({ type: 'th_send_message', pin: myPin, text });
         if (res.status === 'success') {
           $msgText.value = '';
-          // Optimistic: add to local feed immediately
-          appendMessages([{
-            id: Date.now(), ts: Date.now(),
-            name: myStudent.name, role: myStudent.role, text, mine: true
-          }]);
+          // Message will appear on next poll (3-5s) — no optimistic update to avoid duplicates
         }
       } catch (e) { /* silent fail, will retry on next poll */ }
       $msgSend.disabled = false;
