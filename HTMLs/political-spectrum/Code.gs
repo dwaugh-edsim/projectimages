@@ -16,50 +16,72 @@
  * Poll state is served via GET ?type=poll&pin=XXXX&since=ts
  */
 
-// ─── STUDENT ROSTER ──────────────────────────────────────────────────────────
-// Individual 4-char PINs assigned per student.
-// partyId is the short key used in TH_Messages and TH_Votes.
-var STUDENT_ROSTER = [
-  {name:'Farhan',      pin:'HRNH', party:'The Islamic Associations of Halifax', partyId:'islamic',     role:'leader'},
-  {name:'Abdul',       pin:'ALZZ', party:'The Islamic Associations of Halifax', partyId:'islamic',     role:'member'},
-  {name:'Joshua A',    pin:'RUXG', party:'The Healthier Future',         partyId:'healthier',   role:'leader'},
-  {name:'Clark',       pin:'9F3K', party:'The Healthier Future',         partyId:'healthier',   role:'member'},
-  {name:'Madhavan',    pin:'R4MT', party:'The Party De Solution',        partyId:'solution',    role:'leader'},
-  {name:'Remy',        pin:'YMRP', party:'The Party De Solution',        partyId:'solution',    role:'member'},
-  {name:'Yunho',       pin:'T4N5', party:'The Party De Solution',        partyId:'solution',    role:'member'},
-  {name:'Lachlan McM', pin:'FFAN', party:'The Niche Halligonians',       partyId:'niche',       role:'leader'},
-  {name:'Lachlan Mac', pin:'25VT', party:'The Niche Halligonians',       partyId:'niche',       role:'member'},
-  {name:'Nolan',       pin:'KFK6', party:'The Niche Halligonians',       partyId:'niche',       role:'member'},
-  {name:'Laila',       pin:'V4BC', party:'Team tomorrow',                partyId:'tomorrow',    role:'leader'},
-  {name:'Josie',       pin:'MVQW', party:'Team tomorrow',                partyId:'tomorrow',    role:'member'},
-  {name:'Huda',        pin:'6SUB', party:'Team tomorrow',                partyId:'tomorrow',    role:'member'},
-  {name:'Brody',       pin:'JY2P', party:'Communist Party Of Halifax (CPOH)', partyId:'cpoh',        role:'leader'},
-  {name:'Leo',         pin:'RKKJ', party:'Communist Party Of Halifax (CPOH)', partyId:'cpoh',        role:'member'},
-  {name:'Elizabeth',   pin:'FNG3', party:'The Unity Party',              partyId:'unity',       role:'leader'},
-  {name:'Fatima',      pin:'T6U2', party:'The Unity Party',              partyId:'unity',       role:'member'},
-  {name:'Alia',        pin:'LJFM', party:'The Unity Party',              partyId:'unity',       role:'member'},
-  {name:'Rifa',        pin:'57G5', party:'Equitable Rights Party Of Halifax', partyId:'equitable',   role:'leader'},
-  {name:'Sarah',       pin:'96EU', party:'Equitable Rights Party Of Halifax', partyId:'equitable',   role:'member'},
-  {name:'Natalia',     pin:'2F8V', party:'Environmentalists at Work',    partyId:'environment', role:'leader'},
-  {name:'Jessa',       pin:'HSZU', party:'Environmentalists at Work',    partyId:'environment', role:'member'},
-  {name:'Delisha',     pin:'Q2YA', party:'Environmentalists at Work',    partyId:'environment', role:'member'},
-  {name:'Kendra',      pin:'MTGG', party:'The yellow progression party', partyId:'yellow',      role:'leader'},
-  {name:'Zankia',      pin:'CA3J', party:'The yellow progression party', partyId:'yellow',      role:'member'},
-  {name:'Evie',        pin:'R7SX', party:'The Equity Party',             partyId:'equity',      role:'leader'},
-  {name:'Jana',        pin:'TT8D', party:'The Equity Party',             partyId:'equity',      role:'member'},
-  {name:'Ali',         pin:'D2ZD', party:'The Halifax Climate Protection Party', partyId:'climate', role:'leader'},
-  {name:'Kai',         pin:'VFW8', party:'The Halifax Climate Protection Party', partyId:'climate', role:'member'}
-];
+// Dynamic Roster will be loaded from the "TH_Roster" sheet.
+// Run migrateRosterToSheet() once to populate it.
+var STUDENT_ROSTER = []; 
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function lookupStudent(pin) {
   var p = (pin || '').toUpperCase().trim();
-  // Issue #13: validate exactly 4 alphanumeric chars before table scan
   if (!/^[A-Z0-9]{4}$/.test(p)) return null;
-  for (var i = 0; i < STUDENT_ROSTER.length; i++) {
-    if (STUDENT_ROSTER[i].pin === p) return STUDENT_ROSTER[i];
+  
+  // Refresh roster from sheet cache if possible
+  var roster = fetchData('TH_Roster');
+  if (!roster || roster.length === 0) return null;
+
+  for (var i = 0; i < roster.length; i++) {
+    if (String(roster[i].pin).toUpperCase().trim() === p) {
+      return roster[i];
+    }
   }
   return null;
+}
+
+/**
+ * MIGRATION: Run this once from the Script Editor to move the hardcoded students to the sheet.
+ */
+function migrateRosterToSheet() {
+  var initialRoster = [
+    {name:'Farhan', pin:'HRNH', party:'Islamic Assoc', partyid:'islamic', role:'leader'},
+    {name:'Abdul', pin:'ALZZ', party:'Islamic Assoc', partyid:'islamic', role:'member'},
+    {name:'Joshua A', pin:'RUXG', party:'Healthier Future', partyid:'healthier', role:'leader'},
+    {name:'Clark', pin:'9F3K', party:'Healthier Future', partyid:'healthier', role:'member'},
+    {name:'Madhavan', pin:'R4MT', party:'Solution Party', partyid:'solution', role:'leader'},
+    {name:'Remy', pin:'YMRP', party:'Solution Party', partyid:'solution', role:'member'},
+    {name:'Yunho', pin:'T4N5', party:'Solution Party', partyid:'solution', role:'member'},
+    {name:'Lachlan McM', pin:'FFAN', party:'Niche Halligonians', partyid:'niche', role:'leader'},
+    {name:'Lachlan Mac', pin:'25VT', party:'Niche Halligonians', partyid:'niche', role:'member'},
+    {name:'Nolan', pin:'KFK6', party:'Niche Halligonians', partyid:'niche', role:'member'},
+    {name:'Laila', pin:'V4BC', party:'Team tomorrow', partyid:'tomorrow', role:'leader'},
+    {name:'Josie', pin:'MVQW', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
+    {name:'Huda', pin:'6SUB', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
+    {name:'Brody', pin:'JY2P', party:'CPOH', partyid:'cpoh', role:'leader'},
+    {name:'Leo', pin:'RKKJ', party:'CPOH', partyid:'cpoh', role:'member'},
+    {name:'Elizabeth', pin:'FNG3', party:'Unity Party', partyid:'unity', role:'leader'},
+    {name:'Fatima', pin:'T6U2', party:'Unity Party', partyid:'unity', role:'member'},
+    {name:'Alia', pin:'LJFM', party:'Unity Party', partyid:'unity', role:'member'},
+    {name:'Rifa', pin:'57G5', party:'Equitable Rights', partyid:'equitable', role:'leader'},
+    {name:'Sarah', pin:'96EU', party:'Equitable Rights', partyid:'equitable', role:'member'},
+    {name:'Natalia', pin:'2F8V', party:'Environmentalists', partyid:'environment', role:'leader'},
+    {name:'Jessa', pin:'HSZU', party:'Environmentalists', partyid:'environment', role:'member'},
+    {name:'Delisha', pin:'Q2YA', party:'Environmentalists', partyid:'environment', role:'member'},
+    {name:'Kendra', pin:'MTGG', party:'Yellow Progression', partyid:'yellow', role:'leader'},
+    {name:'Zankia', pin:'CA3J', party:'Yellow Progression', partyid:'yellow', role:'member'},
+    {name:'Evie', pin:'R7SX', party:'Equity Party', partyid:'equity', role:'leader'},
+    {name:'Jana', pin:'TT8D', party:'Equity Party', partyid:'equity', role:'member'},
+    {name:'Ali', pin:'D2ZD', party:'Climate Protection', partyid:'climate', role:'leader'},
+    {name:'Kai', pin:'VFW8', party:'Climate Protection', partyid:'climate', role:'member'}
+  ];
+  
+  var sheet = getOrCreateSheet('TH_Roster', ['Name', 'PIN', 'Party', 'PartyId', 'Role']);
+  sheet.clearContents();
+  sheet.appendRow(['Name', 'PIN', 'Party', 'PartyId', 'Role']);
+  
+  initialRoster.forEach(function(s) {
+    sheet.appendRow([s.name, s.pin, s.party, s.partyid, s.role]);
+  });
+  
+  Logger.log('Roster migrated. You can now edit the "TH_Roster" sheet.');
 }
 
 function isTeacherPin(pin) {
@@ -145,7 +167,8 @@ function doPost(e) {
     if (type === 'th_auth')            return thAuth(data.pin);
     if (type === 'th_send_message')    return thSendMessage(data.pin, data.text);
     if (type === 'th_submit_question') return thSubmitQuestion(data.pin, data.text);
-    if (type === 'th_moderate')        return thModerateQuestion(data.pin, data.questionId, data.status);
+    if (type === 'th_moderate_question') return thModerateQuestion(data.pin, data.id, data.status);
+    if (type === 'th_reset_system')      return thResetSystem(data.pin);
     if (type === 'th_set_session')     return thSetSession(data.pin, data.activeParty, data.votingOpen, data.showResults, data.votePhase, data.finalists);
     if (type === 'th_cast_vote')       return thCastVote(data.pin, data.partyId, data.phase);
     if (type === 'th_get_votes')       return thGetVotes(data.pin, data.phase);
@@ -295,6 +318,25 @@ function thSetSession(pin, activeParty, votingOpen, showResults, votePhase, fina
     updateSessionValue(sheet, 'finalists',    finalists    || '');
     return handleResponse({ status: 'success' });
   } finally { lock.releaseLock(); }
+}
+
+function thResetSystem(pin) {
+  if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ['TH_Messages', 'TH_Questions', 'TH_Votes'];
+  sheets.forEach(function(sName) {
+    var s = ss.getSheetByName(sName);
+    if (s && s.getLastRow() >= 2) s.deleteRows(2, s.getLastRow() - 1);
+  });
+  var sSheet = ss.getSheetByName('TH_Session');
+  if (sSheet) {
+    updateSessionValue(sSheet, 'activeParty', '');
+    updateSessionValue(sSheet, 'votingOpen', 'FALSE');
+    updateSessionValue(sSheet, 'showResults', 'FALSE');
+    updateSessionValue(sSheet, 'votePhase', 'prelim');
+    updateSessionValue(sSheet, 'finalists', '');
+  }
+  return handleResponse({ status: 'success', message: 'System reset complete.' });
 }
 
 // ─── TOWN HALL: VOTING ───────────────────────────────────────────────────────

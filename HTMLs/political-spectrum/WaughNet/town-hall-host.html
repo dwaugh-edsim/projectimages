@@ -53,7 +53,7 @@
       border-bottom:1px solid var(--border); padding:0.5rem 1.25rem;
       display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:1rem; flex-wrap:wrap;
     }
-    .brand { font-weight:900; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .brand { font-weight:900; font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); flex:1; }
     .conn-dot { width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; margin-right:0.35rem; animation:pulse 2s infinite; }
     .conn-dot.offline { background:var(--red); animation:none; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -184,10 +184,11 @@
 <div id="app">
   <!-- Header -->
   <header class="app-header">
-    <div style="display:flex;align-items:center;gap:0.75rem;">
+    <div class="brand">
       <span class="conn-dot" id="conn-dot"></span>
-      <span class="brand">Moderator Console — Halifax West 2026</span>
+      Moderator Console — Halifax West 2026
     </div>
+    <button class="ctrl-btn ctrl-btn-danger" style="width:auto; margin-top:0; padding:0.3rem 0.6rem; font-size:0.6rem;" onclick="resetSystem()">🗑️ Reset System</button>
     <div class="controls">
       <!-- Active Party -->
       <span style="font-size:0.7rem;color:var(--muted);font-weight:700;">On Stage:</span>
@@ -484,6 +485,21 @@ async function showResults() {
 
 function getCurrentActiveParty() {
   return document.getElementById('active-party-select').value || '';
+}
+
+async function resetSystem() {
+  if (!confirm('DANGER: This will delete ALL messages, questions, and votes. This cannot be undone.')) return;
+  if (!confirm('ARE YOU ABSOLUTELY SURE? Everything will be wiped for the real election.')) return;
+  const pin = prompt('Enter Teacher PIN to confirm reset:');
+  if (pin !== teacherPin && pin !== '9999') { alert('Incorrect PIN.'); return; }
+  
+  try {
+    const res = await post({ type: 'th_reset_system', pin: teacherPin });
+    if (res.status === 'success') {
+      alert('System has been wiped and reset.');
+      location.reload();
+    } else { alert(res.message); }
+  } catch(e) { alert('Reset failed.'); }
 }
 
 async function setSession(activeParty, vOpen, sResults, vPhase, flists) {
