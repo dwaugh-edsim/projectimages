@@ -207,9 +207,8 @@
         <option value="climate">Climate Protection (Ali)</option>
       </select>
       <button class="ctrl-btn ctrl-btn-primary" id="btn-set-active" onclick="setActiveParty()">Set</button>
-      <!-- Voting -->
-      <button class="ctrl-btn ctrl-btn-green"  id="btn-open-vote"  onclick="openVoting()">🗳️ Open Voting</button>
-      <button class="ctrl-btn ctrl-btn-danger"  id="btn-close-vote" onclick="closeVoting()" style="display:none;">⏹️ Close Voting</button>
+      <!-- Voting Toggle -->
+      <button class="ctrl-btn ctrl-btn-green" id="btn-toggle-vote" onclick="toggleVoting()">🗳️ Open Voting</button>
       <button class="ctrl-btn ctrl-btn-amber"   id="btn-show-results" onclick="showResults()" style="display:none;">📊 Reveal Results!</button>
       <span class="vote-count" id="vote-count"></span>
     </div>
@@ -370,8 +369,15 @@ async function doPoll() {
     document.getElementById('vote-count').textContent =
       data.voteCount > 0 ? `${data.voteCount} vote(s) cast` : '';
 
-    document.getElementById('btn-open-vote').style.display  = votingOpen ? 'none' : '';
-    document.getElementById('btn-close-vote').style.display = votingOpen ? '' : 'none';
+    const btnToggle = document.getElementById('btn-toggle-vote');
+    if (votingOpen) {
+      btnToggle.textContent = '⏹️ Close Voting';
+      btnToggle.className = 'ctrl-btn ctrl-btn-danger';
+    } else {
+      btnToggle.textContent = '🗳️ Open Voting';
+      btnToggle.className = 'ctrl-btn ctrl-btn-green';
+    }
+    
     document.getElementById('btn-show-results').style.display = (!votingOpen && !showingResults) ? '' : 'none';
     document.getElementById('phase-panel').style.opacity = votingOpen ? '0.5' : '1';
     document.getElementById('phase-panel').querySelectorAll('input').forEach(i => i.disabled = votingOpen);
@@ -444,9 +450,12 @@ async function setActiveParty() {
   await setSession(party, votingOpen, showingResults);
 }
 
-async function openVoting() {
-  if (!confirm('Open voting for all students?')) return;
-  await setSession(getCurrentActiveParty(), true, false);
+async function toggleVoting() {
+  if (votingOpen) {
+    await closeVoting();
+  } else {
+    await openVoting();
+  }
 }
 
 async function openVoting() {
