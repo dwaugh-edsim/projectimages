@@ -175,7 +175,7 @@
     }
     .party-vote-card:hover { border-color: var(--primary); background: rgba(99,102,241,0.08); }
     .party-vote-card.selected { border-color: var(--primary); background: rgba(99,102,241,0.15); }
-    .party-vote-card .party-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .party-vote-card .party-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.2); }
     .party-vote-card .party-name { font-weight: 700; font-size: 0.95rem; }
 
     .voted-success {
@@ -301,28 +301,28 @@
 // ── CONFIG ───────────────────────────────────────────────────────────────────
 const POLL_INTERVAL = 5000; // 5 seconds
 
-// Party colours (partyId → hex) - matches Code.gs roster
+// Party colours (partyId → hex) - matches latest 24 April CSV
 const PARTY_COLORS = {
-  islamic:'#10b981', healthier:'#3b82f6', solution:'#8b5cf6',
-  niche:'#f59e0b',   tomorrow:'#06b6d4',  cpoh:'#ef4444',
-  unity:'#ec4899',   equitable:'#f97316', environment:'#22c55e',
-  yellow:'#eab308',  equity:'#a855f7',    climate:'#0ea5e9'
+  islamic:'#1d6825', healthier:'#3b82f6', solution:'#ffffff',
+  niche:'#ffffff',   tomorrow:'#f43bf7',  cpoh:'#ff0000',
+  unity:'#3bf4f7',   equitable:'#5c0000', environment:'#144a0d',
+  yellow:'#ecee81',  equity:'#ce3bf7',    climate:'#3b82f6'
 };
 
-// All 12 parties for the ballot (label, partyId)
+// All 12 parties for the ballot (label, partyId) - Updated for 2026
 const ALL_PARTIES = [
-  {label:'Islamic Assoc of Halifax', id:'islamic'},
-  {label:'The Healthier Future',     id:'healthier'},
-  {label:'The Party De Solution',    id:'solution'},
-  {label:'The Niche Halligonians',   id:'niche'},
-  {label:'Team Tomorrow',            id:'tomorrow'},
-  {label:'Communist Party of Halifax', id:'cpoh'},
-  {label:'The Unity Party',          id:'unity'},
-  {label:'Equitable Rights Party',   id:'equitable'},
-  {label:'Environmentalists at Work',id:'environment'},
-  {label:'Yellow Progression Party', id:'yellow'},
-  {label:'The Equity Party',         id:'equity'},
-  {label:'Halifax Climate Protection',id:'climate'}
+  {label:'The Islamic Associations of Halifax', id:'islamic'},
+  {label:'The Healthier Future',                 id:'healthier'},
+  {label:'The Party De Solution',                id:'solution'},
+  {label:'The Niche Halligonians',               id:'niche'},
+  {label:'Team tomorrow',                        id:'tomorrow'},
+  {label:'Communist Party Of Halifax (CPOH)',    id:'cpoh'},
+  {label:'The Unity Party',                      id:'unity'},
+  {label:'Equitable Rights Party Of Halifax',    id:'equitable'},
+  {label:'Environmentalists at Work',            id:'environment'},
+  {label:'The yellow progression party',         id:'yellow'},
+  {label:'The Equity Party',                     id:'equity'},
+  {label:'The Halifax Climate Protection Party', id:'climate'}
 ];
 
 // ── STATE ────────────────────────────────────────────────────────────────────
@@ -667,12 +667,13 @@ function showVoteState(state) {
 }
 
 // ── UTILITIES ────────────────────────────────────────────────────────────────
+// Issue #14: Removed Content-Type to enable "Simple Request" (no preflight)
 async function post(body) {
   const res = await fetch(scriptURL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // headers: { 'Content-Type': 'application/json' }, // REMOVED for CORS compatibility
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(10000)  // Issue #6: 10s timeout on all POSTs
+    signal: AbortSignal.timeout(10000)
   });
   return res.json();
 }

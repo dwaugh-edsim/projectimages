@@ -134,7 +134,7 @@
     .party-tab {
       padding:0.3rem 0.6rem; font-size:0.65rem; font-weight:800;
       border-radius:6px; cursor:pointer; white-space:nowrap;
-      background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid transparent; transition:0.15s;
+      background:rgba(255,255,255,0.05); color:var(--muted); border:1px solid rgba(255,255,255,0.1); transition:0.15s;
     }
     .party-tab.active { color:white; }
     .party-tab .unread { background:var(--red); color:white; font-size:0.55rem; font-weight:900; padding:0.1rem 0.3rem; border-radius:999px; margin-left:0.3rem; }
@@ -275,16 +275,16 @@
 <script>
 const POLL_INTERVAL = 3000;
 const PARTY_COLORS = {
-  islamic:'#10b981', healthier:'#3b82f6', solution:'#8b5cf6',
-  niche:'#f59e0b',   tomorrow:'#06b6d4',  cpoh:'#ef4444',
-  unity:'#ec4899',   equitable:'#f97316', environment:'#22c55e',
-  yellow:'#eab308',  equity:'#a855f7',    climate:'#0ea5e9'
+  islamic:'#1d6825', healthier:'#3b82f6', solution:'#ffffff',
+  niche:'#ffffff',   tomorrow:'#f43bf7',  cpoh:'#ff0000',
+  unity:'#3bf4f7',   equitable:'#5c0000', environment:'#144a0d',
+  yellow:'#ecee81',  equity:'#ce3bf7',    climate:'#3b82f6'
 };
 const PARTY_LABELS = {
-  islamic:'Islamic Assoc of Halifax', healthier:'Healthier Future', solution:'Party De Solution',
-  niche:'Niche Halligonians', tomorrow:'Team Tomorrow', cpoh:'Communist Party of Halifax',
-  unity:'Unity Party', equitable:'Equitable Rights', environment:'Environmentalists at Work',
-  yellow:'Yellow Progression', equity:'Equity Party', climate:'Halifax Climate Protection'
+  islamic:'The Islamic Associations of Halifax', healthier:'The Healthier Future', solution:'The Party De Solution',
+  niche:'The Niche Halligonians', tomorrow:'Team tomorrow', cpoh:'Communist Party Of Halifax (CPOH)',
+  unity:'The Unity Party', equitable:'Equitable Rights Party Of Halifax', environment:'Environmentalists at Work',
+  yellow:'The yellow progression party', equity:'The Equity Party', climate:'The Halifax Climate Protection Party'
 };
 
 let teacherPin = '';
@@ -589,10 +589,13 @@ function renderSpyFeed(partyId) {
 }
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
+// Issue #14: Removed Content-Type to enable "Simple Request" (no preflight)
 async function post(body) {
   const res = await fetch(scriptURL, {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body),
-    signal: AbortSignal.timeout(10000)  // Issue #6
+    method:'POST',
+    // headers:{'Content-Type':'application/json'}, // REMOVED for CORS compatibility
+    body:JSON.stringify(body),
+    signal: AbortSignal.timeout(10000)
   });
   return res.json();
 }
