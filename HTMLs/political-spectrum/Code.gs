@@ -269,6 +269,15 @@ function thGetSession() {
 
 function thSetSession(pin, activeParty, votingOpen, showResults, votePhase, finalists) {
   if (!isTeacherPin(pin)) return handleResponse({ status: 'error', message: 'Unauthorized.' });
+
+  // Issue #13: Validate finalists against known party IDs
+  var validPartyIds = ['islamic','healthier','solution','niche','tomorrow','cpoh','unity','equitable','environment','yellow','equity','climate'];
+  var finalistsArray = (finalists || '').split(',').filter(function(f) { return f.trim() !== ''; });
+  var invalidFinalists = finalistsArray.filter(function(f) { return !validPartyIds.includes(f.trim()); });
+  if (invalidFinalists.length > 0) {
+    return handleResponse({ status: 'error', message: 'Invalid party IDs in finalists: ' + invalidFinalists.join(', ') });
+  }
+
   var sheet = getOrCreateSheet('TH_Session', ['Key', 'Value']);
   var lock = acquireLock();
   if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });

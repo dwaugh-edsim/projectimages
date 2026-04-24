@@ -349,9 +349,6 @@ async function doPoll() {
     currentVotePhase = session.votePhase || 'prelim';
     currentFinalists = session.finalists || '';
     updatePhaseUI();
-    currentVotePhase = session.votePhase || 'prelim';
-    currentFinalists = session.finalists || '';
-    updatePhaseUI();
 
     allQuestions = data.questions || [];
     renderQuestions();
@@ -504,6 +501,9 @@ function toggleFinalistUI() {
 }
 
 function updatePhaseUI() {
+  // Issue #12: Always update the phase status message (for teacher reference)
+  document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
+  
   if (votingOpen) return; // don't flick UI while voting is live
   
   const radios = document.getElementsByName('vote-phase');
@@ -514,7 +514,6 @@ function updatePhaseUI() {
   chips.forEach(c => { c.checked = flist.includes(c.value); });
   
   toggleFinalistUI();
-  document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
 }
 
 function renderResultBars(totals, total) {
