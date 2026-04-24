@@ -101,7 +101,7 @@ function getVoteSalt() {
 function updateSessionValue(sheet, key, value) {
   var data = sheet.getDataRange().getValues();
   for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === key) {
+    if (String(data[i][0]).trim() === key) {
       sheet.getRange(i + 1, 2).setValue(value);
       return;
     }
@@ -261,7 +261,9 @@ function thGetSession() {
   if (!sheet || sheet.getLastRow() < 2) return { activeParty: '', votingOpen: false, showResults: false, votePhase: '', finalists: '' };
   var data = sheet.getDataRange().getValues();
   var kv = {};
-  for (var i = 0; i < data.length; i++) { if (data[i][0]) kv[String(data[i][0])] = data[i][1]; }
+  for (var i = 0; i < data.length; i++) { 
+    if (data[i][0]) kv[String(data[i][0]).trim()] = data[i][1]; 
+  }
   return {
     activeParty:  kv['activeParty']  || '',
     votingOpen:   kv['votingOpen']   === 'TRUE',
