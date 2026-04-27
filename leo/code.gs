@@ -47,6 +47,27 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  // DASHBOARD DATA (For the Teacher Dashboard)
+  if (e.parameter.action === 'get_dashboard') {
+    const sheet = getOrCreateSheet('CanvasSubmissions');
+    const rows = sheet.getDataRange().getValues();
+    if (rows.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    
+    const data = rows.slice(1).map(row => ({
+      timestamp: row[0],
+      block: row[1],
+      codename: row[2],
+      missionId: row[3],
+      choices: JSON.parse(row[5] || "{}"),
+      rationales: JSON.parse(row[6] || "{}"),
+      verdict: row[8]
+    }));
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // Support JSON status checks
   if (e.parameter.action === 'status') {
     return ContentService
