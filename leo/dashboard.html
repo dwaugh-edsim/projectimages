@@ -208,6 +208,11 @@
             renderTable();
         }
 
+        function togglePin(id) {
+            const el = document.getElementById('pin-' + id);
+            el.style.display = el.style.display === 'none' ? 'inline' : 'none';
+        }
+
         function renderTable() {
             const body = document.getElementById('table-body');
             body.innerHTML = '';
@@ -235,12 +240,17 @@
                 const choices = Object.keys(student.choices).length;
                 const progressPct = Math.min(100, (choices / 9) * 100);
                 
-                // Strip the (PIN) from the codename for privacy
+                // Extract the PIN for the reveal feature
+                const pinPart = (student.codename.match(/\(([^)]+)\)/) || [])[1] || "****";
                 const displayName = student.codename.split('(')[0].trim();
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td style="font-weight:bold; color:var(--accent);">${displayName}</td>
+                    <td style="font-weight:bold; color:var(--accent);">
+                        ${displayName} 
+                        <span class="pin-display" id="pin-${student.codename.replace(/\W/g,'')}" style="display:none; color:#888; font-family:'Courier Prime'; font-size:0.7rem; margin-left:10px;">(${pinPart})</span>
+                        <button onclick="togglePin('${student.codename.replace(/\W/g,'')}')" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.8rem; padding:0 5px;" title="Reveal Code">👁️</button>
+                    </td>
                     <td><span style="font-size:0.7rem; color:#888;">${student.block}</span></td>
                     <td>
                         <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
