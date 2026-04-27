@@ -55,8 +55,8 @@ function migrateRosterToSheet() {
     {name:'Laila', pin:'V4BC', party:'Team tomorrow', partyid:'tomorrow', role:'leader'},
     {name:'Josie', pin:'MVQW', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
     {name:'Huda', pin:'6SUB', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
-    {name:'Brody', pin:'JY2P', party:'CPOH', partyid:'cpoh', role:'leader'},
-    {name:'Leo', pin:'RKKJ', party:'CPOH', partyid:'cpoh', role:'member'},
+    {name:'Brody', pin:'JY2P', party:'CPOH', partyid:'cpoh', role:'member'},
+    {name:'Leo', pin:'RKKJ', party:'CPOH', partyid:'cpoh', role:'leader'},
     {name:'Elizabeth', pin:'FNG3', party:'Unity Party', partyid:'unity', role:'leader'},
     {name:'Fatima', pin:'T6U2', party:'Unity Party', partyid:'unity', role:'member'},
     {name:'Alia', pin:'LJFM', party:'Unity Party', partyid:'unity', role:'member'},
@@ -290,8 +290,8 @@ function thGetSession() {
   }
   return {
     activeParty:  kv['activeParty']  || '',
-    votingOpen:   kv['votingOpen']   === 'TRUE',
-    showResults:  kv['showResults']  === 'TRUE',
+    votingOpen:   String(kv['votingOpen']).toUpperCase() === 'TRUE',
+    showResults:  String(kv['showResults']).toUpperCase() === 'TRUE',
     votePhase:    kv['votePhase']    || 'prelim',
     finalists:    kv['finalists']    || ''
   };

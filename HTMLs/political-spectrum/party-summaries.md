@@ -112,7 +112,7 @@
 ---
 
 ## 7. Communist Party Of Halifax (CPOH) 🟡 NEEDS WAR ROOM
-**Leader:** Brody Downs  
+**Leader:** Leo  
 **PIN:** OREOS  
 **Members:** Brody, Leo  
 
