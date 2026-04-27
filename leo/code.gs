@@ -42,12 +42,6 @@ function doGet(e) {
         }
     }
 
-    if (nameExists && !pinMatches) {
-        return ContentService
-          .createTextOutput(JSON.stringify({ success: false, error: "ACCESS DENIED: This name is already registered with a different 4-letter code." }))
-          .setMimeType(ContentService.MimeType.JSON);
-    }
-
     return ContentService
       .createTextOutput(JSON.stringify({ success: true, state: latestState }))
       .setMimeType(ContentService.MimeType.JSON);
