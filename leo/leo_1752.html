@@ -356,7 +356,16 @@
             
             <div class="input-group">
                 <input type="text" id="student-name" placeholder="ENTER STUDENT NAME">
-                <input type="text" id="class-code" placeholder="ENTER CLASS CODE">
+                
+                <select id="class-block" style="padding: 12px; background: #111; border: 1px solid #333; color: #fff; text-align: center; width: 100%; cursor: pointer;">
+                    <option value="" disabled selected>-- SELECT CLASS BLOCK --</option>
+                    <option value="A Block (Waugh)">A Block (Waugh)</option>
+                    <option value="C Block (Waugh)">C Block (Waugh)</option>
+                    <option value="D Block (Hargreaves)">D Block (Hargreaves)</option>
+                </select>
+
+                <input type="text" id="student-pin" placeholder="CREATE 4-LETTER CODE" maxlength="4" style="text-transform: uppercase;">
+                
                 <button class="begin-btn" onclick="initializeSim()">INITIATE PROTOCOL</button>
             </div>
         </div>
@@ -674,17 +683,24 @@
 
         function initializeSim() {
             const name = document.getElementById('student-name').value.trim();
-            const code = document.getElementById('class-code').value.trim();
+            const block = document.getElementById('class-block').value;
+            const pin = document.getElementById('student-pin').value.trim().toUpperCase();
             
-            if (!name || !code) {
-                alert("Please identify yourself before entering the Situation Room.");
+            if (!name || !block || pin.length !== 4) {
+                alert("Please complete all fields. Student code must be exactly 4 letters.");
+                return;
+            }
+
+            if (!/^[A-Z]{4}$/.test(pin)) {
+                alert("Student code must contain letters only (A-Z).");
                 return;
             }
 
             studentSession.name = name;
-            studentSession.classCode = code;
+            studentSession.classCode = block; // Using block as the primary class identifier
+            studentSession.studentPin = pin;
             
-            document.getElementById('student-id-display').innerText = `CLERK: ${name.toUpperCase()}`;
+            document.getElementById('student-id-display').innerText = `CLERK: ${name.toUpperCase()} | ${pin}`;
             document.getElementById('splash').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('splash').style.display = 'none';
@@ -852,7 +868,7 @@
                 const payload = {
                     action: "save_state",
                     missionId: MISSION_DATA.metadata.id,
-                    studentName: studentSession.name,
+                    studentName: `${studentSession.name} (${studentSession.studentPin})`,
                     classCode: studentSession.classCode,
                     state: JSON.stringify({
                         judgments: studentSession.judgments,
