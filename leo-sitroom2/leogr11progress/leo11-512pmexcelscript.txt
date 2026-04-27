@@ -1,0 +1,61 @@
+function doPost(e) {
+  // 1. Get the sheet where we want to store data
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // 2. Parse the incoming data (assumes Gemini used JSON format)
+  var data;
+  try {
+    data = JSON.parse(e.postData.contents);
+  } catch (error) {
+    // If parsing fails, just save the raw content to inspect it
+    data = { "raw_content": e.postData.contents, "error": error.toString() };
+  }
+
+  // 3. Prepare the row data
+  // Note: You might need to adjust these keys (e.g., data.name, data.email)
+  // to match exactly what your website is sending.
+  // For now, we will just dump all values into a row.
+  var rowData = [];
+  
+  // If data is a simple object, convert values to an array
+  if (typeof data === 'object' && data !== null) {
+    rowData = Object.values(data);
+    
+    // Add a timestamp as the first column
+    rowData.unshift(new Date()); 
+  } else {
+    rowData = [new Date(), "Could not parse data", JSON.stringify(data)];
+  }
+
+  // 4. Append the row to the sheet
+  sheet.appendRow(rowData);
+
+  // 5. Return a success message to the website (Crucial for avoiding errors)
+  return ContentService.createTextOutput(JSON.stringify({ "status": "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+function doGet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  const submissionsSheet = ss.getSheetByName('Sheet1');
+  const sectionASheet = ss.getSheetByName('A');
+  const sectionBSheet = ss.getSheetByName('B');
+
+  const submissionsData = submissionsSheet.getDataRange().getValues();
+
+  const sectionA = sectionASheet.getRange('A1:A').getValues().flat().filter(String);
+  const sectionB = sectionBSheet.getRange('A1:A').getValues().flat().filter(String);
+
+  const result = {
+    submissions: submissionsData,
+    sectionA: sectionA,
+    sectionB: sectionB
+  };
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
