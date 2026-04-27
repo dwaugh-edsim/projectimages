@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECON 12 | 2026 INQUIRY PROJECTS</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --muted: #666666;
+            --border: #000000;
+            --accent: #0000ff; /* Classic blue for accents */
+            --highlight: #ffff00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.4;
+            padding: 40px 20px;
+        }
+
+        header {
+            max-width: 1000px;
+            margin: 0 auto 60px auto;
+            border-bottom: 4px solid var(--border);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 5px 15px;
+            background-color: var(--text);
+            color: var(--bg);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            border: 2px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: white;
+            transition: box-shadow 0.2s;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background: #eee;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(120%);
+        }
+
+        .card:hover {
+            box-shadow: 10px 10px 0px var(--border);
+        }
+
+        .card-tag {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .card-description {
+            font-size: 1rem;
+            margin-bottom: 25px;
+            border-left: 3px solid var(--border);
+            padding-left: 15px;
+        }
+
+        .card-examples {
+            font-size: 0.9rem;
+            background: #f0f0f0;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-examples h4 {
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            text-decoration: overline underline;
+        }
+
+        .example-item {
+            margin-bottom: 8px;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 10px 20px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        .btn-danger {
+            background: #ff0000;
+            color: white;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .status-badge {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .status-taken { color: #ff0000; text-decoration: line-through; }
+        .status-available { color: #00aa00; }
+
+        /* Secret Admin Trigger */
+        .admin-trigger {
+            position: fixed;
+            top: 0; left: 0; width: 40px; height: 40px;
+            cursor: crosshair;
+            z-index: 9999;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 0; right: 0; width: 400px; height: 100vh;
+            background: #eee;
+            border-left: 4px solid #000;
+            padding: 30px;
+            z-index: 10000;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .admin-panel.open { display: block; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 5000;
+        }
+
+        .modal {
+            border: 4px solid #000;
+            background: #fff;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .fab {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 60px; height: 60px;
+            background: #000; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-weight: bold;
+            border-radius: 50%; cursor: pointer;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-trigger" id="adminTrigger"></div>
+
+    <header>
+        <h1>ECON 12 | 2026 INQUIRY PROJECTS</h1>
+        <p class="subtitle">CASE STUDY DOSSIER: 16 CRITICAL ECONOMIC SHIFTS</p>
+        <div class="phase-indicator" id="phaseIndicator">PHASE 1: INQUIRY & ANALYSIS</div>
+    </header>
+
+    <div class="container">
+        <div class="grid" id="topicsGrid">
+            <!-- Content will be injected here -->
+        </div>
+    </div>
+
+    <div class="fab" id="suggestBtn" title="SUBMIT NEW TOPIC">+</div>
+
+    <!-- Claim Modal -->
+    <div class="modal-overlay" id="claimModal">
+        <div class="modal">
+            <h2 style="margin-bottom: 20px;">CLAIM DOSSIER</h2>
+            <p id="claimTopicTitle" style="font-weight: bold; margin-bottom: 20px;"></p>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold;">STUDENT NAME:</label>
+                <input type="text" id="claimName" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" id="submitClaim" style="flex: 1;">CONFIRM</button>
+                <button class="btn" id="closeClaim">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2 style="font-weight: 900;">TEACHER CMD</h2>
+            <button class="btn" id="closeAdmin">X</button>
+        </div>
+        <div style="margin-bottom: 30px;">
+            <label style="font-weight: bold;">SYSTEM PHASE:</label>
+            <select id="phaseSelect" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit;">
+                <option value="browse">PHASE 1: INQUIRY</option>
+                <option value="selection">PHASE 2: SELECTION</option>
+            </select>
+        </div>
+        <h3>PENDING INTAKE</h3>
+        <div id="adminSuggestions" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+        let currentState = { topics: [], session: {} };
+        let isAdminLoggedIn = false;
+
+        async function fetchData() {
+            try {
+                if (WEB_APP_URL === 'YOUR_APPS_SCRIPT_URL_HERE') { simulateData(); return; }
+                const resp = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ type: 'get_data' }) });
+                const data = await resp.json();
+                render(data);
+            } catch (e) { simulateData(); }
+        }
+
+        function render(data) {
+            currentState = data;
+            const grid = document.getElementById('topicsGrid');
+            const phaseLabel = document.getElementById('phaseIndicator');
+            
+            phaseLabel.innerText = data.session.phase === 'browse' ? 'PHASE 1: INQUIRY & ANALYSIS' : 'PHASE 2: TOPIC SELECTION';
+            
+            grid.innerHTML = data.topics.map(t => `
+                <div class="card">
+                    <div class="card-tag">${t.curriculum}</div>
+                    <div class="card-title">${t.title}</div>
+                    <div class="card-description">${t.description}</div>
+                    <div class="card-examples">
+                        <h4>Real-World Case Studies:</h4>
+                        ${t.examples.split('*').filter(s => s.trim()).map(s => `
+                            <div class="example-item">>> ${s.trim()}</div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="card-footer">
+                        ${data.session.phase === 'selection' ? `
+                            <span class="status-badge ${t.status === 'taken' ? 'status-taken' : 'status-available'}">
+                                ${t.status === 'taken' ? 'STRIKE: CLAIMED BY ' + t.owner : 'STATUS: AVAILABLE'}
+                            </span>
+                            ${t.status !== 'taken' ? `<button class="btn" onclick="openClaim('${t.id}', '${t.title}')">CLAIM</button>` : ''}
+                        ` : `
+                            <span class="status-badge">FILE NO: ${t.id}</span>
+                            <span style="font-weight: bold; text-transform: uppercase;">[INQUIRY MODE]</span>
+                        `}
+                    </div>
+                    ${isAdminLoggedIn ? `<button class="btn btn-danger" onclick="deleteTopic('${t.id}')">ELIMINATE TOPIC</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function openClaim(id, title) {
+            document.getElementById('claimTopicTitle').innerText = title;
+            document.getElementById('claimModal').style.display = 'flex';
+        }
+
+        function simulateData() {
+            const mock = {
+                session: { phase: 'browse' },
+                topics: [
+                    {id: '1', title: 'Economic Hostage? Trump & the 51st State', curriculum: 'SCO 4.1', description: 'Imagine a world where the U.S. treats Canada like a suburb. Align or starve. Are we still a country, or just the 51st State with a healthcare plan?', examples: 'The Tariff Wall: A 25% tax on everything. * Energy Surrender: Canada as the U.S. gas station.', status: 'available'},
+                    {id: '2', title: 'The Ring of Fire: A Green Gamble', curriculum: 'SCO 4.3', description: 'Trillions in lithium buried in the North. To get it, we tear up the wilderness. Is Canada the hero of green energy, or just another mining company?', examples: 'Ethics at a Premium: Paying 30% more for "not Chinese" nickel. * The Infrastructure War: A $2B road to nowhere.', status: 'available'},
+                    {id: '3', title: 'Silicon Labor: The Post-Work Life', curriculum: 'SCO 5.3', description: 'What happens when a robot does your job better and for free? The death of the 9-to-5 is here. Will we all be rich, or just permanently unemployed?', examples: 'The AI Dividend: A "Robot Tax" paying everyone a basic income. * The Meaning Crisis: Life without a "job" to give you status.', status: 'available'},
+                    {id: '4', title: 'The Housing Trap: Locked Out', curriculum: 'SCO 5.1', description: 'The Canadian Dream is a ghost story. Rents are so high you might never move out. We’re entering a new era of landlords and tenants for life.', examples: 'The Rent-Pocalypse: $2,800 for a basement in Halifax. * Institutional Landlords: Billionaires buying entire subdivisions.', status: 'available'},
+                    {id: '5', title: 'The Trade Wall: Internal Sabotage', curriculum: 'SCO 4.1', description: 'It’s harder to sell beer to New Brunswick than to the USA. Provincial bickering costs us billions. Why isn’t Canada one country economically?', examples: 'The Certification Friction: A nurse forced to retrain just to move provinces. * The Alcohol Embargo: Sting operations at provincial borders.', status: 'available'},
+                    {id: '6', title: 'The Immigration Pivot: Slamming the Brakes', curriculum: 'SCO 4.5', description: 'Canada shut the door to save housing. Now, the farms are rotting and the nursing homes are empty. Can we grow without growing the population?', examples: 'The Farm Crisis: $50M in fruit rotting in the Okanagan. * The Wage Spike: $25/hour burgers because no one is left to hire.', status: 'available'},
+                    {id: '7', title: 'The EV Tariff War: Made in Canada?', curriculum: 'SCO 4.1', description: 'China built a $15k EV. We taxed it 100% to save our $60k gas-guzzlers. Are we saving jobs, or just punishing the planet to protect a dying industry?', examples: 'The BYD Shutdown: Banning cheap cars to save expensive ones. * The Legacy Tax: Paying an extra $30k for an EV just to keep a factory open.', status: 'available'},
+                    {id: '8', title: 'End of the Sale: Algorithmic Pricing', curriculum: 'SCO 5.3', description: 'Price tags are now digital screens that change while you walk by. If the store knows you’re in a rush, the price goes up. Welcome to the war for your wallet.', examples: 'The Uber Model for Bread: Prices spiking at 5:00 PM. * Personalized Pricing: Seeing higher prices if the app thinks you’re wealthy.', status: 'available'},
+                    {id: '9', title: 'Death of Search: AI vs. Small Biz', curriculum: 'SCO 4.3', description: 'You don’t search anymore; you just ask AI. But the AI only recommends the giants. Small businesses are becoming invisible. Is the internet dying?', examples: 'The Invisible Shop: A boutique going bust because the AI only knows Amazon. * The Ad Collapse: Local news dying because no one clicks anymore.', status: 'available'},
+                    {id: '10', title: 'The Boomer Inheritance: Luck of the Draw', curriculum: 'SCO 5.1', description: 'Trillions are moving from Boomers to their kids. If your parents own a house, you’re set. If not, you’re stuck. Is wealth about work, or just grandparents?', examples: 'The Down Payment Gift: Buying a condo with "free" money from parents. * The Inheritance Tax Debate: Taking 20% to build schools for everyone.', status: 'available'},
+                    {id: '11', title: 'The 4-Day Work Week: Rest or Risk?', curriculum: 'SCO 5.3', description: '32 hours of work for 40 hours of pay. Happy workers or a lazy economy? Can we compete with the rest of the world if we’re always at the beach?', examples: 'The Microsoft Trial: A 40% jump in productivity from resting more. * The Global Gap: Losing contracts because the team was offline on Friday.', status: 'available'},
+                    {id: '12', title: 'Arctic Shortcut: Ice-Cold Gold Mine', curriculum: 'SCO 4.1', description: 'The ice is gone, and the Northwest Passage is open. It’s the new Suez Canal. But Russia and China say it’s not ours. Welcome to the cold-war for the North.', examples: 'The Deep-Water Port: Spending $5B to build a base in the high Arctic. * The Russian Standoff: Icebreakers ignoring Canadian orders.', status: 'available'},
+                    {id: '13', title: 'UBI 2.0: Don’t Give Cash, Give WiFi', curriculum: 'SCO 5.1', description: 'Instead of monthly checks, what if everything essential was free? Free internet, free buses, free housing. Do we trust people with cash, or just give them a floor?', examples: 'The Digital Floor: A rural town booming because of free gigabit internet. * The Transit Revolution: Zero fares leading to zero traffic.', status: 'available'},
+                    {id: '14', title: 'The RTO War: Saving the City', curriculum: 'SCO 5.1', description: 'Your boss says "office," you say "home." If offices stay empty, the cities die. Is your commute a "tax" you pay to save the downtown sandwich shop?', examples: 'The Mandatory Tuesday: Ordering workers back to save a ghost town. * The Commuter Rebellion: Workers quitting to join remote-only firms.', status: 'available'},
+                    {id: '15', title: 'The Free Ride: No Fares, No Problems?', curriculum: 'SCO 5.1', description: 'Why isn’t the bus free? Some cities did it, but now they’re broke. Is a free bus worth it if it only comes once an hour and is always broken?', examples: 'The Luxembourg Model: Free transit for everyone paid by corporations. * Service vs. Price: Buses so dirty that everyone still drives a car.', status: 'available'},
+                    {id: '16', title: 'The Green Divide: NS Wind vs. US Coal', curriculum: 'SCO 5.2', description: 'Nova Scotia is building offshore wind, but the U.S. just went back to coal. Can we save the planet without going broke, or are we just pricing ourselves out?', examples: 'The Atlantic Loop: A $10B power line we can’t afford. * Industrial Flight: Factories moving to Maine for cheaper, dirtier power.', status: 'available'}
+                ]
+            };
+            render(mock);
+        }
+
+        // Event Listeners
+        document.getElementById('suggestBtn').onclick = () => alert("Submitting new topic dossier...");
+        document.getElementById('closeClaim').onclick = () => document.getElementById('claimModal').style.display = 'none';
+        
+        // Admin Trigger
+        document.getElementById('adminTrigger').onclick = () => {
+            const pin = prompt("ENTER ACCESS CODE:");
+            if (pin === '9999') {
+                isAdminLoggedIn = true;
+                render(currentState);
+                document.getElementById('adminPanel').classList.add('open');
+            }
+        };
+        document.getElementById('closeAdmin').onclick = () => {
+            isAdminLoggedIn = false;
+            render(currentState);
+            document.getElementById('adminPanel').classList.remove('open');
+        };
+
+        fetchData();
+    </script>
+</body>
+</html>
