@@ -10,7 +10,50 @@
 // ==========================================
 
 function doGet(e) {
-  // Support both UI serving and JSON status checks
+  // SESSION RETRIEVAL (Resume work)
+  if (e.parameter.action === 'get_state') {
+    const sheet = getOrCreateSheet('CanvasSubmissions');
+    const rows = sheet.getDataRange().getValues();
+    const searchName = (e.parameter.studentNameOnly || "").trim().toUpperCase();
+    const searchPin = (e.parameter.studentPin || "").trim().toUpperCase();
+    const searchBlock = (e.parameter.classCode || "").trim();
+
+    let nameExists = false;
+    let pinMatches = false;
+    let latestState = null;
+
+    for (let i = rows.length - 1; i >= 1; i--) {
+        const cellValue = String(rows[i][2]);
+        const namePart = cellValue.split('(')[0].trim().toUpperCase();
+        const pinPart = (cellValue.match(/\(([^)]+)\)/) || [])[1] || "";
+        const rowBlock = rows[i][1];
+
+        if (namePart === searchName && rowBlock === searchBlock) {
+            nameExists = true;
+            if (pinPart.toUpperCase() === searchPin) {
+                pinMatches = true;
+                latestState = {
+                    judgments: JSON.parse(rows[i][5] || "{}"),
+                    responses: JSON.parse(rows[i][6] || "{}"),
+                    score: rows[i][8]
+                };
+                break;
+            }
+        }
+    }
+
+    if (nameExists && !pinMatches) {
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: false, error: "ACCESS DENIED: This name is already registered with a different 4-letter code." }))
+          .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, state: latestState }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Support JSON status checks
   if (e.parameter.action === 'status') {
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'Mission Control Online', version: '2.0' }))
@@ -50,49 +93,6 @@ function doPost(e) {
       'Timestamp', 'JoinCode', 'Codename', 'MissionID', 
       'MissionTitle', 'Choices', 'Rationales', 'DebateLog', 'Score'
     ]);
-
-    // SESSION RETRIEVAL & DUPLICATE PROTECTION
-    if (data.action === "get_state") {
-        const rows = sheet.getDataRange().getValues();
-        const searchName = (data.studentNameOnly || "").trim().toUpperCase();
-        const searchPin = (data.studentPin || "").trim().toUpperCase();
-        const searchBlock = (data.classCode || "").trim();
-
-        let nameExists = false;
-        let pinMatches = false;
-        let latestState = null;
-
-        for (let i = rows.length - 1; i >= 1; i--) {
-            // Column C is "Codename" - format is "NAME (PIN)"
-            const cellValue = String(rows[i][2]);
-            const namePart = cellValue.split('(')[0].trim().toUpperCase();
-            const pinPart = (cellValue.match(/\(([^)]+)\)/) || [])[1] || "";
-            const rowBlock = rows[i][1];
-
-            if (namePart === searchName && rowBlock === searchBlock) {
-                nameExists = true;
-                if (pinPart.toUpperCase() === searchPin) {
-                    pinMatches = true;
-                    latestState = {
-                        judgments: JSON.parse(rows[i][5] || "{}"),
-                        responses: JSON.parse(rows[i][6] || "{}"),
-                        score: rows[i][8]
-                    };
-                    break;
-                }
-            }
-        }
-
-        if (nameExists && !pinMatches) {
-            return ContentService
-              .createTextOutput(JSON.stringify({ success: false, error: "ACCESS DENIED: This name is already registered with a different 4-letter code in this block." }))
-              .setMimeType(ContentService.MimeType.JSON);
-        }
-
-        return ContentService
-          .createTextOutput(JSON.stringify({ success: true, state: latestState }))
-          .setMimeType(ContentService.MimeType.JSON);
-    }
 
     // COMPATIBILITY LAYER: Detect new Master Edition payload (like Leo 1752)
     let codename = data.codename || data.studentName || 'Anonymous';

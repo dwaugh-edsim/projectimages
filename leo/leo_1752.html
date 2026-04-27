@@ -1020,11 +1020,23 @@
                 };
 
                 try {
-                    // Using standard fetch with automatic redirect following
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
+                    let response;
+                    if (specificAction === "get_state") {
+                        // Use GET for session retrieval to bypass CORS issues with GAS redirects
+                        const params = new URLSearchParams({
+                            action: "get_state",
+                            studentNameOnly: studentSession.name,
+                            studentPin: studentSession.studentPin,
+                            classCode: studentSession.classCode
+                        });
+                        response = await fetch(`${API_URL}?${params.toString()}`);
+                    } else {
+                        // Use POST for saving data
+                        response = await fetch(API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+                    }
                     
                     const result = await response.json();
                     
@@ -1034,10 +1046,11 @@
                 } catch (err) {
                     console.error("Sync Error:", err);
                     document.getElementById('sync-status').innerText = "SYNC: ERROR";
-                    // Fallback to no-cors if standard fails (though we can't read response)
+                    // Fallback to no-cors for saving only (can't read response but data will land)
                     if (specificAction === "save_state") {
                         fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                     }
+                    throw err; // Re-throw so initializeSim can handle errors
                 }
             } else {
                 document.getElementById('sync-status').innerText = "SYNC: LOCAL ONLY";
