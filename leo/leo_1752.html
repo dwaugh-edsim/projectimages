@@ -817,6 +817,12 @@
             // CHECK FOR EXISTING WORK
             try {
                 const response = await sync("get_state");
+                if (response && response.success === false) {
+                    alert(response.error);
+                    document.getElementById('sync-status').innerText = "SYNC: BLOCKED";
+                    document.getElementById('sync-status').style.color = "#ff4444";
+                    return;
+                }
                 if (response && response.state) {
                     studentSession.judgments = response.state.judgments || {};
                     studentSession.responses = response.state.responses || {};
@@ -1001,6 +1007,8 @@
                 const payload = {
                     action: specificAction,
                     missionId: MISSION_DATA.metadata.id,
+                    studentNameOnly: studentSession.name,
+                    studentPin: studentSession.studentPin,
                     studentName: `${studentSession.name} (${studentSession.studentPin})`,
                     classCode: studentSession.classCode,
                     state: JSON.stringify({
