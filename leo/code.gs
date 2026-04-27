@@ -51,6 +51,29 @@ function doPost(e) {
       'MissionTitle', 'Choices', 'Rationales', 'DebateLog', 'Score'
     ]);
 
+    // SESSION RETRIEVAL (Remembering work on return)
+    if (data.action === "get_state") {
+        const rows = sheet.getDataRange().getValues();
+        let latestState = null;
+        const codename = data.studentName || data.codename;
+        const joinCode = data.classCode || data.joinCode;
+
+        // Search from bottom up for most recent entry
+        for (let i = rows.length - 1; i >= 1; i--) {
+            if (rows[i][2] === codename && rows[i][1] === joinCode) {
+                latestState = {
+                    judgments: JSON.parse(rows[i][5] || "{}"),
+                    responses: JSON.parse(rows[i][6] || "{}"),
+                    score: rows[i][8]
+                };
+                break;
+            }
+        }
+        return ContentService
+          .createTextOutput(JSON.stringify({ success: true, state: latestState }))
+          .setMimeType(ContentService.MimeType.JSON);
+    }
+
     // COMPATIBILITY LAYER: Detect new Master Edition payload (like Leo 1752)
     let codename = data.codename || data.studentName || 'Anonymous';
     let joinCode = data.joinCode || data.classCode || '';
@@ -61,7 +84,6 @@ function doPost(e) {
         const state = typeof data.state === 'string' ? JSON.parse(data.state) : data.state;
         choices = state.judgments || [];
         rationales = state.responses || [];
-        // Map final verdict to score column for visibility
         if (state.finalVerdict) data.score = state.finalVerdict;
     }
     

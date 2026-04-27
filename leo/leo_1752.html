@@ -791,7 +791,7 @@
             judgments: {}
         };
 
-        function initializeSim() {
+        async function initializeSim() {
             const name = document.getElementById('student-name').value.trim();
             const block = document.getElementById('class-block').value;
             const pin = document.getElementById('student-pin').value.trim().toUpperCase();
@@ -807,12 +807,25 @@
             }
 
             studentSession.name = name;
-            studentSession.classCode = block; // Using block as the primary class identifier
+            studentSession.classCode = block;
             studentSession.studentPin = pin;
             
             document.getElementById('student-id-display').innerText = `CLERK: ${name.toUpperCase()} | ${pin}`;
-            
-            // Set initial sync status to READY
+            document.getElementById('sync-status').innerText = "SYNC: CONNECTING...";
+            document.getElementById('sync-status').style.color = "var(--accent)";
+
+            // CHECK FOR EXISTING WORK
+            try {
+                const response = await sync("get_state");
+                if (response && response.state) {
+                    studentSession.judgments = response.state.judgments || {};
+                    studentSession.responses = response.state.responses || {};
+                    console.log("Session Restored:", studentSession);
+                }
+            } catch (e) {
+                console.warn("Could not retrieve session (Standard for first-time login)");
+            }
+
             document.getElementById('sync-status').innerText = "SYNC: READY";
             document.getElementById('sync-status').style.color = "#00ff00";
 
@@ -980,13 +993,13 @@
             alert("FINAL VERDICT SUBMITTED. THE COURT WILL RENDER JUDGMENT.");
         }
 
-        function sync() {
+        async function sync(specificAction = "save_state") {
             document.getElementById('sync-status').innerText = "SYNC: UPLOADING...";
             document.getElementById('sync-status').style.color = "var(--accent)";
 
             if (API_URL && API_URL !== "[[INJECT_URL_NOW]]") {
                 const payload = {
-                    action: "save_state",
+                    action: specificAction,
                     missionId: MISSION_DATA.metadata.id,
                     studentName: `${studentSession.name} (${studentSession.studentPin})`,
                     classCode: studentSession.classCode,
@@ -998,17 +1011,26 @@
                     })
                 };
 
-                fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
-                    body: JSON.stringify(payload)
-                }).then(() => {
+                try {
+                    // Using standard fetch with automatic redirect following
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    
                     document.getElementById('sync-status').innerText = "SYNC: SECURE";
                     document.getElementById('sync-status').style.color = "#00ff00";
-                }).catch(err => {
+                    return result;
+                } catch (err) {
+                    console.error("Sync Error:", err);
                     document.getElementById('sync-status').innerText = "SYNC: ERROR";
-                });
+                    // Fallback to no-cors if standard fails (though we can't read response)
+                    if (specificAction === "save_state") {
+                        fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    }
+                }
             } else {
                 document.getElementById('sync-status').innerText = "SYNC: LOCAL ONLY";
             }
