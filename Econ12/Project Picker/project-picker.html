@@ -265,6 +265,29 @@
 
     <div class="fab" id="suggestBtn" title="SUBMIT NEW TOPIC">+</div>
 
+    <!-- Suggestion Modal -->
+    <div class="modal-overlay" id="suggestModal">
+        <div class="modal">
+            <h2 style="margin-bottom: 20px;">SUBMIT NEW INQUIRY</h2>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold; font-size: 0.8rem;">YOUR NAME:</label>
+                <input type="text" id="suggestStudentName" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; text-transform: uppercase;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold; font-size: 0.8rem;">PROPOSED TOPIC TITLE:</label>
+                <input type="text" id="suggestTitle" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; text-transform: uppercase;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold; font-size: 0.8rem;">DESCRIPTION / HOOK:</label>
+                <textarea id="suggestDescription" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; height: 100px; resize: none;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" id="submitSuggestion" style="flex: 1; background: #000; color: #fff;">SUBMIT DOSSIER</button>
+                <button class="btn" id="closeSuggest">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Claim Modal -->
     <div class="modal-overlay" id="claimModal">
         <div class="modal">
@@ -465,7 +488,42 @@
         }
 
         // Event Listeners
-        document.getElementById('suggestBtn').onclick = () => alert("Submitting new topic dossier...");
+        document.getElementById('suggestBtn').onclick = () => {
+            document.getElementById('suggestModal').style.display = 'flex';
+        };
+        document.getElementById('closeSuggest').onclick = () => {
+            document.getElementById('suggestModal').style.display = 'none';
+        };
+        document.getElementById('submitSuggestion').onclick = async () => {
+            const name = document.getElementById('suggestStudentName').value.trim();
+            const title = document.getElementById('suggestTitle').value.trim();
+            const desc = document.getElementById('suggestDescription').value.trim();
+            
+            if (!name || !title || !desc) return alert("ACCESS DENIED: All dossier fields are mandatory.");
+            
+            if (WEB_APP_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+                alert("DEMO MODE: Suggestion logged for " + name);
+                document.getElementById('suggestModal').style.display = 'none';
+                return;
+            }
+
+            const resp = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'suggest_topic',
+                    studentName: name,
+                    title: title,
+                    description: desc
+                })
+            });
+            const res = await resp.json();
+            alert(res.message);
+            document.getElementById('suggestModal').style.display = 'none';
+            document.getElementById('suggestStudentName').value = '';
+            document.getElementById('suggestTitle').value = '';
+            document.getElementById('suggestDescription').value = '';
+        };
+
         document.getElementById('closeClaim').onclick = () => document.getElementById('claimModal').style.display = 'none';
         
         // Admin Trigger
