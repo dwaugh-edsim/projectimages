@@ -305,11 +305,16 @@ function thSetSession(pin, activeParty, votingOpen, showResults, votePhase, fina
   if (!lock) return handleResponse({ status: 'error', message: 'Server busy. Please try again.' });
   
   try {
-    updateSessionValue(sheet, 'activeParty',  activeParty  || '');
-    updateSessionValue(sheet, 'votingOpen',   votingOpen   ? 'TRUE' : 'FALSE');
-    updateSessionValue(sheet, 'showResults',  showResults  ? 'TRUE' : 'FALSE');
-    updateSessionValue(sheet, 'votePhase',    votePhase    || 'prelim');
-    updateSessionValue(sheet, 'finalists',    finalists    || '');
+    var newRows = [
+      ['activeParty', activeParty || ''],
+      ['votingOpen',  votingOpen ? 'TRUE' : 'FALSE'],
+      ['showResults', showResults ? 'TRUE' : 'FALSE'],
+      ['votePhase',   votePhase || 'prelim'],
+      ['finalists',   finalists || '']
+    ];
+    
+    // Efficient batch update: overwrite the first 5 rows after header
+    sheet.getRange(2, 1, 5, 2).setValues(newRows);
     
     // CRITICAL: Flush changes immediately so polling clients don't see stale data
     SpreadsheetApp.flush();
