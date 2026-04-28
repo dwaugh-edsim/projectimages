@@ -1,7 +1,12 @@
 /**
- * ECON 12 PROJECT PICKER BACKEND
- * Handles topic browsing, suggestions, and first-come-first-serve selection.
+ * ECON 12 PROJECT PICKER BACKEND (STANDALONE VERSION)
  */
+
+const SPREADSHEET_ID = '1fYmwcTeEdqZ7BfH0nAqErmWGuFA168_odlyS4z3vU9w';
+
+function getSS() {
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
 
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('project-picker')
@@ -25,7 +30,7 @@ function doPost(e) {
   }
 }
 
-// ─── DATA FETCHING ──────────────────────────────────────────────────────────
+// --- DATA FETCHING ---
 function getData() {
   var topics = fetchData('Topics');
   var session = fetchSession();
@@ -33,7 +38,7 @@ function getData() {
 }
 
 function fetchSession() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS();
   var sheet = ss.getSheetByName('Session') || ss.insertSheet('Session');
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(['Key', 'Value']);
@@ -48,7 +53,7 @@ function fetchSession() {
   return kv;
 }
 
-// ─── STUDENT ACTIONS ────────────────────────────────────────────────────────
+// --- STUDENT ACTIONS ---
 function suggestTopic(data) {
   var sheet = getOrCreateSheet('Suggestions', ['ID', 'Timestamp', 'StudentName', 'Title', 'Description', 'Status']);
   var id = Utilities.getUuid();
@@ -69,7 +74,7 @@ function claimTopic(data) {
       return { status: 'error', message: 'Please provide both First and Last names.' };
     }
 
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var ss = getSS();
     var sheet = ss.getSheetByName('Topics');
     var values = sheet.getDataRange().getValues();
     var headers = values[0];
@@ -103,33 +108,17 @@ function claimTopic(data) {
   }
 }
 
-// ─── ADMIN ACTIONS ──────────────────────────────────────────────────────────
+// --- ADMIN ACTIONS ---
 function adminAction(data) {
   var session = fetchSession();
   if (data.pin !== session.teacher_pin) return { status: 'error', message: 'Invalid Admin PIN.' };
 
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS();
   
   if (data.action === 'set_phase') {
     var sheet = ss.getSheetByName('Session');
     updateValue(sheet, 'phase', data.value);
     return { status: 'success', message: 'Phase updated to ' + data.value };
-  }
-
-  if (data.action === 'approve_suggestion') {
-    // 1. Mark suggestion as approved
-    var sSheet = ss.getSheetByName('Suggestions');
-    var sData = sSheet.getDataRange().getValues();
-    for (var i = 1; i < sData.length; i++) {
-      if (sData[i][0] === data.suggestionId) {
-        sSheet.getRange(i + 1, 6).setValue('approved');
-        
-        // 2. Add to Topics sheet
-        var tSheet = getOrCreateSheet('Topics', ['ID', 'Title', 'Curriculum', 'Description', 'Examples', 'Status', 'Owner', 'Image']);
-        tSheet.appendRow([Utilities.getUuid(), sData[i][3], 'Custom', sData[i][4], 'N/A', 'available', '', '']);
-        return { status: 'success', message: 'Topic approved and added to menu.' };
-      }
-    }
   }
 
   if (data.action === 'delete_topic') {
@@ -146,9 +135,9 @@ function adminAction(data) {
   return { status: 'error', message: 'Unknown admin action.' };
 }
 
-// ─── UTILS ──────────────────────────────────────────────────────────────────
+// --- UTILS ---
 function fetchData(sheetName) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS();
   var sheet = ss.getSheetByName(sheetName);
   if (!sheet) return [];
   var data = sheet.getDataRange().getValues();
@@ -167,7 +156,7 @@ function fetchData(sheetName) {
 }
 
 function getOrCreateSheet(name, headers) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSS();
   var sheet = ss.getSheetByName(name);
   if (!sheet) {
     sheet = ss.insertSheet(name);
@@ -208,7 +197,7 @@ function initTopics() {
     {id: '9', title: 'The 4-Day Workweek: Productivity Hack or Risk?', curr: 'SCO 5.3', desc: 'Imagine getting paid for 40 hours but working 32. Sounds amazing. But what if your boss says "no" because competitors won\'t?', ex: 'The Productivity Boost: Why output went up during trials. * The Global Lag: Could working less mean losing contracts to teams that never log off?', img: 'images/topic_9.jpg'},
     {id: '10', title: 'Arctic Shortcut: Shipping Route or Crisis?', curr: 'SCO 4.1', desc: 'The ice is melting. A new shortcut opens. But if Canada doesn\'t control it, will someone else profit from our changing North?', ex: 'The Northwest Passage: Could this become Canada\'s "Suez Canal"? * Sovereignty Stakes: What it really costs to defend Canada\'s claim.', img: 'images/topic_10.jpg'},
     {id: '11', title: 'Universal Basic Services: Cash or Infrastructure?', curr: 'SCO 5.1', desc: 'Instead of a monthly check, what if your internet, bus ride, and basics were just… free? Would that change your life more than cash?', ex: 'The Digital Floor: How free broadband transformed a rural town. * Fare-Free Transit: What happens when bus fares drop to zero.', img: 'images/topic_11.jpg'},
-    {id: '12', title: 'Return-to-Office: Saving Cities or Fighting the Future?', curr: 'SCO 5.1', desc: 'Your boss says "come back." You say "but why?" If downtowns stay empty, who loses? Is your commute a "tax" to save the downtown sandwich shop?', ex: 'The Downtown Crunch: How remote work hits small businesses. * The Flexibility Fight: Why companies are losing talent to remote-first rivals.', img: 'images/topic_12.jpg'},
+    {id: '12', title: 'Return-to-Office: Saving Cities or Fighting the Future?', curr: 'SCO 5.1', desc: 'Your boss says "come back." You say "but why?" If downtowns stay empty, who loses? Is your commute a "tax" you pay to save the downtown sandwich shop?', ex: 'The Downtown Crunch: How remote work hits small businesses. * The Flexibility Fight: Why companies are losing talent to remote-first rivals.', img: 'images/topic_12.jpg'},
     {id: '13', title: 'Fare-Free Transit: Public Good or Budget Trap?', curr: 'SCO 5.1', desc: 'What if the bus was free? But what if "free" means it comes once an hour… and breaks down? Is free worth it if it doesn\'t work?', ex: 'The Luxembourg Experiment: How tax-funded transit changed movement. * The Funding Gap: When fare revenue disappears, where does the money come from?', img: 'images/topic_13.jpg'},
     {id: '14', title: 'The Green Energy Cost: Leader or Priced Out?', curr: 'SCO 5.2', desc: 'Nova Scotia is betting on wind. The U.S. is doubling down on coal. Can we afford to lead if everyone else cuts corners?', ex: 'The Atlantic Loop: A $10B clean grid vs. your hydro bill. * Industrial Flight: Moving factories to cross-border locations with cheaper power.', img: 'images/topic_14.jpg'},
     {id: '15', title: 'Degree Inflation: Is University Still Worth It?', curr: 'SCO 5.1', desc: 'You\'re told: go to university, get ahead. Then you see a welder making $100K—and a grad with $50K debt. Did the rules change?', ex: 'The Trades Premium: Why skilled workers are out-earning degree-holders. * The ROI Reality: Student debt vs. AI-replaced entry-level roles.', img: 'images/topic_15.jpg'},
@@ -217,6 +206,7 @@ function initTopics() {
     {id: '18', title: 'The Side Hustle Trap: Freedom or Burnout?', curr: 'SCO 5.1', desc: 'When does "extra cash" become a second full-time job—with no benefits? Is flexibility worth the financial insecurity?', ex: 'The Gig Math: After gas and fees, what\'s your actual hourly wage? * The Benefits Gap: No sick days, no pension, no EI.', img: 'images/topic_18.png'}
   ];
 
+  var ss = getSS();
   var sheet = getOrCreateSheet('Topics', ['ID', 'Title', 'Curriculum', 'Description', 'Examples', 'Status', 'Owner', 'Image']);
   sheet.clear();
   sheet.appendRow(['ID', 'Title', 'Curriculum', 'Description', 'Examples', 'Status', 'Owner', 'Image']);
