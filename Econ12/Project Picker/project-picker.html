@@ -269,13 +269,19 @@
     <div class="modal-overlay" id="claimModal">
         <div class="modal">
             <h2 style="margin-bottom: 20px;">CLAIM DOSSIER</h2>
-            <p id="claimTopicTitle" style="font-weight: bold; margin-bottom: 20px;"></p>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: bold;">STUDENT NAME:</label>
-                <input type="text" id="claimName" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit;">
+            <p id="claimTopicTitle" style="font-weight: bold; margin-bottom: 20px; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 10px;"></p>
+            <div style="margin-bottom: 20px; display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-weight: bold; font-size: 0.8rem;">FIRST NAME:</label>
+                    <input type="text" id="claimFirstName" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; text-transform: uppercase;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-weight: bold; font-size: 0.8rem;">LAST NAME:</label>
+                    <input type="text" id="claimLastName" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; text-transform: uppercase;">
+                </div>
             </div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn" id="submitClaim" style="flex: 1;">CONFIRM</button>
+                <button class="btn" id="submitClaim" style="flex: 1; background: #000; color: #fff;">CONFIRM CLAIM</button>
                 <button class="btn" id="closeClaim">CANCEL</button>
             </div>
         </div>
@@ -287,12 +293,13 @@
             <h2 style="font-weight: 900;">TEACHER CMD</h2>
             <button class="btn" id="closeAdmin">X</button>
         </div>
-        <div style="margin-bottom: 30px;">
-            <label style="font-weight: bold;">SYSTEM PHASE:</label>
-            <select id="phaseSelect" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit;">
-                <option value="browse">PHASE 1: INQUIRY</option>
-                <option value="selection">PHASE 2: SELECTION</option>
+        <div style="margin-bottom: 30px; border: 2px solid #000; padding: 15px; background: #f9f9f9;">
+            <label style="font-weight: bold; display: block; margin-bottom: 10px;">SYSTEM PHASE CONTROLLER:</label>
+            <select id="phaseSelect" style="width: 100%; padding: 10px; border: 2px solid #000; font-family: inherit; font-weight: bold; cursor: pointer;">
+                <option value="browse">PHASE 1: INQUIRY (CATALOG MODE)</option>
+                <option value="selection">PHASE 2: SELECTION (STUDENT CHOICE)</option>
             </select>
+            <p style="font-size: 0.7rem; margin-top: 10px; color: #666;">Changing this updates the live database instantly.</p>
         </div>
         <h3>PENDING INTAKE</h3>
         <div id="adminSuggestions" style="margin-top: 20px;"></div>
@@ -302,6 +309,7 @@
         const WEB_APP_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
         let currentState = { topics: [], session: {} };
         let isAdminLoggedIn = false;
+        let selectedTopicId = null;
 
         async function fetchData() {
             try {
@@ -316,8 +324,10 @@
             currentState = data;
             const grid = document.getElementById('topicsGrid');
             const phaseLabel = document.getElementById('phaseIndicator');
+            const phaseSelect = document.getElementById('phaseSelect');
             
             phaseLabel.innerText = data.session.phase === 'browse' ? 'PHASE 1: INQUIRY & ANALYSIS' : 'PHASE 2: TOPIC SELECTION';
+            phaseSelect.value = data.session.phase || 'browse';
             
             grid.innerHTML = data.topics.map(t => `
                 <div class="card">
@@ -343,19 +353,93 @@
                             <span style="font-weight: bold; text-transform: uppercase;">[INQUIRY MODE]</span>
                         `}
                     </div>
-                    ${isAdminLoggedIn ? `<button class="btn btn-danger" onclick="deleteTopic('${t.id}')">ELIMINATE TOPIC</button>` : ''}
+                    ${isAdminLoggedIn ? `<button class="btn" style="margin-top: 10px; width: 100%; border-color: red; color: red;" onclick="deleteTopic('${t.id}')">ELIMINATE TOPIC</button>` : ''}
                 </div>
             `).join('');
         }
 
         function openClaim(id, title) {
+            selectedTopicId = id;
             document.getElementById('claimTopicTitle').innerText = title;
             document.getElementById('claimModal').style.display = 'flex';
         }
 
+        document.getElementById('submitClaim').onclick = async () => {
+            const firstName = document.getElementById('claimFirstName').value.trim();
+            const lastName = document.getElementById('claimLastName').value.trim();
+            
+            if (!firstName || !lastName) return alert("ACCESS DENIED: Both First and Last names are required for the dossier.");
+            
+            if (WEB_APP_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+                alert("DEMO MODE: Topic claimed by " + firstName + " " + lastName);
+                document.getElementById('claimModal').style.display = 'none';
+                return;
+            }
+
+            const resp = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'claim_topic',
+                    topicId: selectedTopicId,
+                    firstName: firstName,
+                    lastName: lastName
+                })
+            });
+            const res = await resp.json();
+            alert(res.message);
+            if (res.status === 'success') {
+                document.getElementById('claimModal').style.display = 'none';
+                fetchData();
+            }
+        };
+
+        document.getElementById('phaseSelect').onchange = async (e) => {
+            const newVal = e.target.value;
+            if (!isAdminLoggedIn) return;
+            
+            if (WEB_APP_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+                alert("DEMO MODE: Phase flipped to " + newVal);
+                fetchData(); // Refresh UI in demo mode
+                return;
+            }
+
+            const resp = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'admin_action',
+                    action: 'set_phase',
+                    value: newVal,
+                    pin: '9999'
+                })
+            });
+            const res = await resp.json();
+            alert(res.message);
+            fetchData();
+        };
+
+        async function deleteTopic(id) {
+            if (!confirm("Confirm elimination of File No: " + id + "?")) return;
+            if (WEB_APP_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+                alert("DEMO MODE: Topic deleted.");
+                return;
+            }
+            const resp = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'admin_action',
+                    action: 'delete_topic',
+                    topicId: id,
+                    pin: '9999'
+                })
+            });
+            const res = await resp.json();
+            alert(res.message);
+            fetchData();
+        }
+
         function simulateData() {
             const mock = {
-                session: { phase: 'browse' },
+                session: { phase: document.getElementById('phaseSelect').value || 'browse' },
                 topics: [
                     {id: '1', title: 'Trade War or Takeover? Canada\'s U.S. Dilemma', curriculum: 'SCO 4.1', description: 'What do you do when your biggest buyer starts calling the shots—on your jobs, your prices, your future? We\'re talking about a total loss of economic sovereignty.', examples: '25% Tariff Shock: Who actually pays that tax? * Energy Dependence: If Canada\'s just the U.S. gas station, who\'s driving?', status: 'available', image: 'images/topic_1.png'},
                     {id: '2', title: 'AI vs. Your Career: Innovation or Job Killer?', curriculum: 'SCO 5.3', description: 'AI can do your homework, your art, maybe even your future job. Cool tool—or quiet takeover? Savior or doom?', examples: 'Automation Wave: Which jobs might vanish? * The Data Center Boom: Why AI is bringing coal plants back online.', status: 'available', image: 'images/topic_2.png'},
@@ -389,13 +473,13 @@
             const pin = prompt("ENTER ACCESS CODE:");
             if (pin === '9999') {
                 isAdminLoggedIn = true;
-                render(currentState);
+                fetchData();
                 document.getElementById('adminPanel').classList.add('open');
             }
         };
         document.getElementById('closeAdmin').onclick = () => {
             isAdminLoggedIn = false;
-            render(currentState);
+            fetchData();
             document.getElementById('adminPanel').classList.remove('open');
         };
 

@@ -64,6 +64,11 @@ function claimTopic(data) {
     var session = fetchSession();
     if (session.phase !== 'selection') return { status: 'error', message: 'Topic selection is not yet open.' };
 
+    var fullName = (data.firstName + " " + data.lastName).trim();
+    if (!fullName || data.firstName.length < 2 || data.lastName.length < 2) {
+      return { status: 'error', message: 'Please provide both First and Last names.' };
+    }
+
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Topics');
     var values = sheet.getDataRange().getValues();
@@ -71,6 +76,14 @@ function claimTopic(data) {
     var idIdx = headers.indexOf('ID');
     var statusIdx = headers.indexOf('Status');
     var ownerIdx = headers.indexOf('Owner');
+    var titleIdx = headers.indexOf('Title');
+
+    // Check if student already has a topic
+    for (var j = 1; j < values.length; j++) {
+      if (values[j][ownerIdx] && values[j][ownerIdx].toString().toLowerCase() === fullName.toLowerCase()) {
+        return { status: 'error', message: 'ACCESS DENIED: You have already claimed "' + values[j][titleIdx] + '". One topic per student.' };
+      }
+    }
 
     for (var i = 1; i < values.length; i++) {
       if (values[i][idIdx] == data.topicId) {
@@ -79,9 +92,9 @@ function claimTopic(data) {
         }
         // Claim it
         sheet.getRange(i + 1, statusIdx + 1).setValue('taken');
-        sheet.getRange(i + 1, ownerIdx + 1).setValue(data.studentName);
+        sheet.getRange(i + 1, ownerIdx + 1).setValue(fullName);
         SpreadsheetApp.flush();
-        return { status: 'success', message: 'Topic claimed successfully!' };
+        return { status: 'success', message: 'Topic claimed successfully! Good luck, ' + data.firstName + '.' };
       }
     }
     return { status: 'error', message: 'Topic not found.' };
