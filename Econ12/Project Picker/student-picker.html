@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECON 12 | THE WHEEL OF CHOICE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --accent: #ffffff;
+            --panel: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--accent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-family: 'Courier Prime', monospace;
+            background: var(--accent);
+            color: var(--bg);
+            padding: 2px 10px;
+            font-size: 0.9rem;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        /* Wheel Container */
+        .wheel-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #fff;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #fff;
+            z-index: 10;
+        }
+
+        /* Control Panel */
+        .controls {
+            width: 300px;
+            background: var(--panel);
+            border: 2px solid #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 15px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { background: #666; cursor: not-allowed; }
+
+        .winner-display {
+            background: #000;
+            border: 1px solid #fff;
+            padding: 15px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            color: #0f0;
+        }
+
+        .student-list {
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            border: 1px solid #444;
+            padding: 5px;
+        }
+
+        .student-item {
+            padding: 2px 5px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .remove-btn {
+            color: #ff4444;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Confetti or Flash effect */
+        .flash {
+            animation: flash-anim 0.1s infinite;
+        }
+        @keyframes flash-anim {
+            0% { background: #1a1a1a; }
+            100% { background: #333; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>THE WHEEL OF CHOICE</h1>
+        <div class="subtitle">ECON 12 SELECTION PROTOCOL</div>
+    </header>
+
+    <div class="main-container">
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheel" width="500" height="500"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="spinBtn">SPIN THE WHEEL</button>
+            <div class="winner-display" id="winnerDisplay">READY FOR SELECTION...</div>
+            <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.7;">Personnel Manifest:</div>
+            <div class="student-list" id="studentList"></div>
+            <button class="btn" id="removeWinnerBtn" style="font-size: 0.8rem; background: #ff4444; color: #fff; display: none;">REMOVE WINNER FROM WHEEL</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const winnerDisplay = document.getElementById('winnerDisplay');
+        const studentListUI = document.getElementById('studentList');
+        const removeWinnerBtn = document.getElementById('removeWinnerBtn');
+
+        let students = [
+            "Efe Alp", "Ana Amiree", "Sivakami Bharanidharan", "Seth Boutilier", "Maggie Burke",
+            "Angelique Castillo", "Dyson Cook", "Peyton Creelman", "Riley Creelman", "Albin Dullovi",
+            "Cameron Foley", "Kendrake Gaamil", "Ellee Gardner-Weagle", "Joshua Gillego", "Alex Graham",
+            "Gabe Hart", "Nahla Hart", "John Hartling", "Adarsha Humagain", "Reyha Khanna",
+            "Marshall MacKinnon", "Christian Marchant", "Daniil Moskalenko", "Anna Pechanova",
+            "Anderson Perry", "Luca Pomaski", "Liam Smith", "Yaroslav Teslia", "Aaliyah Thompson",
+            "Nicholas Williams", "Jack Won"
+        ];
+
+        let currentRotation = 0;
+        let isSpinning = false;
+        let lastWinner = null;
+
+        const colors = ['#000000', '#222222', '#444444', '#111111', '#333333'];
+
+        function drawWheel() {
+            const sliceAngle = (2 * Math.PI) / students.length;
+            ctx.clearRect(0, 0, 500, 500);
+
+            students.forEach((name, i) => {
+                const angle = currentRotation + (i * sliceAngle);
+                
+                // Draw slice
+                ctx.beginPath();
+                ctx.moveTo(250, 250);
+                ctx.arc(250, 250, 240, angle, angle + sliceAngle);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Draw text
+                ctx.save();
+                ctx.translate(250, 250);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Courier Prime';
+                ctx.fillText(name.toUpperCase(), 230, 5);
+                ctx.restore();
+            });
+
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(250, 250, 40, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 10px Outfit';
+            ctx.fillText("ECON 12", 250, 255);
+        }
+
+        function updateStudentList() {
+            studentListUI.innerHTML = students.map((s, i) => `
+                <div class="student-item">
+                    <span>${i+1}. ${s}</span>
+                </div>
+            `).join('');
+        }
+
+        function spin() {
+            if (isSpinning || students.length === 0) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+            removeWinnerBtn.style.display = 'none';
+            winnerDisplay.innerText = "CALCULATING PROBABILITIES...";
+            winnerDisplay.style.color = "#ff0";
+
+            const spinDuration = 4000;
+            const extraSpins = 10 + Math.random() * 10;
+            const targetRotation = currentRotation + (extraSpins * 2 * Math.PI);
+            const startTime = performance.now();
+
+            function animate(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Easing out
+                const easedProgress = 1 - Math.pow(1 - progress, 4);
+                currentRotation = currentRotation + (targetRotation - currentRotation) * 0.05;
+                
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    finalizeSpin();
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function finalizeSpin() {
+            isSpinning = false;
+            spinBtn.disabled = false;
+
+            // Calculate winner
+            const sliceAngle = (2 * Math.PI) / students.length;
+            const normalizedRotation = (currentRotation % (2 * Math.PI) + (2 * Math.PI)) % (2 * Math.PI);
+            const winningIndex = Math.floor(( (1.5 * Math.PI - normalizedRotation) % (2 * Math.PI) + (2 * Math.PI)) % (2 * Math.PI) / sliceAngle);
+            
+            lastWinner = students[winningIndex];
+            winnerDisplay.innerText = `>> SELECTED: ${lastWinner.toUpperCase()} <<`;
+            winnerDisplay.style.color = "#0f0";
+            removeWinnerBtn.style.display = 'block';
+            
+            // Flash effect
+            document.body.classList.add('flash');
+            setTimeout(() => document.body.classList.remove('flash'), 500);
+        }
+
+        removeWinnerBtn.onclick = () => {
+            students = students.filter(s => s !== lastWinner);
+            updateStudentList();
+            drawWheel();
+            removeWinnerBtn.style.display = 'none';
+            winnerDisplay.innerText = "READY FOR NEXT SELECTION...";
+            winnerDisplay.style.color = "#0f0";
+        };
+
+        spinBtn.onclick = spin;
+
+        updateStudentList();
+        drawWheel();
+    </script>
+</body>
+</html>
