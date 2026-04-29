@@ -40,9 +40,11 @@ Sunrise Harbour directly addresses several core outcomes from the Nova Scotia De
 ## 🖥️ System Interface (The HUD)
 The "Policy HUD" is designed to feel like a restricted-access government database:
 
-*   **Mission Briefing**: A stylized newspaper intro (*The Sunrise Chronicle*) setting the contextual stakes.
+*   **Mission Briefing**: A stylized newspaper intro (*The Sunrise Chronicle*) with authentic serif typography and high-impact investigative photography.
 *   **Unit Overviews**: High-level orientations for each of the 6 chapters.
-*   **The Terminal**: A real-time protocol builder that tracks student progress and rationale history.
+*   **Intel Data Tables**: High-efficiency matrices (Risk Assessments, Stakeholder Maps) designed for rapid evidence analysis.
+*   **The Terminal**: A real-time protocol builder using **Courier Prime** typography for a professional, policy-driven aesthetic.
+*   **Aesthetic Atmosphere**: A subtle, misty harbor background integrated throughout for immersive realism without sacrificing readability.
 *   **The Bibliography**: An automated citation panel that renders every exhibit in formal APA style.
 
 ---
@@ -52,5 +54,5 @@ The "Policy HUD" is designed to feel like a restricted-access government databas
 2.  **Analysis Phase**: Students work through the 6 chapters, proposing a clause for each and citing evidence.
 3.  **The Accord**: At the conclusion, students "Sign the Accord," which generates a final policy document summarizing their rationale and legal justifications.
 
-**HWSS-EDSIM-v2.10**  
-*Sunrise Harbour Authority // Project Sunrise*
+**HWSS-EDSIM-v2.13**  
+*Sunrise Harbour Authority // Joint Task Force*
