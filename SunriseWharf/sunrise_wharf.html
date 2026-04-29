@@ -3,530 +3,529 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>PROJECT SUNRISE | WHARF ACCORD PROTOCOL</title>
-    <!-- TEACHER: Replace the URL below with your deployed Google Script URL -->
+    <title>PROJECT SUNRISE | WHARF ACCORD HUD</title>
     <script>const API_URL = "https://script.google.com/a/macros/gnspes.ca/s/AKfycbxwkUZifC73ZyLXbdBBIrtS85dxSvp5UJNT1lYlg1xGpffFkqSfzZFdXsOwx4D-KtBE/exec";</script>
     
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;700&family=Merriweather:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #020617; /* Deep Navy */
-            --accent: #38bdf8; /* Sky Blue */
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --accent: #38bdf8;
             --accent-dim: rgba(56, 189, 248, 0.1);
-            --text: #f1f5f9;
-            --card-bg: rgba(15, 23, 42, 0.95);
-            --sidebar-bg: #000000;
+            --text: #e2e8f0;
+            --text-dim: #64748b;
+            --border: #1e293b;
             --font-h: 'Courier Prime', monospace;
             --font-p: 'Inter', sans-serif;
             --font-mono: 'Courier Prime', monospace;
-            --legal-blue: #3b82f6;
-            --warning-red: #ef4444;
         }
 
         body {
             margin: 0;
-            min-height: 100vh;
-            display: flex;
-            font-family: var(--font-p);
-            background: var(--bg);
-            background-image: 
-                radial-gradient(circle at 2px 2px, rgba(56, 189, 248, 0.05) 1px, transparent 0);
-            background-size: 40px 40px;
-            color: var(--text);
-            overflow-x: hidden;
-        }
-
-        /* Sidebar & Navigation */
-        .sidebar {
-            width: 300px;
-            background: var(--sidebar-bg);
-            padding: 30px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #1e293b;
-            z-index: 100;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            font-family: var(--font-p);
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
         }
 
-        .logo-area {
-            font-family: var(--font-h);
+        /* Top Header */
+        header {
+            height: 60px;
+            background: #000;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .mission-branding {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .mission-id {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            background: var(--accent-dim);
             color: var(--accent);
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--accent-dim);
-            padding-bottom: 20px;
-            text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1px solid var(--accent);
+            border-radius: 3px;
             letter-spacing: 2px;
         }
 
-        .brand-sub {
-            font-size: 0.65rem;
-            color: #64748b;
-            font-family: var(--font-mono);
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        .nav-item {
-            padding: 15px;
-            margin-bottom: 10px;
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.75rem;
-            font-family: var(--font-mono);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94a3b8;
-            border-radius: 4px;
-        }
-
-        .nav-item:hover {
-            border-color: var(--accent);
-            color: #fff;
-            transform: translateX(5px);
-        }
-
-        .nav-item.active {
-            background: var(--accent-dim);
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+        .mission-title {
+            font-family: var(--font-h);
             font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
         }
 
-        /* Main Content Area */
-        .main {
+        /* Main HUD Layout */
+        .hud-container {
             flex: 1;
+            display: grid;
+            grid-template-columns: 80px 1fr 380px;
+            overflow: hidden;
+        }
+
+        /* Left Nav Rail */
+        .nav-rail {
+            background: #000;
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-            padding: 40px;
-            position: relative;
-            min-height: 100vh;
-            overflow-y: auto;
+            padding: 20px 0;
+            gap: 20px;
         }
 
-        .content-card {
-            width: 100%;
-            max-width: 1200px;
-            background: var(--card-bg);
-            border: 1px solid #1e293b;
-            border-radius: 4px;
-            padding: 50px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 50px;
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-
-        .exhibit-info h1 {
-            font-family: var(--font-h);
-            font-size: 2.2rem;
-            margin-top: 0;
-            color: #fff;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .tab-nav {
+        .nav-icon {
+            width: 45px;
+            height: 45px;
+            border: 1px solid var(--border);
             display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-dim);
         }
 
-        .tab-btn {
-            background: transparent;
-            border: 1px solid #334155;
-            color: #94a3b8;
-            padding: 8px 18px;
-            cursor: pointer;
-            font-size: 0.75rem;
+        .nav-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-icon.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-dim);
+        }
+
+        /* Center Deck (Evidence & Intel) */
+        .center-deck {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: #050505;
+            padding: 40px;
+        }
+
+        .exhibit-visual-box {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #exhibit-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+            filter: grayscale(0.5) contrast(1.2);
+            transition: all 0.5s ease;
+        }
+
+        #exhibit-img:hover {
+            opacity: 1;
+            filter: grayscale(0) contrast(1);
+        }
+
+        .visual-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
             font-family: var(--font-mono);
-            text-transform: uppercase;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .intel-report {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px;
             border-radius: 4px;
+            min-height: 500px;
+        }
+
+        .tab-modern {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .tab-link {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 8px 15px;
+            cursor: pointer;
+            color: var(--text-dim);
+            border: 1px solid transparent;
             transition: all 0.3s;
         }
 
-        .tab-btn.active {
-            background: var(--accent);
-            color: #020617;
-            border-color: var(--accent);
-            font-weight: 700;
+        .tab-link:hover {
+            color: var(--text);
         }
 
-        .body-text {
+        .tab-link.active {
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .body-content h2 {
+            font-family: var(--font-h);
+            font-size: 1.5rem;
+            margin: 0 0 20px 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .body-content h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .body-content p {
             line-height: 1.8;
             font-size: 1.05rem;
-            color: #cbd5e1;
+            color: #94a3b8;
+            margin-bottom: 20px;
         }
 
-        .body-text h2 {
-            font-family: var(--font-h);
-            font-size: 1.4rem;
-            color: #fff;
-            margin-top: 30px;
-            text-transform: uppercase;
-            border-left: 4px solid var(--accent);
-            padding-left: 15px;
-        }
-
-        .cite {
+        /* Superscript Citations */
+        sup {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
             color: var(--accent);
             cursor: pointer;
-            text-decoration: none;
-            font-family: var(--font-mono);
+            padding: 0 2px;
+            vertical-align: super;
             font-weight: bold;
-            font-size: 0.9rem;
         }
 
-        .cite:hover {
-            text-decoration: underline;
+        sup:hover {
+            background: var(--accent);
+            color: #000;
         }
 
-        .exhibit-visual {
+        /* Right Panel (Protocol Terminal) */
+        .right-panel {
+            background: #000;
+            border-left: 1px solid var(--border);
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            min-height: 400px;
+            gap: 30px;
+            overflow-y: auto;
         }
 
-        .exhibit-image {
-            width: 100%;
-            border: 1px solid #1e293b;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            transition: transform 0.3s;
-            height: 400px;
-            object-fit: cover;
-            filter: sepia(0.1) contrast(1.1);
+        .terminal-block {
+            border: 1px solid var(--border);
+            padding: 20px;
+            background: #050505;
         }
 
-        .image-credit {
+        .terminal-header {
+            font-family: var(--font-mono);
             font-size: 0.7rem;
-            color: #64748b;
-            font-family: var(--font-mono);
-            background: #000;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border-left: 3px solid var(--accent);
-        }
-
-        /* Interaction Panel */
-        .interaction-panel {
-            margin-top: 40px;
-            padding: 30px;
-            background: rgba(56, 189, 248, 0.05);
-            border: 1px solid var(--accent-dim);
-            border-radius: 4px;
-        }
-
-        .prompt {
-            font-family: var(--font-mono);
-            font-weight: 700;
             color: var(--accent);
-            margin-bottom: 20px;
-            font-size: 0.85rem;
+            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            border-bottom: 1px solid var(--accent-dim);
+            padding-bottom: 5px;
         }
 
-        .judgment-selector {
-            display: flex;
-            gap: 20px;
+        .terminal-task {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #fff;
             margin-bottom: 20px;
         }
 
-        .judgment-option {
-            flex: 1;
-            padding: 15px;
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            color: #94a3b8;
-            text-align: center;
-            cursor: pointer;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
-            border-radius: 4px;
+        .option-grid {
+            display: grid;
+            gap: 10px;
         }
 
-        .judgment-option:hover {
+        .option-btn {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 12px;
+            text-align: left;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
             border-color: var(--accent);
             color: #fff;
         }
 
-        .judgment-option.active {
-            background: var(--accent);
-            color: #020617;
+        .option-btn.active {
             border-color: var(--accent);
-            font-weight: 700;
+            background: var(--accent-dim);
+            color: var(--accent);
         }
 
         textarea {
             width: 100%;
             background: #000;
-            border: 1px solid #1e293b;
-            color: #fff;
-            padding: 20px;
-            min-height: 120px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 15px;
             font-family: var(--font-mono);
-            font-size: 0.9rem;
-            resize: vertical;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            font-size: 0.85rem;
+            min-height: 120px;
+            resize: none;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }
 
-        .save-btn {
+        .commit-btn {
+            width: 100%;
+            padding: 15px;
             background: var(--accent);
-            color: #020617;
+            color: #000;
             border: none;
-            padding: 15px 30px;
-            cursor: pointer;
+            font-family: var(--font-mono);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 4px;
+            cursor: pointer;
             transition: all 0.3s;
-            font-family: var(--font-mono);
         }
 
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--accent-dim);
+        .commit-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
 
-        /* Status Bar */
-        .status-bar {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            left: 300px;
-            background: #000;
-            padding: 12px 40px;
-            border-top: 1px solid #1e293b;
+        .protocol-history {
+            flex: 1;
             display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: #475569;
-            z-index: 50;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        /* Splash Screen */
+        .history-item {
+            padding: 10px;
+            border-left: 2px solid var(--border);
+            background: #050505;
+            font-size: 0.75rem;
+        }
+
+        .history-title {
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+
+        /* Footer HUD (Sources) */
+        footer {
+            height: 40px;
+            background: #000;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 300px 1fr 380px;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+        }
+
+        .footer-sec {
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .footer-source {
+            color: var(--accent);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #source-link {
+            color: #fff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* Splash */
         #splash {
             position: fixed;
             inset: 0;
-            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), 
-                        url('images/chapter1.png') no-repeat center center fixed;
-            background-size: cover;
+            background: #000;
             z-index: 1000;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            transition: opacity 1s ease;
         }
 
-        .login-card {
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 60px;
-            border: 1px solid var(--accent);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 600px;
-            width: 90%;
-            border-radius: 4px;
+        .auth-box {
+            width: 400px;
+            padding: 50px;
+            border: 1px solid var(--border);
+            background: #050505;
+            text-align: center;
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .auth-box input, .auth-box select {
             width: 100%;
-            max-width: 400px;
-        }
-
-        .input-group input, .input-group select {
-            padding: 15px;
-            background: #0f172a;
-            border: 1px solid #1e293b;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #000;
+            border: 1px solid var(--border);
             color: #fff;
             text-align: center;
-            border-radius: 4px;
             font-family: var(--font-mono);
-        }
-
-        .begin-btn {
-            background: var(--accent);
-            color: #020617;
-            border: none;
-            padding: 20px;
-            cursor: pointer;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            border-radius: 4px;
-            margin-top: 20px;
-            transition: all 0.3s;
-            font-family: var(--font-mono);
-        }
-
-        .begin-btn:hover {
-            letter-spacing: 5px;
-            background: #fff;
-        }
-
-        .review-row {
-            display: grid;
-            grid-template-columns: 200px 150px 1fr;
-            gap: 20px;
-            padding: 15px;
-            border-bottom: 1px solid #1e293b;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-        }
-
-        .review-header {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-            font-weight: bold;
+            box-sizing: border-box;
         }
     </style>
 </head>
 
 <body>
     <div id="splash">
-        <div class="login-card">
-            <h1 style="font-family: var(--font-h); color: #fff; margin-bottom: 5px; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 5px;">PROJECT SUNRISE</h1>
-            <p style="color: var(--accent); font-family: var(--font-mono); margin-bottom: 40px; text-transform: uppercase; letter-spacing: 2px;">Wharf Protocol Negotiation</p>
-            
-            <div class="input-group">
-                <input type="text" id="student-name" placeholder="COMMITTEE MEMBER NAME">
-                
-                <select id="class-block">
-                    <option value="" disabled selected>-- SELECT COMMITTEE BLOCK --</option>
-                    <option value="A Block (Waugh)">A Block (Waugh)</option>
-                    <option value="C Block (Waugh)">C Block (Waugh)</option>
-                </select>
-
-                <input type="text" id="student-pin" maxlength="4" placeholder="AUTH CODE (4 LETTERS)" style="text-transform: uppercase;">
-                
-                <button class="begin-btn" onclick="initializeSim()">INITIATE PROTOCOL</button>
-            </div>
+        <div class="auth-box">
+            <h1 style="font-family: var(--font-h); font-size: 1.5rem; letter-spacing: 5px; margin-bottom: 30px;">AUTH REQUIRED</h1>
+            <input type="text" id="student-name" placeholder="COMMITTEE MEMBER NAME">
+            <select id="class-block">
+                <option value="" disabled selected>SELECT BLOCK</option>
+                <option value="A Block">A Block (Waugh)</option>
+                <option value="C Block">C Block (Waugh)</option>
+            </select>
+            <input type="text" id="student-pin" maxlength="4" placeholder="4-LETTER PIN">
+            <button class="commit-btn" onclick="initializeSim()">INITIATE HUD</button>
         </div>
     </div>
 
-    <aside class="sidebar">
-        <div class="logo-area">
-            <div style="font-size: 1.8rem; line-height: 0.9; margin-bottom: 4px; font-weight: bold;">PROJECT</div>
-            <div style="font-size: 1.8rem; line-height: 1.1; margin-bottom: 15px; color: #fff; font-weight: bold;">SUNRISE</div>
-            <div class="brand-sub">Halifax West Secondary</div>
-            <div class="brand-sub">Mikmaw Studies 11</div>
+    <header>
+        <div class="mission-branding">
+            <div class="mission-id" id="mission-id-display">WHARF11</div>
+            <div class="mission-title">PROJECT SUNRISE</div>
         </div>
-        <div id="nav-list" class="nav-container">
-            <!-- Nav Items generated by JS -->
-        </div>
-        <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #1e293b;">
-            <div id="student-id-display" style="font-size: 0.7rem; color: #64748b; font-family: var(--font-mono);">AUTH: UNVERIFIED</div>
-        </div>
-    </aside>
+        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim);" id="auth-display">USER: UNVERIFIED</div>
+    </header>
 
-    <main class="main">
-        <div id="sim-content" class="content-card" style="display: none;">
-            <div class="exhibit-info">
-                <div id="exhibit-id" style="font-family: var(--font-mono); color: var(--accent); font-size: 0.8rem; margin-bottom: 10px; letter-spacing: 2px;">CHAPTER 01</div>
-                <h1 id="exhibit-title">The Claim</h1>
+    <div class="hud-container">
+        <aside class="nav-rail" id="nav-rail">
+            <!-- Generated by JS -->
+        </aside>
+
+        <main class="center-deck">
+            <div class="exhibit-visual-box" id="visual-ui">
+                <img id="exhibit-img" src="">
+                <div class="visual-overlay" id="exhibit-credit">SOURCE: N/A</div>
+            </div>
+
+            <div class="intel-report">
+                <div class="tab-modern">
+                    <div class="tab-link active" id="tab-primary" onclick="switchTab('primary')">Field Data</div>
+                    <div class="tab-link" id="tab-legal" onclick="switchTab('legal')">Legal Docs</div>
+                    <div class="tab-link" id="tab-intel" onclick="switchTab('intel')">Intel Feed</div>
+                </div>
+                <div id="body-content" class="body-content">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </main>
+
+        <aside class="right-panel">
+            <div class="terminal-block">
+                <div class="terminal-header">Task Assignment</div>
+                <div class="terminal-task" id="interaction-prompt">Awaiting chapter selection...</div>
                 
-                <div class="tab-nav">
-                    <button class="tab-btn active" id="tab-primary" onclick="switchTab('primary')">Field Data</button>
-                    <button class="tab-btn" id="tab-legal" onclick="switchTab('legal')">Legal Docs</button>
-                    <button class="tab-btn" id="tab-intel" onclick="switchTab('intel')">Intel Feed</button>
-                </div>
-
-                <div id="body-content" class="body-text">
-                    <!-- Text generated by JS -->
-                </div>
-
-                <div class="interaction-panel" id="interaction-ui">
-                    <div class="prompt" id="interaction-prompt">ACCORD PROPOSAL: Awaiting Input...</div>
-                    
-                    <div class="judgment-selector">
-                        <div class="judgment-option" id="btn-option1" onclick="setJudgment('OPTION_A')">OPTION A</div>
-                        <div class="judgment-option" id="btn-option2" onclick="setJudgment('OPTION_B')">OPTION B</div>
-                    </div>
-
-                    <textarea id="student-rationale" placeholder="Enter rationale citing specific exhibits..."></textarea>
-                    <button class="save-btn" onclick="saveProgress()">Commit to Protocol</button>
+                <div class="option-grid" id="option-grid">
+                    <button class="option-btn" id="btn-option1" onclick="setJudgment('OPTION_A')">Option A</button>
+                    <button class="option-btn" id="btn-option2" onclick="setJudgment('OPTION_B')">Option B</button>
                 </div>
             </div>
 
-            <div class="exhibit-visual" id="visual-ui">
-                <img id="exhibit-img" src="" class="exhibit-image">
-                <div id="exhibit-credit" class="image-credit">SOURCE: ARCHIVE</div>
+            <div class="terminal-block">
+                <div class="terminal-header">Draft Clause / Rationale</div>
+                <textarea id="student-rationale" placeholder="Cite evidence using [1] notation..."></textarea>
+                <button class="commit-btn" onclick="saveProgress()">Commit to Protocol</button>
             </div>
 
-            <div id="review-panel" class="review-panel" style="display: none; grid-column: 1 / span 2;">
-                <h1 style="font-family: var(--font-h); color: #fff; margin-bottom: 30px;">THE WHARF ACCORD: FINAL REVIEW</h1>
-                <div id="review-rows">
-                    <!-- Rows generated by JS -->
-                </div>
-                <div class="interaction-panel" style="margin-top: 40px;">
-                    <div class="prompt">FINAL DRAFT: WHARF PROTOCOL</div>
-                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px; font-family: var(--font-mono);">Draft your 3-sentence Wharf Protocol. Must: (1) Acknowledge Treaty right, (2) Address safety/order, (3) Include one concrete consultation step.</p>
-                    <textarea id="final-rationale" placeholder="The Committee recognizes... Therefore, we will... To ensure fairness, we commit to..."></textarea>
-                    <button class="save-btn" onclick="submitFinal()">Finalize Protocol</button>
-                </div>
+            <div class="protocol-history" id="protocol-history">
+                <div class="terminal-header" style="margin-bottom: 10px;">Protocol Progress</div>
+                <!-- Generated by JS -->
             </div>
+        </aside>
+    </div>
+
+    <footer>
+        <div class="footer-sec">LOCATION: CLEARWATER HARBOR, NS</div>
+        <div class="footer-source" id="footer-source">
+            <span>REFERENCE:</span>
+            <span id="source-name" style="color: #fff;">No source selected</span>
+            <span id="source-link">Click to view URL</span>
         </div>
-    </main>
-
-    <footer class="status-bar">
-        <div>PROTOCOL: WHARF-ACCORD-2026</div>
-        <div id="sync-status">SYNC: OFFLINE</div>
-        <div style="cursor: pointer; color: #475569; text-decoration: underline;" onclick="toggleCredits()">LEGAL DISCLOSURE</div>
-        <div>MUNICIPALITY OF CLEARWATER HARBOR // COMMITTEE ANALYTICS</div>
+        <div class="footer-sec" style="text-align: right;" id="sync-status">SYNC: OFFLINE</div>
     </footer>
 
     <script>
-        // MASTER MISSION DATA
         const MISSION_DATA = {
-            "metadata": {
-                "id": "WHARF11",
-                "title": "Project Sunrise",
-                "description": "Joint Wharf Management Protocol Simulation."
-            },
+            "metadata": { "id": "WHARF11", "title": "Project Sunrise" },
             "slides": [
                 {
                     "id": "slide_1",
-                    "shortTitle": "Sovereign Claim",
-                    "longTitle": "EXHIBIT 01: The Sovereign Right to Trade",
-                    "interactionPrompt": "COMMITTEE TASK: Should the Accord acknowledge the inherent Treaty right to trade as the foundation of wharf use?",
+                    "shortTitle": "01",
+                    "longTitle": "The Sovereign Right to Trade",
+                    "interactionPrompt": "Should the Accord acknowledge the inherent Treaty right to trade as the foundation of wharf use?",
                     "options": ["ACKNOWLEDGE RIGHT", "REGULATE ACCESS"],
                     "tabs": {
                         "primary": {
-                            "body": "## **THE SAULNIERVILLE STANDSTILL**\n\nIn September 2020, the Sipekne’katik First Nation launched its own self-regulated 'Moderate Livelihood' lobster fishery. [cite: 1] Unlike commercial fisheries, this operation is governed by Mi’kmaw management plans and trap tags.. The Sunrise Collective argues that their right to land catch flows directly from the 1760/61 Treaties. They are asserting a **Sovereign Right** that predates the municipality itself.",
+                            "body": "## THE SAULNIERVILLE STANDSTILL\n\nIn September 2020, the Sipekne’katik First Nation launched its own self-regulated 'Moderate Livelihood' lobster fishery. [cite: 1] This historic move [cite: 23] challenged decades of federal control. Unlike commercial fisheries, this operation is governed by Mi’kmaw management plans [cite: 24] and trap tags.. The Sunrise Collective argues that their right to land catch flows directly from the 1760/61 Treaties. They are asserting a **Sovereign Right** that predates the municipality itself.",
                             "image": "images/chapter1.png",
-                            "credit": "CBC: Mi'kmaq self-regulated fishery (2020)"
+                            "credit": "CBC News: Mi'kmaq launch self-regulated fishery (2020)"
                         },
                         "legal": {
-                            "body": "## **THE MARSHALL PRECEDENT**\n\nIn *R. v. Marshall* (1999), the Supreme Court affirmed a constitutionally protected right to a 'moderate livelihood.' [cite: 21] This is a 'living' right that evolves with time.. Legal analysts point to the **'Full Box'** theory: Indigenous rights were never lost, only ignored. If the right to trade is 'full,' then access to the wharf—the literal site of trade—is part of that box.",
+                            "body": "## THE MARSHALL PRECEDENT\n\nIn *R. v. Marshall* (1999), the Supreme Court affirmed a constitutionally protected right [cite: 21] to a 'moderate livelihood.' This is a 'living' right [cite: 111] that evolves with time.. Legal analysts point to the **'Full Box'** theory: Indigenous rights were never lost, only ignored. [cite: 123] If the right to trade is 'full,' then access to the wharf—the literal site of trade—is part of that box. [cite: 112]",
                             "image": "images/chapter1_legal.png",
                             "credit": "Legal Archive: Marshall Decision Summary"
                         },
                         "intel": {
-                            "body": "## **COMMUNITY SENTIMENT**\n\nField reports show a deep divide. 68% of commercial harvesters believe 'everyone should follow the same rules,' fearing that a parallel system will lead to chaos. [cite: 1] However, Mi'kmaw leadership remains firm: 'We are not asking for access, we already have access.' The Committee must decide if this Accord starts with an acknowledgment of that inherent right.",
+                            "body": "## COMMUNITY SENTIMENT\n\nField reports [cite: 1] show a deep divide. 68% of commercial harvesters believe 'everyone should follow the same rules,' [cite: 44] fearing that a parallel system will lead to chaos.. However, Mi'kmaw leadership remains firm: 'We are not asking for access, we already have access.' [cite: 19] The Committee must decide if this Accord starts with an acknowledgment of that inherent right.",
                             "image": "images/chapter1_intel.png",
                             "credit": "Field Data: Public Opinion Survey"
                         }
@@ -534,23 +533,23 @@
                 },
                 {
                     "id": "slide_2",
-                    "shortTitle": "Regulatory Tension",
-                    "longTitle": "EXHIBIT 02: Conflict of Laws",
-                    "interactionPrompt": "COMMITTEE TASK: How should the Accord handle the conflict between local bylaws and Treaty rights?",
+                    "shortTitle": "02",
+                    "longTitle": "Conflict of Laws",
+                    "interactionPrompt": "How should the Accord handle the conflict between local bylaws and Treaty rights?",
                     "options": ["ENFORCE SAFETY", "CO-MANAGE WHARF"],
                     "tabs": {
                         "primary": {
-                            "body": "## **BYLAW §4.2: SEASONAL WINDOWS**\n\nMunicipal Bylaw §4.2 mandates that all commercial landings occur within DFO seasonal windows to manage wharf congestion. [cite: 4] The DFO seizes gear landed out of season, citing order and conservation. [cite: 5] Mi'kmaw harvesters argue that their treaty right is not subject to municipal 'windows' that were created without their input. This is a direct **Conflict of Laws**.",
+                            "body": "## BYLAW §4.2: SEASONAL WINDOWS\n\nMunicipal Bylaw §4.2 mandates that all commercial landings occur within DFO seasonal windows. [cite: 4] The DFO seizes gear landed out of season, citing order and conservation. [cite: 31] Mi'kmaw harvesters argue that their treaty right is not subject to municipal 'windows' created without their input. [cite: 40] This is a direct **Conflict of Laws**.",
                             "image": "images/chapter2.png",
                             "credit": "Atlantic Fisherman: DFO enforcement focus (2023)"
                         },
                         "legal": {
-                            "body": "## **THE SPARROW TEST**\n\nUnder the **Sparrow Test**, any regulation that limits a treaty right must serve a valid objective and be **minimally impairing**. [cite: 21] Is a total ban out-of-season the 'least restrictive' option?. The Committee could propose a 'Treaty Slip' system that allows for safe off-season landings, balancing safety with constitutional obligations.",
+                            "body": "## THE SPARROW TEST\n\nUnder the **Sparrow Test**, any regulation that limits a treaty right must serve a valid objective and be **minimally impairing**. [cite: 21] Is a total ban out-of-season the 'least restrictive' option?. The Committee could propose a 'Treaty Slip' system [cite: 48] that allows for safe off-season landings, balancing safety with constitutional obligations. [cite: 119]",
                             "image": "images/chapter2_legal.png",
                             "credit": "Legal Protocol: Sparrow Test Framework"
                         },
                         "intel": {
-                            "body": "## **WHARF LOG: NEAR MISSES**\n\nHarbor Master logs reveal 'near-miss' incidents last season during off-season landings. Safety is a genuine concern. [cite: 4] Commercial unions argue that any exemption creates an unfair economic advantage.. Intelligence suggests that unless the Accord addresses safety specifically, the risk of physical confrontation on the wharf remains high.",
+                            "body": "## WHARF LOG: NEAR MISSES\n\nHarbor Master logs reveal 'near-miss' incidents last season. [cite: 32] Safety is a genuine concern. [cite: 37] Commercial unions argue that any exemption creates an unfair economic advantage. [cite: 43] Intelligence suggests that unless the Accord addresses safety specifically, the risk of physical confrontation remains high.",
                             "image": "images/chapter2_intel.png",
                             "credit": "Wharf Analytics: Safety Incident Report"
                         }
@@ -558,23 +557,23 @@
                 },
                 {
                     "id": "slide_3",
-                    "shortTitle": "The Flashpoint",
-                    "longTitle": "EXHIBIT 03: Crisis Response",
-                    "interactionPrompt": "COMMITTEE TASK: What is the immediate priority for the Accord during an active standoff?",
+                    "shortTitle": "03",
+                    "longTitle": "Crisis Response",
+                    "interactionPrompt": "What is the immediate priority for the Accord during an active standoff?",
                     "options": ["PAUSE ACTIVITY", "CONVENE COUNCIL"],
                     "tabs": {
                         "primary": {
-                            "body": "## **THE GATE BLOCKADE**\n\nTensions at the wharf have reached a breaking point. A wall of lobster pots blocks the main gate. [cite: 14] Protests by commercial fishers have turned confrontational, with claims that the Mi'kmaw fishery is 'illegal.'. One harvester was surrounded in a lobster pound as a mob formed outside. [cite: 16] The Accord must include an **Emergency Response** protocol for these moments.",
+                            "body": "## THE GATE BLOCKADE\n\nTensions at the wharf have reached a breaking point. A wall of lobster pots blocks the main gate. [cite: 56] Protests by commercial fishers have turned confrontational. [cite: 55] One harvester was surrounded in a lobster pound [cite: 68] as a mob formed outside. [cite: 64] The Accord must include an **Emergency Response** protocol. [cite: 72]",
                             "image": "images/chapter3.png",
                             "credit": "CBC: Protest turns confrontational at wharf (2020)"
                         },
                         "legal": {
-                            "body": "## **DUTY TO CONSULT**\n\nThe Crown has a constitutional **Duty to Consult and Accommodate** whenever a decision might adversely affect a treaty right. [cite: 18] The flashpoint incident suggests that the current rules were implemented without meaningful engagement.. In *Haida Nation* (2004), the court ruled that the Crown must act honourably even before a claim is proven.",
+                            "body": "## DUTY TO CONSULT\n\nThe Crown has a constitutional **Duty to Consult and Accommodate** whenever a decision might adversely affect a treaty right. [cite: 18] The flashpoint incident suggests that rules were implemented without meaningful engagement.. In *Haida Nation* (2004), the court ruled that the Crown must act honourably [cite: 90] even before a claim is proven.",
                             "image": "images/chapter3_legal.png",
                             "credit": "Legal Precedent: Haida Nation (2004)"
                         },
                         "intel": {
-                            "body": "## **#WHARFSTANDOFF TRENDING**\n\nDigital scraping shows #WharfStandoff is trending locally. One side posts: 'Protect our livelihoods!' while the other posts: '1752 is the law.'. [cite: 14] Both sides feel unheard and unprotected by the RCMP. The Accord's goal is to move the conflict from the wharf gates to a **Negotiation Table**.",
+                            "body": "## #WHARFSTANDOFF TRENDING\n\nDigital scraping shows #WharfStandoff is trending locally. [cite: 59] One side posts: 'Protect our livelihoods!' while the other posts: '1752 is the law.' [cite: 76] Both sides feel unheard and unprotected by the RCMP. [cite: 98] The Accord's goal is to move the conflict from the gates to a **Negotiation Table**.",
                             "image": "images/media__1777472812287.png",
                             "credit": "Digital Intel: Social Media Sentiment"
                         }
@@ -582,23 +581,23 @@
                 },
                 {
                     "id": "slide_4",
-                    "shortTitle": "The Duty",
-                    "longTitle": "EXHIBIT 04: The Role of Elders",
-                    "interactionPrompt": "COMMITTEE TASK: Should the Accord mandate Elder guidance for all wharf disputes? (Outcome 1.2)",
+                    "shortTitle": "04",
+                    "longTitle": "The Role of Elders",
+                    "interactionPrompt": "Should the Accord mandate Elder guidance for all wharf disputes?",
                     "options": ["JOINT WATCH", "ELDER GUIDANCE"],
                     "tabs": {
                         "primary": {
-                            "body": "## **ELDER WISDOM (Outcome 1.2)**\n\nIn Mi'kmaw culture, **Elders** are the keepers of law and history. [cite: 3] They emphasize that Treaties are not contracts, but **covenants**—spiritual promises between nations.. The Accord could incorporate an 'Elder Council' to resolve disputes, ensuring that 'Brother to Brother' values (Outcome 2.1) guide the sharing of the wharf rather than just police enforcement.",
+                            "body": "## ELDER WISDOM\n\nIn Mi'kmaw culture, **Elders** are the keepers of law and history. [cite: 3] They emphasize that Treaties are not contracts, but **covenants**—spiritual promises between nations.. The Accord could incorporate an 'Elder Council' [cite: 141] to resolve disputes, ensuring that 'Brother to Brother' values guide the sharing of the wharf rather than just police enforcement.",
                             "image": "images/chapter4.png",
                             "credit": "APTN: Netukulimk - Our Way Forward"
                         },
                         "legal": {
-                            "body": "## **HONOUR OF THE CROWN**\n\nThe 'Honour of the Crown' requires the government to act with integrity. [cite: 18] This means the Accord cannot be one-sided. Meaningful consultation (Outcome 4.2) requires the municipality to be willing to **change its policies** to accommodate treaty rights, not just explain existing ones to the harvesters.",
+                            "body": "## HONOUR OF THE CROWN\n\nThe 'Honour of the Crown' requires the government to act with integrity. [cite: 18] This means the Accord cannot be one-sided. [cite: 86] Meaningful consultation requires the municipality to be willing to **change its policies** [cite: 91] to accommodate treaty rights, not just explain existing ones.",
                             "image": "images/chapter4_legal.png",
                             "credit": "Legal Archive: Honour of the Crown Summary"
                         },
                         "intel": {
-                            "body": "## **STAKEHOLDER MAP**\n\nThe **Sunrise Collective** seeks to implement rights; the **Seaview Union** protects commercial stability; the **DFO** manages conservation; and the **Elders Council** protects cultural values.. Each group has a different definition of 'fairness.' The Committee must decide if an Elder-led process is the missing piece in the stakeholder puzzle.",
+                            "body": "## STAKEHOLDER MAP\n\nThe **Sunrise Collective** seeks implementation; the **Seaview Union** protects stability; the **DFO** manages conservation; and the **Elders Council** protects values. [cite: 102] Each group has a different definition of 'fairness.' [cite: 104] The Committee must decide if an Elder-led process is the missing piece.",
                             "image": "images/chapter4_intel.png",
                             "credit": "Strategic Data: Stakeholder Mapping"
                         }
@@ -606,23 +605,23 @@
                 },
                 {
                     "id": "slide_5",
-                    "shortTitle": "The Precedent",
-                    "longTitle": "EXHIBIT 05: Living Agreements",
-                    "interactionPrompt": "COMMITTEE TASK: Is the 1760 Treaty a 'living agreement' that overrides municipal wharf rules?",
+                    "shortTitle": "05",
+                    "longTitle": "Living Agreements",
+                    "interactionPrompt": "Is the 1760 Treaty a 'living agreement' that overrides municipal wharf rules?",
                     "options": ["LIVING LAW", "MUNICIPAL LAW"],
                     "tabs": {
                         "primary": {
-                            "body": "## **THE TRUCKHOUSE CLAUSE**\n\nThe 1760/61 Treaties granted Mi'kmaw people the right to bring goods to sell at **Truckhouses** (government trading posts). [cite: 2] While the British intended this to control trade, the Mi'kmaq understood it as a guarantee of economic sovereignty.. Today, the 'Truckhouse' is the modern wharf. This is the foundation of **Economic Reconciliation**.",
+                            "body": "## THE TRUCKHOUSE CLAUSE\n\nThe 1760/61 Treaties granted Mi'kmaw people the right to bring goods to sell at **Truckhouses**. [cite: 2] While the British intended this to control trade, the Mi'kmaq understood it as a guarantee of economic sovereignty.. Today, the 'Truckhouse' is the modern wharf. This is the foundation of **Economic Reconciliation**. [cite: 149]",
                             "image": "images/chapter5.png",
                             "credit": "NS Archives: 1760 Treaty Text"
                         },
                         "legal": {
-                            "body": "## **SUPREME COURT RULING**\n\nThe SCC has consistently ruled that treaties must be interpreted in a 'large, liberal, and generous' manner. [cite: 21] This means the words 'Truckhouse' must be read to include the modern infrastructure needed to fish.. The Accord should reflect the Supreme Court’s view that these are **Sovereign Laws** that cannot be simply ignored by a local council.",
+                            "body": "## SUPREME COURT RULING\n\nThe SCC has consistently ruled that treaties must be interpreted in a 'large, liberal, and generous' manner. [cite: 21] This means the words 'Truckhouse' must include the modern infrastructure needed to fish. [cite: 115] The Accord should reflect the Supreme Court’s view that these are **Sovereign Laws**.",
                             "image": "images/chapter5_legal.png",
                             "credit": "Legal Summary: Marshall Decision"
                         },
                         "intel": {
-                            "body": "## **PERSPECTIVE SHIFT**\n\nEducational data shows that before studying the 1760 Treaty, 45% of students view it as 'historical.' [cite: 6] After analyzing the legal precedents, 85% view it as a **Living Law**.. The Accord must bridge the gap between the historical document and the modern reality of the wharf, ensuring the Treaty remains 'living' for future generations.",
+                            "body": "## PERSPECTIVE SHIFT\n\nEducational data shows that before studying the 1760 Treaty, 45% of students view it as 'historical.' [cite: 6] After analyzing legal precedents, many realize that the Supreme Court considers these treaties legally binding in 2026. [cite: 111] The Accord must bridge the gap between historical documents and modern reality.",
                             "image": "images/chapter5_intel.png",
                             "credit": "Educational Data: Perspective Shift Study"
                         }
@@ -630,23 +629,23 @@
                 },
                 {
                     "id": "slide_6",
-                    "shortTitle": "The Accord",
-                    "longTitle": "EXHIBIT 06: Final Protocol",
-                    "interactionPrompt": "COMMITTEE TASK: Draft your 3-sentence Wharf Protocol. Acknowledge rights, safety, and consultation.",
+                    "shortTitle": "06",
+                    "longTitle": "Final Protocol",
+                    "interactionPrompt": "Draft your 3-sentence Wharf Protocol. Acknowledge rights, safety, and consultation.",
                     "options": ["SIGN ACCORD", "SEEK MEDIATION"],
                     "tabs": {
                         "primary": {
-                            "body": "## **SELF-DETERMINATION (Outcome 4.2)**\n\nUNDRIP Article 21 affirms the right of Indigenous peoples to improve their economic conditions. [cite: 9] The final Accord is not just about boats; it is about **Self-Determination**.. By signing a joint protocol, the municipality recognizes the Sunrise Collective as a governing partner, moving from 'Crown vs. Subject' to a nation-to-nation relationship.",
+                            "body": "## SELF-DETERMINATION\n\nUNDRIP Article 21 affirms the right of Indigenous peoples to improve their economic conditions. [cite: 9] The final Accord is not just about boats; it is about **Self-Determination**. [cite: 145] By signing a joint protocol, the municipality recognizes the Sunrise Collective as a governing partner.",
                             "image": "images/chapter6.png",
                             "credit": "DFO: Interim community-specific plan model (2021)"
                         },
                         "legal": {
-                            "body": "## **MARSHALL II PRINCIPLES**\n\n*Marshall II* clarified that any regulation must be **justified and fair**. [cite: 21] The path forward is co-management. The Accord should propose a 'Joint Safety Board' where Mi'kmaw and Commercial harvesters both have a seat.. This moves the focus from 'Who is allowed?' to 'How do we share?'",
+                            "body": "## MARSHALL II PRINCIPLES\n\n*Marshall II* clarified that any regulation must be **justified and fair**. [cite: 21] The path forward is co-management. [cite: 133] The Accord should propose a 'Joint Safety Board' [cite: 137] where Mi'kmaw and Commercial harvesters both have a seat..",
                             "image": "images/chapter6_legal.png",
                             "credit": "Legal Summary: Marshall II (1999)"
                         },
                         "intel": {
-                            "body": "## **FINAL RISK ASSESSMENT**\n\nDoing nothing carries a high risk of continued escalation. [cite: 10] Unilateral action risks a legal challenge for breaching the Duty to Consult. A negotiated Accord that acknowledges **Treaty Rights** while managing the wharf as a shared utility is the only path to long-term peace.. The Committee's final task is to draft this Accord.",
+                            "body": "## FINAL RISK ASSESSMENT\n\nDoing nothing carries a high risk of escalation. [cite: 10] Unilateral action risks legal challenge. [cite: 150] A negotiated Accord that acknowledges **Treaty Rights** while managing the wharf as a shared utility is the only path to peace.. The Committee's final task is to finalize the text.",
                             "image": "images/media__1777472812287.png",
                             "credit": "Governance Data: Risk Assessment Matrix"
                         }
@@ -655,33 +654,55 @@
             ]
         };
 
-        // BIBLIOGRAPHY
         const BIBLIOGRAPHY = {
-            "1": { "title": "CBC: Mi'kmaq self-regulated lobster fishery", "url": "https://www.cbc.ca/news/indigenous/mi-kmaq-self-regulated-moderate-livelihood-fishery-1.5727622" },
+            "1": { "title": "CBC News: Mi'kmaq self-regulated lobster fishery", "url": "https://www.cbc.ca/news/indigenous/mi-kmaq-self-regulated-moderate-livelihood-fishery-1.5727622" },
             "2": { "title": "Treaty of 1752 (NS Archives)", "url": "https://archives.novascotia.ca/mikmaq/archives/?ID=623" },
             "3": { "title": "APTN: Netukulimk - Our Way Forward", "url": "https://www.aptnnews.ca/ourstories/netukulimk/" },
             "4": { "title": "Atlantic Fisherman: St. Mary’s Bay Poaching", "url": "https://atlanticfisherman.com/st-marys-bay-lobster-poaching-saga-continues/" },
-            "5": { "title": "DFO Statement regarding St. Marys Bay", "url": "https://www.canada.ca/en/fisheries-oceans/news/2023/09/statement-from-fisheries-and-oceans-canada-regarding-lobster-fishing-in-st-marys-bay-nova-scotia.html" },
             "6": { "title": "Navigating Mikmaq fishing (Academia)", "url": "https://www.academia.edu/91531518/Navigating_Mikmaq_fishing_after_the_Marshall_decision" },
-            "7": { "title": "FOPO Report: Implementation of Treaty Right", "url": "https://www.coldwaterlobster.ca/wp-content/uploads/2021/06/FOPO-MiKmaq-Treaty-Rpt-May-2021.pdf" },
             "9": { "title": "UNDRIP Art. 21 (Justice Laws)", "url": "https://laws-lois.justice.gc.ca/eng/acts/U-2.2/section-sched1301626.html" },
             "10": { "title": "Risk Assessment Matrix (NSTU)", "url": "https://nstu.blob.core.windows.net/nstuwebsite/images/The%20Teacher/MARCH09layoutTT.pdf" },
-            "14": { "title": "CBC: Protest over Indigenous lobster fishery", "url": "https://www.cbc.ca/news/canada/nova-scotia/nova-scotia-saulnierville-wharf-blockade-mi-kmaq-lobster-harvest-1.5724339" },
-            "16": { "title": "APTN: Van torched as mob surrounds pounds", "url": "https://www.aptnnews.ca/national-news/van-torched-lobsters-destroyed-as-mob-surrounds-mikmaw-lobster-pounds-in-nova-scotia/" },
             "18": { "title": "Honour of the Crown (Osler)", "url": "https://www.osler.com/en/insights/updates/resource-projects-and-the-honour-of-the-crown-more-than-just-consultation-about-a-project" },
-            "20": { "title": "Sipekne’katik sues RCMP (CBC)", "url": "https://www.cbc.ca/news/canada/nova-scotia/sipekenekatik-first-nation-lobster-fishery-lawsuit-1.6620423" },
-            "21": { "title": "R. v. Marshall [1999] (SCC)", "url": "https://scc-csc.lexum.com/scc-csc/scc-csc/en/item/1739/index.do" }
+            "19": { "title": "Chief Mike Sack: Peace, Friendship and Fishing", "url": "https://nbmediacoop.org/2020/10/15/peace-friendship-and-fishing-in-mikmaki/" },
+            "21": { "title": "R. v. Marshall [1999] (SCC)", "url": "https://scc-csc.lexum.com/scc-csc/scc-csc/en/item/1739/index.do" },
+            "23": { "title": "Ku'ku'kwes News: Rights Implementation Fishery", "url": "https://kukukwes.com/2020/09/18/nova-scotia-first-nation-launches-its-own-moderate-livelihood-fishery/" },
+            "24": { "title": "Sipekne’katik launches moderate livelihood fishery", "url": "https://kukukwes.com/2020/09/18/nova-scotia-first-nation-launches-its-own-moderate-livelihood-fishery/" },
+            "31": { "title": "Atlantic Fisherman: Enforcement Saga", "url": "https://atlanticfisherman.com/st-marys-bay-lobster-poaching-saga-continues/" },
+            "32": { "title": "CBC: Tensions rise over unauthorized fishing", "url": "https://www.cbc.ca/news/canada/nova-scotia/tensions-rise-unauthorized-lobster-fishing-nova-scotia-1.6949934" },
+            "37": { "title": "DFO Statement regarding St. Marys Bay", "url": "https://www.canada.ca/en/fisheries-oceans/news/2023/09/statement-from-fisheries-and-oceans-canada-regarding-lobster-fishing-in-st-marys-bay-nova-scotia.html" },
+            "40": { "title": "CBC: Summer lobster fishing tensions", "url": "https://www.cbc.ca/news/canada/nova-scotia/tensions-rise-unauthorized-lobster-fishing-nova-scotia-1.6949934" },
+            "43": { "title": "FOPO Report: Implementation of Treaty Right", "url": "https://www.coldwaterlobster.ca/wp-content/uploads/2021/06/FOPO-MiKmaq-Treaty-Rpt-May-2021.pdf" },
+            "44": { "title": "FOPO: One set of rules framing", "url": "https://www.coldwaterlobster.ca/wp-content/uploads/2021/06/FOPO-MiKmaq-Treaty-Rpt-May-2021.pdf" },
+            "48": { "title": "MFU perspective on rules (Ku'ku'kwes)", "url": "https://kukukwes.com/2019/05/15/defining-a-moderate-livelihood-part-2/" },
+            "55": { "title": "CBC: Protest turns confrontational", "url": "https://www.cbc.ca/news/canada/nova-scotia/nova-scotia-saulnierville-wharf-blockade-mi-kmaq-lobster-harvest-1.5724339" },
+            "56": { "title": "CBC: Saulnierville Wharf Blockade", "url": "https://www.cbc.ca/news/canada/nova-scotia/nova-scotia-saulnierville-wharf-blockade-mi-kmaq-lobster-harvest-1.5724339" },
+            "59": { "title": "CBC: Indigenous fishers set up blockades", "url": "https://www.cbc.ca/news/canada/nova-scotia/indigenous-fishermen-set-up-blockades-saulnierville-wharf-1.5731129" },
+            "64": { "title": "CBC: Fire destroys lobster facility", "url": "https://www.cbc.ca/news/canada/nova-scotia/lobster-facility-nova-scotia-fire-1.5765665" },
+            "68": { "title": "APTN: Van torched as mob surrounds pounds", "url": "https://www.aptnnews.ca/national-news/van-torched-lobsters-destroyed-as-mob-surrounds-mikmaw-lobster-pounds-in-nova-scotia/" },
+            "72": { "title": "Global News: Suspicious fire at lobster pound", "url": "https://www.youtube.com/watch?v=0zlWTBzigqU" },
+            "76": { "title": "APTN Facebook: Mi'kmaw harvester anxiety", "url": "https://www.facebook.com/APTNNews/posts/10158644887443772/" },
+            "86": { "title": "First Peoples Law: Failure to honour treaties", "url": "https://www.firstpeopleslaw.com/files/file/5f77c64697604/Open-Letter-re-Moderate-Livelihood-Fisheries.pdf" },
+            "90": { "title": "Osler: Deep Consultation required", "url": "https://www.osler.com/en/insights/updates/resource-projects-and-the-honour-of-the-crown-more-than-just-consultation-about-a-project" },
+            "91": { "title": "Osler: Honourable dealings (Sipekne’katik)", "url": "https://www.osler.com/en/insights/updates/resource-projects-and-the-honour-of-the-crown-more-than-just-consultation-about-a-project" },
+            "98": { "title": "CBC: Sipekne’katik sues RCMP over violence", "url": "https://www.cbc.ca/news/canada/nova-scotia/sipekenekatik-first-nation-lobster-fishery-lawsuit-1.6620423" },
+            "102": { "title": "Wikipedia: 2020 Mi'kmaq lobster dispute", "url": "https://en.wikipedia.org/wiki/2020_Mi'kmaq_lobster_dispute" },
+            "104": { "title": "FOPO Report: Institutional Stakeholders", "url": "https://atlanticfisherman.com/st-marys-bay-lobster-poaching-saga-continues/" },
+            "111": { "title": "DFO: Marshall decisions summary", "url": "https://www.dfo-mpo.gc.ca/fisheries-peches/aboriginal-autochtones/moderate-livelihood-subsistance-convenable/marshall-overview-apercu-eng.html" },
+            "112": { "title": "DFO: Conservation limits (Marshall II)", "url": "https://www.dfo-mpo.gc.ca/fisheries-peches/aboriginal-autochtones/moderate-livelihood-subsistance-convenable/marshall-overview-apercu-eng.html" },
+            "115": { "title": "UNSM: Marshall Decision Explainer", "url": "https://www.unsm.org/accomplishments/the-marshall-decision" },
+            "119": { "title": "DFO: Rights-based fishing policy", "url": "https://www.dfo-mpo.gc.ca/fisheries-peches/aboriginal-autochtones/moderate-livelihood-subsistance-convenable-eng.html" },
+            "123": { "title": "UBC Law: Full Box vs Empty Box metaphor", "url": "https://open.library.ubc.ca/media/stream/pdf/24/1.0406106/4" },
+            "133": { "title": "DFO: Community-specific plan model", "url": "https://www.dfo-mpo.gc.ca/fisheries-peches/aboriginal-autochtones/moderate-livelihood-subsistance-convenable/2021-approach-approche-eng.html" },
+            "137": { "title": "UFCA: Interim understanding (Kespukwitk)", "url": "https://www.ufca.ca/news/dfo-moderate-livelihood-agreement-kespiwick" },
+            "141": { "title": "APTN: Potlotek treaty fishery planning", "url": "https://www.aptnnews.ca/ourstories/netukulimk/" },
+            "145": { "title": "UofT Law: International Human Rights (UNDRIP)", "url": "https://ihrp.law.utoronto.ca/indigenous-fishing-rights-and-international-human-rights-law" },
+            "149": { "title": "Yellowhead: Economic Reconciliation", "url": "https://yellowheadinstitute.org/2021/colonizers-being-colonizers-lobster-fishing-the-continued-oppression-of-lnuk-in-mikmaki/" },
+            "150": { "title": "Yellowhead Institute: Indigenous Jurisdiction", "url": "https://yellowheadinstitute.org/2021/colonizers-being-colonizers-lobster-fishing-the-continued-oppression-of-lnuk-in-mikmaki/" }
         };
 
-        // ENGINE LOGIC
         let currentSlideIndex = 0;
         let currentTab = 'primary';
-        let studentSession = {
-            name: '',
-            block: '',
-            judgments: {},
-            rationales: {}
-        };
+        let studentSession = { name: '', block: '', judgments: {}, rationales: {} };
 
         async function initializeSim() {
             const name = document.getElementById('student-name').value.trim();
@@ -689,7 +710,7 @@
             const pin = document.getElementById('student-pin').value.trim().toUpperCase();
             
             if (!name || !block || pin.length !== 4) {
-                alert("Please complete all fields. Auth code must be 4 letters.");
+                alert("Please complete all fields.");
                 return;
             }
 
@@ -697,217 +718,138 @@
             studentSession.block = block;
             studentSession.studentPin = pin;
             
-            document.getElementById('sync-status').innerText = "SYNC: CONNECTING...";
+            document.getElementById('auth-display').innerText = `USER: ${name.toUpperCase()} (${block})`;
+            
+            try { await sync("get_state"); } catch (e) {}
 
-            try {
-                const response = await sync("get_state");
-                if (response && response.state) {
-                    studentSession.judgments = response.state.judgments || {};
-                    studentSession.rationales = response.state.responses || {};
-                }
-            } catch (e) {
-                console.warn("New session or sync error.");
-            }
-
-            document.getElementById('splash').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('splash').style.display = 'none';
-                document.getElementById('sim-content').style.display = 'grid';
-                document.getElementById('student-id-display').innerText = `AUTH: ${name.toUpperCase()} // ${block}`;
-                buildNav();
-                loadSlide(0);
-            }, 1000);
+            document.getElementById('splash').style.display = 'none';
+            buildNav();
+            loadSlide(0);
         }
 
-        async function sync(specificAction = "save_state") {
-            if (API_URL && API_URL !== "[[INJECT_URL_NOW]]") {
-                const payload = {
-                    action: specificAction,
-                    missionId: MISSION_DATA.metadata.id,
-                    studentNameOnly: studentSession.name,
-                    studentPin: studentSession.studentPin,
-                    studentName: `${studentSession.name} (${studentSession.studentPin})`,
-                    classCode: studentSession.block,
-                    state: JSON.stringify({
-                        judgments: studentSession.judgments,
-                        responses: studentSession.rationales
-                    })
-                };
-
-                try {
-                    let response;
-                    if (specificAction === "get_state") {
-                        const params = new URLSearchParams({
-                            action: "get_state",
-                            missionId: MISSION_DATA.metadata.id,
-                            studentNameOnly: studentSession.name,
-                            studentPin: studentSession.studentPin,
-                            classCode: studentSession.block
-                        });
-                        response = await fetch(`${API_URL}?${params.toString()}`);
-                    } else {
-                        response = await fetch(API_URL, {
-                            method: 'POST',
-                            body: JSON.stringify(payload)
-                        });
-                    }
-                    
-                    const result = await response.json();
-                    document.getElementById('sync-status').innerText = "SYNC: SECURE";
-                    return result;
-                } catch (err) {
-                    console.error("Sync Error:", err);
-                    document.getElementById('sync-status').innerText = "SYNC: OFFLINE";
-                    if (specificAction === "save_state") {
-                        fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    }
-                    throw err;
+        async function sync(action = "save_state") {
+            if (!API_URL) return;
+            const payload = {
+                action: action,
+                missionId: MISSION_DATA.metadata.id,
+                studentName: `${studentSession.name} (${studentSession.studentPin})`,
+                classCode: studentSession.block,
+                state: JSON.stringify({ judgments: studentSession.judgments, responses: studentSession.rationales })
+            };
+            try {
+                const response = (action === "get_state") 
+                    ? await fetch(`${API_URL}?action=get_state&missionId=${MISSION_DATA.metadata.id}&studentNameOnly=${studentSession.name}&studentPin=${studentSession.studentPin}&classCode=${studentSession.block}`)
+                    : await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const res = await response.json();
+                if (action === "get_state" && res.state) {
+                    studentSession.judgments = res.state.judgments || {};
+                    studentSession.rationales = res.state.responses || {};
+                    updateHistory();
                 }
-            }
+                document.getElementById('sync-status').innerText = "SYNC: SECURE";
+            } catch (e) { document.getElementById('sync-status').innerText = "SYNC: OFFLINE"; }
         }
 
         function buildNav() {
-            const nav = document.getElementById('nav-list');
-            nav.innerHTML = '';
-            MISSION_DATA.slides.forEach((slide, index) => {
-                const item = document.createElement('div');
-                item.className = 'nav-item';
-                item.id = `nav-${index}`;
-                item.innerText = slide.shortTitle;
-                item.onclick = () => loadSlide(index);
-                nav.appendChild(item);
+            const rail = document.getElementById('nav-rail');
+            rail.innerHTML = '';
+            MISSION_DATA.slides.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = 'nav-icon' + (i === 0 ? ' active' : '');
+                div.id = `nav-${i}`;
+                div.innerText = s.shortTitle;
+                div.onclick = () => loadSlide(i);
+                rail.appendChild(div);
             });
-            const reviewItem = document.createElement('div');
-            reviewItem.className = 'nav-item';
-            reviewItem.id = `nav-review`;
-            reviewItem.innerText = 'Final Accord';
-            reviewItem.onclick = () => showReview();
-            nav.appendChild(reviewItem);
         }
 
-        function loadSlide(index) {
-            currentSlideIndex = index;
-            const slide = MISSION_DATA.slides[index];
+        function loadSlide(i) {
+            currentSlideIndex = i;
+            const s = MISSION_DATA.slides[i];
+            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${i}`).classList.add('active');
             
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById(`nav-${index}`).classList.add('active');
+            document.getElementById('mission-id-display').innerText = `CH 0${i+1}`;
+            document.getElementById('interaction-prompt').innerText = s.interactionPrompt;
+            document.getElementById('btn-option1').innerText = s.options[0];
+            document.getElementById('btn-option2').innerText = s.options[1];
             
-            document.getElementById('exhibit-id').innerText = `EXHIBIT 0${index + 1}`;
-            document.getElementById('exhibit-title').innerText = slide.longTitle;
-            document.getElementById('interaction-prompt').innerText = slide.interactionPrompt;
-            
-            document.getElementById('btn-option1').innerText = slide.options[0];
-            document.getElementById('btn-option2').innerText = slide.options[1];
-            
-            document.getElementById('review-panel').style.display = 'none';
-            document.getElementById('interaction-ui').style.display = 'block';
-            document.getElementById('visual-ui').style.display = 'flex';
-            
+            document.getElementById('student-rationale').value = studentSession.rationales[i] || '';
             switchTab('primary');
-            
-            document.getElementById('student-rationale').value = studentSession.rationales[index] || '';
             updateJudgmentUI();
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            const slide = MISSION_DATA.slides[currentSlideIndex];
-            const content = slide.tabs[tab];
+        function switchTab(t) {
+            currentTab = t;
+            const s = MISSION_DATA.slides[currentSlideIndex];
+            const content = s.tabs[t];
             
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
             
             let body = content.body
                 .replace(/## (.*)/g, '<h2>$1</h2>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\[cite: (\d+)\]/g, (match, p1) => {
-                    const source = BIBLIOGRAPHY[p1];
-                    return `<a class="cite" onclick="showSource(${p1})">[source ${p1}]</a>`;
-                })
+                .replace(/\[cite: (\d+)\]/g, (match, id) => `<sup onclick="selectSource(${id})">[${id}]</sup>`)
                 .replace(/\n/g, '<br>');
             
             document.getElementById('body-content').innerHTML = body;
             document.getElementById('exhibit-img').src = content.image;
-            document.getElementById('exhibit-credit').innerText = `SOURCE: ${content.credit}`;
+            document.getElementById('exhibit-credit').innerText = `VISUAL RECORD: ${content.credit}`;
+            
+            // Auto-select first source in tab if any
+            const firstCite = content.body.match(/\[cite: (\d+)\]/);
+            if (firstCite) selectSource(firstCite[1]);
         }
 
-        function showSource(id) {
+        function selectSource(id) {
             const source = BIBLIOGRAPHY[id];
-            if (source) window.open(source.url, '_blank');
+            if (!source) return;
+            document.getElementById('source-name').innerText = `[${id}] ${source.title}`;
+            document.getElementById('source-link').onclick = () => window.open(source.url, '_blank');
+            
+            // Highlight superscripts in text
+            document.querySelectorAll('sup').forEach(el => {
+                el.style.color = el.innerText === `[${id}]` ? 'var(--accent)' : 'var(--text-dim)';
+                el.style.background = el.innerText === `[${id}]` ? 'var(--accent-dim)' : 'transparent';
+            });
         }
 
-        function setJudgment(val) {
-            studentSession.judgments[currentSlideIndex] = val;
+        function setJudgment(v) {
+            studentSession.judgments[currentSlideIndex] = v;
             updateJudgmentUI();
         }
 
         function updateJudgmentUI() {
-            const val = studentSession.judgments[currentSlideIndex];
-            document.getElementById('btn-option1').className = 'judgment-option' + (val === 'OPTION_A' ? ' active' : '');
-            document.getElementById('btn-option2').className = 'judgment-option' + (val === 'OPTION_B' ? ' active' : '');
+            const v = studentSession.judgments[currentSlideIndex];
+            document.getElementById('btn-option1').className = 'option-btn' + (v === 'OPTION_A' ? ' active' : '');
+            document.getElementById('btn-option2').className = 'option-btn' + (v === 'OPTION_B' ? ' active' : '');
         }
 
         function saveProgress() {
             const rationale = document.getElementById('student-rationale').value.trim();
-            if (!studentSession.judgments[currentSlideIndex]) {
-                alert("Please select a protocol option first.");
-                return;
-            }
-            if (rationale.length < 20) {
-                alert("Please provide a more detailed rationale.");
+            if (!studentSession.judgments[currentSlideIndex] || rationale.length < 10) {
+                alert("Please complete judgment and rationale.");
                 return;
             }
             studentSession.rationales[currentSlideIndex] = rationale;
             sync();
-            
-            if (currentSlideIndex < MISSION_DATA.slides.length - 1) {
-                loadSlide(currentSlideIndex + 1);
-            } else {
-                showReview();
-            }
+            updateHistory();
+            if (currentSlideIndex < MISSION_DATA.slides.length - 1) loadSlide(currentSlideIndex + 1);
         }
 
-        function showReview() {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-review').classList.add('active');
-            
-            document.getElementById('exhibit-id').innerText = "FINAL";
-            document.getElementById('exhibit-title').innerText = "The Wharf Accord";
-            document.getElementById('interaction-ui').style.display = 'none';
-            document.getElementById('visual-ui').style.display = 'none';
-            document.getElementById('review-panel').style.display = 'block';
-            
-            const container = document.getElementById('review-rows');
-            container.innerHTML = '<div class="review-row review-header"><div>CHAPTER</div><div>PROTOCOL</div><div>RATIONALE</div></div>';
-            
-            MISSION_DATA.slides.forEach((slide, index) => {
-                const row = document.createElement('div');
-                row.className = 'review-row';
-                const judgment = studentSession.judgments[index] || 'PENDING';
-                const optionLabel = judgment === 'OPTION_A' ? slide.options[0] : (judgment === 'OPTION_B' ? slide.options[1] : 'PENDING');
-                
-                row.innerHTML = `
-                    <div>${slide.shortTitle}</div>
-                    <div style="color: var(--accent)">${optionLabel}</div>
-                    <div style="color: #64748b; font-size: 0.7rem;">${studentSession.rationales[index] || '---'}</div>
-                `;
-                container.appendChild(row);
+        function updateHistory() {
+            const hist = document.getElementById('protocol-history');
+            hist.innerHTML = '<div class="terminal-header" style="margin-bottom: 10px;">Protocol Progress</div>';
+            MISSION_DATA.slides.forEach((s, i) => {
+                if (studentSession.judgments[i]) {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    const label = studentSession.judgments[i] === 'OPTION_A' ? s.options[0] : s.options[1];
+                    item.innerHTML = `<div class="history-title">CH 0${i+1} // ${s.longTitle}</div><div style="color: var(--accent)">${label}</div>`;
+                    hist.appendChild(item);
+                }
             });
-        }
-
-        function submitFinal() {
-            const final = document.getElementById('final-rationale').value.trim();
-            if (final.length < 50) {
-                alert("Please provide a more detailed Protocol (at least 3 sentences).");
-                return;
-            }
-            studentSession.rationales['final'] = final;
-            sync();
-            alert("WHARF ACCORD FINALIZED. Sent for review.");
-        }
-
-        function toggleCredits() {
-            alert("PROJECT SUNRISE // Mikmaw Studies 11\nEducational Simulation v2.0\nBuilt for Halifax West Secondary.");
         }
     </script>
 </body>
