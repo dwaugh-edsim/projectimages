@@ -920,15 +920,77 @@
     // ── SESSION CONTROLS ─────────────────────────────────────────────────────────
     async function setActiveParty() {
       const select = document.getElementById('active-party-select');
+      const btn = document.getElementById('btn-set-active');
       const party = select.value;
-      await setSession(party, votingOpen, showingResults);
+      
+      btn.disabled = true;
+      try {
+        const res = await setSession(party, votingOpen, showingResults, currentVotePhase, currentFinalists);
+        if (res.status !== 'success') alert(res.message || 'Error');
+      } catch (e) {
+        alert('Connection error.');
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     async function toggleVoting() {
-      if (votingOpen) {
-        await closeVoting();
+      const headerBtn = document.getElementById('btn-toggle-vote');
+      const bigBtn = document.getElementById('btn-big-toggle');
+      
+      const wasOpen = votingOpen;
+      const targetState = !wasOpen;
+
+      if (wasOpen) {
+        if (!confirm('Close voting? Students can no longer vote.')) return;
       } else {
-        await openVoting();
+        const phase = document.querySelector('input[name="vote-phase"]:checked').value;
+        if (!confirm(`Open ${phase.toUpperCase()} round voting for all students?`)) return;
+      }
+
+      // Optimistic UI lock: disable buttons during request
+      if (headerBtn) headerBtn.disabled = true;
+      bigBtn.disabled = true;
+
+      try {
+        if (!wasOpen) {
+          const phase = document.querySelector('input[name="vote-phase"]:checked').value;
+          const finalists = Array.from(document.querySelectorAll('.finalist-check:checked')).map(c => c.value).join(',');
+          
+          if (phase === 'final' && !finalists) {
+            if (!confirm('Open FINAL vote for ALL parties? (Usually you pick 4 finalists first)')) {
+               if (headerBtn) headerBtn.disabled = false;
+               bigBtn.disabled = false;
+               return;
+            }
+          }
+
+          sessionChangeTimestamp = Date.now();
+          const res = await setSession(getCurrentActiveParty(), true, false, phase, finalists);
+          if (res.status === 'success') {
+            votingOpen = true;
+            currentVotePhase = phase;
+            currentFinalists = finalists;
+            applyVotingUI(true);
+          } else {
+            alert('Failed to open voting: ' + (res.message || 'Unknown error'));
+          }
+        } else {
+          sessionChangeTimestamp = Date.now();
+          const res = await setSession(getCurrentActiveParty(), false, false, currentVotePhase, currentFinalists);
+          if (res.status === 'success') {
+            votingOpen = false;
+            applyVotingUI(false);
+          } else {
+            alert('Failed to close voting: ' + (res.message || 'Unknown error'));
+          }
+        }
+      } catch (e) {
+        console.error('[Action Error]', e);
+        alert('Connection error. Check if the server is responding.');
+      } finally {
+        if (headerBtn) headerBtn.disabled = false;
+        bigBtn.disabled = false;
       }
     }
 
@@ -1007,8 +1069,7 @@
         return result;
       } catch (e) {
         console.error('[DEBUG setSession] Exception:', e);
-        alert('Connection error.');
-        return { status: 'error', message: 'Connection error' };
+        throw e; // rethrow so the caller can alert if needed
       }
     }
 
@@ -1121,7 +1182,7 @@
         method: 'POST',
         // headers:{'Content-Type':'application/json'}, // REMOVED for CORS compatibility
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(10000)
+        signal: AbortSignal.timeout(30000) // Increased to 30s for slow GAS cold starts
       });
       return res.json();
     }

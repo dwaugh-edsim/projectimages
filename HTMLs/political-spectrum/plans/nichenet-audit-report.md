@@ -1,4 +1,4 @@
-# WaughNet Town Hall System — Security & Reliability Audit Report
+# NicheNet Town Hall System — Security & Reliability Audit Report
 
 **Date:** 2025-04-24
 **Auditor:** Roo (Architect Mode)
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The WaughNet system is generally well-architected for its intended use case (a single 60-minute classroom session). However, several **critical race conditions** and **reiability issues** could cause the system to fail under concurrent load. The most severe issues involve vote integrity and lock management under high concurrency.
+The NicheNet system is generally well-architected for its intended use case (a single 60-minute classroom session). However, several **critical race conditions** and **reiability issues** could cause the system to fail under concurrent load. The most severe issues involve vote integrity and lock management under high concurrency.
 
 **Overall Risk Level:** MEDIUM-HIGH
 **Critical Issues:** 4
@@ -106,7 +106,7 @@ try {
 ---
 
 ### 3. Message ID Collision Vulnerability (CRITICAL)
-**Location:** [`Code.gs:154,171`](../Code.gs:154) and [`audience.html:548,569`](WaughNet/audience.html:548)
+**Location:** [`Code.gs:154,171`](../Code.gs:154) and [`audience.html:548,569`](NicheNet/audience.html:548)
 
 **Problem:** Using `Date.now()` for message IDs can cause collisions if multiple messages are sent within the same millisecond. With 30 students, this is statistically probable. The client-side deduplication relies on unique IDs.
 
@@ -129,7 +129,7 @@ Then replace all `new Date().getTime().toString()` with `generateId()`.
 ---
 
 ### 4. No Exponential Backoff on Poll Failures (CRITICAL)
-**Location:** [`audience.html:398-430`](WaughNet/audience.html:398-430), [`candidate-panel.html:260-297`](WaughNet/candidate-panel.html:260-297), [`town-hall-host.html:306-367`](WaughNet/town-hall-host.html:306-367)
+**Location:** [`audience.html:398-430`](NicheNet/audience.html:398-430), [`candidate-panel.html:260-297`](NicheNet/candidate-panel.html:260-297), [`town-hall-host.html:306-367`](NicheNet/town-hall-host.html:306-367)
 
 **Problem:** If GAS is slow (2-4s response times are common), clients keep polling at fixed intervals without backing off. This can create a thundering herd problem that overwhelms the server.
 
@@ -303,7 +303,7 @@ function thSendMessage(pin, text) {
 ---
 
 ### 9. Poll Timestamp Drift (HIGH)
-**Location:** [`audience.html:400`](WaughNet/audience.html:400), [`candidate-panel.html:262`](WaughNet/candidate-panel.html:262), [`town-hall-host.html:308`](WaughNet/town-hall-host.html:308)
+**Location:** [`audience.html:400`](NicheNet/audience.html:400), [`candidate-panel.html:262`](NicheNet/candidate-panel.html:262), [`town-hall-host.html:308`](NicheNet/town-hall-host.html:308)
 
 **Problem:** Using client-side `Date.now()` as the `since` parameter can cause issues if client clocks are skewed. Messages could be missed or duplicated.
 
@@ -440,7 +440,7 @@ function lookupStudent(pin) {
 ---
 
 ### 14. Optimistic UI Updates Can Desync (MEDIUM)
-**Location:** [`audience.html:547-551`](WaughNet/audience.html:547-551)
+**Location:** [`audience.html:547-551`](NicheNet/audience.html:547-551)
 
 **Problem:** The optimistic message updates show messages immediately, but if the server rejects them, they remain in the UI.
 
@@ -624,7 +624,7 @@ function thCastVote(pin, partyId) {
 ---
 
 ### 19. Hardcoded URL in Pin Handout (LOW)
-**Location:** [`WaughNet/pin-handout.html:76`](WaughNet/pin-handout.html:76)
+**Location:** [`NicheNet/pin-handout.html:76`](NicheNet/pin-handout.html:76)
 
 **Problem:** The GitHub Pages URL is hardcoded. If the deployment changes, this must be updated.
 
@@ -720,7 +720,7 @@ Before the next class, test the following scenarios:
 
 ## CONCLUSION
 
-The WaughNet system is fundamentally sound for its intended purpose. The critical issues are primarily around **concurrency handling** and **lock management**, which could cause problems under the expected load of 30 students. The fixes recommended above are straightforward to implement and will significantly improve reliability.
+The NicheNet system is fundamentally sound for its intended purpose. The critical issues are primarily around **concurrency handling** and **lock management**, which could cause problems under the expected load of 30 students. The fixes recommended above are straightforward to implement and will significantly improve reliability.
 
 The system does a good job of protecting data integrity (question text hidden, vote validation, message filtering) and the architecture is clean and maintainable.
 

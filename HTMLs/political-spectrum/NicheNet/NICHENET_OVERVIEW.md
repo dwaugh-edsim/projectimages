@@ -1,21 +1,21 @@
-# WaughNet Town Hall: System Overview
+# NicheNet Town Hall: System Overview
 **Deployment Ready — Halifax West 2026**
 
-This document provides context for any AI assistant (Antigravity) picking up the task of managing the WaughNet Town Hall system on a new machine.
+This document provides context for any AI assistant (Antigravity) picking up the task of managing the NicheNet Town Hall system on a new machine.
 
 ## 🏗️ Architecture
-WaughNet is a real-time classroom interaction system built on a serverless Google stack:
+NicheNet is a real-time classroom interaction system built on a serverless Google stack:
 - **Database**: Google Sheets (used for persistent storage).
 - **Backend**: Google Apps Script (`Code.gs`) providing a JSON API via `doPost`/`doGet`.
-- **Frontend**: Vanilla HTML5/CSS3/JavaScript (located in `/WaughNet/`).
+- **Frontend**: Vanilla HTML5/CSS3/JavaScript (located in `/NicheNet/`).
 - **Communication**: Polling with exponential backoff and server-time synchronization.
 
 ## 📂 File Structure
 - `Code.gs`: The soul of the system. Handles atomic locks, salted vote hashing, moderation logic, and session state. Includes a hardcoded `9999` safety fallback for the teacher PIN.
 - `data.js`: Shared configuration. **CRITICAL**: Contains the `scriptURL` pointing to the live GAS deployment.
-- `/WaughNet/town-hall-host.html`: The Moderator Console (Teacher dashboard).
-- `/WaughNet/audience.html`: The Student App (Question submission, voting, team chats).
-- `/WaughNet/candidate-panel.html`: The Candidate Dashboard (sees approved questions only).
+- `/NicheNet/town-hall-host.html`: The Moderator Console (Teacher dashboard).
+- `/NicheNet/audience.html`: The Student App (Question submission, voting, team chats).
+- `/NicheNet/candidate-panel.html`: The Candidate Dashboard (sees approved questions only).
 
 ## 🚀 Key Features
 ### 1. Two-Phase Voting
