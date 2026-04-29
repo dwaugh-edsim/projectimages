@@ -101,7 +101,7 @@ Lead the Joint Task Force to draft the **2026 Wharf Accord**. This will be a thr
 
 **Long Title:** EXHIBIT 01: The Sovereign Right to Trade
 
-**Interaction Prompt:** Should the Accord acknowledge the inherent Treaty right to trade as the foundation of wharf use?
+**Interaction Prompt:** Should the Committee acknowledge the inherent Treaty right to trade as the foundation of wharf use in the Accord?
 
 **Options:** ACKNOWLEDGE RIGHT / REGULATE ACCESS
 
@@ -149,7 +149,7 @@ Indigenous harvesters point out that their community management plans already in
 
 **Long Title:** EXHIBIT 02: Conflict of Laws
 
-**Interaction Prompt:** Given the 2025 Biological Review's warning on management vacuums, how should the Accord balance conservation and Treaty rights?
+**Interaction Prompt:** Given the 2025 Biological Review's warning on management vacuums, how should the Committee balance conservation and Treaty rights in the Accord?
 
 **Options:** CONSERVATION FIRST / JOINT MONITORING
 
@@ -197,7 +197,7 @@ The DFO's latest "Biological Review of LFA 34/35" warns of a growing "Management
 
 **Long Title:** EXHIBIT 03: The Flashpoint of 2020
 
-**Interaction Prompt:** Given the history of arson and mob violence at Middle West Pubnico, what must be the Accord's priority for physical security?
+**Interaction Prompt:** Given the history of arson and mob violence at Middle West Pubnico, what must be the Committee's priority for physical security in the Accord?
 
 **Options:** COMMUNITY DEFENSE / RCMP OVERHAUL
 
@@ -245,7 +245,7 @@ Intelligence from 2020 shows that the physical violence was fueled by a parallel
 
 **Long Title:** EXHIBIT 04: The Role of Elders
 
-**Interaction Prompt:** Should the Accord mandate Elder guidance for all wharf disputes?
+**Interaction Prompt:** Should the Committee mandate Elder guidance for all wharf disputes in the Accord?
 
 **Options:** JOINT WATCH / ELDER GUIDANCE
 
@@ -293,7 +293,7 @@ Intelligence from the 2020 crisis reveals a complex web of conflicting mandates 
 
 **Long Title:** EXHIBIT 05: Living Agreements
 
-**Interaction Prompt:** Is the 1760 Treaty a "living agreement" that overrides municipal wharf rules?
+**Interaction Prompt:** Should the Accord treat the 1760 Treaty as a "living agreement" that overrides municipal wharf rules?
 
 **Options:** LIVING LAW / MUNICIPAL LAW
 
@@ -341,7 +341,7 @@ While tensions remain, there is a clear appetite for a "Joint Success" story. [c
 
 **Long Title:** EXHIBIT 06: Final Protocol
 
-**Interaction Prompt:** Draft your 3-sentence Wharf Protocol. Acknowledge rights, safety, and consultation.
+**Interaction Prompt:** Draft the 2026 Wharf Protocol as the Committee's final recommendation. Acknowledge rights, safety, and consultation.
 
 **Options:** SIGN ACCORD / SEEK MEDIATION
 
