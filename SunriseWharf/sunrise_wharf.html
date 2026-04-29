@@ -401,33 +401,73 @@
         #splash {
             position: fixed;
             inset: 0;
-            background: #000;
+            background: #000 url('images/chapter1.png') center/cover no-repeat;
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
+        #splash::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent, #000);
+            background-color: rgba(0,0,0,0.6);
+        }
+
         .auth-box {
-            width: 350px;
-            padding: 40px;
+            position: relative;
+            width: 400px;
+            padding: 60px;
             border: 1px solid var(--border);
-            background: #050608;
+            background: rgba(5, 6, 8, 0.9);
+            backdrop-filter: blur(10px);
             text-align: center;
             border-radius: 4px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .auth-box h1 {
+            font-family: var(--font-h);
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+            margin: 0 0 10px 0;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .auth-tagline {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
         }
 
         .auth-box input, .auth-box select {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            background: #000;
+            padding: 14px;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.8);
             border: 1px solid var(--border);
             color: #fff;
             text-align: center;
             font-family: var(--font-mono);
             box-sizing: border-box;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .auth-box input:focus, .auth-box select:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: #000;
         }
 
         footer {
@@ -496,16 +536,20 @@
 
 <body>
     <div id="splash">
-        <div class="auth-box">
-            <h1 style="font-family: var(--font-h); font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 25px;">AUTH REQUIRED</h1>
+        <div class="auth-box" id="auth-box">
+            <h1>PROJECT SUNRISE</h1>
+            <div class="auth-tagline">CLEARWATER HARBOR JOINT TASK FORCE</div>
+            
+            <div style="font-family: var(--font-mono); font-size: 0.6rem; color: #ef4444; margin-bottom: 20px; letter-spacing: 2px;">RESTRICTED ACCESS // PROTOCOL 1760-B</div>
+
             <input type="text" id="student-name" placeholder="COMMITTEE MEMBER NAME">
             <select id="class-block">
-                <option value="" disabled selected>SELECT BLOCK</option>
+                <option value="" disabled selected>ASSIGNED CLASS BLOCK</option>
                 <option value="A Block">A Block (Waugh)</option>
                 <option value="C Block">C Block (Waugh)</option>
             </select>
-            <input type="text" id="student-pin" maxlength="4" placeholder="4-LETTER PIN">
-            <button class="commit-btn" onclick="initializeSim()">INITIATE HUD</button>
+            <input type="text" id="student-pin" maxlength="4" placeholder="4-LETTER ACCESS PIN">
+            <button class="commit-btn" onclick="initializeSim()">INITIATE HANDSHAKE</button>
         </div>
     </div>
 
@@ -828,10 +872,17 @@
             
             try { await sync("get_state"); } catch (e) {}
 
-            document.getElementById('splash').style.display = 'none';
-            document.getElementById('mission-briefing').style.display = 'block';
+            gsap.to("#auth-box", { opacity: 0, y: -20, duration: 0.5, onComplete: () => {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('mission-briefing').style.display = 'block';
+            }});
             buildNav();
         }
+
+        // Init Splash Animation
+        window.onload = () => {
+            gsap.to("#auth-box", { opacity: 1, y: 0, duration: 1.2, ease: "power4.out", delay: 0.5 });
+        };
 
         async function sync(action = "save_state") {
             if (!API_URL) return;
