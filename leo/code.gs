@@ -28,16 +28,21 @@ function doGet(e) {
         const pinPart = (cellValue.match(/\(([^)]+)\)/) || [])[1] || "";
         const rowBlock = rows[i][1];
 
+        const rowMissionId = rows[i][3];
+
         if (namePart === searchName && rowBlock === searchBlock) {
-            nameExists = true;
-            if (pinPart.toUpperCase() === searchPin) {
-                pinMatches = true;
-                latestState = {
-                    judgments: JSON.parse(rows[i][5] || "{}"),
-                    responses: JSON.parse(rows[i][6] || "{}"),
-                    score: rows[i][8]
-                };
-                break;
+            // Check missionId only if provided (backwards compatible for Leo)
+            if (!e.parameter.missionId || rowMissionId === e.parameter.missionId) {
+                nameExists = true;
+                if (pinPart.toUpperCase() === searchPin) {
+                    pinMatches = true;
+                    latestState = {
+                        judgments: JSON.parse(rows[i][5] || "{}"),
+                        responses: JSON.parse(rows[i][6] || "{}"),
+                        score: rows[i][8]
+                    };
+                    break;
+                }
             }
         }
     }
