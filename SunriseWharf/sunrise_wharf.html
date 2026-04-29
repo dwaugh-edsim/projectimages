@@ -902,7 +902,7 @@
                     "longTitle": "EXHIBIT 02: Conflict of Laws",
                     "interactionPrompt": "Given the 2025 Biological Review's warning on management vacuums, how should the Accord balance conservation and Treaty rights?",
                     "options": ["CONSERVATION FIRST", "JOINT MONITORING"],
-                    "overview": "Unit 02 tackles the jurisdictional friction between municipal bylaws and constitutional rights at Sunrise Harbour. We look at the \"Sparrow Test\" for justification and analyze DFO enforcement data versus Mi'kmaw claims of jurisdictional autonomy.\n\nYou will evaluate whether the Harbor Authority has the power to override a Treaty right in the name of safety. This chapter previews the conflict between \"seasonal windows\" and \"inherent access.\"\n\nThe goal is to find a middle ground that respects both the Sparrow Test and the local Harbor Master's logs.",
+                    "overview": "Unit 02 tackles the jurisdictional friction between municipal bylaws and constitutional rights at Sunrise Harbour. We look at the *Sparrow* Test for justification and analyze DFO enforcement data versus Mi'kmaw claims of jurisdictional autonomy.\n\nYou will evaluate whether the Harbor Authority has the power to override a Treaty right in the name of safety. This chapter previews the conflict between \"seasonal windows\" and \"inherent access.\"\n\nThe goal is to find a middle ground that respects both the *Sparrow* Test and the local Harbor Master's logs.",
                     "tabs": {
                         "primary": {
                             "body": "## BYLAW §4.2: THE SEASONAL WINDOW\n\nMunicipal Bylaw §4.2 is the primary tool for managing wharf traffic, but it was never designed for Treaty implementation. The bylaw mandates that all commercial landings occur strictly within DFO-approved windows. [cite: 4] When gear is landed outside these dates, the DFO seizes it, citing a need for regional fairness and stock protection. [cite: 31]\n\n\"The rules have to apply to everyone if we want a sustainable harbor,\" says the Harbor Master. From his perspective, an uncoordinated landing is a safety hazard and a management nightmare. [cite: 37] He points to recent seizures as proof that the current system is under intense pressure.\n\nMi'kmaw harvesters, however, argue that these \"windows\" are a unilateral imposition. [cite: 40] They contend that a municipal bylaw cannot legally override a constitutionally protected Treaty right. To them, the DFO's enforcement actions are not about conservation, but about maintaining colonial control over Indigenous trade.",
@@ -1187,19 +1187,22 @@
             const footnotes = document.getElementById('footnote-list');
             footnotes.innerHTML = '';
 
+            const mdToHtml = (text) => {
+                return text
+                    .replace(/## (.*)/g, '<h2>$1</h2>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\[cite: (\d+)\]/g, (match, id) => `<sup>[${id}]</sup>`)
+                    .replace(/\n/g, '<br>');
+            };
+
             if (t === 'overview') {
-                document.getElementById('body-content').innerHTML = `<h2>CHAPTER OVERVIEW</h2><p>${s.overview}</p>`;
+                document.getElementById('body-content').innerHTML = `<h2>CHAPTER OVERVIEW</h2><p>${mdToHtml(s.overview)}</p>`;
                 document.getElementById('exhibit-img').src = s.tabs.primary.image;
                 document.getElementById('exhibit-credit').innerText = `CH 0${currentSlideIndex + 1} PREVIEW`;
             } else {
                 const content = s.tabs[t];
-                let body = content.body
-                    .replace(/## (.*)/g, '<h2>$1</h2>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\[cite: (\d+)\]/g, (match, id) => `<sup>[${id}]</sup>`)
-                    .replace(/\n/g, '<br>');
-
-                document.getElementById('body-content').innerHTML = body;
+                document.getElementById('body-content').innerHTML = mdToHtml(content.body);
                 document.getElementById('exhibit-img').src = content.image;
                 document.getElementById('exhibit-credit').innerText = `VISUAL RECORD: ${content.credit}`;
 
