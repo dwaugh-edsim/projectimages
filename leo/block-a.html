@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>COMMANDER DASHBOARD | LEO 1752</title>
-    <!-- TEACHER: Use your same API URL here -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEO 1752 | A BLOCK COMMANDER DASHBOARD</title>
     <script>const API_URL = "https://script.google.com/macros/s/AKfycbxwkUZifC73ZyLXbdBBIrtS85dxSvp5UJNT1lYlg1xGpffFkqSfzZFdXsOwx4D-KtBE/exec";</script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;700&family=Courier+Prime&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #0c0c0c;
@@ -40,12 +43,22 @@
             letter-spacing: 2px;
         }
 
+        .block-badge {
+            background: var(--accent);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: 'Courier Prime', monospace;
+            text-transform: uppercase;
+        }
+
         .controls {
             display: flex;
             gap: 15px;
         }
 
-        .filter-btn {
+        .nav-btn {
             background: transparent;
             border: 1px solid var(--border);
             color: #888;
@@ -56,7 +69,7 @@
             transition: 0.3s;
         }
 
-        .filter-btn.active {
+        .nav-btn.active {
             border-color: var(--accent);
             color: var(--accent);
             background: rgba(255, 215, 0, 0.1);
@@ -120,8 +133,15 @@
             font-weight: bold;
         }
 
-        .verdict-CROWN { background: #442222; color: #ff8888; }
-        .verdict-DEFENSE { background: #224422; color: #88ff88; }
+        .verdict-CROWN {
+            background: #442222;
+            color: #ff8888;
+        }
+
+        .verdict-DEFENSE {
+            background: #224422;
+            color: #88ff88;
+        }
 
         #stats {
             display: grid;
@@ -137,8 +157,18 @@
             border-left: 4px solid var(--accent);
         }
 
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
-        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; margin-top: 5px; }
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
 
         .loading {
             text-align: center;
@@ -146,30 +176,57 @@
             color: var(--accent);
             font-family: 'Courier Prime', monospace;
         }
+
+        .pin-display {
+            display: none;
+            color: #888;
+            font-family: 'Courier Prime';
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+
+        .refresh-indicator {
+            font-size: 0.6rem;
+            color: #666;
+            margin-top: 20px;
+            text-align: center;
+            font-family: 'Courier Prime', monospace;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="header">
-        <h1>COMMANDER DASHBOARD</h1>
-        <div class="controls">
-            <button class="filter-btn active" onclick="filterClass('ALL')">ALL BLOCKS</button>
-            <button class="filter-btn" onclick="filterClass('A Block (Waugh)')">A BLOCK</button>
-            <button class="filter-btn" onclick="filterClass('C Block (Waugh)')">C BLOCK</button>
-            <button class="filter-btn" onclick="filterClass('D Block (Hargreaves)')">D BLOCK</button>
-            <button class="download-btn" onclick="downloadCSV()">DOWNLOAD CSV</button>
+        <div>
+            <h1>LEO 1752 COMMANDER DASHBOARD</h1>
+            <div style="color: #888; font-size: 0.8rem; margin-top: 5px;">A BLOCK (Waugh) - Student Progress Tracking
+            </div>
         </div>
+        <div class="block-badge">A BLOCK</div>
     </div>
 
     <div id="stats">
-        <div class="stat-card"><div id="stat-total" class="stat-val">0</div><div class="stat-label">Total Agents</div></div>
-        <div class="stat-card"><div id="stat-active" class="stat-val">0</div><div class="stat-label">Active This Hour</div></div>
-        <div class="stat-card"><div id="stat-guilty" class="stat-val">0</div><div class="stat-label">Crown Verdicts</div></div>
-        <div class="stat-card"><div id="stat-innocent" class="stat-val">0</div><div class="stat-label">Defense Verdicts</div></div>
+        <div class="stat-card">
+            <div id="stat-total" class="stat-val">0</div>
+            <div class="stat-label">Total Agents</div>
+        </div>
+        <div class="stat-card">
+            <div id="stat-active" class="stat-val">0</div>
+            <div class="stat-label">Active This Hour</div>
+        </div>
+        <div class="stat-card">
+            <div id="stat-guilty" class="stat-val">0</div>
+            <div class="stat-label">Crown Verdicts</div>
+        </div>
+        <div class="stat-card">
+            <div id="stat-innocent" class="stat-val">0</div>
+            <div class="stat-label">Defense Verdicts</div>
+        </div>
     </div>
 
     <div id="loading" class="loading">ESTABLISHING SECURE CONNECTION...</div>
-    
+
     <table id="dash-table" style="display:none;">
         <thead>
             <tr>
@@ -184,9 +241,11 @@
         <tbody id="table-body"></tbody>
     </table>
 
+    <div class="refresh-indicator" id="refresh-time">Last updated: Never</div>
+
     <script>
         let allData = [];
-        let currentFilter = 'ALL';
+        let currentFilter = 'A Block (Waugh)';
 
         async function refreshData() {
             try {
@@ -195,17 +254,16 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dash-table').style.display = 'table';
                 renderTable();
+                updateRefreshTime();
             } catch (e) {
                 document.getElementById('loading').innerText = "CONNECTION FAILED. CHECK API URL.";
+                console.error('Refresh error:', e);
             }
         }
 
-        function filterClass(block) {
-            currentFilter = block;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.includes(block.split(' ')[0]) || (block === 'ALL' && btn.innerText === 'ALL BLOCKS'));
-            });
-            renderTable();
+        function updateRefreshTime() {
+            const now = new Date();
+            document.getElementById('refresh-time').innerText = `Last updated: ${now.toLocaleTimeString()}`;
         }
 
         function togglePin(id) {
@@ -216,14 +274,14 @@
         function renderTable() {
             const body = document.getElementById('table-body');
             body.innerHTML = '';
-            
+
             const filtered = allData.filter(d => currentFilter === 'ALL' || d.block === currentFilter);
-            
+
             // Stats
             document.getElementById('stat-total').innerText = filtered.length;
             document.getElementById('stat-guilty').innerText = filtered.filter(d => d.verdict === 'CROWN').length;
             document.getElementById('stat-innocent').innerText = filtered.filter(d => d.verdict === 'DEFENSE').length;
-            
+
             // Find recent activity (last hour)
             const oneHourAgo = new Date(Date.now() - 3600000);
             document.getElementById('stat-active').innerText = filtered.filter(d => new Date(d.timestamp) > oneHourAgo).length;
@@ -236,20 +294,20 @@
                 }
             });
 
-            Object.values(latestByStudent).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(student => {
+            Object.values(latestByStudent).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(student => {
                 const choices = Object.keys(student.choices).length;
                 const progressPct = Math.min(100, (choices / 9) * 100);
-                
+
                 // Extract the PIN for the reveal feature
                 const pinPart = (student.codename.match(/\(([^)]+)\)/) || [])[1] || "****";
                 const displayName = student.codename.split('(')[0].trim();
-                
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td style="font-weight:bold; color:var(--accent);">
                         ${displayName} 
-                        <span class="pin-display" id="pin-${student.codename.replace(/\W/g,'')}" style="display:none; color:#888; font-family:'Courier Prime'; font-size:0.7rem; margin-left:10px;">(${pinPart})</span>
-                        <button onclick="togglePin('${student.codename.replace(/\W/g,'')}')" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.8rem; padding:0 5px;" title="Reveal Code">👁️</button>
+                        <span class="pin-display" id="pin-${student.codename.replace(/\W/g, '')}" style="display:none; color:#888; font-family:'Courier Prime'; font-size:0.7rem; margin-left:10px;">(${pinPart})</span>
+                        <button onclick="togglePin('${student.codename.replace(/\W/g, '')}')" style="background:none; border:none; color:#555; cursor:pointer; font-size:0.8rem; padding:0 5px;" title="Reveal Code">👁️</button>
                     </td>
                     <td><span style="font-size:0.7rem; color:#888;">${student.block}</span></td>
                     <td>
@@ -269,7 +327,7 @@
         function downloadCSV() {
             const filtered = allData.filter(d => currentFilter === 'ALL' || d.block === currentFilter);
             let csv = "Timestamp,Block,Student,Decisions,Rationales,FinalVerdict\n";
-            
+
             filtered.forEach(d => {
                 csv += `"${d.timestamp}","${d.block}","${d.codename}","${JSON.stringify(d.choices).replace(/"/g, '""')}","${JSON.stringify(d.rationales).replace(/"/g, '""')}","${d.verdict}"\n`;
             });
@@ -279,14 +337,18 @@
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', `Leo_1752_Progress_${new Date().toISOString().split('T')[0]}.csv`);
+            a.setAttribute('download', `Leo_1752_A_Block_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
 
+        // Initial load
         refreshData();
-        setInterval(refreshData, 30000); // Auto-refresh every 30 seconds
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
     </script>
 </body>
+
 </html>
