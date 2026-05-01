@@ -27,7 +27,6 @@ function doGet(e) {
         const namePart = cellValue.split('(')[0].trim().toUpperCase();
         const pinPart = (cellValue.match(/\(([^)]+)\)/) || [])[1] || "";
         const rowBlock = rows[i][1];
-
         const rowMissionId = rows[i][3];
 
         if (namePart === searchName && rowBlock === searchBlock) {
@@ -36,19 +35,24 @@ function doGet(e) {
                 nameExists = true;
                 if (pinPart.toUpperCase() === searchPin) {
                     pinMatches = true;
-                    latestState = {
-                        judgments: JSON.parse(rows[i][5] || "{}"),
-                        responses: JSON.parse(rows[i][6] || "{}"),
-                        score: rows[i][8]
-                    };
-                    break;
+                    try {
+                        latestState = {
+                            judgments: JSON.parse(rows[i][5] || "{}"),
+                            responses: JSON.parse(rows[i][6] || "{}"),
+                            score: rows[i][8]
+                        };
+                        break;
+                    } catch (err) {
+                        console.error("Error parsing state for row " + i, err);
+                        // Continue searching if this row was corrupted
+                    }
                 }
             }
         }
     }
 
     return ContentService
-      .createTextOutput(JSON.stringify({ success: true, state: latestState }))
+      .createTextOutput(JSON.stringify({ success: true, state: latestState, nameExists: nameExists, pinMatches: pinMatches }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -58,15 +62,25 @@ function doGet(e) {
     const rows = sheet.getDataRange().getValues();
     if (rows.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
     
-    const data = rows.slice(1).map(row => ({
-      timestamp: row[0],
-      block: row[1],
-      codename: row[2],
-      missionId: row[3],
-      choices: JSON.parse(row[5] || "{}"),
-      rationales: JSON.parse(row[6] || "{}"),
-      verdict: row[8]
-    }));
+    const data = rows.slice(1)
+      .filter(row => row[2] && String(row[5]).trim() !== "Choices") // Skip header duplicates or empty rows
+      .map(row => {
+        try {
+          return {
+            timestamp: row[0],
+            block: row[1],
+            codename: row[2],
+            missionId: row[3],
+            choices: JSON.parse(row[5] || "{}"),
+            rationales: JSON.parse(row[6] || "{}"),
+            verdict: row[8]
+          };
+        } catch (e) {
+          console.error("Skipping corrupted row: " + row[2], e);
+          return null;
+        }
+      })
+      .filter(item => item !== null);
     
     return ContentService
       .createTextOutput(JSON.stringify(data))

@@ -236,7 +236,12 @@
                 }
             });
 
-            Object.values(latestByStudent).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach(student => {
+            Object.values(latestByStudent).sort((a,b) => {
+                const progressA = Object.keys(a.choices).length;
+                const progressB = Object.keys(b.choices).length;
+                if (progressA !== progressB) return progressB - progressA;
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            }).forEach(student => {
                 const choices = Object.keys(student.choices).length;
                 const progressPct = Math.min(100, (choices / 9) * 100);
                 
