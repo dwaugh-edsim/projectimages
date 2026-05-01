@@ -641,7 +641,8 @@ async function handlePartyRegistration(event) {
 async function submitGroupSurvey() {
     const orientation = document.querySelector('input[name="political-orientation"]:checked')?.value;
     const priorityIssue = document.getElementById('priority-issue').value;
-    const name = document.getElementById('student-name').value.trim();
+    const nameInput = document.getElementById('student-name').value.trim();
+    const name = nameInput.split(' ')[0].toUpperCase();
     const pin = document.getElementById('student-pin').value.trim().toUpperCase();
     if (!orientation || !priorityIssue || !name || pin.length !== 5) {
         showToast("Finish survey correctly.");
