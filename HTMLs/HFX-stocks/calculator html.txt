@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-Week Stock Portfolio Tabulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the calculator card */
+        .calculator-card {
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col items-center justify-center p-4">
+
+    <div class="calculator-card w-full max-w-2xl bg-white rounded-xl p-6 md:p-8 mt-4 mb-8">
+        <h2 class="text-3xl font-extrabold text-gray-800 mb-2 text-center">10-Week Stock Trading Platform</h2>
+        <p class="text-md text-indigo-600 mb-6 font-medium text-center">Enter the percentage change for all 10 weeks, then click 'Calculate'.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-4 border-b border-gray-200">
+            <div>
+                <label for="startPrice" class="block text-sm font-medium text-gray-700">Initial Price per Share ($)</label>
+                <input type="number" id="startPrice" value="100.00" step="0.01"
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3 bg-gray-50 border-2"
+                       aria-label="Starting Price">
+            </div>
+
+            <div>
+                <label for="sharesOwned" class="block text-sm font-medium text-gray-700">Shares Owned (Fixed)</label>
+                <input type="number" id="sharesOwned" value="100" readonly
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3 bg-gray-100 cursor-not-allowed border-2 text-gray-500"
+                       aria-label="Shares Owned">
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Weekly News Bulletin Results</h3>
+        <div id="weeklyTracker" class="space-y-3">
+            </div>
+
+        <button id="calculateBtn"
+                class="w-full mt-8 py-3 px-4 border border-transparent rounded-lg shadow-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out font-extrabold text-lg">
+            Calculate Final 10-Week Holdings
+        </button>
+
+        <div class="mt-8 pt-4 border-t-4 border-indigo-200 space-y-3">
+            <h3 class="text-xl font-semibold text-gray-800">Final Portfolio Summary</h3>
+            
+            <div class="flex justify-between items-center p-3 rounded-xl bg-gray-100 border border-gray-300">
+                <span class="text-base font-medium text-gray-700">Final Price per Share:</span>
+                <span id="finalPrice" class="text-xl font-bold text-gray-800">$100.00</span>
+            </div>
+
+            <div class="flex justify-between items-center p-3 rounded-xl bg-indigo-50 border border-indigo-300">
+                <span class="text-base font-medium text-gray-700">Total Portfolio Value:</span>
+                <span id="finalValue" class="text-2xl font-extrabold text-indigo-700">$10,000.00</span>
+            </div>
+            
+            <div class="flex justify-between items-center p-3 rounded-xl bg-yellow-50 border border-yellow-300">
+                <span class="text-base font-medium text-gray-700">Net Gain/Loss:</span>
+                <span id="netChange" class="text-xl font-bold text-gray-800">0.00%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startPriceInput = document.getElementById('startPrice');
+            const sharesOwnedInput = document.getElementById('sharesOwned');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const weeklyTracker = document.getElementById('weeklyTracker');
+            const finalPriceDisplay = document.getElementById('finalPrice');
+            const finalValueDisplay = document.getElementById('finalValue');
+            const netChangeDisplay = document.getElementById('netChange');
+
+            // --- CHANGED THIS LINE ---
+            const WEEKS = 10;
+            // -------------------------
+
+            let percentInputs = [];
+
+            // --- UI Generation ---
+            // Generate the weekly tracking rows dynamically
+            for (let i = 1; i <= WEEKS; i++) {
+                const row = document.createElement('div');
+                // Note: The typo 'FENRIS' from the original code was removed from the class list.
+                row.className = 'grid grid-cols-3 gap-3 items-center p-3 rounded-lg bg-white border border-gray-200';
+                
+                const percentInputDiv = document.createElement('div');
+                percentInputDiv.className = 'col-span-1';
+                percentInputDiv.innerHTML = `
+                    <label for="percentChange${i}" class="block text-xs font-medium text-gray-500">Week ${i} Change (%)</label>
+                    <input type="number" id="percentChange${i}" value="0" step="0.1"
+                           class="mt-1 block w-full rounded-lg shadow-sm p-2 bg-indigo-50 border border-indigo-200 text-sm font-semibold"
+                           aria-label="Week ${i} Percentage Change">
+                `;
+                percentInputs.push(percentInputDiv.querySelector('input'));
+
+                const priceDisplayDiv = document.createElement('div');
+                priceDisplayDiv.className = 'col-span-1 text-right';
+                priceDisplayDiv.innerHTML = `
+                    <span class="block text-xs font-medium text-gray-500">End Price:</span>
+                    <span id="endPrice${i}" class="text-sm font-semibold text-gray-800">$0.00</span>
+                `;
+
+                const valueDisplayDiv = document.createElement('div');
+                valueDisplayDiv.className = 'col-span-1 text-right';
+                valueDisplayDiv.innerHTML = `
+                    <span class="block text-xs font-medium text-gray-500">Portfolio Value:</span>
+                    <span id="endValue${i}" class="text-sm font-semibold text-gray-800">$0.00</span>
+                `;
+
+                row.appendChild(percentInputDiv);
+                row.appendChild(priceDisplayDiv);
+                row.appendChild(valueDisplayDiv);
+                weeklyTracker.appendChild(row);
+            }
+
+            // --- Logic Functions ---
+
+            // Function to format number as currency
+            const formatCurrency = (num) => {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(num);
+            };
+
+            const calculateAllValues = () => {
+                const initialPrice = parseFloat(startPriceInput.value) || 100.00;
+                const sharesOwned = parseFloat(sharesOwnedInput.value) || 100;
+
+                let currentPrice = initialPrice;
+                const initialValue = initialPrice * sharesOwned;
+
+                // This loop now runs 10 times because WEEKS = 10
+                for (let i = 0; i < WEEKS; i++) {
+                    const percentChangeInput = percentInputs[i];
+                    const percentChange = parseFloat(percentChangeInput.value) || 0;
+
+                    // 1. Calculate the New Price
+                    const multiplier = 1 + (percentChange / 100);
+                    let newPrice = currentPrice * multiplier;
+
+                    // Round to 2 decimal places for money
+                    newPrice = Math.round(newPrice * 100) / 100;
+                    
+                    // 2. Calculate the Total Value
+                    const totalValue = newPrice * sharesOwned;
+
+                    // 3. Update Weekly Display
+                    const endPriceDisplay = document.getElementById(`endPrice${i + 1}`);
+                    const endValueDisplay = document.getElementById(`endValue${i + 1}`);
+                    
+                    endPriceDisplay.textContent = formatCurrency(newPrice);
+                    endValueDisplay.textContent = formatCurrency(totalValue);
+
+                    // Update color based on performance for the week
+                    if (percentChange > 0) {
+                        endPriceDisplay.classList.remove('text-red-700', 'text-gray-800');
+                        endPriceDisplay.classList.add('text-green-700');
+                        endValueDisplay.classList.remove('text-red-700', 'text-gray-800');
+                        endValueDisplay.classList.add('text-green-700');
+                    } else if (percentChange < 0) {
+                        endPriceDisplay.classList.remove('text-green-700', 'text-gray-800');
+                        endPriceDisplay.classList.add('text-red-700');
+                        endValueDisplay.classList.remove('text-green-700', 'text-gray-800');
+                        endValueDisplay.classList.add('text-red-700');
+                    } else {
+                        endPriceDisplay.classList.remove('text-red-700', 'text-green-700');
+                        endPriceDisplay.classList.add('text-gray-800');
+                        endValueDisplay.classList.remove('text-red-700', 'text-green-700');
+                        endValueDisplay.classList.add('text-gray-800');
+                    }
+
+                    // Set the current price for the next week's calculation
+                    currentPrice = newPrice;
+                }
+
+                // 4. Update Final Summary
+                finalPriceDisplay.textContent = formatCurrency(currentPrice);
+                finalValueDisplay.textContent = formatCurrency(currentPrice * sharesOwned);
+
+                const totalChangePercent = ((currentPrice - initialPrice) / initialPrice) * 100;
+                netChangeDisplay.textContent = `${totalChangePercent.toFixed(2)}%`;
+                
+                // Update final summary color
+                if (totalChangePercent > 0) {
+                    netChangeDisplay.classList.remove('text-red-700');
+                    netChangeDisplay.classList.add('text-green-700');
+                } else if (totalChangePercent < 0) {
+                    netChangeDisplay.classList.remove('text-green-700');
+                    netChangeDisplay.classList.add('text-red-700');
+                } else {
+                    netChangeDisplay.classList.remove('text-green-700', 'text-red-700');
+                    netChangeDisplay.classList.add('text-gray-800');
+                }
+            };
+
+            // Event Listeners
+            calculateBtn.addEventListener('click', calculateAllValues);
+            
+            // Re-calculate when the initial price or shares owned is changed
+            startPriceInput.addEventListener('input', calculateAllValues);
+            sharesOwnedInput.addEventListener('input', calculateAllValues);
+            
+            // Add listeners to all percentage inputs
+            percentInputs.forEach(input => {
+                input.addEventListener('input', calculateAllValues);
+            });
+
+            // Run initial calculation on load (resets displays)
+            calculateAllValues();
+        });
+    </script>
+</body>
+</html>
