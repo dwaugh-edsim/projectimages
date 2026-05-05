@@ -40,37 +40,45 @@ function lookupStudent(pin) {
 /**
  * MIGRATION: Run this once from the Script Editor to move the hardcoded students to the sheet.
  */
+/**
+ * FINAL 4 ROSTER — Updated May 5 2026
+ * Changes:
+ *   - Natalia absent/removed
+ *   - Delisha promoted to leader of Environmentalists
+ *   - Kendra + Zankia transferred to Environmentalists (from Yellow Progression)
+ *   - All non-Final-4 leaders downgraded to 'member' (voter interface)
+ *   - Final 4 leaders: Elizabeth (unity), Lachlan McM (niche), Delisha (environment), Madhavan (solution)
+ */
 function migrateRosterToSheet() {
   var initialRoster = [
-    {name:'Farhan', pin:'HRNH', party:'Islamic Assoc', partyid:'islamic', role:'leader'},
-    {name:'Abdul', pin:'ALZZ', party:'Islamic Assoc', partyid:'islamic', role:'member'},
-    {name:'Joshua A', pin:'RUXG', party:'Healthier Future', partyid:'healthier', role:'leader'},
-    {name:'Clark', pin:'9F3K', party:'Healthier Future', partyid:'healthier', role:'member'},
-    {name:'Madhavan', pin:'R4MT', party:'Solution Party', partyid:'solution', role:'leader'},
-    {name:'Remy', pin:'YMRP', party:'Solution Party', partyid:'solution', role:'member'},
-    {name:'Yunho', pin:'T4N5', party:'Solution Party', partyid:'solution', role:'member'},
-    {name:'Lachlan McM', pin:'FFAN', party:'Niche Halligonians', partyid:'niche', role:'leader'},
-    {name:'Lachlan Mac', pin:'25VT', party:'Niche Halligonians', partyid:'niche', role:'member'},
-    {name:'Nolan', pin:'KFK6', party:'Niche Halligonians', partyid:'niche', role:'member'},
-    {name:'Laila', pin:'V4BC', party:'Team tomorrow', partyid:'tomorrow', role:'leader'},
-    {name:'Josie', pin:'MVQW', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
-    {name:'Huda', pin:'6SUB', party:'Team tomorrow', partyid:'tomorrow', role:'member'},
-    {name:'Brody', pin:'JY2P', party:'CPOH', partyid:'cpoh', role:'member'},
-    {name:'Leo', pin:'RKKJ', party:'CPOH', partyid:'cpoh', role:'leader'},
-    {name:'Elizabeth', pin:'FNG3', party:'Unity Party', partyid:'unity', role:'leader'},
-    {name:'Fatima', pin:'T6U2', party:'Unity Party', partyid:'unity', role:'member'},
-    {name:'Alia', pin:'LJFM', party:'Unity Party', partyid:'unity', role:'member'},
-    {name:'Rifa', pin:'57G5', party:'Equitable Rights', partyid:'equitable', role:'leader'},
-    {name:'Sarah', pin:'96EU', party:'Equitable Rights', partyid:'equitable', role:'member'},
-    {name:'Natalia', pin:'2F8V', party:'Environmentalists', partyid:'environment', role:'leader'},
-    {name:'Jessa', pin:'HSZU', party:'Environmentalists', partyid:'environment', role:'member'},
-    {name:'Delisha', pin:'Q2YA', party:'Environmentalists', partyid:'environment', role:'member'},
-    {name:'Kendra', pin:'MTGG', party:'Yellow Progression', partyid:'yellow', role:'leader'},
-    {name:'Zankia', pin:'CA3J', party:'Yellow Progression', partyid:'yellow', role:'member'},
-    {name:'Evie', pin:'R7SX', party:'Equity Party', partyid:'equity', role:'leader'},
-    {name:'Jana', pin:'TT8D', party:'Equity Party', partyid:'equity', role:'member'},
-    {name:'Ali', pin:'D2ZD', party:'Climate Protection', partyid:'climate', role:'leader'},
-    {name:'Kai', pin:'VFW8', party:'Climate Protection', partyid:'climate', role:'member'}
+    {name:'Farhan',      pin:'HRNH', party:'Islamic Assoc',     partyid:'islamic',     role:'member'},
+    {name:'Abdul',       pin:'ALZZ', party:'Islamic Assoc',     partyid:'islamic',     role:'member'},
+    {name:'Joshua A',    pin:'RUXG', party:'Healthier Future',  partyid:'healthier',   role:'member'},
+    {name:'Clark',       pin:'9F3K', party:'Healthier Future',  partyid:'healthier',   role:'member'},
+    {name:'Madhavan',    pin:'R4MT', party:'Solution Party',    partyid:'solution',    role:'leader'},
+    {name:'Remy',        pin:'YMRP', party:'Solution Party',    partyid:'solution',    role:'member'},
+    {name:'Yunho',       pin:'T4N5', party:'Solution Party',    partyid:'solution',    role:'member'},
+    {name:'Lachlan McM', pin:'FFAN', party:'Niche Halligonians',partyid:'niche',       role:'leader'},
+    {name:'Lachlan Mac', pin:'25VT', party:'Niche Halligonians',partyid:'niche',       role:'member'},
+    {name:'Nolan',       pin:'KFK6', party:'Niche Halligonians',partyid:'niche',       role:'member'},
+    {name:'Laila',       pin:'V4BC', party:'Team tomorrow',     partyid:'tomorrow',    role:'member'},
+    {name:'Josie',       pin:'MVQW', party:'Team tomorrow',     partyid:'tomorrow',    role:'member'},
+    {name:'Huda',        pin:'6SUB', party:'Team tomorrow',     partyid:'tomorrow',    role:'member'},
+    {name:'Brody',       pin:'JY2P', party:'CPOH',              partyid:'cpoh',        role:'member'},
+    {name:'Leo',         pin:'RKKJ', party:'CPOH',              partyid:'cpoh',        role:'member'},
+    {name:'Elizabeth',   pin:'FNG3', party:'Unity Party',       partyid:'unity',       role:'leader'},
+    {name:'Fatima',      pin:'T6U2', party:'Unity Party',       partyid:'unity',       role:'member'},
+    {name:'Alia',        pin:'LJFM', party:'Unity Party',       partyid:'unity',       role:'member'},
+    {name:'Rifa',        pin:'57G5', party:'Equitable Rights',  partyid:'equitable',   role:'member'},
+    {name:'Sarah',       pin:'96EU', party:'Equitable Rights',  partyid:'equitable',   role:'member'},
+    {name:'Jessa',       pin:'HSZU', party:'Environmentalists', partyid:'environment', role:'member'},
+    {name:'Delisha',     pin:'Q2YA', party:'Environmentalists', partyid:'environment', role:'leader'},
+    {name:'Kendra',      pin:'MTGG', party:'Environmentalists', partyid:'environment', role:'member'},
+    {name:'Zankia',      pin:'CA3J', party:'Environmentalists', partyid:'environment', role:'member'},
+    {name:'Evie',        pin:'R7SX', party:'Equity Party',      partyid:'equity',      role:'member'},
+    {name:'Jana',        pin:'TT8D', party:'Equity Party',      partyid:'equity',      role:'member'},
+    {name:'Ali',         pin:'D2ZD', party:'Climate Protection',partyid:'climate',     role:'member'},
+    {name:'Kai',         pin:'VFW8', party:'Climate Protection',partyid:'climate',     role:'member'}
   ];
   
   var sheet = getOrCreateSheet('TH_Roster', ['Name', 'PIN', 'Party', 'PartyId', 'Role']);
@@ -82,6 +90,67 @@ function migrateRosterToSheet() {
   });
   
   Logger.log('Roster migrated. You can now edit the "TH_Roster" sheet.');
+}
+
+/**
+ * LIVE PATCH — Run this from the Apps Script editor RIGHT NOW to apply Final 4 personnel changes
+ * WITHOUT wiping votes, messages, or questions.
+ *
+ * Changes applied:
+ *   - Natalia (2F8V) removed (absent)
+ *   - Delisha (Q2YA) promoted to leader of Environmentalists
+ *   - Kendra  (MTGG) moved to Environmentalists, role: member
+ *   - Zankia  (CA3J) moved to Environmentalists, role: member
+ *   - Non-Final-4 former leaders downgraded to role: member
+ *     (Farhan, Joshua A, Laila, Leo, Rifa, Evie, Ali)
+ */
+function updateRosterInSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('TH_Roster');
+  if (!sheet) { Logger.log('TH_Roster sheet not found. Run migrateRosterToSheet() first.'); return; }
+
+  var data = sheet.getDataRange().getValues();
+  // Column indices (0-based): Name(0) PIN(1) Party(2) PartyId(3) Role(4)
+  var pinCol = 1, partyCol = 2, partyIdCol = 3, roleCol = 4;
+
+  // Patch map: PIN => {party, partyid, role} or null to delete the row
+  var patches = {
+    '2F8V': null,
+    'Q2YA': {party:'Environmentalists', partyid:'environment', role:'leader'},
+    'MTGG': {party:'Environmentalists', partyid:'environment', role:'member'},
+    'CA3J': {party:'Environmentalists', partyid:'environment', role:'member'},
+    'HRNH': {role:'member'},
+    'RUXG': {role:'member'},
+    'V4BC': {role:'member'},
+    'RKKJ': {role:'member'},
+    '57G5': {role:'member'},
+    'R7SX': {role:'member'},
+    'D2ZD': {role:'member'}
+  };
+
+  var rowsToDelete = [];
+  for (var i = 1; i < data.length; i++) {
+    var pin = String(data[i][pinCol]).toUpperCase().trim();
+    if (!patches.hasOwnProperty(pin)) continue;
+    var patch = patches[pin];
+    if (patch === null) {
+      rowsToDelete.push(i + 1);
+    } else {
+      if (patch.party)   sheet.getRange(i + 1, partyCol + 1).setValue(patch.party);
+      if (patch.partyid) sheet.getRange(i + 1, partyIdCol + 1).setValue(patch.partyid);
+      if (patch.role)    sheet.getRange(i + 1, roleCol + 1).setValue(patch.role);
+      Logger.log('Patched: ' + data[i][0] + ' (' + pin + ')');
+    }
+  }
+
+  // Delete in reverse so row indices don't shift
+  rowsToDelete.reverse().forEach(function(rowNum) {
+    sheet.deleteRow(rowNum);
+    Logger.log('Deleted row ' + rowNum + ' (Natalia)');
+  });
+
+  SpreadsheetApp.flush();
+  Logger.log('Roster patch complete. ' + rowsToDelete.length + ' row(s) deleted.');
 }
 
 function isTeacherPin(pin) {
