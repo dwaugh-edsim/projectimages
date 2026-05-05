@@ -642,11 +642,12 @@
 
     <div class="phase-panel" id="phase-panel">
       <div class="phase-toggle">
-        <label><input type="radio" name="vote-phase" value="prelim" checked onchange="toggleFinalistUI()"> 🗳️ Prelim
+        <label><input type="radio" name="vote-phase" value="prelim" onchange="toggleFinalistUI()"> 🗳️ Prelim
           Round</label>
-        <label><input type="radio" name="vote-phase" value="final" onchange="toggleFinalistUI()"> 🏆 Final Round</label>
+        <label><input type="radio" name="vote-phase" value="final" checked onchange="toggleFinalistUI()"> 🏆 Final Round</label>
       </div>
-      <div id="finalist-container" class="finalist-selector" style="display:none;">
+      <button class="ctrl-btn ctrl-btn-amber" onclick="goToFinal4()" style="font-size:0.7rem;">🏆 Go to Final 4</button>
+      <div id="finalist-container" class="finalist-selector">
         <!-- Finalist chips will be injected here -->
       </div>
       <div id="phase-status-msg" style="font-size:0.65rem; color:var(--muted); font-style:italic;"></div>
@@ -730,6 +731,10 @@
       yellow: 'Yellow Progression', equity: 'Equity Party', climate: 'Climate Protection'
     };
 
+    // 🏆 FINAL 4 — hardcoded from prelim results
+    const FINAL_4 = ['unity', 'niche', 'environment', 'solution'];
+    const FINAL_4_STR = FINAL_4.join(',');
+
     let teacherPin = '';
     let lastPollTs = 0;
     let allQuestions = [];    // full question list
@@ -738,8 +743,8 @@
     let onStageQuestion = null;
     let votingOpen = false;
     let showingResults = false;
-    let currentVotePhase = 'prelim';
-    let currentFinalists = '';
+    let currentVotePhase = 'final';
+    let currentFinalists = FINAL_4_STR;
     let unreadCounts = {}; // partyId → count
     let consecutiveFailures = 0; // Issue #4
     let pollTimer = null;
@@ -768,10 +773,26 @@
       btn.disabled = false; btn.textContent = 'Enter →';
     }
 
-    function initApp() {
+    async function initApp() {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       buildPartyTabs();
+
+      // Auto-configure server for Final 4 on login
+      try {
+        sessionChangeTimestamp = Date.now();
+        await setSession(getCurrentActiveParty(), false, false, 'final', FINAL_4_STR);
+        console.log('[initApp] Server set to Final 4:', FINAL_4_STR);
+      } catch (e) {
+        console.warn('[initApp] Could not auto-set Final 4 on server:', e);
+      }
+
+      // Pre-check the finalist chips
+      document.querySelectorAll('.finalist-check').forEach(c => {
+        c.checked = FINAL_4.includes(c.value);
+      });
+      document.getElementById('phase-status-msg').textContent = '🏆 FINAL 4: ' + FINAL_4.map(id => PARTY_LABELS[id]).join(', ');
+
       doPoll();
       pollTimer = null; // managed inside doPoll
     }
@@ -1087,9 +1108,54 @@
       document.getElementById('finalist-container').style.display = isFinal ? 'flex' : 'none';
     }
 
+    async function goToFinal4() {
+      if (votingOpen) { alert('Close voting first before switching to Final 4.'); return; }
+      try {
+        const res = await post({ type: 'th_get_votes', pin: teacherPin, phase: 'prelim' });
+        if (res.status !== 'success' || !res.totals) {
+          alert('Could not fetch preliminary results. Make sure a prelim vote has been run first.');
+          return;
+        }
+        // Sort by vote count descending, take top 4
+        const sorted = Object.entries(res.totals).sort((a, b) => b[1] - a[1]);
+        const top4 = sorted.slice(0, 4).map(e => e[0]);
+        const top4Names = top4.map(id => PARTY_LABELS[id] || id).join(', ');
+
+        if (!confirm(`Set FINAL 4 to:\n\n${top4Names}\n\nAll other parties can still vote and participate, but only these 4 will be on the final ballot.`)) return;
+
+        // Switch radio to final
+        document.querySelector('input[name="vote-phase"][value="final"]').checked = true;
+        toggleFinalistUI();
+
+        // Check only the top 4 finalist chips
+        document.querySelectorAll('.finalist-check').forEach(c => {
+          c.checked = top4.includes(c.value);
+        });
+
+        // Persist to server (not opening voting yet, just setting the phase + finalists)
+        currentVotePhase = 'final';
+        currentFinalists = top4.join(',');
+        sessionChangeTimestamp = Date.now();
+        const setRes = await setSession(getCurrentActiveParty(), false, false, 'final', currentFinalists);
+        if (setRes.status === 'success') {
+          document.getElementById('phase-status-msg').textContent = `✅ Final 4 set: ${top4Names}`;
+        } else {
+          alert('Failed to save Final 4 to server: ' + (setRes.message || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('[goToFinal4]', e);
+        alert('Connection error fetching prelim results.');
+      }
+    }
+
     function updatePhaseUI() {
       // Issue #12: Always update the phase status message (for teacher reference)
-      document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
+      const finalistNames = currentFinalists ? currentFinalists.split(',').map(id => PARTY_LABELS[id] || id).join(', ') : '';
+      if (currentVotePhase === 'final' && finalistNames) {
+        document.getElementById('phase-status-msg').textContent = `🏆 FINAL 4: ${finalistNames}`;
+      } else {
+        document.getElementById('phase-status-msg').textContent = `Phase set to: ${currentVotePhase.toUpperCase()}`;
+      }
 
       if (votingOpen) return; // don't flick UI while voting is live
 
