@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EconQwen - Moderated Assessment Report</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;900&family=Courier+Prime:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f4f4;
+            --card-bg: #ffffff;
+            --accent: #000000;
+            --text: #1a1a1a;
+            --blue: #d0ebff;
+            --green: #d3f9d8;
+            --yellow: #fff3bf;
+            --orange: #ffe8cc;
+            --red: #ffe3e3;
+            --purple: #e5dbff;
+            --flag-bg: #fff5f5;
+            --flag-border: #fc8181;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin: 40px auto;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            background: var(--accent);
+            color: #fff;
+            display: inline-block;
+            padding: 5px 15px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 30px 0;
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 2px solid var(--accent);
+            box-shadow: 6px 6px 0px var(--accent);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        section {
+            background: #fff;
+            border: 2px solid var(--accent);
+            box-shadow: 10px 10px 0px var(--accent);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-family: 'Courier Prime', monospace;
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+        }
+
+        th,
+        td {
+            border: 2px solid var(--accent);
+            padding: 8px 6px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #eee;
+            font-weight: bold;
+        }
+
+        th.student-name {
+            min-width: 110px;
+        }
+
+        .score-high {
+            background: var(--green);
+        }
+
+        .score-mid {
+            background: var(--yellow);
+        }
+
+        .score-low {
+            background: var(--orange);
+        }
+
+        .score-zero {
+            background: var(--red);
+        }
+
+        .total-cell {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Flag styles */
+        .flag {
+            background: var(--flag-bg);
+            border: 2px solid var(--flag-border);
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .flag strong {
+            color: #c53030;
+        }
+
+        .flag .diff {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .diff-l1 {
+            background: var(--yellow);
+        }
+
+        .diff-l2 {
+            background: var(--orange);
+        }
+
+        .diff-l3 {
+            background: var(--red);
+            color: #fff;
+        }
+
+        /* Student detail */
+        .student-row {
+            border: 2px solid var(--accent);
+            margin-bottom: 16px;
+            background: #fff;
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f9f9f9;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .student-header:hover {
+            background: #eee;
+        }
+
+        .student-header h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+        }
+
+        .student-body {
+            padding: 16px;
+            display: none;
+        }
+
+        .student-body.open {
+            display: block;
+        }
+
+        .q-row {
+            display: grid;
+            grid-template-columns: 100px 60px 60px 60px 1fr;
+            gap: 8px;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .q-row:last-child {
+            border-bottom: none;
+        }
+
+        .q-name {
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .q-l1 {
+            text-align: center;
+        }
+
+        .q-l2 {
+            text-align: center;
+        }
+
+        .q-final {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .q-notes {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge-agree {
+            background: var(--green);
+        }
+
+        .badge-diff {
+            background: var(--yellow);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            border-top: 2px solid #ccc;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+
+            .q-row {
+                grid-template-columns: 80px 50px 50px 50px 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Moderated Assessment Report</h1>
+            <p class="subtitle">EconQwen + LLM 1 Cross-Reference | May 7 ICA</p>
+            <p style="margin-top: 10px; font-family: 'Courier Prime', monospace;">Differences flagged and resolved with
+                final moderated scores</p>
+        </header>
+
+        <!-- Summary -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Students</h3>
+                <div class="value">22</div>
+            </div>
+            <div class="summary-card">
+                <h3>Moderated Average</h3>
+                <div class="value">16.5/25</div>
+            </div>
+            <div class="summary-card">
+                <h3>Score Differences Flagged</h3>
+                <div class="value">32</div>
+            </div>
+            <div class="summary-card">
+                <h3>LLM Agreement Rate</h3>
+                <div class="value">81%</div>
+            </div>
+        </div>
+
+        <!-- Differences Summary -->
+        <section id="flags">
+            <h2>Flagged Differences by Question</h2>
+            <p style="margin-bottom: 16px; color: #666;">Scores have been regraded against the actual question text.
+                Students are no longer penalized for not providing details the questions never asked for.</p>
+
+            <div class="flag">
+                <strong>Q1 (HST - /3):</strong> Regraded — question only asked "progressive or regressive? why?"
+                Students
+                no longer penalized for not mentioning flat-rate. Upgrades: Maggie 3→3, Jack 2→3, Marshall 2→3, Nahla
+                3→3, Seth 2→3, Reyha 3→3, Yaroslav 2→3, Luca 3→3, Nicholas 2→3, Alex 2→3, Dyson 2→3, John 2→3, Ellee
+                2→3, Anderson 2→3, Kendrake 3→3, Joshua 2→3, Gabe 2→3, Angelique 1→2, Adarsha 1→1, Christian 1→2.
+            </div>
+            <div class="flag">
+                <strong>Q2 (Negative Externality - /3):</strong> Regraded — question only asked for "an example." Any
+                clear relevant example earns full credit. Upgrades: Maggie 3→3, Jack 3→3, Marshall 2→3, Nahla 3→3, Seth
+                2→3, Reyha 3→3, Yaroslav 2→3, Luca 2→3, Nicholas 2→3, Alex 2→3, Dyson 1→2, John 2→3, Ellee 1→2,
+                Anderson 1→2, Kendrake 1→2, Joshua 2→3, Gabe 2→3, Angelique 1→2, Adarsha 0→1, Efe 1→2, Christian 1→2.
+            </div>
+            <div class="flag">
+                <strong>Q3 (Market Failure - /3):</strong> Regraded — question asked to "describe an example." Any clear
+                described example earns credit. Upgrades: Maggie 2→3, Jack 3→3, Marshall 3→3, Nahla 3→3, Seth 3→3, Reyha
+                2→3, Yaroslav 2→3, Luca 1→2, Nicholas 2→3, Alex 2→3, Dyson 3→3, John 3→3, Ellee 1→2, Anderson 2→3,
+                Kendrake 1→2, Joshua 3→3, Gabe 2→3, Angelique 2→3, Adarsha 1→2, Christian 3→3, Efe 2→3.
+            </div>
+            <div class="flag">
+                <strong>Q4 (Monetary Policy - /4):</strong> Regraded — question asked "what is it" and "what main
+                control
+                does BoC adjust." Students who defined it + named a control (interest rates/overnight rate) earn 3-4.
+                Upgrades: Maggie 4→4, Jack 3→4, Marshall 3→4, Nahla 2→3, Seth 2→3, Reyha 1→2, Yaroslav 2→3, Luca 2→3,
+                Nicholas 3→3, Alex 2→3, Dyson 2→3, John 2→3, Ellee 3→3, Anderson 2→3, Kendrake 2→3, Joshua 1→2, Gabe
+                2→3, Angelique 1→2, Adarsha 1→2, Christian 2→3, Efe 1→2.
+            </div>
+            <div class="flag">
+                <strong>Q5 (CDIC/Banking - /4):</strong> Regraded — question asked for protection name, amount, and what
+                bank does. No change to most scores as this was already well-aligned.
+            </div>
+            <div class="flag">
+                <strong>Q6 (Tragedy of Commons - /4):</strong> Regraded — question asked "what principle" and "why did
+                it happen." Naming the principle + basic why explanation earns 3-4. Upgrades: Maggie 2→3, Jack 3→3,
+                Marshall 4→4, Nahla 4→4, Seth 3→3, Reyha 1→2, Yaroslav 4→4, Luca 4→4, Nicholas 3→3, Alex 2→3, Dyson
+                1→2, John 2→3, Ellee 3→3, Anderson 1→2, Kendrake 2→3, Joshua 2→3, Gabe 1→2, Angelique 3→3, Adarsha
+                2→3, Christian 1→2, Efe 1→2.
+            </div>
+            <div class="flag">
+                <strong>Q7 (Two Themes - /4):</strong> Regraded — basic theme understanding only, dossier detail NOT
+                required. Jack: LLM1=2, Qwen=3 <span class="diff diff-l1">diff 1</span> &rarr; 3 (upgraded). Anderson:
+                LLM1=4, Qwen=3 <span class="diff diff-l1">diff 1</span> &rarr; 4. Anjolaoluwa: LLM1=3, Qwen=1 <span
+                    class="diff diff-l2">diff 2</span> &rarr; 3 (upgraded). Ellee, Angelique, Adarsha, Christian also
+                upgraded for showing basic theme understanding.
+            </div>
+        </section>
+
+        <!-- Main Moderated Table -->
+        <section id="moderated-table">
+            <h2>Final Moderated Scores</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="student-name">Student</th>
+                            <th>Q1<br><span style="font-size:0.7rem;color:#666">/3</span></th>
+                            <th>Q2<br><span style="font-size:0.7rem;color:#666">/3</span></th>
+                            <th>Q3<br><span style="font-size:0.7rem;color:#666">/3</span></th>
+                            <th>Q4<br><span style="font-size:0.7rem;color:#666">/4</span></th>
+                            <th>Q5<br><span style="font-size:0.7rem;color:#666">/4</span></th>
+                            <th>Q6<br><span style="font-size:0.7rem;color:#666">/4</span></th>
+                            <th>Q7<br><span style="font-size:0.7rem;color:#666">/4</span></th>
+                            <th>Total<br><span style="font-size:0.7rem;color:#666">/25</span></th>
+                            <th>Flags</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="student-name">Maggie</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">4</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">22</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Jack</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">4</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">22</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Marshall</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">4</td>
+                            <td class="score-high">4</td>
+                            <td class="score-high">4</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">24</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Nahla</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">4</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">21</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Seth</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">21</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Reyha</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Yaroslav</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">4</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">22</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Luca</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">4</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">20</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Nicholas</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-low">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Alex</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">20</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Dyson</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">John</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-low">1</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Ellee</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">18</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Anderson</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">4</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Kendrake</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">18</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Joshua</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-low">1</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">18</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Gabe</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-high">19</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Angelique</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-low">1</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-mid">16</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Adarsha</td>
+                            <td class="score-low">1</td>
+                            <td class="score-low">1</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-mid">15</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Christian</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-high">3</td>
+                            <td class="score-low">1</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="total-cell score-mid">15</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Efe</td>
+                            <td class="score-zero">0</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-high">3</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="score-mid">2</td>
+                            <td class="total-cell score-mid">13</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="student-name">Anjolaoluwa*</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td class="score-mid">3</td>
+                            <td class="total-cell score-mid">3/4*</td>
+                            <td><span class="badge badge-agree">0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Per-Student Detail -->
+        <section id="student-details">
+            <h2>Per-Student Breakdown (Click to Expand)</h2>
+            <p style="margin-bottom: 20px; color: #666;">Shows LLM 1 score, Qwen score, and the final moderated score
+                for each question.</p>
+
+            <!-- Maggie -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Maggie <span class="badge badge-agree">22/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained disproportionate impact on low-income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: chemical dumping into pond affecting third parties</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described stock market crash example</span>
+                    </div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Defined
+                            monetary policy, named BoC, interest rates, inflation/deflation response</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            CDIC, $100k, bank gives loans</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">4</span><span
+                            class="q-l2">0</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            tragedy of commons, explained shared resource depletion</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">4</span><span class="q-final score-mid">3</span><span class="q-notes">Good
+                            coverage of AI disruption and economic traps</span></div>
+                </div>
+            </div>
+
+            <!-- Jack -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Jack <span class="badge badge-agree">22/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span
+                            class="q-notes">Identified
+                            regressive, explained impact on citizens who pay price</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: oil spill affecting people and animals</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Good
+                            1929 crash example with detail</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">4</span><span
+                            class="q-l2">2</span><span class="q-final score-high">4</span><span class="q-notes">Defined
+                            monetary policy, named interest rates, explained inflation/deflation response</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">CDIC,
+                            $100k, explained lending</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Named
+                            tragedy of commons, explained self-interest and resource imbalance</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Covered
+                            housing and side hustles; basic theme understanding demonstrated</span></div>
+                </div>
+            </div>
+
+            <!-- Marshall -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Marshall <span class="badge badge-agree">24/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained disproportionate impact on low-income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: grocery/transport price increases affecting third parties</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">1929
+                            crash with good detail</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Defined
+                            monetary policy, 2% target, interest rates, explained both directions</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">CDIC,
+                            $100k, lending, 10% reserve mention</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Named
+                            concept, explained greed/depletion well</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">4</span><span class="q-final score-mid">3</span><span class="q-notes">Strong
+                            housing and AI coverage with good detail</span></div>
+                </div>
+            </div>
+
+            <!-- Nahla -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Nahla <span class="badge badge-agree">21/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained impact on lower income workers</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: knockoff iPhone chemical dumping affecting fish and town</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            tragedy of commons/fishing example</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained money supply control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">1</span><span class="q-final score-mid">2</span><span class="q-notes">Response
+                            was cut off but mentioned fractional reserves</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">4</span><span
+                            class="q-l2">2</span><span class="q-final score-high">4</span><span class="q-notes">Named
+                            tragedy of commons, explained invisible hand failure</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">AI
+                            disruption coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Seth -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Seth <span class="badge badge-agree">21/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, explained HST doesn't consider income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: oil company pollution affecting everyone</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Great
+                            Depression example with global loss in funds</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained inflation/stagnation response</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">CDIC,
+                            $100k, government guaranteed</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            tragedy of commons, explained public good and shared responsibility</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">4</span><span class="q-final score-mid">3</span><span class="q-notes">Good AI
+                            and wealth transfer coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Reyha -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Reyha <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained same amount regardless of income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: cheap TV/chemicals dumping in river</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            fishing lake example</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Named
+                            monetary policy, interest rates for economy balance</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">4</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            CDIC, $100k, explained lending</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-mid">2</span><span class="q-notes">Confused
+                            with free rider problem</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">AI
+                            disruption coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Yaroslav -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Yaroslav <span class="badge badge-agree">22/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained percentage-of-income impact</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: factory pollution imposing health costs</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">1</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Described
+                            streetlights/public goods example - valid market failure</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, overnight rate, explained money supply management</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">CDIC,
+                            $100k, explained lending</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Named
+                            tragedy of commons, explained self-interest and common pool resource</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">4</span><span class="q-final score-mid">3</span><span class="q-notes">Good
+                            housing and AI analysis with supply/demand framing</span></div>
+                </div>
+            </div>
+
+            <!-- Luca -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Luca <span class="badge badge-agree">20/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained flat tax impact on lower income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            pollution consequence example</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Described
+                            free market failure requiring government intervention</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rate control for stabilization</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Named
+                            CDIC, $100k</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span class="q-notes">Named
+                            tragedy of commons, explained selfish desires and overfishing</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Housing
+                            and inequality coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Nicholas -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Nicholas <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, but reasoning about age was incorrect</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Clear
+                            example: deforestation affecting entire population</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Stock
+                            market crash example</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained lowering for unemployment</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Mentioned
+                            $100k insurance coverage</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            tragedy of commons, explained self-interest and consequences</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">AI and
+                            housing coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Alex -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Alex <span class="badge badge-agree">20/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">1</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, mentioned percentage impact on lower income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Clear
+                            example: mining pollution affecting nearby residents</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">2</span><span class="q-notes">Described
+                            oil price scenario causing wealth inequality</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, overnight rate, explained inflation control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">CDIC,
+                            $100k, explained lending and investing</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            tragedy of commons, explained shared resource depletion</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">4</span><span class="q-final score-mid">3</span><span class="q-notes">Good
+                            housing and side hustle coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Dyson -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Dyson <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, explained poor spend more of income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Described
+                            company harming another without being affected</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            resource inefficiency and pollution</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, money supply control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">$100k,
+                            government protection, explained lending</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Explained
+                            competition/self-interest causing depletion</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Housing
+                            and AI coverage</span></div>
+                </div>
+            </div>
+
+            <!-- John -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>John <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, taxes everyone same regardless of income</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            third party affected by gas prices</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Great
+                            Depression with margin buying detail</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained inflation control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span class="q-notes">Only
+                            mentioned $100k, no CDIC name</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Explained
+                            greed and profit motivation causing overfishing</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">AI and
+                            economic traps coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Ellee -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Ellee <span class="badge badge-agree">18/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, "same amount regardless of earning"</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Described
+                            pollution affecting earth</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Described
+                            market failure to divide assets</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained unemployment response</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Said
+                            "CIDC" (typo), $100k</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            tragedy of commons, explained no restrictions and depletion</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Housing
+                            and AI with personal perspective</span></div>
+                </div>
+            </div>
+
+            <!-- Anderson -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Anderson <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, explained poor spend more on needs</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Described
+                            factory pollution example</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            resource inefficiency</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, explained inflation/deflation</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">$100k,
+                            government protection</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Explained
+                            overfishing and reproduction rate issue</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">4</span><span
+                            class="q-l2">3</span><span class="q-final score-high">4</span><span
+                            class="q-notes">Excellent
+                            housing supply/demand and AI coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Kendrake -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Kendrake <span class="badge badge-agree">18/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">Correct:
+                            regressive, explained percentage-of-earnings impact</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Described
+                            factory pollution and global hazard</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Product
+                            defects example, not quite market failure</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            overnight rate, explained inflation control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Said
+                            "CIDC", explained loans</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            tragedy of commons, explained shared resource issue</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">AI and
+                            housing coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Joshua -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Joshua <span class="badge badge-agree">18/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, explained low-income impact</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            cheap TV/river dumping example</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            market failure allocating resources, tragedy of commons</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">2</span><span class="q-notes">Named
+                            liquidity ratio concept for money control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span class="q-notes">Mentioned
+                            liquidity ratio, not CDIC</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Mentioned
+                            market failure and profit influence</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Systemic
+                            inequality and AI coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Gabe -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Gabe <span class="badge badge-agree">19/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Correct:
+                            regressive, explained poor spend more on basics</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            factory pollution example</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span
+                            class="q-notes">Described
+                            resource inefficiency and pollution</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Named
+                            monetary policy, interest rates, economy control</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">$100k,
+                            government protection</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">0</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Said
+                            "shortage" - explained want vs supply</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">Housing
+                            and AI coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Angelique -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Angelique <span class="badge badge-agree">16/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Said
+                            regressive but reasoning about "lessens salary" was off</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Fake bags
+                            example, not quite externality</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">COVID
+                            example - businesses couldn't run</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Response
+                            was blank/incomplete</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span class="q-notes">Said
+                            "monetary policy" protects, $100k</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            tragedy of commons, explained overfishing consequence</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">AI and
+                            housing mentioned; basic understanding shown</span></div>
+                </div>
+            </div>
+
+            <!-- Adarsha -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Adarsha <span class="badge badge-agree">15/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span
+                            class="q-notes">Incorrect:
+                            said "progressive"</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">0</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span class="q-notes">No
+                            answer</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">"Free
+                            market breaks" - basic</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-low">2</span><span class="q-notes">Named
+                            interest rates as control mechanism</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Named
+                            CDIC, $100k, explained loans</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">3</span><span class="q-notes">Explained
+                            greed and fish depletion</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-mid">3</span><span class="q-notes">AI and
+                            inequality, brief but relevant</span></div>
+                </div>
+            </div>
+
+            <!-- Christian -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Christian <span class="badge badge-agree">15/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span
+                            class="q-notes">Incomplete
+                            response</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">No answer
+                            provided</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">3</span><span
+                            class="q-l2">2</span><span class="q-final score-high">3</span><span class="q-notes">Great
+                            Depression with good detail</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">"Central
+                            banks controlling economy" - basic</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">1</span><span class="q-notes">Mentioned
+                            third party protection</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">0</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Said
+                            "scarcity" - didn't identify concept</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Brief but
+                            mentioned housing and AI</span></div>
+                </div>
+            </div>
+
+            <!-- Efe -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Efe <span class="badge badge-agree">13/25</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">0</span><span
+                            class="q-l2">0</span><span class="q-final score-zero">0</span><span class="q-notes">No
+                            answer</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">1</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Inflation
+                            response, not quite externality</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">2</span><span
+                            class="q-l2">3</span><span class="q-final score-high">3</span><span class="q-notes">2008 oil
+                            crisis example</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">1</span><span
+                            class="q-l2">1</span><span class="q-final score-low">2</span><span class="q-notes">"Banks
+                            control money" - basic</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">CDIC,
+                            lending</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">0</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Compared
+                            to "panic sale" - showed some understanding</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">2</span><span
+                            class="q-l2">2</span><span class="q-final score-mid">2</span><span class="q-notes">Housing
+                            and inequality coverage</span></div>
+                </div>
+            </div>
+
+            <!-- Anjolaoluwa -->
+            <div class="student-row">
+                <div class="student-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <h3>Anjolaoluwa* <span class="badge badge-diff">New Student — Q7 Only</span></h3>
+                    <span>Regraded</span>
+                </div>
+                <div class="student-body">
+                    <div class="q-row"><span class="q-name">Q1: HST</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q2: Externality</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q3: Market Fail</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q4: Monetary</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q5: CDIC</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q6: Tragedy</span><span class="q-l1">—</span><span
+                            class="q-l2">—</span><span class="q-final">—</span><span class="q-notes">Not assessed (new
+                            student)</span></div>
+                    <div class="q-row"><span class="q-name">Q7: Themes</span><span class="q-l1">3</span><span
+                            class="q-l2">1</span><span class="q-final score-mid">3</span><span class="q-notes">Addressed
+                            housing and AI with relevant points. Mentioned exorbitant rents, inheritance, AI taking over
+                            jobs. Basic theme understanding demonstrated.</span></div>
+                </div>
+            </div>
+
+        </section>
+
+        <footer>
+            Moderated Assessment Report | EconQwen + LLM 1 Cross-Reference<br>
+            Generated May 8, 2026 | 22 Students Assessed | Regraded against question text requirements<br>
+            <em>*Anjolaoluwa is a new student — only Q7 (Themes) was assessed.</em>
+        </footer>
+    </div>
+
+</body>
+
+</html>
