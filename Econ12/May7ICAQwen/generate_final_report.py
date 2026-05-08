@@ -23,20 +23,19 @@ def score_q1(ans):
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
     if "regressive" in ans:
-        score += 2 # Correct identification
+        score += 2
     elif "progressive" in ans:
         deductions.append("Incorrectly identified as progressive.")
-        return 1, " ".join(deductions) # 1 point for effort/attempting reasoning if any
+        return 1, " ".join(deductions)
     else:
         deductions.append("Did not specify progressive or regressive.")
-        
-    if any(k in ans for k in ["poor", "low income", "lower income", "percentage", "proportion"]):
-        score += 1 # Reasoning provided
+    
+    # Reasoning: affects poor more, same/flat tax on different incomes
+    if any(k in ans for k in ["poor", "low income", "lower income", "percentage", "proportion", "disposable", "disproportionate", "same amount", "flat", "fixed", "regardless"]):
+        score += 1
     else:
         deductions.append("Missing explanation of why it affects low-income earners disproportionately.")
-        
     return min(score, 3), " ".join(deductions) if deductions else "Full credit for correct identification and reasoning."
 
 def score_q2(ans):
@@ -45,18 +44,14 @@ def score_q2(ans):
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
-    # Check for valid examples (3 points)
-    if any(k in ans for k in ["pollut", "smoke", "factory", "dump", "spill", "waste", "noise", "smoking", "second-hand"]):
+    if any(k in ans for k in ["pollut", "smoke", "factory", "dump", "spill", "waste", "noise", "smoking", "second-hand", "chemical", "trash"]):
         score = 3
-    # Check for good definitions/conceptual understanding (2 points)
-    elif any(k in ans for k in ["third party", "uninvolved", "outsider", "not involved", "aren't involved", "someone else"]):
+    elif any(k in ans for k in ["third party", "uninvolved", "outsider", "not involved", "aren't involved", "aren’t involved", "someone else", "unrelated", "agreement"]):
         score = 2
-        deductions.append("Understands the definition (impact on non-participants) but example could be more clear/classic.")
+        deductions.append("Understands the concept (impact on non-participants) but example could be more clear/specific.")
     else:
         score = 1
         deductions.append("Example provided does not clearly illustrate a negative externality.")
-        
     return min(score, 3), " ".join(deductions) if deductions else "Clear, relevant example provided."
 
 def score_q3(ans):
@@ -65,79 +60,70 @@ def score_q3(ans):
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
-    if any(k in ans for k in ["tragedy", "commons", "monopol", "externality", "public good", "asymmetric", "crash", "depression"]):
-        score += 3
+    if any(k in ans for k in ["tragedy", "commons", "monopol", "externality", "public good", "asymmetric", "crash", "depression", "bank run", "stock market", "efficient", "divide assets"]):
+        score = 3
     else:
-        score += 1
+        score = 1
         deductions.append("Example provided is not a standard case of market failure.")
-        
     return min(score, 3), " ".join(deductions) if deductions else "Valid example of market failure described."
 
 def score_q4(ans):
-    """Monetary Policy /4. Prompt: What is it, main control BoC adjusts?"""
+    """Monetary Policy /4."""
     ans = ans.lower().strip()
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
     # Definition
-    if any(k in ans for k in ["money supply", "value of money", "interest rate", "inflation", "growth", "economy"]):
+    if any(k in ans for k in ["money supply", "value of money", "interest rate", "intrest", "inflation", "growth", "economy", "monetary", "maintain", "liquidity ratio", "speed", "slow down"]):
         score += 2
     else:
         deductions.append("Vague or missing definition of monetary policy.")
-        
-    # Main control
-    if any(k in ans for k in ["interest rate", "overnight rate", "target rate", "discount rate"]):
+    # Tool
+    if any(k in ans for k in ["interest rate", "intrest", "overnight rate", "target rate", "discount rate", "changing the rates", "increasing or decreasing"]):
         score += 2
     else:
-        deductions.append("Did not identify interest rates/overnight rate as the primary tool.")
-        
+        deductions.append("Did not clearly identify interest rates/overnight rate as the primary tool.")
     return min(score, 4), " ".join(deductions) if deductions else "Correctly defined policy and identified interest rates as the tool."
 
 def score_q5(ans):
-    """CDIC / Banking /4. Prompt: a. Protection? who? how much? b. What bank does?"""
+    """CDIC / Banking /4. Prompt asks protection, who protects, how much, and what bank does."""
     ans = ans.lower().strip()
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
-    # Part A: Protection (CDIC, $100k)
-    if any(k in ans for k in ["cdic", "cidc", "insurance", "government"]):
+    # What/Who
+    if any(k in ans for k in ["cdic", "cidc", "insurance", "insure", "government", "gov", "canada deposit", "safety net"]):
         score += 1
     else:
-        deductions.append("Did not name the protection/agency (CDIC).")
-        
-    if "100" in ans or "hundred thousand" in ans:
+        deductions.append("Did not name the protection or the agency/government.")
+    # How much
+    if "100" in ans or "hundred thousand" in ans or "100k" in ans:
         score += 1
     else:
         deductions.append("Did not state the protection limit ($100,000).")
-        
-    # Part B: Bank operations (Lending)
-    if any(k in ans for k in ["loan", "lend", "invest", "mortgage"]):
+    # What bank does
+    if any(k in ans for k in ["loan", "lend", "invest", "mortgage", "give out", "redistribute", "circulate", "put", "economy", "use", "withdraw"]):
         score += 2
     else:
-        deductions.append("Did not explain that the bank lends out deposits.")
-        
+        deductions.append("Did not explain that the bank lends out or invests deposits.")
     return min(score, 4), " ".join(deductions) if deductions else "Comprehensive answer covering CDIC and bank lending."
 
 def score_q6(ans):
-    """Tragedy of the Commons /4. Prompt: What principle? why did it happen?"""
+    """Tragedy of the Commons /4. Prompt: Principle? Why happened?"""
     ans = ans.lower().strip()
     if not ans or ans in [".", "*"]: return 0, "No response provided."
     score = 0
     deductions = []
-    
-    if any(k in ans for k in ["tragedy", "commons", "tradgedy", "tragety"]):
+    if any(k in ans for k in ["tragedy", "commons", "tradgedy", "tragety", "shortage", "overfish", "overgraz"]):
         score += 2
     else:
         deductions.append("Did not name the 'Tragedy of the Commons' principle.")
-        
-    if any(k in ans for k in ["self-interest", "greedy", "own gain", "individual", "maximize"]):
+    
+    # Explanation of 'why'
+    if any(k in ans for k in ["self-interest", "greedy", "own gain", "individual", "maximize", "self interest", "takes and takes", "everyone just takes", "each person", "selfish", "profit"]):
         score += 2
     else:
-        deductions.append("Missing explanation of why individual self-interest leads to the outcome.")
-        
+        deductions.append("Missing explanation of why individual self-interest or lack of restriction leads to the outcome.")
     return min(score, 4), " ".join(deductions) if deductions else "Identified principle and explained the incentive problem."
 
 def score_q7(ans):
@@ -147,44 +133,49 @@ def score_q7(ans):
     score = 0
     deductions = []
     
-    # Broad ideas from dossiers
-    dossier_ideas = {
-        'housing': ["rent", "expensive", "buy", "corporat", "financial", "home", "cost of living", "afford"],
-        'ai': ["job", "replace", "automat", "disrupt", "algorithm", "technology", "generative", "work"],
-        'inequality': ["gap", "wealth", "rich", "poor", "money", "concentrat", "class"],
-        'trap': ["trap", "hustle", "burnout", "debt", "cycle", "poverty", "side"]
+    # Thematic sub-clusters for variety detection
+    themes = {
+        'Housing': ["rent", "expensive", "buy", "corporat", "financial", "home", "cost of living", "afford", "real estate", "mortgage"],
+        'AI/Tech': ["job", "replace", "automat", "disrupt", "algorithm", "technology", "generative", "work", "ai ", "artificial"],
+        'Inequality': ["gap", "wealth", "rich", "poor", "money", "concentrat", "class", "divide", "billionaire", "struggle"],
+        'The Trap/Labor': ["trap", "hustle", "burnout", "debt", "cycle", "poverty", "side", "gig", "work-life", "pressure"]
     }
     
-    found_themes = [t for t, ks in dossier_ideas.items() if any(k in ans for k in ks)]
-    num_themes = len(set(found_themes))
-    idea_hits = sum(1 for theme_ks in dossier_ideas.values() for k in theme_ks if k in ans)
-    has_2026 = any(k in ans for k in ["2026", "future", "affect", "impact", "result", "happen"])
+    # Reasoning connectors
+    connectors = ["because", "since", "due to", "therefore", "consequently", "leads to", "resulting in", "impacts", "affects"]
     
-    # Scoring
+    found_themes = [t for t, ks in themes.items() if any(k in ans for k in ks)]
+    num_themes = len(set(found_themes))
+    has_future = any(k in ans for k in ["2026", "future", "tomorrow", "next decade", "evolve", "long-term", "outlook"])
+    has_reasoning = any(c in ans for c in connectors)
+    
+    # Theme coverage (up to 2 points)
     if num_themes >= 2:
         score += 2
     elif num_themes == 1:
         score += 1
-        deductions.append("Only addressed one major theme (required two).")
+        deductions.append("Identified only one major theme; two are required for full thematic depth.")
     else:
-        deductions.append("Did not clearly address the major themes from the dossiers.")
-        
-    # Comprehensiveness and Future Link
-    if num_themes >= 2 and has_2026:
-        if len(ans) > 600 or (len(ans) > 400 and idea_hits > 8):
-            score += 2
-        elif len(ans) > 300:
-            score += 1
-            deductions.append("Good general overview, but could be more comprehensive in detail.")
+        deductions.append("Did not clearly identify the major dossier themes (Housing, AI, Inequality, Trap).")
+
+    # Insight and Future Link (up to 2 points)
+    if num_themes >= 1:
+        insight_points = 0
+        if has_future:
+            insight_points += 1
         else:
-            deductions.append("Response is too brief to be considered a 'comprehensive' overview.")
-    else:
-        if not has_2026:
-            deductions.append("Missing explanation of how these issues affect the future/2026.")
-        if num_themes < 2:
-            score += 0 # Themes already deducted
+            deductions.append("Missing a clear link to how these issues affect the future or the year 2026.")
             
-    return min(score, 4), " ".join(deductions) if deductions else "Comprehensive overview with strong future links and varied ideas."
+        if has_reasoning and (len(ans) > 300 or num_themes > 2):
+            insight_points += 1
+        elif len(ans) > 500: # Length fallback if reasoning keywords missed but effort is high
+            insight_points += 1
+        else:
+            deductions.append("Response lacks the comprehensive detail or analytical reasoning expected for full marks.")
+            
+        score += insight_points
+
+    return min(score, 4), " ".join(deductions) if deductions else "Comprehensive thematic analysis with clear future links and logical reasoning."
 
 def get_report():
     students = []
@@ -227,95 +218,8 @@ def get_report():
     # Sort by total descending
     students.sort(key=lambda x: x['total'], reverse=True)
     
-    # Generate HTML
-    html_content = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Moderated ICA Report</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #121212;
-            --card: #1e1e1e;
-            --accent: #bb86fc;
-            --text: #e0e0e0;
-            --green: #4caf50;
-            --yellow: #ffeb3b;
-            --orange: #ff9800;
-            --red: #f44336;
-        }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); padding: 40px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 60px; }
-        h1 { font-size: 3rem; font-weight: 900; color: var(--accent); }
-        .stats { display: flex; justify-content: space-around; margin-bottom: 40px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 8px; text-align: center; width: 22%; border: 1px solid #333; }
-        .stat-val { font-size: 2rem; font-weight: 900; color: var(--accent); }
-        
-        table { width: 100%; border-collapse: collapse; margin-bottom: 60px; background: var(--card); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #333; }
-        th { background: #252525; font-family: 'Courier Prime', monospace; }
-        .name-cell { text-align: left; font-weight: 600; }
-        
-        .score-pill { padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
-        .high { background: rgba(76, 175, 80, 0.2); color: #81c784; }
-        .mid { background: rgba(255, 235, 59, 0.2); color: #fff176; }
-        .low { background: rgba(244, 67, 54, 0.2); color: #e57373; }
-        
-        .student-block { background: var(--card); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #333; }
-        .student-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .q-block { margin-bottom: 20px; padding: 15px; background: #252525; border-radius: 8px; }
-        .q-text { font-family: 'Courier Prime', monospace; color: var(--accent); font-weight: bold; margin-bottom: 10px; }
-        .ans-text { margin-bottom: 10px; color: #bbb; font-style: italic; }
-        .comment-text { font-size: 0.9rem; color: var(--orange); }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>May 7 ICA Moderated Report</h1>
-            <p>Final pass with per-question deduction reasoning and conceptual focus.</p>
-        </header>
-        
-        <div class="stats">
-            <div class="stat-card"><div class="stat-val">""" + str(len(students)) + """</div><div>Students</div></div>
-            <div class="stat-card"><div class="stat-val">""" + f"{sum(s['total'] for s in students)/len(students):.1f}" + """</div><div>Average</div></div>
-            <div class="stat-card"><div class="stat-val">""" + str(max(s['total'] for s in students)) + """</div><div>Max</div></div>
-            <div class="stat-card"><div class="stat-val">""" + str(min(s['total'] for s in students)) + """</div><div>Min</div></div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th class="name-cell">Student</th>
-                    <th>Q1 (/3)</th><th>Q2 (/3)</th><th>Q3 (/3)</th><th>Q4 (/4)</th><th>Q5 (/4)</th><th>Q6 (/4)</th><th>Q7 (/4)</th>
-                    <th>Total (/25)</th>
-                </tr>
-            </thead>
-            <tbody>
-    """
-
-    for s in students:
-        html_content += f"<tr><td class='name-cell'>{s['name']}</td>"
-        for i in range(7):
-            val = s['scores'][i]
-            mx = [3,3,3,4,4,4,4][i]
-            cls = "high" if val/mx >= 0.75 else "mid" if val/mx >= 0.5 else "low"
-            html_content += f"<td><span class='score-pill {cls}'>{val}</span></td>"
-        
-        total_cls = "high" if s['total']/25 >= 0.75 else "mid" if s['total']/25 >= 0.5 else "low"
-        html_content += f"<td><span class='score-pill {total_cls}'>{s['total']}</span></td></tr>"
-
-    html_content += """
-            </tbody>
-        </table>
-
-        <h2>Detailed Moderation Notes</h2>
-    """
-
+    # Calculate averages per question
+    q_averages = [sum(s['scores'][i] for s in students)/len(students) for i in range(7)]
     q_labels = [
         "Q1: HST Progressive vs Regressive",
         "Q2: Negative Externality Example",
@@ -325,6 +229,109 @@ def get_report():
         "Q6: Tragedy of the Commons",
         "Q7: Thematic Links Analysis"
     ]
+    q_maxes = [3,3,3,4,4,4,4]
+    avg = sum(s['total'] for s in students)/len(students)
+    mx = max(s['total'] for s in students)
+    mn = min(s['total'] for s in students)
+
+    # Generate HTML
+    html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Moderated ICA Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {{
+            --bg: #121212;
+            --card: #1e1e1e;
+            --accent: #bb86fc;
+            --text: #e0e0e0;
+            --orange: #ff9800;
+        }}
+        body {{ font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); padding: 40px; }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        header {{ text-align: center; margin-bottom: 60px; }}
+        h1 {{ font-size: 3rem; font-weight: 900; color: var(--accent); }}
+        .stats {{ display: flex; justify-content: space-around; margin-bottom: 40px; }}
+        .stat-card {{ background: var(--card); padding: 20px; border-radius: 8px; text-align: center; width: 22%; border: 1px solid #333; }}
+        .stat-val {{ font-size: 2rem; font-weight: 900; color: var(--accent); }}
+        table {{ width: 100%; border-collapse: collapse; margin-bottom: 60px; background: var(--card); border-radius: 8px; overflow: hidden; }}
+        th, td {{ padding: 15px; text-align: center; border-bottom: 1px solid #333; }}
+        th {{ background: #252525; font-family: 'Courier Prime', monospace; }}
+        .name-cell {{ text-align: left; font-weight: 600; }}
+        .score-pill {{ padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }}
+        .high {{ background: rgba(76,175,80,0.2); color: #81c784; }}
+        .mid {{ background: rgba(255,235,59,0.2); color: #fff176; }}
+        .low {{ background: rgba(244,67,54,0.2); color: #e57373; }}
+        .student-block {{ background: var(--card); padding: 30px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #333; }}
+        .student-title {{ font-size: 1.5rem; font-weight: 900; margin-bottom: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 10px; }}
+        .q-block {{ margin-bottom: 20px; padding: 15px; background: #252525; border-radius: 8px; }}
+        .q-text {{ font-family: 'Courier Prime', monospace; color: var(--accent); font-weight: bold; margin-bottom: 10px; }}
+        .ans-text {{ margin-bottom: 10px; color: #bbb; font-style: italic; }}
+        .comment-text {{ font-size: 0.9rem; color: var(--orange); }}
+        .summary-title {{ margin: 40px 0 20px 0; color: var(--accent); font-weight: 900; font-size: 1.5rem; }}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>May 7 ICA Moderated Report</h1>
+        <p>Final pass with per-question deduction reasoning and conceptual focus.</p>
+    </header>
+    <div class="stats">
+        <div class="stat-card"><div class="stat-val">{len(students)}</div><div>Students</div></div>
+        <div class="stat-card"><div class="stat-val">{avg:.1f}</div><div>Average</div></div>
+        <div class="stat-card"><div class="stat-val">{mx}</div><div>Max</div></div>
+        <div class="stat-card"><div class="stat-val">{mn}</div><div>Min</div></div>
+    </div>
+
+    <div class="summary-title">Class Performance by Question</div>
+    <table>
+        <thead><tr>
+            <th>Question</th>
+            <th>Max Score</th>
+            <th>Average Score</th>
+            <th>Success Rate</th>
+        </tr></thead>
+        <tbody>
+"""
+    for i in range(7):
+        success_rate = (q_averages[i] / q_maxes[i]) * 100
+        html_content += f"""
+        <tr>
+            <td class='name-cell'>{q_labels[i]}</td>
+            <td>{q_maxes[i]}</td>
+            <td>{q_averages[i]:.2f}</td>
+            <td>{success_rate:.1f}%</td>
+        </tr>
+"""
+    
+    html_content += f"""
+        </tbody>
+    </table>
+
+    <div class="summary-title">Student Score Table</div>
+    <table>
+        <thead><tr>
+            <th class="name-cell">Student</th>
+            <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Q5</th><th>Q6</th><th>Q7</th>
+            <th>Total (/25)</th>
+        </tr></thead>
+        <tbody>
+"""
+    for s in students:
+        html_content += f"<tr><td class='name-cell'>{s['name']}</td>"
+        for i in range(7):
+            val = s['scores'][i]
+            cls = "high" if val/q_maxes[i] >= 0.75 else "mid" if val/q_maxes[i] >= 0.5 else "low"
+            html_content += f"<td><span class='score-pill {cls}'>{val}</span></td>"
+        total_cls = "high" if s['total']/25 >= 0.75 else "mid" if s['total']/25 >= 0.5 else "low"
+        html_content += f"<td><span class='score-pill {total_cls}'>{s['total']}</span></td></tr>"
+
+    html_content += "</tbody></table>\n<div class='summary-title'>Detailed Moderation Notes</div>\n"
 
     for s in students:
         html_content += f"""
