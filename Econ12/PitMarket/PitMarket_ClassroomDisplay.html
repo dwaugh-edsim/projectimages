@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE PIT MARKET - LIVE</title>
+    <style>
+        :root {
+            --primary: #1a472a;
+            --accent: #ffd700;
+            --buyer: #1976d2;
+            --seller: #e65100;
+            --bg: #0f172a;
+            --card: rgba(255,255,255,0.05);
+        }
+
+        /* Overlay Styles (Intro & Theory) */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            transition: opacity 0.5s ease;
+        }
+
+        .overlay.active { display: flex; }
+
+        .slide {
+            height: 100%;
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem;
+            box-sizing: border-box;
+        }
+
+        .slide.active { display: flex; }
+
+        .slide h1 { font-size: 5rem; color: var(--accent); margin: 0; text-transform: uppercase; }
+        .slide h2 { font-size: 3rem; margin: 1rem 0; color: white; }
+        .slide p { font-size: 1.8rem; max-width: 900px; color: #94a3b8; line-height: 1.4; }
+
+        .content-box { background: var(--card); padding: 3rem; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); max-width: 1000px; text-align: left; }
+        .concept { font-size: 1.8rem; line-height: 1.6; margin-bottom: 1.5rem; border-left: 5px solid var(--accent); padding-left: 1.5rem; }
+        .highlight { color: var(--accent); font-weight: bold; }
+
+        .slide-nav {
+            position: absolute;
+            bottom: 2rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        /* Main Display Styles */
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0;
+            padding: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+            gap: 2rem;
+        }
+
+        h1.main-title {
+            font-size: 2.2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+
+        .timer-container {
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem 2rem;
+            border-radius: 24px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+        }
+
+        #timer {
+            font-size: 5rem;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .rules-card {
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .rules-card h2 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .rule-item {
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            font-size: 1.1rem;
+        }
+
+        .round-status {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+        }
+
+        .rule-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+
+        .tracker-card {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .price-input-zone {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            background: #1e293b;
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 16px;
+            color: white;
+            font-size: 2rem;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        input:focus { border-color: var(--accent); outline: none; }
+
+        button.action {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        button.action:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+        .price-log {
+            flex-grow: 1;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            align-content: flex-start;
+        }
+
+        .price-badge {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 900;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            animation: dealPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes dealPop {
+            0% { transform: scale(0.5) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-small {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #94a3b8;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-small:hover { background: rgba(255,255,255,0.2); color: white; }
+
+        .btn-theory { background: var(--accent); color: black !important; }
+        .btn-theory:hover { filter: brightness(1.1); }
+
+    </style>
+</head>
+<body>
+    <!-- INTRO OVERLAY -->
+    <div id="introOverlay" class="overlay active">
+        <div class="slide active">
+            <h1>THE PIT MARKET</h1>
+            <h2>Welcome to the Trading Floor.</h2>
+            <p>Forget the textbook. Today, you ARE the market.</p>
+        </div>
+        <div class="slide">
+            <h1>THE MISSION</h1>
+            <h2>Maximize Your Profit.</h2>
+            <p>Every dollar you "save" or "gain" adds to your total portfolio profit.</p>
+        </div>
+        <div class="slide">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%; max-width: 1000px;">
+                <div style="background: white; color: black; padding: 2rem; border-radius: 20px;">
+                    <h3 style="font-size: 3rem;">BUYERS</h3>
+                    <p style="font-weight: bold;">The number on your card is the MAXIMUM you can afford to pay.</p>
+                </div>
+                <div style="background: black; color: white; padding: 2rem; border-radius: 20px; border: 2px solid #444;">
+                    <h3 style="font-size: 3rem;">SELLERS</h3>
+                    <p style="font-weight: bold;">The number on your card is the MINIMUM you can accept.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <h1>READY?</h1>
+            <button class="action" style="font-size: 3rem; padding: 2rem 4rem;" onclick="toggleOverlay('introOverlay', false)">OPEN THE PIT</button>
+        </div>
+
+        <div class="slide-nav">
+            <button class="btn-small" onclick="moveSlide('introOverlay', -1)">PREVIOUS</button>
+            <button class="btn-small" onclick="moveSlide('introOverlay', 1)">NEXT</button>
+        </div>
+    </div>
+
+    <!-- THEORY OVERLAY -->
+    <div id="theoryOverlay" class="overlay">
+        <!-- Slide 1: Invisible Hand -->
+        <div class="slide active">
+            <h1>The Invisible Hand</h1>
+            <h2>How "Greed" Creates Order.</h2>
+            <div class="content-box">
+                <div class="concept">In Round 1, you only cared about <span class="highlight">YOUR profit</span>. You didn't care about the "Market."</div>
+                <div class="concept">But in Round 2, your individual greed combined to create a <span class="highlight">Stable Equilibrium</span>.</div>
+                <div class="concept"><strong>Adam Smith (1776):</strong> By following our own self-interest, we benefit society more than we ever intended.</div>
+            </div>
+        </div>
+        <!-- Slide 2: Perfect Competition -->
+        <div class="slide">
+            <h1>Perfect Competition</h1>
+            <h2>The Ideal Market.</h2>
+            <div class="content-box">
+                <div class="concept"><strong>Many Traders:</strong> No one person can control the price.</div>
+                <div class="concept"><strong>Homogenous Product:</strong> Every card was the same "good."</div>
+                <div class="concept"><strong>Perfect Information:</strong> Once the prices were on the board, the chaos stopped.</div>
+                <div class="concept"><strong>Result:</strong> Efficiency. The price hits the lowest point possible.</div>
+            </div>
+        </div>
+        <!-- Slide 3: The Margin -->
+        <div class="slide">
+            <h1>The "Marginal" Trader</h1>
+            <h2>Who gets left behind?</h2>
+            <div class="content-box">
+                <div class="concept">Did you have a high-cost card when the market price was low? <span class="highlight">You were "Priced Out."</span></div>
+                <div class="concept">Competition forces efficiency. It rewards the sellers who can produce for the <span class="highlight">lowest cost</span>.</div>
+                <div class="concept">In the real world, this signals that you should move your resources elsewhere.</div>
+            </div>
+        </div>
+        <!-- Slide 4: Shocks -->
+        <div class="slide">
+            <h1>Economic Shocks</h1>
+            <h2>Taxes vs. Subsidies.</h2>
+            <div class="content-box">
+                <div class="concept"><strong>The $5 Subsidy:</strong> Gave Buyers "Superpowers." Prices <span class="highlight">went UP</span> as they competed harder.</div>
+                <div class="concept"><strong>The $5 Teacher Tax:</strong> Hurt Sellers. To survive, they raised prices. The price <span class="highlight">went UP</span> again.</div>
+                <div class="concept"><strong>Lesson:</strong> Intervention always changes the "Natural" Equilibrium.</div>
+            </div>
+        </div>
+
+        <div class="slide-nav">
+            <button class="btn-small" onclick="moveSlide('theoryOverlay', -1)">PREVIOUS</button>
+            <button class="btn-small btn-theory" onclick="toggleOverlay('theoryOverlay', false)">BACK TO MARKET [T]</button>
+            <button class="btn-small" onclick="moveSlide('theoryOverlay', 1)">NEXT</button>
+        </div>
+    </div>
+
+    <!-- MAIN MARKET DISPLAY -->
+    <header>
+        <div>
+            <h1 class="main-title">The Pit Market</h1>
+            <div id="roundIndicator" class="round-status">Round 1: Blind Market</div>
+            <div class="controls">
+                <button class="btn-small" onclick="prevRound()">←</button>
+                <button id="revealBtn" class="btn-small" style="display:none; background: var(--accent); color: black;" onclick="revealRound()">REVEAL SHOCK</button>
+                <button class="btn-small" onclick="nextRound()">Next Round →</button>
+                <button class="btn-small btn-theory" onclick="toggleOverlay('theoryOverlay', true)">THEORY [T]</button>
+            </div>
+        </div>
+        
+        <div class="timer-container">
+            <div id="timer">05:00</div>
+            <div class="controls" style="justify-content: center;">
+                <button class="btn-small" onclick="startTimer()">START MARKET</button>
+                <button class="btn-small" onclick="resetTimer()">RESET</button>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <div id="marketStats" style="font-size: 2.5rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">--</div>
+            <div style="font-size: 0.8rem; opacity: 0.5; text-transform: uppercase;">Current Market Average</div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="rules-card">
+            <h2>Market Rules</h2>
+            <div class="rule-item">
+                <div class="rule-icon" style="background: #fff; color: #000; border: 2px solid #000;">B</div>
+                <div>
+                    <strong>Buyers (White Cards):</strong> Max you can pay.
+                    <br><small>Profit = Value - Price Paid</small>
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-icon" style="background: #000; color: #fff; border: 2px solid #fff;">S</div>
+                <div>
+                    <strong>Sellers (Black Cards):</strong> Min you can accept.
+                    <br><small>Profit = Price - Cost</small>
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-icon">!</div>
+                <div><strong>Closing a Deal:</strong> Report the price together at the front desk.</div>
+            </div>
+        </div>
+
+        <div class="tracker-card">
+            <h2>Real-Time Price Log</h2>
+            <div class="price-input-zone">
+                <input type="number" id="priceInput" placeholder="$0.00" onkeypress="if(event.key==='Enter') logPrice()">
+                <button class="action" onclick="logPrice()">Log Deal</button>
+            </div>
+            <div class="price-log" id="priceLog"></div>
+            <div class="controls" style="margin-top: auto; padding-top: 1rem;">
+                <button class="btn-small" onclick="clearLog()">Clear Log</button>
+                <button class="btn-small" onclick="calculateStats()">Get Average</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Slide & Overlay Logic
+        const overlayStates = { introOverlay: 0, theoryOverlay: 0 };
+        
+        function moveSlide(overlayId, n) {
+            const container = document.getElementById(overlayId);
+            const slides = container.querySelectorAll('.slide');
+            slides[overlayStates[overlayId]].classList.remove('active');
+            overlayStates[overlayId] = (overlayStates[overlayId] + n + slides.length) % slides.length;
+            slides[overlayStates[overlayId]].classList.add('active');
+        }
+
+        function toggleOverlay(id, state) {
+            const el = document.getElementById(id);
+            el.style.display = state ? 'flex' : 'none';
+            if (!state && id === 'theoryOverlay') document.getElementById('priceInput').focus();
+        }
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 't' || e.key === 'T') {
+                const theory = document.getElementById('theoryOverlay');
+                toggleOverlay('theoryOverlay', theory.style.display !== 'flex');
+            }
+            // If in Theory Mode
+            if (document.getElementById('theoryOverlay').style.display === 'flex') {
+                if (e.key === 'ArrowRight' || e.key === ' ') moveSlide('theoryOverlay', 1);
+                if (e.key === 'ArrowLeft') moveSlide('theoryOverlay', -1);
+                return;
+            }
+            // Market Mode
+            if (e.key === ' ') { e.preventDefault(); startTimer(); }
+            if (e.key === 'r' || e.key === 'R') resetTimer();
+        });
+
+        // Market Logic
+        let timeLeft = 300, timerId = null, currentRound = 1;
+        const rounds = [
+            { label: "Round 1: Blind Market", secret: "" },
+            { label: "Round 2: Informed Market", secret: "" },
+            { label: "Round 3: ???", secret: "Round 3: Government Subsidy ($5)" },
+            { label: "Round 4: ???", secret: "Round 4: The Teacher Tax ($5)" }
+        ];
+
+        function startTimer() { if (!timerId) timerId = setInterval(updateTimer, 1000); }
+        function resetTimer() { clearInterval(timerId); timerId = null; timeLeft = 300; updateTimerDisplay(); }
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        function updateTimer() { if (timeLeft <= 0) { clearInterval(timerId); alert("Time Up!"); return; } timeLeft--; updateTimerDisplay(); }
+
+        function logPrice() {
+            const input = document.getElementById('priceInput'), val = input.value;
+            if (!val) return;
+            const badge = document.createElement('div');
+            badge.className = 'price-badge';
+            badge.textContent = '$' + val;
+            document.getElementById('priceLog').prepend(badge);
+            input.value = '';
+            calculateStats();
+        }
+
+        function calculateStats() {
+            const badges = document.querySelectorAll('.price-badge');
+            if (badges.length === 0) return;
+            let sum = 0;
+            badges.forEach(b => sum += parseFloat(b.textContent.replace('$','')));
+            document.getElementById('marketStats').textContent = '$' + (sum / badges.length).toFixed(2);
+        }
+
+        function clearLog() { document.getElementById('priceLog').innerHTML = ''; document.getElementById('marketStats').textContent = '--'; }
+
+        function nextRound() {
+            if (currentRound < 4 && confirm("Next round?")) {
+                currentRound++; clearLog(); resetTimer(); updateRoundDisplay();
+            }
+        }
+        function prevRound() { if (currentRound > 1) { currentRound--; updateRoundDisplay(); } }
+        function updateRoundDisplay() {
+            document.getElementById('roundIndicator').textContent = rounds[currentRound - 1].label;
+            document.getElementById('revealBtn').style.display = (currentRound > 2) ? 'inline-block' : 'none';
+        }
+        function revealRound() { if (currentRound > 2) document.getElementById('roundIndicator').textContent = rounds[currentRound - 1].secret; }
+    </script>
+</body>
+</html>
