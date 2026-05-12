@@ -6,7 +6,7 @@
     <title>Digital Dossier: The "System" Connection</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
-        body { font-family: 'Courier Prime', monospace; background: #f4f4f4; padding: 40px; line-height: 1.4; color: #000; }
+        body { font-family: 'Courier Prime', monospace; background: #f4f4f4; padding: 40px; line-height: 1.4; color: #000; transition: background 0.3s; }
         .dossier { max-width: 900px; margin: 0 auto; background: #fff; border: 2px solid #000; padding: 50px; position: relative; box-shadow: 20px 20px 0 rgba(0,0,0,0.05); }
         .header { border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
         h1 { font-family: 'Special Elite', cursive; font-size: 28px; margin: 0; text-transform: uppercase; }
@@ -16,25 +16,36 @@
         th, td { border: 1px solid #000; padding: 12px; text-align: left; vertical-align: top; }
         th { background: #eee; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
         
-        textarea { width: 100%; border: none; background: transparent; font-family: 'Courier Prime', monospace; font-size: 14px; resize: none; min-height: 60px; outline: none; padding: 0; }
+        textarea, .display-text { width: 100%; border: none; background: transparent; font-family: 'Courier Prime', monospace; font-size: 14px; resize: none; min-height: 60px; outline: none; padding: 0; white-space: pre-wrap; }
         textarea:focus { background: #fffde7; }
+        .display-text { display: none; color: #1a1a1a; font-weight: bold; }
         
         .stamp { position: absolute; top: 120px; right: 50px; border: 4px solid rgba(192, 57, 43, 0.6); color: rgba(192, 57, 43, 0.6); padding: 15px; font-family: 'Special Elite', cursive; font-size: 24px; transform: rotate(15deg); pointer-events: none; }
         
         .toolbar { position: sticky; top: 0; background: rgba(255,255,255,0.9); padding: 10px; border-bottom: 2px solid #000; z-index: 100; margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
         .btn { background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite', cursive; text-transform: uppercase; }
         .btn:hover { background: #333; }
-        .btn-save { background: #22c55e; }
+        .btn-finalize { background: #c0392b; }
 
-        @media print { .toolbar { display: none; } body { padding: 0; background: white; } .dossier { box-shadow: none; border: 1px solid #000; width: 100%; } }
+        /* Final Submission Mode */
+        body.final-mode { background: #2c3e50; padding: 20px; }
+        body.final-mode .toolbar { display: none; }
+        body.final-mode textarea { display: none; }
+        body.final-mode .display-text { display: block; }
+        body.final-mode .dossier { border-width: 10px; border-color: #000; }
+        #exitFinal { display: none; position: fixed; top: 10px; right: 10px; z-index: 1000; }
+        body.final-mode #exitFinal { display: block; }
+
+        @media print { .toolbar, #exitFinal { display: none; } body { padding: 0; background: white; } .dossier { box-shadow: none; border: 1px solid #000; width: 100%; } }
     </style>
 </head>
 <body>
 
+    <button id="exitFinal" class="btn" onclick="toggleFinalMode(false)">Back to Editing</button>
+
     <div class="toolbar">
-        <button class="btn btn-save" onclick="saveDossier()">Manual Save</button>
-        <button class="btn" onclick="exportToClassroom()">Export for Google Classroom</button>
-        <button class="btn" onclick="window.print()">Print to PDF</button>
+        <button class="btn btn-finalize" onclick="toggleFinalMode(true)">Finalize for Screenshot</button>
+        <button class="btn" onclick="exportToClassroom()">Copy for Google Classroom</button>
         <span id="saveStatus" style="margin-left: 10px; font-size: 12px; font-weight: bold; align-self: center;"></span>
     </div>
 
@@ -48,66 +59,57 @@
             <div class="case-num">CASE: OC-010-DIGITAL</div>
         </div>
 
-        <p><strong>Agent Name:</strong> <input type="text" id="agentName" style="border:none; border-bottom:1px solid #ccc; font-family: inherit; width: 200px;" placeholder="ENTER NAME..."></p>
+        <p><strong>Agent Name:</strong> <input type="text" id="agentName" class="input-field" style="border:none; border-bottom:1px solid #ccc; font-family: inherit; width: 200px;" placeholder="ENTER NAME...">
+        <span class="display-text" id="agentNameDisplay"></span></p>
 
         <div class="section-title">Part A: Decoding the Guardianship Order (Page 10)</div>
-        <p>Analyze the 4 hotspots from the classroom display and explain their historical significance:</p>
         <table>
             <tr>
                 <th width="30%">Hotspot</th>
-                <th width="50%">Your Evidence Analysis</th>
-                <th width="20%">Textbook</th>
+                <th width="70%">Your Evidence Analysis</th>
             </tr>
             <tr>
                 <td>1. The Header</td>
-                <td><textarea id="h1" placeholder="Type here..."></textarea></td>
-                <td>Ch. 17, p. 48</td>
+                <td><textarea id="h1"></textarea><div class="display-text" id="h1Display"></div></td>
             </tr>
             <tr>
-                <td>2. The Fine Print (Law)</td>
-                <td><textarea id="h2" placeholder="Type here..."></textarea></td>
-                <td>Ch. 17, p. 48</td>
+                <td>2. The Law</td>
+                <td><textarea id="h2"></textarea><div class="display-text" id="h2Display"></div></td>
             </tr>
             <tr>
                 <td>3. Historical Trauma</td>
-                <td><textarea id="h3" placeholder="Type here..."></textarea></td>
-                <td>Ch. 17, p. 48-49</td>
+                <td><textarea id="h3"></textarea><div class="display-text" id="h3Display"></div></td>
             </tr>
             <tr>
                 <td>4. The Signature</td>
-                <td><textarea id="h4" placeholder="Type here..."></textarea></td>
-                <td>Ch. 7, p. 21</td>
+                <td><textarea id="h4"></textarea><div class="display-text" id="h4Display"></div></td>
             </tr>
         </table>
 
         <div class="section-title">Part B: Connecting the Timeline</div>
-        <p>How did these historical events create the conditions for Joey's removal today?</p>
         <table>
             <tr>
                 <th width="30%">Historical Dot</th>
-                <th width="50%">Chain of Cause-and-Effect</th>
-                <th width="20%">Textbook</th>
+                <th width="70%">Chain of Cause-and-Effect</th>
             </tr>
             <tr>
                 <td>The 1920 Law</td>
-                <td><textarea id="t1" placeholder="Type here..."></textarea></td>
-                <td>Ch. 17, p. 48</td>
+                <td><textarea id="t1"></textarea><div class="display-text" id="t1Display"></div></td>
             </tr>
             <tr>
                 <td>The Sixties Scoop</td>
-                <td><textarea id="t2" placeholder="Type here..."></textarea></td>
-                <td>Ch. 7, p. 21</td>
+                <td><textarea id="t2"></textarea><div class="display-text" id="t2Display"></div></td>
             </tr>
             <tr>
                 <td>2012 Statistics</td>
-                <td><textarea id="t3" placeholder="Type here..."></textarea></td>
-                <td>Ch. 27, p. 72-73</td>
+                <td><textarea id="t3"></textarea><div class="display-text" id="t3Display"></div></td>
             </tr>
         </table>
 
         <div class="section-title">Part C: The Verdict</div>
-        <p>Is Joey's removal a "Personal Failure" or a "Systemic Outcome"? Defend your stance with evidence from the Chanie Wenjack cold case.</p>
-        <textarea id="verdict" style="min-height: 200px; border: 1px solid #eee; padding: 15px; background: #fafafa;" placeholder="Draft your final verdict here..."></textarea>
+        <p>Is Joey's removal a "Personal Failure" or a "Systemic Outcome"?</p>
+        <textarea id="verdict" style="min-height: 200px;"></textarea>
+        <div class="display-text" id="verdictDisplay" style="min-height: 200px; padding: 20px; background: #fafafa; border: 1px solid #eee;"></div>
 
         <footer style="margin-top: 30px; font-size: 10px; text-align: center; border-top: 1px solid #000; padding-top: 15px; opacity: 0.5;">
             DIGITAL SUBMISSION PORTAL - MI'KMAW STUDIES 11
@@ -117,43 +119,38 @@
     <script>
         const fields = ['agentName', 'h1', 'h2', 'h3', 'h4', 't1', 't2', 't3', 'verdict'];
 
-        // Auto-Save Logic
-        function saveDossier() {
-            fields.forEach(f => {
-                localStorage.setItem('dossier_' + f, document.getElementById(f).value);
-            });
-            document.getElementById('saveStatus').textContent = 'LAST SAVED: ' + new Date().toLocaleTimeString();
+        function toggleFinalMode(isFinal) {
+            if (isFinal) {
+                fields.forEach(f => {
+                    const val = document.getElementById(f).value;
+                    const display = document.getElementById(f + 'Display');
+                    if (display) display.textContent = val || "NO DATA ENTERED";
+                    if (f === 'agentName') document.getElementById('agentName').style.display = 'none';
+                });
+                document.body.classList.add('final-mode');
+            } else {
+                document.body.classList.remove('final-mode');
+                document.getElementById('agentName').style.display = 'inline-block';
+            }
         }
 
-        // Auto-Load Logic
+        function saveDossier() {
+            fields.forEach(f => localStorage.setItem('dossier_' + f, document.getElementById(f).value));
+            document.getElementById('saveStatus').textContent = 'AUTO-SAVED: ' + new Date().toLocaleTimeString();
+        }
+
         window.onload = () => {
             fields.forEach(f => {
-                const savedValue = localStorage.getItem('dossier_' + f);
-                if (savedValue) document.getElementById(f).value = savedValue;
+                const saved = localStorage.getItem('dossier_' + f);
+                if (saved) document.getElementById(f).value = saved;
             });
-            
-            // Set auto-save interval
-            setInterval(saveDossier, 10000); // Auto-save every 10 seconds
+            setInterval(saveDossier, 10000);
         };
 
-        // Export for Classroom
         function exportToClassroom() {
             let report = "--- CASE REPORT: THE SYSTEM CONNECTION ---\n";
-            report += "AGENT: " + document.getElementById('agentName').value + "\n\n";
-            report += "ANALYSIS:\n";
-            report += "1. Header: " + document.getElementById('h1').value + "\n";
-            report += "2. Law: " + document.getElementById('h2').value + "\n";
-            report += "3. Trauma: " + document.getElementById('h3').value + "\n";
-            report += "4. Signature: " + document.getElementById('h4').value + "\n\n";
-            report += "TIMELINE CONNECTION:\n";
-            report += "1920: " + document.getElementById('t1').value + "\n";
-            report += "Scoop: " + document.getElementById('t2').value + "\n";
-            report += "Stats: " + document.getElementById('t3').value + "\n\n";
-            report += "FINAL VERDICT:\n" + document.getElementById('verdict').value;
-
-            navigator.clipboard.writeText(report).then(() => {
-                alert("REPORT COPIED TO CLIPBOARD! You can now paste it into Google Classroom.");
-            });
+            fields.forEach(f => report += f.toUpperCase() + ": " + document.getElementById(f).value + "\n\n");
+            navigator.clipboard.writeText(report).then(() => alert("COPIED TO CLIPBOARD!"));
         }
     </script>
 </body>

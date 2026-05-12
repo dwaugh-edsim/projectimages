@@ -6,33 +6,40 @@
     <title>Digital Case File: Chanie Wenjack Inquest</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
-        body { font-family: 'Courier Prime', monospace; background: #e0e0e0; padding: 40px; line-height: 1.4; color: #000; }
+        body { font-family: 'Courier Prime', monospace; background: #e0e0e0; padding: 40px; line-height: 1.4; color: #000; transition: background 0.3s; }
         .dossier { max-width: 850px; margin: 0 auto; background: #fff; border: 1px solid #999; padding: 50px; position: relative; box-shadow: 10px 10px 20px rgba(0,0,0,0.1); }
         .header { border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; text-align: center; }
         h1 { font-family: 'Special Elite', cursive; font-size: 24px; margin: 0; }
-        .sub-header { font-size: 14px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #000; display: inline-block; }
         
         .exhibit { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; background: #fafafa; }
         .exhibit-label { font-weight: bold; background: #000; color: #fff; padding: 2px 10px; display: inline-block; margin-bottom: 10px; font-size: 12px; }
         
-        textarea { width: 100%; border: none; border-bottom: 1px solid #eee; background: transparent; font-family: 'Courier Prime', monospace; font-size: 14px; resize: none; min-height: 60px; outline: none; padding: 5px 0; }
-        textarea:focus { border-bottom-color: #c0392b; background: #fff9f9; }
+        textarea, .display-text { width: 100%; border: none; background: transparent; font-family: 'Courier Prime', monospace; font-size: 14px; resize: none; min-height: 60px; outline: none; white-space: pre-wrap; }
+        .display-text { display: none; color: #c0392b; font-weight: bold; border-left: 3px solid #c0392b; padding-left: 15px; }
         
         .toolbar { position: sticky; top: 0; background: rgba(255,255,255,0.9); padding: 10px; border-bottom: 2px solid #000; z-index: 100; margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
         .btn { background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite', cursive; text-transform: uppercase; }
-        .btn-save { background: #c0392b; }
+        .btn-finalize { background: #c0392b; }
         
         .stamp { position: absolute; top: 100px; right: 40px; border: 3px solid #c0392b; color: #c0392b; padding: 10px; font-family: 'Special Elite', cursive; font-size: 20px; transform: rotate(-10deg); opacity: 0.6; pointer-events: none; }
         
-        @media print { .toolbar { display: none; } body { padding: 0; background: white; } .dossier { box-shadow: none; border: 1px solid #000; width: 100%; } }
+        body.final-mode { background: #1a1a1a; padding: 20px; }
+        body.final-mode .toolbar { display: none; }
+        body.final-mode textarea { display: none; }
+        body.final-mode .display-text { display: block; }
+        #exitFinal { display: none; position: fixed; top: 10px; right: 10px; z-index: 1000; }
+        body.final-mode #exitFinal { display: block; }
+
+        @media print { .toolbar, #exitFinal { display: none; } body { padding: 0; background: white; } .dossier { box-shadow: none; border: 1px solid #000; width: 100%; } }
     </style>
 </head>
 <body>
 
+    <button id="exitFinal" class="btn" onclick="toggleFinalMode(false)">Back to Editing</button>
+
     <div class="toolbar">
-        <button class="btn btn-save" onclick="saveInquest()">Manual Save</button>
+        <button class="btn btn-finalize" onclick="toggleFinalMode(true)">Finalize for Screenshot</button>
         <button class="btn" onclick="exportInquest()">Copy to Clipboard</button>
-        <button class="btn" onclick="window.print()">Print to PDF</button>
         <span id="saveStatus" style="margin-left: 10px; font-size: 12px; font-weight: bold; align-self: center;"></span>
     </div>
 
@@ -41,30 +48,27 @@
         <div class="header">
             <h1>Office of the Supervising Coroner</h1>
             <p><strong>Inquest into the death of:</strong> Chanie (Charlie) Wenjack</p>
-            <p style="font-size: 11px;">Case No: 1966-441-CW</p>
         </div>
 
-        <p><strong>Lead Investigator:</strong> <input type="text" id="investigator" style="border:none; border-bottom:1px solid #ccc; font-family: inherit; width: 250px;" placeholder="ENTER NAME..."></p>
+        <p><strong>Lead Investigator:</strong> <input type="text" id="investigator" style="border:none; border-bottom:1px solid #ccc; font-family: inherit; width: 250px;" placeholder="ENTER NAME...">
+        <span class="display-text" id="investigatorDisplay"></span></p>
 
         <div class="exhibit">
             <span class="exhibit-label">EXHIBIT A: THE INCIDENT</span>
-            <p>On October 23, 1966, the body of Chanie Wenjack was found beside the CN Railway tracks. He was 600km away from home. He was wearing only a light cotton jacket. He had seven matches in his pocket.</p>
-            <p><strong>Investigator's Query:</strong> Why was he so far from home? What was the primary obstacle between him and survival?</p>
-            <textarea id="q1" placeholder="Enter findings..."></textarea>
+            <p>Why was he so far from home? What was the primary obstacle between him and survival?</p>
+            <textarea id="q1"></textarea><div class="display-text" id="q1Display"></div>
         </div>
 
         <div class="exhibit">
             <span class="exhibit-label">EXHIBIT B: THE LEGAL CHAIN</span>
-            <p>Chanie was taken from his family under an amendment to the <strong>Indian Act (1920)</strong>. This law made it a criminal offense for parents to keep their children home from school.</p>
-            <p><strong>Investigator's Query:</strong> Who is legally responsible for Chanie being 600km away from home? Defend your answer.</p>
-            <textarea id="q2" placeholder="Enter findings..."></textarea>
+            <p>Who is legally responsible for Chanie being 600km away from home? Defend your answer.</p>
+            <textarea id="q2"></textarea><div class="display-text" id="q2Display"></div>
         </div>
 
         <div class="exhibit" style="border-color: #c0392b;">
             <span class="exhibit-label" style="background: #c0392b;">EXHIBIT C: THE JUROR'S VERDICT</span>
-            <p>The 1966 jury stated: <em>"The Indian problem is not a problem of the Indian, but of the white man."</em></p>
-            <p><strong>Final Deliberation:</strong> Chanie was only 12. Why would he attempt a 600km walk in a cotton jacket? What was he running <strong>from</strong>? Use your findings from the 'Connect the Dots' timeline to support your conclusion.</p>
-            <textarea id="verdict" style="min-height: 150px;" placeholder="Draft final deliberation..."></textarea>
+            <p>What was he running <strong>from</strong>? Use evidence to support your conclusion.</p>
+            <textarea id="verdict" style="min-height: 150px;"></textarea><div class="display-text" id="verdictDisplay" style="min-height: 150px;"></div>
         </div>
 
         <footer style="margin-top: 30px; font-size: 10px; text-align: center; border-top: 1px solid #000; padding-top: 15px; opacity: 0.5;">
@@ -75,31 +79,38 @@
     <script>
         const fields = ['investigator', 'q1', 'q2', 'verdict'];
 
+        function toggleFinalMode(isFinal) {
+            if (isFinal) {
+                fields.forEach(f => {
+                    const val = document.getElementById(f).value;
+                    const display = document.getElementById(f + 'Display');
+                    if (display) display.textContent = val || "NOT COMPLETED";
+                    if (f === 'investigator') document.getElementById('investigator').style.display = 'none';
+                });
+                document.body.classList.add('final-mode');
+            } else {
+                document.body.classList.remove('final-mode');
+                document.getElementById('investigator').style.display = 'inline-block';
+            }
+        }
+
         function saveInquest() {
-            fields.forEach(f => {
-                localStorage.setItem('inquest_' + f, document.getElementById(f).value);
-            });
-            document.getElementById('saveStatus').textContent = 'SAVED: ' + new Date().toLocaleTimeString();
+            fields.forEach(f => localStorage.setItem('inquest_' + f, document.getElementById(f).value));
+            document.getElementById('saveStatus').textContent = 'AUTO-SAVED: ' + new Date().toLocaleTimeString();
         }
 
         window.onload = () => {
             fields.forEach(f => {
-                const savedValue = localStorage.getItem('inquest_' + f);
-                if (savedValue) document.getElementById(f).value = savedValue;
+                const saved = localStorage.getItem('inquest_' + f);
+                if (saved) document.getElementById(f).value = saved;
             });
             setInterval(saveInquest, 10000);
         };
 
         function exportInquest() {
             let report = "--- INQUEST REPORT: CHANIE WENJACK ---\n";
-            report += "INVESTIGATOR: " + document.getElementById('investigator').value + "\n\n";
-            report += "FINDINGS A (INCIDENT): " + document.getElementById('q1').value + "\n\n";
-            report += "FINDINGS B (LEGAL): " + document.getElementById('q2').value + "\n\n";
-            report += "FINAL VERDICT: " + document.getElementById('verdict').value;
-
-            navigator.clipboard.writeText(report).then(() => {
-                alert("INQUEST REPORT COPIED! Paste into Google Classroom.");
-            });
+            fields.forEach(f => report += f.toUpperCase() + ": " + document.getElementById(f).value + "\n\n");
+            navigator.clipboard.writeText(report).then(() => alert("COPIED TO CLIPBOARD!"));
         }
     </script>
 </body>
