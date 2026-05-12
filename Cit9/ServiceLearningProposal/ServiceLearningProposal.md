@@ -21,8 +21,8 @@ The "Diversion Lab" is a critical student-led service learning project addressin
 *Indicator: Evaluate personal skills, strengths and interests.*
 
 To succeed, the project requires a diverse range of student talents:
-- **Technical Leads**: Responsible for using multimeters to test "dead" vs. "dormant" batteries and grading eyeglasses.
-- **Logistics Managers**: Responsible for tertiary sector coordination—partnering with recyclers and managing safety protocols.
+- **Technical Leads**: Responsible for using multimeters to test "dead" vs. "dormant" batteries and managing the physical diversion station.
+- **Logistics Managers**: Responsible for tertiary sector coordination—partnering with recyclers (recycleyourbatteries.ca) and managing safety protocols.
 - **Communications/Advocates**: Responsible for creating the "Landfill Alternative" visuals and educating the student body on the "Hidden Cost."
 
 ---
@@ -36,14 +36,13 @@ Students will map the supply chain of a standard smartphone, identifying the "Pr
 ### Stage 2: Station Setup (The Diversion Lab)
 Construct a physical station featuring:
 - **The Multimeter Booth**: A testing station to prevent the recycling of functional batteries (Resource Scarcity).
-- **The Sorting Protocol**: Dedicated streams for Lithium-Ion (fire risk), Lead-Acid/Alkaline, and Eyeglasses.
+- **The Sorting Protocol**: Dedicated streams for Lithium-Ion (fire risk) and Lead-Acid/Alkaline batteries.
 - **The Leaching Visual**: A clear jar demonstration of local soil/water contamination to explain the environmental "why."
 
 ### Stage 3: Strategic Partnerships
 Establishing loops with professional organizations to ensure diverted materials reach their proper destination:
 - **Batteries**: [recycleyourbatteries.ca](https://recycleyourbatteries.ca/) (HRM Official Recycler).
 - **Electronics**: Electronic Products Recycling Association (EPRA) Nova Scotia.
-- **Eyeglasses**: Local Lions Club for prescription grading and international redistribution.
 
 ---
 
@@ -53,7 +52,14 @@ Establishing loops with professional organizations to ensure diverted materials 
 ### Safety & Sorting Standards
 - **Terminal Protection**: All lithium-ion terminals must be taped to prevent thermal runaway.
 - **Data Logging**: Every item diverted must be weighed and logged to track community impact.
-- **Secondary Service**: Eyeglasses are cleaned and categorized by prescription strength before being handed off to the Lions Club.
+
+---
+
+## Optional Extension: The Eyeglass Stream
+For groups looking to "Level Up" their citizenship work, the lab can expand to include **Eyeglass Diversion**:
+- **Partner**: Reach out to a local Lions Club.
+- **Process**: Students clean and grade prescriptions of used glasses to be sent to clinics in developing nations.
+- **Impact**: Extends the "Service" into the humanitarian sector beyond waste diversion.
 
 ---
 
