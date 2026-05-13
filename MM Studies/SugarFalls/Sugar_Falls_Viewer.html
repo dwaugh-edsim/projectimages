@@ -12,6 +12,7 @@
             --accent: #c0392b;
             --text: #e0e0e0;
             --panel-bg: #1a1a1a;
+            --nav-bg: rgba(26, 26, 26, 0.8);
         }
 
         body {
@@ -27,8 +28,8 @@
         }
 
         header {
-            padding: 15px 30px;
-            background: rgba(0,0,0,0.8);
+            padding: 10px 30px;
+            background: rgba(0,0,0,0.9);
             border-bottom: 2px solid var(--accent);
             display: flex;
             justify-content: space-between;
@@ -39,82 +40,94 @@
         h1 {
             font-family: 'Special Elite', cursive;
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             letter-spacing: 2px;
             color: var(--accent);
         }
 
-        .viewer-container {
+        .main-container {
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 0 80px; /* Space for side buttons */
+        }
+
+        .nav-side {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            z-index: 20;
+            user-select: none;
+        }
+
+        .nav-side:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-side.left { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
+        .nav-side.right { right: 0; border-left: 1px solid rgba(255,255,255,0.05); }
+
+        .nav-arrow {
+            font-family: 'Special Elite', cursive;
+            font-size: 3rem;
+            color: var(--text);
+            opacity: 0.3;
+            transition: all 0.2s;
+        }
+
+        .nav-side:hover .nav-arrow {
+            opacity: 1;
+            color: var(--accent);
+            transform: scale(1.2);
+        }
+
+        .nav-side.disabled {
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .viewer-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            position: relative;
+            height: 100%;
+            width: 100%;
         }
 
         .panel-image {
             max-width: 100%;
-            max-height: 85vh;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            border: 4px solid #333;
+            max-height: 90vh;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 2px solid #333;
             border-radius: 4px;
-            transition: opacity 0.3s ease;
-        }
-
-        .controls {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 25px;
-            border-radius: 50px;
-            border: 1px solid #444;
-            backdrop-filter: blur(10px);
-            z-index: 20;
-        }
-
-        .btn {
-            background: transparent;
-            border: 2px solid var(--text);
-            color: var(--text);
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-        }
-
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
+            transition: opacity 0.2s ease;
         }
 
         .panel-counter {
+            background: var(--nav-bg);
+            padding: 5px 20px;
+            border-radius: 0 0 15px 15px;
             font-family: 'Special Elite', cursive;
-            font-size: 1.2rem;
-            min-width: 120px;
-            text-align: center;
+            font-size: 1rem;
+            border: 1px solid #333;
+            border-top: none;
         }
 
-        .instructions {
+        .footer {
             position: fixed;
-            bottom: 20px;
+            bottom: 10px;
             right: 20px;
             font-size: 0.7rem;
-            opacity: 0.5;
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         .loading-overlay {
@@ -132,22 +145,26 @@
 
     <header>
         <h1>SUGAR FALLS: CHAPTER 1</h1>
-        <div id="status">Visual Narrative Archive</div>
+        <div class="panel-counter">Panel <span id="currentNum">1</span> / 24</div>
+        <div id="status" style="font-size: 0.8rem; opacity: 0.6;">Visual Narrative Archive</div>
     </header>
 
-    <div class="viewer-container">
-        <div id="loading" class="loading-overlay">Loading Panel...</div>
-        <img id="panelDisplay" src="SF-ch1/sf1.jpg" alt="Panel Display" class="panel-image">
+    <div class="main-container">
+        <div class="nav-side left" id="prevBtn" onclick="changePanel(-1)">
+            <span class="nav-arrow">&lsaquo;</span>
+        </div>
+
+        <div class="viewer-container">
+            <img id="panelDisplay" src="SF-ch1/sf1.jpg" alt="Panel Display" class="panel-image">
+        </div>
+
+        <div class="nav-side right" id="nextBtn" onclick="changePanel(1)">
+            <span class="nav-arrow">&rsaquo;</span>
+        </div>
     </div>
 
-    <div class="controls">
-        <button class="btn" id="prevBtn" onclick="changePanel(-1)">Previous</button>
-        <div class="panel-counter">Panel <span id="currentNum">1</span> / 23</div>
-        <button class="btn" id="nextBtn" onclick="changePanel(1)">Next</button>
-    </div>
-
-    <div class="instructions">
-        USE ARROW KEYS TO NAVIGATE
+    <div class="footer">
+        USE SIDE ARROWS OR KEYBOARD (LEFT/RIGHT)
     </div>
 
     <script>
@@ -167,7 +184,7 @@
         }
 
         function updateDisplay() {
-            display.style.opacity = '0.5';
+            display.style.opacity = '0.3';
             
             // Set source
             display.src = `SF-ch1/sf${currentPanel}.jpg`;
@@ -177,8 +194,11 @@
                 counter.innerText = currentPanel;
                 
                 // Update buttons
-                prevBtn.disabled = (currentPanel === 1);
-                nextBtn.disabled = (currentPanel === totalPanels);
+                if (currentPanel === 1) prevBtn.classList.add('disabled');
+                else prevBtn.classList.remove('disabled');
+
+                if (currentPanel === totalPanels) nextBtn.classList.add('disabled');
+                else nextBtn.classList.remove('disabled');
             };
 
             // Update URL hash for bookmarking/refreshing
@@ -198,7 +218,6 @@
                 const num = parseInt(hash);
                 if (num >= 1 && num <= totalPanels) {
                     currentPanel = num;
-                    updateDisplay();
                 }
             }
             updateDisplay();
