@@ -27,6 +27,27 @@
             height: 100vh;
         }
 
+        /* Password Overlay */
+        #passwordOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #passwordOverlay h2 { font-family: 'Special Elite', cursive; color: var(--accent); margin-bottom: 20px; }
+        #passwordOverlay input { 
+            background: #1a1a1a; border: 2px solid var(--accent); color: #fff; 
+            padding: 10px 20px; font-size: 1.2rem; text-align: center; font-family: 'Courier Prime', monospace;
+            outline: none;
+        }
+        #passwordOverlay .hint { margin-top: 15px; font-size: 0.8rem; opacity: 0.5; }
+
         header {
             padding: 10px 30px;
             background: rgba(0,0,0,0.9);
@@ -51,7 +72,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            padding: 0 80px; /* Space for side buttons */
+            padding: 0 80px; 
         }
 
         .nav-side {
@@ -96,6 +117,7 @@
 
         .viewer-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
@@ -104,12 +126,26 @@
 
         .panel-image {
             max-width: 100%;
-            max-height: 90vh;
+            max-height: 85vh;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             border: 2px solid #333;
             border-radius: 4px;
             transition: opacity 0.2s ease;
         }
+
+        #assignmentLink {
+            margin-top: 15px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-family: 'Special Elite', cursive;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            display: none;
+            transition: transform 0.2s;
+        }
+        #assignmentLink:hover { transform: scale(1.05); background: #e74c3c; }
 
         .panel-counter {
             background: var(--nav-bg);
@@ -129,24 +165,21 @@
             opacity: 0.4;
             pointer-events: none;
         }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 5;
-        }
     </style>
 </head>
 <body>
 
+    <div id="passwordOverlay">
+        <h2>Visual Narrative Archive</h2>
+        <p>This resource is for internal educational use only.</p>
+        <input type="password" id="passInput" placeholder="Enter Year Code" autofocus onkeydown="if(event.key === 'Enter') checkPass()">
+        <p class="hint">Hint: Current Simulation Year</p>
+    </div>
+
     <header>
         <h1>SUGAR FALLS: CHAPTER 1</h1>
         <div class="panel-counter">Panel <span id="currentNum">1</span> / 24</div>
-        <div id="status" style="font-size: 0.8rem; opacity: 0.6;">Visual Narrative Archive</div>
+        <div id="status" style="font-size: 0.8rem; opacity: 0.6;">Fair Use Classroom Display</div>
     </header>
 
     <div class="main-container">
@@ -156,6 +189,7 @@
 
         <div class="viewer-container">
             <img id="panelDisplay" src="SF-ch1/sf1.jpg" alt="Panel Display" class="panel-image">
+            <a id="assignmentLink" href="https://dwaugh-edsim.github.io/projectimages/MM%20Studies/SugarFalls/Sugar_Falls_Assignment.html" target="_blank">OPEN DIGITAL DOSSIER &rarr;</a>
         </div>
 
         <div class="nav-side right" id="nextBtn" onclick="changePanel(1)">
@@ -174,6 +208,23 @@
         const counter = document.getElementById('currentNum');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const assignmentLink = document.getElementById('assignmentLink');
+
+        function checkPass() {
+            const input = document.getElementById('passInput').value;
+            if (input === '2026') {
+                document.getElementById('passwordOverlay').style.display = 'none';
+                sessionStorage.setItem('sf_auth', 'true');
+            } else {
+                alert('Incorrect Code');
+                document.getElementById('passInput').value = '';
+            }
+        }
+
+        // Check if already authenticated in this session
+        if (sessionStorage.getItem('sf_auth') === 'true') {
+            document.getElementById('passwordOverlay').style.display = 'none';
+        }
 
         function changePanel(delta) {
             const newNum = currentPanel + delta;
@@ -185,15 +236,16 @@
 
         function updateDisplay() {
             display.style.opacity = '0.3';
-            
-            // Set source
             display.src = `SF-ch1/sf${currentPanel}.jpg`;
             
             display.onload = () => {
                 display.style.opacity = '1';
                 counter.innerText = currentPanel;
                 
-                // Update buttons
+                // Show link only on Panel 1
+                if (currentPanel === 1) assignmentLink.style.display = 'block';
+                else assignmentLink.style.display = 'none';
+
                 if (currentPanel === 1) prevBtn.classList.add('disabled');
                 else prevBtn.classList.remove('disabled');
 
@@ -201,17 +253,14 @@
                 else nextBtn.classList.remove('disabled');
             };
 
-            // Update URL hash for bookmarking/refreshing
             window.location.hash = currentPanel;
         }
 
-        // Keyboard support
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') changePanel(-1);
             if (e.key === 'ArrowRight') changePanel(1);
         });
 
-        // Handle initial hash
         window.addEventListener('load', () => {
             const hash = window.location.hash.substring(1);
             if (hash && !isNaN(hash)) {
