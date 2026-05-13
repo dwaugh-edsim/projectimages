@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKS-11 | Student Progress Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.1) 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100-vh;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.25rem 1rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .progress-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-bar-bg {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #60a5fa);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .activity-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .activity-card.completed {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .activity-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+        }
+
+        .activity-card p {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .checkbox {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .completed .checkbox {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .completed .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .reflection-zone {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: white;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            margin-top: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-sync:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-sync:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #syncStatus {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Mission Control</h1>
+            <div class="status-badge">Student ID: MKS-11-ALPHA</div>
+        </header>
+
+        <div class="progress-container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 0.9rem;">Course Progress</span>
+                <span id="progressText" style="color: var(--primary); font-weight: 900;">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progressBar" class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <div class="activity-grid" id="activityGrid">
+            <!-- Activities will be injected here -->
+        </div>
+
+        <div class="reflection-zone">
+            <label style="font-weight: 700; color: #94a3b8; text-transform: uppercase; font-size: 0.8rem;">Daily Mission Report</label>
+            <textarea id="reflection" placeholder="What did you work on today? Any thoughts?"></textarea>
+            <div style="margin-top: 1.5rem;">
+                <button id="syncBtn" class="btn-sync">
+                    <span>📡 Sync to Command Center</span>
+                </button>
+                <p id="syncStatus"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const WEBHOOK_URL = 'YOUR_GOOGLE_SHEET_WEBHOOK_URL_HERE'; // PASTE YOUR URL HERE
+        
+        const activities = [
+            { id: 1, title: 'Chanie\'s Path Map', desc: 'Draw the escape route from the Secret Path.' },
+            { id: 2, title: 'Visual Sketch', desc: 'Draw one object from the video.' },
+            { id: 3, title: 'TRC Opinion Tags', desc: 'Add colored stickers to your board.' },
+            { id: 4, title: 'Pro Header Design', desc: 'Create a bold title for your project.' },
+            { id: 5, title: 'Sacred Teachings Match', desc: 'Match animals to TRC points.' },
+            { id: 6, title: 'Language Treasure Map', desc: 'Map 5 Mi\'kmaw words.' },
+            { id: 7, title: 'Treaty Medal Design', desc: 'Re-design a Peace and Friendship medal.' },
+            { id: 8, title: 'Community Map', desc: 'Map a local Mi\'kmaw community.' },
+            { id: 9, title: 'Protest Poster', desc: 'Create a bold poster for Ipperwash.' },
+            { id: 10, title: 'Justice Circle Drawing', desc: 'Visualize a Sentencing Circle.' },
+            { id: 11, title: 'Pocahontas Myth Check', desc: 'Compare the movie to the real Sarah.' },
+            { id: 12, title: 'Future Community', desc: 'Draw a community in the year 2050.' }
+        ];
+
+        let completedIds = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+
+        function updateUI() {
+            const grid = document.getElementById('activityGrid');
+            grid.innerHTML = '';
+            
+            activities.forEach(act => {
+                const isDone = completedIds.includes(act.id);
+                const card = document.createElement('div');
+                card.className = `activity-card ${isDone ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="checkbox"></div>
+                    <h3>Activity ${act.id}</h3>
+                    <p>${act.title}</p>
+                    <p style="font-size: 0.7rem; color: #64748b; margin-top: 0.5rem;">${act.desc}</p>
+                `;
+                card.onclick = () => toggleActivity(act.id);
+                grid.appendChild(card);
+            });
+
+            const percent = Math.round((completedIds.length / activities.length) * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').innerText = percent + '%';
+        }
+
+        function toggleActivity(id) {
+            if (completedIds.includes(id)) {
+                completedIds = completedIds.filter(i => i !== id);
+            } else {
+                completedIds.push(id);
+            }
+            localStorage.setItem('mks_completed', JSON.stringify(completedIds));
+            updateUI();
+        }
+
+        document.getElementById('syncBtn').onclick = async () => {
+            const btn = document.getElementById('syncBtn');
+            const status = document.getElementById('syncStatus');
+            const reflection = document.getElementById('reflection').value;
+
+            btn.disabled = true;
+            status.innerText = '🛰️ Transmitting...';
+
+            const payload = {
+                studentId: 'MKS-11-ALPHA',
+                timestamp: new Date().toISOString(),
+                completedCount: completedIds.length,
+                completedList: completedIds.join(', '),
+                reflection: reflection
+            };
+
+            try {
+                // If no URL is provided yet, we mock the success
+                if (WEBHOOK_URL.includes('YOUR_GOOGLE_SHEET')) {
+                    console.log('Mock sync payload:', payload);
+                    setTimeout(() => {
+                        status.innerText = '✅ Progress saved locally! (Add Webhook URL for real-time sync)';
+                        btn.disabled = false;
+                    }, 1000);
+                    return;
+                }
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Standard for Google Apps Script webhooks
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                status.innerText = '🚀 Data successfully synced to Command Center!';
+            } catch (err) {
+                status.innerText = '❌ Transmission Error. Try again.';
+                console.error(err);
+            } finally {
+                setTimeout(() => btn.disabled = false, 2000);
+            }
+        };
+
+        updateUI();
+    </script>
+</body>
+</html>
