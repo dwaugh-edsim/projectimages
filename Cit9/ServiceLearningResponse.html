@@ -177,6 +177,25 @@
             margin-bottom: 10px;
             font-style: italic;
         }
+        .sync-indicator { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            margin-top: 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+        @media print {
+            .sync-indicator { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -271,12 +290,24 @@
             <p style="color: #666; font-size: 0.8rem;">Select two missions to compare research foundations...</p>
         </div>
 
+        <div class="sync-indicator">
+            <div id="syncDot" class="indicator-dot"></div>
+            <span id="syncStatus">📡 Linking to Command Center...</span>
+        </div>
+
         <div style="margin-top: 40px; font-size: 0.7rem; border-top: 1px solid #000; padding-top: 10px;">
             VERIFIED BY ACTION INTELLIGENCE BUREAU // NOVEL SCOTIA CURRICULUM COMPLIANT // COLLABORATIVE DESIGN PHASE
         </div>
     </div>
 
     <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const MISSION_TITLE = 'CIT 9: Service Learning V2';
+        const syncStatus = document.getElementById('syncStatus');
+        const syncDot = document.getElementById('syncDot');
+        
+        let timeout = null;
+
         const missionData = {
             "CIT-001": {
                 title: "The Battery Scavenger",
@@ -355,7 +386,7 @@
                             <div class="input-group">
                                 <div class="research-q">${index === 0 ? 'A' : 'B'}.${i+1} ${q.q}</div>
                                 <div class="guide-text">${q.guide}</div>
-                                <textarea id="q${index}_${i+1}"></textarea>
+                                <textarea id="q${index}_${i+1}" oninput="triggerSave()"></textarea>
                                 <div class="display-text" id="disp-q${index}_${i+1}"></div>
                             </div>
                         `;
@@ -402,6 +433,80 @@
                     if (el) localStorage.setItem('sl_v2_q' + m + '_' + i, el.value);
                 }
             }
+            triggerSave();
+        }
+
+        function triggerSave() {
+            syncStatus.innerText = 'Typing...';
+            syncDot.className = 'indicator-dot';
+            clearTimeout(timeout);
+            timeout = setTimeout(saveAndSync, 2000);
+        }
+
+        async function saveAndSync() {
+            const data = {};
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+            for(let m=0; m<2; m++) {
+                for(let i=1; i<=4; i++) {
+                    const el = document.getElementById('q' + m + '_' + i);
+                    if (el) data['q' + m + '_' + i] = el.value;
+                }
+            }
+
+            syncStatus.innerText = '🛰️ Syncing to Cloud...';
+            syncDot.className = 'indicator-dot active';
+
+            const payload = {
+                studentId: data.studentName || 'MKS-11-STUDENT',
+                missionTitle: MISSION_TITLE,
+                reflection: JSON.stringify(data),
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                syncStatus.innerText = '✅ Saved to Cloud';
+            } catch (e) {
+                syncStatus.innerText = '⚠️ Saved Locally Only';
+            }
+        }
+
+        async function retrieveFromCloud() {
+            const name = localStorage.getItem('sl_v2_studentName') || 'MKS-11-STUDENT';
+            try {
+                const response = await fetch(`${WEBHOOK_URL}?studentId=${encodeURIComponent(name)}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const result = await response.json();
+                
+                if (result.content) {
+                    const data = JSON.parse(result.content);
+                    fields.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && data[id]) {
+                            el.value = data[id];
+                            if (id.startsWith('missionSelect')) updateMissions();
+                        }
+                    });
+                    // Re-sync dynamic fields after mission update
+                    setTimeout(() => {
+                        for(let m=0; m<2; m++) {
+                            for(let i=1; i<=4; i++) {
+                                const el = document.getElementById('q' + m + '_' + i);
+                                if (el && data['q' + m + '_' + i]) el.value = data['q' + m + '_' + i];
+                            }
+                        }
+                    }, 500);
+                    syncStatus.innerText = '✅ Work retrieved from Cloud';
+                } else {
+                    loadSaved();
+                    syncStatus.innerText = 'Ready';
+                }
+            } catch (e) {
+                loadSaved();
+                syncStatus.innerText = 'Ready (Offline Mode)';
+            }
         }
 
         function loadSaved() {
@@ -425,7 +530,7 @@
         }
 
         document.addEventListener('input', autoSave);
-        window.onload = loadSaved;
+        window.onload = retrieveFromCloud;
     </script>
 </body>
 </html>
