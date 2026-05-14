@@ -144,11 +144,12 @@
         /* Print Mode */
         @media print {
             .controls { display: none !important; }
-            body { background: white; padding: 0; }
-            .dossier { border: none; box-shadow: none; width: 100%; max-width: 100%; padding: 20px; }
+            body { background: white; padding: 0; color: #000 !important; }
+            .dossier { border: 2px solid #000; box-shadow: none; width: 100%; max-width: 100%; padding: 20px; }
             textarea, input { display: none !important; }
-            .display-text { display: block !important; }
-            .section-title { -webkit-print-color-adjust: exact; }
+            .display-text { display: block !important; color: #000 !important; }
+            .section-title { -webkit-print-color-adjust: exact; background-color: #000 !important; color: #fff !important; }
+            h1, .meta-line, .quote-box { color: #000 !important; }
         }
 
         .final-mode textarea, .final-mode input { display: none; }
@@ -267,16 +268,20 @@
     <script>
         const fields = ['studentName', 'item1', 'item2', 'task1Analysis', 'task2Analysis', 'task3Analysis', 'traceMethod', 'task4Analysis'];
 
+        function syncDisplay() {
+            fields.forEach(id => {
+                const input = document.getElementById(id);
+                const disp = document.getElementById('disp-' + id);
+                if (input && disp) {
+                    disp.innerText = input.value || "[NO DATA ENTERED]";
+                }
+            });
+        }
+
         function toggleFinalMode(isFinal) {
             const root = document.getElementById('bodyRoot');
             if (isFinal) {
-                fields.forEach(id => {
-                    const input = document.getElementById(id);
-                    const disp = document.getElementById('disp-' + id);
-                    if (input && disp) {
-                        disp.innerText = input.value || "[NO DATA ENTERED]";
-                    }
-                });
+                syncDisplay();
                 root.classList.add('final-mode');
                 document.getElementById('editBtn').style.display = 'inline-block';
                 document.getElementById('finalBtn').style.display = 'none';
@@ -290,8 +295,11 @@
         function autoSave() {
             fields.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) localStorage.setItem('econ12_labor_' + id, el.value);
+                if (el) {
+                    localStorage.setItem('econ12_labor_' + id, el.value);
+                }
             });
+            syncDisplay();
         }
 
         function loadSaved() {
@@ -300,8 +308,12 @@
                 const el = document.getElementById(id);
                 if (el && val) el.value = val;
             });
+            syncDisplay();
         }
 
+        // Ensure display is populated before printing
+        window.onbeforeprint = syncDisplay;
+        
         document.addEventListener('input', autoSave);
         window.onload = loadSaved;
     </script>
