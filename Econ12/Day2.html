@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2: Historical Research</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(180deg, #2c1810 0%, #1a1a1a 100%);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #8b4513;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #d4a574;
+            margin-bottom: 0.3rem;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #a08060;
+            font-style: italic;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .day-objective {
+            background: #1a1a1a;
+            border-left: 4px solid #d4a574;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+
+        .day-objective strong {
+            color: #d4a574;
+        }
+
+        .research-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+
+        .panel-section {
+            position: relative;
+        }
+
+        .panel-image-container {
+            position: relative;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .panel-image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .hotspot {
+            position: absolute;
+            border: 2px solid #d4a574;
+            background: rgba(212, 165, 116, 0.15);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #d4a574;
+            font-weight: bold;
+        }
+
+        .hotspot:hover {
+            background: rgba(212, 165, 116, 0.4);
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .hotspot.explored {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4caf50;
+        }
+
+        .hotspot.explored::after {
+            content: '✓';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #4caf50;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .progress-panel {
+            background: #2c1810;
+            border: 1px solid #8b4513;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .progress-panel h3 {
+            color: #d4a574;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            background: #1a1a1a;
+            border-radius: 4px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #8b4513, #d4a574);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #1a1a1a;
+            font-weight: bold;
+        }
+
+        .topic-list {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+
+        .topic-list li {
+            padding: 0.4rem 0;
+            font-size: 0.8rem;
+            color: #a08060;
+            border-bottom: 1px solid #3a2a1a;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .topic-list li:hover {
+            color: #d4a574;
+        }
+
+        .topic-list li.explored {
+            color: #4caf50;
+        }
+
+        .topic-list li::before {
+            content: '○ ';
+        }
+
+        .topic-list li.explored::before {
+            content: '● ';
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .task-card {
+            background: #2c1810;
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .task-card h2 {
+            color: #d4a574;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            padding-right: 2rem;
+        }
+
+        .task-card .textbook-ref {
+            background: #1a1a1a;
+            border-left: 3px solid #d4a574;
+            padding: 0.5rem 0.8rem;
+            margin: 0.8rem 0;
+            font-size: 0.85rem;
+            color: #a08060;
+        }
+
+        .task-card .textbook-ref strong {
+            color: #d4a574;
+        }
+
+        .task-card .connection {
+            font-style: italic;
+            color: #888;
+            margin: 0.8rem 0;
+            padding: 0.5rem;
+            background: #1a1a1a;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .task-card h3 {
+            color: #d4a574;
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .task-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .task-card ul li {
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .task-card ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #d4a574;
+        }
+
+        .task-card .external-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #d4a574;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .task-card .external-link:hover {
+            text-decoration: underline;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #a08060;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #d4a574;
+        }
+
+        .mark-complete-btn {
+            display: block;
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #8b4513;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .mark-complete-btn:hover {
+            background: #d4a574;
+            color: #1a1a1a;
+        }
+
+        .mark-complete-btn.completed {
+            background: #4caf50;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #3a2a1a;
+        }
+
+        .nav-links a {
+            padding: 0.6rem 1.2rem;
+            background: #2c1810;
+            border: 1px solid #8b4513;
+            border-radius: 6px;
+            color: #d4a574;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #8b4513;
+            color: #fff;
+        }
+
+        .nav-links a.current {
+            background: #8b4513;
+            color: #fff;
+            border-color: #d4a574;
+        }
+
+        @media (max-width: 900px) {
+            .research-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Connecting the Dots: From History to TRC</h1>
+        <p>Day 2 — Historical Research</p>
+    </header>
+
+    <div class="main-container">
+        <div class="day-objective">
+            <strong>Day 2 Goal:</strong> Explore the historical context behind Bernice's story. Click on the
+            numbered areas of the panel to research each topic. Use the textbook references to find specific
+            information. Record your findings in your response document.
+        </div>
+
+        <div class="research-grid">
+            <div class="panel-section">
+                <div class="panel-image-container" id="panel-container">
+                    <img src="TheOutsideCircle10.jpg"
+                        alt="Permanent Guardianship Order panel from The Outside Circle" id="panel-image">
+
+                    <!-- Hotspots -->
+                    <div class="hotspot" data-topic="0" style="top: 8%; left: 35%; width: 25%; height: 6%;"
+                        title="Bagot Commission">1</div>
+                    <div class="hotspot" data-topic="1" style="top: 18%; left: 10%; width: 30%; height: 8%;"
+                        title="Three Principles">2</div>
+                    <div class="hotspot" data-topic="2" style="top: 28%; left: 5%; width: 20%; height: 5%;"
+                        title="1920 Mandatory">3</div>
+                    <div class="hotspot" data-topic="3" style="top: 35%; left: 8%; width: 35%; height: 10%;"
+                        title="Conditions">4</div>
+                    <div class="hotspot" data-topic="4" style="top: 48%; left: 5%; width: 25%; height: 5%;"
+                        title="1960s Closures">5</div>
+                    <div class="hotspot" data-topic="5" style="top: 55%; left: 8%; width: 30%; height: 8%;"
+                        title="Sixties Scoop">6</div>
+                    <div class="hotspot" data-topic="6" style="top: 66%; left: 5%; width: 20%; height: 4%;"
+                        title="1996 Closure">7</div>
+                    <div class="hotspot" data-topic="7" style="top: 72%; left: 8%; width: 35%; height: 8%;"
+                        title="2012 Statistics">8</div>
+                    <div class="hotspot" data-topic="8" style="top: 85%; left: 10%; width: 40%; height: 6%;"
+                        title="My Son">9</div>
+                    <div class="hotspot" data-topic="9" style="top: 92%; left: 5%; width: 30%; height: 5%;"
+                        title="Urban Migration">10</div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="progress-panel">
+                    <h3>Your Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #a08060;">Click the numbered areas on the panel to explore
+                        each topic.</p>
+                </div>
+
+                <div class="progress-panel">
+                    <h3>Topics to Explore</h3>
+                    <ul class="topic-list" id="topic-list">
+                        <li data-topic="0">Bagot Commission (1842-1844)</li>
+                        <li data-topic="1">Residential Schools - Three Principles</li>
+                        <li data-topic="2">1920 Mandatory Attendance</li>
+                        <li data-topic="3">Conditions in Residential Schools</li>
+                        <li data-topic="4">1960s - Schools Close / Sixties Scoop</li>
+                        <li data-topic="5">The Sixties Scoop</li>
+                        <li data-topic="6">1996 - Last School Closes</li>
+                        <li data-topic="7">2012 Statistics - Child Welfare</li>
+                        <li data-topic="8">"My son is now part of this history"</li>
+                        <li data-topic="9">Urban Migration / Life in Cities</li>
+                    </ul>
+                </div>
+
+                <div class="progress-panel">
+                    <h3>Textbook Reference</h3>
+                    <p style="font-size: 0.85rem; color: #a08060; line-height: 1.4;">
+                        <em>Aboriginal Peoples: Building for the Future</em>
+                    </p>
+                    <ul style="font-size: 0.8rem; color: #888; margin-top: 0.5rem; padding-left: 1rem;">
+                        <li>Ch. 17: Residential Schools — p. 48-49</li>
+                        <li>Ch. 7: Family Life — p. 21</li>
+                        <li>Ch. 19: Relocation — p. 52</li>
+                        <li>Ch. 27: Criminal Justice — p. 72-73</li>
+                        <li>Ch. 30: Life in Cities — p. 80</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="Day1.html">Day 1: Story</a>
+            <a href="Day2.html" class="current">Day 2: Research</a>
+            <a href="Day3.html">Day 3: Worksheet</a>
+        </div>
+    </div>
+
+    <!-- Task Card Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="task-card" id="task-card">
+            <button class="close-btn" id="close-btn">&times;</button>
+            <h2 id="card-title"></h2>
+            <div class="textbook-ref" id="card-textbook-ref"></div>
+            <div class="connection" id="card-connection"></div>
+            <h3>Guiding Questions</h3>
+            <ul id="card-questions"></ul>
+            <div id="card-external-link"></div>
+            <button class="mark-complete-btn" id="mark-complete-btn">Mark as Explored</button>
+        </div>
+    </div>
+
+    <script>
+        // Topic data
+        const topics = [
+            {
+                title: "Bagot Commission (1842-1844)",
+                textbookRef: "<strong>Textbook:</strong> Aboriginal Peoples: Building for the Future — Chapter 17, p. 48",
+                connection: '"recommended the forced removal of Indian children from their families in order to assimilate them"',
+                questions: [
+                    "Who was Sir Charles Bagot?",
+                    "What did the commission recommend regarding Indigenous children?",
+                    "How did these recommendations shape Canadian policy?"
+                ],
+                externalLink: null
+            },
+            {
+                title: "Residential Schools - Three Principles",
+                textbookRef: "<strong>Textbook:</strong> Chapter 17, p. 48-49 — 'The Purpose of Residential Schools' section",
+                connection: "The document lists three principles: separation, socialization, and enfranchisement",
+                questions: [
+                    'What does "separation of children from their Indian people" mean in practice?',
+                    'What is "socialization into British settler culture"?',
+                    'What does "enfranchisement" mean in this context?'
+                ],
+                externalLink: null
+            },
+            {
+                title: "1920 - Mandatory Attendance",
+                textbookRef: "<strong>Textbook:</strong> Chapter 17, p. 48 — Indian Act and government responsibility",
+                connection: '"In 1920, the federal government tried to \'solve the Indian problem\' by making it mandatory"',
+                questions: [
+                    "What law made attendance mandatory?",
+                    "What happened to families who resisted?",
+                    "How many children were affected?"
+                ],
+                externalLink: null
+            },
+            {
+                title: "Conditions in Residential Schools",
+                textbookRef: "<strong>Textbook:</strong> Chapter 17, p. 48-49 — 'Life at the schools was often harsh' section; Figure 17-1",
+                connection: '"malnourished, overcrowded, poorly monitored... Approximately 50 percent of these children died of disease"',
+                questions: [
+                    "What types of abuse occurred?",
+                    "Why were schools underfunded?",
+                    "What diseases caused the high death rate?",
+                    "What is the estimated number of children who died?"
+                ],
+                externalLink: null
+            },
+            {
+                title: "1960s - Schools Begin to Close / Sixties Scoop Begins",
+                textbookRef: "<strong>Textbook:</strong> Chapter 7 (Family Life), p. 21",
+                connection: '"The schools began to close in the 1960s. At the same time, child welfare authorities began the mass removal..."',
+                questions: [
+                    "What social changes led to school closures?",
+                    "How did child welfare agencies become the new mechanism of removal?",
+                    "What statistics show the scale of the Sixties Scoop?"
+                ],
+                externalLink: null
+            },
+            {
+                title: "The Sixties Scoop",
+                textbookRef: "<strong>Textbook:</strong> Chapter 7 (Family Life), p. 21 — Statistics on Aboriginal children in care",
+                connection: '"This era is known as the 60s Scoop"',
+                questions: [
+                    'Why is it called the "Sixties Scoop"?',
+                    "How many children were taken?",
+                    "Where were they placed?",
+                    "What were the long-term impacts?"
+                ],
+                externalLink: '<a href="https://thecanadianencyclopedia.ca/en/article/sixties-scoop" target="_blank" class="external-link">📖 The Canadian Encyclopedia — Sixties Scoop</a>'
+            },
+            {
+                title: "1996 - Last Residential School Closes",
+                textbookRef: "<strong>Reference:</strong> TRC timeline and National Centre for Truth and Reconciliation",
+                connection: '"The last residential school closed in 1996"',
+                questions: [
+                    "Which school was the last to close?",
+                    "What was the government's response?",
+                    "How did survivors react?"
+                ],
+                externalLink: '<a href="https://nctr.ca/" target="_blank" class="external-link">📖 National Centre for Truth and Reconciliation</a>'
+            },
+            {
+                title: "2012 Statistics - Alberta Child Welfare",
+                textbookRef: "<strong>Textbook:</strong> Chapter 27, p. 72-73 — 'The Poverty Factor' and prison admission statistics (Figure 27-3)",
+                connection: '"In 2012, 68 percent of children involved in child welfare in Alberta were Aboriginal"',
+                questions: [
+                    "Why are Indigenous children still overrepresented?",
+                    'What is the "millennial scoop"?',
+                    "How does this connect to overrepresentation in prisons?"
+                ],
+                externalLink: null
+            },
+            {
+                title: '"My son is now a part of this history"',
+                textbookRef: "<strong>Textbook:</strong> Chapter 7, p. 21 — healing centres and intergenerational impacts",
+                connection: "The final emotional line of the document — Bernice signs the guardianship order",
+                questions: [
+                    "What does this line reveal about Bernice's experience?",
+                    "How does intergenerational trauma work?",
+                    "What does healing look like?"
+                ],
+                externalLink: null
+            },
+            {
+                title: "Urban Migration / Life in Cities",
+                textbookRef: "<strong>Textbook:</strong> Chapter 30, p. 80 — 'From the Reserve to the City,' 'Isolation,' 'Poverty' sections",
+                connection: "Connects to the ongoing displacement and disconnection theme",
+                questions: [
+                    "Why do Indigenous people leave reserves for cities?",
+                    "What challenges do they face in urban areas?",
+                    "What is the role of Aboriginal friendship centres?",
+                    "How does isolation from land and community affect identity?"
+                ],
+                externalLink: null
+            }
+        ];
+
+        // State
+        let exploredTopics = new Set();
+        let currentTopic = null;
+
+        // DOM elements
+        const modalOverlay = document.getElementById('modal-overlay');
+        const taskCard = document.getElementById('task-card');
+        const closeBtn = document.getElementById('close-btn');
+        const markCompleteBtn = document.getElementById('mark-complete-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const topicList = document.getElementById('topic-list');
+
+        // Hotspot click handlers
+        document.querySelectorAll('.hotspot').forEach(hotspot => {
+            hotspot.addEventListener('click', function () {
+                const topicIndex = parseInt(this.dataset.topic);
+                openTaskCard(topicIndex);
+            });
+        });
+
+        // Topic list click handlers
+        document.querySelectorAll('.topic-list li').forEach(item => {
+            item.addEventListener('click', function () {
+                const topicIndex = parseInt(this.dataset.topic);
+                openTaskCard(topicIndex);
+            });
+        });
+
+        function openTaskCard(topicIndex) {
+            currentTopic = topicIndex;
+            const topic = topics[topicIndex];
+
+            document.getElementById('card-title').textContent = topic.title;
+            document.getElementById('card-textbook-ref').innerHTML = topic.textbookRef;
+            document.getElementById('card-connection').textContent = topic.connection;
+
+            const questionsList = document.getElementById('card-questions');
+            questionsList.innerHTML = '';
+            topic.questions.forEach(q => {
+                const li = document.createElement('li');
+                li.textContent = q;
+                questionsList.appendChild(li);
+            });
+
+            const externalLinkDiv = document.getElementById('card-external-link');
+            externalLinkDiv.innerHTML = topic.externalLink || '';
+
+            if (exploredTopics.has(topicIndex)) {
+                markCompleteBtn.textContent = '✓ Explored';
+                markCompleteBtn.classList.add('completed');
+            } else {
+                markCompleteBtn.textContent = 'Mark as Explored';
+                markCompleteBtn.classList.remove('completed');
+            }
+
+            modalOverlay.classList.add('active');
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', function (e) {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            currentTopic = null;
+        }
+
+        markCompleteBtn.addEventListener('click', function () {
+            if (currentTopic !== null && !exploredTopics.has(currentTopic)) {
+                exploredTopics.add(currentTopic);
+                updateProgress();
+                this.textContent = '✓ Explored';
+                this.classList.add('completed');
+            }
+        });
+
+        function updateProgress() {
+            const total = topics.length;
+            const explored = exploredTopics.size;
+            const percent = Math.round((explored / total) * 100);
+
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = percent + '%';
+
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                const topicIndex = parseInt(hotspot.dataset.topic);
+                if (exploredTopics.has(topicIndex)) {
+                    hotspot.classList.add('explored');
+                }
+            });
+
+            document.querySelectorAll('.topic-list li').forEach(item => {
+                const topicIndex = parseInt(item.dataset.topic);
+                if (exploredTopics.has(topicIndex)) {
+                    item.classList.add('explored');
+                }
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: Connect the Dots</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(180deg, #2c1810 0%, #1a1a1a 100%);
+            text-align: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #8b4513;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #d4a574;
+            margin-bottom: 0.3rem;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #a08060;
+            font-style: italic;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .day-objective {
+            background: #1a1a1a;
+            border-left: 4px solid #d4a574;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+
+        .day-objective strong {
+            color: #d4a574;
+        }
+
+        .worksheet-section {
+            margin-top: 2rem;
+        }
+
+        .worksheet-section h2 {
+            color: #d4a574;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .worksheet-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .worksheet-tab {
+            padding: 0.6rem 1.2rem;
+            background: #2c1810;
+            border: 1px solid #8b4513;
+            border-radius: 6px 6px 0 0;
+            color: #a08060;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .worksheet-tab.active {
+            background: #8b4513;
+            color: #fff;
+        }
+
+        .worksheet-tab:hover {
+            background: #8b4513;
+            color: #fff;
+        }
+
+        .worksheet-content {
+            background: #2c1810;
+            border: 1px solid #8b4513;
+            border-radius: 0 8px 8px 8px;
+            padding: 1.5rem;
+        }
+
+        .worksheet-panel {
+            display: none;
+        }
+
+        .worksheet-panel.active {
+            display: block;
+        }
+
+        .research-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .research-table th {
+            background: #1a1a1a;
+            color: #d4a574;
+            padding: 0.6rem;
+            text-align: left;
+            border: 1px solid #3a2a1a;
+        }
+
+        .research-table td {
+            padding: 0.6rem;
+            border: 1px solid #3a2a1a;
+            vertical-align: top;
+        }
+
+        .research-table td .answer-space {
+            width: 100%;
+            min-height: 60px;
+            background: #1a1a1a;
+            border: 1px dashed #3a2a1a;
+            border-radius: 4px;
+            padding: 0.4rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .research-table .page-ref {
+            color: #d4a574;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .flow-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .flow-item {
+            background: #1a1a1a;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 0.8rem 1.2rem;
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .flow-item.fixed {
+            background: #2c1810;
+            border-color: #d4a574;
+        }
+
+        .flow-item .answer-space {
+            width: 100%;
+            min-height: 40px;
+            background: transparent;
+            border: 1px dashed #3a2a1a;
+            border-radius: 4px;
+            padding: 0.4rem;
+            color: #666;
+            font-style: italic;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .flow-item.fixed .answer-space {
+            border: none;
+            color: #d4a574;
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        .flow-arrow {
+            color: #d4a574;
+            font-size: 1.5rem;
+            padding: 0.3rem 0;
+        }
+
+        .reflection-question {
+            margin-bottom: 1.5rem;
+        }
+
+        .reflection-question h4 {
+            color: #d4a574;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reflection-question .hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+
+        .reflection-question .answer-space {
+            width: 100%;
+            min-height: 80px;
+            background: #1a1a1a;
+            border: 1px dashed #3a2a1a;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .preview-section .answer-space {
+            width: 100%;
+            min-height: 100px;
+            background: #1a1a1a;
+            border: 1px dashed #3a2a1a;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .instructions {
+            background: #1a1a1a;
+            border: 1px solid #3a2a1a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .instructions strong {
+            color: #d4a574;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #3a2a1a;
+        }
+
+        .nav-links a {
+            padding: 0.6rem 1.2rem;
+            background: #2c1810;
+            border: 1px solid #8b4513;
+            border-radius: 6px;
+            color: #d4a574;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #8b4513;
+            color: #fff;
+        }
+
+        .nav-links a.current {
+            background: #8b4513;
+            color: #fff;
+            border-color: #d4a574;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            header {
+                background: white;
+                border-bottom: 2px solid black;
+            }
+
+            header h1,
+            header p {
+                color: black;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .worksheet-tabs {
+                display: none;
+            }
+
+            .worksheet-panel {
+                display: block !important;
+                page-break-after: always;
+            }
+
+            .worksheet-content {
+                background: white;
+                border-color: #ccc;
+            }
+
+            .research-table th {
+                background: #eee;
+                color: black;
+            }
+
+            .research-table td {
+                border: 1px solid #ccc;
+            }
+
+            .flow-item {
+                border-color: black;
+                background: white;
+            }
+
+            .flow-item.fixed {
+                background: #f5f5f5;
+            }
+
+            .flow-item .answer-space,
+            .research-table td .answer-space,
+            .reflection-question .answer-space,
+            .preview-section .answer-space {
+                background: white;
+                color: black;
+                border: 1px solid #ccc;
+            }
+
+            .reflection-question h4 {
+                color: black;
+            }
+
+            .day-objective {
+                background: #f5f5f5;
+                border-left-color: #333;
+                color: black;
+            }
+
+            .day-objective strong {
+                color: black;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Connecting the Dots: From History to TRC</h1>
+        <p>Day 3 — Connect the Dots Worksheet</p>
+    </header>
+
+    <div class="main-container">
+        <div class="day-objective">
+            <strong>Day 3 Goal:</strong> Bring everything together. Use your story comprehension (Day 1) and
+            historical research (Day 2) to complete the worksheet. The goal is to connect historical events to
+            Bernice's story and understand why the TRC was necessary.
+        </div>
+
+        <div class="worksheet-section">
+            <h2>"Connect the Dots" Worksheet</h2>
+
+            <div class="instructions">
+                <strong>Instructions:</strong> Use your research from Day 2 and your understanding of the story from
+                Day 1 to complete this worksheet. Record your answers in your response document.
+            </div>
+
+            <div style="background: #1a1a1a; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                <strong style="color: #d4a574;">Suggested Pacing:</strong>
+                <span style="color: #a08060;">
+                    <strong>Part A</strong> — Complete after Day 2 research | 
+                    <strong>Part B</strong> — Day 3, first half | 
+                    <strong>Part C</strong> — Day 3, second half | 
+                    <strong>Part D</strong> — End of Day 3
+                </span>
+            </div>
+
+            <div class="worksheet-tabs">
+                <button class="worksheet-tab active" data-panel="part-a">Part A: Decode the Panel</button>
+                <button class="worksheet-tab" data-panel="part-b">Part B: Trace the Chain</button>
+                <button class="worksheet-tab" data-panel="part-c">Part C: Why the TRC?</button>
+                <button class="worksheet-tab" data-panel="part-d">Part D: Preview</button>
+            </div>
+
+            <div class="worksheet-content">
+                <!-- Part A: Research Table -->
+                <div class="worksheet-panel active" id="part-a">
+                    <h3 style="color: #d4a574; margin-bottom: 1rem;">Part A: Decode the Panel</h3>
+                    <p style="font-size: 0.85rem; color: #a08060; margin-bottom: 1rem;">
+                        For each panel reference, write what it means and how it connects to Bernice's story today.
+                    </p>
+                    <table class="research-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Panel Reference</th>
+                                <th style="width: 15%;">Textbook Pages</th>
+                                <th style="width: 30%;">What It Means</th>
+                                <th style="width: 30%;">Connection to Bernice's Story</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Bagot Commission (1842-1844)</td>
+                                <td class="page-ref">Ch. 17, p. 48</td>
+                                <td><div class="answer-space">What was the Bagot Commission?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>Three Principles of Residential Schools</td>
+                                <td class="page-ref">Ch. 17, p. 48-49</td>
+                                <td><div class="answer-space">What were the three principles?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>1920 Mandatory Attendance</td>
+                                <td class="page-ref">Ch. 17, p. 48</td>
+                                <td><div class="answer-space">What law made attendance mandatory?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>Conditions (abuse, death rates)</td>
+                                <td class="page-ref">Ch. 17, p. 48-49</td>
+                                <td><div class="answer-space">What were conditions like?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>1960s - Sixties Scoop begins</td>
+                                <td class="page-ref">Ch. 7, p. 21</td>
+                                <td><div class="answer-space">What happened in the 1960s?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>1996 - Last school closes</td>
+                                <td class="page-ref">TRC timeline</td>
+                                <td><div class="answer-space">What was the significance?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>2012 - 68% of child welfare cases</td>
+                                <td class="page-ref">Ch. 27, p. 72-73</td>
+                                <td><div class="answer-space">What do these statistics show?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>"My son is now part of this history"</td>
+                                <td class="page-ref">Ch. 7, p. 21</td>
+                                <td><div class="answer-space">What does this reveal?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                            <tr>
+                                <td>Urban Migration / Life in Cities</td>
+                                <td class="page-ref">Ch. 30, p. 80</td>
+                                <td><div class="answer-space">Why do people move to cities?</div></td>
+                                <td><div class="answer-space">How does this connect to Bernice?</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Part B: Flow Chart -->
+                <div class="worksheet-panel" id="part-b">
+                    <h3 style="color: #d4a574; margin-bottom: 1rem;">Part B: Trace the Chain of Cause and Effect</h3>
+                    <p style="font-size: 0.85rem; color: #a08060; margin-bottom: 1.5rem;">
+                        Complete the flow chart showing how historical policies led to Bernice's situation.
+                    </p>
+                    <div class="flow-chart">
+                        <div class="flow-item fixed">
+                            <div class="answer-space">Indian Act (1876)</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item fixed">
+                            <div class="answer-space">Bagot Commission recommendations</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item fixed">
+                            <div class="answer-space">Residential Schools established</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item">
+                            <div class="answer-space">What happened next? (See Ch. 17, p. 48-49)</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item fixed">
+                            <div class="answer-space">Sixties Scoop</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item">
+                            <div class="answer-space">What were the ongoing impacts? (See Ch. 7, p. 21)</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item">
+                            <div class="answer-space">Bernice's situation today (See Ch. 27, p. 72-73; Ch. 30, p. 80)</div>
+                        </div>
+                        <div class="flow-arrow">↓</div>
+                        <div class="flow-item fixed" style="border-color: #4caf50;">
+                            <div class="answer-space" style="color: #4caf50; font-weight: bold; border: none;">TRC Calls to Action</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part C: Why the TRC? -->
+                <div class="worksheet-panel" id="part-c">
+                    <h3 style="color: #d4a574; margin-bottom: 1rem;">Part C: Why the TRC?</h3>
+                    <p style="font-size: 0.85rem; color: #a08060; margin-bottom: 1.5rem;">
+                        Based on the story and your research, answer the following questions.
+                    </p>
+
+                    <div class="reflection-question">
+                        <h4>1. What problem was the TRC created to address?</h4>
+                        <p class="hint">Hint: See Ch. 17, p. 48-49 and Ch. 7, p. 21. Think about what Bernice's story reveals.</p>
+                        <div class="answer-space"></div>
+                    </div>
+
+                    <div class="reflection-question">
+                        <h4>2. How do residential schools and the Sixties Scoop connect to Bernice's situation?</h4>
+                        <p class="hint">Hint: See Ch. 27, p. 72-73 (criminal justice) and Ch. 30, p. 80 (urban migration)</p>
+                        <div class="answer-space"></div>
+                    </div>
+
+                    <div class="reflection-question">
+                        <h4>3. Why is "truth" necessary before "reconciliation"?</h4>
+                        <p class="hint">Hint: Think about what Bernice learns when she reads the guardianship order.</p>
+                        <div class="answer-space"></div>
+                    </div>
+
+                    <div class="reflection-question">
+                        <h4>4. What does Bernice's story tell us about why the TRC Calls to Action exist?</h4>
+                        <p class="hint">This is a synthesis question — bring together the story and the history.</p>
+                        <div class="answer-space"></div>
+                    </div>
+                </div>
+
+                <!-- Part D: Preview -->
+                <div class="worksheet-panel" id="part-d">
+                    <h3 style="color: #d4a574; margin-bottom: 1rem;">Part D: Preview — What's Next?</h3>
+                    <p style="font-size: 0.85rem; color: #a08060; margin-bottom: 1rem;">
+                        Based on what you've learned about Bernice's story and the history behind it,
+                        predict what the TRC Calls to Action might address.
+                    </p>
+                    <div class="preview-section">
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Write 2-3 sentences predicting what the TRC Calls to Action might include:</p>
+                        <div class="answer-space"></div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: #1a1a1a; border-radius: 8px;">
+                        <p style="font-size: 0.85rem; color: #d4a574; font-weight: bold;">Coming Next:</p>
+                        <p style="font-size: 0.85rem; color: #a08060; margin-top: 0.5rem;">
+                            We will explore the actual TRC Calls to Action and compare them to your predictions.
+                            How close were you? What surprised you?
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="Day1.html">Day 1: Story</a>
+            <a href="Day2.html">Day 2: Research</a>
+            <a href="Day3.html" class="current">Day 3: Worksheet</a>
+        </div>
+    </div>
+
+    <script>
+        // Worksheet tabs
+        document.querySelectorAll('.worksheet-tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                const panelId = this.dataset.panel;
+
+                document.querySelectorAll('.worksheet-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.worksheet-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(panelId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
