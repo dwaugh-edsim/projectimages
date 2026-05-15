@@ -1,11 +1,14 @@
 /**
  * Google Apps Script Backend for Service Learning
- * Instructions:
- * 1. Open your Google Sheet.
- * 2. Go to Extensions -> Apps Script.
- * 3. Replace the contents of Code.gs with this code.
- * 4. Deploy -> New Deployment -> Web App (Set "Who has access" to "Anyone").
+ * VERSION: 2.1 (Robust CORS + Error Handling)
+ * 
+ * IMPORTANT:
+ * 1. This script should be "Bound" to your Google Sheet.
+ *    (Open Sheet -> Extensions -> Apps Script)
+ * 2. If it is NOT bound, you must replace the SS_ID below.
  */
+
+const SS_ID = null; // Set this to your Sheet ID (from URL) if script is not bound.
 
 const PIN_LIST = {
   'Farhan': 'HRNH', 'Abdul': 'ALZZ', 'Joshua A': 'RUXG', 'Clark': '9F3K',
@@ -17,50 +20,75 @@ const PIN_LIST = {
   'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8'
 };
 
-function doGet(e) {
-  const action = e.parameter.action;
-  const studentId = e.parameter.studentId;
-  const pin = e.parameter.pin;
-  const missionTitle = e.parameter.missionTitle;
-
-  // Handle Login Action
-  if (action === 'LOGIN') {
-    const correctPin = PIN_LIST[studentId];
-    const isSuccess = (correctPin && correctPin === (pin || '').toUpperCase());
-    
-    return ContentService.createTextOutput(JSON.stringify({ success: isSuccess }))
-      .setMimeType(ContentService.MimeType.JSON);
+function getSheet() {
+  let ss;
+  if (SS_ID) {
+    ss = SpreadsheetApp.openById(SS_ID);
+  } else {
+    ss = SpreadsheetApp.getActiveSpreadsheet();
   }
-
-  // Handle Data Retrieval
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const rows = sheet.getDataRange().getValues();
   
-  // Find the most recent entry for this student and mission
-  let content = null;
-  for (let i = rows.length - 1; i >= 1; i--) {
-    if (rows[i][0] === studentId && rows[i][1] === missionTitle) {
-      content = rows[i][2]; // Assumes Col A: studentId, Col B: missionTitle, Col C: reflection (JSON)
-      break;
-    }
+  if (!ss) throw new Error("Could not find Spreadsheet. Ensure script is bound or SS_ID is set.");
+  
+  let sheet = ss.getSheetByName("MissionLogs");
+  if (!sheet) {
+    sheet = ss.insertSheet("MissionLogs");
+    sheet.appendRow(["StudentId", "MissionTitle", "ReflectionJSON", "Timestamp"]);
   }
+  return sheet;
+}
 
-  return ContentService.createTextOutput(JSON.stringify({ content: content }))
-    .setMimeType(ContentService.MimeType.JSON);
+function doGet(e) {
+  try {
+    const action = e.parameter.action;
+    const studentId = e.parameter.studentId;
+    const pin = e.parameter.pin;
+    const missionTitle = e.parameter.missionTitle;
+
+    // Handle Login Action
+    if (action === 'LOGIN') {
+      const correctPin = PIN_LIST[studentId];
+      const isSuccess = (correctPin && correctPin === (pin || '').toUpperCase());
+      return createJsonResponse({ success: isSuccess });
+    }
+
+    // Handle Data Retrieval
+    const sheet = getSheet();
+    const rows = sheet.getDataRange().getValues();
+    
+    let content = null;
+    for (let i = rows.length - 1; i >= 1; i--) {
+      if (rows[i][0] === studentId && rows[i][1] === missionTitle) {
+        content = rows[i][2];
+        break;
+      }
+    }
+
+    return createJsonResponse({ content: content });
+  } catch (err) {
+    return createJsonResponse({ error: err.toString(), success: false });
+  }
 }
 
 function doPost(e) {
-  const payload = JSON.parse(e.postData.contents);
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  
-  // Append new row: StudentId, MissionTitle, ReflectionJSON, Timestamp
-  sheet.appendRow([
-    payload.studentId,
-    payload.missionTitle,
-    payload.reflection,
-    payload.timestamp
-  ]);
+  try {
+    const payload = JSON.parse(e.postData.contents);
+    const sheet = getSheet();
+    
+    sheet.appendRow([
+      payload.studentId,
+      payload.missionTitle,
+      payload.reflection,
+      payload.timestamp
+    ]);
 
-  return ContentService.createTextOutput(JSON.stringify({ success: true }))
+    return createJsonResponse({ success: true });
+  } catch (err) {
+    return createJsonResponse({ error: err.toString(), success: false });
+  }
+}
+
+function createJsonResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
