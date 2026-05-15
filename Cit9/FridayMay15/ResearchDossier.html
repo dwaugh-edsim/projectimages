@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friday Research Dossier — Action Intelligence</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --accent: #d97706; /* Friday Amber */
+            --ink: #1a1a1a;
+            --paper: #fdfaf6;
+            --border: #d1d5db;
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Courier Prime', monospace; 
+            background: #e5e7eb; 
+            padding: 20px; 
+            line-height: 1.4; 
+            color: var(--ink); 
+        }
+        
+        .dossier { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: var(--paper); 
+            border: 8px solid var(--accent); 
+            padding: 40px; 
+            position: relative; 
+            box-shadow: 20px 20px 0 rgba(0,0,0,0.1); 
+        }
+        
+        .stamp { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            border: 4px solid var(--accent); 
+            color: var(--accent); 
+            font-family: 'Special Elite', cursive; 
+            padding: 5px 15px; 
+            transform: rotate(5deg); 
+            font-size: 1.2rem; 
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 { 
+            font-family: 'Special Elite', cursive; 
+            font-size: 2.2rem; 
+            margin: 0; 
+            text-transform: uppercase; 
+            color: var(--accent); 
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.8rem;
+        }
+
+        .section-title { 
+            background: var(--accent); 
+            color: #fff; 
+            padding: 5px 15px; 
+            font-weight: bold; 
+            display: inline-block; 
+            margin: 30px 0 15px 0; 
+            text-transform: uppercase; 
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            font-family: 'Courier Prime', monospace;
+            background: #fff;
+            font-size: 1rem;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea { min-height: 120px; resize: vertical; }
+
+        .guide-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+            background: #f1f5f9;
+            padding: 10px;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        /* Sync Indicator */
+        .sync-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #fff;
+            border: 2px solid #000;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .dot { height: 10px; width: 10px; border-radius: 50%; background: #ccc; }
+        .dot.active { background: #22c55e; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Login Overlay */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .login-card {
+            background: #fff; padding: 40px; border-radius: 8px; width: 400px;
+        }
+
+        .login-card h2 { font-family: 'Special Elite', cursive; color: var(--accent); text-align: center; }
+
+        .btn {
+            background: #000; color: #fff; border: none; padding: 15px; width: 100%;
+            cursor: pointer; font-family: 'Special Elite', cursive; text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .btn:hover { background: var(--accent); }
+
+        .btn-download {
+            background: var(--ink);
+            margin-top: 40px;
+            font-size: 1.1rem;
+        }
+
+        #researchSection { margin-top: 20px; }
+
+        @media print {
+            .sync-panel, #loginOverlay, .btn { display: none !important; }
+            body { background: white; padding: 0; }
+            .dossier { border: 2px solid #000; box-shadow: none; }
+        }
+    </style>
+</head>
+<body class="logged-out">
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Operative Login</h2>
+            <div class="input-group">
+                <label>Select Name:</label>
+                <select id="loginName">
+                    <option value="">-- IDENTIFY YOURSELF --</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Intelligence PIN:</label>
+                <input type="password" id="loginPin" maxlength="4" placeholder="••••">
+            </div>
+            <button class="btn" onclick="handleLogin()">Authorize Access</button>
+            <p id="loginError" style="color:red; text-align:center; display:none; margin-top:10px; font-weight:bold;">ACCESS DENIED</p>
+        </div>
+    </div>
+
+    <div class="dossier">
+        <div class="stamp">PHASE 2: RESEARCH</div>
+        
+        <header>
+            <h1>Friday Research Dossier</h1>
+            <div class="meta-grid">
+                <div>
+                    <strong>OPERATIVE:</strong> <span id="display-name">PENDING...</span><br>
+                    <strong>MISSION:</strong> <span id="display-mission">NOT SELECTED</span>
+                </div>
+                <div style="text-align: right;">
+                    <strong>DATE:</strong> FRIDAY, MAY 15<br>
+                    <strong>STATUS:</strong> <span id="sync-status-text">INITIALIZING</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="input-group">
+            <label>Confirm Mission Focus:</label>
+            <select id="missionSelect" onchange="updateMissionTemplate()">
+                <option value="">-- SELECT YOUR MISSION --</option>
+                <option value="CIT-001">CIT-001: The Battery Scavenger</option>
+                <option value="CIT-002">CIT-002: The Tap Audit</option>
+                <option value="CIT-003">CIT-003: The Phantom Load</option>
+                <option value="CIT-004">CIT-004: The Wardrobe Reset</option>
+                <option value="CIT-005">CIT-005: The Data Diet</option>
+                <option value="CIT-006">CIT-006: The Zero-Waste Audit</option>
+            </select>
+        </div>
+
+        <div id="researchSection">
+            <!-- Dynamic questions go here -->
+        </div>
+
+        <div class="section-title">Objective 02: Resource Validation</div>
+        
+        <div class="input-group">
+            <label>Verified Source #1:</label>
+            <input type="text" id="source1" placeholder="Title and URL of Government/NGO source">
+        </div>
+
+        <div class="input-group">
+            <label>Verified Source #2:</label>
+            <input type="text" id="source2" placeholder="Title and URL of Academic/Journal source">
+        </div>
+
+        <button class="btn btn-download" onclick="downloadDossier()">Download Final Research for Classroom</button>
+
+    </div>
+
+    <div class="sync-panel">
+        <div id="syncDot" class="dot"></div>
+        <span id="syncStatus">Ready</span>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        const MISSION_ID = 'CIT9_FRIDAY_RESEARCH';
+        
+        const STUDENTS = [
+            {name:'Farhan'}, {name:'Abdul'}, {name:'Joshua A'}, {name:'Clark'},
+            {name:'Madhavan'}, {name:'Remy'}, {name:'Yunho'}, {name:'Lachlan McM'},
+            {name:'Lachlan Mac'}, {name:'Nolan'}, {name:'Laila'}, {name:'Josie'},
+            {name:'Huda'}, {name:'Brody'}, {name:'Leo'}, {name:'Elizabeth'},
+            {name:'Fatima'}, {name:'Alia'}, {name:'Rifa'}, {name:'Sarah'},
+            {name:'Jessa'}, {name:'Delisha'}, {name:'Kendra'}, {name:'Zankia'},
+            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}
+        ];
+
+        const missionData = {
+            "CIT-001": { title: "The Battery Scavenger", questions: [
+                { q: "What is 'Thermal Runaway'?", guide: "Explain the chemical chain reaction and fire hazard." },
+                { q: "Cobalt Conditions", guide: "Find percentage of global cobalt from DRC and mention two human rights concerns." },
+                { q: "EPR in Nova Scotia", guide: "Is there a legal requirement for manufacturers to recycle batteries in NS?" },
+                { q: "Political Spectrum", guide: "Argue one point FOR and one point AGAINST a battery deposit tax." }
+            ]},
+            "CIT-002": { title: "The Tap Audit", questions: [
+                { q: "Supply Chain", guide: "Trace your local water from the reservoir to your tap." },
+                { q: "Boil-Water Advisories", guide: "Why has Neskantaga been under an advisory for 25+ years?" },
+                { q: "Cost Analysis", guide: "What is the specific cost of 1L of tap water vs. 1L of bottled water in HRM?" },
+                { q: "Resource Equity", guide: "Who is legally responsible for water infrastructure on Indigenous reserves?" }
+            ]},
+            "CIT-003": { title: "The Phantom Load", questions: [
+                { q: "Phantom Loads", guide: "Identify the top 3 devices that pull energy while 'off'." },
+                { q: "The Cost of Standby", guide: "Calculate the annual cost of phantom energy for an average household." },
+                { q: "Grid Resilience", guide: "How does reducing peak demand help avoid power outages?" },
+                { q: "Incentives", guide: "Find one Efficiency Nova Scotia rebate related to home electronics." }
+            ]},
+            "CIT-004": { title: "The Wardrobe Reset", questions: [
+                { q: "Fast Fashion Impact", guide: "What is the Rana Plaza disaster, and how did it change the industry?" },
+                { q: "Water Footprint", guide: "How many litres of water does it take to produce ONE cotton t-shirt?" },
+                { q: "Waste Stream", guide: "What happens to donated clothes that aren't sold in local thrift stores?" },
+                { q: "Sustainable Labels", guide: "What does 'OEKO-TEX' or 'GOTS' certification actually mean?" }
+            ]},
+            "CIT-005": { title: "The Data Diet", questions: [
+                { q: "Shadow Profiles", guide: "How do companies collect data on people who don't even have an account?" },
+                { q: "Bill C-27", guide: "What is Canada's Digital Charter Implementation Act, and what does it protect?" },
+                { q: "The Ad Auction", guide: "Explain the 'Real-Time Bidding' process in 4 sentences." },
+                { q: "Digital Footprint", guide: "How long is your metadata legally required to be stored by ISPs in Canada?" }
+            ]},
+            "CIT-006": { title: "The Zero-Waste Audit", questions: [
+                { q: "Landfill Reality", guide: "Where does HRM garbage actually go? Trace the route to the Otter Lake facility." },
+                { q: "Circular Economy", guide: "Define 'Circular Economy' and give one local business example." },
+                { q: "The Plastic Problem", guide: "Which specific plastics are currently banned from sale in Canada?" },
+                { q: "Policy Debate", guide: "Argue for or against a municipal 'Pay-as-you-throw' garbage program." }
+            ]}
+        };
+
+        let autoSaveTimeout;
+
+        async function handleLogin() {
+            const name = document.getElementById('loginName').value;
+            const pin = document.getElementById('loginPin').value.toUpperCase();
+            if(!name || !pin) return;
+
+            const btn = document.querySelector('.btn');
+            btn.innerText = 'AUTHORIZING...';
+
+            try {
+                const response = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('sl_friday_user', name);
+                    document.getElementById('display-name').innerText = name.toUpperCase();
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.body.classList.remove('logged-out');
+                    retrieveData();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Authorize Access';
+                }
+            } catch (e) {
+                document.getElementById('loginError').innerText = 'CONNECTION ERROR';
+                document.getElementById('loginError').style.display = 'block';
+                btn.innerText = 'Authorize Access';
+            }
+        }
+
+        function updateMissionTemplate() {
+            const missionKey = document.getElementById('missionSelect').value;
+            const container = document.getElementById('researchSection');
+            if(!missionKey) {
+                container.innerHTML = '';
+                document.getElementById('display-mission').innerText = 'NOT SELECTED';
+                return;
+            }
+
+            const mission = missionData[missionKey];
+            document.getElementById('display-mission').innerText = mission.title.toUpperCase();
+            
+            let html = '<div class="section-title">Objective 01: The Foundation Questions</div>';
+            mission.questions.forEach((q, i) => {
+                html += `
+                    <div class="input-group">
+                        <label>${i+1}. ${q.q}</label>
+                        <div class="guide-text">${q.guide}</div>
+                        <textarea id="q_${i+1}" oninput="triggerAutoSave()" placeholder="Enter your intelligence findings..."></textarea>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            triggerAutoSave();
+        }
+
+        function triggerAutoSave() {
+            document.getElementById('syncStatus').innerText = 'Typing...';
+            document.getElementById('syncDot').classList.remove('active');
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(saveData, 2000);
+        }
+
+        async function saveData() {
+            const name = localStorage.getItem('sl_friday_user');
+            if(!name) return;
+
+            const data = {
+                mission: document.getElementById('missionSelect').value,
+                source1: document.getElementById('source1').value,
+                source2: document.getElementById('source2').value
+            };
+            for(let i=1; i<=4; i++) {
+                const el = document.getElementById('q_'+i);
+                if(el) data['q_'+i] = el.value;
+            }
+
+            document.getElementById('syncStatus').innerText = '🛰️ Syncing...';
+            document.getElementById('syncDot').classList.add('active');
+
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                        studentId: name,
+                        missionTitle: MISSION_ID,
+                        reflection: JSON.stringify(data),
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                document.getElementById('syncStatus').innerText = '✅ Saved to Cloud';
+                // Also save locally
+                localStorage.setItem(`sl_friday_${name}_data`, JSON.stringify(data));
+            } catch (e) {
+                document.getElementById('syncStatus').innerText = '⚠️ Local Save Only';
+            }
+        }
+
+        async function retrieveData() {
+            const name = localStorage.getItem('sl_friday_user');
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?studentId=${encodeURIComponent(name)}&missionTitle=${encodeURIComponent(MISSION_ID)}`);
+                const result = await res.json();
+                if(result.content) {
+                    const data = JSON.parse(result.content);
+                    document.getElementById('missionSelect').value = data.mission || '';
+                    updateMissionTemplate();
+                    setTimeout(() => {
+                        document.getElementById('source1').value = data.source1 || '';
+                        document.getElementById('source2').value = data.source2 || '';
+                        for(let i=1; i<=4; i++) {
+                            const el = document.getElementById('q_'+i);
+                            if(el && data['q_'+i]) el.value = data['q_'+i];
+                        }
+                        document.getElementById('syncStatus').innerText = '✅ Work retrieved';
+                    }, 500);
+                }
+            } catch (e) {
+                // Try local
+                const local = localStorage.getItem(`sl_friday_${name}_data`);
+                if(local) {
+                    const data = JSON.parse(local);
+                    document.getElementById('missionSelect').value = data.mission || '';
+                    updateMissionTemplate();
+                    // ... fill other fields
+                }
+            }
+        }
+
+        function downloadDossier() {
+            const name = localStorage.getItem('sl_friday_user') || 'Anonymous';
+            const mission = document.getElementById('display-mission').innerText;
+            const content = document.body.innerHTML;
+            const blob = new Blob([`
+                <html><head><style>${document.querySelector('style').innerHTML}</style></head>
+                <body style="background:white; padding:40px;">
+                    <div style="border:2px solid #000; padding:20px;">
+                        <h2>OFFICIAL RESEARCH DOSSIER</h2>
+                        <p><strong>OPERATIVE:</strong> ${name}</p>
+                        <p><strong>MISSION:</strong> ${mission}</p>
+                        <hr>
+                        ${document.querySelector('.dossier').innerHTML}
+                    </div>
+                </body></html>
+            `], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `FridayResearch_${name.replace(/ /g,'_')}.html`;
+            a.click();
+        }
+
+        window.onload = () => {
+            const select = document.getElementById('loginName');
+            STUDENTS.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = s.name;
+                select.appendChild(opt);
+            });
+            const saved = localStorage.getItem('sl_friday_user');
+            if(saved) {
+                document.getElementById('display-name').innerText = saved.toUpperCase();
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.body.classList.remove('logged-out');
+                retrieveData();
+            }
+        }
+
+        // Periodic Cloud Sync for sources
+        document.getElementById('source1').oninput = triggerAutoSave;
+        document.getElementById('source2').oninput = triggerAutoSave;
+
+    </script>
+</body>
+</html>
