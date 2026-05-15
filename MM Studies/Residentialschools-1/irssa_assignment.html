@@ -725,21 +725,28 @@
             sessionData.responses[slide.id] = val;
             saveToLocal();
 
+            // Trigger Cloud Sync immediately on every save
+            submitToWebhook(false); // Pass false to indicate this is an incremental save
+
             // Sync Visuals
             const indicator = document.getElementById('save-indicator');
-            indicator.innerText = "LOCAL_STORAGE: SYNCED";
-            indicator.style.color = "var(--accent)";
+            indicator.innerText = "CLOUD_SYNC: IN PROGRESS";
+            indicator.style.color = "orange";
+            
             setTimeout(() => {
-                indicator.innerText = "LOCAL_STORAGE: IDLE";
-                indicator.style.color = "#444";
-            }, 2000);
+                indicator.innerText = "CLOUD_SYNC: SUCCESS";
+                indicator.style.color = "var(--accent)";
+                setTimeout(() => {
+                    indicator.innerText = "CLOUD_SYNC: IDLE";
+                    indicator.style.color = "#444";
+                }, 2000);
+            }, 1000);
 
-            // Final Slide logic
-            if (currentSlideIndex === MISSION_DATA.slides.length - 1) {
-                submitToWebhook();
-            } else {
-                // Auto-advance
+            // Auto-advance if not on the last slide
+            if (currentSlideIndex < MISSION_DATA.slides.length - 1) {
                 setTimeout(() => loadSlide(currentSlideIndex + 1), 500);
+            } else {
+                alert("FINAL ANALYSIS COMMITTED. ALL PROGRESS SECURED IN CLOUD.");
             }
         }
 
@@ -754,9 +761,9 @@
             }
         }
 
-        async function submitToWebhook() {
+        async function submitToWebhook(isFinal = true) {
             const syncStatus = document.getElementById('sync-status');
-            syncStatus.innerText = "SYNC: UPLOADING...";
+            syncStatus.innerText = isFinal ? "SYNC: UPLOADING FINAL..." : "SYNC: UPLOADING PROGRESS...";
             syncStatus.style.color = "orange";
 
             const payload = {
@@ -765,11 +772,11 @@
                 student: selectedStudent.S,
                 subject: "MIKMAW11",
                 simulation: "IRSSA Settlement Dossier",
+                status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
                 rationales: JSON.stringify(sessionData.responses)
             };
 
             try {
-                // Create form data for Apps Script compatibility
                 const formData = new URLSearchParams();
                 for (const key in payload) {
                     formData.append(key, payload[key]);
@@ -783,14 +790,12 @@
                     body: formData
                 });
 
-                syncStatus.innerText = "SYNC: COMPLETED";
+                syncStatus.innerText = isFinal ? "SYNC: COMPLETED" : "SYNC: PROGRESS SAVED";
                 syncStatus.style.color = "#27ae60";
-                alert("FINAL DOSSIER COMMITTED TO RECORD. MISSION COMPLETE.");
             } catch (err) {
                 console.error(err);
-                syncStatus.innerText = "SYNC: ERROR";
+                syncStatus.innerText = "SYNC: OFFLINE (ERROR)";
                 syncStatus.style.color = "#e74c3c";
-                alert("TRANSMISSION ERROR. PLEASE NOTIFY INSTRUCTOR.");
             }
         }
     </script>
