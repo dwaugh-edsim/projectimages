@@ -779,6 +779,9 @@
         }
 
         if (data.myQuestions) updateMyQuestions(data.myQuestions);
+        
+        // --- Finalist Lockout ---
+        checkFinalistLockout(session);
 
       } catch (e) {
         consecutiveFailures++;
@@ -1010,6 +1013,22 @@
         showVoteState('locked');
         updateBadge('vote', 0);
         document.getElementById('badge-vote').style.background = ''; // Reset to default
+      }
+    }
+
+    function checkFinalistLockout(session) {
+      if (!myStudent) return;
+      const phase = session.votePhase || 'prelim';
+      const finalists = (session.finalists || '').split(',');
+      const isFinalist = finalists.includes(myStudent.partyid);
+      
+      const warTab = document.getElementById('tab-war');
+      
+      if (phase === 'final' && !isFinalist) {
+        warTab.style.display = 'none';
+        if (currentTab === 'war') switchTab('q');
+      } else {
+        warTab.style.display = 'flex';
       }
     }
 

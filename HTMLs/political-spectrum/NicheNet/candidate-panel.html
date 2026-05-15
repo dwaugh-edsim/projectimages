@@ -723,6 +723,9 @@
         
         // --- Voting Sync ---
         syncVotingState(data.session, data.hasVotedPrelim, data.hasVotedFinal);
+        
+        // --- Finalist Lockout ---
+        checkFinalistLockout(data.session);
 
       } catch (e) {
         consecutiveFailures++;
@@ -823,6 +826,25 @@
         document.getElementById('vote-phase-name').textContent = phaseName;
         
         renderVoteList(finalistsStr);
+      }
+    }
+
+    function checkFinalistLockout(session) {
+      if (!myStudent) return;
+      const phase = session.votePhase || 'prelim';
+      const finalists = (session.finalists || '').split(',');
+      const isFinalist = finalists.includes(myStudent.partyid);
+      
+      const warTab = document.getElementById('tab-stage');
+      
+      if (phase === 'final' && !isFinalist) {
+        warTab.style.display = 'none';
+        // switchTab('vote'); // Fallback tab
+        if (document.getElementById('panel-stage').classList.contains('active')) {
+          switchTab('vote');
+        }
+      } else {
+        warTab.style.display = 'flex';
       }
     }
 

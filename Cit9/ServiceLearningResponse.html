@@ -196,13 +196,105 @@
         @media print {
             .sync-indicator { display: none !important; }
         }
+
+        /* Login Overlay */
+        #loginOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-card {
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-card h2 {
+            font-family: 'Special Elite', cursive;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .login-card .input-group {
+            margin-bottom: 15px;
+        }
+
+        .login-card input, .login-card select {
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            width: 100%;
+        }
+
+        .login-btn {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .login-btn:hover {
+            filter: brightness(1.2);
+        }
+
+        .error-msg {
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        body.logged-out {
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
 
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Operative Login</h2>
+            <div class="input-group">
+                <label>Identify Yourself:</label>
+                <select id="loginName">
+                    <option value="">-- SELECT YOUR NAME --</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>4-Letter Intelligence PIN:</label>
+                <input type="password" id="loginPin" maxlength="4" placeholder="••••">
+            </div>
+            <button class="login-btn" onclick="handleLogin()">Authorize Access</button>
+            <div id="loginError" class="error-msg">INVALID PIN: ACCESS DENIED</div>
+        </div>
+    </div>
+
     <div class="toolbar">
-        <button id="finalBtn" class="btn btn-finalize" onclick="toggleFinalMode(true)">Finalize for Submission</button>
+        <button id="finalBtn" class="btn btn-finalize" onclick="toggleFinalMode(true)">Finalize View</button>
         <button id="editBtn" class="btn" style="display:none;" onclick="toggleFinalMode(false)">Back to Editing</button>
+        <button class="btn" style="background: #2563eb;" onclick="downloadSubmission()">Download for Classroom</button>
         <button class="btn" onclick="window.print()">Print to PDF</button>
     </div>
 
@@ -220,43 +312,29 @@
         <div class="case-meta">
             <div class="input-group">
                 <label>OPERATIVE NAME:</label>
-                <input type="text" id="studentName" placeholder="Enter your name">
+                <input type="text" id="studentName" readonly style="background: #f1f5f9; cursor: not-allowed;">
                 <div class="display-text" id="disp-studentName"></div>
+                <button class="btn" style="font-size: 0.6rem; padding: 5px; margin-top: 5px;" onclick="handleLogout()">Not You? Log Out</button>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="input-group">
-                    <label>MISSION OPTION A:</label>
-                    <select id="missionSelectA" onchange="updateMissions()">
-                        <option value="">-- SELECT MISSION A --</option>
-                        <option value="CIT-001">CIT-001: The Battery Scavenger</option>
-                        <option value="CIT-002">CIT-002: The Tap Audit</option>
-                        <option value="CIT-003">CIT-003: The Phantom Load</option>
-                        <option value="CIT-004">CIT-004: The Wardrobe Reset</option>
-                        <option value="CIT-005">CIT-005: The Data Diet</option>
-                        <option value="CIT-006">CIT-006: The Zero-Waste Audit</option>
-                    </select>
-                    <div class="display-text" id="disp-missionSelectA"></div>
-                </div>
-                <div class="input-group">
-                    <label>MISSION OPTION B:</label>
-                    <select id="missionSelectB" onchange="updateMissions()">
-                        <option value="">-- SELECT MISSION B --</option>
-                        <option value="CIT-001">CIT-001: The Battery Scavenger</option>
-                        <option value="CIT-002">CIT-002: The Tap Audit</option>
-                        <option value="CIT-003">CIT-003: The Phantom Load</option>
-                        <option value="CIT-004">CIT-004: The Wardrobe Reset</option>
-                        <option value="CIT-005">CIT-005: The Data Diet</option>
-                        <option value="CIT-006">CIT-006: The Zero-Waste Audit</option>
-                    </select>
-                    <div class="display-text" id="disp-missionSelectB"></div>
-                </div>
+            <div class="input-group">
+                <label>SELECTED MISSION:</label>
+                <select id="missionSelect" onchange="updateMissions()">
+                    <option value="">-- SELECT YOUR MISSION --</option>
+                    <option value="CIT-001">CIT-001: The Battery Scavenger</option>
+                    <option value="CIT-002">CIT-002: The Tap Audit</option>
+                    <option value="CIT-003">CIT-003: The Phantom Load</option>
+                    <option value="CIT-004">CIT-004: The Wardrobe Reset</option>
+                    <option value="CIT-005">CIT-005: The Data Diet</option>
+                    <option value="CIT-006">CIT-006: The Zero-Waste Audit</option>
+                </select>
+                <div class="display-text" id="disp-missionSelect"></div>
             </div>
         </div>
 
-        <div class="section-title">Phase 1: Comparison & Merit</div>
+        <div class="section-title">Phase 1: Merit & Rationale</div>
         <div class="input-group">
-            <label>The Selection: Between these two options, which one has the highest merit for your local community? Why?</label>
+            <label>Community Merit: Why does this specific mission have high merit for your local community?</label>
             <textarea id="selectionWhy"></textarea>
             <div class="display-text" id="disp-selectionWhy"></div>
         </div>
@@ -301,10 +379,27 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
         const MISSION_TITLE = 'CIT 9: Service Learning V2';
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
+
+        const STUDENTS = [
+            {name:'Farhan'}, {name:'Abdul'},
+            {name:'Joshua A'}, {name:'Clark'},
+            {name:'Madhavan'}, {name:'Remy'},
+            {name:'Yunho'}, {name:'Lachlan McM'},
+            {name:'Lachlan Mac'}, {name:'Nolan'},
+            {name:'Laila'}, {name:'Josie'},
+            {name:'Huda'}, {name:'Brody'},
+            {name:'Leo'}, {name:'Elizabeth'},
+            {name:'Fatima'}, {name:'Alia'},
+            {name:'Rifa'}, {name:'Sarah'},
+            {name:'Jessa'}, {name:'Delisha'},
+            {name:'Kendra'}, {name:'Zankia'},
+            {name:'Evie'}, {name:'Jana'},
+            {name:'Ali'}, {name:'Kai'}
+        ];
         
         let timeout = null;
 
@@ -366,34 +461,28 @@
         };
 
         function updateMissions() {
-            const valA = document.getElementById('missionSelectA').value;
-            const valB = document.getElementById('missionSelectB').value;
+            const val = document.getElementById('missionSelect').value;
             const container = document.getElementById('researchSection');
             
-            if (!valA && !valB) {
-                container.innerHTML = '<p style="color: #666; font-size: 0.8rem;">Select two missions to compare research foundations...</p>';
+            if (!val) {
+                container.innerHTML = '<p style="color: #666; font-size: 0.8rem;">Select a mission to view research foundations...</p>';
                 return;
             }
 
-            let html = '';
-            [valA, valB].forEach((val, index) => {
-                if (val) {
-                    const mission = missionData[val];
-                    html += `<div style="margin-bottom:30px; border-left: 4px solid var(--accent); padding-left: 15px;">
-                        <h4 style="text-transform:uppercase; margin-bottom:10px;">Foundation: ${mission.title}</h4>`;
-                    mission.questions.forEach((q, i) => {
-                        html += `
-                            <div class="input-group">
-                                <div class="research-q">${index === 0 ? 'A' : 'B'}.${i+1} ${q.q}</div>
-                                <div class="guide-text">${q.guide}</div>
-                                <textarea id="q${index}_${i+1}" oninput="triggerSave()"></textarea>
-                                <div class="display-text" id="disp-q${index}_${i+1}"></div>
-                            </div>
-                        `;
-                    });
-                    html += `</div>`;
-                }
+            const mission = missionData[val];
+            let html = `<div style="margin-bottom:30px; border-left: 4px solid var(--accent); padding-left: 15px;">
+                <h4 style="text-transform:uppercase; margin-bottom:10px;">Foundation: ${mission.title}</h4>`;
+            mission.questions.forEach((q, i) => {
+                html += `
+                    <div class="input-group">
+                        <div class="research-q">${i+1}. ${q.q}</div>
+                        <div class="guide-text">${q.guide}</div>
+                        <textarea id="q_${i+1}" oninput="triggerSave()"></textarea>
+                        <div class="display-text" id="disp-q_${i+1}"></div>
+                    </div>
+                `;
             });
+            html += `</div>`;
             container.innerHTML = html;
         }
 
@@ -420,18 +509,17 @@
             }
         }
 
-        const fields = ['studentName', 'missionSelectA', 'missionSelectB', 'selectionWhy', 'personalRole', 'busyWorkCritique', 'deliverableMod', 'betterIdea'];
+        const fields = ['studentName', 'missionSelect', 'selectionWhy', 'personalRole', 'busyWorkCritique', 'deliverableMod', 'betterIdea'];
         
         function autoSave() {
+            const user = localStorage.getItem('sl_v2_loggedInUser') || 'ANON';
             fields.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) localStorage.setItem('sl_v2_' + id, el.value);
+                if (el) localStorage.setItem(`sl_v2_${user}_${id}`, el.value);
             });
-            for(let m=0; m<2; m++) {
-                for(let i=1; i<=4; i++) {
-                    const el = document.getElementById('q' + m + '_' + i);
-                    if (el) localStorage.setItem('sl_v2_q' + m + '_' + i, el.value);
-                }
+            for(let i=1; i<=4; i++) {
+                const el = document.getElementById('q_' + i);
+                if (el) localStorage.setItem(`sl_v2_${user}_q_${i}`, el.value);
             }
             triggerSave();
         }
@@ -449,11 +537,9 @@
                 const el = document.getElementById(id);
                 if (el) data[id] = el.value;
             });
-            for(let m=0; m<2; m++) {
-                for(let i=1; i<=4; i++) {
-                    const el = document.getElementById('q' + m + '_' + i);
-                    if (el) data['q' + m + '_' + i] = el.value;
-                }
+            for(let i=1; i<=4; i++) {
+                const el = document.getElementById('q_' + i);
+                if (el) data['q_' + i] = el.value;
             }
 
             syncStatus.innerText = '🛰️ Syncing to Cloud...';
@@ -475,7 +561,12 @@
         }
 
         async function retrieveFromCloud() {
-            const name = localStorage.getItem('sl_v2_studentName') || 'MKS-11-STUDENT';
+            const name = localStorage.getItem('sl_v2_loggedInUser');
+            if (!name) return;
+
+            syncStatus.innerText = '🛰️ Retrieving from Cloud...';
+            clearForm(); // Clean slate for new user
+            
             try {
                 const response = await fetch(`${WEBHOOK_URL}?studentId=${encodeURIComponent(name)}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
                 const result = await response.json();
@@ -486,22 +577,20 @@
                         const el = document.getElementById(id);
                         if (el && data[id]) {
                             el.value = data[id];
-                            if (id.startsWith('missionSelect')) updateMissions();
+                            if (id === 'missionSelect') updateMissions();
                         }
                     });
                     // Re-sync dynamic fields after mission update
                     setTimeout(() => {
-                        for(let m=0; m<2; m++) {
-                            for(let i=1; i<=4; i++) {
-                                const el = document.getElementById('q' + m + '_' + i);
-                                if (el && data['q' + m + '_' + i]) el.value = data['q' + m + '_' + i];
-                            }
+                        for(let i=1; i<=4; i++) {
+                            const el = document.getElementById('q_' + i);
+                            if (el && data['q_' + i]) el.value = data['q_' + i];
                         }
                     }, 500);
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
+                    syncStatus.innerText = '✅ Dossier Retrieved';
                 } else {
                     loadSaved();
-                    syncStatus.innerText = 'Ready';
+                    syncStatus.innerText = 'New Dossier Initialized';
                 }
             } catch (e) {
                 loadSaved();
@@ -509,28 +598,153 @@
             }
         }
 
-        function loadSaved() {
+        function clearForm() {
             fields.forEach(id => {
-                const val = localStorage.getItem('sl_v2_' + id);
+                const el = document.getElementById(id);
+                if (el && id !== 'studentName') el.value = '';
+            });
+            const researchSection = document.getElementById('researchSection');
+            if (researchSection) researchSection.innerHTML = '';
+        }
+
+        function loadSaved() {
+            const user = localStorage.getItem('sl_v2_loggedInUser') || 'ANON';
+            fields.forEach(id => {
+                const val = localStorage.getItem(`sl_v2_${user}_${id}`);
                 const el = document.getElementById(id);
                 if (el && val) {
                     el.value = val;
-                    if (id.startsWith('missionSelect')) updateMissions();
+                    if (id === 'missionSelect') updateMissions();
                 }
             });
             setTimeout(() => {
-                for(let m=0; m<2; m++) {
-                    for(let i=1; i<=4; i++) {
-                        const val = localStorage.getItem('sl_v2_q' + m + '_' + i);
-                        const el = document.getElementById('q' + m + '_' + i);
-                        if (el && val) el.value = val;
-                    }
+                for(let i=1; i<=4; i++) {
+                    const val = localStorage.getItem(`sl_v2_${user}_q_${i}`);
+                    const el = document.getElementById('q_' + i);
+                    if (el && val) el.value = val;
                 }
             }, 200);
         }
 
+        function downloadSubmission() {
+            // 1. Ensure we are in final mode to capture text
+            toggleFinalMode(true);
+            
+            const studentName = document.getElementById('studentName').value || 'Anonymous';
+            const safeName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const filename = `ServiceLearning_${safeName}.html`;
+
+            // 2. Get the styles
+            const styles = document.getElementsByTagName('style')[0].innerHTML;
+
+            // 3. Prepare the Dossier content
+            const dossierContent = document.getElementById('dossier').innerHTML;
+
+            // 4. Create the Full HTML Template
+            const fullHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SUBMISSION: ${studentName} - Service Learning</title>
+    <style>
+        ${styles}
+        /* Override for downloaded version */
+        body { background: #f3f4f6; padding: 20px; }
+        .dossier { margin: 0 auto; border: 5px solid var(--accent); }
+        .final-mode textarea, .final-mode input, .final-mode select { display: none; }
+        .final-mode .display-text { display: block; }
+        .no-print, .toolbar, .sync-indicator { display: none !important; }
+    </style>
+</head>
+<body class="final-mode">
+    <div style="text-align: center; font-family: sans-serif; font-size: 12px; color: #666; margin-bottom: 20px;">
+        OFFICIAL STUDENT SUBMISSION FILE // DOWNLOADED ON ${new Date().toLocaleString()}
+    </div>
+    <div class="dossier">
+        ${dossierContent}
+    </div>
+</body>
+</html>`;
+
+            // 5. Trigger Download
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        async function handleLogin() {
+            const name = document.getElementById('loginName').value;
+            const pin = document.getElementById('loginPin').value.toUpperCase();
+            
+            if (!name || !pin) return;
+
+            const btn = document.querySelector('.login-btn');
+            btn.innerText = 'AUTHORIZING...';
+            btn.disabled = true;
+
+            try {
+                // Perform server-side PIN validation
+                const response = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('sl_v2_loggedInUser', name);
+                    document.getElementById('studentName').value = name;
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.body.classList.remove('logged-out');
+                    retrieveFromCloud();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Authorize Access';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                // Fallback for offline/no-cors mode if necessary, but LOGIN needs a response
+                document.getElementById('loginError').innerText = 'CONNECTION ERROR: TRY AGAIN';
+                document.getElementById('loginError').style.display = 'block';
+                btn.innerText = 'Authorize Access';
+                btn.disabled = false;
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('sl_v2_loggedInUser');
+            location.reload();
+        }
+
+        function initLogin() {
+            const select = document.getElementById('loginName');
+            STUDENTS.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.name;
+                opt.textContent = s.name;
+                select.appendChild(opt);
+            });
+
+            const savedUser = localStorage.getItem('sl_v2_loggedInUser');
+            if (savedUser) {
+                document.getElementById('studentName').value = savedUser;
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.body.classList.remove('logged-out');
+            } else {
+                document.body.classList.add('logged-out');
+            }
+        }
+
         document.addEventListener('input', autoSave);
-        window.onload = retrieveFromCloud;
+        window.onload = () => {
+            initLogin();
+            if (localStorage.getItem('sl_v2_loggedInUser')) {
+                retrieveFromCloud();
+            }
+        };
     </script>
 </body>
 </html>

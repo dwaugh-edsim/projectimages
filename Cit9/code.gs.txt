@@ -1,0 +1,66 @@
+/**
+ * Google Apps Script Backend for Service Learning
+ * Instructions:
+ * 1. Open your Google Sheet.
+ * 2. Go to Extensions -> Apps Script.
+ * 3. Replace the contents of Code.gs with this code.
+ * 4. Deploy -> New Deployment -> Web App (Set "Who has access" to "Anyone").
+ */
+
+const PIN_LIST = {
+  'Farhan': 'HRNH', 'Abdul': 'ALZZ', 'Joshua A': 'RUXG', 'Clark': '9F3K',
+  'Madhavan': 'R4MT', 'Remy': 'YMRP', 'Yunho': 'T4N5', 'Lachlan McM': 'FFAN',
+  'Lachlan Mac': '25VT', 'Nolan': 'KFK6', 'Laila': 'V4BC', 'Josie': 'MVQW',
+  'Huda': '6SUB', 'Brody': 'JY2P', 'Leo': 'RKKJ', 'Elizabeth': 'FNG3',
+  'Fatima': 'T6U2', 'Alia': 'LJFM', 'Rifa': '57G5', 'Sarah': '96EU',
+  'Jessa': 'HSZU', 'Delisha': 'Q2YA', 'Kendra': 'MTGG', 'Zankia': 'CA3J',
+  'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8'
+};
+
+function doGet(e) {
+  const action = e.parameter.action;
+  const studentId = e.parameter.studentId;
+  const pin = e.parameter.pin;
+  const missionTitle = e.parameter.missionTitle;
+
+  // Handle Login Action
+  if (action === 'LOGIN') {
+    const correctPin = PIN_LIST[studentId];
+    const isSuccess = (correctPin && correctPin === (pin || '').toUpperCase());
+    
+    return ContentService.createTextOutput(JSON.stringify({ success: isSuccess }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Handle Data Retrieval
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows = sheet.getDataRange().getValues();
+  
+  // Find the most recent entry for this student and mission
+  let content = null;
+  for (let i = rows.length - 1; i >= 1; i--) {
+    if (rows[i][0] === studentId && rows[i][1] === missionTitle) {
+      content = rows[i][2]; // Assumes Col A: studentId, Col B: missionTitle, Col C: reflection (JSON)
+      break;
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ content: content }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const payload = JSON.parse(e.postData.contents);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  // Append new row: StudentId, MissionTitle, ReflectionJSON, Timestamp
+  sheet.appendRow([
+    payload.studentId,
+    payload.missionTitle,
+    payload.reflection,
+    payload.timestamp
+  ]);
+
+  return ContentService.createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}

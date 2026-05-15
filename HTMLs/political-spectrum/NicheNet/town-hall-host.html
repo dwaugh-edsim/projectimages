@@ -744,7 +744,11 @@
     let votingOpen = false;
     let showingResults = false;
     let currentVotePhase = 'final';
+<<<<<<< Updated upstream
     let currentFinalists = FINAL_4_STR;
+=======
+    let currentFinalists = 'unity,niche,environment,solution';
+>>>>>>> Stashed changes
     let unreadCounts = {}; // partyId → count
     let consecutiveFailures = 0; // Issue #4
     let pollTimer = null;
@@ -810,12 +814,13 @@
 
         const session = data.session || {};
 
-        votingOpen = !!session.votingOpen;
-        showingResults = !!session.showResults;
-        currentVotePhase = session.votePhase || 'prelim';
-        currentFinalists = session.finalists || '';
-
-        console.log('[DEBUG doPoll] session.votingOpen=' + session.votingOpen + ', votePhase=' + session.votePhase + ', finalists=' + session.finalists);
+        // Issue #15: Respect sessionChangeTimestamp to avoid UI snap-back from stale polls
+        if (Date.now() - sessionChangeTimestamp > 5000) {
+          votingOpen = !!session.votingOpen;
+          showingResults = !!session.showResults;
+          currentVotePhase = session.votePhase || 'final';
+          currentFinalists = session.finalists || 'unity,niche,environment,solution';
+        }
 
         updatePhaseUI();
         applyVotingUI(votingOpen);
@@ -1106,6 +1111,24 @@
     function toggleFinalistUI() {
       const isFinal = document.querySelector('input[name="vote-phase"]:checked').value === 'final';
       document.getElementById('finalist-container').style.display = isFinal ? 'flex' : 'none';
+      syncPhaseState();
+    }
+
+    async function syncPhaseState() {
+      const phase = document.querySelector('input[name="vote-phase"]:checked').value;
+      const finalists = Array.from(document.querySelectorAll('.finalist-check:checked')).map(c => c.value).join(',');
+      
+      sessionChangeTimestamp = Date.now();
+      
+      // Update locals immediately for responsive UI
+      currentVotePhase = phase;
+      currentFinalists = finalists;
+
+      try {
+        await setSession(getCurrentActiveParty(), votingOpen, showingResults, phase, finalists);
+      } catch (e) {
+        console.error('Failed to sync phase state', e);
+      }
     }
 
     async function goToFinal4() {
@@ -1200,7 +1223,7 @@
       ).join('');
 
       chipsContainer.innerHTML = parties.map(([id, name]) =>
-        `<label class="finalist-chip"><input type="checkbox" class="finalist-check" value="${id}"> ${name}</label>`
+        `<label class="finalist-chip"><input type="checkbox" class="finalist-check" value="${id}" onchange="syncPhaseState()"> ${name}</label>`
       ).join('');
     }
 
