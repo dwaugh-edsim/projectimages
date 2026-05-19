@@ -196,6 +196,12 @@
             transform: translateY(-5px);
         }
 
+        .card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .card-tag {
             position: absolute;
             top: 12px;
@@ -1075,6 +1081,22 @@
             <p class="subtitle">INQUIRY WORKSPACE: MARKETING ETHICAL CONSUMPTION</p>
         </header>
 
+        <!-- Student Meta -->
+        <div class="student-meta">
+            <div class="meta-field">
+                <label>First Name</label>
+                <input type="text" id="student-first" placeholder="e.g., Albin" onkeyup="updateCaseAssignment()">
+            </div>
+            <div class="meta-field">
+                <label>Last Name</label>
+                <input type="text" id="student-last" placeholder="e.g., Smith" onkeyup="updateCaseAssignment()">
+            </div>
+            <div class="meta-field">
+                <label>Target Case Assignment</label>
+                <input type="text" id="student-case" placeholder="Locked Case Study" readonly>
+            </div>
+        </div>
+
         <!-- Outline / Outlines outcomes -->
         <section class="outline-container">
             <h2 class="outline-header">[ CURRICULUM SPECIFICATIONS & OPERATIONAL ORDERS ]</h2>
@@ -1553,6 +1575,7 @@
             },
             {
                 id: 'bananas',
+                owner: 'GABE & ANDERSON',
                 name: 'Bananas',
                 tag: 'Pesticide Use',
                 conflict: 'Historically, "Banana Republics" were created by aggressive TNCs controlling land and sovereign governments. Today, massive plantations rely on high pesticide spraying that harms workers\' health.',
@@ -1679,6 +1702,7 @@
             },
             {
                 id: 'gold',
+                owner: 'KENDRAKE, YAROSLAV & DANIIL',
                 name: 'Jewelry (Gold)',
                 tag: 'Mercury Poisoning',
                 conflict: 'Artisanal gold mining involves mercury poisoning affecting workers and local water tables, alongside severe safety hazards and funding for regional conflict militia groups.',
@@ -1700,6 +1724,7 @@
             },
             {
                 id: 'diamonds',
+                owner: 'LUCA',
                 name: 'Jewelry (Diamonds)',
                 tag: 'Conflict Diamonds',
                 conflict: 'The trade of rough diamonds has historically funded brutal civil wars and insurgencies (known as Blood Diamonds), where rebel groups control mines using forced labor and violence.',
@@ -1746,7 +1771,7 @@
         function renderProducts() {
             const grid = document.getElementById('productGrid');
             grid.innerHTML = products.map(p => `
-                <div class="card ${state.selectedProduct === p.id ? 'active' : ''}" onclick="selectProduct('${p.id}')">
+                <div class="card ${state.selectedProduct === p.id ? 'active' : ''} ${window.lockedCaseId && window.lockedCaseId !== p.id ? 'disabled' : ''}" onclick="${window.lockedCaseId && window.lockedCaseId !== p.id ? '' : `selectProduct('${p.id}')`}">
                     <div class="card-tag">${p.tag}</div>
                     <div class="card-content">
                         <div class="card-title">${p.name}</div>
@@ -1758,13 +1783,47 @@
                             `).join('')}
                         </div>
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer" style="flex-direction: column; gap: 8px;">
                         <div class="status-badge">
                             ${state.selectedProduct === p.id ? 'SELECTED CASE' : 'SELECT THIS CASE'}
                         </div>
+                        ${p.owner ? `<div class="status-badge" style="background: var(--accent-secondary); color: white; border-color: var(--accent-secondary); font-size: 0.75rem; padding: 4px 8px;">CLAIMED BY: ${p.owner}</div>` : ''}
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Student case locking logic
+        window.lockedCaseId = null;
+        function updateCaseAssignment() {
+            const first = document.getElementById('student-first').value.trim().toLowerCase();
+            const last = document.getElementById('student-last').value.trim().toLowerCase();
+            const fullName = \`\${first} \${last}\`.trim();
+
+            let assignedCase = null;
+            let caseId = null;
+
+            if (first === 'kendrake' || first === 'yaroslav' || first === 'daniil') {
+                assignedCase = 'Jewelry (Gold)';
+                caseId = 'gold';
+            } else if (first === 'luca') {
+                assignedCase = 'Jewelry (Diamonds)';
+                caseId = 'diamonds';
+            } else if (first === 'gabe' || first === 'anderson') {
+                assignedCase = 'Bananas';
+                caseId = 'bananas';
+            }
+
+            const caseInput = document.getElementById('student-case');
+            if (assignedCase) {
+                caseInput.value = assignedCase;
+                window.lockedCaseId = caseId;
+                selectProduct(caseId); // This will re-render and apply the disabled class
+            } else {
+                caseInput.value = '';
+                window.lockedCaseId = null;
+                renderProducts(); // Unlock all cards
+            }
         }
 
         // Product selection logic
