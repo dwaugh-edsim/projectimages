@@ -21,7 +21,8 @@ function doGet(e) {
       if (sheet.getLastRow() === 0) {
         sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
       }
-      sheet.appendRow([
+      const newRow = sheet.getLastRow() + 1;
+      const rowData = [
         e.parameter.timestamp,
         e.parameter.block,
         e.parameter.student,
@@ -29,7 +30,10 @@ function doGet(e) {
         e.parameter.simulation,
         e.parameter.status,
         e.parameter.rationales
-      ]);
+      ];
+      sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+      // Force rationales column (col 7) to plain text to preserve JSON quotes
+      sheet.getRange(newRow, 7).setNumberFormat('@STRING@');
       return ContentService.createTextOutput(JSON.stringify({ success: true }))
         .setMimeType(ContentService.MimeType.JSON);
     }
@@ -94,7 +98,8 @@ function doPost(e) {
       sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
     }
 
-    sheet.appendRow([
+    const newRow = sheet.getLastRow() + 1;
+    const rowData = [
       e.parameter.timestamp,
       e.parameter.block,
       e.parameter.student,
@@ -102,7 +107,10 @@ function doPost(e) {
       e.parameter.simulation,
       e.parameter.status,
       e.parameter.rationales
-    ]);
+    ];
+    sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+    // Force rationales column (col 7) to plain text to preserve JSON quotes
+    sheet.getRange(newRow, 7).setNumberFormat('@STRING@');
 
     return ContentService.createTextOutput(JSON.stringify({ success: true }))
       .setMimeType(ContentService.MimeType.JSON);
