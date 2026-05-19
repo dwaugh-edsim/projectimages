@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECON 12 | Choice Architecture Lab</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f9f8f4;
+            --card-bg: #ffffff;
+            --accent: #113f26; /* Deep forest green */
+            --accent-secondary: #c2593f; /* Terracotta amber */
+            --accent-light: #eaf5ee; /* Soft green */
+            --text: #1b261f;
+            --text-muted: #556057;
+            --border: #113f26;
+        }
+
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* Header styling from project-picker format */
+        header {
+            max-width: 1200px;
+            margin: 40px auto;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            background: var(--accent);
+            color: #fff;
+            display: inline-block;
+            padding: 5px 15px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Student Meta */
+        .student-meta {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 6px 6px 0px var(--accent);
+            padding: 20px;
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .meta-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-field label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: var(--accent);
+        }
+
+        .meta-field input {
+            background: #fff;
+            border: 2px solid var(--border);
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+        }
+
+        .meta-field input:focus {
+            background: var(--accent-light);
+        }
+
+        /* --- Outline / Outcome Container --- */
+        .outline-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 10px 10px 0px var(--accent);
+            padding: 40px;
+        }
+
+        .outline-header {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-bottom: 4px solid var(--accent);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .outline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .outline-col h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            background: var(--accent);
+            color: #fff;
+            padding: 5px 12px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .outline-list {
+            list-style: none;
+        }
+
+        .outline-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .outline-list li::before {
+            content: ">>";
+            position: absolute;
+            left: 0;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 900;
+            color: var(--accent-secondary);
+        }
+
+        /* Grid of 10 Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 10px 10px 0px var(--accent);
+        }
+
+        .card.active {
+            border: 4px solid var(--accent-secondary);
+            box-shadow: 10px 10px 0px var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 10px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            z-index: 2;
+            text-transform: uppercase;
+        }
+
+        .card.active .card-tag {
+            background: var(--accent-secondary);
+        }
+
+        .card-content {
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .card.active .card-title {
+            color: var(--accent-secondary);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .card-examples {
+            background: #fdfdfa;
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .card-examples h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: var(--accent);
+        }
+
+        .example-item {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            font-family: 'Courier Prime', monospace;
+            color: var(--text);
+        }
+
+        .card-footer {
+            padding: 15px 25px;
+            background: #f4f3ed;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .status-badge {
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            padding: 8px 12px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100%;
+            text-align: center;
+            border: 2px solid var(--border);
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .card:hover .status-badge {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .card.active .status-badge {
+            background: var(--accent-secondary);
+            color: #fff;
+            border-color: var(--accent-secondary);
+        }
+
+        /* Workspace Panel Wrapper */
+        .workspace-panel {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        /* Section Container Card */
+        .section-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 8px 8px 0px var(--accent);
+            padding: 30px;
+        }
+
+        .section-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 4px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .section-num {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 3px 10px;
+        }
+
+        .section-card-header h2 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        /* Product Profile Display */
+        .product-profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .product-profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .profile-content h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.5rem;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .profile-block {
+            margin-bottom: 15px;
+        }
+
+        .profile-block h4 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .profile-block p {
+            font-size: 0.95rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .profile-pricing-card {
+            background: #fdfdfa;
+            border: 2px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .pricing-header {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            border-bottom: 2px dashed var(--border);
+            padding-bottom: 6px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .price-row.premium {
+            border-top: 2px solid var(--border);
+            padding-top: 8px;
+            margin-bottom: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Step 2 Playbook Grid */
+        .playbook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .mechanism-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .mechanism-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .mechanism-card.active {
+            background: var(--accent-light);
+            border-color: var(--accent-secondary);
+            box-shadow: 4px 4px 0px var(--accent-secondary);
+        }
+
+        .mechanism-checkbox {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .mechanism-card.active .mechanism-checkbox {
+            border-color: var(--accent-secondary);
+            background-color: var(--accent-secondary);
+        }
+
+        .mechanism-checkbox::after {
+            content: "✓";
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 900;
+            display: none;
+        }
+
+        .mechanism-card.active .mechanism-checkbox::after {
+            display: block;
+        }
+
+        .mechanism-info h4 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .mechanism-card.active .mechanism-info h4 {
+            color: var(--accent-secondary);
+        }
+
+        .mechanism-info p {
+            font-size: 0.85rem;
+            color: var(--text);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .mechanism-example {
+            font-size: 0.8rem;
+            font-family: 'Courier Prime', monospace;
+            color: var(--accent-secondary);
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            padding-top: 6px;
+            display: block;
+        }
+
+        /* Step 3: Checkbox list */
+        .advantages-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .advantage-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            padding: 15px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .advantage-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .advantage-item.active {
+            background: var(--accent-light);
+            border-color: var(--accent-secondary);
+            box-shadow: 4px 4px 0px var(--accent-secondary);
+        }
+
+        .advantage-input {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .advantage-item.active .advantage-input {
+            border-color: var(--accent-secondary);
+            background-color: var(--accent-secondary);
+        }
+
+        .advantage-input::after {
+            content: "✓";
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 900;
+            display: none;
+        }
+
+        .advantage-item.active .advantage-input::after {
+            display: block;
+        }
+
+        .advantage-text h4 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .advantage-item.active .advantage-text h4 {
+            color: var(--accent-secondary);
+        }
+
+        .advantage-text p {
+            font-size: 0.8rem;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        /* Workspace Grid Split */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .workspace-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-block {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .input-block label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--accent);
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-block label span.hint {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            text-transform: none;
+        }
+
+        .input-block textarea, .input-block select {
+            background: #fff;
+            border: 2px solid var(--border);
+            padding: 10px 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            resize: vertical;
+        }
+
+        .input-block textarea:focus, .input-block select:focus {
+            background: var(--accent-light);
+        }
+
+        /* Simulator Container */
+        .simulator-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .simulator-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .graph-wrapper {
+            background: #fdfdfa;
+            border: 2px solid var(--border);
+            padding: 15px;
+            position: relative;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .graph-svg {
+            width: 100%;
+            height: auto;
+            max-height: 280px;
+        }
+
+        /* Graph SVG curves */
+        .axis {
+            stroke: var(--accent);
+            stroke-width: 2;
+        }
+        .grid-line {
+            stroke: rgba(0, 0, 0, 0.05);
+            stroke-dasharray: 4;
+        }
+        .axis-label {
+            fill: var(--accent);
+            font-size: 11px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+        }
+        .curve-supply {
+            stroke: var(--accent-secondary);
+            stroke-width: 3.5;
+            fill: none;
+        }
+        .curve-demand-original {
+            stroke: var(--accent);
+            stroke-width: 3.5;
+            fill: none;
+        }
+        .curve-demand-shifted {
+            stroke: #10b981; /* Green shift */
+            stroke-width: 3.5;
+            fill: none;
+            opacity: 0;
+            stroke-dasharray: 5;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .price-line-ft {
+            stroke: var(--accent-secondary);
+            stroke-width: 1;
+            stroke-dasharray: 3;
+        }
+        .price-line-fair {
+            stroke: #10b981;
+            stroke-width: 1.5;
+            stroke-dasharray: 3;
+        }
+        .intersection-point {
+            fill: #fff;
+            stroke-width: 2.5;
+            r: 5;
+        }
+        .point-ft {
+            stroke: var(--accent-secondary);
+        }
+        .point-fair {
+            stroke: #10b981;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .q-line-shifted {
+            stroke: #10b981;
+            stroke-width: 1.5;
+            stroke-dasharray: 3;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        .q-line-unshifted {
+            stroke: var(--text-muted);
+            stroke-width: 1;
+            stroke-dasharray: 3;
+            opacity: 0.4;
+        }
+
+        .graph-legend {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-family: 'Courier Prime', monospace;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .visualizer-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Action buttons in brutalist format */
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--border);
+            padding: 12px 20px;
+            font-weight: 700;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-reset {
+            background: #fff;
+            color: var(--accent-secondary);
+            border: 2px solid var(--accent-secondary);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-family: 'Courier Prime', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .btn-reset:hover {
+            background: var(--accent-secondary);
+            color: #fff;
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .visualizer-feedback {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            min-height: 25px;
+            font-weight: 700;
+            border: 1px dashed var(--border);
+            padding: 6px;
+            background: #fdfdfa;
+        }
+
+        .visualizer-feedback.shifted {
+            color: #10b981;
+            border-color: #10b981;
+            background: #e6fcf5;
+        }
+
+        /* Action footer */
+        .action-bar {
+            border-top: 4px solid var(--accent);
+            padding-top: 25px;
+            margin-top: 40px;
+            margin-bottom: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Print Dossier Styling */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 1.2cm !important;
+                font-size: 10pt !important;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            header {
+                border-bottom: 4px solid black !important;
+                margin-bottom: 1cm;
+                padding-bottom: 0.5cm;
+            }
+
+            h1 {
+                font-size: 22pt !important;
+                color: black !important;
+            }
+
+            .subtitle {
+                background: black !important;
+                color: white !important;
+                border: none !important;
+            }
+
+            .student-meta {
+                background: white !important;
+                border: 2px solid black !important;
+                color: black !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                box-shadow: none !important;
+            }
+
+            .meta-field input {
+                background: white !important;
+                color: black !important;
+                border: 2px solid black !important;
+            }
+
+            .outline-container {
+                display: none !important; /* Hide curricular outcomes from printing */
+            }
+
+            .grid {
+                display: none !important; /* Hide dynamic card picker in printed copy */
+            }
+
+            .workspace-panel {
+                margin-top: 0 !important;
+            }
+
+            .section-card {
+                background: white !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+                padding: 15px !important;
+                margin-bottom: 1cm !important;
+                page-break-inside: avoid;
+            }
+
+            .section-card-header {
+                border-bottom: 2px solid black !important;
+            }
+
+            .section-num {
+                background: black !important;
+                color: white !important;
+                border: 1px solid black !important;
+            }
+
+            .product-profile-grid {
+                grid-template-columns: 1fr !important;
+                display: block !important;
+            }
+
+            .profile-pricing-card {
+                background: white !important;
+                border: 2px solid black !important;
+                color: black !important;
+                margin-top: 0.5cm;
+                box-shadow: none !important;
+            }
+
+            .price-row.premium {
+                color: black !important;
+                border-top: 2px solid black !important;
+            }
+
+            .playbook-grid {
+                display: block !important;
+            }
+
+            .mechanism-card {
+                display: none !important; /* Hide non-selected mechanisms */
+            }
+
+            .mechanism-card.active {
+                display: flex !important;
+                border: none !important;
+                padding: 5px 0 !important;
+                background: white !important;
+                box-shadow: none !important;
+            }
+
+            .mechanism-checkbox {
+                border-color: black !important;
+                background-color: black !important;
+            }
+
+            .mechanism-card.active .mechanism-checkbox::after {
+                color: white !important;
+            }
+
+            .advantages-list {
+                display: block !important;
+            }
+
+            .advantage-item {
+                display: none !important; /* Hide non-selected advantages */
+            }
+
+            .advantage-item.active {
+                display: flex !important;
+                border: none !important;
+                padding: 5px 0 !important;
+                background: white !important;
+                box-shadow: none !important;
+            }
+
+            .advantage-input {
+                border-color: black !important;
+                background-color: black !important;
+            }
+
+            .advantage-item.active .advantage-input::after {
+                color: white !important;
+            }
+
+            .workspace-grid {
+                grid-template-columns: 1fr !important;
+                display: block !important;
+            }
+
+            .input-block textarea {
+                background: white !important;
+                color: black !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+            }
+
+            .simulator-card {
+                border: 2px solid black !important;
+                background: white !important;
+                padding: 15px !important;
+                page-break-inside: avoid;
+                margin-top: 1cm;
+                box-shadow: none !important;
+            }
+
+            .graph-wrapper {
+                background: white !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+            }
+
+            .axis {
+                stroke: black !important;
+            }
+
+            .axis-label {
+                fill: black !important;
+            }
+
+            .grid-line {
+                stroke: #ddd !important;
+            }
+
+            .curve-demand-original {
+                stroke: #777 !important;
+                stroke-dasharray: 4 !important;
+            }
+
+            .curve-demand-shifted {
+                stroke: black !important;
+                stroke-dasharray: none !important;
+                opacity: 1 !important;
+            }
+
+            .point-fair, .q-line-shifted {
+                opacity: 1 !important;
+            }
+
+            .point-fair {
+                fill: black !important;
+                stroke: black !important;
+            }
+
+            .q-line-shifted {
+                stroke: black !important;
+            }
+
+            .action-bar, .btn, .btn-reset, .visualizer-controls {
+                display: none !important; /* Hide grading buttons from printed copy */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header format matching project-picker.html -->
+        <header>
+            <h1>ECON 12 | THE CHOICE ARCHITECTURE DESIGN LAB</h1>
+            <p class="subtitle">INQUIRY WORKSPACE: MARKETING ETHICAL CONSUMPTION</p>
+        </header>
+
+        <!-- Outline / Outlines outcomes -->
+        <section class="outline-container">
+            <h2 class="outline-header">[ CURRICULUM SPECIFICATIONS & OPERATIONAL ORDERS ]</h2>
+            <div class="outline-grid">
+                <!-- Column 1: Primary Outcome -->
+                <div class="outline-col">
+                    <h3>01. PRIMARY OUTCOME Focus</h3>
+                    <ul class="outline-list">
+                        <li><strong>SCO 4.1.9:</strong> Evaluate the arguments for and against free trade.</li>
+                        <li><strong>THE CONFLICT:</strong> Cheaper unregulated imports rely on externalizing costs (such as labor exploitation, environmental hazard, and price crashes).</li>
+                        <li><strong>THE GOAL:</strong> Design a choice architecture display/ad to convince buyers to choose a higher-priced ethical alternative.</li>
+                    </ul>
+                </div>
+
+                <!-- Column 2: The Power Dynamics -->
+                <div class="outline-col">
+                    <h3>02. POWER BALANCE SHIFT</h3>
+                    <ul class="outline-list">
+                        <li><strong>FREE TRADE:</strong> Power concentrates with the <strong>Transnational Corporation (TNC)</strong> and the consumer, driving prices to the lowest level.</li>
+                        <li><strong>FAIR TRADE:</strong> Power shifts back to the <strong>producer</strong> (living wages, community infrastructure, stable multi-year buying contracts).</li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: The Campaign Brief -->
+                <div class="outline-col">
+                    <h3>03. THE ASSIGNMENT DELIVERABLES</h3>
+                    <ul class="outline-list">
+                        <li><strong>SELECT CASE:</strong> Choose a product supply chain from the dossier cards below.</li>
+                        <li><strong>PLAYBOOK:</strong> Select 1-3 behavioral mechanisms to overcome the price premium.</li>
+                        <li><strong>ADVANTAGES:</strong> Incorporate at least 3 Fair Trade social/environmental advantages.</li>
+                        <li><strong>GRAPH SIMULATION:</strong> Model and verify your demand shift on the market curve.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Student Metadata Card -->
+        <div class="student-meta">
+            <div class="meta-field">
+                <label for="student-name">Student Name:</label>
+                <input type="text" id="student-name" placeholder="Enter student name" required>
+            </div>
+            <div class="meta-field">
+                <label for="lab-date">Date of Submission:</label>
+                <input type="date" id="lab-date" required>
+            </div>
+        </div>
+
+        <!-- 10 Products Menu (Grid of Cards dynamically generated) -->
+        <div class="grid" id="productGrid">
+            <!-- Cards populated via JS -->
+        </div>
+
+        <!-- Main Interactive Workspace -->
+        <main class="workspace-panel">
+            
+            <!-- Step 1 Display: Selected Case Info -->
+            <section class="section-card">
+                <div class="section-card-header">
+                    <div class="section-num">01</div>
+                    <h2>Product Context & Economic Pricing Comparison</h2>
+                </div>
+                
+                <div class="product-profile-grid">
+                    <div class="profile-content">
+                        <h3 id="display-name">Chocolate (Cocoa Beans)</h3>
+                        
+                        <div class="profile-block">
+                            <h4>The Supply Chain Conflict:</h4>
+                            <p id="display-conflict">The West African cocoa industry is often linked to child labor, child trafficking, and extreme systemic farmer poverty.</p>
+                        </div>
+                        
+                        <div class="profile-block">
+                            <h4>Free vs. Fair Comparison:</h4>
+                            <p id="display-comparison">Contrast the "Big Chocolate" TNCs, which prioritize low-cost mass production and supply chain obscurity, with Fair Trade cooperatives that guarantee a "Fairtrade Minimum Price" to protect small farmers against commodity price crashes.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-pricing-card">
+                        <div class="pricing-header" id="price-card-header">Cocoa Pricing</div>
+                        <div class="price-row">
+                            <span>Free Trade (TNC):</span>
+                            <span id="price-free">$3.00 / bar</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Fair Trade Cert:</span>
+                            <span id="price-fair">$7.50 / bar</span>
+                        </div>
+                        <div class="price-row premium">
+                            <span>Price Premium:</span>
+                            <span id="price-premium">+$4.50 (150%)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Choice Architecture Mechanisms -->
+            <section class="section-card">
+                <div class="section-card-header">
+                    <div class="section-num">02</div>
+                    <h2>Select Choice Architecture Mechanisms (Up to 3)</h2>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+                    Select up to 3 behavioral economics techniques you will use to shift consumer preferences and overcome the price barrier.
+                </p>
+                
+                <div class="playbook-grid">
+                    
+                    <div class="mechanism-card" id="mech-anchoring" onclick="toggleMechanism('anchoring')">
+                        <div class="mechanism-checkbox"></div>
+                        <div class="mechanism-info">
+                            <h4>Anchoring</h4>
+                            <p>Placing the product next to a premium item to make it feel affordable.</p>
+                            <span class="mechanism-example" id="ex-anchoring">e.g., Placing the $7.50 bar next to a $14.50 single-origin micro-batch bar.</span>
+                        </div>
+                    </div>
+
+                    <div class="mechanism-card" id="mech-default" onclick="toggleMechanism('default')">
+                        <div class="mechanism-checkbox"></div>
+                        <div class="mechanism-info">
+                            <h4>Default Bias</h4>
+                            <p>Auto-selecting carbon offset/ethical options (requiring action to opt out).</p>
+                            <span class="mechanism-example" id="ex-default">e.g., Pre-checking "Upgrade this bar to Fair Trade cocoa (+ $1.50)" at checkout.</span>
+                        </div>
+                    </div>
+
+                    <div class="mechanism-card" id="mech-proof" onclick="toggleMechanism('proof')">
+                        <div class="mechanism-checkbox"></div>
+                        <div class="mechanism-info">
+                            <h4>Social Proof</h4>
+                            <p>Showing that other people choose sustainable (e.g., "85% of your classmates choose sustainable").</p>
+                            <span class="mechanism-example" id="ex-proof">e.g., Adding a sign: "82% of Halifax shoppers choose slave-free cocoa."</span>
+                        </div>
+                    </div>
+
+                    <div class="mechanism-card" id="mech-priming" onclick="toggleMechanism('priming')">
+                        <div class="mechanism-checkbox"></div>
+                        <div class="mechanism-info">
+                            <h4>Ethical Priming</h4>
+                            <p>Point-of-purchase displays highlighting worker conditions to trigger moral decisions.</p>
+                            <span class="mechanism-example" id="ex-priming">e.g., Displaying farmer cooperative profiles directly on the front packaging.</span>
+                        </div>
+                    </div>
+
+                    <div class="mechanism-card" id="mech-decoy" onclick="toggleMechanism('decoy')">
+                        <div class="mechanism-checkbox"></div>
+                        <div class="mechanism-info">
+                            <h4>Decoy Effect</h4>
+                            <p>Creating a third, less-attractive option to guide choices.</p>
+                            <span class="mechanism-example" id="ex-decoy">e.g., Offering a slightly smaller standard bar for $6.80, making the large Fair Trade bar at $7.50 look like a steal.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Step 3: Select Fair Trade Advantages -->
+            <section class="section-card">
+                <div class="section-card-header">
+                    <div class="section-num">03</div>
+                    <h2>Highlight Fair Trade Advantages (Select at least 3)</h2>
+                </div>
+                
+                <div class="advantages-list">
+                    
+                    <div class="advantage-item" id="adv-labor" onclick="toggleAdvantage('labor')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>No Forced or Child Labor</h4>
+                            <p>Strict agricultural inspections to ban modern slavery. (e.g., Unannounced third-party farm audits to verify school attendance.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-wage" onclick="toggleAdvantage('wage')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Living Wage & Fair Payment</h4>
+                            <p>Paying prices that cover basic food, housing, and healthcare. (e.g., Establishing a guaranteed baseline above the volatile market price.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-community" onclick="toggleAdvantage('community')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Community Infrastructure</h4>
+                            <p>Revenues fund local public improvements. (e.g., Using social premiums to drill clean water wells or construct medical centers.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-environment" onclick="toggleAdvantage('environment')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Environmental Sustainability</h4>
+                            <p>Mandating resource conservation and chemical bans. (e.g., Replacing toxic chemical sprays with organic composting.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-contracts" onclick="toggleAdvantage('contracts')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Stable, Direct Contracts</h4>
+                            <p>Eliminating middlemen to secure direct partner pricing. (e.g., Signing multi-year buying agreements so cooperatives can obtain credit.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-democracy" onclick="toggleAdvantage('democracy')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Democratic Decision-Making</h4>
+                            <p>Producers vote on how to spend revenues. (e.g., Cooperative members vote collectively on whether to buy tractors or hire nurses.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-safety" onclick="toggleAdvantage('safety')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Safe Working Conditions</h4>
+                            <p>Enforcing occupational health and safety codes. (e.g., Providing protective gear, fire exits, and safe ventilation in sewing rooms.)</p>
+                        </div>
+                    </div>
+
+                    <div class="advantage-item" id="adv-equality" onclick="toggleAdvantage('equality')">
+                        <div class="advantage-input"></div>
+                        <div class="advantage-text">
+                            <h4>Gender Equality & Empowerment</h4>
+                            <p>Ensuring equal pay and representation. (e.g., Reserving leadership seats for female farmers and offering women's micro-loans.)</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Step 4: Workspace and visualizer split -->
+            <div class="workspace-grid">
+                
+                <!-- Design Inputs -->
+                <div class="workspace-inputs">
+                    
+                    <div class="section-card" style="height: 100%; display: flex; flex-direction: column; gap: 15px;">
+                        <div class="section-card-header" style="margin-bottom: 0; padding-bottom: 10px;">
+                            <div class="section-num">04</div>
+                            <h2>Campaign Workspace</h2>
+                        </div>
+
+                        <div class="input-block">
+                            <label for="campaign-medium">Campaign Medium</label>
+                            <select id="campaign-medium">
+                                <option value="store-display">In-Store Point-of-Purchase Display</option>
+                                <option value="social-ad">Social Media Ad / Influencer Partnership</option>
+                                <option value="packaging">Product Packaging & Checkout Interface</option>
+                            </select>
+                        </div>
+
+                        <div class="input-block">
+                            <label for="visual-layout">
+                                Visual Layout & Placement Description
+                                <span class="hint">How does your design deploy the mechanisms?</span>
+                            </label>
+                            <textarea id="visual-layout" rows="4" placeholder="Detail your layout. Where is the product? What visual cues highlight your chosen advantages? Where are the anchors or defaults positioned?"></textarea>
+                        </div>
+
+                        <div class="input-block">
+                            <label for="pitch-copy">
+                                The Slogan & Pitch Copy
+                                <span class="hint">Write the text consumers will see</span>
+                            </label>
+                            <textarea id="pitch-copy" rows="2" placeholder="Write the copy/slogan incorporating your selected advantages."></textarea>
+                        </div>
+
+                        <div class="input-block">
+                            <label for="economic-justification">
+                                Economic & Ethical Analysis (SCO 4.1.9)
+                                <span class="hint">Justify shifting the curve</span>
+                            </label>
+                            <textarea id="economic-justification" rows="5" placeholder="Free trade keeps prices low by letting TNCs outsource negative externalities. Explain how your choice architecture raises consumer utility, shifts the Demand Curve to the right, and allows the cooperative to sustain sales at the higher ethical price, keeping power with the producer."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Simulator Graph Card -->
+                <div class="section-card simulator-card">
+                    <div>
+                        <div class="section-card-header" style="margin-bottom: 10px; padding-bottom: 10px;">
+                            <div class="section-num">05</div>
+                            <h2>Demand Shift Simulator</h2>
+                        </div>
+                        <div class="simulator-desc">
+                            Observe how choice architecture shifts the Demand Curve from <strong>D<sub>1</sub> (Black)</strong> to <strong>D<sub>2</sub> (Green)</strong>. By raising consumer willingness to pay, the cooperative maintains sales volumes at the higher Fair Trade price ($P_{fair}$).
+                        </div>
+                    </div>
+
+                    <div class="graph-wrapper">
+                        <svg class="graph-svg" viewBox="0 0 400 300">
+                            <!-- Grid lines -->
+                            <line x1="50" y1="50" x2="350" y2="50" class="grid-line" />
+                            <line x1="50" y1="100" x2="350" y2="100" class="grid-line" />
+                            <line x1="50" y1="150" x2="350" y2="150" class="grid-line" />
+                            <line x1="50" y1="200" x2="350" y2="200" class="grid-line" />
+                            <line x1="50" y1="250" x2="350" y2="250" class="grid-line" />
+                            
+                            <line x1="110" y1="50" x2="110" y2="250" class="grid-line" />
+                            <line x1="170" y1="50" x2="170" y2="250" class="grid-line" />
+                            <line x1="230" y1="50" x2="230" y2="250" class="grid-line" />
+                            <line x1="290" y1="50" x2="290" y2="250" class="grid-line" />
+
+                            <!-- Axes -->
+                            <line x1="50" y1="250" x2="350" y2="250" class="axis" />
+                            <line x1="50" y1="50" x2="50" y2="250" class="axis" />
+
+                            <!-- Labels -->
+                            <text x="350" y="270" class="axis-label" text-anchor="end">Quantity (Q)</text>
+                            <text x="30" y="55" class="axis-label" text-anchor="start" transform="rotate(-90 30 55)">Price (P)</text>
+
+                            <!-- Supply S -->
+                            <path d="M 70 230 Q 180 150 290 70" class="curve-supply" />
+                            <text x="295" y="65" fill="#c2593f" font-size="10" font-family="Courier Prime" font-weight="bold">S</text>
+
+                            <!-- Original Demand D1 -->
+                            <path d="M 70 70 Q 180 150 290 230" class="curve-demand-original" />
+                            <text x="295" y="240" fill="#113f26" font-size="10" font-family="Courier Prime" font-weight="bold">D1</text>
+
+                            <!-- Shifted Demand D2 -->
+                            <path d="M 120 70 Q 230 150 340 230" class="curve-demand-shifted" id="demand-shifted-path" />
+                            <text x="345" y="240" fill="#10b981" font-size="10" font-family="Courier Prime" font-weight="bold" id="demand-shifted-label" style="opacity: 0; transition: opacity 0.8s;">D2</text>
+
+                            <!-- P_free intersection (Free trade price is lower) -->
+                            <line x1="50" y1="150" x2="180" y2="150" class="price-line-ft" />
+                            <line x1="180" y1="150" x2="180" y2="250" class="price-line-ft" />
+                            <circle cx="180" cy="150" class="intersection-point point-ft" />
+                            <text x="15" y="154" fill="#c2593f" font-size="10" font-family="Courier Prime" font-weight="bold">P_free</text>
+                            <text x="180" y="265" fill="#c2593f" font-size="9" font-family="Courier Prime" font-weight="bold" text-anchor="middle">Q_free</text>
+
+                            <!-- P_fair lines (Higher price) -->
+                            <line x1="50" y1="110" x2="210" y2="110" class="price-line-fair" />
+                            <!-- Unshifted intersection with D1 is around x=135, y=110 -->
+                            <line x1="135" y1="110" x2="135" y2="250" class="q-line-unshifted" />
+                            <circle cx="135" cy="110" class="intersection-point" style="fill: #555; stroke: #888; r: 3.5; opacity: 0.5;" />
+                            <text x="135" y="265" fill="#555" font-size="8" font-family="Courier Prime" text-anchor="middle" style="opacity: 0.6;">Q_low</text>
+
+                            <!-- Shifted intersection with D2 is around x=210, y=110 -->
+                            <line x1="210" y1="110" x2="210" y2="250" class="q-line-shifted" id="q-line-shifted" />
+                            <circle cx="210" cy="110" class="intersection-point point-fair" id="point-fair-shifted" />
+                            <text x="210" y="265" fill="#10b981" font-size="9" font-family="Courier Prime" font-weight="bold" text-anchor="middle" id="q-fair-label" style="opacity: 0; transition: opacity 0.8s;">Q_fair</text>
+                            <text x="15" y="114" fill="#10b981" font-size="10" font-family="Courier Prime" font-weight="bold">P_fair</text>
+
+                        </svg>
+
+                        <!-- Legend -->
+                        <div class="graph-legend" style="position: absolute; bottom: 8px; left: 0; right: 0;">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #113f26;"></div>
+                                <span>D1 (Baseline)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #10b981; border: 1px dashed white;"></div>
+                                <span>D2 (Shifted)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #c2593f;"></div>
+                                <span>S (Supply)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator controls -->
+                    <div class="visualizer-controls">
+                        <button class="btn" id="btn-simulate" onclick="simulateShift()">
+                            ⚡ Run Demand Shift Simulation
+                        </button>
+                        <div class="visualizer-feedback" id="feedback-text">
+                            Select product, mechanisms, and advantages, then click Simulate.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Action Footer -->
+        <footer class="action-bar">
+            <button class="btn btn-secondary" onclick="window.print()">
+                🖨️ Export PDF / Print Lab Dossier
+            </button>
+            
+            <button class="btn-reset" onclick="resetForm()">
+                Reset Workspace
+            </button>
+        </footer>
+
+    </div>
+
+    <!-- Script logic -->
+    <script>
+        // Lab State
+        const state = {
+            selectedProduct: 'chocolate',
+            selectedMechanisms: [],
+            selectedAdvantages: [],
+            isShifted: false
+        };
+
+        // Product Catalog matching the picker format
+        const products = [
+            {
+                id: 'chocolate',
+                name: 'Chocolate (Cocoa Beans)',
+                tag: 'TNCs Focus',
+                conflict: 'The West African cocoa industry is often linked to child labor, child trafficking, and extreme systemic farmer poverty.',
+                comparison: 'Contrast the "Big Chocolate" TNCs, which prioritize low-cost mass production and supply chain obscurity, with Fair Trade cooperatives that guarantee a "Fairtrade Minimum Price" to protect small farmers against commodity price crashes.',
+                priceHeader: 'Cocoa Pricing',
+                priceFree: '$3.00 / bar',
+                priceFair: '$7.50 / bar',
+                premium: '+$4.50 (150%)',
+                areas: [
+                    'West African Cocoa Trade: Extreme poverty & child labor.',
+                    'Big Chocolate TNCs: Supply chain opacity and cost cutting.',
+                    'Fair Trade Cooperative Model: Premium minimum pricing.'
+                ],
+                exAnchoring: 'e.g., Placing the $7.50 bar next to a $14.50 single-origin micro-batch bar.',
+                exDefault: 'e.g., Pre-checking "Upgrade this bar to Fair Trade cocoa (+ $1.50)" at checkout.',
+                exProof: 'e.g., Adding a sign: "82% of Halifax shoppers choose slave-free cocoa."',
+                exPriming: 'e.g., Displaying farmer cooperative profiles directly on the front packaging.',
+                exDecoy: 'e.g., Offering a slightly smaller standard bar for $6.80, making the large Fair Trade bar at $7.50 look like a steal.'
+            },
+            {
+                id: 'coffee',
+                name: 'Coffee Beans',
+                tag: 'Price Volatility',
+                conflict: 'Coffee is a highly volatile commodity. Smallholder farmers often sell their crops at a loss when speculative global stock markets dip below the cost of production.',
+                comparison: 'Compare the "C-Price" (the volatile commodities stock market price) against Fair Trade’s guaranteed pricing floors and organic/social premiums, which directly fund rural community infrastructure.',
+                priceHeader: 'Coffee Pricing',
+                priceFree: '$8.00 / lb',
+                priceFair: '$14.50 / lb',
+                premium: '+$6.50 (81%)',
+                areas: [
+                    'The C-Price Volatility: Speculation on stock exchanges.',
+                    'Middlemen Cut: Standard buyers buying cheap from farmers.',
+                    'Infrastructure Projects: Drilling wells using fair trade premiums.'
+                ],
+                exAnchoring: 'e.g., Placing the $14.50 bag next to a $26.00 special reserve Geisha coffee.',
+                exDefault: 'e.g., Defaulting the web order button to a certified bag with a $1.50 social premium.',
+                exProof: 'e.g., Banner: "79% of local coffee houses serve Fairtrade certified beans."',
+                exPriming: 'e.g., Displaying photos of coffee farm co-ops and clean water wells built with premiums.',
+                exDecoy: 'e.g., Displaying a 10oz Free Trade bag for $13.00, making the 16oz Fair Trade bag at $14.50 a better value.'
+            },
+            {
+                id: 'fashion',
+                name: 'Fast Fashion (T-Shirts)',
+                tag: 'Outsourcing',
+                conflict: 'The "race to the bottom" in manufacturing wages leads TNC apparel brands to outsource sewing to developing nations with zero labor unions or safety codes (e.g., the Rana Plaza collapse in Bangladesh).',
+                comparison: 'Contrast a $5 "fast fashion" T-shirt (made via a complex, non-transparent TNC subcontractor chain) with a Fair Trade certified shirt that guarantees union rights, building audits, and living-wage premiums.',
+                priceHeader: 'Apparel Pricing',
+                priceFree: '$15.00 / shirt',
+                priceFair: '$45.00 / shirt',
+                premium: '+$30.00 (200%)',
+                areas: [
+                    'Rana Plaza Collapse: Lack of building code controls and union bans.',
+                    'The Race to the Bottom: Pitting developing nations against each other.',
+                    'Living Wage Premium: Factory audits ensuring worker safety and wages.'
+                ],
+                exAnchoring: 'e.g., Displaying the $45.00 organic shirt next to a $95.00 designer cotton top.',
+                exDefault: 'e.g., Auto-selecting the ethical cotton line in the mobile store filter.',
+                exProof: 'e.g., Text overlay: "Join 150,000+ conscious shoppers wearing fair-wage garments."',
+                exPriming: 'e.g., Label copy describing the working hours, facility checks, and union safety controls.',
+                exDecoy: 'e.g., Offering a blended poly-cotton free trade shirt for $38.00, making the $45.00 organic cotton shirt feel worth it.'
+            },
+            {
+                id: 'bananas',
+                name: 'Bananas',
+                tag: 'Pesticide Use',
+                conflict: 'Historically, "Banana Republics" were created by aggressive TNCs controlling land and sovereign governments. Today, massive plantations rely on high pesticide spraying that harms workers\' health.',
+                comparison: 'Analyze the environmental health standards required for Fair Trade certification (banning hazardous chemicals, safety equipment mandates) versus the toxic, monoculture industrial farming of standard trade.',
+                priceHeader: 'Banana Pricing',
+                priceFree: '$1.20 / lb',
+                priceFair: '$2.99 / lb',
+                premium: '+$1.79 (149%)',
+                areas: [
+                    'Corporate Land Grabs: The history of Banana Republics.',
+                    'Pesticide Aerial Spraying: Toxicity to plantation workers.',
+                    'Monoculture Farming: Soil erosion vs. organic fair trade standards.'
+                ],
+                exAnchoring: 'e.g., Displaying the $2.99/lb organic bananas next to a $5.50 specialty organic fruit basket.',
+                exDefault: 'e.g., Auto-sorting organic bananas to the top of the grocery delivery page.',
+                exProof: 'e.g., Grocery sign: "The most popular choice for families in Nova Scotia: Fair Trade."',
+                exPriming: 'e.g., Hanging pictures of pesticide-free orchards showing co-op workers wearing protective gear.',
+                exDecoy: 'e.g., Offering standard bananas for $2.50 in a plastic bundle, making loose Fair Trade bananas at $2.99 look better.'
+            },
+            {
+                id: 'smartphones',
+                name: 'Smartphones',
+                tag: 'Conflict Minerals',
+                conflict: 'Tech consumer electronics require cobalt, gold, and tin, which are frequently mined in war-torn conflict zones (such as the DR Congo) using child labor and hazardous hand-mining techniques.',
+                comparison: 'Investigate standard TNC electronics subcontracting where supply trace is lost, compared to Fairphone or Fairtrade Gold models which buy exclusively from audited artisanal cooperatives.',
+                priceHeader: 'Tech Pricing',
+                priceFree: '$400.00 / unit',
+                priceFair: '$650.00 / unit',
+                premium: '+$250.00 (62%)',
+                areas: [
+                    'Democratic Republic of Congo: Conflict minerals and artisanal cobalt.',
+                    'Supply Chain Obscurity: Subcontractors hiding mine origins.',
+                    'Modular Fairphone Model: Ethical gold and cobalt sourcing.'
+                ],
+                exAnchoring: 'e.g., Placing the $650.00 Fairphone next to a $1,200.00 brand-name flagship phone.',
+                exDefault: 'e.g., Defaulting the jeweler\'s alloy selection drop-down to "Fairtrade Gold".',
+                exProof: 'e.g., Banner: "Over 200,000 users have switched to ethically sourced devices."',
+                exPriming: 'e.g., Featuring transparent casing that physically shows the modular, fair-wage components.',
+                exDecoy: 'e.g., Offering a locked model for $590.00, making the fully unlocked Fair Trade smartphone for $650.00 the superior choice.'
+            },
+            {
+                id: 'tea',
+                name: 'Tea Estates',
+                tag: 'Colonial Legacy',
+                conflict: 'Many global tea plantations (estates) operate on colonial-era labor structures. Tea pluckers live on-site in substandard housing with high dependency on plantation owners and low daily wages.',
+                comparison: 'Contrast the colonial "Tea Estate" model where workers have no land rights, against Fair Trade worker-owned cooperatives where laborers democratically decide how social premiums are spent.',
+                priceHeader: 'Tea Pricing',
+                priceFree: '$4.00 / box',
+                priceFair: '$9.50 / box',
+                premium: '+$5.50 (138%)',
+                areas: [
+                    'Colonial Plantations: On-site housing dependency.',
+                    'Worker-Owned Cooperatives: Democratic resource sharing.',
+                    'Social Premium Allocation: Voting on healthcare and education.'
+                ],
+                exAnchoring: 'e.g., Placing the $9.50 organic tea box next to a $22.00 loose-leaf tin.',
+                exDefault: 'e.g., Automatically setting the default office tea subscription to Fair Trade.',
+                exProof: 'e.g., Sign: "Serving Fair Trade tea shows your organization values human rights."',
+                exPriming: 'e.g., Banners showing images of the democratic community councils run by tea pluckers.',
+                exDecoy: 'e.g., Offering a small 10-bag box for $8.00, making the 25-bag Fair Trade box for $9.50 a daily steal.'
+            },
+            {
+                id: 'flowers',
+                name: 'Cut Flowers',
+                tag: 'Water Depletion',
+                conflict: 'The cut-flower trade in East Africa and South America drains local water tables and exposes female laborers to dangerous pesticide levels without protective gear to preserve bloom aesthetics.',
+                comparison: 'Weigh unregulated trade against Fair Trade agricultural standards that mandate strict water recycling, ban hazardous chemicals, and guarantee maternity leave and safety equipment.',
+                priceHeader: 'Flower Pricing',
+                priceFree: '$12.00 / bouquet',
+                priceFair: '$28.00 / bouquet',
+                premium: '+$16.00 (133%)',
+                areas: [
+                    'Lake Naivasha (Kenya): Water depletion from flower farming.',
+                    'Pesticide Toxicity: Female greenhouse workers\' health risks.',
+                    'Fair Trade Audits: Water recycling and maternity protection.'
+                ],
+                exAnchoring: 'e.g., Placing the $28.00 bouquet next to a $65.00 luxury glass-vase arrangement.',
+                exDefault: 'e.g., Pre-checking "Wrap this bouquet in Fair Trade compostable paper (+ $1.00)".',
+                exProof: 'e.g., Tag: "Chosen by 90% of brides looking for sustainable floral arrangements."',
+                exPriming: 'e.g., Displaying worker safety certificates and biological pest-control infographics in-store.',
+                exDecoy: 'e.g., Offering standard roses for $24.00 with no safety guarantee, making Fair Trade at $28.00 a small step up.'
+            },
+            {
+                id: 'sugar',
+                name: 'Raw Cane Sugar',
+                tag: 'Tariffs & Subsidy',
+                conflict: 'Sugar is heavily subsidized in wealthy nations while cane cutters in developing regions face grueling manual labor, heatstroke risks, and minimal market access under standard trade rules.',
+                comparison: 'Analyze how trade blocks and tariffs block small-scale cane growers from selling, and how Fair Trade cooperatives enable small growers to aggregate crops and compete with massive mills.',
+                priceHeader: 'Sugar Pricing',
+                priceFree: '$2.00 / bag',
+                priceFair: '$4.99 / bag',
+                premium: '+$2.99 (150%)',
+                areas: [
+                    'US/EU Agricultural Subsidies: Blocking global competitor entry.',
+                    'Sugarcane Harvesting: Manual labor hazards and heat stresses.',
+                    'Cooperative Consolidation: Overcoming corporate economies of scale.'
+                ],
+                exAnchoring: 'e.g., Placing the $4.99 cane sugar next to a $9.50 organic coconut palm sugar bag.',
+                exDefault: 'e.g., Pre-selecting organic raw sugar on the cafe ingredient order sheet.',
+                exProof: 'e.g., Sign: "This cafe uses Fair Trade sugar to support smallholder family farms."',
+                exPriming: 'e.g., Packaging displaying local sugarcane milling equipment funded by community premiums.',
+                exDecoy: 'e.g., Offering industrial beet sugar for $4.20, making organic Fair Trade sugar at $4.99 feel like a reasonable upgrade.'
+            },
+            {
+                id: 'soccer',
+                name: 'Soccer Balls',
+                tag: 'Child Labor',
+                conflict: 'Historically, South Asian soccer ball production relied on stitching outsourced to rural homes, making child labor and extremely low piece-rate wages difficult to regulate.',
+                comparison: 'Compare standard subcontracting piece-rates with Fair Trade certified factories which centralize stitching to enforce age rules, equal female wages, and worker health clinics.',
+                priceHeader: 'Sports Gear Pricing',
+                priceFree: '$20.00 / ball',
+                priceFair: '$40.00 / ball',
+                premium: '+$20.00 (100%)',
+                areas: [
+                    'Sialkot (Pakistan): Historical capital of hand-stitched child labor.',
+                    'Outsourced Piece-Rates: Low pay per ball without safety nets.',
+                    'Certified Stitching Centers: Healthcare clinics and school mandates.'
+                ],
+                exAnchoring: 'e.g., Placing the $40.00 match ball next to a $120.00 professional leather ball.',
+                exDefault: 'e.g., Pre-selecting the Fair Trade match ball on the school district ordering portal.',
+                exProof: 'e.g., Tag: "Chosen as the official ball by 15 local youth soccer associations."',
+                exPriming: 'e.g., Printing "Stitched in a fair-wage audited facility" directly on the ball\'s panels.',
+                exDecoy: 'e.g., Offering a machine-stitched ball for $35.00, making the hand-stitched Fair Trade ball at $40.00 high value.'
+            },
+            {
+                id: 'jewelry',
+                name: 'Jewelry (Gold)',
+                tag: 'Mercury Poison',
+                conflict: 'Artisanal gold mining involves mercury poisoning affecting workers and local water tables, alongside severe safety hazards and funding for regional conflict militia groups.',
+                comparison: 'Contrast the Kimberley Process (which only focuses on raw diamond supply lines) with Fairtrade Gold, which guarantees artisanal miners fair price floors and mercury safety training.',
+                priceHeader: 'Jewelry Pricing',
+                priceFree: '$300.00 / ring',
+                priceFair: '$550.00 / ring',
+                premium: '+$250.00 (83%)',
+                areas: [
+                    'Artisanal Small-Scale Mining (ASM): Mercury amalgamation hazards.',
+                    'Conflict Militia Finance: Smuggled gold funding regional wars.',
+                    'Fairtrade Gold Standard: Fair price floors and chemical safety checks.'
+                ],
+                exAnchoring: 'e.g., Placing the $550.00 Fairtrade ring next to a $1,200.00 brand-name platinum ring.',
+                exDefault: 'e.g., Defaulting the jeweler\'s alloy selection drop-down to "Fairtrade Gold".',
+                exProof: 'e.g., Banner: "Show your commitment with gold that doesn\'t poison water tables."',
+                exPriming: 'e.g., Packaging featuring the miners\' cooperative certification number and source trace.',
+                exDecoy: 'e.g., Offering an uncertified ring for $480.00, making the Fairtrade Gold ring at $550.00 the superior ethical choice.'
+            }
+        ];
+
+        // Render the Grid of Product Selector cards
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(p => `
+                <div class="card ${state.selectedProduct === p.id ? 'active' : ''}" onclick="selectProduct('${p.id}')">
+                    <div class="card-tag">${p.tag}</div>
+                    <div class="card-content">
+                        <div class="card-title">${p.name}</div>
+                        <div class="card-description">${p.conflict.substring(0, 120)}...</div>
+                        <div class="card-examples">
+                            <h4>Areas of Conflict:</h4>
+                            ${p.areas.map(a => `
+                                <div class="example-item">>> ${a}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="status-badge">
+                            ${state.selectedProduct === p.id ? 'SELECTED CASE' : 'SELECT THIS CASE'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Product selection logic
+        function selectProduct(prodId) {
+            state.selectedProduct = prodId;
+            
+            // Re-render product grid cards
+            renderProducts();
+            
+            // Find the selected product catalog entry
+            const prod = products.find(p => p.id === prodId);
+            
+            // Update display fields in Step 1
+            document.getElementById('display-name').textContent = prod.name;
+            document.getElementById('display-conflict').textContent = prod.conflict;
+            document.getElementById('display-comparison').textContent = prod.comparison;
+            
+            // Update pricing cards
+            document.getElementById('price-card-header').textContent = prod.priceHeader;
+            document.getElementById('price-free').textContent = prod.priceFree;
+            document.getElementById('price-fair').textContent = prod.priceFair;
+            document.getElementById('price-premium').textContent = prod.premium;
+            
+            // Update mechanism examples dynamically
+            document.getElementById('ex-anchoring').textContent = prod.exAnchoring;
+            document.getElementById('ex-default').textContent = prod.exDefault;
+            document.getElementById('ex-proof').textContent = prod.exProof;
+            document.getElementById('ex-priming').textContent = prod.exPriming;
+            document.getElementById('ex-decoy').textContent = prod.exDecoy;
+            
+            // Reset shift graph if active
+            resetShiftVisuals();
+        }
+
+        // Toggle mechanism selection (Max 3)
+        function toggleMechanism(mechId) {
+            const card = document.getElementById('mech-' + mechId);
+            const index = state.selectedMechanisms.indexOf(mechId);
+            
+            if (index === -1) {
+                if (state.selectedMechanisms.length >= 3) {
+                    alert("You can select a maximum of 3 Choice Architecture mechanisms.");
+                    return;
+                }
+                state.selectedMechanisms.push(mechId);
+                card.classList.add('active');
+            } else {
+                state.selectedMechanisms.splice(index, 1);
+                card.classList.remove('active');
+            }
+            resetShiftVisuals();
+        }
+
+        // Toggle advantage selection
+        function toggleAdvantage(advId) {
+            const item = document.getElementById('adv-' + advId);
+            const index = state.selectedAdvantages.indexOf(advId);
+            
+            if (index === -1) {
+                state.selectedAdvantages.push(advId);
+                item.classList.add('active');
+            } else {
+                state.selectedAdvantages.splice(index, 1);
+                item.classList.remove('active');
+            }
+            resetShiftVisuals();
+        }
+
+        // Simulate the demand curve shift
+        function simulateShift() {
+            if (state.selectedMechanisms.length === 0) {
+                alert("Please select at least 1 Choice Architecture mechanism to run the simulation.");
+                return;
+            }
+            if (state.selectedAdvantages.length < 3) {
+                alert("The Pitch requires highlighting at least 3 Fair Trade advantages.");
+                return;
+            }
+
+            const path = document.getElementById('demand-shifted-path');
+            const label = document.getElementById('demand-shifted-label');
+            const line = document.getElementById('q-line-shifted');
+            const dot = document.getElementById('point-fair-shifted');
+            const qFairLabel = document.getElementById('q-fair-label');
+            const feedback = document.getElementById('feedback-text');
+
+            state.isShifted = true;
+            
+            // SVG opacity transitions
+            path.style.opacity = '1';
+            label.style.opacity = '1';
+            line.style.opacity = '1';
+            dot.style.opacity = '1';
+            qFairLabel.style.opacity = '1';
+
+            const prod = products.find(p => p.id === state.selectedProduct);
+            feedback.innerHTML = `DEMAND SHIFTED OUTWARD! Preference changes offset the ${prod.premium} premium. Quantity demanded increases to Q_fair.`;
+            feedback.className = 'visualizer-feedback shifted';
+        }
+
+        // Reset shifted graphics
+        function resetShiftVisuals() {
+            state.isShifted = false;
+            document.getElementById('demand-shifted-path').style.opacity = '0';
+            document.getElementById('demand-shifted-label').style.opacity = '0';
+            document.getElementById('q-line-shifted').style.opacity = '0';
+            document.getElementById('point-fair-shifted').style.opacity = '0';
+            document.getElementById('q-fair-label').style.opacity = '0';
+            
+            const feedback = document.getElementById('feedback-text');
+            feedback.className = 'visualizer-feedback';
+            feedback.innerHTML = "Select product, mechanisms, and advantages, then click Simulate.";
+        }
+
+        // Reset workspace
+        function resetForm() {
+            if (confirm("Are you sure you want to clear your workspace? All text entries will be lost.")) {
+                document.getElementById('student-name').value = '';
+                document.getElementById('lab-date').valueAsDate = new Date();
+                
+                state.selectedMechanisms = [];
+                document.querySelectorAll('.mechanism-card').forEach(c => c.classList.remove('active'));
+                
+                state.selectedAdvantages = [];
+                document.querySelectorAll('.advantage-item').forEach(c => c.classList.remove('active'));
+                
+                document.getElementById('visual-layout').value = '';
+                document.getElementById('pitch-copy').value = '';
+                document.getElementById('economic-justification').value = '';
+                
+                selectProduct('chocolate');
+            }
+        }
+
+        // Initial setup
+        document.getElementById('lab-date').valueAsDate = new Date();
+        renderProducts();
+        selectProduct('chocolate');
+    </script>
+</body>
+</html>

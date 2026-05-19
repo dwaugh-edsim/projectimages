@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Econ 12 | The Three Lenses of Trade</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #09110d; /* Deep forest slate */
+            --card-bg: #112419; /* Warm dark green */
+            --accent: #10b981; /* Emerald green */
+            --accent-secondary: #e06c53; /* Terracotta orange */
+            --accent-light: #e6f7ef;
+            --text: #f0f7f3;
+            --text-muted: #8ca395;
+            --border: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Slide Deck Layout */
+        .presentation-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Top control bar */
+        .top-bar {
+            background: rgba(9, 17, 13, 0.9);
+            border-bottom: 2px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .deck-title {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .top-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .jump-select {
+            background: #112419;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .top-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .top-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        /* Slide Viewport */
+        .slide-viewport {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            max-width: 1200px;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Slide Content Components */
+        .slide-header {
+            margin-bottom: 25px;
+            border-left: 6px solid var(--accent);
+            padding-left: 20px;
+        }
+
+        .slide-num {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            color: var(--accent-secondary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .slide h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .slide h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .slide-subtitle {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        /* Content Boxes */
+        .content-box {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 6px 6px 0px var(--accent);
+            padding: 30px;
+            margin-top: 15px;
+        }
+
+        /* Comparison columns */
+        .slide-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .slide-column {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 25px;
+        }
+
+        .slide-column.pro {
+            border-left: 5px solid var(--accent);
+        }
+
+        .slide-column.con {
+            border-left: 5px solid var(--accent-secondary);
+        }
+
+        .slide-column h3 {
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .slide-column.pro h3 { color: var(--accent); }
+        .slide-column.con h3 { color: var(--accent-secondary); }
+
+        .list-brutalist {
+            list-style: none;
+        }
+
+        .list-brutalist li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .list-brutalist li::before {
+            content: ">>";
+            position: absolute;
+            left: 0;
+            font-family: 'Courier Prime', monospace;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .list-brutalist.con-list li::before {
+            color: var(--accent-secondary);
+        }
+
+        /* Bottom navigation controls */
+        .bottom-bar {
+            border-top: 2px solid var(--border);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(9, 17, 13, 0.95);
+            z-index: 10;
+        }
+
+        .nav-indicators {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        .nav-arrows {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-arrow {
+            background: var(--card-bg);
+            color: #fff;
+            border: 2px solid var(--border);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier Prime', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-arrow:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 4px 4px 0px var(--border);
+        }
+
+        .keyboard-hint {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Matrix table */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+
+        .matrix-table th, .matrix-table td {
+            border: 2px solid var(--border);
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .matrix-table th {
+            background: var(--card-bg);
+            font-family: 'Courier Prime', monospace;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        /* Printable / Study Guide Handout Mode styling */
+        html.handout-mode, body.handout-mode {
+            overflow: auto !important;
+            height: auto !important;
+        }
+
+        body.handout-mode {
+            background: #faf9f6 !important;
+            color: #111a14 !important;
+            padding: 2cm !important;
+        }
+
+        body.handout-mode .top-bar {
+            position: static !important;
+            background: transparent !important;
+            border-bottom: 3px solid #111a14 !important;
+            padding: 10px 0 !important;
+            margin-bottom: 1.5cm;
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .jump-select, body.handout-mode .keyboard-hint {
+            display: none !important;
+        }
+
+        body.handout-mode .top-btn {
+            border-color: #111a14 !important;
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .slide-viewport {
+            display: block !important;
+            padding: 0 !important;
+        }
+
+        body.handout-mode .slide {
+            display: flex !important;
+            opacity: 1 !important;
+            transform: none !important;
+            margin-bottom: 2.5cm !important;
+            page-break-inside: avoid;
+            height: auto !important;
+        }
+
+        body.handout-mode .slide-header {
+            border-left-color: #111a14 !important;
+        }
+
+        body.handout-mode h1, body.handout-mode h2 {
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .content-box {
+            background: white !important;
+            border: 2px solid #111a14 !important;
+            box-shadow: none !important;
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .slide-column {
+            background: white !important;
+            border: 1px solid #111a14 !important;
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .slide-column.pro {
+            border-left: 4px solid #111a14 !important;
+        }
+
+        body.handout-mode .slide-column.con {
+            border-left: 4px solid #c2593f !important;
+        }
+
+        body.handout-mode .list-brutalist li::before {
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .list-brutalist.con-list li::before {
+            color: #c2593f !important;
+        }
+
+        body.handout-mode .matrix-table, body.handout-mode .matrix-table th, body.handout-mode .matrix-table td {
+            border-color: #111a14 !important;
+            color: #111a14 !important;
+        }
+
+        body.handout-mode .matrix-table th {
+            background: #eee !important;
+        }
+
+        body.handout-mode .bottom-bar {
+            display: none !important;
+        }
+
+        /* Two-column layout with image */
+        .slide-with-image {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .slide-image-container {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 6px 6px 0px var(--accent);
+            padding: 12px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .slide-image-container:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px var(--accent);
+        }
+
+        .slide-image-container img {
+            width: 100%;
+            height: auto;
+            border: 2px solid var(--border);
+            display: block;
+            background: #000;
+        }
+
+        body.handout-mode .slide-with-image {
+            display: block !important;
+        }
+
+        body.handout-mode .slide-image-container {
+            box-shadow: none !important;
+            border-color: #111a14 !important;
+            background: white !important;
+            margin-top: 20px !important;
+            max-width: 400px;
+        }
+
+        body.handout-mode .slide-image-container img {
+            border-color: #111a14 !important;
+        }
+
+        /* Print formatting */
+        @media print {
+            html, body {
+                overflow: auto !important;
+                height: auto !important;
+                background: white !important;
+                color: black !important;
+                padding: 1.5cm !important;
+            }
+
+            .top-bar, .bottom-bar, .keyboard-hint, .jump-select {
+                display: none !important;
+            }
+
+            .slide-viewport {
+                display: block !important;
+                padding: 0 !important;
+            }
+
+            .slide {
+                display: flex !important;
+                opacity: 1 !important;
+                margin-bottom: 2cm !important;
+                page-break-inside: avoid;
+                height: auto !important;
+            }
+
+            .slide-with-image {
+                display: block !important;
+            }
+
+            .slide-image-container {
+                box-shadow: none !important;
+                border-color: black !important;
+                background: white !important;
+                margin-top: 20px !important;
+                max-width: 400px;
+            }
+
+            .slide-image-container img {
+                border-color: black !important;
+            }
+
+            .content-box {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                background: white !important;
+            }
+
+            .slide-column {
+                background: white !important;
+                border: 2px solid black !important;
+            }
+
+            .matrix-table, .matrix-table th, .matrix-table td {
+                border-color: black !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        
+        <!-- Top bar controls -->
+        <header class="top-bar">
+            <div class="deck-title" id="deck-title-text">ECON 12 | THE THREE LENSES OF TRADE</div>
+            <div class="top-controls">
+                <select class="jump-select" id="slide-jump" onchange="jumpToSlide(this.value)">
+                    <option value="0">Slide 1: Title Screen</option>
+                    <option value="1">Slide 2: What is International Trade? (The Journey of Your Stuff)</option>
+                    <option value="2">Slide 3: Lens 1 - Mercantilism (Economic Warfare)</option>
+                    <option value="3">Slide 4: Protectionism (Shields Up! & The Canada-US Trade War)</option>
+                    <option value="4">Slide 5: Lens 2 - Free Trade (Tearing Down Walls)</option>
+                    <option value="5">Slide 6: Modern Blocs (EU & NAFTA/CUSMA Case Studies)</option>
+                    <option value="6">Slide 7: Free Trade (Winners & Losers)</option>
+                    <option value="7">Slide 8: Lens 3 - Fair Trade (Flipping the Power)</option>
+                    <option value="8">Slide 9: Fair Trade (Ethical Wins & Hard Realities)</option>
+                    <option value="9">Slide 10: The Three Lenses Compared (Matrix)</option>
+                    <option value="10">Slide 11: Your Design Lab Challenge</option>
+                </select>
+                <button class="top-btn" onclick="toggleHandoutMode()" id="handout-toggle">Handout Mode</button>
+            </div>
+        </header>
+
+        <!-- Slide Content Area -->
+        <main class="slide-viewport">
+
+            <!-- Slide 1: Title Screen -->
+            <div class="slide active" id="slide-0">
+                <div class="slide-header">
+                    <div class="slide-num">CASE FILE: SCO 4.1.9</div>
+                    <h1>The Three Lenses of Trade</h1>
+                    <div class="slide-subtitle">Who Holds the Power? The King, the Corporation, or the Worker?</div>
+                </div>
+                
+                <div class="content-box" style="margin-top: 30px;">
+                    <p style="font-size: 1.4rem; line-height: 1.5; margin-bottom: 20px;">
+                        Curriculum Focus: <strong>Look at the arguments for and against free trade.</strong>
+                    </p>
+                    <p style="color: var(--accent); font-size: 1.2rem; font-family: 'Courier Prime', monospace; border-top: 2px dashed var(--border); padding-top: 15px; margin-bottom: 0;">
+                        THE CENTRAL INQUIRY: "Look at your phone, your shoes, your chocolate. Who got rich making them, and who got left behind?"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Slide 2: What is International Trade? -->
+            <div class="slide" id="slide-1">
+                <div class="slide-header">
+                    <div class="slide-num">01. THE BASELINE</div>
+                    <h2>What is International Trade?</h2>
+                    <div class="slide-subtitle">The Epic Journey of Your Stuff</div>
+                </div>
+
+                <div class="content-box">
+                    <ul class="list-brutalist" style="gap: 15px; display: flex; flex-direction: column;">
+                        <li><strong>It's Not Country-to-Country:</strong> We aren't in the 1700s anymore. Trade isn't just Canada swapping wood for French wine. Today, it is controlled by massive <strong>Transnational Corporations (TNCs)</strong> (like Nike, Apple, or Nestlé) managing complex, global puzzles.</li>
+                        <li><strong>The iPhone Odyssey:</strong> A typical smartphone travels through 15 countries before hitting your pocket! Raw cobalt mined in the Congo, microchips fabricated in Taiwan, designed in California, and assembled in China.</li>
+                        <li><strong>The 3 Friction Questions:</strong>
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;1. <em>Who wins the cheap price game?</em> (We get a $5 shirt, but does a worker in Bangladesh pay the price in a sweatshop?)
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;2. <em>Who loses their job?</em> (When manufacturing moves overseas to save money, what happens to factory workers in Canadian towns like Trenton or Pictou?)
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;3. <em>Who pays for the pollution?</em> (Shipping goods across oceans on cargo ships creates massive carbon footprints. Who pays for that damage?)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 3: Lens 1 - Mercantilism -->
+            <div class="slide" id="slide-2">
+                <div class="slide-with-image">
+                    <div>
+                        <div class="slide-header">
+                            <div class="slide-num">02. LENS ONE</div>
+                            <h2>Mercantilism: Economic Warfare</h2>
+                            <div class="slide-subtitle">How Empires Rigged the Game (1500s - 1700s)</div>
+                        </div>
+
+                        <div class="content-box">
+                            <p style="font-size: 1.25rem; margin-bottom: 20px; line-height: 1.5;">
+                                For hundreds of years, European empires (like Britain, France, and Spain) believed the world's wealth was a fixed pie. Having the most gold and silver meant you won.
+                            </p>
+                            <ul class="list-brutalist">
+                                <li><strong>The Colony Trap:</strong> Empires forced colonies (like early Canada) to ship cheap raw resources (furs, timber) only to the home country, and banned them from trading with anyone else.</li>
+                                <li><strong>Sell Much, Buy Little:</strong> The home country turned those resources into expensive finished goods, forced the colonies to buy them back, and used high taxes (tariffs) to block foreign rivals. <strong>Why it backfired:</strong> These restrictive mercantilist policies, like stamp taxes and taxes on tea, eventually drove the American colonies to revolt against Britain in the American Revolution.</li>
+                                <li><strong>Who had the power?</strong> The King and the state treasury. Shoppers and workers were just pieces on a chessboard.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="slide-image-container">
+                        <img src="trade_mercantilism.png" alt="Mercantilism Illustration: European sailing ship, gold coins, and crowns">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Protectionism Pros & Cons -->
+            <div class="slide" id="slide-3">
+                <div class="slide-header">
+                    <div class="slide-num">03. EVALUATION</div>
+                    <h2>Protectionism: Shields Up!</h2>
+                    <div class="slide-subtitle">Tariffs, Job Protection, and Retaliation</div>
+                </div>
+
+                <div class="slide-columns" style="margin-bottom: 20px;">
+                    <div class="slide-column pro">
+                        <h3>The Shields (Pros)</h3>
+                        <ul class="list-brutalist">
+                            <li><strong>Save Local Jobs:</strong> Prevents factories and mills from closing down when cheap imports flood the market.</li>
+                            <li><strong>Strategic Autonomy:</strong> Ensures Canada can produce its own steel, food, and medicine during an emergency.</li>
+                            <li><strong>Infant Industries:</strong> Gives startup domestic companies a chance to grow without being crushed by global giants.</li>
+                        </ul>
+                    </div>
+                    <div class="slide-column con">
+                        <h3>The Cost (Cons)</h3>
+                        <ul class="list-brutalist con-list">
+                            <li><strong>Everyday Price Hikes:</strong> Import taxes make everyday goods (shoes, food, steel cans) more expensive.</li>
+                            <li><strong>Laziness & Monopolies:</strong> Without foreign competition, domestic companies have less reason to innovate.</li>
+                            <li><strong>Trade Wars (Retaliation):</strong> If you tax their goods, they will tax yours back, hurting local exporters.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="content-box" style="background: var(--accent-light); border-color: var(--accent-secondary);">
+                    <h4 style="font-family: 'Courier Prime', monospace; color: var(--accent-secondary); margin-bottom: 8px; font-weight: 700;">REAL-WORLD DRAMA: The Canada-US Trade War (2025-26)</h4>
+                    <p style="font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                        The U.S. placed a 25% tax (tariff) on Canadian steel and 10% on aluminum under the threat of wider tariffs. <strong>Canada struck back immediately</strong>, hitting US steel and retaliating with taxes on random US products to hurt key political zones, targeting US maple syrup, toilet paper, whiskey, and orange juice. Prices spiked for consumers in both nations, demonstrating how quickly trade wars escalate and impact everyday shoppers.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Slide 5: Lens 2 - The Rise of Free Trade -->
+            <div class="slide" id="slide-4">
+                <div class="slide-with-image">
+                    <div>
+                        <div class="slide-header">
+                            <div class="slide-num">04. LENS TWO</div>
+                            <h2>Free Trade: Tearing Down the Walls</h2>
+                            <div class="slide-subtitle">Letting the Global Market Run Wild</div>
+                        </div>
+
+                        <div class="content-box">
+                            <p style="font-size: 1.25rem; margin-bottom: 20px; line-height: 1.5;">
+                                In the late 1700s, economists like Adam Smith argued that empires were bankrupting themselves. If countries stopped taxing imports, goods would become cheap, and everyone could specialize in what they do best.
+                            </p>
+                            <ul class="list-brutalist">
+                                <li><strong>Comparative Advantage:</strong> If Canada is great at wheat, and Colombia is great at coffee, they shouldn't try to make both. Trade freely, and everyone gets cheaper bread and coffee.</li>
+                                <li><strong>Friedman's Flat World:</strong> In his book <em>The World is Flat</em>, Thomas Friedman argues that technology and cheap shipping have "flattened" the globe. By minimizing geographical distance, companies can source and sell goods across continents as if borders didn't exist.</li>
+                                <li><strong>Eliminating Barriers:</strong> Countries sign agreements to remove all tariffs, quotas, and trade rules, letting goods cross borders without delay.</li>
+                                <li><strong>Who has the power?</strong> Transnational Corporations (TNCs) who can source materials anywhere, and shoppers demanding the lowest retail prices.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="slide-image-container">
+                        <img src="trade_freetrade.png" alt="Free Trade Illustration: Modern container cargo ship crossing the ocean">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Modern Free Trade Blocs: EU & NAFTA -->
+            <div class="slide" id="slide-5">
+                <div class="slide-with-image">
+                    <div>
+                        <div class="slide-header">
+                            <div class="slide-num">05. MODERN FTAs</div>
+                            <h2>Free Trade Blocs: The EU & NAFTA</h2>
+                            <div class="slide-subtitle">Dismantling Economic Borders</div>
+                        </div>
+
+                        <div class="content-box">
+                            <ul class="list-brutalist" style="gap: 15px; display: flex; flex-direction: column;">
+                                <li><strong>The European Union (The Ultimate Team-Up):</strong> 27 European nations got rid of economic borders entirely. Goods, services, money, and <em>people</em> move freely. You can live in Spain, work in Germany, buy Italian cheese, and pay with the same currency (the Euro).</li>
+                                <li><strong>NAFTA / CUSMA (The North American Trade Highway):</strong> Signed in 1994, it took away taxes on goods traded between Canada, the U.S., and Mexico.
+                                    <br><span style="color: var(--accent-secondary); font-weight: 700;">The Win:</span> Cheap avocados, fresh winter produce, and integrated car parts manufacturing.
+                                    <br><span style="color: var(--accent-secondary); font-weight: 700;">The Loss:</span> Thousands of manufacturing jobs left Ontario and Quebec for Mexico, where labor was much cheaper.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="slide-image-container">
+                        <img src="trade_blocs.png" alt="Free Trade Blocs Illustration: European Union stars and North American trade connections">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Free Trade Pros & Cons -->
+            <div class="slide" id="slide-6">
+                <div class="slide-header">
+                    <div class="slide-num">06. EVALUATION</div>
+                    <h2>Free Trade: Winners and Losers</h2>
+                    <div class="slide-subtitle">Supermarket Abundance vs. Hidden Human Costs</div>
+                </div>
+
+                <div class="slide-columns">
+                    <div class="slide-column pro">
+                        <h3>The Wins (Pros)</h3>
+                        <ul class="list-brutalist">
+                            <li><strong>Massive Savings:</strong> Prices plummet. You get cheap clothes, phones, and food at your local supermarket.</li>
+                            <li><strong>Global Variety:</strong> Eating fresh strawberries in January and buying the latest tech instantly.</li>
+                            <li><strong>International Cooperation (The McDonald's Theory):</strong> Countries that trade together are highly unlikely to go to war. This is often called the "Golden Arches Theory": no two countries with a McDonald's franchise have ever fought a war against each other.</li>
+                        </ul>
+                    </div>
+                    <div class="slide-column con">
+                        <h3>The Traps (Cons)</h3>
+                        <ul class="list-brutalist con-list">
+                            <li><strong>Labor Exploitation:</strong> TNCs move factories to countries where child labor or forced labor is used to keep costs low.</li>
+                            <li><strong>Pollution Havens:</strong> Moving factories to countries with weak environmental laws, poisoning local rivers and air.</li>
+                            <li><strong>Job Outflow:</strong> Local factories shut down because they can't compete with sweatshop wages.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Lens 3 - Fair Trade -->
+            <div class="slide" id="slide-7">
+                <div class="slide-with-image">
+                    <div>
+                        <div class="slide-header">
+                            <div class="slide-num">07. LENS THREE</div>
+                            <h2>Fair Trade: Rewriting the Global Contract</h2>
+                            <div class="slide-subtitle">Shifting Power to the People Who Grow and Stitch</div>
+                        </div>
+
+                        <div class="content-box">
+                            <p style="font-size: 1.25rem; margin-bottom: 20px; line-height: 1.5;">
+                                <strong>Why is cocoa so cheap?</strong> A standard cocoa farmer in West Africa makes less than $1.20 a day, while massive TNCs make billions. Fair Trade attempts to change this power imbalance.
+                            </p>
+                            <ul class="list-brutalist">
+                                <li><strong>Guaranteed Base Price:</strong> Protects small farmers from market crashes. If coffee or cocoa prices drop on the stock market, Fair Trade cooperatives still get a guaranteed minimum price.</li>
+                                <li><strong>Social Premiums:</strong> Buyers pay an extra fee that goes directly into a community fund. Farmers vote democratically on how to spend it: building schools, health clinics, or clean water wells.</li>
+                                <li><strong>Strict Rules:</strong> Enforces bans on child labor, forced labor, and dangerous pesticides.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="slide-image-container">
+                        <img src="trade_fairtrade.png" alt="Fair Trade Illustration: Local farmers sorting organic coffee beans at a cooperative">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Fair Trade Pros & Cons -->
+            <div class="slide" id="slide-8">
+                <div class="slide-header">
+                    <div class="slide-num">08. EVALUATION</div>
+                    <h2>Fair Trade: Ethical Hope vs. Hard Realities</h2>
+                    <div class="slide-subtitle">Can Conscious Consumers Change the World?</div>
+                </div>
+
+                <div class="slide-columns">
+                    <div class="slide-column pro">
+                        <h3>The Wins (Pros)</h3>
+                        <ul class="list-brutalist">
+                            <li><strong>No Slavery or Child Labor:</strong> Rigorous third-party audits ensure humane and safe farm conditions.</li>
+                            <li><strong>Direct Community Funding:</strong> Extra premiums build schools and wells, bypassing corrupt officials.</li>
+                            <li><strong>Income Security:</strong> Shields farmers from volatile commodity price swings.</li>
+                        </ul>
+                    </div>
+                    <div class="slide-column con">
+                        <h3>The Traps (Cons)</h3>
+                        <ul class="list-brutalist con-list">
+                            <li><strong>High Entry Costs:</strong> The fees and paperwork to get "Fair Trade Certified" can exclude the poorest small farmers.</li>
+                            <li><strong>The Price Premium:</strong> Shoppers must pay more, which limits sales to middle-class/rich neighborhoods.</li>
+                            <li><strong>Niche Market:</strong> Hard to scale to match the massive reach of standard global supply chains.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Comparison Matrix -->
+            <div class="slide" id="slide-9">
+                <div class="slide-header">
+                    <div class="slide-num">09. SYNTHESIS</div>
+                    <h2>The Three Lenses of Trade Comparison</h2>
+                    <div class="slide-subtitle">Side-by-Side Trade Philosophy Matrix</div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th style="color: var(--accent-secondary);">Protectionism</th>
+                                <th style="color: var(--accent-light); text-shadow: 0 0 1px #fff;">Free Trade</th>
+                                <th style="color: var(--accent);">Fair Trade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <strong><td>Primary Goal</td></strong>
+                                <td>Protect domestic industries and jobs.</td>
+                                <td>Minimize costs and maximize global efficiency.</td>
+                                <td>Ensure ethical wages and safe worker conditions.</td>
+                            </tr>
+                            <tr>
+                                <strong><td>Tariff Approach</td></strong>
+                                <td>Implement protective import tariffs/quotas.</td>
+                                <td>Abolish or lower tariffs.</td>
+                                <td>Focus on ethical standards, not tariff rules.</td>
+                            </tr>
+                            <tr>
+                                <strong><td>Key Actor</td></strong>
+                                <td>The Sovereign Nation-State.</td>
+                                <td>Transnational Corporations (TNCs).</td>
+                                <td>Worker Cooperatives & Certifiers.</td>
+                            </tr>
+                            <tr>
+                                <strong><td>Primary Beneficiaries</td></strong>
+                                <td>Domestic workers and local manufacturers.</td>
+                                <td>TNCs, shareholders, and retail shoppers.</td>
+                                <td>Smallholder growers, factory stitchers, and families.</td>
+                            </tr>
+                            <tr>
+                                <strong><td>Critical Failure</td></strong>
+                                <td>Raises consumer prices and risks trade retaliation.</td>
+                                <td>Outsources labor exploitation and pollution.</td>
+                                <td>High entry costs; difficult to scale globally.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 11: Inquiry Connection -->
+            <div class="slide" id="slide-10">
+                <div class="slide-header">
+                    <div class="slide-num">10. APPLICATION</div>
+                    <h2>Your Design Lab Challenge</h2>
+                    <div class="slide-subtitle">Flipping the Demand Curve</div>
+                </div>
+
+                <div class="content-box">
+                    <p style="font-size: 1.2rem; line-height: 1.5; margin-bottom: 20px;">
+                        In your Design Lab, you are representing a Fair Trade Cooperative facing competition from low-priced Free Trade TNC competitors.
+                    </p>
+                    <ul class="list-brutalist">
+                        <li><strong>The Consumer Brain:</strong> Shoppers naturally buy the cheapest option (Free Trade TNC).</li>
+                        <li><strong>Your Tool:</strong> Choice Architecture (Default Bias, Anchoring, Social Proof).</li>
+                        <li><strong>The Goal:</strong> Move the demand curve ($D_1 \rightarrow D_2$) to make consumers <em>willingly</em> pay the Fair Trade price premium. You are shifting power from TNCs back to the farmers.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <footer class="bottom-bar">
+            <div class="keyboard-hint">Press Arrow Keys, Space, or Enter to navigate</div>
+            
+            <div class="nav-indicators" id="nav-dots">
+                <!-- Dots populated via JS -->
+            </div>
+
+            <div class="nav-arrows">
+                <button class="nav-arrow" onclick="prevSlide()">&lt;</button>
+                <button class="nav-arrow" onclick="nextSlide()">&gt;</button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 11;
+        let handoutMode = false;
+
+        // Populate dots
+        const dotsContainer = document.getElementById('nav-dots');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = `nav-dot ${i === 0 ? 'active' : ''}`;
+            dot.onclick = () => jumpToSlide(i);
+            dotsContainer.appendChild(dot);
+        }
+
+        // Show a slide
+        function showSlide(index) {
+            if (handoutMode) return;
+
+            // Remove active classes
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+
+            // Set new active slide
+            currentSlide = (index + totalSlides) % totalSlides;
+            document.getElementById(`slide-${currentSlide}`).classList.add('active');
+            
+            // Set active dot
+            dotsContainer.children[currentSlide].classList.add('active');
+
+            // Sync top select input
+            document.getElementById('slide-jump').value = currentSlide;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function jumpToSlide(index) {
+            showSlide(parseInt(index));
+        }
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (handoutMode) return;
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextSlide();
+            }
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        // Toggle printable handout mode
+        function toggleHandoutMode() {
+            handoutMode = !handoutMode;
+            const body = document.body;
+            const htmlElement = document.documentElement;
+            const toggleBtn = document.getElementById('handout-toggle');
+
+            if (handoutMode) {
+                body.classList.add('handout-mode');
+                htmlElement.classList.add('handout-mode');
+                toggleBtn.textContent = "Slide Deck Mode";
+                document.getElementById('deck-title-text').textContent = "ECON 12 | THE THREE LENSES OF TRADE (HANDOUT FORMAT)";
+            } else {
+                body.classList.remove('handout-mode');
+                htmlElement.classList.remove('handout-mode');
+                toggleBtn.textContent = "Handout Mode";
+                document.getElementById('deck-title-text').textContent = "ECON 12 | THE THREE LENSES OF TRADE";
+                showSlide(currentSlide);
+            }
+        }
+    </script>
+</body>
+</html>
