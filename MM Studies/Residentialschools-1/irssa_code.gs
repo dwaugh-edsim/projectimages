@@ -15,6 +15,25 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // SAVE via GET (reliable cross-origin from Chromebooks)
+    if (action === 'save') {
+      const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      if (sheet.getLastRow() === 0) {
+        sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
+      }
+      sheet.appendRow([
+        e.parameter.timestamp,
+        e.parameter.block,
+        e.parameter.student,
+        e.parameter.subject,
+        e.parameter.simulation,
+        e.parameter.status,
+        e.parameter.rationales
+      ]);
+      return ContentService.createTextOutput(JSON.stringify({ success: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const student = e.parameter.student;
     const simulation = e.parameter.simulation;
 
