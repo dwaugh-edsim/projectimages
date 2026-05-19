@@ -114,6 +114,15 @@
             font-weight: 700;
         }
 
+        .nav-item.completed {
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .nav-item.completed::after {
+            content: ' ✓';
+        }
+
         /* Main Content Area */
         .main {
             flex: 1;
@@ -747,6 +756,10 @@
             sessionData.responses[slide.id] = val;
             saveToLocal();
 
+            // Mark this slide as done in the nav
+            const navBtn = document.getElementById(`nav-${currentSlideIndex}`);
+            if (navBtn) navBtn.classList.add('completed');
+
             // Trigger Cloud Sync immediately on every save
             submitToWebhook(false); // Pass false to indicate this is an incremental save
 
@@ -797,9 +810,20 @@
                 if (result.rationales) {
                     sessionData.responses = JSON.parse(result.rationales);
                     syncStatus.innerText = "SYNC: CLOUD LOADED";
-                    syncStatus.style.color = "var(--accent)";
+                    syncStatus.style.color = "#2ecc71";
                     saveToLocal();
                     loadSlide(currentSlideIndex);
+                    // Mark all restored slides as completed in the nav
+                    MISSION_DATA.slides.forEach((slide, idx) => {
+                        if (sessionData.responses[slide.id]) {
+                            const navBtn = document.getElementById(`nav-${idx}`);
+                            if (navBtn) navBtn.classList.add('completed');
+                        }
+                    });
+                    setTimeout(() => {
+                        syncStatus.innerText = "SYNC: READY";
+                        syncStatus.style.color = "var(--accent)";
+                    }, 3000);
                 } else {
                     syncStatus.innerText = "SYNC: READY";
                     syncStatus.style.color = "var(--accent)";
