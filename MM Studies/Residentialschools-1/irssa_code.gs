@@ -1,44 +1,63 @@
 function doGet(e) {
   try {
+    const action = e.parameter.action;
+
+    // DEBUG: Call with ?action=debug to inspect the sheet structure
+    if (action === 'debug') {
+      const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      const rows = sheet.getDataRange().getValues();
+      const preview = rows.slice(0, 5); // First 5 rows
+      return ContentService.createTextOutput(JSON.stringify({ headers: rows[0], firstRows: preview }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const student = e.parameter.student;
     const simulation = e.parameter.simulation;
-    
+
     if (!student || !simulation) {
-      return ContentService.createTextOutput(JSON.stringify({ error: "Missing parameters" }))
+      return ContentService.createTextOutput(JSON.stringify({ error: "Missing parameters", received: e.parameter }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     const rows = sheet.getDataRange().getValues();
-    
-    // We assume columns: Timestamp, Block, Student, Subject, Simulation, Status, Rationales
-    // Look backwards from the bottom to find the latest save for this student and simulation
+
+    if (rows.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify({ rationales: null, debug: "Sheet is empty" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Find column indexes from headers (case-insensitive)
+    const headers = rows[0].map(h => String(h).toLowerCase().trim());
+    const sCol = headers.indexOf("student");
+    const mCol = headers.indexOf("simulation");
+    const rCol = headers.indexOf("rationales");
+
+    // Fallback to hardcoded positions if headers aren't found
+    const studentColIdx = sCol > -1 ? sCol : 2;
+    const simColIdx = mCol > -1 ? mCol : 4;
+    const rationalesColIdx = rCol > -1 ? rCol : 6;
+
     let latestRationales = null;
-    
-    // Find column indexes based on headers
-    const headers = rows[0];
-    const studentCol = headers.indexOf("student");
-    const simCol = headers.indexOf("simulation");
-    const rationalesCol = headers.indexOf("rationales");
-    
-    // If headers exist, use them. Otherwise, fallback to hardcoded indexes (adjust as needed based on your sheet)
-    // Assuming: 0:timestamp, 1:block, 2:student, 3:subject, 4:simulation, 5:status, 6:rationales
-    const sCol = studentCol > -1 ? studentCol : 2;
-    const mCol = simCol > -1 ? simCol : 4;
-    const rCol = rationalesCol > -1 ? rationalesCol : 6;
+    let debugInfo = { headers: rows[0], studentColIdx, simColIdx, rationalesColIdx, searchingFor: student, searchingSim: simulation, rowsChecked: 0 };
 
     for (let i = rows.length - 1; i >= 1; i--) {
-      if (rows[i][sCol] === student && rows[i][mCol] === simulation) {
-        latestRationales = rows[i][rCol];
+      const rowStudent = String(rows[i][studentColIdx]).trim();
+      const rowSim = String(rows[i][simColIdx]).trim();
+      debugInfo.rowsChecked++;
+
+      if (rowStudent === student.trim() && rowSim === simulation.trim()) {
+        latestRationales = rows[i][rationalesColIdx];
+        debugInfo.foundAtRow = i;
         break;
       }
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ rationales: latestRationales }))
+    return ContentService.createTextOutput(JSON.stringify({ rationales: latestRationales, debug: debugInfo }))
       .setMimeType(ContentService.MimeType.JSON);
-      
+
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ error: err.toString() }))
+    return ContentService.createTextOutput(JSON.stringify({ error: err.toString(), stack: err.stack }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -46,12 +65,12 @@ function doGet(e) {
 function doPost(e) {
   try {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    
-    // If sheet is empty, add headers
+
+    // Add headers if sheet is empty
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
     }
-    
+
     sheet.appendRow([
       e.parameter.timestamp,
       e.parameter.block,
