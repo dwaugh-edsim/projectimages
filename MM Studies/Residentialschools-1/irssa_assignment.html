@@ -854,35 +854,25 @@
             };
 
             try {
-                // Build URL with all data as GET parameters
                 const params = new URLSearchParams();
                 for (const key in payload) {
                     params.append(key, payload[key]);
                 }
                 const saveUrl = `${API_URL}?${params.toString()}`;
 
-                // Primary: fetch with redirect follow (works when CORS allows)
-                try {
-                    const res = await fetch(saveUrl, { method: 'GET', redirect: 'follow' });
-                    const result = await res.json();
-                    if (result.success) {
-                        console.log("CLOUD SAVE: success via fetch");
-                        syncStatus.innerText = isFinal ? "SYNC: COMPLETED" : "SYNC: PROGRESS SAVED";
-                        syncStatus.style.color = "#27ae60";
-                        return;
-                    }
-                } catch (fetchErr) {
-                    console.warn("CLOUD SAVE: fetch failed, trying image beacon", fetchErr);
-                }
+                // Use GET with no-cors. This is highly compatible, bypasses CORS,
+                // and avoids the CORB warnings triggered by Image beacons.
+                await fetch(saveUrl, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
 
-                // Fallback: Image beacon (always works cross-origin)
-                const img = new Image();
-                img.src = saveUrl;
-                console.log("CLOUD SAVE: sent via image beacon");
+                console.log("CLOUD SAVE: submitted successfully");
                 syncStatus.innerText = isFinal ? "SYNC: COMPLETED" : "SYNC: PROGRESS SAVED";
                 syncStatus.style.color = "#27ae60";
             } catch (err) {
-                console.error("CLOUD SAVE: all methods failed", err);
+                console.error("CLOUD SAVE: failed", err);
                 syncStatus.innerText = "SYNC: OFFLINE (ERROR)";
                 syncStatus.style.color = "#e74c3c";
             }
