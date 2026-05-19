@@ -760,28 +760,22 @@
             const navBtn = document.getElementById(`nav-${currentSlideIndex}`);
             if (navBtn) navBtn.classList.add('completed');
 
-            // Trigger Cloud Sync immediately on every save
-            submitToWebhook(false); // Pass false to indicate this is an incremental save
+            // Trigger Cloud Sync
+            submitToWebhook(false);
+        }
 
-            // Sync Visuals
+        function markCloudSaveResult(isOffline) {
             const indicator = document.getElementById('save-indicator');
-            indicator.innerText = "CLOUD_SYNC: IN PROGRESS";
-            indicator.style.color = "orange";
-            
-            setTimeout(() => {
+            if (isOffline) {
+                indicator.innerText = "CLOUD_SYNC: FAILED";
+                indicator.style.color = "#e74c3c";
+            } else {
                 indicator.innerText = "CLOUD_SYNC: SUCCESS";
                 indicator.style.color = "var(--accent)";
                 setTimeout(() => {
                     indicator.innerText = "CLOUD_SYNC: IDLE";
                     indicator.style.color = "#444";
                 }, 2000);
-            }, 1000);
-
-            // Auto-advance if not on the last slide
-            if (currentSlideIndex < MISSION_DATA.slides.length - 1) {
-                setTimeout(() => loadSlide(currentSlideIndex + 1), 500);
-            } else {
-                alert("FINAL ANALYSIS COMMITTED. ALL PROGRESS SECURED IN CLOUD.");
             }
         }
 
@@ -798,6 +792,11 @@
         }
 
         async function retrieveFromCloud() {
+            if (!selectedStudent || !selectedStudent.S) {
+                console.error("Cloud retrieval skipped: no student selected");
+                return;
+            }
+
             const syncStatus = document.getElementById('sync-status');
             syncStatus.innerText = "SYNC: RETRIEVING...";
             syncStatus.style.color = "orange";
@@ -860,21 +859,20 @@
                 }
                 const saveUrl = `${API_URL}?${params.toString()}`;
 
-                // Use GET with no-cors. This is highly compatible, bypasses CORS,
-                // and avoids the CORB warnings triggered by Image beacons.
-                await fetch(saveUrl, {
+                const res = await fetch(saveUrl, {
                     method: 'GET',
-                    mode: 'no-cors',
                     cache: 'no-cache'
                 });
 
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+
                 console.log("CLOUD SAVE: submitted successfully");
-                syncStatus.innerText = isFinal ? "SYNC: COMPLETED" : "SYNC: PROGRESS SAVED";
-                syncStatus.style.color = "#27ae60";
+                markCloudSaveResult(false);
             } catch (err) {
                 console.error("CLOUD SAVE: failed", err);
-                syncStatus.innerText = "SYNC: OFFLINE (ERROR)";
-                syncStatus.style.color = "#e74c3c";
+                markCloudSaveResult(true);
             }
         }
     </script>
