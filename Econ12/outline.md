@@ -44,3 +44,39 @@ This is the core of your presentation. You must translate the news/issue into **
 1.  **Don't Read Slides:** Use images and bullet points; tell the story yourself.
 2.  **Use Real Numbers:** Instead of saying "it's expensive," say "rent has surged to $2,800/month in Halifax."
 3.  **Practice the Timing:** 5 minutes goes by faster than you think. Focus on the *Why* and the *Economic Impact*.
+
+
+
+=== 
+outcomes
+
+The most relevant outcome for the provided lesson on Free and Fair Trade is **SCO 4.1**, which focuses on **Global Economic Concepts**.
+
+Specifically, this outcome expects students to "demonstrate an understanding of trade" through several key performance indicators that align directly with your document:
+
+* 
+**Free Trade Analysis:** Students are expected to define free trade (**4.1.8**) and evaluate the arguments for and against it (**4.1.9**).
+
+
+* 
+**Global Interdependence:** Students must draw on examples to describe how economies are interdependent (**4.1.1**) and explain the benefits of trade among individuals, regions, and countries (**4.1.3**).
+
+
+* 
+**Trade Barriers:** Students are expected to analyze the barriers and restrictions on domestic and international trade, such as tariffs and quotas (**4.1.7**).
+
+
+* 
+**Agreements and TNCs:** The outcome includes examining international trading agreements and trading blocs like **NAFTA** (**4.1.10**), which correlates to the "Free Trade Agreement" section of your notes.
+
+
+
+### Additional Supporting Outcomes
+
+While **SCO 4.1** is the primary match, two other foundational outcomes support the "Fair Trade" and "Economic Problem" sections of your material:
+
+* **SCO 1.4 (Economic Systems):** Students are expected to compare and contrast how various economic systems answer the basic questions: What to produce? How to produce it? For whom to produce? (**1.4.2**). This directly mirrors the "General Economic Problems" section at the start of your document.
+
+
+* 
+**SCO 2.6 (Labor and Ethics):** Students must draw conclusions about how labor laws (or the lack thereof) change the labor force (**2.6**), which is central to the discussion of the advantages and disadvantages of Fair Trade.
