@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friday Research Dossier — Mission Intel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --accent: #d97706;
+            --ink: #1a1a1a;
+            --paper: #fdfaf6;
+            --border: #d1d5db;
+            --success: #16a34a;
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #e5e7eb; 
+            padding: 20px; 
+            line-height: 1.6; 
+            color: var(--ink); 
+        }
+        
+        .dossier { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: var(--paper); 
+            border: 5px solid var(--ink); 
+            padding: 40px; 
+            position: relative; 
+            box-shadow: 15px 15px 0 rgba(0,0,0,0.1); 
+        }
+        
+        .stamp { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            border: 3px solid var(--accent); 
+            color: var(--accent); 
+            font-family: 'Special Elite', cursive; 
+            padding: 4px 12px; 
+            transform: rotate(5deg); 
+            font-size: 1.1rem; 
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        header {
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 { 
+            font-family: 'Special Elite', cursive; 
+            font-size: 2rem; 
+            margin: 0; 
+            text-transform: uppercase; 
+            color: var(--ink); 
+        }
+
+        .operative-info {
+            display: flex;
+            justify-content: space-between;
+            background: #f1f5f9;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        .step-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 6px solid var(--accent);
+        }
+
+        .step-num {
+            font-family: 'Special Elite', cursive;
+            background: var(--accent);
+            color: white;
+            padding: 2px 10px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-weight: 900;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: var(--ink);
+        }
+
+        .guidance-card {
+            background: #fffbeb;
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .pro-tip {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            font-family: 'Inter', sans-serif;
+            background: #fdfdfd;
+            font-size: 1rem;
+            min-height: 150px;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
+        .dot.syncing { background: var(--accent); animation: pulse 1s infinite; }
+        .dot.saved { background: var(--success); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .login-card {
+            background: #fff; padding: 40px; border-radius: 8px; width: 380px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+        }
+
+        .login-card h2 { font-family: 'Special Elite', cursive; color: var(--ink); text-align: center; margin-bottom: 25px; }
+
+        select, input {
+            width: 100%; padding: 12px; border: 2px solid var(--border);
+            margin-bottom: 15px; border-radius: 4px; font-size: 1rem;
+        }
+
+        .btn {
+            background: var(--ink); color: #fff; border: none; padding: 15px; width: 100%;
+            cursor: pointer; font-family: 'Special Elite', cursive; text-transform: uppercase;
+            font-size: 1.1rem; border-radius: 4px;
+        }
+
+        .btn:hover { background: var(--accent); }
+
+        #researchArea { display: none; }
+        body.logged-in #researchArea { display: block; }
+
+        .tag { font-size: 0.7rem; background: #e2e8f0; padding: 2px 6px; border-radius: 3px; margin-right: 5px; }
+
+        @media print {
+            .sync-status, #loginOverlay, .btn { display: none !important; }
+            body { background: white; padding: 0; }
+            .dossier { border: 2px solid #000; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Mission Access</h2>
+            <label>Select Name:</label>
+            <select id="loginName">
+                <option value="">-- WHO ARE YOU? --</option>
+            </select>
+            <label>Your 4-Letter PIN:</label>
+            <input type="password" id="loginPin" maxlength="4" placeholder="••••">
+            <button class="btn" onclick="handleLogin()">Unlock Dossier</button>
+            <p id="loginError" style="color:red; text-align:center; display:none; margin-top:10px; font-weight:bold;">WRONG PIN. ACCESS DENIED.</p>
+        </div>
+    </div>
+
+    <div class="dossier">
+        <div class="stamp">TOP SECRET // PHASE 2</div>
+        
+        <header>
+            <h1>Research Intelligence Dossier</h1>
+            <div class="operative-info">
+                <div><strong>OPERATIVE:</strong> <span id="op-name">PENDING</span></div>
+                <div><strong>MISSION:</strong> <span id="op-mission">SELECTING...</span></div>
+            </div>
+        </header>
+
+        <div id="setupArea">
+            <div class="step-box" style="border-left-color: var(--ink);">
+                <span class="step-num">STEP 1</span>
+                <label>Confirm Your Topic:</label>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">Pick the mission you committed to. The dossier will update with your specific research clues.</p>
+                <select id="topicSelect" onchange="loadTopic()">
+                    <option value="">-- SELECT YOUR MISSION --</option>
+                    <option value="CIT-001">CIT-001: The Battery Scavenger</option>
+                    <option value="CIT-002">CIT-002: The Tap Audit</option>
+                    <option value="CIT-003">CIT-003: The Phantom Load</option>
+                    <option value="CIT-004">CIT-004: The Wardrobe Reset</option>
+                    <option value="CIT-005">CIT-005: The Data Diet</option>
+                    <option value="CIT-006">CIT-006: The Zero-Waste Audit</option>
+                    <option value="CIT-007">CIT-007: The Ink Trap</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="researchArea">
+            <div id="dynamicQuestions">
+            </div>
+
+            <div class="step-box">
+                <span class="step-num">STEP 3</span>
+                <label>The Source Trail</label>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">List where you found your info. We need real evidence, not just "I think so."</p>
+                
+                <div class="guidance-card" style="border-style: solid; border-width: 1px; margin-bottom: 20px;">
+                    <span class="pro-tip">Terminology Check:</span>
+                    <strong>NGO (Non-Governmental Organization):</strong> A non-profit group that operates independently of any government. They are often the best sources for environmental and social justice data (e.g. Greenpeace, EAC, etc.). Wikipedia is also a great starting point for finding these groups!
+                </div>
+
+                <div class="input-group">
+                    <label style="font-size: 0.7rem; color: #666;">Source #1 (URL or Title):</label>
+                    <input type="text" id="source1" oninput="saveSoon()" placeholder="e.g. Halifax Water Annual Report 2024">
+                </div>
+                <div class="input-group">
+                    <label style="font-size: 0.7rem; color: #666;">Source #2 (URL or Title):</label>
+                    <input type="text" id="source2" oninput="saveSoon()" placeholder="e.g. CBC News - Indigenous Water Crisis">
+                </div>
+            </div>
+
+            <button class="btn" style="background: var(--success);" onclick="downloadFinal()">Download for Classroom Submission</button>
+        </div>
+    </div>
+
+    <div class="sync-status">
+        <div id="syncDot" class="dot"></div>
+        <span id="syncText">Ready</span>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        const MISSION_ID = 'CIT9_RESEARCH_FRIDAY';
+
+        const STUDENTS = [
+            {name:'Farhan'}, {name:'Abdul'}, {name:'Joshua A'}, {name:'Clark'},
+            {name:'Madhavan'}, {name:'Remy'}, {name:'Yunho'}, {name:'Lachlan McM'},
+            {name:'Lachlan Mac'}, {name:'Nolan'}, {name:'Laila'}, {name:'Josie'},
+            {name:'Huda'}, {name:'Brody'}, {name:'Leo'}, {name:'Elizabeth'},
+            {name:'Fatima'}, {name:'Alia'}, {name:'Rifa'}, {name:'Sarah'},
+            {name:'Jessa'}, {name:'Delisha'}, {name:'Kendra'}, {name:'Zankia'},
+            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}
+        ];
+
+        const missionIntel = {
+            "CIT-001": {
+                name: "The Battery Scavenger",
+                clues: [
+                    { q: "What is 'Thermal Runaway'?", hint: "Search: 'lithium battery thermal runaway landfill fires'. Explain why a punctured battery is basically a fire-bomb.", tip: "Keywords: Chemical chain reaction, oxygen, heat." },
+                    { q: "The Cobalt Connection", hint: "Search: 'DRC cobalt mining conditions'. Where does our phone power come from? Why is this a human rights issue?", tip: "Check the percentage of global cobalt from DRC (it's high!)." },
+                    { q: "The NS Law (EPR)", hint: "Search: 'Extended Producer Responsibility Nova Scotia batteries'. Does the company have to take it back?", tip: "Check 'Call2Recycle' in HRM." },
+                    { q: "The Tax Debate", hint: "Argue for and against a 'Battery Tax'. Should we pay extra to fix the pollution?", tip: "Pro: Pays for cleanup. Con: Makes life more expensive." }
+                ]
+            },
+            "CIT-002": {
+                name: "The Tap Audit",
+                clues: [
+                    { q: "Where does your water come from?", hint: "Search: 'Halifax Water supply chain' or 'Pockwock Lake treatment'. How does it get to school?", tip: "Look for the name of the reservoir." },
+                    { q: "The 25-Year Wait", hint: "Search: 'Neskantaga boil water advisory'. Why have they been boiling water since 1995?", tip: "Look for 'systemic underfunding'." },
+                    { q: "The Markup", hint: "Check the price of 1L of HRM tap water vs. 1L of bottled water. Calculate the difference.", tip: "Tap water is usually fractions of a cent." },
+                    { q: "Human Right or Business?", hint: "Search: 'UN right to water' vs 'water privatization'. Should a company own the rain?", tip: "Mention the 'human right to sanitation'." }
+                ]
+            },
+            "CIT-003": {
+                name: "The Phantom Load",
+                clues: [
+                    { q: "The Vampire List", hint: "Search: 'highest phantom load appliances'. Which devices use power when 'off'?", tip: "Look for TVs, gaming consoles, and microwave clocks." },
+                    { q: "The NS Power Mix", hint: "Search: 'Nova Scotia energy sources 2024'. How much coal are we still burning?", tip: "Check the percentage of renewables vs fossil fuels." },
+                    { q: "The Monthly Cost", hint: "If a house has 10 'vampires', how much money is wasted every year?", tip: "Use NS Power's rate (about 16 cents per kWh)." },
+                    { q: "The Fix", hint: "Search: 'smart power strips' or 'energy efficiency rebates NS'. How do we stop the vampires?", tip: "Look for Efficiency Nova Scotia." }
+                ]
+            },
+            "CIT-004": {
+                name: "The Wardrobe Reset",
+                clues: [
+                    { q: "The Rana Plaza Story", hint: "Search: 'Rana Plaza collapse 2013'. What happened to the workers making Western clothes?", tip: "Look for 'supply chain transparency'." },
+                    { q: "The Thirsty T-Shirt", hint: "Search: 'water footprint of one cotton shirt'. How many bathtubs of water does it take?", tip: "It's usually around 2,700 Litres!" },
+                    { q: "The $5 Secret", hint: "How can a shirt cost $5 if cotton, shipping, and sewing all cost money?", tip: "Think about 'living wages' in countries like Bangladesh." },
+                    { q: "The Solution", hint: "Search: 'circular fashion' or 'clothing swap benefits'. How do we stop the waste?", tip: "Check out 'thrift culture' or 'capsule wardrobes'." }
+                ]
+            },
+            "CIT-005": {
+                name: "The Data Diet",
+                clues: [
+                    { q: "Shadow Profiles", hint: "Search: 'how Facebook tracks non-users'. How do they have a file on you if you don't have an account?", tip: "Look for 'tracking pixels'." },
+                    { q: "The Under-16 Ban", hint: "Search: 'Australia social media ban under 16' and 'Michael Geist illusion of protection'. Why does Geist think a ban won't actually work?", tip: "Look for 'digital ageism' vs 'root cause'." },
+                    { q: "The Echo Chamber", hint: "How do algorithms show you ONLY things you already agree with?", tip: "Think about how this divides people during elections." },
+                    { q: "Breaking Up Big Tech", hint: "Should Google or Meta be broken into smaller companies like the oil monopolies of the past?", tip: "Search 'antitrust laws Big Tech'." }
+                ]
+            },
+            "CIT-006": {
+                name: "The Zero-Waste Audit",
+                clues: [
+                    { q: "Where does the trash go?", hint: "Search: 'HRM Otter Lake landfill'. What happens to your garbage bag?", tip: "Look for 'Waste to Energy' or 'Cell construction'." },
+                    { q: "Waste Colonialism", hint: "Search: 'Canada garbage Philippines 2019'. Why did we ship our trash across the ocean?", tip: "Explain why shipping trash to poorer countries is unethical." },
+                    { q: "The 9% Reality", hint: "Search: 'why only 9 percent of plastic is recycled'. Why is the rest in the landfill?", tip: "Look for 'contamination' or 'plastic types'." },
+                    { q: "The Ban", hint: "Search: 'Canada single-use plastic ban'. Which items are gone? Which ones should be next?", tip: "Check for straws, bags, and cutlery." }
+                ]
+            },
+            "CIT-007": {
+                name: "The Ink Trap",
+                clues: [
+                    { q: "What is a 'Loss-Leader'?", hint: "Search: 'printer loss leader business model'. Why would a company sell a printer for $50 if it costs them $80 to build it?", tip: "Think about 'Razor and Blades' economics." },
+                    { q: "The HRM Cartridge Rule", hint: "Search: 'HRM printer cartridge recycling'. Can they go in the blue bag? What happens if you throw them in the trash?", tip: "Look for 'Staples' or 'Best Buy' drop-offs." },
+                    { q: "The Smart Chip Secret", hint: "Search: 'printer ink smart chip controversy'. Why do companies put chips on cartridges that disable the printer?", tip: "Look for 'HP Dynamic Security' or 'third-party ink blocking'." },
+                    { q: "The Refill Revolution", hint: "Search: 'environmental benefits of remanufactured cartridges'. How many times can a single plastic shell be refilled?", tip: "Remanufactured = Refilled and reused." }
+                ]
+            }
+        };
+
+        let saveTimer;
+
+        async function handleLogin() {
+            const name = document.getElementById('loginName').value;
+            const pin = document.getElementById('loginPin').value.toUpperCase();
+            if(!name || !pin) return;
+
+            const btn = document.querySelector('.login-card .btn');
+            btn.innerText = 'Checking PIN...';
+
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`);
+                const result = await res.json();
+                if(result.success) {
+                    localStorage.setItem('sl_friday_user', name);
+                    setupUser(name);
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Unlock Dossier';
+                }
+            } catch (e) {
+                alert("Connection error. Is the Webhook active?");
+                btn.innerText = 'Unlock Dossier';
+            }
+        }
+
+        function setupUser(name) {
+            document.getElementById('op-name').innerText = name.toUpperCase();
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.body.classList.add('logged-in');
+            retrieveFromCloud(name);
+        }
+
+        function loadTopic() {
+            const id = document.getElementById('topicSelect').value;
+            const container = document.getElementById('dynamicQuestions');
+            if(!id) {
+                container.innerHTML = '';
+                document.getElementById('op-mission').innerText = 'SELECTING...';
+                return;
+            }
+
+            const intel = missionIntel[id];
+            document.getElementById('op-mission').innerText = intel.name.toUpperCase();
+
+            let html = `<div class="step-box"><span class="step-num">STEP 2</span><label>The Intelligence Foundation</label><p style="font-size: 0.85rem; margin-bottom: 20px;">Research these 4 points. Write 3-4 sentences for each. Use the hints to find the right info.</p>`;
+            intel.clues.forEach((c, i) => {
+                html += `
+                    <div class="input-group" style="margin-bottom: 30px;">
+                        <label>${i+1}. ${c.q}</label>
+                        <div class="guidance-card">
+                            <span class="pro-tip">Intelligence Clue:</span>
+                            ${c.hint}
+                            <div style="margin-top:8px; font-weight:700; color:var(--ink);">Pro-Tip: ${c.tip}</div>
+                        </div>
+                        <textarea id="q_${i+1}" oninput="saveSoon()" placeholder="Enter your research findings here..."></textarea>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+            saveSoon();
+        }
+
+        function saveSoon() {
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            dot.className = 'dot syncing';
+            text.innerText = 'Typing...';
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(syncToCloud, 2000);
+        }
+
+        async function syncToCloud() {
+            const name = localStorage.getItem('sl_friday_user');
+            if(!name) return;
+
+            const data = {
+                topic: document.getElementById('topicSelect').value,
+                source1: document.getElementById('source1').value,
+                source2: document.getElementById('source2').value
+            };
+            for(let i=1; i<=4; i++) {
+                const el = document.getElementById('q_'+i);
+                if(el) data['q_'+i] = el.value;
+            }
+
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            text.innerText = '🛰️ Syncing to Cloud...';
+
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                        studentId: name,
+                        missionTitle: MISSION_ID,
+                        reflection: JSON.stringify(data),
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                dot.className = 'dot saved';
+                text.innerText = '✅ Work Saved';
+                localStorage.setItem(`sl_local_${name}`, JSON.stringify(data));
+            } catch (e) {
+                text.innerText = '⚠️ Local Save Only (Offline)';
+            }
+        }
+
+        async function retrieveFromCloud(name) {
+            const text = document.getElementById('syncText');
+            text.innerText = '🛰️ Retrieving your dossier...';
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?studentId=${encodeURIComponent(name)}&missionTitle=${encodeURIComponent(MISSION_ID)}`);
+                const result = await res.json();
+                if(result.content) {
+                    const data = JSON.parse(result.content);
+                    document.getElementById('topicSelect').value = data.topic || '';
+                    loadTopic();
+                    setTimeout(() => {
+                        document.getElementById('source1').value = data.source1 || '';
+                        document.getElementById('source2').value = data.source2 || '';
+                        for(let i=1; i<=4; i++) {
+                            const el = document.getElementById('q_'+i);
+                            if(el && data['q_'+i]) el.value = data['q_'+i];
+                        }
+                        text.innerText = '✅ Dossier Loaded';
+                    }, 500);
+                } else {
+                    text.innerText = 'Ready';
+                }
+            } catch (e) {
+                text.innerText = 'Ready (Offline)';
+            }
+        }
+
+        function downloadFinal() {
+            const name = localStorage.getItem('sl_friday_user') || 'ANON';
+            const mission = document.getElementById('op-mission').innerText;
+            const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `FridayResearch_${name}_${mission.replace(/ /g,'_')}.html`;
+            a.click();
+        }
+
+        window.onload = () => {
+            const select = document.getElementById('loginName');
+            STUDENTS.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = opt.textContent = s.name;
+                select.appendChild(opt);
+            });
+
+            const saved = localStorage.getItem('sl_friday_user');
+            if(saved) setupUser(saved);
+        };
+    </script>
+</body>
+</html>

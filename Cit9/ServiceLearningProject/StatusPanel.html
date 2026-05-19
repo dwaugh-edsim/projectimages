@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Learning Progress Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            width: 300px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #ddd;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .student-card.phase-2 {
+            border-left-color: #f59e0b;
+        }
+        
+        .student-card.phase-3 {
+            border-left-color: #10b981;
+        }
+        
+        .student-card.phase-4 {
+            border-left-color: #3b82f6;
+        }
+        
+        .student-card.phase-5 {
+            border-left-color: #8b5cf6;
+        }
+        
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .student-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .student-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-complete {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-pending {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+        
+        .mission-info {
+            margin-bottom: 15px;
+        }
+        
+        .mission-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        
+        .mission-id {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .progress-section {
+            margin-bottom: 15px;
+        }
+        
+        .progress-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        
+        .progress-content {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .last-updated {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            text-align: right;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #374151;
+        }
+        
+        @media (max-width: 768px) {
+            .students-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Service Learning Progress Dashboard</h1>
+            <p>Real-time monitoring of student engagement and mission completion</p>
+        </div>
+        
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number" id="totalStudents">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeStudents">0</div>
+                <div class="stat-label">Active Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="missionsStarted">0</div>
+                <div class="stat-label">Missions Started</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="Search students..." id="searchInput">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="complete">Complete</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+            </div>
+        </div>
+        
+        <div class="students-grid" id="studentsGrid">
+            <!-- Student cards will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample data based on the CSV - in a real scenario, you'd parse the actual CSV
+        const csvData = `StudentId,MissionTitle,ReflectionJSON,Timestamp
+Kendra,CIT9_RESEARCH_FRIDAY,"{""topic"":""CIT-001"",""source1"":"""",""source2"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:22:57.995Z
+MKS-11-STUDENT,CIT 9: Service Learning V2,"{""studentName"":"""",""missionSelect"":"""",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":""""}",2026-05-15T12:34:26.959Z
+Farhan,CIT 9: Service Learning V2,"{""studentName"":""Farhan"",""missionSelect"":""CIT-001"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:35:42.152Z
+Abdul,CIT 9: Service Learning V2,"{""studentName"":""Abdul"",""missionSelect"":""CIT-005"",""selectionWhy"":""it's good "",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:37:06.034Z
+Nolan,CIT 9: Service Learning V2,"{""studentName"":""Nolan"",""missionSelect"":""CIT-003"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:37:38.074Z
+Lachlan McM,CIT 9: Service Learning V2,"{""studentName"":""Lachlan McM"",""missionSelect"":""CIT-004"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:38:00.386Z
+Leo,CIT 9: Service Learning V2,"{""studentName"":""Leo"",""missionSelect"":""CIT-001"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:39:25.653Z
+Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":""CIT-005"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:40:05.516Z
+Sarah,CIT 9: Service Learning V2,"{""studentName"":""Sarah"",""missionSelect"":""CIT-005"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:41:09.377Z
+Rifa,CIT 9: Service Learning V2,"{""studentName"":""Rifa"",""missionSelect"":""CIT-001"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:41:15.343Z
+Laila,CIT 9: Service Learning V2,"{""studentName"":""Laila"",""missionSelect"":""CIT-002"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:41:18.642Z
+Yunho,CIT 9: Service Learning V2,"{""studentName"":""Yunho"",""missionSelect"":""CIT-003"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:41:21.787Z
+Lachlan Mac,CIT 9: Service Learning V2,"{""studentName"":""Lachlan Mac"",""missionSelect"":""CIT-004"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:42:27.328Z
+Remy,CIT 9: Service Learning V2,"{""studentName"":""Remy"",""missionSelect"":""CIT-002"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:42:44.923Z
+Zankia,CIT 9: Service Learning V2,"{""studentName"":""Zankia"",""missionSelect"":""CIT-001"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:44:29.724Z
+Elizabeth,CIT 9: Service Learning V2,"{""studentName"":""Elizabeth"",""missionSelect"":""CIT-002"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:44:33.906Z
+Alia,CIT 9: Service Learning V2,"{""studentName"":""Alia"",""missionSelect"":""CIT-002"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:44:33.932Z
+Josie,CIT 9: Service Learning V2,"{""studentName"":""Josie"",""missionSelect"":""CIT-002"",""selectionWhy"":"""",""personalRole"":"""",""busyWorkCritique"":"""",""deliverableMod"":"""",""betterIdea"":"""",""q_1"":"""",""q_2"":"""",""q_3"":"""",""q_4"":""""}",2026-05-15T12:45:25.608Z`;
+
+        // Parse CSV data
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            const results = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index] || '';
+                });
+                results.push(obj);
+            }
+            return results;
+        }
+
+        // Helper function to parse CSV lines with quotes
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"' && !inQuotes) {
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes) {
+                    inQuotes = false;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        // Parse the reflection JSON safely
+        function parseReflection(reflectionStr) {
+            try {
+                return JSON.parse(reflectionStr);
+            } catch (e) {
+                console.warn('Failed to parse reflection:', reflectionStr);
+                return {};
+            }
+        }
+
+        // Format date nicely
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString();
+        }
+
+        // Get mission name from ID
+        function getMissionName(missionId) {
+            const missions = {
+                'CIT-001': 'The Battery Scavenger',
+                'CIT-002': 'The Tap Audit',
+                'CIT-003': 'The Phantom Load',
+                'CIT-004': 'The Wardrobe Reset',
+                'CIT-005': 'The Data Diet',
+                'CIT-006': 'The Zero-Waste Audit',
+                'CIT-007': 'The Ink Trap'
+            };
+            return missions[missionId] || missionId;
+        }
+
+        // Calculate progress based on reflection data
+        function calculateProgress(reflection) {
+            const keys = Object.keys(reflection);
+            if (keys.includes('topic') && reflection.topic) return 'Research Started';
+            if (reflection.missionSelect) {
+                if (reflection.selectionWhy) return 'Phase 2: Committed';
+                return 'Phase 1: Selected Mission';
+            }
+            return 'Pending';
+        }
+
+        // Render student cards
+        function renderStudents(students, filter = 'all') {
+            const grid = document.getElementById('studentsGrid');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredStudents = students.filter(student => {
+                const nameMatch = student.StudentId.toLowerCase().includes(searchQuery);
+                const missionMatch = getMissionName(student.missionSelect).toLowerCase().includes(searchQuery);
+                return nameMatch || missionMatch;
+            });
+            
+            if (filter !== 'all') {
+                filteredStudents = filteredStudents.filter(student => {
+                    const progress = calculateProgress(student.parsedReflection);
+                    if (filter === 'active') return progress !== 'Pending';
+                    if (filter === 'complete') return progress.includes('Complete');
+                    if (filter === 'pending') return progress === 'Pending';
+                    return true;
+                });
+            }
+            
+            grid.innerHTML = '';
+            
+            if (filteredStudents.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No students found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                const reflection = student.parsedReflection;
+                const progress = calculateProgress(reflection);
+                const missionId = reflection.missionSelect || (reflection.topic ? reflection.topic : '');
+                const missionName = missionId ? getMissionName(missionId) : 'No Mission Selected';
+                
+                let cardClass = 'student-card';
+                if (progress.includes('Phase 2')) cardClass += ' phase-2';
+                else if (progress.includes('Phase 3')) cardClass += ' phase-3';
+                else if (progress.includes('Phase 4')) cardClass += ' phase-4';
+                else if (progress.includes('Phase 5')) cardClass += ' phase-5';
+                
+                let statusClass = 'status-pending';
+                let statusText = 'Pending';
+                if (progress !== 'Pending') {
+                    statusClass = 'status-active';
+                    statusText = progress;
+                }
+                
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="student-header">
+                        <div class="student-name">${student.StudentId}</div>
+                        <div class="student-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="mission-info">
+                        <div class="mission-title">${missionName}</div>
+                        <div class="mission-id">${missionId || 'No Mission'}</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-title">Selection Reason</div>
+                        <div class="progress-content">${reflection.selectionWhy ? reflection.selectionWhy.substring(0, 100) + '...' : 'Not provided'}</div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-title">Personal Role</div>
+                        <div class="progress-content">${reflection.personalRole || 'Not specified'}</div>
+                    </div>
+                    <div class="last-updated">Last updated: ${formatDate(student.Timestamp)}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+            
+            updateStats(filteredStudents);
+        }
+
+        // Update statistics
+        function updateStats(students) {
+            const total = students.length;
+            const active = students.filter(s => calculateProgress(s.parsedReflection) !== 'Pending').length;
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('activeStudents').textContent = active;
+            document.getElementById('missionsStarted').textContent = students.filter(s => s.parsedReflection.missionSelect).length;
+            document.getElementById('completedTasks').textContent = students.filter(s => s.parsedReflection.q_1).length;
+        }
+
+        // Initialize the dashboard
+        function initDashboard() {
+            const data = parseCSV(csvData);
+            const processedData = data.map(row => ({
+                ...row,
+                parsedReflection: parseReflection(row.ReflectionJSON)
+            }));
+            
+            // Filter out MKS-11-STUDENT which seems to be a test entry
+            const filteredData = processedData.filter(row => row.StudentId !== 'MKS-11-STUDENT');
+            
+            renderStudents(filteredData);
+            
+            // Setup event listeners
+            document.getElementById('searchInput').addEventListener('input', () => {
+                const filter = document.querySelector('.filter-btn.active').dataset.filter;
+                renderStudents(filteredData, filter);
+            });
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderStudents(filteredData, btn.dataset.filter);
+                });
+            });
+        }
+
+        // Start when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
