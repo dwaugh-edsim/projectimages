@@ -87,6 +87,22 @@
             gap: 15px;
         }
         
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
         .search-box {
             padding: 10px 15px;
             border: 2px solid #ddd;
@@ -311,6 +327,7 @@
                 <button class="filter-btn" data-filter="active">Active</button>
                 <button class="filter-btn" data-filter="complete">Complete</button>
                 <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
             </div>
         </div>
         
@@ -388,6 +405,32 @@ Josie,CIT 9: Service Learning V2,"{""studentName"":""Josie"",""missionSelect"":"
                 return JSON.parse(reflectionStr);
             } catch (e) {
                 console.warn('Failed to parse reflection:', reflectionStr);
+                // Handle the case where reflectionStr is not valid JSON but contains object notation
+                if (reflectionStr && typeof reflectionStr === 'string') {
+                    // Try to convert object notation to valid JSON
+                    let jsonString = reflectionStr
+                        .replace(/{([^}]*)}/g, function(match, content) {
+                            return '{' + content.replace(/(\w+):/g, '"$1":').replace(/'/g, '"') + '}';
+                        })
+                        .replace(/'/g, '"')
+                        .replace(/,([^}]*)}/g, function(match, content) {
+                            let cleaned = content.replace(/,\s*}/g, '}');
+                            return ',' + cleaned + '}';
+                        })
+                        .replace(/(:\s*)([^,{}\[\]"']+)/g, function(match, colonSpace, value) {
+                            if (value === 'undefined' || value === 'null') {
+                                return colonSpace + '""';
+                            }
+                            return colonSpace + '"' + value.replace(/"/g, '') + '"';
+                        });
+                    
+                    try {
+                        return JSON.parse(jsonString);
+                    } catch (e2) {
+                        console.warn('Also failed to parse converted reflection:', jsonString);
+                        return {};
+                    }
+                }
                 return {};
             }
         }
@@ -429,8 +472,9 @@ Josie,CIT 9: Service Learning V2,"{""studentName"":""Josie"",""missionSelect"":"
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredStudents = students.filter(student => {
-                const nameMatch = student.StudentId.toLowerCase().includes(searchQuery);
-                const missionMatch = getMissionName(student.missionSelect).toLowerCase().includes(searchQuery);
+                const nameMatch = student.StudentId && student.StudentId.toLowerCase().includes(searchQuery);
+                const missionName = getMissionName(student.missionSelect || '');
+                const missionMatch = missionName && missionName.toLowerCase().includes(searchQuery);
                 return nameMatch || missionMatch;
             });
             
@@ -479,7 +523,7 @@ Josie,CIT 9: Service Learning V2,"{""studentName"":""Josie"",""missionSelect"":"
                 card.className = cardClass;
                 card.innerHTML = `
                     <div class="student-header">
-                        <div class="student-name">${student.StudentId}</div>
+                        <div class="student-name">${student.StudentId || ''}</div>
                         <div class="student-status ${statusClass}">${statusText}</div>
                     </div>
                     <div class="mission-info">
@@ -543,6 +587,17 @@ Josie,CIT 9: Service Learning V2,"{""studentName"":""Josie"",""missionSelect"":"
 
         // Start when page loads
         document.addEventListener('DOMContentLoaded', initDashboard);
+        
+        function handleLogout() {
+            if (confirm('Are you sure you want to log out? This will clear your session data.')) {
+                // Clear all relevant local storage items
+                localStorage.removeItem('sl_friday_user');
+                localStorage.removeItem('sl_v2_missionSelect');
+                localStorage.removeItem('sl_v2_loggedInUser');
+                // Reload the page to clear any cached data
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>
