@@ -6,9 +6,13 @@ function doGet(e) {
     if (action === 'debug') {
       const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
       const rows = sheet.getDataRange().getValues();
-      const preview = rows.slice(0, 5); // First 5 rows
-      return ContentService.createTextOutput(JSON.stringify({ headers: rows[0], firstRows: preview }))
-        .setMimeType(ContentService.MimeType.JSON);
+      const allStudents = rows.slice(1).map(r => r[2]); // All values in student col
+      return ContentService.createTextOutput(JSON.stringify({ 
+        headers: rows[0], 
+        rowCount: rows.length - 1,
+        allStudents: allStudents,
+        firstRows: rows.slice(0, 6) 
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     const student = e.parameter.student;
