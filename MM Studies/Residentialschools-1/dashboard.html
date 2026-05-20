@@ -416,59 +416,61 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 40px;
-            background: rgba(255, 179, 0, 0.05);
-            border-bottom: 2px solid var(--accent);
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.12);
-            gap: 15px;
+            padding: 16px 40px;
+            background: #000000;
+            border-bottom: 3px solid #ffb300;
+            box-shadow: 0 4px 20px rgba(255, 179, 0, 0.2);
+            gap: 20px;
             z-index: 100;
         }
 
         .announcement-tag {
             font-family: var(--lcd-font);
-            font-size: 0.85rem;
+            font-size: 1.1rem;
             font-weight: 900;
-            color: #000;
-            background: var(--accent);
-            padding: 3px 10px;
-            border-radius: 2px;
-            letter-spacing: 1px;
+            color: #000000;
+            background: #ffb300;
+            padding: 6px 14px;
+            border-radius: 3px;
+            letter-spacing: 1.5px;
             flex-shrink: 0;
-            box-shadow: 0 0 10px var(--accent-glow);
+            box-shadow: 0 0 12px rgba(255, 179, 0, 0.4);
             text-transform: uppercase;
         }
 
         .announcement-text {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
             color: #ffb300; /* Vibrant amber/gold */
             font-family: var(--cyber-font);
             cursor: pointer;
-            text-shadow: 0 0 10px rgba(255, 179, 0, 0.15);
+            text-shadow: 0 0 8px rgba(255, 179, 0, 0.2);
             flex-grow: 1;
             text-align: left;
-            line-height: 1.35;
+            line-height: 1.4;
         }
 
         .announcement-edit {
-            font-size: 0.7rem;
-            color: var(--text-dim);
+            font-size: 0.9rem;
+            color: #ffb300;
             font-family: var(--mono-font);
+            font-weight: bold;
             cursor: pointer;
-            border: 1px solid var(--border);
-            padding: 2px 8px;
-            border-radius: 3px;
-            background: rgba(0,0,0,0.3);
+            border: 2px solid #ffb300;
+            padding: 4px 12px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
             transition: all 0.3s;
             flex-shrink: 0;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .announcement-edit:hover {
-            color: #fff;
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
         .activity-header {
@@ -605,6 +607,11 @@
         <div class="stats-left">
             <button class="btn-selector active" onclick="switchBlock('A Block (Waugh)')">BLOCK A</button>
             <button class="btn-selector" onclick="switchBlock('C Block (Waugh)')">BLOCK C</button>
+            <span style="color: var(--text-dim); margin-left: 15px; margin-right: 5px; font-weight: bold; font-family: var(--mono-font); font-size: 0.8rem;">SIM:</span>
+            <select id="sim-selector" class="btn-selector" onchange="switchSimulation(this.value)" style="color: var(--accent); border-color: var(--accent); background: rgba(0,0,0,0.5); cursor: pointer; padding-right: 5px;">
+                <option value="IRSSA Settlement Dossier">IRSSA DOSSIER</option>
+                <option value="Nora Bernard & Shubenacadie Legacy Project">LEGACY PROJECT</option>
+            </select>
         </div>
         
         <div class="stats-mid">
@@ -727,15 +734,32 @@
             {"B":"C Block (Waugh)","S":"ZAYDEN (ABCD)"}
         ];
 
-        const SLIDE_KEYS = ["slide_1", "slide_2", "slide_3", "slide_4", "slide_5", "slide_6"];
-        const SLIDE_NAMES = {
-            "slide_1": "Briefing",
-            "slide_2": "5 Pillars",
-            "slide_3": "Map",
-            "slide_4": "Sugar Falls",
-            "slide_5": "Beyond 94",
-            "slide_6": "Verdict"
+        const SIMULATIONS = {
+            "IRSSA Settlement Dossier": {
+                keys: ["slide_1", "slide_2", "slide_3", "slide_4", "slide_5", "slide_6"],
+                names: {
+                    "slide_1": "Briefing",
+                    "slide_2": "5 Pillars",
+                    "slide_3": "Map",
+                    "slide_4": "Sugar Falls",
+                    "slide_5": "Beyond 94",
+                    "slide_6": "Verdict"
+                }
+            },
+            "Nora Bernard & Shubenacadie Legacy Project": {
+                keys: ["slide_1", "slide_2", "slide_3", "slide_4", "slide_5", "slide_6"],
+                names: {
+                    "slide_1": "Briefing",
+                    "slide_2": "Deprivation",
+                    "slide_3": "Nora's Lawsuit",
+                    "slide_4": "Rita's Poem",
+                    "slide_5": "Inquiry Path",
+                    "slide_6": "Submission"
+                }
+            }
         };
+
+        let activeSimulation = "IRSSA Settlement Dossier";
 
         let activeBlock = "A Block (Waugh)";
         let telemetryData = {};
@@ -768,6 +792,34 @@
                 document.getElementById('daily-instructions-text').innerText = newInstructions.trim();
                 localStorage.setItem('dashboard_instructions', newInstructions.trim());
             }
+        }
+
+        function switchSimulation(simName) {
+            activeSimulation = simName;
+            seenTimestamps.clear(); // Reset feed deduplication
+            
+            // Set dynamic title in dashboard header
+            let shortTitle = "IRSSA DOSSIER";
+            if (simName === "Nora Bernard & Shubenacadie Legacy Project") {
+                shortTitle = "LEGACY PROJECT";
+            }
+            document.querySelector('.hud-title').innerText = `${shortTitle} // TELEMETRY`;
+            
+            document.getElementById('live-feed-container').innerHTML = `
+                <div class="feed-item">
+                    Switched telemetry source to ${simName}. Initializing stream...
+                    <span class="feed-time">SYSTEM</span>
+                </div>
+            `;
+            
+            // Clear student grid visual state while loading
+            document.getElementById('student-grid-container').innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; color: var(--text-dim); padding: 40px; font-family: var(--lcd-font);">
+                    LOADING NEW SIMULATION METRICS...
+                </div>
+            `;
+            
+            fetchTelemetry();
         }
 
         // Live Clock
@@ -833,7 +885,7 @@
         async function fetchTelemetry() {
             const alertHud = document.getElementById('hud-sync-alert');
             try {
-                const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent("IRSSA Settlement Dossier")}`);
+                const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent(activeSimulation)}`);
                 const data = await res.json();
                 
                 if (data.progress) {
@@ -856,6 +908,8 @@
         function processLiveEvents() {
             const container = document.getElementById('live-feed-container');
             const events = [];
+            const activeKeys = SIMULATIONS[activeSimulation].keys;
+            const activeNames = SIMULATIONS[activeSimulation].names;
 
             // Look through all telemetry and capture timestamps we haven't logged yet
             Object.keys(telemetryData).forEach(studentKey => {
@@ -873,10 +927,10 @@
                     let lastActiveSlide = "";
                     try {
                         const responses = JSON.parse(rawData.rationales);
-                        SLIDE_KEYS.forEach(key => {
+                        activeKeys.forEach(key => {
                             if (responses[key] && responses[key].trim().length > 0) {
                                 slidesDone++;
-                                lastActiveSlide = SLIDE_NAMES[key];
+                                lastActiveSlide = activeNames[key];
                             }
                         });
                     } catch (e) {}
@@ -890,7 +944,7 @@
                         logText = `<span class="feed-highlight">${displayName}</span> restored their dashboard from recovery backups.`;
                         logClass = "save";
                     } else if (slidesDone === 6) {
-                        logText = `<span class="feed-highlight">${displayName}</span> completed the simulation! <span class="feed-status-done">[FINAL VERDICT COMMITTED]</span>`;
+                        logText = `<span class="feed-highlight">${displayName}</span> completed the simulation! <span class="feed-status-done">[FINAL WORK COMMITTED]</span>`;
                         logClass = "complete";
                     } else if (lastActiveSlide) {
                         logText = `<span class="feed-highlight">${displayName}</span> committed slide <span class="feed-slide">${lastActiveSlide}</span> to the system record.`;
@@ -909,7 +963,7 @@
             // Prepend new events to feed
             if (events.length > 0) {
                 // Remove initial waiting message if present
-                if (container.innerText.includes("Waiting for telemetry")) {
+                if (container.innerText.includes("Waiting for telemetry") || container.innerText.includes("Switched telemetry source")) {
                     container.innerHTML = "";
                 }
 
@@ -940,6 +994,9 @@
             let fullyCompletedCount = 0;
             let totalSlidesCompleted = 0;
 
+            const activeKeys = SIMULATIONS[activeSimulation].keys;
+            const activeNames = SIMULATIONS[activeSimulation].names;
+
             activeStudents.forEach(student => {
                 const sheetKey = student.S; // Format: "Name (PIN)"
                 const displayName = student.S.split(' (')[0];
@@ -957,7 +1014,7 @@
                     // Parse responses
                     try {
                         const responses = JSON.parse(rawData.rationales);
-                        SLIDE_KEYS.forEach(key => {
+                        activeKeys.forEach(key => {
                             if (responses[key] && responses[key].trim().length > 0) {
                                 slides[key] = "completed";
                                 slidesDone++;
@@ -978,7 +1035,7 @@
                     }
                 } else {
                     // No data in sheet
-                    SLIDE_KEYS.forEach(key => {
+                    activeKeys.forEach(key => {
                         slides[key] = "pending";
                     });
                 }
@@ -989,7 +1046,7 @@
                 
                 // Visual segments HTML
                 let segmentsHtml = "";
-                SLIDE_KEYS.forEach((key, index) => {
+                activeKeys.forEach((key, index) => {
                     let stepClass = "";
                     if (slides[key] === "completed") {
                         stepClass = "completed";
@@ -999,7 +1056,7 @@
                     
                     segmentsHtml += `
                         <div class="segment ${stepClass}">
-                            <span class="tooltip">${SLIDE_NAMES[key]} (${slides[key] === 'completed' ? 'Done' : 'Pending'})</span>
+                            <span class="tooltip">${activeNames[key]} (${slides[key] === 'completed' ? 'Done' : 'Pending'})</span>
                         </div>
                     `;
                 });
