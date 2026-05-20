@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRSSA SIMULATION TELEMETRY DASHBOARD</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #050506;
+            --card-bg: rgba(12, 12, 16, 0.95);
+            --border: #22222a;
+            --accent: #FFD700;
+            --accent-glow: rgba(255, 215, 0, 0.25);
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.2);
+            --inactive: #55555e;
+            --text-main: #f0f0f5;
+            --text-dim: #8a8a9e;
+            --cyber-font: 'Rajdhani', sans-serif;
+            --mono-font: 'Courier Prime', monospace;
+            --lcd-font: 'Orbitron', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--cyber-font);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.07) 0%, transparent 70%),
+                linear-gradient(rgba(18, 18, 24, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 18, 24, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        /* Top HUD / Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(8, 8, 10, 0.9);
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .hud-title-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hud-system-status {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.4; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px var(--accent); }
+            100% { transform: scale(0.9); opacity: 0.4; }
+        }
+
+        .hud-title {
+            font-family: var(--lcd-font);
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin-top: 4px;
+        }
+
+        /* LCD Clock and Reload Ring */
+        .hud-stats-control {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .clock-display {
+            font-family: var(--lcd-font);
+            font-size: 1.6rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 5px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .reload-timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .progress-ring {
+            width: 32px;
+            height: 32px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            stroke-dasharray: 88;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear;
+            stroke: var(--accent);
+            stroke-width: 3px;
+            fill: transparent;
+        }
+
+        .progress-ring__bg {
+            stroke: var(--border);
+            stroke-width: 3px;
+            fill: transparent;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(10, 10, 14, 0.6);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .block-selectors {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-selector {
+            background: rgba(20, 20, 25, 0.8);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 12px 30px;
+            font-family: var(--lcd-font);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .btn-selector:hover {
+            color: #fff;
+            border-color: var(--text-dim);
+        }
+
+        .btn-selector.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+            font-weight: 900;
+        }
+
+        .sync-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            font-family: var(--cyber-font);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* KPI Dashboard cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 25px 40px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .kpi-card.success::before {
+            background: var(--success);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 1.5px;
+            font-family: var(--mono-font);
+        }
+
+        .kpi-value {
+            font-family: var(--lcd-font);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        .kpi-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        /* Global Progress Bar */
+        .class-progress-bar-container {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+            transition: width 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        /* Classroom Dashboard Grid */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            padding: 0 40px 40px 40px;
+            flex: 1;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        /* Student Card styling */
+        .student-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .student-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .student-card.completed {
+            border-color: var(--success);
+        }
+
+        .student-card.completed:hover {
+            box-shadow: 0 0 20px var(--success-glow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .student-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            font-family: var(--mono-font);
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .status-badge.inactive {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+
+        .status-badge.saving {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            animation: text-pulse 1s infinite alternate;
+        }
+
+        .status-badge.done {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+            box-shadow: 0 0 8px var(--success-glow);
+        }
+
+        @keyframes text-pulse {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+
+        /* Telemetry Timeline Indicators */
+        .timeline-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 10px 5px;
+            margin-top: 5px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #222;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .timeline-line-fill {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            transform: translateY(-50%);
+            z-index: 2;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .timeline-step {
+            width: 24px;
+            height: 24px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            font-family: var(--mono-font);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            transition: all 0.4s ease;
+            position: relative;
+            cursor: help;
+        }
+
+        .timeline-step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: #000;
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+
+        .timeline-step.completed::after {
+            content: '✓';
+            font-size: 0.7rem;
+            font-weight: 900;
+        }
+
+        .timeline-step.working {
+            background: #2a2205;
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: ring-pulse 1.5s infinite;
+        }
+
+        @keyframes ring-pulse {
+            0% { border-color: var(--accent); }
+            50% { border-color: #fff; box-shadow: 0 0 14px var(--accent); }
+            100% { border-color: var(--accent); }
+        }
+
+        /* Hover tooltip for slide name */
+        .timeline-step .tooltip {
+            visibility: hidden;
+            background-color: #121217;
+            color: #fff;
+            text-align: center;
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.65rem;
+            white-space: nowrap;
+            font-family: var(--mono-font);
+        }
+
+        .timeline-step:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 12px;
+            margin-top: 5px;
+        }
+
+        .card-footer-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Live Activity Log Panel */
+        .activity-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: calc(100vh - 290px);
+            position: sticky;
+            top: 20px;
+        }
+
+        .activity-header {
+            font-family: var(--lcd-font);
+            font-size: 1rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+        }
+
+        /* Scrollbar styles */
+        .feed-container::-webkit-scrollbar,
+        #student-list-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .feed-container::-webkit-scrollbar-thumb,
+        #student-list-container::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 2px;
+        }
+
+        .feed-container::-webkit-scrollbar-track,
+        #student-list-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .feed-item {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            line-height: 1.35;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 2px solid var(--border);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feed-item.save {
+            border-left-color: var(--accent);
+        }
+
+        .feed-item.complete {
+            border-left-color: var(--success);
+            background: rgba(0, 230, 118, 0.02);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(15px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .feed-time {
+            color: var(--text-dim);
+            font-size: 0.65rem;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .feed-highlight {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .feed-slide {
+            color: var(--accent);
+        }
+
+        .feed-status-done {
+            color: var(--success);
+        }
+
+        /* Offline HUD Alert */
+        #hud-sync-alert {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: #ff1744;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 0 0 10px rgba(255, 23, 68, 0.4);
+            animation: text-pulse 1s infinite alternate;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUD Header -->
+    <header>
+        <div class="hud-title-area">
+            <div class="hud-system-status">
+                <span class="pulse-dot"></span>
+                Simulation Feed Active
+                <span id="hud-sync-alert">// DISCONNECTED FROM SHEET</span>
+            </div>
+            <div class="hud-title">IRSSA SETTLEMENT DOSSIER // TELEMETRY</div>
+        </div>
+        <div class="hud-stats-control">
+            <div class="clock-display" id="hud-clock">00:00:00 AM</div>
+            <div class="reload-timer-container">
+                <span>SYNCING IN</span>
+                <svg class="progress-ring">
+                    <circle class="progress-ring__bg" cx="16" cy="16" r="14"></circle>
+                    <circle class="progress-ring__circle" id="reload-ring" cx="16" cy="16" r="14"></circle>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- Block Controls Panel -->
+    <section class="controls-panel">
+        <div class="block-selectors">
+            <button class="btn-selector active" onclick="switchBlock('A Block (Waugh)')">BLOCK A</button>
+            <button class="btn-selector" onclick="switchBlock('C Block (Waugh)')">BLOCK C</button>
+        </div>
+        <div>
+            <button class="sync-btn" onclick="fetchTelemetry()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                Force telemetry sync
+            </button>
+        </div>
+    </section>
+
+    <!-- KPI Overview Cards -->
+    <section class="kpi-row">
+        <div class="kpi-card">
+            <span class="kpi-label">Active Connection</span>
+            <span class="kpi-value" id="kpi-block-name">BLOCK A</span>
+            <span class="kpi-desc">MIKMAW11 Classroom Feed</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Active Students</span>
+            <span class="kpi-value" id="kpi-active-count">0 / 24</span>
+            <span class="kpi-desc">Students logged in & saving</span>
+        </div>
+        <div class="kpi-card class-progress-bar-container">
+            <div style="display: flex; justify-content: space-between;">
+                <span class="kpi-label">Simulation Progress</span>
+                <span class="kpi-label" id="kpi-completion-percent" style="color: var(--success); font-weight: bold;">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="class-progress-bar"></div>
+            </div>
+        </div>
+        <div class="kpi-card success">
+            <span class="kpi-label">Fully Completed</span>
+            <span class="kpi-value" id="kpi-completed-count">0</span>
+            <span class="kpi-desc">Finished all 6 settlement slides</span>
+        </div>
+    </section>
+
+    <!-- Telemetry Core Grid and Live Feeds -->
+    <main class="main-container">
+        <!-- Grid of students -->
+        <section class="student-grid" id="student-grid-container">
+            <!-- Dynamically populated -->
+        </section>
+
+        <!-- Live Activity ticker panel -->
+        <aside class="activity-panel">
+            <div class="activity-header">
+                <span>Simulation Events</span>
+                <span style="font-family: var(--mono-font); font-size: 0.65rem; color: var(--text-dim);">Real-time</span>
+            </div>
+            <div class="feed-container" id="live-feed-container">
+                <div class="feed-item">
+                    Waiting for telemetry streams...
+                    <span class="feed-time">System ready</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Dashboard Scripts -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+        
+        // Load the static student list as fallback, mirroring irssa_assignment.html
+        const STUDENTS = [
+            {"B":"A Block (Waugh)","S":"Alexis (ABCD)"},
+            {"B":"A Block (Waugh)","S":"ANANYA M. (OKOK)"},
+            {"B":"A Block (Waugh)","S":"CALLUM (LLLL)"},
+            {"B":"A Block (Waugh)","S":"CONNOR (ABCD)"},
+            {"B":"A Block (Waugh)","S":"COVA (KIKI)"},
+            {"B":"A Block (Waugh)","S":"DAVE (ABBA)"},
+            {"B":"A Block (Waugh)","S":"Dmytro (BIBA)"},
+            {"B":"A Block (Waugh)","S":"ELLEE (ABCD)"},
+            {"B":"A Block (Waugh)","S":"Gala (NIVA)"},
+            {"B":"A Block (Waugh)","S":"GAVIN (AAAA)"},
+            {"B":"A Block (Waugh)","S":"HARRISON (YNPH)"},
+            {"B":"A Block (Waugh)","S":"JESSE (LOUP)"},
+            {"B":"A Block (Waugh)","S":"Jon (DUDE)"},
+            {"B":"A Block (Waugh)","S":"Julianne (WASH)"},
+            {"B":"A Block (Waugh)","S":"Kevin (CHIG)"},
+            {"B":"A Block (Waugh)","S":"Lena (FOOD)"},
+            {"B":"A Block (Waugh)","S":"MAE (BALL)"},
+            {"B":"A Block (Waugh)","S":"MATEO (YOLO)"},
+            {"B":"A Block (Waugh)","S":"Michael (ABCD)"},
+            {"B":"A Block (Waugh)","S":"MRWAUGH (XOXO)"},
+            {"B":"A Block (Waugh)","S":"rose (ROSE)"},
+            {"B":"A Block (Waugh)","S":"Ruby (NECK)"},
+            {"B":"A Block (Waugh)","S":"Sonja (ROSE)"},
+            {"B":"A Block (Waugh)","S":"Sophie (QASW)"},
+            {"B":"C Block (Waugh)","S":"Abdel (AAAW)"},
+            {"B":"C Block (Waugh)","S":"Abigail (ABIS)"},
+            {"B":"C Block (Waugh)","S":"AIDEN (KING)"},
+            {"B":"C Block (Waugh)","S":"Anthony (K00l)"},
+            {"B":"C Block (Waugh)","S":"BAASHIQ (NINE)"},
+            {"B":"C Block (Waugh)","S":"Caitlyn (ABCD)"},
+            {"B":"C Block (Waugh)","S":"Caleb (BALL)"},
+            {"B":"C Block (Waugh)","S":"CHRISTOPHER (CHIP)"},
+            {"B":"C Block (Waugh)","S":"Clara Jones (CLAR)"},
+            {"B":"C Block (Waugh)","S":"DAVE (ABBA)"},
+            {"B":"C Block (Waugh)","S":"HARJAS (COLD)"},
+            {"B":"C Block (Waugh)","S":"Isaac (ISLE)"},
+            {"B":"C Block (Waugh)","S":"Isabella Beck (BELL)"},
+            {"B":"C Block (Waugh)","S":"Jaiveer (WASD)"},
+            {"B":"C Block (Waugh)","S":"Kaden (CHUD)"},
+            {"B":"C Block (Waugh)","S":"KOEN (LORI)"},
+            {"B":"C Block (Waugh)","S":"Kulay cruz (CRUZ)"},
+            {"B":"C Block (Waugh)","S":"Kyle Parsons (PUCK)"},
+            {"B":"C Block (Waugh)","S":"Kyra (ABCD)"},
+            {"B":"C Block (Waugh)","S":"Madina Mirza (INNA)"},
+            {"B":"C Block (Waugh)","S":"myles (QWER)"},
+            {"B":"C Block (Waugh)","S":"Noah Pinter (NOAH)"},
+            {"B":"C Block (Waugh)","S":"Raida (QAZK)"},
+            {"B":"C Block (Waugh)","S":"Reiley (NOAH)"},
+            {"B":"C Block (Waugh)","S":"River Thomas (DEWO)"},
+            {"B":"C Block (Waugh)","S":"Sam (QWER)"},
+            {"B":"C Block (Waugh)","S":"Soulin Shehab (SOUL)"},
+            {"B":"C Block (Waugh)","S":"Sukhbir (NICE)"},
+            {"B":"C Block (Waugh)","S":"Zaid (ZAID)"},
+            {"B":"C Block (Waugh)","S":"ZAYDEN (ABCD)"}
+        ];
+
+        const SLIDE_KEYS = ["slide_1", "slide_2", "slide_3", "slide_4", "slide_5", "slide_6"];
+        const SLIDE_NAMES = {
+            "slide_1": "Briefing",
+            "slide_2": "5 Pillars",
+            "slide_3": "Map",
+            "slide_4": "Sugar Falls",
+            "slide_5": "Beyond 94",
+            "slide_6": "Verdict"
+        };
+
+        let activeBlock = "A Block (Waugh)";
+        let telemetryData = {};
+        let refreshSeconds = 15;
+        let countdownTimer = refreshSeconds;
+        let clockInterval, countdownInterval;
+        let seenTimestamps = new Set(); // For feed duplicate tracking
+
+        // Initial setup
+        document.addEventListener("DOMContentLoaded", () => {
+            startClock();
+            startCountdown();
+            switchBlock(activeBlock);
+            fetchTelemetry();
+        });
+
+        // Live Clock
+        function startClock() {
+            const updateClock = () => {
+                const now = new Date();
+                let hrs = now.getHours();
+                let mins = now.getMinutes();
+                let secs = now.getSeconds();
+                let ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12;
+                hrs = hrs ? hrs : 12; // 0 should be 12
+                mins = mins < 10 ? '0' + mins : mins;
+                secs = secs < 10 ? '0' + secs : secs;
+                document.getElementById('hud-clock').innerText = `${hrs}:${mins}:${secs} ${ampm}`;
+            };
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        }
+
+        // Circular Reload Countdown Ring
+        function startCountdown() {
+            const ring = document.getElementById('reload-ring');
+            const circumference = 2 * Math.PI * 14; // r=14 -> ~88px
+            ring.style.strokeDasharray = circumference;
+            
+            const tick = () => {
+                countdownTimer -= 1;
+                
+                // Calculate dash offset representing percentage left
+                const percentLeft = countdownTimer / refreshSeconds;
+                const offset = circumference * (1 - percentLeft);
+                ring.style.strokeDashoffset = offset;
+
+                if (countdownTimer <= 0) {
+                    countdownTimer = refreshSeconds;
+                    fetchTelemetry();
+                }
+            };
+            
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+        // Switch active block display
+        function switchBlock(block) {
+            activeBlock = block;
+            document.getElementById('kpi-block-name').innerText = block.split(' (')[0].toUpperCase();
+            
+            // Toggle selector buttons active class
+            const btns = document.querySelectorAll('.btn-selector');
+            btns.forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(block.split(' ')[0].toLowerCase())) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderDashboard();
+        }
+
+        // Pull telemetry data from cloud
+        async function fetchTelemetry() {
+            const alertHud = document.getElementById('hud-sync-alert');
+            try {
+                const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent("IRSSA Settlement Dossier")}`);
+                const data = await res.json();
+                
+                if (data.progress) {
+                    telemetryData = data.progress;
+                    alertHud.style.display = 'none';
+                    document.querySelector('.hud-system-status').style.color = 'var(--accent)';
+                    processLiveEvents();
+                    renderDashboard();
+                } else {
+                    throw new Error("Invalid sheet response format");
+                }
+            } catch (e) {
+                console.error("Telemetry retrieve failed:", e);
+                alertHud.style.display = 'inline-flex';
+                document.querySelector('.hud-system-status').style.color = '#ff1744';
+            }
+        }
+
+        // Process changes to feed the Live Activity ticker
+        function processLiveEvents() {
+            const container = document.getElementById('live-feed-container');
+            const events = [];
+
+            // Look through all telemetry and capture timestamps we haven't logged yet
+            Object.keys(telemetryData).forEach(studentKey => {
+                const rawData = telemetryData[studentKey];
+                const timestampStr = rawData.timestamp;
+                
+                // Formulate unique signature
+                const sig = `${studentKey}_${timestampStr}`;
+
+                if (timestampStr && !seenTimestamps.has(sig)) {
+                    seenTimestamps.add(sig);
+
+                    // Parse rationales to determine active slides
+                    let slidesDone = 0;
+                    let lastActiveSlide = "";
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        SLIDE_KEYS.forEach(key => {
+                            if (responses[key] && responses[key].trim().length > 0) {
+                                slidesDone++;
+                                lastActiveSlide = SLIDE_NAMES[key];
+                            }
+                        });
+                    } catch (e) {}
+
+                    // Formulate event text
+                    const displayName = studentKey.split(' (')[0];
+                    let logText = "";
+                    let logClass = "save";
+
+                    if (rawData.status === "MANUAL_RESTORE") {
+                        logText = `<span class="feed-highlight">${displayName}</span> restored their dashboard from recovery backups.`;
+                        logClass = "save";
+                    } else if (slidesDone === 6) {
+                        logText = `<span class="feed-highlight">${displayName}</span> completed the simulation! <span class="feed-status-done">[FINAL VERDICT COMMITTED]</span>`;
+                        logClass = "complete";
+                    } else if (lastActiveSlide) {
+                        logText = `<span class="feed-highlight">${displayName}</span> committed slide <span class="feed-slide">${lastActiveSlide}</span> to the system record.`;
+                    } else {
+                        logText = `<span class="feed-highlight">${displayName}</span> connected to simulation server.`;
+                    }
+
+                    const timeLabel = new Date(timestampStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    events.push({ text: logText, time: timeLabel, className: logClass, dateObj: new Date(timestampStr) });
+                }
+            });
+
+            // Sort incoming events chronologically
+            events.sort((a, b) => a.dateObj - b.dateObj);
+
+            // Prepend new events to feed
+            if (events.length > 0) {
+                // Remove initial waiting message if present
+                if (container.innerText.includes("Waiting for telemetry")) {
+                    container.innerHTML = "";
+                }
+
+                events.forEach(ev => {
+                    const item = document.createElement('div');
+                    item.className = `feed-item ${ev.className}`;
+                    item.innerHTML = `${ev.text} <span class="feed-time">${ev.time}</span>`;
+                    container.insertBefore(item, container.firstChild);
+                });
+
+                // Keep feed capped to 30 items
+                while (container.childNodes.length > 30) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+        }
+
+        // Render metrics and student tiles
+        function renderDashboard() {
+            const grid = document.getElementById('student-grid-container');
+            grid.innerHTML = "";
+
+            // Filter students belonging to the active block
+            const activeStudents = STUDENTS.filter(s => s.B === activeBlock);
+            
+            let totalStudents = activeStudents.length;
+            let loggedInCount = 0;
+            let fullyCompletedCount = 0;
+            let totalSlidesCompleted = 0;
+
+            activeStudents.forEach(student => {
+                const sheetKey = student.S; // Format: "Name (PIN)"
+                const displayName = student.S.split(' (')[0];
+                
+                const rawData = telemetryData[sheetKey];
+                let slides = {};
+                let slidesDone = 0;
+                let lastActiveTime = "Never";
+                let statusBadge = "inactive";
+                let statusBadgeClass = "inactive";
+                
+                if (rawData) {
+                    loggedInCount++;
+                    lastActiveTime = formatRelativeTime(rawData.timestamp);
+                    
+                    // Parse responses
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        SLIDE_KEYS.forEach(key => {
+                            if (responses[key] && responses[key].trim().length > 0) {
+                                slides[key] = "completed";
+                                slidesDone++;
+                            } else {
+                                slides[key] = "pending";
+                            }
+                        });
+                    } catch(e) {}
+
+                    totalSlidesCompleted += slidesDone;
+
+                    // Determine current status
+                    if (slidesDone === 6) {
+                        statusBadge = "Complete";
+                        statusBadgeClass = "done";
+                        fullyCompletedCount++;
+                    } else {
+                        statusBadge = `Active (${slidesDone}/6)`;
+                        statusBadgeClass = "saving";
+                    }
+                } else {
+                    // No data in sheet
+                    SLIDE_KEYS.forEach(key => {
+                        slides[key] = "pending";
+                    });
+                }
+
+                // Render student HTML card
+                const card = document.createElement('div');
+                card.className = `student-card ${slidesDone === 6 ? 'completed' : ''}`;
+                
+                // Visual Timeline nodes HTML
+                let timelineHtml = "";
+                let filledWidthPercent = 0;
+                
+                if (slidesDone > 0) {
+                    filledWidthPercent = ((slidesDone - 1) / 5) * 100;
+                }
+                
+                SLIDE_KEYS.forEach((key, index) => {
+                    let stepClass = "";
+                    if (slides[key] === "completed") {
+                        stepClass = "completed";
+                    } else if (rawData && slidesDone === index) {
+                        stepClass = "working"; // Pulsing gold on their current slide
+                    }
+                    
+                    timelineHtml += `
+                        <div class="timeline-step ${stepClass}">
+                            ${index + 1}
+                            <span class="tooltip">${SLIDE_NAMES[key]}</span>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="student-name" title="${displayName}">${displayName}</span>
+                        <span class="status-badge ${statusBadgeClass}">${statusBadge}</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-line-fill" style="width: ${filledWidthPercent}%;"></div>
+                        ${timelineHtml}
+                    </div>
+                    <div class="card-footer">
+                        <span>Pillars: ${slidesDone} / 6</span>
+                        <div class="card-footer-time">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span>${lastActiveTime}</span>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Calculate KPIs
+            const completionPercent = totalStudents > 0 ? Math.round((totalSlidesCompleted / (totalStudents * 6)) * 100) : 0;
+            
+            // Set KPI Values
+            document.getElementById('kpi-active-count').innerText = `${loggedInCount} / ${totalStudents}`;
+            document.getElementById('kpi-completion-percent').innerText = `${completionPercent}%`;
+            document.getElementById('class-progress-bar').style.width = `${completionPercent}%`;
+            document.getElementById('kpi-completed-count').innerText = fullyCompletedCount;
+            
+            // Visual entry animation for cards
+            gsap.fromTo(".student-card", 
+                { opacity: 0, y: 15 },
+                { opacity: 1, y: 0, duration: 0.4, stagger: 0.03 }
+            );
+        }
+
+        // Relative timestamp formatter
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return "Never";
+            const diffMs = new Date() - new Date(timestamp);
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return "Active Now";
+            if (diffMins === 1) return "1 min ago";
+            if (diffMins < 60) return `${diffMins} mins ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours === 1) return "1 hour ago";
+            return `${diffHours} hours ago`;
+        }
+    </script>
+</body>
+</html>
