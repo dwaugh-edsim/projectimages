@@ -15,6 +15,46 @@ function doGet(e) {
         firstRows: rows.slice(0, 6) 
       })).setMimeType(ContentService.MimeType.JSON);
     }
+    // PROGRESS: Fetch progress for all students
+    if (action === 'progress') {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const rows = sheet.getDataRange().getValues();
+      
+      if (rows.length <= 1) {
+        return ContentService.createTextOutput(JSON.stringify({ progress: {} }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      const headers = rows[0].map(h => String(h).toLowerCase().trim());
+      const studentColIdx = headers.indexOf("student") > -1 ? headers.indexOf("student") : 2;
+      const simColIdx = headers.indexOf("simulation") > -1 ? headers.indexOf("simulation") : 4;
+      const rationalesColIdx = headers.indexOf("rationales") > -1 ? headers.indexOf("rationales") : 6;
+      const timestampColIdx = headers.indexOf("timestamp") > -1 ? headers.indexOf("timestamp") : 0;
+      const statusColIdx = headers.indexOf("status") > -1 ? headers.indexOf("status") : 5;
+      
+      const simulation = e.parameter.simulation || "IRSSA Settlement Dossier";
+      const studentProgressMap = {};
+      
+      // Loop from end to start to get the latest row for each student
+      for (let i = rows.length - 1; i >= 1; i--) {
+        const rowStudent = String(rows[i][studentColIdx]).trim();
+        const rowSim = String(rows[i][simColIdx]).trim();
+        
+        if (rowSim === simulation) {
+          if (!studentProgressMap[rowStudent]) {
+            studentProgressMap[rowStudent] = {
+              timestamp: rows[i][timestampColIdx],
+              status: rows[i][statusColIdx],
+              rationales: rows[i][rationalesColIdx]
+            };
+          }
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({ progress: studentProgressMap }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
 
     // SAVE via GET (reliable cross-origin from Chromebooks)
     if (action === 'save') {
