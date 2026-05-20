@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASSIGNMENT: The Nora Bernard & Shubenacadie Legacy Project</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1A362B; /* Deep Forest Green */
+            --primary-light: #2C5E4A;
+            --accent: #D4AF37; /* Gold */
+            --dark: #222222;
+            --light: #F7F5F0; /* Soft Warm Gray */
+            --white: #FFFFFF;
+            --border: #DDD9CE;
+            --text-dark: #2F3E36;
+            --text-light: #6C7A70;
+            
+            --font-h: 'Cinzel', serif;
+            --font-body: 'Lora', serif;
+            --font-ui: 'Montserrat', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 50px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        /* Top decorative border */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
+        }
+
+        /* Header styling */
+        header {
+            text-align: center;
+            border-bottom: 2px double var(--border);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .subject-tag {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-family: var(--font-h);
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin: 15px 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        /* Section Layouts */
+        section {
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            font-family: var(--font-h);
+            font-size: 1.3rem;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Highlight box */
+        .context-callout {
+            background-color: #F0F4F1;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .context-callout h3 {
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Key Questions Grid */
+        .questions-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .questions-list li {
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+
+        /* Project Pathways Tabs */
+        .pathways-container {
+            margin: 30px 0;
+        }
+
+        .pathways-nav {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .pathway-tab {
+            font-family: var(--font-ui);
+            background: none;
+            border: none;
+            padding: 12px 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pathway-tab:hover {
+            color: var(--primary);
+        }
+
+        .pathway-tab.active {
+            color: var(--primary);
+        }
+
+        .pathway-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .pathway-content {
+            display: none;
+            padding: 15px;
+            background: #FAF9F6;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .pathway-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pathway-content h3 {
+            font-family: var(--font-ui);
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Resources Links */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .resource-card {
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 4px;
+            background: var(--white);
+            transition: border-color 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .resource-card:hover {
+            border-color: var(--primary);
+        }
+
+        .resource-title {
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .resource-desc {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* Rubric Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: var(--white);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .level-header {
+            width: 18%;
+        }
+
+        tr:nth-child(even) {
+            background-color: #FDFDFD;
+        }
+
+        /* Print styling override */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding: 0;
+            }
+            .container {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .pathway-tab {
+                display: none;
+            }
+            .pathway-content {
+                display: block !important;
+                margin-bottom: 20px;
+                background: none;
+                border: 1px solid #000;
+                page-break-inside: avoid;
+            }
+            .no-print {
+                display: none;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Utility classes */
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-family: var(--font-ui);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .btn-print:hover {
+            background: var(--accent);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print no-print" onclick="window.print()">Print Handout</button>
+
+    <div class="container">
+        <header>
+            <span class="subject-tag">Mi'kmaw Studies 11 // Unit 4 Follow-up</span>
+            <h1>The Architect of Reconciliation</h1>
+            <div class="subtitle">Nora Bernard, the Shubenacadie School, & the Road to the IRSSA</div>
+        </header>
+
+        <!-- Project Overview -->
+        <section>
+            <h2>Project Overview</h2>
+            <p>
+                In your primary IRSSA dossier simulation, you analyzed the structural pillars of the 2007 Indian Residential Schools Settlement Agreement (IRSSA). You also mapped the <strong>Shubenacadie Indian Residential School</strong>—the sole residential school in Nova Scotia that gathered children from across Mi'kma'ki and the Maritimes.
+            </p>
+            <p>
+                This project focuses on the woman who transformed the private grief of Maritime survivors into the largest class-action lawsuit in Canadian history: <strong>Nora Bernard</strong>. A survivor of Shubenacadie herself, Nora spent decades organizing survivors and built the legal momentum that eventually forced the Canadian government to sign the Settlement Agreement.
+            </p>
+            
+            <div class="context-callout">
+                <h3>Historical Context</h3>
+                <p>
+                    Nora Bernard attended Shubenacadie for five years starting in 1945. In 1995, she founded the <i>Association of Residential School Survivors of Nova Scotia</i>. Despite having no formal legal training and operating long before the age of email, smartphones, or social media, she traveled across Nova Scotia to find, document, and unite fellow survivors. The class-action lawsuit she initiated ultimately merged with national claims, culminating in the $1.9 billion IRSSA settlement.
+                </p>
+            </div>
+        </section>
+
+        <!-- Inquiry Questions -->
+        <section>
+            <h2>Inquiry Questions</h2>
+            <p>Your research and final profile must address the following questions:</p>
+            <ul class="questions-list">
+                <li><strong>The System:</strong> What were the conditions Nora Bernard faced during her five years at the Shubenacadie Residential School, and how did they impact her later life?</li>
+                <li><strong>The Movement:</strong> How did Nora locate and organize survivors from across the Maritimes in the 1980s and 90s without modern communication technology? What challenges did she overcome?</li>
+                <li><strong>The Connection:</strong> In what ways does Nora’s work directly connect to the <i>TRC (Truth & Reconciliation Commission)</i> and <i>Commemoration</i> pillars of the IRSSA? How did her regional effort shape national history?</li>
+            </ul>
+        </section>
+
+        <!-- Pathways Section -->
+        <section>
+            <h2>Choose Your Commemorative Pathway</h2>
+            <p class="no-print" style="margin-bottom: 20px;">Click the tabs below to select how you want to present your research and commemorate Nora Bernard's legacy:</p>
+            
+            <div class="pathways-container">
+                <div class="pathways-nav no-print">
+                    <button class="pathway-tab active" onclick="showTab(0)">Option A: Commemorative Plaque</button>
+                    <button class="pathway-tab" onclick="showTab(1)">Option B: Telemetry Podcast</button>
+                    <button class="pathway-tab" onclick="showTab(2)">Option C: Exhibition Card</button>
+                </div>
+
+                <!-- Tab 1 -->
+                <div class="pathway-content active" id="tab-0">
+                    <h3>Pathway A: The Public Commemorative Plaque (Graphic & Historical)</h3>
+                    <p>
+                        Design a mock national historic plaque (similar to Parks Canada or Nova Scotia Heritage markers) dedicated to Nora Bernard.
+                    </p>
+                    <p><strong>Deliverable:</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>A visual drawing or digital mockup of the plaque's physical layout, including symbolic border designs inspired by Mi'kmaw art.</li>
+                        <li>A highly polished, 150-to-200-word historical citation detailing her struggle and national significance. (Every word must count).</li>
+                        <li>A written design rationale (200 words) explaining the choice of symbols, materials, and placement location.</li>
+                    </ul>
+                </div>
+
+                <!-- Tab 2 -->
+                <div class="pathway-content" id="tab-1">
+                    <h3>Pathway B: Telemetry Audio Interview (Audio & Narrative)</h3>
+                    <p>
+                        Write and record a short 3-to-4 minute audio broadcast or mock podcast interview.
+                    </p>
+                    <p><strong>Deliverable:</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>A written script representing a dialogue between a reporter and a modern historian (or a contemporary who worked with Nora in 1996).</li>
+                        <li>An audio recording (.mp3 or shared link) demonstrating clear, respectful vocal delivery and sound design.</li>
+                        <li>The interview must specifically detail the logistical challenge of organizing the survivors' association across the Maritimes.</li>
+                    </ul>
+                </div>
+
+                <!-- Tab 3 -->
+                <div class="pathway-content" id="tab-2">
+                    <h3>Pathway C: Museum Exhibition Display Card (Curator Style)</h3>
+                    <p>
+                        Create an exhibit board for a museum display dedicated to the legal history of the Maritimes residential school survivors.
+                    </p>
+                    <p><strong>Deliverable:</strong></p>
+                    <ul style="margin-left: 20px; margin-bottom: 10px;">
+                        <li>A single, visually stunning graphic slide/poster layout that balances primary source images (e.g., photos of Nora, Shubenacadie, newspaper clippings) with narrative text.</li>
+                        <li>A curator's commentary detailing her litigation strategy and how she united local bands.</li>
+                        <li>An analysis of the posthumous awards she received (such as the Order of Nova Scotia) and how her legacy is remembered.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommended Resources -->
+        <section class="no-print">
+            <h2>Recommended Research Resources</h2>
+            <div class="resources-grid">
+                <a href="https://www.thecanadianencyclopedia.ca/en/article/nora-bernard" target="_blank" class="resource-card">
+                    <div class="resource-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        The Canadian Encyclopedia
+                    </div>
+                    <div class="resource-desc">Full biographical history of Nora Bernard, detailing her childhood, lawsuit, and posthumous honors.</div>
+                </a>
+                <a href="https://shubenacadieresidentialschool.ca" target="_blank" class="resource-card">
+                    <div class="resource-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        Shubenacadie School Archives
+                    </div>
+                    <div class="resource-desc">Historical timeline, survivor testimonies, and administrative records of the Shubenacadie school.</div>
+                </a>
+                <a href="https://www.cbc.ca/news/canada/nova-scotia/nora-bernard-honoured-with-posthumous-order-of-n.s.-1.710775" target="_blank" class="resource-card">
+                    <div class="resource-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        CBC News Coverage
+                    </div>
+                    <div class="resource-desc">Archival reporting on Nora Bernard receiving the Order of Nova Scotia and testimonies from her fellow activists.</div>
+                </a>
+                <a href="https://nctr.ca" target="_blank" class="resource-card">
+                    <div class="resource-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        National Centre for Truth & Reconciliation
+                    *   </div>
+                    <div class="resource-desc">General archives of the TRC, detailing the legal frameworks of class-action claims and settlement execution.</div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Evaluation Rubric -->
+        <section>
+            <h2>Evaluation Rubric</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Criteria</th>
+                        <th class="level-header">Level 4 (Advanced)</th>
+                        <th class="level-header">Level 3 (Proficient)</th>
+                        <th class="level-header">Level 2 (Developing)</th>
+                        <th class="level-header">Level 1 (Beginning)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Historical Research & Accuracy</strong></td>
+                        <td>In-depth research on Nora Bernard and Shubenacadie. Details are highly specific, accurate, and draw clear regional links.</td>
+                        <td>Accurate research with strong details. Covers her childhood, organization efforts, and lawsuit.</td>
+                        <td>Basic details are present, but lacks specific details on the organization or conditions of the school.</td>
+                        <td>Minimal historical detail. Focuses on general facts with several inaccuracies or gaps.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Connection to IRSSA Pillars</strong></td>
+                        <td>Sophisticated analysis connecting her work to the TRC and Commemoration pillars. Outstanding synthesis.</td>
+                        <td>Clear, accurate connections made between Nora’s activism and the legal pillars of the IRSSA.</td>
+                        <td>Identifies the settlement, but the connection to specific pillars (TRC, Commemoration) is vague.</td>
+                        <td>Little or no connection made to the Settlement Agreement or the TRC pillars.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Communication & Delivery</strong></td>
+                        <td>The plaque, podcast, or slide is exceptionally polished, creative, and respects cultural protocols. Professional quality.</td>
+                        <td>Well-designed project. Presentation is clean, organized, and matches the requirements of the selected pathway.</td>
+                        <td>Project is complete but lacks detail or refinement in formatting, design, or vocal delivery.</td>
+                        <td>Messy or incomplete project. Pathway guidelines were not followed.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        function showTab(index) {
+            // Hide all contents
+            const contents = document.querySelectorAll('.pathway-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            // Set all tabs inactive
+            const tabs = document.querySelectorAll('.pathway-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // Activate selected tab and content
+            document.getElementById(`tab-${index}`).classList.add('active');
+            tabs[index].classList.add('active');
+            
+            // Subtle transition animation using GSAP
+            gsap.fromTo(`#tab-${index}`, 
+                { opacity: 0, y: 5 },
+                { opacity: 1, y: 0, duration: 0.3 }
+            );
+        }
+    </script>
+</body>
+</html>
