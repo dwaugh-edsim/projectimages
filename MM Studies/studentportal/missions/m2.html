@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mission 2 | Modern Petroglyphs</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
         :root { 
             --primary: #ef4444; 
@@ -125,6 +126,120 @@
             transition: color 0.2s;
         }
         .btn-back:hover { color: var(--primary); }
+
+        .drawpad-section {
+            margin-top: 2rem;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .drawpad-title {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .drawpad-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 1rem 0;
+        }
+
+        .drawpad-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tool-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .tool-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tool-btn.export-btn {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .tool-btn.export-btn:hover {
+            background: #059669;
+        }
+
+        #colorPicker {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
+        #brushSize {
+            width: 80px;
+            accent-color: var(--primary);
+        }
+
+        .canvas-wrapper {
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        #petroglyphCanvas {
+            display: block;
+            background: #ffffff;
+            touch-action: none;
+        }
+
+        .canvas-fallback {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-style: italic;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .drawpad-toolbar {
+                gap: 0.35rem;
+            }
+
+            .tool-btn {
+                padding: 0.4rem 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            #petroglyphCanvas {
+                width: 100%;
+                height: auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -159,7 +274,28 @@
             <strong>Step 2: Community & Culture</strong><br>
             What is a symbol that represents Mi'kmaw community today? (e.g., a modern flag, a school, or a gathering).
         </div>
+        
+        <div class="drawpad-section">
+            <h4 class="drawpad-title">Petroglyph Sketch Pad</h4>
+            <p class="drawpad-subtitle">Sketch your modern petroglyph symbols below. Use the tools to draw, erase, and export.</p>
 
+            <div class="drawpad-toolbar">
+                <button id="btnBrush" class="tool-btn active">Brush</button>
+                <button id="btnEraser" class="tool-btn">Eraser</button>
+                <button id="btnUndo" class="tool-btn">Undo</button>
+                <button id="btnRedo" class="tool-btn">Redo</button>
+                <button id="btnClear" class="tool-btn">Clear</button>
+                <input type="color" id="colorPicker" value="#000000" title="Color">
+                <input type="range" id="brushSize" min="1" max="30" value="3" title="Brush Size">
+                <button id="btnExport" class="tool-btn export-btn">Export PNG</button>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="petroglyphCanvas" width="700" height="400"></canvas>
+            </div>
+            <div id="canvasFallback" class="canvas-fallback">Drawing tools unavailable. Please check your internet connection.</div>
+        </div>
+        
         <div class="step">
             <strong>Step 3: The Story</strong><br>
             Pick one of your symbols and explain why it deserves to be carved in stone for people to find in 100 years.
@@ -231,11 +367,155 @@ The most important symbol is... because..."></textarea>
                 if (!completed.includes(2)) completed.push(2);
                 localStorage.setItem('mks_completed', JSON.stringify(completed));
             } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+                syncStatus.innerText = '⚠️ Saved Locally only';
             }
         }
 
         retrieveFromCloud();
+
+        if (typeof fabric !== 'undefined') {
+            (function() {
+                const canvas = new fabric.Canvas('petroglyphCanvas', {
+                    backgroundColor: '#ffffff',
+                    isDrawingMode: true
+                });
+
+                canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+                canvas.freeDrawingBrush.color = '#000000';
+                canvas.freeDrawingBrush.width = 3;
+
+                const history = [];
+                let historyIndex = -1;
+                const MAX_HISTORY = 50;
+
+                function saveState() {
+                    const json = JSON.stringify(canvas.toJSON());
+                    if (historyIndex < history.length - 1) {
+                        history.splice(historyIndex + 1);
+                    }
+                    history.push(json);
+                    if (history.length > MAX_HISTORY) {
+                        history.shift();
+                    } else {
+                        historyIndex++;
+                    }
+                    updateUndoRedoButtons();
+                    debouncedSaveCanvas();
+                    markMissionProgress();
+                }
+
+                function loadState(json) {
+                    canvas.loadFromJSON(json, function() {
+                        canvas.renderAll();
+                    });
+                }
+
+                function undo() {
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        loadState(history[historyIndex]);
+                        updateUndoRedoButtons();
+                    }
+                }
+
+                function redo() {
+                    if (historyIndex < history.length - 1) {
+                        historyIndex++;
+                        loadState(history[historyIndex]);
+                        updateUndoRedoButtons();
+                    }
+                }
+
+                function updateUndoRedoButtons() {
+                    document.getElementById('btnUndo').disabled = historyIndex <= 0;
+                    document.getElementById('btnRedo').disabled = historyIndex >= history.length - 1;
+                }
+
+                let saveTimeout = null;
+                function debouncedSaveCanvas() {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(function() {
+                        const json = JSON.stringify(canvas.toJSON());
+                        localStorage.setItem('mks_m2_canvas', json);
+                    }, 1000);
+                }
+
+                function markMissionProgress() {
+                    let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+                    if (!completed.includes(2)) {
+                        completed.push(2);
+                        localStorage.setItem('mks_completed', JSON.stringify(completed));
+                    }
+                }
+
+                canvas.on('path:created', saveState);
+                canvas.on('object:modified', saveState);
+
+                const savedCanvas = localStorage.getItem('mks_m2_canvas');
+                if (savedCanvas) {
+                    try {
+                        canvas.loadFromJSON(savedCanvas, function() {
+                            canvas.renderAll();
+                            saveState();
+                        });
+                    } catch (e) {
+                        saveState();
+                    }
+                } else {
+                    saveState();
+                }
+
+                document.getElementById('btnBrush').addEventListener('click', function() {
+                    canvas.isDrawingMode = true;
+                    canvas.freeDrawingBrush.color = document.getElementById('colorPicker').value;
+                    this.classList.add('active');
+                    document.getElementById('btnEraser').classList.remove('active');
+                });
+
+                document.getElementById('btnEraser').addEventListener('click', function() {
+                    canvas.isDrawingMode = true;
+                    canvas.freeDrawingBrush.color = '#ffffff';
+                    this.classList.add('active');
+                    document.getElementById('btnBrush').classList.remove('active');
+                });
+
+                document.getElementById('btnUndo').addEventListener('click', undo);
+                document.getElementById('btnRedo').addEventListener('click', redo);
+
+                document.getElementById('btnClear').addEventListener('click', function() {
+                    if (confirm('Clear the entire canvas?')) {
+                        canvas.clear();
+                        canvas.backgroundColor = '#ffffff';
+                        canvas.renderAll();
+                        saveState();
+                    }
+                });
+
+                document.getElementById('btnExport').addEventListener('click', function() {
+                    const dataURL = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+                    const link = document.createElement('a');
+                    link.download = 'petroglyph-design.png';
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+
+                document.getElementById('colorPicker').addEventListener('input', function() {
+                    canvas.freeDrawingBrush.color = this.value;
+                    document.getElementById('btnBrush').classList.add('active');
+                    document.getElementById('btnEraser').classList.remove('active');
+                });
+
+                document.getElementById('brushSize').addEventListener('input', function() {
+                    canvas.freeDrawingBrush.width = parseInt(this.value, 10);
+                });
+            })();
+        } else {
+            document.getElementById('petroglyphCanvas').style.display = 'none';
+            document.querySelector('.canvas-wrapper').style.display = 'none';
+            document.getElementById('canvasFallback').style.display = 'block';
+        }
     </script>
 </body>
 </html>
