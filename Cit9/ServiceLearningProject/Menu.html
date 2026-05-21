@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 9 Service Learning — Action Intelligence Portal</title>
+    <title>Grade 9 Service Learning â€” Action Intelligence Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -204,7 +204,7 @@
             overflow-y: auto;
         }
 
-        .dossier {
+        .file-overlay-card {
             background: var(--paper);
             max-width: 800px;
             margin: 0 auto;
@@ -230,11 +230,11 @@
             background: var(--accent);
         }
 
-        .dossier-section {
+        .file-section {
             margin-bottom: 35px;
         }
 
-        .dossier-section h3 {
+        .file-section h3 {
             font-family: 'Courier Prime', monospace;
             text-transform: uppercase;
             border-bottom: 2px solid var(--ink);
@@ -242,7 +242,7 @@
             font-size: 1.1rem;
         }
 
-        .dossier-section h3 .step-label {
+        .file-section h3 .step-label {
             color: var(--accent);
             font-weight: 900;
         }
@@ -652,7 +652,7 @@
                 grid-template: 1fr;
             }
 
-            .dossier {
+            .file-overlay-card {
                 padding: 30px 20px;
             }
 
@@ -685,7 +685,7 @@
                 padding: 0;
             }
 
-            .dossier {
+            .file-overlay-card {
                 box-shadow: none;
                 border: 2px solid #000;
                 page-break-inside: avoid;
@@ -701,17 +701,75 @@
                 box-shadow: none;
             }
         }
+
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98);
+            z-index: 2000;
+            display: none; align-items: center; justify-content: center;
+        }
+
+        .login-card {
+            background: #fff; padding: 40px; border-radius: 8px; width: 380px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            border: 3px solid var(--ink);
+        }
+
+        .login-card h2 { font-family: 'Courier Prime', monospace; color: var(--ink); text-align: center; margin-bottom: 25px; font-weight: bold; text-transform: uppercase; }
+
+        .login-card label {
+            display: block;
+            font-weight: 900;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: var(--ink);
+            text-align: left;
+        }
+
+        select, input {
+            width: 100%; padding: 12px; border: 2px solid var(--border);
+            margin-bottom: 15px; border-radius: 4px; font-size: 1rem;
+        }
+
+        .login-card .btn {
+            background: var(--ink); color: #fff; border: none; padding: 15px; width: 100%;
+            cursor: pointer; font-family: 'Courier Prime', monospace; text-transform: uppercase;
+            font-size: 1.1rem; border-radius: 4px; font-weight: bold;
+        }
+
+        .login-card .btn:hover { background: var(--accent); }
     </style>
 </head>
 
 <body>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>Mission Access</h2>
+            <label>Select Name:</label>
+            <select id="loginName">
+                <option value="">-- WHO ARE YOU? --</option>
+            </select>
+            <label>Your 4-Letter PIN:</label>
+            <input type="password" id="loginPin" maxlength="4" placeholder="â€¢â€¢â€¢â€¢">
+            <button class="btn" onclick="handleLogin()">Unlock Portal</button>
+            <p id="loginError" style="color:red; text-align:center; display:none; margin-top:10px; font-weight:bold;">WRONG PIN. ACCESS DENIED.</p>
+        </div>
+    </div>
 
     <div class="container">
         <header>
             <div class="stamp">CLASSIFIED</div>
             <span class="case-num">DEPT OF CITIZENSHIP / UNIT 1</span>
             <h1>Service Learning Action Intelligence</h1>
-            <p class="intro">Research is just step one. <strong>Select ONE mission</strong> — this will be your focus for the unit. Work through every step from initial commitment through to your final Collective Impact Report.</p>
+            <p class="intro">Research is just step one. <strong>Select ONE mission</strong> â€” this will be your focus for the unit. Work through every step from initial commitment through to your final Collective Impact Report.</p>
+            <div class="operative-info" id="operativeInfo" style="display: none; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 15px; margin-top: 15px; margin-bottom: 15px; font-family: 'Courier Prime', monospace; font-size: 0.85rem; border: 1px solid var(--border);">
+                <div><strong>OPERATIVE:</strong> <span id="op-name">PENDING</span></div>
+                <div><strong>ACTIVE MISSION:</strong> <span id="op-mission">NONE SELECTED</span></div>
+                <button class="btn" style="background: #e74c3c; color: white; padding: 5px 10px; font-size: 0.75rem; width: auto; font-family: 'Courier Prime', monospace; font-weight: bold; border: none; cursor: pointer; border-radius: 3px;" onclick="handleLogout()">LOGOUT</button>
+            </div>
             <div class="phase-bar">
                 <div class="phase active"><span class="phase-num">01</span><a href="#">Choose & Commit</a></div>
                 <div class="phase"><span class="phase-num">02</span><a href="Briefing.html">Research</a></div>
@@ -726,20 +784,105 @@
     </div>
 
     <div id="overlay" class="overlay">
-        <div id="dossier" class="dossier">
-            <button class="close-btn" onclick="closeDossier()">CLOSE FILE</button>
-            <div id="dossier-content"></div>
+        <div id="file" class="file-overlay-card">
+            <button class="close-btn" onclick="closeFile()">CLOSE FILE</button>
+            <div id="file-content"></div>
         </div>
     </div>
 
     <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        const STUDENTS = [
+            {name:'Farhan'}, {name:'Abdul'}, {name:'Joshua A'}, {name:'Clark'},
+            {name:'Madhavan'}, {name:'Remy'}, {name:'Yunho'}, {name:'Lachlan McM'},
+            {name:'Lachlan Mac'}, {name:'Nolan'}, {name:'Laila'}, {name:'Josie'},
+            {name:'Huda'}, {name:'Brody'}, {name:'Leo'}, {name:'Elizabeth'},
+            {name:'Fatima'}, {name:'Alia'}, {name:'Rifa'}, {name:'Sarah'},
+            {name:'Jessa'}, {name:'Delisha'}, {name:'Kendra'}, {name:'Zankia'},
+            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}
+        ];
+
+        const PIN_LIST = {
+            'Farhan': 'HRNH', 'Abdul': 'ALZZ', 'Joshua A': 'RUXG', 'Clark': '9F3K',
+            'Madhavan': 'R4MT', 'Remy': 'YMRP', 'Yunho': 'T4N5', 'Lachlan McM': 'FFAN',
+            'Lachlan Mac': '25VT', 'Nolan': 'KFK6', 'Laila': 'V4BC', 'Josie': 'MVQW',
+            'Huda': '6SUB', 'Brody': 'JY2P', 'Leo': 'RKKJ', 'Elizabeth': 'FNG3',
+            'Fatima': 'T6U2', 'Alia': 'LJFM', 'Rifa': '57G5', 'Sarah': '96EU',
+            'Jessa': 'HSZU', 'Delisha': 'Q2YA', 'Kendra': 'MTGG', 'Zankia': 'CA3J',
+            'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8', 'Natalia': 'RING'
+        };
+
+        async function handleLogin() {
+            const name = document.getElementById('loginName').value;
+            const pin = document.getElementById('loginPin').value.toUpperCase();
+            if(!name || !pin) return;
+
+            const btn = document.querySelector('.login-card .btn');
+            btn.innerText = 'Checking PIN...';
+
+            const verifyLocally = () => {
+                const correctPin = PIN_LIST[name];
+                if (correctPin && correctPin === pin) {
+                    localStorage.setItem('sl_friday_user', name);
+                    window.location.href = 'File.html';
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Unlock Portal';
+                }
+            };
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                const result = await res.json();
+                if(result.success) {
+                    localStorage.setItem('sl_friday_user', name);
+                    window.location.href = 'File.html';
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Unlock Portal';
+                }
+            } catch (e) {
+                clearTimeout(timeoutId);
+                console.warn('Cloud login failed, using local PIN fallback.', e);
+                verifyLocally();
+            }
+        }
+
+        function setupUser(name) {
+            document.getElementById('op-name').innerText = name.toUpperCase();
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('operativeInfo').style.display = 'flex';
+            
+            const activeMission = localStorage.getItem('sl_v2_missionSelect');
+            if (activeMission) {
+                const chal = challenges.find(c => c.id === activeMission);
+                document.getElementById('op-mission').innerText = chal ? chal.title.toUpperCase() : activeMission;
+            } else {
+                document.getElementById('op-mission').innerText = 'NONE SELECTED';
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('sl_friday_user');
+                localStorage.removeItem('sl_v2_missionSelect');
+                location.reload();
+            }
+        }
+
         const challenges = [
             {
                 id: "CIT-001",
                 title: "The Battery Scavenger",
                 sdg: "SDG 12: Responsible Consumption",
                 preview: "Locate and divert the hidden 'Toxic Hoard' of lithium from your community's watershed.",
-                context: "Almost every home in HRM has a drawer full of dead batteries. When lithium-ion and alkaline batteries end up in landfills, they leach heavy metals — lithium, cobalt, lead — into the soil and water table. This is a local environmental crisis happening silently. Meanwhile, the cobalt inside those batteries was likely mined in the Democratic Republic of Congo under conditions that violate basic human rights. By diverting batteries from the waste stream, you protect local watersheds AND reduce the global demand for unethical mining.",
+                context: "Almost every home in HRM has a drawer full of dead batteries. When lithium-ion and alkaline batteries end up in landfills, they leach heavy metals â€” lithium, cobalt, lead â€” into the soil and water table. This is a local environmental crisis happening silently. Meanwhile, the cobalt inside those batteries was likely mined in the Democratic Republic of Congo under conditions that violate basic human rights. By diverting batteries from the waste stream, you protect local watersheds AND reduce the global demand for unethical mining.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Primary Sector", "Tertiary Sector", "E-waste"],
                 research: [
@@ -753,7 +896,7 @@
                     },
                     {
                         q: "What is Extended Producer Responsibility (EPR) and does Nova Scotia have one for batteries?",
-                        guide: "Search 'Extended Producer Responsibility Canada' and 'Nova Scotia battery recycling law.' Explain who is legally responsible for end-of-life disposal. Call2Recycle operates in HRM — find out how their drop-off system works."
+                        guide: "Search 'Extended Producer Responsibility Canada' and 'Nova Scotia battery recycling law.' Explain who is legally responsible for end-of-life disposal. Call2Recycle operates in HRM â€” find out how their drop-off system works."
                     },
                     {
                         q: "Why would a political party oppose a tax or deposit system on batteries?",
@@ -769,16 +912,16 @@
                     { day: "Days 1-2", task: "Audit your home. Open every drawer. Collect ALL dead batteries. Count and list them (type: AA, AAA, lithium-ion, etc.)." },
                     { day: "Days 3-4", task: "Research: Find the nearest certified battery recycler in HRM (hint: recycleyourbatteries.ca). Call or check their drop-off hours." },
                     { day: "Days 5-6", task: "Safety prep: Tape all lithium-ion terminals with clear tape. Sort into categories: Lithium-Ion, Alkaline, Lead-Acid." },
-                    { day: "Days 7-8", task: "Test any 'dead' batteries with a multimeter. Record voltage. Any battery above 1.2V (AA) still has life — set aside." },
+                    { day: "Days 7-8", task: "Test any 'dead' batteries with a multimeter. Record voltage. Any battery above 1.2V (AA) still has life â€” set aside." },
                     { day: "Days 9-10", task: "Deliver batteries to the certified recycler. Get a receipt or take a photo of the drop-off." },
                     { day: "Days 11-12", task: "Calculate your impact: Estimate the weight of batteries diverted. Research how much cobalt/lithium that represents." },
                     { day: "Days 13-14", task: "Compile your data into a one-page 'Diversion Report' with totals, photos, and a reflection paragraph." }
                 ],
                 deliverables: [
-                    "Home Battery Audit — a typed list of every battery collected, sorted by chemistry type",
-                    "Research Notes — written answers to all 4 research questions (minimum 1 paragraph each)",
-                    "Diversion Report — one-page summary with: total batteries collected, estimated weight (kg), photo evidence of drop-off, and a personal reflection on how your consumption habits connect to DRC mining",
-                    "Supply Chain Map — a visual diagram showing where battery minerals start (mine) and where they end up (recycler vs. landfill)"
+                    "Home Battery Audit â€” a typed list of every battery collected, sorted by chemistry type",
+                    "Research Notes â€” written answers to all 4 research questions (minimum 1 paragraph each)",
+                    "Diversion Report â€” one-page summary with: total batteries collected, estimated weight (kg), photo evidence of drop-off, and a personal reflection on how your consumption habits connect to DRC mining",
+                    "Supply Chain Map â€” a visual diagram showing where battery minerals start (mine) and where they end up (recycler vs. landfill)"
                 ],
                 rubric: [
                     { criteria: "Research Depth", excellent: "All 4 questions answered with specific facts, statistics, and source citations", adequate: "All 4 questions answered but lacking detail or sources", developing: "Fewer than 4 questions answered, or answers are vague" },
@@ -793,7 +936,7 @@
                 title: "The Tap Audit",
                 sdg: "SDG 06: Clean Water & Sanitation",
                 preview: "Investigate the gap between municipal luxury and the boil-water reality of Indigenous communities.",
-                context: "In Halifax, you can turn on the tap and drink clean water without thinking about it. But in over 30 Indigenous communities across Canada, boil-water advisories have been in place for years — sometimes decades. Neskantaga First Nation in Ontario has been under a boil-water advisory since 1995. This isn't an accident; it's the result of systemic underfunding of infrastructure on reserves. Your mission is to understand this gap, measure your own water privilege, and take personal action to reduce waste.",
+                context: "In Halifax, you can turn on the tap and drink clean water without thinking about it. But in over 30 Indigenous communities across Canada, boil-water advisories have been in place for years â€” sometimes decades. Neskantaga First Nation in Ontario has been under a boil-water advisory since 1995. This isn't an accident; it's the result of systemic underfunding of infrastructure on reserves. Your mission is to understand this gap, measure your own water privilege, and take personal action to reduce waste.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Infrastructure", "Social Justice", "Indigenous Rights"],
                 research: [
@@ -829,10 +972,10 @@
                     { day: "Days 13-14", task: "Compile your Water Audit Report: baseline vs. reduced usage, the Indigenous community profile, and a reflection on water privilege." }
                 ],
                 deliverables: [
-                    "Water Usage Log — a daily spreadsheet showing litres used for each activity (baseline + reduction days)",
-                    "Research Notes — written answers to all 4 research questions with sources",
-                    "Indigenous Community Profile — a one-page summary of one boil-water advisory community, including duration, population, and root causes",
-                    "Water Audit Report — final summary with: baseline vs. reduced usage (with % change), a reflection on the difference between your 'reduced' access and having NO clean water, and the interview notes"
+                    "Water Usage Log â€” a daily spreadsheet showing litres used for each activity (baseline + reduction days)",
+                    "Research Notes â€” written answers to all 4 research questions with sources",
+                    "Indigenous Community Profile â€” a one-page summary of one boil-water advisory community, including duration, population, and root causes",
+                    "Water Audit Report â€” final summary with: baseline vs. reduced usage (with % change), a reflection on the difference between your 'reduced' access and having NO clean water, and the interview notes"
                 ],
                 rubric: [
                     { criteria: "Research Depth", excellent: "All 4 questions answered with specific data (litres, costs, community names) and source citations", adequate: "All 4 questions answered but lacking specificity", developing: "Incomplete answers or no sources" },
@@ -840,20 +983,20 @@
                     { criteria: "Indigenous Community Profile", excellent: "Detailed profile with population, advisory duration, root causes, and current status", adequate: "Basic profile with some details", developing: "Minimal information" },
                     { criteria: "Reflection Quality", excellent: "Thoughtfully connects personal water privilege to systemic inequality; demonstrates empathy and critical thinking", adequate: "Makes some connections but lacks depth", developing: "Surface-level or missing" }
                 ],
-                extension: "Create a 'Water Privilege Walk' presentation for the class. Line up 10 glasses of water — 7 full (representing HRM access) and 3 empty (representing boil-water communities). Use your data and research to explain the gap to your classmates."
+                extension: "Create a 'Water Privilege Walk' presentation for the class. Line up 10 glasses of water â€” 7 full (representing HRM access) and 3 empty (representing boil-water communities). Use your data and research to explain the gap to your classmates."
             },
             {
                 id: "CIT-003",
                 title: "The Phantom Load",
                 sdg: "SDG 07: Affordable & Clean Energy",
                 preview: "Hunt the 'Vampire' devices that are draining power and increasing carbon footprints in the dark.",
-                context: "Your phone charger is plugged into the wall. Your phone isn't connected. But the charger is still drawing electricity — this is called 'phantom load' or 'vampire power.' Across your entire home, phantom loads from chargers, TVs, gaming consoles, and microwaves in standby mode can account for 5-10% of your total electricity bill. In Nova Scotia, where a significant portion of electricity still comes from burning coal, every wasted kilowatt-hour means more carbon in the atmosphere. Your mission: hunt every vampire in your home.",
+                context: "Your phone charger is plugged into the wall. Your phone isn't connected. But the charger is still drawing electricity â€” this is called 'phantom load' or 'vampire power.' Across your entire home, phantom loads from chargers, TVs, gaming consoles, and microwaves in standby mode can account for 5-10% of your total electricity bill. In Nova Scotia, where a significant portion of electricity still comes from burning coal, every wasted kilowatt-hour means more carbon in the atmosphere. Your mission: hunt every vampire in your home.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Energy", "Carbon Footprint", "NS Power"],
                 research: [
                     {
                         q: "How many Watts does a phone charger pull when plugged in but not charging a phone?",
-                        guide: "Search 'phantom load phone charger watts' or 'vampire power measurement.' The answer is typically 0.1-0.5W. It sounds small, but multiply by 24 hours × 365 days × number of chargers in your home. Calculate the annual waste."
+                        guide: "Search 'phantom load phone charger watts' or 'vampire power measurement.' The answer is typically 0.1-0.5W. It sounds small, but multiply by 24 hours Ã— 365 days Ã— number of chargers in your home. Calculate the annual waste."
                     },
                     {
                         q: "How is electricity generated in Nova Scotia right now? What is the energy mix?",
@@ -861,11 +1004,11 @@
                     },
                     {
                         q: "What is the annual cost of 'Phantom Load' for an average HRM household?",
-                        guide: "Estimate: count all plugged-in devices in your home that could be on standby. Multiply by average phantom wattage × 24hrs × 365 days. Convert kWh to dollars using NS Power's rate (~$0.15/kWh)."
+                        guide: "Estimate: count all plugged-in devices in your home that could be on standby. Multiply by average phantom wattage Ã— 24hrs Ã— 365 days. Convert kWh to dollars using NS Power's rate (~$0.15/kWh)."
                     },
                     {
                         q: "Should the government legislate 'Low Standby' power designs for corporations?",
-                        guide: "Search 'EU standby power regulation' — the EU limits standby to 0.5W. Should Canada do the same? Write one argument for government regulation and one for letting the market decide."
+                        guide: "Search 'EU standby power regulation' â€” the EU limits standby to 0.5W. Should Canada do the same? Write one argument for government regulation and one for letting the market decide."
                     }
                 ],
                 roles: [
@@ -877,16 +1020,16 @@
                     { day: "Days 1-2", task: "Phantom Audit: Walk through every room in your home. List every device plugged in. Mark which ones are 'always on' but not always in use (chargers, TVs, microwaves, gaming consoles, etc.)." },
                     { day: "Days 3-4", task: "Calculate: Estimate the phantom wattage for each device (research online). Multiply out to annual kWh and cost. Identify the 'Top 5 Vampires.'" },
                     { day: "Days 5-6", task: "Begin the Hunt: Unplug all non-essential devices in YOUR ROOM before bed. Chargers, lamps, monitors, speakers. Note which ones you actually need to re-plug the next morning." },
-                    { day: "Days 7-8", task: "Expand: Unplug vampires in common areas (living room, kitchen) with family permission. Power strips make this easier — switch off the strip." },
-                    { day: "Days 9-10", task: "Research NS Power's energy mix. Calculate the carbon emissions from your phantom load (coal kWh × 0.9 kg CO2/kWh)." },
+                    { day: "Days 7-8", task: "Expand: Unplug vampires in common areas (living room, kitchen) with family permission. Power strips make this easier â€” switch off the strip." },
+                    { day: "Days 9-10", task: "Research NS Power's energy mix. Calculate the carbon emissions from your phantom load (coal kWh Ã— 0.9 kg CO2/kWh)." },
                     { day: "Days 11-12", task: "Continue unplugging. Interview a family member: 'Did you notice anything different? Were any devices affected?' Record their response." },
                     { day: "Days 13-14", task: "Compile your Phantom Load Report: device inventory, annual cost calculation, carbon estimate, and reflection." }
                 ],
                 deliverables: [
-                    "Phantom Device Inventory — a complete list of all plugged-in devices in your home, room by room, with estimated phantom wattage for each",
-                    "Cost & Carbon Calculation — a spreadsheet showing: total phantom kWh/year, cost at NS Power rates, and estimated CO2 emissions based on NS energy mix",
-                    "Research Notes — written answers to all 4 research questions with sources",
-                    "Phantom Load Report — one-page summary with: Top 5 Vampires, potential annual savings, a before/after photo of your room's power setup, and a reflection on energy awareness"
+                    "Phantom Device Inventory â€” a complete list of all plugged-in devices in your home, room by room, with estimated phantom wattage for each",
+                    "Cost & Carbon Calculation â€” a spreadsheet showing: total phantom kWh/year, cost at NS Power rates, and estimated CO2 emissions based on NS energy mix",
+                    "Research Notes â€” written answers to all 4 research questions with sources",
+                    "Phantom Load Report â€” one-page summary with: Top 5 Vampires, potential annual savings, a before/after photo of your room's power setup, and a reflection on energy awareness"
                 ],
                 rubric: [
                     { criteria: "Phantom Audit", excellent: "Complete room-by-room inventory with wattage estimates for every device", adequate: "Most devices catalogued with some wattage data", developing: "Incomplete inventory or no wattage estimates" },
@@ -901,7 +1044,7 @@
                 title: "The Wardrobe Reset",
                 sdg: "SDG 12: Responsible Consumption",
                 preview: "Deconstruct the true price of $5 T-shirts and the hidden labor costs of the global garment trade.",
-                context: "A T-shirt costs $5 at a fast-fashion store. But cotton must be grown, harvested, spun into fabric, dyed, cut, sewn, shipped across an ocean, trucked to a store, and hung on a rack — all for $5. Someone in that chain is paying the difference, and it's usually a garment worker in Bangladesh, Vietnam, or Cambodia earning less than $3/day. The 2013 Rana Plaza collapse in Bangladesh killed 1,134 garment workers producing clothes for Western brands. Your mission: understand the true cost of your wardrobe and protest disposable fashion by living with less.",
+                context: "A T-shirt costs $5 at a fast-fashion store. But cotton must be grown, harvested, spun into fabric, dyed, cut, sewn, shipped across an ocean, trucked to a store, and hung on a rack â€” all for $5. Someone in that chain is paying the difference, and it's usually a garment worker in Bangladesh, Vietnam, or Cambodia earning less than $3/day. The 2013 Rana Plaza collapse in Bangladesh killed 1,134 garment workers producing clothes for Western brands. Your mission: understand the true cost of your wardrobe and protest disposable fashion by living with less.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Globalization", "Labour Rights", "Supply Chain"],
                 research: [
@@ -931,16 +1074,16 @@
                     { day: "Days 1-2", task: "Wardrobe Audit: Count every item of clothing you own. Sort into categories (tops, bottoms, outerwear, etc.). How many items total? How many have you not worn in 6 months?" },
                     { day: "Days 3-4", task: "The Selection: Choose exactly 10 items (including shoes and outerwear). Lay them out and photograph them. These are your only options for 14 days. No swaps." },
                     { day: "Days 5-6", task: "Day 1 of the Capsule. Wear outfit #1. Note how you feel. Did anyone comment? Was it harder than expected? Journal your experience." },
-                    { day: "Days 7-8", task: "Day 2 of the Capsule. Research the Rana Plaza disaster. Start mapping the supply chain of one item you're wearing (check the tag — where was it made?)." },
+                    { day: "Days 7-8", task: "Day 2 of the Capsule. Research the Rana Plaza disaster. Start mapping the supply chain of one item you're wearing (check the tag â€” where was it made?)." },
                     { day: "Days 9-10", task: "Day 3 of the Capsule. Calculate: if your 10 items replaced buying 30 fast-fashion items per year, what is the water and carbon savings?" },
                     { day: "Days 11-12", task: "Day 4 of the Capsule. Interview a family member: 'How many clothes do you think you bought last year? How many did you actually need?' Record their answer." },
                     { day: "Days 13-14", task: "Final day. Compile your Wardrobe Reset Report: capsule photos, supply chain map, water/carbon savings, and a reflection on disposable fashion." }
                 ],
                 deliverables: [
-                    "Wardrobe Inventory — a complete count of all clothing you own, sorted by category",
-                    "Capsule Wardrobe Photo Log — daily photos of your 10-item outfits with brief journal entries",
-                    "Supply Chain Map — a visual diagram tracing one garment from raw material to your closet, with labour and environmental costs at each stage",
-                    "Wardrobe Reset Report — summary with: total items owned vs. 10-item capsule, estimated water/carbon savings, family interview notes, and a personal reflection on consumer habits"
+                    "Wardrobe Inventory â€” a complete count of all clothing you own, sorted by category",
+                    "Capsule Wardrobe Photo Log â€” daily photos of your 10-item outfits with brief journal entries",
+                    "Supply Chain Map â€” a visual diagram tracing one garment from raw material to your closet, with labour and environmental costs at each stage",
+                    "Wardrobe Reset Report â€” summary with: total items owned vs. 10-item capsule, estimated water/carbon savings, family interview notes, and a personal reflection on consumer habits"
                 ],
                 rubric: [
                     { criteria: "Research Depth", excellent: "All 4 questions answered with specific statistics (wages, water litres, brand names) and sources", adequate: "All 4 questions answered but lacking detail", developing: "Incomplete or vague answers" },
@@ -955,7 +1098,7 @@
                 title: "The Data Diet",
                 sdg: "SDG 16: Peace, Justice & Strong Institutions",
                 preview: "Expose the 'Shadow Profiles' and algorithmic biases that harvest your digital identity.",
-                context: "You don't have a Facebook account, but Facebook has a 'Shadow Profile' on you — a file built from your contacts, browsing habits, and app usage. Every time you click 'Accept All Cookies,' data brokers buy and sell your behavioural patterns. Algorithms then use this data to feed you content that keeps you engaged, creating 'Echo Chambers' that can influence elections, radicalize opinions, and distort your understanding of reality. Your mission: go on a data diet and reclaim your digital footprint.",
+                context: "You don't have a Facebook account, but Facebook has a 'Shadow Profile' on you â€” a file built from your contacts, browsing habits, and app usage. Every time you click 'Accept All Cookies,' data brokers buy and sell your behavioural patterns. Algorithms then use this data to feed you content that keeps you engaged, creating 'Echo Chambers' that can influence elections, radicalize opinions, and distort your understanding of reality. Your mission: go on a data diet and reclaim your digital footprint.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Digital Rights", "Media Literacy", "Civics"],
                 research: [
@@ -982,7 +1125,7 @@
                     { title: "Communications", desc: "Create a 'Digital Footprint' infographic showing how much data an average teenager generates daily." }
                 ],
                 actionPlan: [
-                    { day: "Days 1-2", task: "Device Audit: List every app on your phone. For each, check Settings → Privacy. Which apps have access to your location, camera, microphone, and contacts? Write down the ones that don't need it." },
+                    { day: "Days 1-2", task: "Device Audit: List every app on your phone. For each, check Settings â†’ Privacy. Which apps have access to your location, camera, microphone, and contacts? Write down the ones that don't need it." },
                     { day: "Days 3-4", task: "The Purge: Delete or disable ALL non-essential tracking. Turn off location services for apps that don't need it. Disable push notifications for social media. Revoke third-party app permissions." },
                     { day: "Days 5-6", task: "Browser Audit: Install a privacy-focused browser or add tracker-blocking extensions. Check how many trackers were blocked in 24 hours (most blockers show a count)." },
                     { day: "Days 7-8", task: "The Notification Fast: No social media notifications for 24 hours. Check apps ONLY when you consciously choose to. Count how many times you reach for your phone out of habit." },
@@ -991,10 +1134,10 @@
                     { day: "Days 13-14", task: "Compile your Data Diet Report: before/after privacy settings, tracker count, phone-reach tally, and a reflection on digital autonomy." }
                 ],
                 deliverables: [
-                    "App Privacy Audit — a list of every app with its permissions (location, camera, mic, contacts) and your decision: keep, restrict, or delete",
-                    "Research Notes — written answers to all 4 research questions with sources",
-                    "Tracker Count — screenshot or log showing how many trackers were blocked in 24 hours after enabling privacy tools",
-                    "Data Diet Report — summary with: before/after privacy comparison, phone-reach habit tally, platform data policy summary, interview notes, and a reflection on whether 'free' apps are really free"
+                    "App Privacy Audit â€” a list of every app with its permissions (location, camera, mic, contacts) and your decision: keep, restrict, or delete",
+                    "Research Notes â€” written answers to all 4 research questions with sources",
+                    "Tracker Count â€” screenshot or log showing how many trackers were blocked in 24 hours after enabling privacy tools",
+                    "Data Diet Report â€” summary with: before/after privacy comparison, phone-reach habit tally, platform data policy summary, interview notes, and a reflection on whether 'free' apps are really free"
                 ],
                 rubric: [
                     { criteria: "Privacy Audit", excellent: "Complete app-by-app audit with specific permission changes and justifications", adequate: "Most apps audited with some changes", developing: "Incomplete audit or no changes made" },
@@ -1002,14 +1145,14 @@
                     { criteria: "14-Day Action", excellent: "All 14 days completed with daily logs, tracker counts, and phone-reach tallies", adequate: "5-6 days logged", developing: "Fewer than 5 days" },
                     { criteria: "Critical Reflection", excellent: "Demonstrates deep understanding of the trade-off between convenience and privacy; proposes ongoing changes", adequate: "Basic reflection on the experience", developing: "Minimal reflection" }
                 ],
-                extension: "Create a 'Digital Privacy Toolkit' handout for the class — a one-page guide with step-by-step instructions for locking down privacy settings on the most popular apps. Include the tracker count data you collected as evidence of why it matters."
+                extension: "Create a 'Digital Privacy Toolkit' handout for the class â€” a one-page guide with step-by-step instructions for locking down privacy settings on the most popular apps. Include the tracker count data you collected as evidence of why it matters."
             },
             {
                 id: "CIT-006",
                 title: "The Zero-Waste Audit",
                 sdg: "SDG 13: Climate Action",
                 preview: "Track the reality of 'Waste Colonialism' and the lifecycle of the plastics in your lunch.",
-                context: "You put a plastic wrapper in the blue bin and feel good about recycling. But only about 9% of plastic ever produced has been recycled. The rest is in landfills, oceans, or shipped to developing countries — a practice called 'Waste Colonialism,' where wealthy nations export their trash to poorer ones. Canada shipped garbage to the Philippines for years. Meanwhile, 'biodegradable' and 'compostable' labels are often misleading — many require industrial composting facilities that don't exist in HRM. Your mission: go zero single-use plastic for 14 days and confront the reality of your waste stream.",
+                context: "You put a plastic wrapper in the blue bin and feel good about recycling. But only about 9% of plastic ever produced has been recycled. The rest is in landfills, oceans, or shipped to developing countries â€” a practice called 'Waste Colonialism,' where wealthy nations export their trash to poorer ones. Canada shipped garbage to the Philippines for years. Meanwhile, 'biodegradable' and 'compostable' labels are often misleading â€” many require industrial composting facilities that don't exist in HRM. Your mission: go zero single-use plastic for 14 days and confront the reality of your waste stream.",
                 curriculumTags: ["CZ/CT", "PCD/CT", "COM/CI"],
                 sectorTags: ["Waste Management", "Global Ethics", "Climate"],
                 research: [
@@ -1045,10 +1188,10 @@
                     { day: "Days 13-14", task: "Final day. Compile your Zero-Waste Report: Day 1 plastic pile photo, daily refusal log, research on waste colonialism, and a reflection on whether zero-plastic living is realistic." }
                 ],
                 deliverables: [
-                    "Day 1 Plastic Pile — a photograph and itemized list of every piece of plastic you used in a single day",
-                    "Zero-Plastic Daily Log — a journal for each of the 4 zero-plastic days noting what you refused, substituted, or couldn't avoid",
-                    "Research Notes — written answers to all 4 research questions with sources",
-                    "Zero-Waste Report — summary with: before (plastic pile) vs. after (zero-plastic days), grocery store audit findings, waste colonialism summary, and a reflection on systemic vs. individual responsibility"
+                    "Day 1 Plastic Pile â€” a photograph and itemized list of every piece of plastic you used in a single day",
+                    "Zero-Plastic Daily Log â€” a journal for each of the 4 zero-plastic days noting what you refused, substituted, or couldn't avoid",
+                    "Research Notes â€” written answers to all 4 research questions with sources",
+                    "Zero-Waste Report â€” summary with: before (plastic pile) vs. after (zero-plastic days), grocery store audit findings, waste colonialism summary, and a reflection on systemic vs. individual responsibility"
                 ],
                 rubric: [
                     { criteria: "Plastic Audit", excellent: "Complete Day 1 inventory with photo and itemized list of every plastic piece", adequate: "Basic inventory with photo", developing: "Incomplete or missing audit" },
@@ -1099,10 +1242,10 @@
                     { day: "Days 13-14", task: "Final Report: Compile your inventory, the 'True Cost' calculation, your collection totals, and a reflection on disposability." }
                 ],
                 deliverables: [
-                    "Printer Hardware Audit — a list of printers and their specific ink costs",
-                    "The 'True Cost' Spreadsheet — 3-year cost projection of ink vs. hardware",
-                    "Research Notes — answers to the 4 mission questions with sources",
-                    "Ink Trap Report — one-page summary of your collection efforts, the cost comparison, and a reflection on the 'Loss-Leader' model"
+                    "Printer Hardware Audit â€” a list of printers and their specific ink costs",
+                    "The 'True Cost' Spreadsheet â€” 3-year cost projection of ink vs. hardware",
+                    "Research Notes â€” answers to the 4 mission questions with sources",
+                    "Ink Trap Report â€” one-page summary of your collection efforts, the cost comparison, and a reflection on the 'Loss-Leader' model"
                 ],
                 rubric: [
                     { criteria: "Economic Research", excellent: "Detailed cost analysis showing clear understanding of the loss-leader model with accurate math", adequate: "Basic cost comparison provided", developing: "Incomplete or inaccurate data" },
@@ -1117,7 +1260,7 @@
         function render() {
             const picker = document.getElementById('picker');
             picker.innerHTML = challenges.map(c => `
-            <div class="card" onclick="openDossier('${c.id}')">
+            <div class="card" onclick="openFile('${c.id}')">
                 <div class="card-header">
                     <span class="case-num">${c.id}</span>
                     <br>
@@ -1134,28 +1277,22 @@
         `).join('');
         }
 
-        function openDossier(id) {
-            const item = challenges.find(c => c.id === id);
-            const content = document.getElementById('dossier-content');
+        function openFile(id) {
+            // Save mission choice to localStorage then go straight to File.html
+            localStorage.setItem('sl_v2_missionSelect', id);
+            window.location.href = 'File.html';
+        }
 
-            content.innerHTML = `
-            <div class="dossier-section">
-                <span class="case-num">${item.id} // SUBJECT: ${item.title}</span>
-                <h1 style="margin-top:20px;">${item.title}</h1>
-                <p class="sdg-label" style="margin-top:10px;">${item.sdg}</p>
-                <div style="margin-top:10px;">
-                    ${item.curriculumTags.map(t => `<span class="tag tag-curriculum">${t}</span>`).join('')}
-                    ${item.sectorTags.map(t => `<span class="tag tag-sector">${t}</span>`).join('')}
-                </div>
-            </div>
+        let labData = JSON.parse(localStorage.getItem('diversionLab') || '[]');
 
-            <div class="dossier-section">
-                <h3><span class="step-label">Step 1:</span> Choose & Commit — The Briefing</h3>
+
+            <div class="file-section">
+                <h3><span class="step-label">Step 1:</span> Choose & Commit â€” The Briefing</h3>
                 <div class="context-box">
                     ${item.context}
                 </div>
                 <div style="margin-top:15px; border: 2px solid var(--accent); padding: 20px; background: #fef2f2;">
-                    <h4 style="color: var(--accent); font-family: 'Roboto Mono', monospace; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 10px;">Commitment Checklist — Complete Before Moving On</h4>
+                    <h4 style="color: var(--accent); font-family: 'Roboto Mono', monospace; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 10px;">Commitment Checklist â€” Complete Before Moving On</h4>
                     <ul class="deliverable-list">
                         <li><strong>Read the briefing above.</strong> In your own words, write 2-3 sentences explaining WHY this issue matters to your community.</li>
                         <li><strong>Evaluate the merit.</strong> Is this need real? How do you know? Write one sentence citing evidence (a statistic, a news story, or an observation).</li>
@@ -1165,9 +1302,9 @@
                 </div>
             </div>
 
-            <div class="dossier-section">
+            <div class="file-section">
                 <h3><span class="step-label">Step 2:</span> Investigative Research (Academic Foundation)</h3>
-                <p style="font-size:0.85rem; color:#6b7280; margin-bottom:15px;">Answer each question in at least one full paragraph. Cite your sources. The guidance below tells you what to look for — not what to think.</p>
+                <p style="font-size:0.85rem; color:#6b7280; margin-bottom:15px;">Answer each question in at least one full paragraph. Cite your sources. The guidance below tells you what to look for â€” not what to think.</p>
                 <ul class="clue-list">
                     ${item.research.map(r => `
                         <li>
@@ -1178,8 +1315,8 @@
                 </ul>
             </div>
 
-            <div class="dossier-section">
-                <h3><span class="step-label">Step 3:</span> Team Roles — Who Does What</h3>
+            <div class="file-section">
+                <h3><span class="step-label">Step 3:</span> Team Roles â€” Who Does What</h3>
                 <p style="font-size:0.85rem; color:#6b7280; margin-bottom:10px;">Evaluate your personal skills and assign roles. Every team needs all three. You may switch roles mid-project if needed.</p>
                 <div class="roles-grid">
                     ${item.roles.map(r => `
@@ -1191,9 +1328,9 @@
                 </div>
             </div>
 
-            <div class="dossier-section challenge-box">
+            <div class="file-section challenge-box">
                 <h4>Step 4: The 14-Day Action Challenge</h4>
-                <p style="margin-bottom:15px;">Follow this day-by-day plan. Log every day — no gaps. Evidence matters.</p>
+                <p style="margin-bottom:15px;">Follow this day-by-day plan. Log every day â€” no gaps. Evidence matters.</p>
                 <div class="timeline">
                     ${item.actionPlan.map(d => `
                         <div class="timeline-row">
@@ -1204,15 +1341,15 @@
                 </div>
             </div>
 
-            <div class="dossier-section">
-                <h3><span class="step-label">Step 5:</span> Deliverables — What You Must Produce</h3>
+            <div class="file-section">
+                <h3><span class="step-label">Step 5:</span> Deliverables â€” What You Must Produce</h3>
                 <ul class="deliverable-list">
                     ${item.deliverables.map(d => `<li>${d}</li>`).join('')}
                 </ul>
             </div>
 
-            <div class="dossier-section">
-                <h3><span class="step-label">Step 6:</span> Assessment Rubric — How You'll Be Evaluated</h3>
+            <div class="file-section">
+                <h3><span class="step-label">Step 6:</span> Assessment Rubric â€” How You'll Be Evaluated</h3>
                 <table class="rubric-table">
                     <thead>
                         <tr>
@@ -1225,17 +1362,17 @@
                     <tbody>
                         ${item.rubric.map(r => `
                             <tr>
-                                <td><strong>${r.criteria}</strong></td>
-                                <td>${r.excellent}</td>
-                                <td>${r.adequate}</td>
-                                <td>${r.developing}</td>
+                                  <td><strong>${r.criteria}</strong></td>
+                                  <td>${r.excellent}</td>
+                                  <td>${r.adequate}</td>
+                                  <td>${r.developing}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             </div>
 
-            <div class="dossier-section">
+            <div class="file-section">
                 <h3><span class="step-label">Step 7:</span> Collective Impact Report</h3>
                 <div style="border: 1px solid var(--border); padding: 20px; font-size: 0.9rem;">
                     <p>After 14 days, you will merge your data with others who chose this same sector. Together, your group will produce a <strong>Collective Impact Report</strong> that includes:</p>
@@ -1250,8 +1387,8 @@
             </div>
 
             ${item.id === 'CIT-001' ? `
-            <div class="dossier-section" style="margin-top:10px;">
-                <h3><span class="step-label">⚡ Live Station:</span> The Diversion Lab — Classroom Battery Collection</h3>
+            <div class="file-section" style="margin-top:10px;">
+                <h3><span class="step-label">âš¡ Live Station:</span> The Diversion Lab â€” Classroom Battery Collection</h3>
                 <p style="font-size:0.85rem; color:#6b7280; margin-bottom:15px;">Use this tool to log every battery you and your classmates divert from landfill. Data persists in your browser.</p>
 
                 <div class="lab-stats">
@@ -1297,8 +1434,8 @@
                             <div style="flex:1;">
                                 <label for="bat-taped">Terminals Taped?</label>
                                 <select id="bat-taped">
-                                    <option value="Yes">Yes — Safe</option>
-                                    <option value="No">No — Tape First!</option>
+                                    <option value="Yes">Yes â€” Safe</option>
+                                    <option value="No">No â€” Tape First!</option>
                                 </select>
                             </div>
                         </div>
@@ -1319,24 +1456,24 @@
                 </div>
 
                 <div class="safety-note">
-                    <strong>⚠ SAFETY:</strong> All Lithium-Ion batteries MUST have terminals taped with clear tape before
+                    <strong>âš  SAFETY:</strong> All Lithium-Ion batteries MUST have terminals taped with clear tape before
                     entering the collection bin. Untaped lithium batteries pose a <strong>thermal runaway fire risk</strong>.
                     Alkaline batteries are safe to handle but should still be sorted properly.
                 </div>
             </div>
             ` : ''}
 
-            <div class="dossier-section" style="border-top: 4px solid var(--accent); padding-top: 30px; margin-top: 40px;">
-                <h3><span class="step-label">Step 6:</span> Mission Complete — Final Submission</h3>
+            <div class="file-section" style="border-top: 4px solid var(--accent); padding-top: 30px; margin-top: 40px;">
+                <h3><span class="step-label">Step 6:</span> Mission Complete â€” Final Submission</h3>
                 <p style="font-size:0.9rem; margin-bottom:15px;">Once you have completed your 14-day action and gathered all evidence, use the <strong>Action Intelligence Report</strong> to compile your findings and export them as a PDF for Google Classroom.</p>
-                <a href="Dossier.html" class="btn btn-finalize" style="display:inline-block; text-decoration:none; text-align:center;">
+                <a href="File.html" class="btn btn-finalize" style="display:inline-block; text-decoration:none; text-align:center;">
                     OPEN RESPONSE DOCUMENT >
                 </a>
                 <p style="font-size:0.75rem; color:#6b7280; margin-top:10px;">The response document will automatically load your specific mission's research questions.</p>
             </div>
 
             <div class="extension-box">
-                <h4>Level Up — Optional Extension</h4>
+                <h4>Level Up â€” Optional Extension</h4>
                 <p style="font-size:0.9rem;">${item.extension}</p>
             </div>
         `;
@@ -1350,18 +1487,18 @@
             }
         }
 
-        function closeDossier() {
+        function closeFile() {
             document.getElementById('overlay').style.display = 'none';
         }
 
         window.onclick = function (event) {
             if (event.target == document.getElementById('overlay')) {
-                closeDossier();
+                closeFile();
             }
         }
 
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') closeDossier();
+            if (event.key === 'Escape') closeFile();
         });
 
         let labData = JSON.parse(localStorage.getItem('diversionLab') || '[]');
@@ -1388,8 +1525,8 @@
             logEl.innerHTML = labData.slice().reverse().map(e => `
                 <div class="log-entry">
                     <span class="log-type">${e.type}</span>
-                    <span class="log-qty">×${e.qty}</span>
-                    <span class="log-name">${e.name} ${e.taped === 'No' ? '<span style="color:var(--accent);font-weight:700;">⚠ UNTAPED</span>' : ''}</span>
+                    <span class="log-qty">Ã—${e.qty}</span>
+                    <span class="log-name">${e.name} ${e.taped === 'No' ? '<span style="color:var(--accent);font-weight:700;">âš  UNTAPED</span>' : ''}</span>
                     <span class="log-time">${e.time}</span>
                 </div>
             `).join('');
@@ -1431,6 +1568,21 @@
             }
         }
 
+        // Populate student names dropdown
+        const loginSelect = document.getElementById('loginName');
+        if (loginSelect) {
+            loginSelect.innerHTML = '<option value="">-- WHO ARE YOU? --</option>' + 
+                STUDENTS.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        }
+
+        // If already logged in, send straight to File.html
+        const savedUser = localStorage.getItem('sl_friday_user');
+        if (savedUser) {
+            window.location.href = 'File.html';
+        } else {
+            document.getElementById('loginOverlay').style.display = 'flex';
+        }
+
         if (document.getElementById('stat-total')) {
             updateStats();
             renderLog();
@@ -1442,3 +1594,4 @@
 </body>
 
 </html>
+
