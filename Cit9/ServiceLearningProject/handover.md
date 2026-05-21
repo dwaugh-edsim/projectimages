@@ -136,6 +136,19 @@ We completed a major stabilization sweep to "bulletproof" student logins, preven
 * **Human-in-the-Loop Review**: The teacher can read the drafted review, modify the text, adjust the quality rating, and click **Publish Feedback** to POST it to the sheet.
 * **Banner Notification**: When the teacher publishes feedback, a yellow banner (`#feedbackBanner`) automatically slides in at the top of the student's `File.html` workspace containing the teacher's exact text.
 
+### 7. In-Class Offline Research Audit
+* **Purpose**: Dave requested a quick "offline research audit" to spot obvious lapses in student research before they transition to their 14-day home projects.
+* **Methodology**: 
+  1. Ran a local powershell script (`analyze_students.ps1`) to parse the 5.5MB `live_student_data.json` pulled from the Google Apps Script Webhook.
+  2. Deduplicated records to identify the latest submission timestamp per student on the 29-name roster.
+  3. Checked character length of answers and citation validity, categorizing students into 6 progress tiers: Ready (4), Research Done but Plan Missing (7), Plan Done but Research Missing (3), Incomplete (2), Empty (9), and Idle (4).
+* **Key Findings & Specific Lapses**:
+  * **Placeholder Citation**: Madhavan used `"math by gemini"` as a source.
+  * **Truncated Template Argument**: Rifa left in template headings and got cutoff mid-sentence on Q4: `"A political party may oppose a battery tax a \n\nArgument FOR... Argument AGAINST..."`
+  * **Inline Citations**: Jessa pasted URLs directly into the text answer boxes rather than the designated `Source 1` and `Source 2` fields.
+  * **Empty Overwrite Clarification**: Sarah and 8 other students had empty profiles because they only selected their mission and haven't typed/saved any details yet (explaining the "No Backup Found" screen).
+* **Deliverable**: Generated [research_audit_report.md](file:///C:/Users/dave/.gemini/antigravity-ide/brain/9961cb78-808e-4f29-8fef-5b9d88215c49/research_audit_report.md) containing a class dashboard, individual lapses, and targeted walking-around scripts for Dave to call out during class.
+
 ---
 
 ## 5. Next Steps for Handover Developer

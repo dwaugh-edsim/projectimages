@@ -186,7 +186,7 @@
         
         .students-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 20px;
             padding: 25px;
             background: #fafafa;
@@ -198,12 +198,159 @@
             padding: 22px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border-left: 5px solid #cbd5e1;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             min-height: 280px;
+        }
+
+        /* Compact Card Override */
+        .student-card.compact {
+            min-height: 180px;
+            padding: 16px;
+        }
+        
+        .student-card.compact .progress-section {
+            display: none;
+        }
+        
+        /* View Toggle Styling */
+        .view-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .toggle-group {
+            display: flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .toggle-btn.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .checkbox-label input {
+            cursor: pointer;
+            accent-color: #4f46e5;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Table View CSS */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            background: white;
+            padding: 0;
+        }
+        
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+        
+        .students-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            padding: 14px 20px;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .students-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+        
+        .students-table tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .students-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-score-bar-bg {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+            width: 80px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .table-score-bar-fill {
+            background: #10b981;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .table-checkpoint-row {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .table-checkpoint-bubble {
+            width: 55px;
+            text-align: center;
+            font-size: 0.65rem;
+            font-weight: bold;
+            padding: 4px 0;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-family: monospace;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .table-log-preview {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #64748b;
+            font-size: 0.8rem;
         }
         
         .student-card:hover {
@@ -558,7 +705,26 @@
             </div>
             
             <div class="controls">
-                <input type="text" class="search-box" placeholder="Search students..." id="searchInput">
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" class="search-box" placeholder="Search students..." id="searchInput">
+                    
+                    <div class="view-controls">
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" id="viewGridBtn" onclick="setViewMode('grid')">
+                                📊 Grid
+                            </button>
+                            <button class="toggle-btn" id="viewTableBtn" onclick="setViewMode('table')">
+                                📋 Table
+                            </button>
+                        </div>
+                        
+                        <label class="checkbox-label" id="logToggleLabel">
+                            <input type="checkbox" id="showLogsCheckbox" checked onchange="toggleLogsVisibility(this.checked)">
+                            Show Logs
+                        </label>
+                    </div>
+                </div>
+                
                 <div class="filter-buttons">
                     <button class="filter-btn active" data-filter="all">All</button>
                     <button class="filter-btn" data-filter="active">Active</button>
@@ -625,6 +791,43 @@ Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":"
 // Note: We will expand this locally or parse it correctly. Let's make sure it handles any input safely.
 
         let activeStudentData = [];
+        let currentViewMode = localStorage.getItem('sl_teacher_view_mode') || 'grid';
+        let showLogsState = localStorage.getItem('sl_teacher_show_logs') !== 'false';
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            localStorage.setItem('sl_teacher_view_mode', mode);
+            
+            const gridBtn = document.getElementById('viewGridBtn');
+            const tableBtn = document.getElementById('viewTableBtn');
+            const logLabel = document.getElementById('logToggleLabel');
+            
+            if (gridBtn && tableBtn) {
+                if (mode === 'grid') {
+                    gridBtn.classList.add('active');
+                    tableBtn.classList.remove('active');
+                    if (logLabel) logLabel.style.display = 'flex';
+                } else {
+                    gridBtn.classList.remove('active');
+                    tableBtn.classList.add('active');
+                    if (logLabel) logLabel.style.display = 'none';
+                }
+            }
+            
+            const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+            renderStudents(activeStudentData, currentFilter);
+        }
+        
+        function toggleLogsVisibility(visible) {
+            showLogsState = visible;
+            localStorage.setItem('sl_teacher_show_logs', visible);
+            
+            const checkbox = document.getElementById('showLogsCheckbox');
+            if (checkbox) checkbox.checked = visible;
+            
+            const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+            renderStudents(activeStudentData, currentFilter);
+        }
 
         // Safe parser for student CSV lines
         function parseCSV(csv) {
@@ -772,7 +975,7 @@ Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":"
             return 'Pending';
         }
 
-        // Render student cards
+        // Render student cards or table
         function renderStudents(students, filter = 'all') {
             const grid = document.getElementById('studentsGrid');
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -800,6 +1003,7 @@ Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":"
             grid.innerHTML = '';
             
             if (filteredStudents.length === 0) {
+                grid.className = 'students-grid';
                 grid.innerHTML = `
                     <div class="empty-state">
                         <h3>No students found</h3>
@@ -809,66 +1013,161 @@ Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":"
                 return;
             }
             
-            filteredStudents.forEach(student => {
-                const reflection = student.parsedReflection;
-                const checkpoints = getCheckpoints(reflection);
-                const progressText = calculateProgressText(checkpoints);
-                const missionId = reflection.topic || reflection.missionSelect || '';
-                const missionName = missionId ? getMissionName(missionId) : 'No Mission Selected';
+            if (currentViewMode === 'table') {
+                grid.className = 'table-view-container';
                 
-                let score = 0;
-                score += (checkpoints.c1 === 'green') ? 20 : (checkpoints.c1 === 'amber' ? 10 : 0);
-                score += (checkpoints.c2 === 'green') ? 20 : (checkpoints.c2 === 'amber' ? 10 : 0);
-                score += (checkpoints.c3 === 'green') ? 20 : (checkpoints.c3 === 'amber' ? 10 : 0);
-                score += (checkpoints.c4 === 'green') ? 20 : (checkpoints.c4 === 'amber' ? 10 : 0);
-                score += (checkpoints.c5 === 'green') ? 20 : (checkpoints.c5 === 'amber' ? 10 : 0);
-
-                let statusClass = 'status-pending';
-                if (progressText.includes('Complete')) {
-                    statusClass = 'status-complete';
-                } else if (progressText !== 'Pending') {
-                    statusClass = 'status-active';
-                }
+                const tableWrap = document.createElement('div');
+                tableWrap.className = 'table-container';
                 
-                const card = document.createElement('div');
-                card.className = 'student-card';
-                if (score === 100) card.style.borderLeftColor = '#10b981';
-                else if (score > 0) card.style.borderLeftColor = '#f59e0b';
-                else card.style.borderLeftColor = '#cbd5e1';
-
-                card.innerHTML = `
-                    <div>
-                        <div class="student-header">
-                            <div class="student-name">${student.StudentId || 'ANON'}</div>
-                            <div class="student-status ${statusClass}">${progressText}</div>
-                        </div>
-                        <div class="mission-info">
-                            <div class="mission-title">${missionName}</div>
-                            <div class="mission-id">${missionId || 'No Mission Code'}</div>
-                        </div>
-                        
-                        <div class="checkpoint-row">
-                            <div class="checkpoint-bubble dot-${checkpoints.c1}" title="Step 1: Plan">Plan</div>
-                            <div class="checkpoint-bubble dot-${checkpoints.c2}" title="Step 2: Research">Research</div>
-                            <div class="checkpoint-bubble dot-${checkpoints.c3}" title="Step 3: Record Log">Log</div>
-                            <div class="checkpoint-bubble dot-${checkpoints.c4}" title="Step 4: Measure">Measure</div>
-                            <div class="checkpoint-bubble dot-${checkpoints.c5}" title="Step 5: Reflect">Reflect</div>
-                        </div>
-                        
-                        <div style="background:#e2e8f0; height:6px; border-radius:3px; margin: 10px 0; overflow:hidden;" title="Completion Score: ${score}%">
-                            <div style="background:#10b981; width:${score}%; height:100%; transition: width 0.3s;"></div>
-                        </div>
-
-                        <div class="progress-section" style="margin-top: 15px;">
-                            <div class="progress-title">Latest Action Log Entry</div>
-                            <div class="progress-content">${reflection.recordLog ? reflection.recordLog.substring(0, 100) + '...' : '<i>No logs recorded</i>'}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="last-updated">Last updated: ${formatDate(student.Timestamp)}</div>
+                let tableHtml = `
+                    <table class="students-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Status</th>
+                                <th>Selected Mission</th>
+                                <th>Checkpoint Progress</th>
+                                <th>Completion</th>
+                                <th>Latest Action Log</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-                grid.appendChild(card);
-            });
+                
+                filteredStudents.forEach(student => {
+                    const reflection = student.parsedReflection;
+                    const checkpoints = getCheckpoints(reflection);
+                    const progressText = calculateProgressText(checkpoints);
+                    const missionId = reflection.topic || reflection.missionSelect || '';
+                    const missionName = missionId ? getMissionName(missionId) : 'No Mission Selected';
+                    
+                    let score = 0;
+                    score += (checkpoints.c1 === 'green') ? 20 : (checkpoints.c1 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c2 === 'green') ? 20 : (checkpoints.c2 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c3 === 'green') ? 20 : (checkpoints.c3 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c4 === 'green') ? 20 : (checkpoints.c4 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c5 === 'green') ? 20 : (checkpoints.c5 === 'amber' ? 10 : 0);
+
+                    let statusClass = 'status-pending';
+                    if (progressText.includes('Complete')) {
+                        statusClass = 'status-complete';
+                    } else if (progressText !== 'Pending') {
+                        statusClass = 'status-active';
+                    }
+                    
+                    const logText = reflection.recordLog ? reflection.recordLog : 'No logs recorded';
+                    const logPreview = reflection.recordLog 
+                        ? (reflection.recordLog.length > 40 ? reflection.recordLog.substring(0, 40) + '...' : reflection.recordLog) 
+                        : 'No logs recorded';
+                    
+                    const scoreBar = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: bold; min-width: 32px; text-align: right;">${score}%</span>
+                            <div class="table-score-bar-bg" title="Score: ${score}%">
+                                <div class="table-score-bar-fill" style="width: ${score}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    tableHtml += `
+                        <tr>
+                            <td style="font-weight: 800; color: #1e293b; font-size: 0.95rem;">${student.StudentId || 'ANON'}</td>
+                            <td><span class="student-status ${statusClass}" style="display: inline-block; text-align: center;">${progressText}</span></td>
+                            <td>
+                                <div style="font-weight: 700; color: #334155;">${missionName}</div>
+                                <div style="font-size: 0.75rem; color: #64748b; font-family: monospace; font-weight: bold;">${missionId || 'No Code'}</div>
+                            </td>
+                            <td>
+                                <div class="table-checkpoint-row">
+                                    <div class="table-checkpoint-bubble dot-${checkpoints.c1}" title="Step 1: Plan">Plan</div>
+                                    <div class="table-checkpoint-bubble dot-${checkpoints.c2}" title="Step 2: Research">Research</div>
+                                    <div class="table-checkpoint-bubble dot-${checkpoints.c3}" title="Step 3: Log">Log</div>
+                                    <div class="table-checkpoint-bubble dot-${checkpoints.c4}" title="Step 4: Measure">Measure</div>
+                                    <div class="table-checkpoint-bubble dot-${checkpoints.c5}" title="Step 5: Reflect">Reflect</div>
+                                </div>
+                            </td>
+                            <td>${scoreBar}</td>
+                            <td>
+                                <div class="table-log-preview" title="${logText.replace(/"/g, '&quot;')}">
+                                    ${logPreview}
+                                </div>
+                            </td>
+                            <td style="font-size: 0.78rem; color: #94a3b8;">${formatDate(student.Timestamp)}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                
+                tableWrap.innerHTML = tableHtml;
+                grid.appendChild(tableWrap);
+            } else {
+                grid.className = 'students-grid';
+                filteredStudents.forEach(student => {
+                    const reflection = student.parsedReflection;
+                    const checkpoints = getCheckpoints(reflection);
+                    const progressText = calculateProgressText(checkpoints);
+                    const missionId = reflection.topic || reflection.missionSelect || '';
+                    const missionName = missionId ? getMissionName(missionId) : 'No Mission Selected';
+                    
+                    let score = 0;
+                    score += (checkpoints.c1 === 'green') ? 20 : (checkpoints.c1 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c2 === 'green') ? 20 : (checkpoints.c2 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c3 === 'green') ? 20 : (checkpoints.c3 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c4 === 'green') ? 20 : (checkpoints.c4 === 'amber' ? 10 : 0);
+                    score += (checkpoints.c5 === 'green') ? 20 : (checkpoints.c5 === 'amber' ? 10 : 0);
+
+                    let statusClass = 'status-pending';
+                    if (progressText.includes('Complete')) {
+                        statusClass = 'status-complete';
+                    } else if (progressText !== 'Pending') {
+                        statusClass = 'status-active';
+                    }
+                    
+                    const card = document.createElement('div');
+                    card.className = 'student-card' + (showLogsState ? '' : ' compact');
+                    if (score === 100) card.style.borderLeftColor = '#10b981';
+                    else if (score > 0) card.style.borderLeftColor = '#f59e0b';
+                    else card.style.borderLeftColor = '#cbd5e1';
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="student-header">
+                                <div class="student-name">${student.StudentId || 'ANON'}</div>
+                                <div class="student-status ${statusClass}">${progressText}</div>
+                            </div>
+                            <div class="mission-info">
+                                <div class="mission-title">${missionName}</div>
+                                <div class="mission-id">${missionId || 'No Mission Code'}</div>
+                            </div>
+                            
+                            <div class="checkpoint-row">
+                                <div class="checkpoint-bubble dot-${checkpoints.c1}" title="Step 1: Plan">Plan</div>
+                                <div class="checkpoint-bubble dot-${checkpoints.c2}" title="Step 2: Research">Research</div>
+                                <div class="checkpoint-bubble dot-${checkpoints.c3}" title="Step 3: Record Log">Log</div>
+                                <div class="checkpoint-bubble dot-${checkpoints.c4}" title="Step 4: Measure">Measure</div>
+                                <div class="checkpoint-bubble dot-${checkpoints.c5}" title="Step 5: Reflect">Reflect</div>
+                            </div>
+                            
+                            <div style="background:#e2e8f0; height:6px; border-radius:3px; margin: 10px 0; overflow:hidden;" title="Completion Score: ${score}%">
+                                <div style="background:#10b981; width:${score}%; height:100%; transition: width 0.3s;"></div>
+                            </div>
+
+                            <div class="progress-section" style="margin-top: 15px;">
+                                <div class="progress-title">Latest Action Log Entry</div>
+                                <div class="progress-content">${reflection.recordLog ? reflection.recordLog.substring(0, 100) + '...' : '<i>No logs recorded</i>'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="last-updated">Last updated: ${formatDate(student.Timestamp)}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
             
             updateOverviewStats(filteredStudents);
         }
@@ -1330,6 +1629,28 @@ Respond with ONLY a JSON object (no markdown fences) with these fields:
         // Initialize dashboard on load
         function initDashboard() {
             loadApiKey(); // restore saved API key
+            
+            // Sync toggle UI elements with local preferences on load
+            const gridBtn = document.getElementById('viewGridBtn');
+            const tableBtn = document.getElementById('viewTableBtn');
+            const logLabel = document.getElementById('logToggleLabel');
+            const checkbox = document.getElementById('showLogsCheckbox');
+            
+            if (gridBtn && tableBtn) {
+                if (currentViewMode === 'grid') {
+                    gridBtn.classList.add('active');
+                    tableBtn.classList.remove('active');
+                    if (logLabel) logLabel.style.display = 'flex';
+                } else {
+                    gridBtn.classList.remove('active');
+                    tableBtn.classList.add('active');
+                    if (logLabel) logLabel.style.display = 'none';
+                }
+            }
+            if (checkbox) {
+                checkbox.checked = showLogsState;
+            }
+            
             fetchLiveProgress();
             
             // Search filter listener

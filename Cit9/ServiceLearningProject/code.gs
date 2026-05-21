@@ -51,6 +51,21 @@ function doGet(e) {
       return createJsonResponse({ success: isSuccess });
     }
 
+    if (action === 'GET_ALL_PROGRESS') {
+      const sheet = getSheet();
+      const rows = sheet.getDataRange().getValues();
+      const results = [];
+      for (let i = 1; i < rows.length; i++) {
+        results.push({
+          StudentId: rows[i][0],
+          MissionTitle: rows[i][1],
+          ReflectionJSON: rows[i][2],
+          Timestamp: rows[i][3]
+        });
+      }
+      return createJsonResponse(results);
+    }
+
     const sheet = getSheet();
     const rows = sheet.getDataRange().getValues();
     
@@ -72,13 +87,27 @@ function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
     const sheet = getSheet();
+    const rows = sheet.getDataRange().getValues();
     
-    sheet.appendRow([
-      payload.studentId,
-      payload.missionTitle,
-      payload.reflection,
-      payload.timestamp
-    ]);
+    let foundIndex = -1;
+    for (let i = rows.length - 1; i >= 1; i--) {
+      if (rows[i][0] === payload.studentId && rows[i][1] === payload.missionTitle) {
+        foundIndex = i + 1; // 1-based index
+        break;
+      }
+    }
+    
+    if (foundIndex !== -1) {
+      sheet.getRange(foundIndex, 3).setValue(payload.reflection);
+      sheet.getRange(foundIndex, 4).setValue(payload.timestamp);
+    } else {
+      sheet.appendRow([
+        payload.studentId,
+        payload.missionTitle,
+        payload.reflection,
+        payload.timestamp
+      ]);
+    }
 
     return createJsonResponse({ success: true });
   } catch (err) {
