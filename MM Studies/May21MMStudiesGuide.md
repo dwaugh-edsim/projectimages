@@ -23,7 +23,9 @@
 
 ---
 
-## Part 2: Sugar Falls — Betty Ross's Story
+## Part 2: Sugar Falls & The Outside Circle
+
+### Sugar Falls — Betty Ross's Story
 
 ### The Graphic Novel
 - **Sugar Falls** by David A. Robertson is based on the **true story of Betty Ross (Kokum)**, a residential school survivor
@@ -39,7 +41,7 @@
 
 ---
 
-## Part 3: The Indian Residential Schools Settlement Agreement (IRSSA)
+## Part 4: The Indian Residential Schools Settlement Agreement (IRSSA)
 
 ### What Was It?
 - **2006/2007:** The **largest class-action settlement in Canadian history**
@@ -75,11 +77,19 @@
 - **Less than 20%** of the 94 Calls to Action are marked as "Complete" nearly a decade after they were issued
 
 ---
-Centralization
 
-Centralization was a failed 1940s Canadian federal policy that forced Nova Scotia's Mi'kmaq people off their traditional lands. The government relocated them from dozens of scattered communities into just two central reserves: Eskasoni and Sipekne'katik (Shubenacadie).Key FactsGoal: The government sought to cut administrative costs and accelerate Indigenous assimilation.Conditions: Promised housing, jobs, and farms never materialized, leading to starvation and homelessness.Resistance: Mi'kmaq families strongly resisted the policy and the surveillance of government agents.End: The federal government officially abandoned the failed project in 1949.Legacy: The forced moves caused generational trauma and permanently altered Mi'kmaq land rights.
+## Part 4: Centralization
 
+Centralization was a failed 1940s Canadian federal policy that forced Nova Scotia's Mi'kmaq people off their traditional lands. The government relocated them from dozens of scattered communities into just two central reserves: Eskasoni and Sipekne'katik (Shubenacadie).
 
+**Key Facts:**
+- **Goal:** The government sought to cut administrative costs and accelerate Indigenous assimilation
+- **Conditions:** Promised housing, jobs, and farms never materialized, leading to starvation and homelessness
+- **Resistance:** Mi'kmaq families strongly resisted the policy and the surveillance of government agents
+- **End:** The federal government officially abandoned the failed project in 1949
+- **Legacy:** The forced moves caused generational trauma and permanently altered Mi'kmaq land rights
+
+---
 
 ## Part 5: The Sixties Scoop
 
@@ -102,7 +112,7 @@ Centralization was a failed 1940s Canadian federal policy that forced Nova Scoti
 ---
 
 
-## Part 7: The Outside Circle (Hard Road to Walk)
+## Part 6: The Outside Circle (Hard Road to Walk)
 
 ### The Graphic Novel
 - **The Outside Circle** by Patti LaBoucane-Benson tells the story of **Joey and Pete**, two Indigenous brothers caught in cycles of gang violence and incarceration
@@ -115,25 +125,16 @@ Centralization was a failed 1940s Canadian federal policy that forced Nova Scoti
 
 ---
 
-## Part 8: The Oka Crisis
+## Part 7: The Oka Crisis
 
 ### What Was It?
-- **The Oka Crisis** (French: *Crise d'Oka*), also known as the Mohawk Crisis or Kanehsatà꞉ke Resistance (French: *Résistance de Kanehsatà꞉ke*), was a land dispute between a group of Mohawk people and the town of Oka, Quebec, Canada
-- The dispute was over plans to build a golf course on land known as "The Pines" which included an Indigenous burial ground
-- The crisis began on **July 11, 1990**, and lasted **78 days** until **September 26, 1990**
-- Two fatalities resulted from the conflict
-- The dispute was the first well-publicized violent conflict between First Nations and provincial governments in the late 20th century
-
-### Key Facts
-- The Mohawk community of Kanehsatà꞉ke established barricades to block access to the proposed golf course expansion
-- The Quebec provincial police (Sûreté du Québec) attempted to dismantle the barricade on July 11, leading to a shootout that killed Corporal Marcel Lemay
-- After 11 days, the Canadian Army was deployed to enforce the barricade removal
-- The crisis ended on September 26, 1990, when the barricades were dismantled and the Mohawk warriors surrendered
-- The golf course expansion was ultimately cancelled
+- A 1990 land dispute between Mohawk people and Oka, Quebec, over a golf course expansion on Indigenous burial ground
+- Lasted 78 days (July 11 – September 26) with two fatalities
+- First well-publicized violent conflict between First Nations and provincial governments in the late 20th century
 
 ---
 
-## Part 9: Cross-Cutting Themes
+## Part 8: Cross-Cutting Themes
 
 ### 1. Colonial Legacy
 - From residential schools to the Sixties Scoop to ongoing child welfare overrepresentation — the **same policy logic** persists: separation of Indigenous children from families and culture
@@ -143,12 +144,10 @@ Centralization was a failed 1940s Canadian federal policy that forced Nova Scoti
 - **Betty Ross (Kokum)** — survival and cultural transmission through storytelling
 - **Survivor oral histories** — shared publicly since the 1970s, bypassing mainstream media to preserve truth
 
-
 ### 4. Intergenerational Trauma
 - Residential school survivors struggled to parent because they were never parented themselves
 - The Sixties Scoop continued the cycle
 - Current child welfare statistics show the pattern persists
-
 
 ### 6. Self-Determination & Education
 - **Aboriginal control of Aboriginal education** — the antidote to residential schools
@@ -191,14 +190,6 @@ Centralization was a failed 1940s Canadian federal policy that forced Nova Scoti
 | **Eskasoni** | Largest Mi'kmaw community in Nova Scotia, located on Cape Breton Island; one of two central reserves created during the failed Centralization policy |
 | **Centralization** | Failed 1940s Canadian federal policy that forced Mi'kmaq people off traditional lands into centralized reserves (Eskasoni and Sipekne'katik) to cut costs and accelerate assimilation |
 | **Oka Crisis** | 1990 land dispute between Mohawk people and Oka, Quebec, over a golf course expansion on Indigenous burial ground; lasted 78 days with two fatalities |
-| **Kanehsatà꞉ke** | Mohawk community near Oka, Quebec, that led the resistance during the 1990 Oka Crisis |
-| **Sûreté du Québec** | Quebec provincial police force that first engaged in the Oka Crisis, resulting in the death of Corporal Marcel Lemay on July 11, 1990 |
-| **Canadian Armed Forces** | Deployed during the Oka Crisis on August 20, 1990, to enforce the removal of Mohawk barricades; ended the 78-day standoff on September 26 |
-| **The Pines** | Land in Oka, Quebec, contested in 1990 when Mohawk protesters blocked plans to expand a golf course that included an Indigenous burial ground |
-| **Corporal Marcel Lemay** | Sûreté du Québec officer killed on July 11, 1990, during the initial attempt to dismantle Mohawk barricades in the Oka Crisis |
-| **Mohawk Warriors** | Indigenous fighters from Kanehsatà꞉ke and Kahnawake who defended the barricades during the 1990 Oka Crisis |
-| **Kahnawake** | Mohawk community near Montreal that also established barricades in solidarity with Kanehsatà꞉ke during the 1990 Oka Crisis |
-| **Barricades** | Roadblocks established by Mohawk protesters during the 1990 Oka Crisis to prevent access to the contested golf course expansion site |
 ---
 
 #
