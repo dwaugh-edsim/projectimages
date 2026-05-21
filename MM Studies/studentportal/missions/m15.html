@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 15 | The Salmon Ladder Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #06b6d4; 
+            --bg: #f8fafc; 
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 2rem; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .briefing-card { 
+            max-width: 800px; 
+            width: 100%; 
+            background: var(--card-bg); 
+            padding: 3rem; 
+            border-radius: 2rem; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        
+        h1 { 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 2.5rem; 
+            text-transform: uppercase; 
+            margin-bottom: 1rem; 
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .mission-id {
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.2em;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .step { 
+            background: #f1f5f9; 
+            padding: 1.25rem; 
+            border-radius: 0.75rem; 
+            margin-bottom: 1rem; 
+            border-left: 4px solid var(--primary); 
+        }
+
+        .step strong {
+            color: var(--text);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        textarea { 
+            width: 100%; 
+            background: #fff; 
+            border: 2px solid var(--border); 
+            border-radius: 1rem; 
+            padding: 1.5rem; 
+            color: var(--text); 
+            font-family: inherit; 
+            font-size: 1.1rem; 
+            min-height: 150px; 
+            margin-top: 1.5rem; 
+            outline: none; 
+            transition: all 0.2s;
+        }
+        
+        textarea:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+        }
+        
+        .sync-indicator { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            margin-top: 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
+        .btn-back { 
+            display: inline-block; 
+            margin-top: 2rem; 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--primary); }
+
+        .significance-box {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .physics-puzzle {
+            text-align: center;
+            margin: 2rem 0;
+            background: #f1f5f9;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .river-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(180deg, #1e3a5f 0%, #3b82f6 50%, #1e3a5f 100%);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .dam {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #78716c;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .salmon {
+            position: absolute;
+            font-size: 1.5rem;
+            transition: all 0.5s;
+        }
+
+        .water-step {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background: #06b6d4;
+            border-radius: 4px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .water-step:active { cursor: grabbing; }
+
+        .step-tray {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tray-step {
+            width: 80px;
+            height: 35px;
+            background: #06b6d4;
+            border-radius: 6px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            user-select: none;
+        }
+
+        .tray-step:active { cursor: grabbing; }
+
+        .salmon-counter {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .success-message {
+            color: #10b981;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="briefing-card">
+        <span class="mission-id">TOP SECRET // MISSION 15</span>
+        <h1>The Salmon Ladder Engineer</h1>
+        
+        <p class="significance-box">
+            Fish are sacred. When humans build dams, we must create a "ladder" so the salmon can still get home to spawn.
+        </p>
+
+        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Your mission is to build a fish ladder using the "Physics Puzzle." Drag water steps into the river so the salmon can jump up.
+        </p>
+
+        <div class="physics-puzzle">
+            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1.5rem;">Physics Puzzle</h4>
+            <div class="river-container" id="riverContainer">
+                <div class="dam">DAM</div>
+                <div class="salmon" style="bottom: 20px; left: 50px;">🐟</div>
+                <div class="salmon" style="bottom: 20px; left: 100px;">🐟</div>
+                <div class="salmon" style="bottom: 20px; left: 150px;">🐟</div>
+                <div class="salmon" style="bottom: 20px; left: 200px;">🐟</div>
+                <div class="salmon" style="bottom: 20px; left: 250px;">🐟</div>
+            </div>
+            <div class="step-tray" id="stepTray">
+                <div class="tray-step" draggable="true" data-step="1">Step 1</div>
+                <div class="tray-step" draggable="true" data-step="2">Step 2</div>
+                <div class="tray-step" draggable="true" data-step="3">Step 3</div>
+            </div>
+            <p class="salmon-counter">Salmon rescued: <span id="salmonCount">0</span> / 5</p>
+            <p class="success-message" id="successMessage">All salmon made it home!</p>
+        </div>
+        
+        <div class="step">
+            <strong>Step 1: The Wall</strong><br>
+            See the dam blocking the fish from swimming upstream.
+        </div>
+
+        <div class="step">
+            <strong>Step 2: The Ladder</strong><br>
+            Place three steps so the fish can "jump" up the dam.
+        </div>
+
+        <div class="step">
+            <strong>Step 3: The Goal</strong><br>
+            Help 5 salmon get to the top of the screen.
+        </div>
+
+        <textarea id="workArea" placeholder="My fish ladder works by... The salmon need help because..."></textarea>
+        
+        <div class="sync-indicator">
+            <div id="syncDot" class="indicator-dot"></div>
+            <span id="syncStatus">Linking to Command Center...</span>
+        </div>
+
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const MISSION_TITLE = 'Mission 15: The Salmon Ladder Engineer';
+        const workArea = document.getElementById('workArea');
+        const syncStatus = document.getElementById('syncStatus');
+        const syncDot = document.getElementById('syncDot');
+        const riverContainer = document.getElementById('riverContainer');
+        const stepTray = document.getElementById('stepTray');
+        const salmonCount = document.getElementById('salmonCount');
+        const successMessage = document.getElementById('successMessage');
+        
+        let placedSteps = [];
+        let rescuedCount = 0;
+        let timeout = null;
+
+        document.querySelectorAll('.tray-step').forEach(step => {
+            step.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', step.dataset.step);
+            });
+        });
+
+        riverContainer.addEventListener('dragover', (e) => e.preventDefault());
+
+        riverContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const stepNum = e.dataTransfer.getData('text/plain');
+            const rect = riverContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left - 30;
+            const y = e.clientY - rect.top - 15;
+            
+            const placedStep = document.createElement('div');
+            placedStep.className = 'water-step';
+            placedStep.style.left = x + 'px';
+            placedStep.style.top = y + 'px';
+            placedStep.textContent = 'Step ' + stepNum;
+            placedStep.draggable = true;
+            
+            placedStep.addEventListener('dragstart', (ev) => {
+                ev.dataTransfer.setData('moveStep', placedSteps.length.toString());
+            });
+            
+            riverContainer.appendChild(placedStep);
+            placedSteps.push({ el: placedStep, x, y });
+            
+            checkSalmonRescue();
+            triggerSave();
+        });
+
+        function checkSalmonRescue() {
+            if (placedSteps.length >= 3) {
+                const sorted = [...placedSteps].sort((a, b) => b.y - a.y);
+                let canRescue = true;
+                
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    if (sorted[i].y - sorted[i + 1].y > 80) {
+                        canRescue = false;
+                        break;
+                    }
+                }
+                
+                if (canRescue && sorted[sorted.length - 1].y < 100) {
+                    rescuedCount = 5;
+                    salmonCount.textContent = '5';
+                    successMessage.style.display = 'block';
+                    
+                    document.querySelectorAll('.salmon').forEach((salmon, i) => {
+                        setTimeout(() => {
+                            salmon.style.bottom = '260px';
+                            salmon.style.left = (50 + i * 50) + 'px';
+                        }, i * 300);
+                    });
+                }
+            }
+        }
+
+        function triggerSave() {
+            syncStatus.innerText = 'Changes detected...';
+            syncDot.className = 'indicator-dot';
+            clearTimeout(timeout);
+            timeout = setTimeout(saveAndSync, 2000);
+        }
+
+        async function retrieveFromCloud() {
+            try {
+                const response = await fetch(`${WEBHOOK_URL}?studentId=MKS-11-ALPHA&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const data = await response.json();
+                
+                if (data.content) workArea.value = data.content;
+                else workArea.value = localStorage.getItem('mks_m15_work') || '';
+
+                if (data.placedSteps) {
+                    placedSteps = JSON.parse(data.placedSteps);
+                    placedSteps.forEach(ps => {
+                        const el = document.createElement('div');
+                        el.className = 'water-step';
+                        el.style.left = ps.x + 'px';
+                        el.style.top = ps.y + 'px';
+                        el.textContent = ps.text;
+                        riverContainer.appendChild(el);
+                        ps.el = el;
+                    });
+                    checkSalmonRescue();
+                }
+
+                syncStatus.innerText = 'Mission data retrieved';
+            } catch (e) {
+                workArea.value = localStorage.getItem('mks_m15_work') || '';
+                syncStatus.innerText = 'Ready (Offline Mode)';
+            }
+        }
+
+        workArea.addEventListener('input', triggerSave);
+
+        async function saveAndSync() {
+            const content = workArea.value;
+            localStorage.setItem('mks_m15_work', content);
+            localStorage.setItem('mks_m15_steps', JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))));
+            
+            syncStatus.innerText = 'Syncing design...';
+            syncDot.className = 'indicator-dot active';
+
+            const payload = {
+                studentId: 'MKS-11-ALPHA',
+                missionTitle: MISSION_TITLE,
+                reflection: content,
+                placedSteps: JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))),
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                syncStatus.innerText = 'Design synced';
+                let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+                if (!completed.includes(15)) completed.push(15);
+                localStorage.setItem('mks_completed', JSON.stringify(completed));
+            } catch (e) {
+                syncStatus.innerText = 'Saved Locally Only';
+            }
+        }
+
+        retrieveFromCloud();
+    </script>
+</body>
+</html>

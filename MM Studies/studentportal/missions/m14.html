@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 14 | The Ash Basket Weaver</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #8b5cf6; 
+            --bg: #f8fafc; 
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 2rem; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .briefing-card { 
+            max-width: 800px; 
+            width: 100%; 
+            background: var(--card-bg); 
+            padding: 3rem; 
+            border-radius: 2rem; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        
+        h1 { 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 2.5rem; 
+            text-transform: uppercase; 
+            margin-bottom: 1rem; 
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .mission-id {
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.2em;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .step { 
+            background: #f1f5f9; 
+            padding: 1.25rem; 
+            border-radius: 0.75rem; 
+            margin-bottom: 1rem; 
+            border-left: 4px solid var(--primary); 
+        }
+
+        .step strong {
+            color: var(--text);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        textarea { 
+            width: 100%; 
+            background: #fff; 
+            border: 2px solid var(--border); 
+            border-radius: 1rem; 
+            padding: 1.5rem; 
+            color: var(--text); 
+            font-family: inherit; 
+            font-size: 1.1rem; 
+            min-height: 150px; 
+            margin-top: 1.5rem; 
+            outline: none; 
+            transition: all 0.2s;
+        }
+        
+        textarea:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        .sync-indicator { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            color: var(--text-muted); 
+            margin-top: 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
+        
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
+        .btn-back { 
+            display: inline-block; 
+            margin-top: 2rem; 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            transition: color 0.2s;
+        }
+        .btn-back:hover { color: var(--primary); }
+
+        .significance-box {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--border);
+        }
+
+        .pattern-coder {
+            text-align: center;
+            margin: 2rem 0;
+            background: #f1f5f9;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .weave-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .weave-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .weave-cell.white { background: #f1f5f9; }
+        .weave-cell.purple { background: #7c3aed; }
+        .weave-cell:hover { transform: scale(1.1); border-color: var(--primary); }
+
+        .weave-controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .weave-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .weave-btn.active { border-color: var(--primary); background: rgba(139, 92, 246, 0.1); }
+        .weave-btn-white { background: #f1f5f9; }
+        .weave-btn-purple { background: #7c3aed; color: white; }
+
+        .pattern-status {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="briefing-card">
+        <span class="mission-id">TOP SECRET // MISSION 14</span>
+        <h1>The Ash Basket Weaver</h1>
+        
+        <p class="significance-box">
+            Baskets were woven from thin strips of black ash wood. The "checkerboard" pattern makes them strong and beautiful.
+        </p>
+
+        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Your mission is to weave a basket using the "Pattern Coder." Click the grid to toggle between Over (White) and Under (Purple).
+        </p>
+
+        <div class="pattern-coder">
+            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1.5rem;">Pattern Coder</h4>
+            <div id="weaveGrid" class="weave-grid"></div>
+            <div class="weave-controls">
+                <button class="weave-btn weave-btn-white active" onclick="setMode('white')">White Strip</button>
+                <button class="weave-btn weave-btn-purple" onclick="setMode('purple')">Purple Strip</button>
+            </div>
+            <p class="pattern-status" id="patternStatus">Click cells to weave your pattern</p>
+        </div>
+        
+        <div class="step">
+            <strong>Step 1: Start</strong><br>
+            Click the "White" strip to begin your weave.
+        </div>
+
+        <div class="step">
+            <strong>Step 2: Weave</strong><br>
+            Click the "Purple" strip to go over it.
+        </div>
+
+        <div class="step">
+            <strong>Step 3: Check</strong><br>
+            Make sure the pattern goes Over-Under-Over-Under.
+        </div>
+
+        <textarea id="workArea" placeholder="My basket pattern represents... The checkerboard weave is strong because..."></textarea>
+        
+        <div class="sync-indicator">
+            <div id="syncDot" class="indicator-dot"></div>
+            <span id="syncStatus">Linking to Command Center...</span>
+        </div>
+
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const MISSION_TITLE = 'Mission 14: The Ash Basket Weaver';
+        const workArea = document.getElementById('workArea');
+        const syncStatus = document.getElementById('syncStatus');
+        const syncDot = document.getElementById('syncDot');
+        const weaveGrid = document.getElementById('weaveGrid');
+        const patternStatus = document.getElementById('patternStatus');
+        
+        const GRID_SIZE = 8;
+        let currentMode = 'white';
+        let gridData = Array(GRID_SIZE * GRID_SIZE).fill('white');
+        let timeout = null;
+
+        function createGrid() {
+            weaveGrid.innerHTML = '';
+            
+            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+                const cell = document.createElement('div');
+                cell.className = `weave-cell ${gridData[i]}`;
+                cell.onclick = () => toggleCell(i);
+                weaveGrid.appendChild(cell);
+            }
+        }
+
+        function toggleCell(index) {
+            gridData[index] = currentMode;
+            const cells = weaveGrid.querySelectorAll('.weave-cell');
+            cells[index].className = `weave-cell ${currentMode}`;
+            checkPattern();
+            triggerSave();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.weave-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.weave-btn-${mode}`).classList.add('active');
+        }
+
+        function checkPattern() {
+            let isAlternating = true;
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 1; col++) {
+                    const idx = row * GRID_SIZE + col;
+                    if (gridData[idx] === gridData[idx + 1]) {
+                        isAlternating = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isAlternating) {
+                patternStatus.innerText = 'Perfect checkerboard pattern!';
+                patternStatus.style.color = '#10b981';
+            } else {
+                patternStatus.innerText = 'Keep weaving - aim for Over-Under-Over-Under';
+                patternStatus.style.color = 'var(--text-muted)';
+            }
+        }
+
+        function triggerSave() {
+            syncStatus.innerText = 'Changes detected...';
+            syncDot.className = 'indicator-dot';
+            clearTimeout(timeout);
+            timeout = setTimeout(saveAndSync, 2000);
+        }
+
+        async function retrieveFromCloud() {
+            try {
+                const response = await fetch(`${WEBHOOK_URL}?studentId=MKS-11-ALPHA&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const data = await response.json();
+                
+                if (data.content) workArea.value = data.content;
+                else workArea.value = localStorage.getItem('mks_m14_work') || '';
+
+                if (data.gridData) {
+                    const loaded = JSON.parse(data.gridData);
+                    if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                } else {
+                    const localGrid = localStorage.getItem('mks_m14_grid');
+                    if (localGrid) {
+                        const loaded = JSON.parse(localGrid);
+                        if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                    }
+                }
+
+                createGrid();
+                checkPattern();
+                syncStatus.innerText = 'Mission data retrieved';
+            } catch (e) {
+                workArea.value = localStorage.getItem('mks_m14_work') || '';
+                const localGrid = localStorage.getItem('mks_m14_grid');
+                if (localGrid) {
+                    const loaded = JSON.parse(localGrid);
+                    if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                }
+                createGrid();
+                checkPattern();
+                syncStatus.innerText = 'Ready (Offline Mode)';
+            }
+        }
+
+        workArea.addEventListener('input', triggerSave);
+
+        async function saveAndSync() {
+            const content = workArea.value;
+            localStorage.setItem('mks_m14_work', content);
+            localStorage.setItem('mks_m14_grid', JSON.stringify(gridData));
+            
+            syncStatus.innerText = 'Syncing design...';
+            syncDot.className = 'indicator-dot active';
+
+            const payload = {
+                studentId: 'MKS-11-ALPHA',
+                missionTitle: MISSION_TITLE,
+                reflection: content,
+                gridData: JSON.stringify(gridData),
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                syncStatus.innerText = 'Design synced';
+                let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+                if (!completed.includes(14)) completed.push(14);
+                localStorage.setItem('mks_completed', JSON.stringify(completed));
+            } catch (e) {
+                syncStatus.innerText = 'Saved Locally Only';
+            }
+        }
+
+        retrieveFromCloud();
+    </script>
+</body>
+</html>
