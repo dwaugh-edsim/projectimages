@@ -900,7 +900,11 @@ Clark,CIT 9: Service Learning V2,"{""studentName"":""Clark"",""missionSelect"":"
             let rawRows = [];
             try {
                 const res = await fetch(`${WEBHOOK_URL}?action=GET_ALL_PROGRESS`);
-                rawRows = await res.json();
+                const parsed = await res.json();
+                if (!Array.isArray(parsed)) {
+                    throw new Error("Invalid response format: Expected log array from Webhook");
+                }
+                rawRows = parsed;
             } catch (err) {
                 console.warn("API request failed, loading local fallback CSV data.", err);
                 rawRows = parseCSV(csvData);

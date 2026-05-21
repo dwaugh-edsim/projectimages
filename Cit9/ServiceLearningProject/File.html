@@ -1199,6 +1199,10 @@
                 const res = await fetch(`${WEBHOOK_URL}?action=GET_ALL_PROGRESS`);
                 const allLogs = await res.json();
                 
+                if (!Array.isArray(allLogs)) {
+                    throw new Error("Invalid response format: Expected log array from Webhook");
+                }
+                
                 // Filter by active student name
                 const studentLogs = allLogs.filter(log => 
                     log.StudentId && log.StudentId.toLowerCase() === studentName.toLowerCase()
