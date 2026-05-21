@@ -647,6 +647,29 @@
             color: var(--accent);
         }
 
+        .btn-finalize {
+            background: var(--ink);
+            color: white;
+            border: 2px solid var(--ink);
+            padding: 12px 24px;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-finalize:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         @media (max-width: 600px) {
             .roles-grid {
                 grid-template: 1fr;
@@ -772,7 +795,7 @@
             </div>
             <div class="phase-bar">
                 <div class="phase active"><span class="phase-num">01</span><a href="#">Choose & Commit</a></div>
-                <div class="phase"><span class="phase-num">02</span><a href="Briefing.html">Research</a></div>
+                <div class="phase" onclick="window.location.href='Briefing.html'" style="cursor:pointer; background: #fffbeb; border: 1px solid var(--accent);"><span class="phase-num">02</span>Research</div>
                 <div class="phase"><span class="phase-num">03</span><a href="#">Plan Roles</a></div>
                 <div class="phase"><span class="phase-num">04</span><a href="#">14-Day Action</a></div>
                 <div class="phase"><span class="phase-num">05</span><a href="#">Impact Report</a></div>
@@ -799,7 +822,7 @@
             {name:'Huda'}, {name:'Brody'}, {name:'Leo'}, {name:'Elizabeth'},
             {name:'Fatima'}, {name:'Alia'}, {name:'Rifa'}, {name:'Sarah'},
             {name:'Jessa'}, {name:'Delisha'}, {name:'Kendra'}, {name:'Zankia'},
-            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}
+            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}, {name:'Isaac'}
         ];
 
         const PIN_LIST = {
@@ -809,7 +832,7 @@
             'Huda': '6SUB', 'Brody': 'JY2P', 'Leo': 'RKKJ', 'Elizabeth': 'FNG3',
             'Fatima': 'T6U2', 'Alia': 'LJFM', 'Rifa': '57G5', 'Sarah': '96EU',
             'Jessa': 'HSZU', 'Delisha': 'Q2YA', 'Kendra': 'MTGG', 'Zankia': 'CA3J',
-            'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8', 'Natalia': 'RING'
+            'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8', 'Natalia': 'RING', 'Isaac': 'CASK'
         };
 
         async function handleLogin() {
@@ -1278,14 +1301,10 @@
         }
 
         function openFile(id) {
-            // Save mission choice to localStorage then go straight to File.html
-            localStorage.setItem('sl_v2_missionSelect', id);
-            window.location.href = 'File.html';
-        }
+            const item = challenges.find(c => c.id === id);
+            if (!item) return;
 
-        let labData = JSON.parse(localStorage.getItem('diversionLab') || '[]');
-
-
+            document.getElementById('file-content').innerHTML = `
             <div class="file-section">
                 <h3><span class="step-label">Step 1:</span> Choose & Commit â€” The Briefing</h3>
                 <div class="context-box">
@@ -1328,28 +1347,105 @@
                 </div>
             </div>
 
-            <div class="file-section challenge-box">
-                <h4>Step 4: The 14-Day Action Challenge</h4>
-                <p style="margin-bottom:15px;">Follow this day-by-day plan. Log every day â€” no gaps. Evidence matters.</p>
+            <div class="file-section">
+                <h3><span class="step-label">Step 4:</span> 14-Day Action Challenge Checklist</h3>
+                <p style="font-size:0.9rem; margin-bottom:15px;">You must complete the following actions over 14 days. These are designed to create a measurable reduction or diversion in your target area.</p>
                 <div class="timeline">
-                    ${item.actionPlan.map(d => `
+                    ${item.actionPlan.map(p => `
                         <div class="timeline-row">
-                            <div class="timeline-day">${d.day}</div>
-                            <div class="timeline-task">${d.task}</div>
+                            <div class="timeline-day">${p.day}</div>
+                            <div class="timeline-task">${p.task}</div>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
+            ${item.id === 'CIT-001' ? `
+            <div class="file-section" style="margin-top: 30px;">
+                <h3><span class="step-label">⚡ Live Station:</span> The Diversion Lab — Classroom Battery Collection</h3>
+                <p style="font-size:0.85rem; color:#6b7280; margin-bottom:15px;">Use this tool to log every battery you and your classmates divert from landfill. Data persists in your browser.</p>
+                
+                <div class="lab-stats">
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-total">0</span>
+                        <span class="stat-label">Total Batteries</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-lithium">0</span>
+                        <span class="stat-label">Lithium-Ion</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="stat-alkaline">0</span>
+                        <span class="stat-label">Alkaline / Other</span>
+                    </div>
+                </div>
+
+                <div class="lab-grid">
+                    <div class="lab-form">
+                        <h4>Log a Battery</h4>
+                        <div class="form-row">
+                            <div style="flex:1;">
+                                <label for="bat-name">Your Name</label>
+                                <input type="text" id="bat-name" placeholder="First name">
+                            </div>
+                            <div style="flex:1;">
+                                <label for="bat-type">Battery Type</label>
+                                <select id="bat-type">
+                                    <option value="Lithium-Ion">Lithium-Ion (phone/laptop)</option>
+                                    <option value="Alkaline">Alkaline (AA/AAA/C/D)</option>
+                                    <option value="Lead-Acid">Lead-Acid (car/UPS)</option>
+                                    <option value="NiMH">NiMH (rechargeable AA)</option>
+                                    <option value="Button">Button Cell (watch/hearing)</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div style="flex:1;">
+                                <label for="bat-qty">Quantity</label>
+                                <input type="number" id="bat-qty" value="1" min="1" max="50">
+                            </div>
+                            <div style="flex:1;">
+                                <label for="bat-taped">Terminals Taped?</label>
+                                <select id="bat-taped">
+                                    <option value="Yes">Yes — Safe</option>
+                                    <option value="No">No — Tape First!</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <button class="log-btn" onclick="logBattery()">+ Log Battery</button>
+                            <button class="reset-btn" onclick="resetLab()" style="float:none; margin-left:10px; padding:8px 15px;">Reset</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="lab-log-header">Collection Log</div>
+                        <div class="lab-log" id="lab-log">
+                            <div style="padding:20px; text-align:center; color:#9ca3af; font-family:'Courier Prime',monospace; font-size:0.8rem;">
+                                No batteries logged yet. Be the first!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="safety-note">
+                    <strong>⚠ SAFETY:</strong> All Lithium-Ion batteries MUST have terminals taped with clear tape before
+                    entering the collection bin. Untaped lithium batteries pose a <strong>thermal runaway fire risk</strong>.
+                    Alkaline batteries are safe to handle but should still be sorted properly.
+                </div>
+            </div>
+            ` : ''}
+
             <div class="file-section">
-                <h3><span class="step-label">Step 5:</span> Deliverables â€” What You Must Produce</h3>
+                <h3><span class="step-label">Step 5:</span> Deliverables — What You Must Produce</h3>
                 <ul class="deliverable-list">
                     ${item.deliverables.map(d => `<li>${d}</li>`).join('')}
                 </ul>
             </div>
 
             <div class="file-section">
-                <h3><span class="step-label">Step 6:</span> Assessment Rubric â€” How You'll Be Evaluated</h3>
+                <h3><span class="step-label">Step 6:</span> Assessment Rubric — How You'll Be Evaluated</h3>
                 <table class="rubric-table">
                     <thead>
                         <tr>
@@ -1362,10 +1458,10 @@
                     <tbody>
                         ${item.rubric.map(r => `
                             <tr>
-                                  <td><strong>${r.criteria}</strong></td>
-                                  <td>${r.excellent}</td>
-                                  <td>${r.adequate}</td>
-                                  <td>${r.developing}</td>
+                                <td><strong>${r.criteria}</strong></td>
+                                <td>${r.excellent}</td>
+                                <td>${r.adequate}</td>
+                                <td>${r.developing}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1386,16 +1482,14 @@
                 </div>
             </div>
 
-            ${item.id === 'CIT-001' ? `
-            <div class="file-section" style="margin-top:10px;">
-                <h3><span class="step-label">âš¡ Live Station:</span> The Diversion Lab â€” Classroom Battery Collection</h3>
-                <p style="font-size:0.85rem; color:#6b7280; margin-bottom:15px;">Use this tool to log every battery you and your classmates divert from landfill. Data persists in your browser.</p>
-
-                <div class="lab-stats">
-                    <div class="stat-box">
-                        <span class="stat-num" id="stat-total">0</span>
-                        <span class="stat-label">Total Batteries</span>
-                    </div>
+            <div class="file-section" style="border-top: 4px solid var(--accent); padding-top: 30px; margin-top: 40px;">
+                <h3><span class="step-label">Step 8:</span> Mission Complete — Final Submission</h3>
+                <p style="font-size:0.9rem; margin-bottom:15px;">Once you have completed your 14-day action and gathered all evidence, use the <strong>Action Intelligence Report</strong> to compile your findings and export them as a PDF for Google Classroom.</p>
+                <button class="btn btn-finalize" onclick="commitAndOpen('${item.id}')" style="display:inline-block; text-decoration:none; text-align:center; width: 100%;">
+                    COMMIT & OPEN WORKSPACE >
+                </button>
+                <p style="font-size:0.75rem; color:#6b7280; margin-top:10px;">The workspace will automatically load your specific mission's research questions.</p>
+            </div>
                     <div class="stat-box">
                         <span class="stat-num" id="stat-lithium">0</span>
                         <span class="stat-label">Lithium-Ion</span>
@@ -1441,7 +1535,6 @@
                         </div>
                         <div class="form-row">
                             <button class="log-btn" onclick="logBattery()">+ Log Battery</button>
-                            <button class="reset-btn" onclick="resetLab()" style="float:none; margin-left:10px; padding:8px 15px;">Reset</button>
                         </div>
                     </div>
 
@@ -1466,9 +1559,9 @@
             <div class="file-section" style="border-top: 4px solid var(--accent); padding-top: 30px; margin-top: 40px;">
                 <h3><span class="step-label">Step 6:</span> Mission Complete â€” Final Submission</h3>
                 <p style="font-size:0.9rem; margin-bottom:15px;">Once you have completed your 14-day action and gathered all evidence, use the <strong>Action Intelligence Report</strong> to compile your findings and export them as a PDF for Google Classroom.</p>
-                <a href="File.html" class="btn btn-finalize" style="display:inline-block; text-decoration:none; text-align:center;">
-                    OPEN RESPONSE DOCUMENT >
-                </a>
+                <button class="btn btn-finalize" onclick="commitAndOpen('${item.id}')" style="display:inline-block; text-decoration:none; text-align:center; width: 100%;">
+                    COMMIT & OPEN WORKSPACE >
+                </button>
                 <p style="font-size:0.75rem; color:#6b7280; margin-top:10px;">The response document will automatically load your specific mission's research questions.</p>
             </div>
 
@@ -1476,7 +1569,7 @@
                 <h4>Level Up â€” Optional Extension</h4>
                 <p style="font-size:0.9rem;">${item.extension}</p>
             </div>
-        `;
+            `;
 
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('overlay').scrollTop = 0;
@@ -1489,6 +1582,11 @@
 
         function closeFile() {
             document.getElementById('overlay').style.display = 'none';
+        }
+
+        function commitAndOpen(id) {
+            localStorage.setItem('sl_v2_missionSelect', id);
+            window.location.href = 'File.html';
         }
 
         window.onclick = function (event) {

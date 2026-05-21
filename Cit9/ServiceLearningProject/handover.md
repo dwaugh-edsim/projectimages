@@ -96,11 +96,23 @@ Offline verification PINs reside in `Menu.html` and `File.html`:
 
 ---
 
-## 4. Work Completed Today (2026-05-21)
+## 4. Work Completed & Active Tasks (2026-05-21)
 
-We completed a major stabilization sweep to "bulletproof" student logins, prevent loss of work on Chromebooks, and build the AI review flow:
+Today, we are executing a final cleanup and stabilization sweep focused on customizing project-specific instructions, removing redundant questions, resolving remaining workspace gateway issues, and committing our final state to git:
 
-### 1. Storage Migration (Session to Local Storage)
+### 1. Customized Day 1 Setup & Logistics
+* **Challenge**: The Day 1 instructions (Target Area, Safety/Materials, Parent Pitch) in Step 3 of `File.html` were generic and physical-only, which did not make sense for digital or service projects like **CIT-005: The Data Diet** (which needs "Target Settings & Apps" rather than a physical area).
+* **Solution**: Defined a customized dynamic dictionary mapping each of the 7 projects to specific Target Labels, Target Descriptions, Safety guidelines, Parent Pitches, and custom textarea placeholders. Added logic to update these fields automatically when a student loads their workspace or changes projects.
+
+### 2. Removal of "What is your team role?" Question
+* **Challenge**: The prompt requested deleting the team role question as it's no longer needed for project planning.
+* **Solution**: Purged the `#personalRole` textarea from Step 1 in `File.html`. Adjusted the auto-saving mechanism, validation code, tab-gating requirements, and `StatusPanel.html` heuristic checks/AI prompt generator to ignore the team role field.
+
+### 3. Restoration of Menu.html Dossier Overlay
+* **Challenge**: A syntax error (duplicate declaration of `let labData` and a dangling template literal) broke the file selection overlay in `Menu.html`.
+* **Solution**: Wrapped the dossier template literal in `openFile(id)` correctly, cleaned up the duplicate variable, and converted the launch anchor to a styled commit button that stores the selected mission to `localStorage` and routes the student directly to `File.html`.
+
+### 4. Storage Migration (Session to Local Storage)
 * Changed `sessionStorage` to `localStorage` for `sl_friday_user` and `sl_v2_missionSelect` across `Menu.html` and `File.html`. 
 * Closing a browser tab or restarting Chromebooks will no longer lock students out or dump their credentials.
 
