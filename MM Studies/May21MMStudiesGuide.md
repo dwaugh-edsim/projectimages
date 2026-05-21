@@ -37,15 +37,9 @@
 5. **Vocational Training over Education:** Children performed manual labour (farm work, laundry, kitchen duties) instead of receiving proper academic education
 6. **Resistance & Resilience:** Despite the system's efforts, Betty survived and reclaimed her identity — the smudging ceremony at the story's beginning represents cultural reclamation
 
-### Connection to Textbook (Aboriginal Peoples: Building for the Future)
-- **Page 48–49:** Language suppression, vocational training, harsh conditions
-- **Page 70:** Targeting language and ceremonies so children would "lose their sense of identity"; contrast with the Chehalis Community School (teaching language and traditional beadwork) as an example of **Aboriginal control of Aboriginal education**
-
 ---
 
----
-
-## Part 4: The Indian Residential Schools Settlement Agreement (IRSSA)
+## Part 3: The Indian Residential Schools Settlement Agreement (IRSSA)
 
 ### What Was It?
 - **2006/2007:** The **largest class-action settlement in Canadian history**
