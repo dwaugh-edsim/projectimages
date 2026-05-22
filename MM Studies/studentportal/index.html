@@ -32,6 +32,124 @@
             align-items: center;
         }
 
+        #loginGate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #loginGate.hidden { display: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .login-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .login-field {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .login-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-field input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .login-field input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--ring);
+        }
+
+        .login-field input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .login-error {
+            color: #ef4444;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .login-error.show { display: block; }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-login:hover { background: #1d4ed8; transform: scale(1.02); }
+
+        .login-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            line-height: 1.5;
+        }
+
         .container {
             max-width: 1000px;
             width: 100%;
@@ -55,7 +173,9 @@
         }
 
         .status-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
             background: #fff;
             border: 1px solid var(--border);
             color: var(--text-muted);
@@ -70,6 +190,24 @@
 
         .status-badge strong {
             color: var(--primary);
+        }
+
+        .btn-switch {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-switch:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .progress-container {
@@ -336,10 +474,38 @@
 </head>
 <body>
 
-    <div class="container">
+    <div id="loginGate">
+        <div class="login-box">
+            <div class="login-logo">MKS-11 Portal</div>
+            <p class="login-subtitle">Enter your credentials to access your missions</p>
+            
+            <div class="login-field">
+                <label for="studentName">Your Name</label>
+                <input type="text" id="studentName" placeholder="e.g. Jordan" maxlength="30" autocomplete="off">
+            </div>
+            
+            <div class="login-field">
+                <label for="studentPin">Secret PIN (1-99)</label>
+                <input type="number" id="studentPin" placeholder="e.g. 42" min="1" max="99" autocomplete="off">
+            </div>
+            
+            <div class="login-error" id="loginError">Please enter both your name and a PIN between 1-99.</div>
+            
+            <button class="btn-login" onclick="handleLogin()">Enter Portal</button>
+            
+            <p class="login-note">
+                Your name + PIN creates a unique ID. Use the same combo each time to restore your saved work.
+            </p>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
         <header>
             <h1>Student Mission Control</h1>
-            <div class="status-badge">Agent ID: <strong>MKS-11-ALPHA</strong> | Spring 2026</div>
+            <div class="status-badge">
+                Agent: <strong id="agentDisplay">---</strong> | Spring 2026
+                <button class="btn-switch" onclick="switchStudent()">Switch</button>
+            </div>
         </header>
 
         <div class="progress-container">
@@ -353,7 +519,6 @@
         </div>
 
         <div class="activity-grid" id="activityGrid">
-            <!-- Activities will be injected here -->
         </div>
 
         <div class="reflection-zone">
@@ -369,16 +534,114 @@
     </div>
 
     <script>
-        // CONFIGURATION
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
         
+        let currentStudentId = null;
+        let currentStudentName = null;
+
+        function getStudentId() {
+            return currentStudentId;
+        }
+
+        function initStudent() {
+            const saved = localStorage.getItem('mks_current_student');
+            if (saved) {
+                const data = JSON.parse(saved);
+                currentStudentId = data.id;
+                currentStudentName = data.name;
+                document.getElementById('loginGate').classList.add('hidden');
+                document.getElementById('mainContent').style.display = '';
+                document.getElementById('agentDisplay').textContent = currentStudentName.toUpperCase();
+                return true;
+            }
+            return false;
+        }
+
+        function migrateOldData() {
+            const oldKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('mks_') && !key.startsWith('mks_MKS11-') && key !== 'mks_current_student') {
+                    oldKeys.push(key);
+                }
+            }
+            
+            if (oldKeys.length === 0) return false;
+            
+            oldKeys.forEach(oldKey => {
+                const suffix = oldKey.replace('mks_', '');
+                const newKey = 'mks_' + currentStudentId + '_' + suffix;
+                if (!localStorage.getItem(newKey)) {
+                    localStorage.setItem(newKey, localStorage.getItem(oldKey));
+                }
+                localStorage.removeItem(oldKey);
+            });
+            
+            return true;
+        }
+
+        function handleLogin() {
+            const nameInput = document.getElementById('studentName');
+            const pinInput = document.getElementById('studentPin');
+            const errorEl = document.getElementById('loginError');
+            
+            const name = nameInput.value.trim();
+            const pin = parseInt(pinInput.value);
+            
+            if (!name || !pin || pin < 1 || pin > 99) {
+                errorEl.classList.add('show');
+                if (!name) nameInput.classList.add('error');
+                if (!pin || pin < 1 || pin > 99) pinInput.classList.add('error');
+                return;
+            }
+            
+            errorEl.classList.remove('show');
+            nameInput.classList.remove('error');
+            pinInput.classList.remove('error');
+            
+            currentStudentName = name;
+            currentStudentId = 'MKS11-' + name.replace(/\s+/g, '').toUpperCase() + '-' + String(pin).padStart(2, '0');
+            
+            const migrated = migrateOldData();
+            
+            localStorage.setItem('mks_current_student', JSON.stringify({
+                id: currentStudentId,
+                name: currentStudentName
+            }));
+            
+            document.getElementById('loginGate').classList.add('hidden');
+            document.getElementById('mainContent').style.display = '';
+            document.getElementById('agentDisplay').textContent = currentStudentName.toUpperCase();
+            
+            if (migrated) {
+                alert('Welcome back! Your previous work has been restored.');
+            }
+            
+            initPortal();
+        }
+
+        function switchStudent() {
+            if (confirm('Switch to a different student? Your current progress is saved.')) {
+                localStorage.removeItem('mks_current_student');
+                location.reload();
+            }
+        }
+
+        document.getElementById('studentPin').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        document.getElementById('studentName').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('studentPin').focus();
+        });
+
         const activities = [
             { id: 1, title: 'Mission: Silent Wampum', desc: 'Tell a story of peace using only symbols.', url: 'missions/m1.html', thumb: 'missions/assets/wampum_belt.png' },
             { id: 2, title: 'Mission: Modern Petroglyph', desc: 'Design symbols for life in 2026.', url: 'missions/m2.html', thumb: 'missions/assets/m2_thumb.png' },
-            { id: 3, title: 'Mission: The Hero’s Virtue', desc: 'Connect the 7 Sacred Teachings to a leader.', url: 'missions/m3.html', thumb: 'missions/assets/m3_thumb.png' },
+            { id: 3, title: 'Mission: The Hero's Virtue', desc: 'Connect the 7 Sacred Teachings to a leader.', url: 'missions/m3.html', thumb: 'missions/assets/m3_thumb.png' },
             { id: 4, title: 'Mission: Dream School', desc: 'Design a safe space for learning.', url: 'missions/m4.html', thumb: 'missions/assets/m4_thumb.png' },
             { id: 5, title: 'Mission: Storyboard of Life', desc: 'Draw the 6 stages of the Creation Story.', url: 'missions/m5.html', thumb: 'missions/assets/m5_thumb.png' },
-            { id: 6, title: 'Mission: The Secret Path', desc: 'Map Chanie Wenjack’s journey.', url: 'missions/m6.html', thumb: 'missions/assets/m6_thumb.png' },
+            { id: 6, title: 'Mission: The Secret Path', desc: 'Map Chanie Wenjack's journey.', url: 'missions/m6.html', thumb: 'missions/assets/m6_thumb.png' },
             { id: 7, title: 'Mission: TRC Report Card', desc: 'Rank the 10 most important changes.', url: 'missions/m7.html', thumb: 'missions/assets/m7_thumb.png' },
             { id: 8, title: 'Mission: Medal of Friendship', desc: 'Design a modern Treaty Medal.', url: 'missions/m8.html', thumb: 'missions/assets/m8_thumb.png' },
             { id: 9, title: 'Mission: Ipperwash Ticker', desc: 'Create headlines for the news.', url: 'missions/m9.html', thumb: 'missions/assets/m9_thumb.png' },
@@ -390,7 +653,16 @@
             { id: 15, title: 'Mission: The Salmon Ladder Engineer', desc: 'Build a fish ladder to help salmon get home.', url: 'missions/m15.html', thumb: 'missions/assets/m15_thumb.png' }
         ];
 
-        let completedIds = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+        let completedIds = [];
+
+        function getStorageKey(base) {
+            return 'mks_' + currentStudentId + '_' + base;
+        }
+
+        function initPortal() {
+            completedIds = JSON.parse(localStorage.getItem(getStorageKey('completed')) || '[]');
+            updateUI();
+        }
 
         function updateUI() {
             const grid = document.getElementById('activityGrid');
@@ -410,7 +682,6 @@
                         Open Mission Briefing ➔
                     </a>
                 `;
-                // Keep the checkbox toggle but allow the link to work separately
                 card.querySelector('.checkbox').onclick = (e) => {
                     e.stopPropagation();
                     toggleActivity(act.id);
@@ -429,7 +700,7 @@
             } else {
                 completedIds.push(id);
             }
-            localStorage.setItem('mks_completed', JSON.stringify(completedIds));
+            localStorage.setItem(getStorageKey('completed'), JSON.stringify(completedIds));
             updateUI();
         }
 
@@ -442,7 +713,8 @@
             status.innerText = '🛰️ Transmitting...';
 
             const payload = {
-                studentId: 'MKS-11-ALPHA',
+                studentId: currentStudentId,
+                studentName: currentStudentName,
                 timestamp: new Date().toISOString(),
                 completedCount: completedIds.length,
                 completedList: completedIds.join(', '),
@@ -450,19 +722,9 @@
             };
 
             try {
-                // If no URL is provided yet, we mock the success
-                if (WEBHOOK_URL.includes('YOUR_GOOGLE_SHEET')) {
-                    console.log('Mock sync payload:', payload);
-                    setTimeout(() => {
-                        status.innerText = '✅ Progress saved locally! (Add Webhook URL for real-time sync)';
-                        btn.disabled = false;
-                    }, 1000);
-                    return;
-                }
-
-                const response = await fetch(WEBHOOK_URL, {
+                await fetch(WEBHOOK_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Standard for Google Apps Script webhooks
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
@@ -476,7 +738,11 @@
             }
         };
 
-        updateUI();
+        if (!initStudent()) {
+            document.getElementById('studentName').focus();
+        } else {
+            initPortal();
+        }
     </script>
 </body>
 </html>

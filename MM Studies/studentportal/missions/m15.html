@@ -282,6 +282,14 @@
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+
+        function getStudentId() {
+            try {
+                const s = JSON.parse(localStorage.getItem('mks_current_student'));
+                return s ? s.id : 'MKS-11-ALPHA';
+            } catch(e) { return 'MKS-11-ALPHA'; }
+        }
+        const STUDENT_ID = getStudentId();
         const MISSION_TITLE = 'Mission 15: The Salmon Ladder Engineer';
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
@@ -364,11 +372,11 @@
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=MKS-11-ALPHA&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const response = await fetch(`${WEBHOOK_URL}?studentId=' + STUDENT_ID + '&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
                 const data = await response.json();
                 
                 if (data.content) workArea.value = data.content;
-                else workArea.value = localStorage.getItem('mks_m15_work') || '';
+                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
 
                 if (data.placedSteps) {
                     placedSteps = JSON.parse(data.placedSteps);
@@ -386,7 +394,7 @@
 
                 syncStatus.innerText = 'Mission data retrieved';
             } catch (e) {
-                workArea.value = localStorage.getItem('mks_m15_work') || '';
+                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
         }
@@ -395,14 +403,14 @@
 
         async function saveAndSync() {
             const content = workArea.value;
-            localStorage.setItem('mks_m15_work', content);
-            localStorage.setItem('mks_m15_steps', JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))));
+            localStorage.setItem('mks_' + STUDENT_ID + '_m15_work', content);
+            localStorage.setItem('mks_' + STUDENT_ID + '_m15_steps', JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))));
             
             syncStatus.innerText = 'Syncing design...';
             syncDot.className = 'indicator-dot active';
 
             const payload = {
-                studentId: 'MKS-11-ALPHA',
+                studentId: STUDENT_ID,
                 missionTitle: MISSION_TITLE,
                 reflection: content,
                 placedSteps: JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))),

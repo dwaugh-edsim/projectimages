@@ -183,6 +183,14 @@ A Healing Action would be..."></textarea>
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+
+        function getStudentId() {
+            try {
+                const s = JSON.parse(localStorage.getItem('mks_current_student'));
+                return s ? s.id : 'MKS-11-ALPHA';
+            } catch(e) { return 'MKS-11-ALPHA'; }
+        }
+        const STUDENT_ID = getStudentId();
         const MISSION_TITLE = 'Mission 10: The Justice Circle';
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
@@ -192,17 +200,17 @@ A Healing Action would be..."></textarea>
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=MKS-11-ALPHA&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const response = await fetch(`${WEBHOOK_URL}?studentId=' + STUDENT_ID + '&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
                 const data = await response.json();
                 if (data.content) {
                     workArea.value = data.content;
                     syncStatus.innerText = '✅ Work retrieved from Cloud';
                 } else {
-                    workArea.value = localStorage.getItem('mks_m10_work') || '';
+                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m10_work') || '';
                     syncStatus.innerText = 'Ready to work';
                 }
             } catch (e) {
-                workArea.value = localStorage.getItem('mks_m10_work') || '';
+                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m10_work') || '';
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
         }
@@ -216,12 +224,12 @@ A Healing Action would be..."></textarea>
 
         async function saveAndSync() {
             const content = workArea.value;
-            localStorage.setItem('mks_m10_work', content);
+            localStorage.setItem('mks_' + STUDENT_ID + '_m10_work', content);
             syncStatus.innerText = '🛰️ Autosaving...';
             syncDot.className = 'indicator-dot active';
 
             const payload = {
-                studentId: 'MKS-11-ALPHA',
+                studentId: STUDENT_ID,
                 missionTitle: MISSION_TITLE,
                 reflection: content,
                 timestamp: new Date().toISOString()
