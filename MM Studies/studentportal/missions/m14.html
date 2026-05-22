@@ -135,53 +135,140 @@
             border: 1px solid var(--border);
         }
 
+        .basket-frame {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #faf5ff;
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 2px solid #e9d5ff;
+        }
+
         .weave-grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 4px;
-            max-width: 400px;
-            margin: 0 auto;
+            gap: 3px;
+            position: relative;
         }
 
         .weave-cell {
             aspect-ratio: 1;
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+            transition: all 0.15s;
+            position: relative;
+            min-height: 35px;
         }
 
-        .weave-cell.white { background: #f1f5f9; }
-        .weave-cell.purple { background: #7c3aed; }
-        .weave-cell:hover { transform: scale(1.1); border-color: var(--primary); }
+        .weave-cell.white { 
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .weave-cell.purple { 
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 1px 3px rgba(124,58,237,0.3);
+        }
+        .weave-cell:hover { transform: scale(1.08); z-index: 2; }
+        .weave-cell.pop { animation: popIn 0.2s ease-out; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
 
         .weave-controls {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 1rem;
             margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
 
         .weave-btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             border: 2px solid var(--border);
             border-radius: 0.5rem;
             cursor: pointer;
             font-weight: 700;
             font-size: 0.85rem;
             transition: all 0.2s;
+            background: white;
         }
 
+        .weave-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .weave-btn.active { border-color: var(--primary); background: rgba(139, 92, 246, 0.1); }
-        .weave-btn-white { background: #f1f5f9; }
-        .weave-btn-purple { background: #7c3aed; color: white; }
+        .weave-btn-clear { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .weave-btn-clear:hover { background: #fee2e2; }
+        .weave-btn-pattern { background: #f0fdf4; border-color: #bbf7d0; color: #16a34a; }
+        .weave-btn-pattern:hover { background: #dcfce7; }
+        .weave-btn-save { background: var(--primary); border-color: var(--primary); color: white; }
+        .weave-btn-save:hover { background: #7c3aed; }
+        .weave-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .pattern-status {
             margin-top: 1rem;
             font-size: 0.85rem;
             font-weight: 700;
             color: var(--text-muted);
+            min-height: 1.5em;
         }
+
+        .weave-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .stat-value { font-weight: 800; color: var(--primary); }
+
+        .row-label, .col-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .grid-with-labels {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .labels-col {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .labels-row {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .labels-row span, .labels-col span {
+            width: 35px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .weave-mode-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .mode-horizontal { background: #dbeafe; color: #2563eb; }
+        .mode-vertical { background: #fce7f3; color: #db2777; }
     </style>
 </head>
 <body>
@@ -194,39 +281,65 @@
         </p>
 
         <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Your mission is to weave a basket using the "Pattern Coder." Click the grid to toggle between Over (White) and Under (Purple).
+            Your mission is to weave a basket. Click a row to lay a horizontal strip, or click a column to weave vertically. Alternate Over and Under to create the pattern.
         </p>
 
         <div class="pattern-coder">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1.5rem;">Pattern Coder</h4>
-            <div id="weaveGrid" class="weave-grid"></div>
-            <div class="weave-controls">
-                <button class="weave-btn weave-btn-white active" onclick="setMode('white')">White Strip</button>
-                <button class="weave-btn weave-btn-purple" onclick="setMode('purple')">Purple Strip</button>
+            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">Pattern Coder</h4>
+            
+            <div id="modeIndicator" class="weave-mode-indicator mode-horizontal">Horizontal Weave Mode</div>
+            
+            <div class="basket-frame">
+                <div class="grid-with-labels">
+                    <div class="labels-col" id="rowLabels"></div>
+                    <div>
+                        <div id="weaveGrid" class="weave-grid"></div>
+                        <div class="labels-row" id="colLabels"></div>
+                    </div>
+                </div>
             </div>
-            <p class="pattern-status" id="patternStatus">Click cells to weave your pattern</p>
+            
+            <div class="weave-controls">
+                <button class="weave-btn weave-btn-white active" onclick="setMode('white')">White Strip (Over)</button>
+                <button class="weave-btn weave-btn-purple" onclick="setMode('purple')">Purple Strip (Under)</button>
+                <button class="weave-btn" onclick="toggleDirection()" id="directionBtn">Switch to Vertical</button>
+                <button class="weave-btn weave-btn-pattern" onclick="autoWeave()">Auto-Weave Pattern</button>
+                <button class="weave-btn weave-btn-clear" onclick="clearGrid()">Clear</button>
+                <button class="weave-btn weave-btn-save" onclick="manualSave()" id="saveBtn">Save to Cloud</button>
+            </div>
+            
+            <p class="pattern-status" id="patternStatus">Click a row or column to start weaving</p>
+            <div class="weave-stats">
+                <span>Strips placed: <span class="stat-value" id="stripCount">0</span></span>
+                <span>Pattern score: <span class="stat-value" id="patternScore">0%</span></span>
+            </div>
         </div>
         
         <div class="step">
             <strong>Step 1: Start</strong><br>
-            Click the "White" strip to begin your weave.
+            Click the "White" strip, then click any row to lay it down.
         </div>
 
         <div class="step">
             <strong>Step 2: Weave</strong><br>
-            Click the "Purple" strip to go over it.
+            Switch to "Purple" and click the next row to go under. Keep alternating!
         </div>
 
         <div class="step">
             <strong>Step 3: Check</strong><br>
-            Make sure the pattern goes Over-Under-Over-Under.
+            Watch your pattern score rise as you create the perfect checkerboard.
         </div>
 
         <textarea id="workArea" placeholder="My basket pattern represents... The checkerboard weave is strong because..."></textarea>
         
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">Linking to Command Center...</span>
+        <div style="margin-top: 1.5rem; text-align: center;">
+            <button class="weave-btn weave-btn-save" onclick="manualSave()" id="saveBtnBottom" style="padding: 1rem 2rem; font-size: 1rem;">
+                Save Progress to Cloud
+            </button>
+            <div class="sync-indicator" style="justify-content: center; margin-top: 1rem;">
+                <div id="syncDot" class="indicator-dot"></div>
+                <span id="syncStatus">Ready</span>
+            </div>
         </div>
 
         <a href="../index.html" class="btn-back">Back to Mission Control</a>
@@ -240,63 +353,202 @@
         const syncDot = document.getElementById('syncDot');
         const weaveGrid = document.getElementById('weaveGrid');
         const patternStatus = document.getElementById('patternStatus');
+        const stripCount = document.getElementById('stripCount');
+        const patternScore = document.getElementById('patternScore');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const directionBtn = document.getElementById('directionBtn');
+        const rowLabels = document.getElementById('rowLabels');
+        const colLabels = document.getElementById('colLabels');
+        const saveBtn = document.getElementById('saveBtn');
+        const saveBtnBottom = document.getElementById('saveBtnBottom');
         
         const GRID_SIZE = 8;
         let currentMode = 'white';
-        let gridData = Array(GRID_SIZE * GRID_SIZE).fill('white');
+        let isHorizontal = true;
+        let gridData = Array(GRID_SIZE * GRID_SIZE).fill(null);
+        let stripsPlaced = 0;
         let timeout = null;
 
         function createGrid() {
             weaveGrid.innerHTML = '';
+            rowLabels.innerHTML = '';
+            colLabels.innerHTML = '';
+            
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const rowLabel = document.createElement('span');
+                rowLabel.textContent = i + 1;
+                rowLabels.appendChild(rowLabel);
+                
+                const colLabel = document.createElement('span');
+                colLabel.textContent = String.fromCharCode(65 + i);
+                colLabels.appendChild(colLabel);
+            }
             
             for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
                 const cell = document.createElement('div');
-                cell.className = `weave-cell ${gridData[i]}`;
-                cell.onclick = () => toggleCell(i);
+                cell.className = `weave-cell ${gridData[i] || 'white'}`;
+                cell.dataset.index = i;
+                
+                if (gridData[i]) {
+                    cell.classList.add('pop');
+                }
+                
+                cell.onclick = () => handleCellClick(i);
                 weaveGrid.appendChild(cell);
+            }
+            
+            updateStats();
+        }
+
+        function handleCellClick(index) {
+            const row = Math.floor(index / GRID_SIZE);
+            const col = index % GRID_SIZE;
+            
+            if (isHorizontal) {
+                weaveRow(row);
+            } else {
+                weaveColumn(col);
             }
         }
 
-        function toggleCell(index) {
-            gridData[index] = currentMode;
-            const cells = weaveGrid.querySelectorAll('.weave-cell');
-            cells[index].className = `weave-cell ${currentMode}`;
+        function weaveRow(row) {
+            let startIdx = row * GRID_SIZE;
+            for (let col = 0; col < GRID_SIZE; col++) {
+                const idx = startIdx + col;
+                gridData[idx] = currentMode;
+            }
+            stripsPlaced++;
+            renderGrid();
             checkPattern();
             triggerSave();
         }
 
+        function weaveColumn(col) {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                const idx = row * GRID_SIZE + col;
+                gridData[idx] = currentMode;
+            }
+            stripsPlaced++;
+            renderGrid();
+            checkPattern();
+            triggerSave();
+        }
+
+        function renderGrid() {
+            const cells = weaveGrid.querySelectorAll('.weave-cell');
+            cells.forEach((cell, i) => {
+                cell.className = `weave-cell ${gridData[i] || 'white'}`;
+            });
+            updateStats();
+        }
+
         function setMode(mode) {
             currentMode = mode;
-            document.querySelectorAll('.weave-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.weave-btn-white, .weave-btn-purple').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`.weave-btn-${mode}`).classList.add('active');
         }
 
+        function toggleDirection() {
+            isHorizontal = !isHorizontal;
+            if (isHorizontal) {
+                modeIndicator.textContent = 'Horizontal Weave Mode';
+                modeIndicator.className = 'weave-mode-indicator mode-horizontal';
+                directionBtn.textContent = 'Switch to Vertical';
+            } else {
+                modeIndicator.textContent = 'Vertical Weave Mode';
+                modeIndicator.className = 'weave-mode-indicator mode-vertical';
+                directionBtn.textContent = 'Switch to Horizontal';
+            }
+        }
+
+        function clearGrid() {
+            gridData = Array(GRID_SIZE * GRID_SIZE).fill(null);
+            stripsPlaced = 0;
+            createGrid();
+            patternStatus.innerText = 'Click a row or column to start weaving';
+            patternStatus.style.color = 'var(--text-muted)';
+            triggerSave();
+        }
+
+        function autoWeave() {
+            gridData = Array(GRID_SIZE * GRID_SIZE).fill(null);
+            stripsPlaced = 0;
+            
+            for (let row = 0; row < GRID_SIZE; row++) {
+                const mode = row % 2 === 0 ? 'white' : 'purple';
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    gridData[row * GRID_SIZE + col] = mode;
+                }
+                stripsPlaced++;
+            }
+            
+            createGrid();
+            checkPattern();
+            triggerSave();
+        }
+
         function checkPattern() {
-            let isAlternating = true;
+            let correctPairs = 0;
+            let totalPairs = 0;
+            
             for (let row = 0; row < GRID_SIZE; row++) {
                 for (let col = 0; col < GRID_SIZE - 1; col++) {
                     const idx = row * GRID_SIZE + col;
-                    if (gridData[idx] === gridData[idx + 1]) {
-                        isAlternating = false;
-                        break;
+                    const nextIdx = idx + 1;
+                    if (gridData[idx] && gridData[nextIdx]) {
+                        totalPairs++;
+                        if (gridData[idx] !== gridData[nextIdx]) {
+                            correctPairs++;
+                        }
                     }
                 }
             }
             
-            if (isAlternating) {
-                patternStatus.innerText = 'Perfect checkerboard pattern!';
+            for (let col = 0; col < GRID_SIZE; col++) {
+                for (let row = 0; row < GRID_SIZE - 1; row++) {
+                    const idx = row * GRID_SIZE + col;
+                    const belowIdx = idx + GRID_SIZE;
+                    if (gridData[idx] && gridData[belowIdx]) {
+                        totalPairs++;
+                        if (gridData[idx] !== gridData[belowIdx]) {
+                            correctPairs++;
+                        }
+                    }
+                }
+            }
+            
+            const score = totalPairs > 0 ? Math.round((correctPairs / totalPairs) * 100) : 0;
+            patternScore.textContent = score + '%';
+            
+            if (score === 100 && stripsPlaced >= 8) {
+                patternStatus.innerText = 'Perfect checkerboard! Master weaver!';
                 patternStatus.style.color = '#10b981';
-            } else {
-                patternStatus.innerText = 'Keep weaving - aim for Over-Under-Over-Under';
+            } else if (score > 70) {
+                patternStatus.innerText = 'Great pattern! Keep alternating Over-Under';
+                patternStatus.style.color = '#f59e0b';
+            } else if (stripsPlaced > 0) {
+                patternStatus.innerText = 'Keep weaving - alternate colors for the checkerboard';
                 patternStatus.style.color = 'var(--text-muted)';
             }
         }
 
+        function updateStats() {
+            stripCount.textContent = stripsPlaced;
+        }
+
         function triggerSave() {
-            syncStatus.innerText = 'Changes detected...';
+            syncStatus.innerText = 'Unsaved changes...';
             syncDot.className = 'indicator-dot';
             clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+            timeout = setTimeout(saveAndSync, 3000);
+        }
+
+        async function manualSave() {
+            if (saveBtn) saveBtn.disabled = true;
+            if (saveBtnBottom) saveBtnBottom.disabled = true;
+            await saveAndSync();
+            if (saveBtn) saveBtn.disabled = false;
+            if (saveBtnBottom) saveBtnBottom.disabled = false;
         }
 
         async function retrieveFromCloud() {
@@ -309,24 +561,34 @@
 
                 if (data.gridData) {
                     const loaded = JSON.parse(data.gridData);
-                    if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                    if (loaded.length === GRID_SIZE * GRID_SIZE) {
+                        gridData = loaded;
+                        stripsPlaced = loaded.filter(x => x !== null).length / GRID_SIZE;
+                    }
                 } else {
                     const localGrid = localStorage.getItem('mks_m14_grid');
                     if (localGrid) {
                         const loaded = JSON.parse(localGrid);
-                        if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                        if (loaded.length === GRID_SIZE * GRID_SIZE) {
+                            gridData = loaded;
+                            stripsPlaced = loaded.filter(x => x !== null).length / GRID_SIZE;
+                        }
                     }
                 }
 
                 createGrid();
                 checkPattern();
-                syncStatus.innerText = 'Mission data retrieved';
+                syncStatus.innerText = 'Loaded from cloud';
+                syncDot.style.background = '#10b981';
             } catch (e) {
                 workArea.value = localStorage.getItem('mks_m14_work') || '';
                 const localGrid = localStorage.getItem('mks_m14_grid');
                 if (localGrid) {
                     const loaded = JSON.parse(localGrid);
-                    if (loaded.length === GRID_SIZE * GRID_SIZE) gridData = loaded;
+                    if (loaded.length === GRID_SIZE * GRID_SIZE) {
+                        gridData = loaded;
+                        stripsPlaced = loaded.filter(x => x !== null).length / GRID_SIZE;
+                    }
                 }
                 createGrid();
                 checkPattern();
@@ -341,7 +603,7 @@
             localStorage.setItem('mks_m14_work', content);
             localStorage.setItem('mks_m14_grid', JSON.stringify(gridData));
             
-            syncStatus.innerText = 'Syncing design...';
+            syncStatus.innerText = 'Saving to Google Sheet...';
             syncDot.className = 'indicator-dot active';
 
             const payload = {
@@ -354,12 +616,15 @@
 
             try {
                 await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = 'Design synced';
+                syncStatus.innerText = 'Saved to cloud at ' + new Date().toLocaleTimeString();
+                syncDot.className = 'indicator-dot';
+                syncDot.style.background = '#10b981';
                 let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
                 if (!completed.includes(14)) completed.push(14);
                 localStorage.setItem('mks_completed', JSON.stringify(completed));
             } catch (e) {
-                syncStatus.innerText = 'Saved Locally Only';
+                syncStatus.innerText = 'Saved locally (cloud unavailable)';
+                syncDot.style.background = '#f59e0b';
             }
         }
 
