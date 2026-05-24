@@ -1,0 +1,2803 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Europe Trip 2026 — Interactive Planner & Reservations Dashboard</title>
+    <style>
+        /* Import Outfit and Inter fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #090b11;
+            --card: #121524;
+            --card-hover: #191e33;
+            --border: #222943;
+            --border-hover: #353f66;
+            --text: #f3f5fa;
+            --text-muted: #7e8baf;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --accent-glow: rgba(79, 70, 229, 0.4);
+            
+            /* Category Gradients */
+            --flight-grad: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --flight-glow: rgba(37, 99, 235, 0.35);
+            
+            --stay-grad: linear-gradient(135deg, #059669 0%, #047857 100%);
+            --stay-glow: rgba(5, 150, 105, 0.35);
+            
+            --accom-grad: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            --accom-glow: rgba(13, 148, 136, 0.35);
+            
+            --travel-grad: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            --travel-glow: rgba(217, 119, 6, 0.35);
+            
+            --activity-grad: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            --activity-glow: rgba(124, 58, 237, 0.35);
+            
+            /* Status Colors */
+            --green: #10b981;
+            --green-glow: rgba(16, 185, 129, 0.2);
+            --orange: #f59e0b;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        /* Scrollbar styles for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 24px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, .day-num {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .header-content h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #a5b4fc, #6366f1, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-content .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .header-progress {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-info span {
+            color: var(--green);
+        }
+
+        .progress-bar {
+            background: #141a2e;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--green), #3b82f6);
+            height: 100%;
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Layout Grid */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Elements */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 4px;
+        }
+
+        .stat-num {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        #doneCount { color: var(--green); }
+        #pendingCount { color: var(--orange); }
+        #totalCount { color: var(--text); }
+
+        .stat-lbl {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* Budget Card */
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .budget-row span:first-child {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .price-highlight {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--green);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .price-sub {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .divider {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 14px 0;
+        }
+
+        .budget-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .breakdown-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .breakdown-item .dot.flight { background: #3b82f6; }
+        .breakdown-item .dot.stay { background: #10b981; }
+        .breakdown-item .dot.accom { background: #0d9488; }
+        .breakdown-item .dot.travel { background: #f59e0b; }
+        .breakdown-item .dot.activity { background: #8b5cf6; }
+
+        .breakdown-item .lbl {
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .breakdown-item .val {
+            font-weight: 600;
+        }
+
+        /* Buttons and Controls */
+        .btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 11px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border);
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: var(--border-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+        .btn-outline:hover {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: var(--red);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: #000;
+        }
+        .btn-success:hover {
+            background: #059669;
+            box-shadow: 0 0 15px var(--green-glow);
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-group-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-group-row .btn {
+            margin-bottom: 0;
+            flex: 1;
+            padding: 9px 12px;
+        }
+
+        .btn-group-row .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: var(--border);
+            color: var(--text-muted);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .toggle-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--border);
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+            background-color: white;
+        }
+
+        /* Filters */
+        .filter-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-filter {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .btn-filter.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* Main Area Elements */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .timeline-section {
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header .date-range {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Timeline Layout */
+        .timeline-container {
+            overflow-x: auto;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+        }
+
+        .timeline-grid-wrapper {
+            min-width: 1430px;
+        }
+
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(19, minmax(70px, 1fr));
+            grid-auto-rows: minmax(76px, auto);
+            gap: 5px;
+        }
+
+        .calendar-corner-label {
+            grid-column: 1;
+            grid-row: 1;
+            border-bottom: 2px solid var(--border);
+            border-right: 2px solid var(--border);
+        }
+
+        .calendar-header {
+            text-align: center;
+            padding: 6px 0;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calendar-header .day-num {
+            font-size: 1.15rem;
+            color: var(--text);
+            line-height: 1.1;
+        }
+
+        .calendar-header .day-name {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .calendar-row-label {
+            grid-column: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            border-right: 2px solid var(--border);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: right;
+        }
+
+        .calendar-cell {
+            border: 1px dashed rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            min-height: 76px;
+            transition: all 0.2s;
+            background: transparent;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .calendar-cell:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .calendar-cell.drag-over {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--green);
+            border-style: solid;
+        }
+
+        /* Timeline Cards */
+        .calendar-block {
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+            overflow: hidden;
+            height: calc(100% - 2px);
+            margin: 1px;
+        }
+
+        .calendar-block:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .calendar-block.dragging {
+            opacity: 0.3;
+            cursor: grabbing;
+        }
+
+        .calendar-block.flight {
+            background: var(--flight-grad);
+            color: white;
+            box-shadow: 0 0 10px var(--flight-glow);
+        }
+
+        .calendar-block.stay {
+            background: var(--stay-grad);
+            color: white;
+            box-shadow: 0 0 10px var(--stay-glow);
+        }
+
+        .calendar-block.accom {
+            background: var(--accom-grad);
+            color: white;
+            box-shadow: 0 0 10px var(--accom-glow);
+        }
+
+        .calendar-block.travel {
+            background: var(--travel-grad);
+            color: white;
+            box-shadow: 0 0 10px var(--travel-glow);
+        }
+
+        .calendar-block.activity {
+            background: var(--activity-grad);
+            color: white;
+            box-shadow: 0 0 10px var(--activity-glow);
+        }
+
+        .calendar-block.booked {
+            border-left: 3px solid #ffffff;
+        }
+
+        .calendar-block .block-title {
+            font-weight: 700;
+            font-size: 0.78rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-block .block-subtitle {
+            font-size: 0.62rem;
+            opacity: 0.85;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Resize Handle */
+        .calendar-block .resize-handle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            background: rgba(255, 255, 255, 0.12);
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .calendar-block:hover .resize-handle {
+            opacity: 1;
+        }
+
+        .resizing * {
+            cursor: col-resize !important;
+        }
+
+        .calendar-block.resizing-active {
+            filter: brightness(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            opacity: 0.9;
+        }
+
+        /* Legend */
+        .timeline-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        .legend-dot.flight { background: #3b82f6; }
+        .legend-dot.stay { background: #10b981; }
+        .legend-dot.travel { background: #f59e0b; }
+        .legend-dot.activity { background: #8b5cf6; }
+
+        /* Checklist Cards */
+        .checklist-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .item:hover {
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .item.checked {
+            border-color: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.02);
+        }
+
+        .item.checked .item-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .item.checked .item-notes,
+        .item.checked .item-detail {
+            opacity: 0.6;
+        }
+
+        .item-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            accent-color: var(--green);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .item-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit-inline {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-edit-inline:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            border-color: var(--border-hover);
+        }
+
+        .item-detail {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+
+        .cost {
+            color: var(--green);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .cost.font-miles {
+            color: #fbbf24;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 8px;
+        }
+
+        .tag-flight { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+        .tag-stay { background: rgba(5, 150, 105, 0.15); color: #34d399; }
+        .tag-accom { background: rgba(13, 148, 136, 0.15); color: #2dd4bf; }
+        .tag-travel { background: rgba(217, 119, 6, 0.15); color: #fb923c; }
+        .tag-activity { background: rgba(124, 58, 237, 0.15); color: #c084fc; }
+
+        .item-notes {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--border);
+            padding: 8px 12px;
+            margin-top: 10px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .item-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #818cf8;
+            font-size: 0.8rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .item-link:hover {
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+
+        /* Slide-out Panel CSS */
+        .editor-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .editor-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .editor-panel {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 420px;
+            background: #0f1220;
+            border-left: 1px solid var(--border);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-panel.open {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 480px) {
+            .editor-panel {
+                width: 100%;
+            }
+        }
+
+        .editor-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header h2 {
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 0;
+            color: var(--text-muted);
+            font-size: 1.7rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: var(--text);
+        }
+
+        .editor-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="url"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .form-group select option {
+            background-color: #121524;
+            color: #f3f5fa;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-top: 6px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--green);
+            cursor: pointer;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .editor-actions .btn {
+            margin-bottom: 0;
+        }
+
+        /* Toast Messages */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--green);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            font-weight: 700;
+            font-size: 0.85rem;
+            z-index: 9999;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Footer styling */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            padding: 30px 0 10px;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        /* Locked state styling */
+        .calendar-block.locked {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: default;
+        }
+
+        .calendar-block.locked:hover {
+            transform: none;
+            filter: brightness(1.02);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar-block.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 0.65rem;
+            opacity: 0.85;
+        }
+
+        .btn-lock-toggle {
+            background: transparent;
+            border: 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-lock-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Integrity Card Styling */
+        .integrity-card {
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            border: 1px solid transparent;
+        }
+
+        .integrity-card.warning {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .integrity-card.success {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .integrity-sub {
+            font-size: 0.72rem;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .integrity-list {
+            font-weight: 600;
+        }
+
+        /* Weekend highlights */
+        .calendar-header.weekend {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .calendar-cell.weekend {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        /* External Link icon on calendar blocks */
+        .calendar-block .block-link-icon {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.75rem;
+            transition: color 0.2s;
+            z-index: 12;
+            line-height: 1;
+        }
+
+        .calendar-block .block-link-icon:hover {
+            color: white;
+        }
+
+        /* Shift link icon left if block is locked */
+        .calendar-block.locked .block-link-icon {
+            right: 22px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>✈️ Europe Trip 2026</h1>
+            <p class="subtitle">Dave & KS · Aug 2–20 · Interactive Planning Dashboard</p>
+        </div>
+        <div class="header-progress">
+            <div class="progress-info">
+                <span>Done: <strong id="progressPercent">0%</strong></span>
+                <span>Checklist Progress</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-layout">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <!-- Stats -->
+            <div class="card stats-card">
+                <h3>Trip Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-num" id="doneCount">0</div>
+                        <div class="stat-lbl">Booked</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="pendingCount">0</div>
+                        <div class="stat-lbl">To Book</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="totalCount">0</div>
+                        <div class="stat-lbl">Total</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div class="card budget-card">
+                <h3>Budget Summary</h3>
+                <div class="budget-row">
+                    <span>Est. Total Cost</span>
+                    <span class="price-highlight" id="totalCost">CA$0</span>
+                </div>
+                <div class="budget-row">
+                    <span>Per Person</span>
+                    <span class="price-sub" id="costPerPerson">CA$0</span>
+                </div>
+                <hr class="divider">
+                <div class="budget-breakdown">
+                    <div class="breakdown-item">
+                        <span class="dot flight"></span>
+                        <span class="lbl">Flights</span>
+                        <span class="val" id="flightCost">CA$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="dot accom"></span>
+                        <span class="lbl">Accommodation</span>
+                        <span class="val" id="stayCost">CA$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="dot travel"></span>
+                        <span class="lbl">Trains & Buses</span>
+                        <span class="val" id="travelCost">CA$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="dot activity"></span>
+                        <span class="lbl">Activities / Tours</span>
+                        <span class="val" id="activityCost">CA$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stay Coverage Integrity Checker -->
+            <div class="card integrity-card-container">
+                <h3>Stay Coverage Check</h3>
+                <div id="integrityChecker"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card controls-card">
+                <h3>Planner Actions</h3>
+                <div class="btn-group-row">
+                    <button class="btn btn-secondary" id="undoBtn" onclick="undo()" disabled>↩️ Undo</button>
+                    <button class="btn btn-secondary" id="redoBtn" onclick="redo()" disabled>↪️ Redo</button>
+                </div>
+                <button class="btn btn-primary" onclick="addNewBooking()">➕ Add Custom Booking</button>
+                <button class="btn btn-secondary" onclick="exportPlan()">⬇️ Export Itinerary</button>
+                <button class="btn btn-outline" onclick="resetCalendar()">↺ Reset to Default</button>
+                
+                <div class="toggle-container">
+                    <label class="switch">
+                        <input type="checkbox" id="autoShiftToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label">Auto-shift subsequent bookings</span>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card filter-card">
+                <h3>Filter Checklist</h3>
+                <div class="filter-buttons">
+                    <button class="btn-filter active" data-filter="all" onclick="setFilter('all')">All</button>
+                    <button class="btn-filter" data-filter="booked" onclick="setFilter('booked')">Booked</button>
+                    <button class="btn-filter" data-filter="pending" onclick="setFilter('pending')">To Book</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Timeline Section -->
+            <section class="card timeline-section">
+                <div class="section-header">
+                    <h2>📅 Visual Trip Timeline</h2>
+                    <span class="date-range">Aug 2 – Aug 20, 2026 (19 Days)</span>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-grid-wrapper">
+                        <div class="timeline-grid" id="timelineGrid">
+                            <!-- Generated Dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-legend">
+                    <div class="legend-item"><span class="legend-dot flight"></span> Flight</div>
+                    <div class="legend-item"><span class="legend-dot stay"></span> Stay (City)</div>
+                    <div class="legend-item"><span class="legend-dot accom"></span> Accom (Hotel)</div>
+                    <div class="legend-item"><span class="legend-dot travel"></span> Train / Bus</div>
+                    <div class="legend-item"><span class="legend-dot activity"></span> Activity</div>
+                </div>
+            </section>
+
+            <!-- Checklist Section -->
+            <section class="checklist-section">
+                <div class="section-header">
+                    <h2>📋 Checklist Details</h2>
+                </div>
+                <div class="checklist-container" id="checklistContainer">
+                    <!-- Cards Generated Dynamically by JS -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Slide-out Editor Panel -->
+    <div class="editor-backdrop" id="editorBackdrop" onclick="closeEditor()"></div>
+    <div class="editor-panel" id="editorPanel">
+        <div class="editor-header">
+            <h2 id="editorTitle">Edit Booking</h2>
+            <button class="close-btn" onclick="closeEditor()">&times;</button>
+        </div>
+        <div class="editor-body">
+            <form id="editForm" onsubmit="saveBooking(event)">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label for="editCity">City / Description</label>
+                    <input type="text" id="editCity" required placeholder="e.g. Lisbon Stay">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editType">Type</label>
+                        <select id="editType" onchange="toggleNightsInput()">
+                            <option value="stay">Stay (City)</option>
+                            <option value="accom">Accom (Hotel)</option>
+                            <option value="flight">Flight</option>
+                            <option value="travel">Train / Bus</option>
+                            <option value="activity">Activity / Tour</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="nightsGroup">
+                        <label for="editNights">Nights</label>
+                        <input type="number" id="editNights" min="0" value="1">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editStartDay">Start Date</label>
+                        <select id="editStartDay">
+                            <!-- Filled Dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCost">Cost (CAD)</label>
+                        <input type="number" id="editCost" min="0" value="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editLink">Booking Link</label>
+                    <input type="url" id="editLink" placeholder="https://airbnb.com/...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editNotes">Notes</label>
+                    <textarea id="editNotes" rows="4" placeholder="Important details, neighborhood, booking codes, transfer info..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="editBooked">
+                        <label for="editBooked">Mark as Booked</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="editLocked" onchange="handleLockedChange()">
+                        <label for="editLocked">🔒 Locked (Fixed Date)</label>
+                    </div>
+                </div>
+                
+                <div class="editor-actions">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteBooking()">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <footer>
+        Europe 2026 · <span id="footerNights">18</span> nights · <span id="footerCities">6</span> cities · Dynamic Dashboard System
+    </footer>
+
+    <script>
+        // Core Trip Data
+        const TRIP_START_DATE = '2026-08-02';
+        
+        const tripData = {
+            startDate: TRIP_START_DATE,
+            blocks: [
+    {
+        "id": "outbound-flight",
+        "type": "flight",
+        "city": "Halifax → Lisbon (WS32)",
+        "nights": 0,
+        "startDay": 0,
+        "locked": true,
+        "cost": 844,
+        "notes": "Direct · Departs Aug 2 · Arrives 8:55 PM local · CA$422 per person",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "stay-lis-1",
+        "type": "stay",
+        "city": "Lisbon Stay",
+        "nights": 2,
+        "startDay": 0,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Alfama oldest neighbourhood (maze-like, Fado music), Tram 28 through hills, Miradouro da Graça sunset, Belém Tower + Jerónimos Monastery, Pastéis de Belém for original tarts, LX Factory creative quarter, Time Out Market for food",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-lis-1",
+        "type": "accom",
+        "city": "Lisbon Airbnb",
+        "nights": 2,
+        "startDay": 0,
+        "locked": false,
+        "cost": 180,
+        "notes": "Check-in Aug 2 (late), checkout Aug 4. Near central metro.",
+        "link": "https://www.airbnb.com/s/Lisbon--Portugal/homes?checkin=2026-08-02&checkout=2026-08-04&adults=2",
+        "booked": false
+    },
+    {
+        "id": "fly-lpl",
+        "type": "flight",
+        "city": "Lisbon → Liverpool (easyJet)",
+        "nights": 0,
+        "startDay": 2,
+        "locked": false,
+        "cost": 81,
+        "notes": "easyJet · Direct · ~2h 45m · Arrives 12:40 PM. Add priority boarding + cabin bag.",
+        "link": "https://www.easyjet.com/",
+        "booked": false
+    },
+    {
+        "id": "stay-lpl",
+        "type": "stay",
+        "city": "Liverpool Stay",
+        "nights": 2,
+        "startDay": 2,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Albert Dock waterfront (Tate, Beatles Story), Cavern Club on Mathew Street, Penny Lane & Strawberry Field actual locations, Royal Albert Dock Pier Head, Anfield Stadium tour if football fans, Baltic Triangle creative district, Philharmonic Dining Rooms (Victorian pub), Mathew Street for Beatles pubs",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-lpl",
+        "type": "accom",
+        "city": "Liverpool Hotel",
+        "nights": 2,
+        "startDay": 2,
+        "locked": false,
+        "cost": 160,
+        "notes": "Check-in Aug 4, checkout Aug 6. Near Albert Dock or city centre.",
+        "link": "https://www.booking.com/searchresults.html?ss=Liverpool&checkin=2026-08-04&checkout=2026-08-06",
+        "booked": false
+    },
+    {
+        "id": "travel-galway",
+        "type": "travel",
+        "city": "Liverpool → Galway (via Dublin)",
+        "nights": 0,
+        "startDay": 4,
+        "locked": false,
+        "cost": 75,
+        "notes": "Flight LPL→DUB (Ryanair/easyJet, ~45 min, ~€30-50) + Citylink/Bus Éireann Dublin→Galway (~2.5 hrs, ~€15).",
+        "link": "https://www.ryanair.com/",
+        "booked": false
+    },
+    {
+        "id": "stay-gal",
+        "type": "stay",
+        "city": "Galway Stay",
+        "nights": 3,
+        "startDay": 4,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Latin Quarter + Shop Street (street musicians, cobblestones), Spanish Arch + Claddagh village, Connemara day trip (wild Atlantic coast, Kylemore Abbey), Aran Islands ferry, traditional pub sessions (Trad) in The Crane Bar or Tig Cóilí, Galway Races if timing aligns (late July/early Aug), Salthill promenade walk",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-gal",
+        "type": "accom",
+        "city": "Galway Airbnb",
+        "nights": 3,
+        "startDay": 4,
+        "locked": false,
+        "cost": 450,
+        "notes": "Check-in Aug 6, checkout Aug 9. Peak summer prices. Latin Quarter recommended.",
+        "link": "https://www.airbnb.com/s/Galway--Ireland/homes?checkin=2026-08-06&checkout=2026-08-09&adults=2",
+        "booked": false
+    },
+    {
+        "id": "travel-budapest",
+        "type": "travel",
+        "city": "Galway → Budapest (via Dublin)",
+        "nights": 0,
+        "startDay": 7,
+        "locked": false,
+        "cost": 65,
+        "notes": "Bus Galway→Dublin (~2.5 hrs) + Flight DUB→BUD (AA Miles Redemption or cash).",
+        "link": "https://www.aa.com/",
+        "booked": false
+    },
+    {
+        "id": "stay-bud",
+        "type": "stay",
+        "city": "Budapest Stay",
+        "nights": 3,
+        "startDay": 7,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Széchenyi Thermal Baths (outdoor pools), Gellért Baths (Art Nouveau interior), Fisherman's Bastion + Matthias Church (Buda side), Ruin bars in Jewish Quarter (Szimpla Kert), Parliament building (Danube views), Great Market Hall, Danube promenade walk at night (bridges lit up), Buda Castle funicular, Central Market Hall, Memento Park (Soviet statues — tie to Bucharest Palace of Parliament thread)",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-bud",
+        "type": "accom",
+        "city": "Budapest Airbnb",
+        "nights": 3,
+        "startDay": 7,
+        "locked": false,
+        "cost": 180,
+        "notes": "Check-in Aug 9, checkout Aug 12. District VII Jewish Quarter or District V Central.",
+        "link": "https://www.airbnb.com/s/Budapest--Hungary/homes?checkin=2026-08-09&checkout=2026-08-12&adults=2",
+        "booked": false
+    },
+    {
+        "id": "travel-krakow",
+        "type": "travel",
+        "city": "Budapest → Kraków Travel",
+        "nights": 0,
+        "startDay": 10,
+        "locked": false,
+        "cost": 50,
+        "notes": "Flight (direct, cheap on Ryanair/Wizz) or Train (~6-8 hrs day/night).",
+        "link": "https://www.ryanair.com/",
+        "booked": false
+    },
+    {
+        "id": "stay-krk",
+        "type": "stay",
+        "city": "Kraków Stay",
+        "nights": 2,
+        "startDay": 10,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Old Town + Main Market Square (UNESCO), Wawel Castle + Dragon's Den, Kazimierz Jewish Quarter (street art, synagogues, cool bars), Wieliczka Salt Mine (underground cathedral), Planty Park ring around old town, Cloth Hall, Podgórze ghetto + Schindler's Factory, Zapiekanki street food at Plac Nowy",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-krk",
+        "type": "accom",
+        "city": "Kraków Airbnb",
+        "nights": 2,
+        "startDay": 10,
+        "locked": false,
+        "cost": 120,
+        "notes": "Check-in Aug 12, checkout Aug 14. Kazimierz or Old Town.",
+        "link": "https://www.airbnb.com/s/Krakow--Poland/homes?checkin=2026-08-12&checkout=2026-08-14&adults=2",
+        "booked": false
+    },
+    {
+        "id": "travel-wroclaw",
+        "type": "travel",
+        "city": "Kraków → Wrocław Train",
+        "nights": 0,
+        "startDay": 12,
+        "locked": false,
+        "cost": 25,
+        "notes": "Train · PKP Intercity · ~3 hours · Frequent departures.",
+        "link": "https://www.intercity.pl/en/",
+        "booked": false
+    },
+    {
+        "id": "stay-wro",
+        "type": "stay",
+        "city": "Wrocław Stay",
+        "nights": 1,
+        "startDay": 12,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Market Square (Rynek) with Gothic town hall, Cathedral Island (Ostrów Tumski) oldest part of city, dwarf statue hunt (~600+ scattered around town), Centennial Hall + Hala Stulecia (UNESCO), Panorama of Racławice (19th c. battle painting), Japanese Garden, Tumski Bridge (\"lovers' bridge\"), Hala Targowa market",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-wro",
+        "type": "accom",
+        "city": "Wrocław Hotel",
+        "nights": 1,
+        "startDay": 12,
+        "locked": false,
+        "cost": 80,
+        "notes": "Check-in Aug 14, checkout Aug 15. Near Market Square.",
+        "link": "https://www.booking.com/searchresults.html?ss=Wroclaw&checkin=2026-08-14&checkout=2026-08-15",
+        "booked": false
+    },
+    {
+        "id": "travel-olomouc",
+        "type": "travel",
+        "city": "Wrocław → Olomouc Train",
+        "nights": 0,
+        "startDay": 13,
+        "locked": false,
+        "cost": 30,
+        "notes": "Train · ~3.5 hours · Requires transfer (usually in Katowice or Bohumín).",
+        "link": "https://www.cd.cz/en/",
+        "booked": false
+    },
+    {
+        "id": "stay-olo",
+        "type": "stay",
+        "city": "Olomouc Stay",
+        "nights": 1,
+        "startDay": 13,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Holy Trinity Column (UNESCO baroque monument), Horní náměstí (Upper Square) + astronomical clock, Archbishop's Palace, St. Wenceslas Cathedral, baroque fountains (6 total), university town cafe scene, less touristy, authentic Czech vibe",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-olo",
+        "type": "accom",
+        "city": "Olomouc Pension",
+        "nights": 1,
+        "startDay": 13,
+        "locked": false,
+        "cost": 70,
+        "notes": "Check-in Aug 15, checkout Aug 16. Near Upper Square.",
+        "link": "https://www.booking.com/searchresults.html?ss=Olomouc&checkin=2026-08-15&checkout=2026-08-16",
+        "booked": false
+    },
+    {
+        "id": "travel-prague",
+        "type": "travel",
+        "city": "Olomouc → Prague Train",
+        "nights": 0,
+        "startDay": 14,
+        "locked": false,
+        "cost": 20,
+        "notes": "Train · Leo Express, RegioJet, or Czech Railways (ČD) · Direct · ~2.5 hours.",
+        "link": "https://www.leoexpress.com/en",
+        "booked": false
+    },
+    {
+        "id": "stay-prg",
+        "type": "stay",
+        "city": "Prague Stay",
+        "nights": 2,
+        "startDay": 14,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Old Town Square + Astronomical Clock, Charles Bridge (early morning before crowds), Prague Castle complex, Jewish Quarter (Josefov), Vyšehrad fortress (less touristy, great views), Petřín Hill + lookout tower, Kampa Island (quiet, art galleries), beer halls (U Fleků, Lokál), Lennon Wall, Dancing House",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-prg",
+        "type": "accom",
+        "city": "Prague Airbnb",
+        "nights": 2,
+        "startDay": 14,
+        "locked": false,
+        "cost": 150,
+        "notes": "Check-in Aug 16, checkout Aug 18. Prague 1 (centre) or Prague 2 (Vinohrady).",
+        "link": "https://www.airbnb.com/s/Prague--Czech-Republic/homes?checkin=2026-08-16&checkout=2026-08-18&adults=2",
+        "booked": false
+    },
+    {
+        "id": "fly-prg-lis",
+        "type": "flight",
+        "city": "Prague → Lisbon Flight",
+        "nights": 0,
+        "startDay": 16,
+        "locked": false,
+        "cost": 150,
+        "notes": "Flight · Direct (TAP Portugal or easyJet) · ~3.5 hours · ~€100-150.",
+        "link": "https://www.flytap.com/",
+        "booked": false
+    },
+    {
+        "id": "stay-lis-2",
+        "type": "stay",
+        "city": "Lisbon Stay (Final)",
+        "nights": 2,
+        "startDay": 16,
+        "locked": false,
+        "cost": 0,
+        "notes": "🟢 Worth Seeing: Bairro Alto for evening, repeat any favourites from first stay, last-minute souvenir shopping, sunset at Miradouro de Santa Catarina, Belém if missed first time",
+        "link": "",
+        "booked": true
+    },
+    {
+        "id": "accom-lis-2",
+        "type": "accom",
+        "city": "Lisbon Hotel (Final)",
+        "nights": 2,
+        "startDay": 16,
+        "locked": false,
+        "cost": 180,
+        "notes": "Check-in Aug 18, checkout Aug 20. Near airport or central metro.",
+        "link": "https://www.airbnb.com/s/Lisbon--Portugal/homes?checkin=2026-08-18&checkout=2026-08-20&adults=2",
+        "booked": false
+    },
+    {
+        "id": "return-flight",
+        "type": "flight",
+        "city": "Lisbon → Halifax (WS33)",
+        "nights": 0,
+        "startDay": 18,
+        "locked": true,
+        "cost": 0,
+        "notes": "Direct · Departs morning · Arrives 8:50 AM AST · Included in outbound booking.",
+        "link": "",
+        "booked": true
+    }
+]
+        };
+
+        let currentBlocks = [];
+        let currentFilter = 'all';
+        let draggedBlockId = null;
+
+        // Date Calculations Helpers
+        function getLocalDateString(dateObj) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${months[dateObj.getMonth()]} ${dateObj.getDate()}`;
+        }
+
+        function getBookingDateRange(startDay, nights, type) {
+            const start = new Date(TRIP_START_DATE + 'T00:00:00');
+            start.setDate(start.getDate() + startDay);
+            
+            if (nights > 0) {
+                const end = new Date(start);
+                end.setDate(end.getDate() + nights);
+                return `${getLocalDateString(start)} – ${getLocalDateString(end)} · ${nights} night${nights > 1 ? 's' : ''}`;
+            } else {
+                return `${getLocalDateString(start)}`;
+            }
+        }
+
+        // State Management
+        function saveState() {
+            localStorage.setItem('europe_trip_2026_blocks', JSON.stringify(currentBlocks));
+        }
+
+                function loadState() {
+            const stored = localStorage.getItem('europe_trip_2026_blocks');
+            if (stored) {
+                // If it contains the old Warsaw-based itinerary (indicated by 'Warsaw' or old keys), overwrite/reset it.
+                if (stored.includes('Warsaw') || stored.includes('stay-waw') || stored.includes('accom-waw')) {
+                    console.log('Old Warsaw itinerary detected. Overwriting local storage with new 18-night default itinerary.');
+                    currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                    saveState();
+                    return;
+                }
+                try {
+                    currentBlocks = JSON.parse(stored);
+                    // Ensure every block has a locked property, using fixed as a fallback
+                    currentBlocks.forEach(b => {
+                        if (b.locked === undefined) {
+                            b.locked = !b.fixed;
+                        }
+                    });
+                    
+                    // Migrate old data if 'accom' type blocks don't exist yet
+                    const hasAccom = currentBlocks.some(b => b.type === 'accom');
+                    if (!hasAccom) {
+                        const migratedBlocks = [];
+                        currentBlocks.forEach(b => {
+                            if (b.type === 'stay') {
+                                const cityBase = b.city.replace(/Stay/, '').replace(/\(Final\)/, '').trim();
+                                // Create city stay block
+                                migratedBlocks.push({
+                                    id: 'stay-' + b.id,
+                                    type: 'stay',
+                                    city: cityBase + ' Stay',
+                                    nights: b.nights,
+                                    startDay: b.startDay,
+                                    cost: 0,
+                                    notes: 'Stay in ' + cityBase,
+                                    link: '',
+                                    booked: true,
+                                    locked: b.locked
+                                });
+                                // Create accommodation block
+                                migratedBlocks.push({
+                                    id: 'accom-' + b.id,
+                                    type: 'accom',
+                                    city: b.city.includes('Final') ? cityBase + ' Hotel (Final)' : cityBase + ' Airbnb',
+                                    nights: b.nights,
+                                    startDay: b.startDay,
+                                    cost: b.cost,
+                                    notes: b.notes,
+                                    link: b.link,
+                                    booked: b.booked,
+                                    locked: b.locked
+                                });
+                            } else {
+                                migratedBlocks.push(b);
+                            }
+                        });
+                        currentBlocks = migratedBlocks;
+                        saveState();
+                    }
+                } catch (e) {
+                    console.error('Error loading state from localStorage:', e);
+                    currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                }
+            } else {
+                currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+            }
+        }
+
+        function resetCalendar() {
+            if (confirm('Are you sure you want to reset the itinerary to original defaults? All your custom changes will be lost.')) {
+                pushToHistory();
+                localStorage.removeItem('europe_trip_2026_blocks');
+                currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                renderApp();
+                showToast('Itinerary reset to default!');
+            }
+        }
+
+        // History Management (Undo/Redo)
+        let undoStack = [];
+        let redoStack = [];
+
+        function pushToHistory() {
+            if (undoStack.length >= 50) {
+                undoStack.shift();
+            }
+            undoStack.push(JSON.stringify(currentBlocks));
+            redoStack = []; // clear redo stack on new action
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            redoStack.push(JSON.stringify(currentBlocks));
+            const prevState = undoStack.pop();
+            currentBlocks = JSON.parse(prevState);
+            saveState();
+            renderApp();
+            updateUndoRedoButtons();
+            showToast('Undo successful!');
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            undoStack.push(JSON.stringify(currentBlocks));
+            const nextState = redoStack.pop();
+            currentBlocks = JSON.parse(nextState);
+            saveState();
+            renderApp();
+            updateUndoRedoButtons();
+            showToast('Redo successful!');
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            if (undoBtn) undoBtn.disabled = (undoStack.length === 0);
+            if (redoBtn) redoBtn.disabled = (redoStack.length === 0);
+        }
+
+        // Keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                undo();
+            } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+                e.preventDefault();
+                redo();
+            }
+        });
+
+        // Sorting Logic
+        function getSortedBlocks() {
+            return [...currentBlocks].sort((a, b) => {
+                if (a.startDay !== b.startDay) {
+                    return a.startDay - b.startDay;
+                }
+                const getTypeOrder = (type) => {
+                    if (type === 'stay') return 1;
+                    if (type === 'accom') return 2;
+                    return 0; // flight, travel, activity
+                };
+                return getTypeOrder(a.type) - getTypeOrder(b.type);
+            });
+        }
+
+        function shiftSubsequentBlocks(fromBlockId, dayDelta, isResize = false, oldNights = 0) {
+            if (dayDelta === 0) return;
+            const trigger = currentBlocks.find(b => b.id === fromBlockId);
+            if (!trigger) return;
+            
+            if (isResize) {
+                const oldEndDay = trigger.startDay + oldNights;
+                currentBlocks.forEach(b => {
+                    if (b.id !== fromBlockId && b.startDay >= oldEndDay && !b.locked) {
+                        b.startDay += dayDelta;
+                    }
+                });
+            } else {
+                const oldStartDay = trigger.startDay - dayDelta;
+                currentBlocks.forEach(b => {
+                    if (b.id !== fromBlockId && b.startDay >= oldStartDay && !b.locked) {
+                        b.startDay += dayDelta;
+                    }
+                });
+            }
+        }
+
+        // Rendering Dashboard
+        function renderApp() {
+            calculateStats();
+            renderTimeline();
+            renderChecklist();
+        }
+
+        function calculateStats() {
+            let totalCost = 0;
+            let flightCost = 0;
+            let stayCost = 0;
+            let travelCost = 0;
+            let activityCost = 0;
+            let doneCount = 0;
+            
+            currentBlocks.forEach(b => {
+                if (b.type === 'stay') return; // Skip city stays from booking metrics
+                const cost = parseFloat(b.cost) || 0;
+                totalCost += cost;
+                if (b.type === 'flight') flightCost += cost;
+                else if (b.type === 'accom') stayCost += cost; // Sum accom costs into stayCost
+                else if (b.type === 'travel') travelCost += cost;
+                else if (b.type === 'activity') activityCost += cost;
+                
+                if (b.booked) doneCount++;
+            });
+            
+            const totalCount = currentBlocks.filter(b => b.type !== 'stay').length;
+            const pendingCount = totalCount - doneCount;
+            const progressPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+            const costPerPerson = totalCost / 2;
+            
+            // Stats Panel
+            document.getElementById('doneCount').textContent = doneCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+            document.getElementById('progressPercent').textContent = `${progressPercent}%`;
+            
+            // Budget Panel
+            document.getElementById('totalCost').textContent = `CA$${totalCost.toLocaleString()}`;
+            document.getElementById('costPerPerson').textContent = `CA$${costPerPerson.toLocaleString()} each`;
+            document.getElementById('flightCost').textContent = `CA$${flightCost.toLocaleString()}`;
+            document.getElementById('stayCost').textContent = `CA$${stayCost.toLocaleString()}`;
+            document.getElementById('travelCost').textContent = `CA$${travelCost.toLocaleString()}`;
+            document.getElementById('activityCost').textContent = `CA$${activityCost.toLocaleString()}`;
+            
+            // Footer
+            document.getElementById('footerNights').textContent = currentBlocks.filter(b => b.type === 'stay').reduce((acc, curr) => acc + (parseInt(curr.nights) || 0), 0);
+            
+            // Distinct Cities
+            const cities = new Set();
+            currentBlocks.forEach(b => {
+                if (b.type === 'stay' && b.city) {
+                    const cleaned = b.city.replace(/\(.*\)/, '').replace(/Stay/, '').trim();
+                    cities.add(cleaned);
+                }
+            });
+            document.getElementById('footerCities').textContent = cities.size;
+
+            // Stay Coverage Integrity Checker (18 nights total from Day 0 to Day 17)
+            const nightsCovered = Array(18).fill(0);
+            currentBlocks.forEach(b => {
+                if (b.type === 'accom') {
+                    const startDay = parseInt(b.startDay);
+                    const nights = parseInt(b.nights) || 0;
+                    for (let i = startDay; i < startDay + nights; i++) {
+                        if (i >= 0 && i < 18) {
+                            nightsCovered[i]++;
+                        }
+                    }
+                }
+            });
+
+            let gaps = [];
+            let overlaps = [];
+            const baseDate = new Date(TRIP_START_DATE + 'T00:00:00');
+            
+            for (let day = 0; day < 18; day++) {
+                if (nightsCovered[day] === 0) {
+                    const d = new Date(baseDate);
+                    d.setDate(d.getDate() + day);
+                    gaps.push(getLocalDateString(d));
+                } else if (nightsCovered[day] > 1) {
+                    const d = new Date(baseDate);
+                    d.setDate(d.getDate() + day);
+                    overlaps.push(getLocalDateString(d));
+                }
+            }
+            
+            const checkerDiv = document.getElementById('integrityChecker');
+            if (checkerDiv) {
+                if (gaps.length > 0 || overlaps.length > 0) {
+                    let html = '<div class="integrity-card warning">';
+                    if (gaps.length > 0) {
+                        html += `<div><strong>⚠️ Gaps in Stays:</strong> <div class="integrity-sub">${gaps.join(', ')}</div></div>`;
+                    }
+                    if (overlaps.length > 0) {
+                        html += `<div style="margin-top: 6px;"><strong>⚠️ Overlapping Stays:</strong> <div class="integrity-sub">${overlaps.join(', ')}</div></div>`;
+                    }
+                    html += '</div>';
+                    checkerDiv.innerHTML = html;
+                } else {
+                    checkerDiv.innerHTML = `
+                        <div class="integrity-card success">
+                            <strong>✅ Stay Coverage Perfect</strong>
+                            <div class="integrity-sub">Stays booked for all 18 nights with no overlaps!</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function renderTimeline() {
+            const grid = document.getElementById('timelineGrid');
+            grid.innerHTML = '';
+            
+            // 1. Top-Left Empty Corner
+            const corner = document.createElement('div');
+            corner.className = 'calendar-corner-label';
+            corner.style.gridRow = '1';
+            corner.style.gridColumn = '1';
+            grid.appendChild(corner);
+            
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const start = new Date(TRIP_START_DATE + 'T00:00:00');
+            
+            // 2. Generate Header Row (Aug 2 - Aug 20)
+            for (let i = 0; i < 19; i++) {
+                const date = new Date(start);
+                date.setDate(date.getDate() + i);
+                const header = document.createElement('div');
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                header.className = 'calendar-header' + (isWeekend ? ' weekend' : '');
+                header.style.gridRow = '1';
+                header.style.gridColumn = `${2 + i}`;
+                header.innerHTML = `
+                    <div class="day-num">${date.getDate()}</div>
+                    <div class="day-name">${daysOfWeek[date.getDay()]}</div>
+                `;
+                grid.appendChild(header);
+            }
+            
+            // 3. Generate Stay (City) Row Label & Cells
+            const stayLabel = document.createElement('div');
+            stayLabel.className = 'calendar-row-label';
+            stayLabel.textContent = 'Stay (city)';
+            stayLabel.style.gridRow = '2';
+            stayLabel.style.gridColumn = '1';
+            grid.appendChild(stayLabel);
+            
+            const stayCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell stay-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '2';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'stay-city';
+                cell.title = 'Double-click to add a custom city stay on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'stay-city');
+                });
+                
+                grid.appendChild(cell);
+                stayCells[day] = cell;
+            }
+            
+            // 4. Generate Accom (Hotel) Row Label & Cells
+            const accomLabel = document.createElement('div');
+            accomLabel.className = 'calendar-row-label';
+            accomLabel.textContent = 'Accom (hotel)';
+            accomLabel.style.gridRow = '3';
+            accomLabel.style.gridColumn = '1';
+            grid.appendChild(accomLabel);
+            
+            const accomCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell accom-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '3';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'accom-hotel';
+                cell.title = 'Double-click to add a custom hotel accommodation on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'accom-hotel');
+                });
+                
+                grid.appendChild(cell);
+                accomCells[day] = cell;
+            }
+            
+            // 5. Generate Transportation Row Label & Cells
+            const transLabel = document.createElement('div');
+            transLabel.className = 'calendar-row-label';
+            transLabel.textContent = 'Transportation';
+            transLabel.style.gridRow = '4';
+            transLabel.style.gridColumn = '1';
+            grid.appendChild(transLabel);
+            
+            const transportCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell transport-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '4';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'transportation';
+                cell.title = 'Double-click to add a custom transport/event on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'transportation');
+                });
+                
+                grid.appendChild(cell);
+                transportCells[day] = cell;
+            }
+            
+            // 6. Draw the timeline blocks
+            currentBlocks.forEach(block => {
+                const nights = parseInt(block.nights) || 0;
+                const startDay = parseInt(block.startDay);
+                
+                if (startDay < 0 || startDay >= 19) return;
+                
+                if (nights > 0) {
+                    // Spanning blocks (stays, accoms or multi-day travel)
+                    const blockEl = createBlockElement(block);
+                    
+                    let endCol = startDay + nights;
+                    if (endCol > 19) endCol = 19; // clamp to grid width
+                    
+                    if (block.type === 'stay') {
+                        blockEl.style.gridRow = '2';
+                    } else if (block.type === 'accom') {
+                        blockEl.style.gridRow = '3';
+                    } else {
+                        blockEl.style.gridRow = '4';
+                    }
+                    blockEl.style.gridColumnStart = `${2 + startDay}`;
+                    blockEl.style.gridColumnEnd = `${2 + endCol}`;
+                    
+                    grid.appendChild(blockEl);
+                } else {
+                    // Single day cards (flights, trains, buses, events)
+                    const blockEl = createBlockElement(block);
+                    if (block.type === 'stay') {
+                        if (stayCells[startDay]) stayCells[startDay].appendChild(blockEl);
+                    } else if (block.type === 'accom') {
+                        if (accomCells[startDay]) accomCells[startDay].appendChild(blockEl);
+                    } else {
+                        if (transportCells[startDay]) transportCells[startDay].appendChild(blockEl);
+                    }
+                }
+            });
+        }
+
+        function createBlockElement(block) {
+            const el = document.createElement('div');
+            const isLocked = !!block.locked;
+            el.className = `calendar-block ${block.type} ${block.booked ? 'booked' : ''} ${isLocked ? 'locked' : ''}`;
+            el.draggable = !isLocked;
+            el.dataset.blockId = block.id;
+            
+            if (!isLocked) {
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+            } else {
+                el.title = `${block.city} (Locked)`;
+            }
+            
+            el.addEventListener('click', (e) => {
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('block-link-icon')) return;
+                openEditor(block.id);
+            });
+            
+            // Title
+            const title = document.createElement('div');
+            title.className = 'block-title';
+            title.textContent = block.city;
+            el.appendChild(title);
+            
+            // Subtitle info
+            const subtitle = document.createElement('div');
+            subtitle.className = 'block-subtitle';
+            if (block.nights > 0) {
+                subtitle.textContent = `${block.nights} night${block.nights > 1 ? 's' : ''}`;
+            } else {
+                subtitle.textContent = block.cost > 0 ? `CA$${block.cost}` : 'Booked';
+            }
+            el.appendChild(subtitle);
+            
+            // Add resizing capability for spanning items ONLY if not locked
+            if (block.nights > 0 && !isLocked) {
+                const handle = document.createElement('div');
+                handle.className = 'resize-handle';
+                handle.addEventListener('mousedown', (e) => {
+                    initResize(e, block, el);
+                });
+                el.appendChild(handle);
+            }
+
+            // Add small link icon if block has a link
+            if (block.link) {
+                const linkIcon = document.createElement('a');
+                linkIcon.className = 'block-link-icon';
+                linkIcon.href = block.link;
+                linkIcon.target = '_blank';
+                linkIcon.title = 'Open booking website';
+                linkIcon.innerHTML = '↗';
+                linkIcon.addEventListener('click', (e) => {
+                    e.stopPropagation(); // prevent opening details editor
+                });
+                el.appendChild(linkIcon);
+            }
+            
+            return el;
+        }
+
+        // Drag & Drop Handlers
+        function handleDragStart(e) {
+            draggedBlockId = e.currentTarget.dataset.blockId;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedBlockId);
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('drag-over'));
+            draggedBlockId = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            if (draggedBlockId) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (!draggedBlockId) return;
+            
+            const block = currentBlocks.find(b => b.id === draggedBlockId);
+            if (!block || block.locked) return;
+            
+            const newDay = parseInt(e.currentTarget.dataset.day);
+            const oldDay = parseInt(block.startDay);
+            
+            // Check if dropped on a different lane and change type
+            const targetLane = e.currentTarget.dataset.lane;
+            let typeChanged = false;
+            
+            if (targetLane === 'stay-city' && block.type !== 'stay') {
+                block.type = 'stay';
+                typeChanged = true;
+            } else if (targetLane === 'accom-hotel' && block.type !== 'accom') {
+                block.type = 'accom';
+                typeChanged = true;
+            } else if (targetLane === 'transportation' && (block.type === 'stay' || block.type === 'accom')) {
+                block.type = 'flight'; // default transportation type
+                typeChanged = true;
+            }
+            
+            if (newDay === oldDay && !typeChanged) return;
+            
+            pushToHistory();
+            
+            const delta = newDay - oldDay;
+            block.startDay = newDay;
+            
+            // Adjust nights for types that don't support them if changed to transport
+            if (typeChanged && block.type !== 'stay' && block.type !== 'accom') {
+                block.nights = 0;
+            } else if (typeChanged && (block.type === 'stay' || block.type === 'accom') && block.nights === 0) {
+                block.nights = 1;
+            }
+            
+            const autoShift = document.getElementById('autoShiftToggle').checked;
+            if (autoShift) {
+                shiftSubsequentBlocks(block.id, delta, false);
+            }
+            
+            saveState();
+            renderApp();
+        }
+
+        // Resize Nights Handler
+        function initResize(e, block, el) {
+            e.preventDefault();
+            e.stopPropagation(); // Stop click editor triggering
+            
+            const startX = e.clientX;
+            const startNights = parseInt(block.nights);
+            const startCol = parseInt(block.startDay) + 2;
+            
+            const cell = document.querySelector('.calendar-cell[data-day="0"]');
+            const cellWidth = cell ? cell.getBoundingClientRect().width : 60;
+            
+            document.body.classList.add('resizing');
+            el.classList.add('resizing-active');
+            
+            function onMouseMove(moveEvent) {
+                const dx = moveEvent.clientX - startX;
+                const deltaNights = Math.round(dx / cellWidth);
+                let newNights = Math.max(1, startNights + deltaNights);
+                
+                // Clamp duration to end of grid (Aug 20 is Day 18, so grid max width is Day 19)
+                const maxNights = 19 - block.startDay;
+                newNights = Math.min(maxNights, newNights);
+                
+                el.style.gridColumnEnd = `${startCol + newNights}`;
+                
+                const sub = el.querySelector('.block-subtitle');
+                if (sub) {
+                    sub.textContent = `${newNights} night${newNights > 1 ? 's' : ''} (sliding)`;
+                }
+            }
+            
+            function onMouseUp(upEvent) {
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                document.body.classList.remove('resizing');
+                el.classList.remove('resizing-active');
+                
+                const dx = upEvent.clientX - startX;
+                const deltaNights = Math.round(dx / cellWidth);
+                let newNights = Math.max(1, startNights + deltaNights);
+                const maxNights = 19 - block.startDay;
+                newNights = Math.min(maxNights, newNights);
+                
+                if (newNights !== startNights) {
+                    pushToHistory();
+                    
+                    const delta = newNights - startNights;
+                    block.nights = newNights;
+                    
+                    const autoShift = document.getElementById('autoShiftToggle').checked;
+                    if (autoShift) {
+                        shiftSubsequentBlocks(block.id, delta, true, startNights);
+                    }
+                    
+                    saveState();
+                    renderApp();
+                    showToast(`Adjusted stay to ${newNights} nights.`);
+                } else {
+                    renderApp();
+                }
+            }
+            
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        }
+
+        // Render Checklist details
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistContainer');
+            container.innerHTML = '';
+            
+            const sorted = getSortedBlocks();
+            const filtered = sorted.filter(b => {
+                if (b.type === 'stay') return false; // Exclude city stay blocks from checklist
+                if (currentFilter === 'booked') return b.booked;
+                if (currentFilter === 'pending') return !b.booked;
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">No reservations found matching this filter.</div>`;
+                return;
+            }
+            
+            filtered.forEach(block => {
+                const card = document.createElement('div');
+                card.className = `item ${block.booked ? 'checked' : ''}`;
+                card.id = `checklist-item-${block.id}`;
+                
+                let icon = '📍';
+                if (block.type === 'flight') icon = '✈️';
+                else if (block.type === 'accom') icon = '🏨';
+                else if (block.type === 'travel') icon = '🚂';
+                else if (block.type === 'activity') icon = '🎟️';
+                
+                let costHtml = '';
+                if (block.cost > 0) {
+                    costHtml = `<div class="cost">CA$${block.cost}</div>`;
+                } else if (block.type === 'flight' && block.notes.toLowerCase().includes('miles')) {
+                    costHtml = `<div class="cost font-miles">Points / Miles</div>`;
+                } else {
+                    costHtml = `<div class="cost">Free / Included</div>`;
+                }
+                
+                let linkHtml = '';
+                if (block.link) {
+                    let linkLabel = '→ Book / View Details';
+                    if (block.link.includes('airbnb')) linkLabel = '→ Search Airbnb';
+                    else if (block.link.includes('ryanair')) linkLabel = '→ Search Ryanair';
+                    else if (block.link.includes('wizzair')) linkLabel = '→ Search Wizz Air';
+                    else if (block.link.includes('intercity')) linkLabel = '→ PKP Intercity';
+                    else if (block.link.includes('citylink')) linkLabel = '→ Citylink';
+                    else if (block.link.includes('aa.com')) linkLabel = '→ AA Award Search';
+                    
+                    linkHtml = `<a class="item-link" href="${block.link}" target="_blank">${linkLabel}</a>`;
+                }
+                
+                const displayType = block.type === 'accom' ? 'accommodation' : block.type;
+                
+                card.innerHTML = `
+                    <div class="item-top">
+                        <input type="checkbox" id="check-${block.id}" ${block.booked ? 'checked' : ''} onchange="toggleBookedState('${block.id}')">
+                        <div class="item-body">
+                            <div class="item-header-row">
+                                <div class="item-title">${icon} ${block.city}</div>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <button class="btn-lock-toggle" onclick="toggleLockState('${block.id}')" title="${block.locked ? 'Unlock booking' : 'Lock booking'}">
+                                        ${block.locked ? '🔒' : '🔓'}
+                                    </button>
+                                    <button class="btn-edit-inline" onclick="openEditor('${block.id}')">⚙️ Edit</button>
+                                </div>
+                            </div>
+                            <div class="item-detail">${getBookingDateRange(block.startDay, block.nights, block.type)}</div>
+                            ${costHtml}
+                            <span class="tag tag-${block.type}">${displayType}</span>
+                            ${block.notes ? `<div class="item-notes">${block.notes}</div>` : ''}
+                            ${linkHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleBookedState(blockId) {
+            const block = currentBlocks.find(b => b.id === blockId);
+            if (block) {
+                pushToHistory();
+                block.booked = !block.booked;
+                saveState();
+                renderApp();
+            }
+        }
+
+        function toggleLockState(blockId) {
+            const block = currentBlocks.find(b => b.id === blockId);
+            if (block) {
+                pushToHistory();
+                block.locked = !block.locked;
+                saveState();
+                renderApp();
+                showToast(block.locked ? `Locked "${block.city}"` : `Unlocked "${block.city}"`);
+            }
+        }
+
+        // Inspector Form Modal Code
+        function openEditor(blockId) {
+            const block = currentBlocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            document.getElementById('editId').value = block.id;
+            document.getElementById('editCity').value = block.city;
+            document.getElementById('editType').value = block.type;
+            document.getElementById('editNights').value = block.nights;
+            document.getElementById('editCost').value = block.cost;
+            document.getElementById('editLink').value = block.link || '';
+            document.getElementById('editNotes').value = block.notes || '';
+            document.getElementById('editBooked').checked = block.booked;
+            document.getElementById('editLocked').checked = !!block.locked;
+            
+            // Set up date selector (Day 0 to Day 18)
+            const select = document.getElementById('editStartDay');
+            select.innerHTML = '';
+            const start = new Date(TRIP_START_DATE + 'T00:00:00');
+            for (let i = 0; i < 19; i++) {
+                const d = new Date(start);
+                d.setDate(d.getDate() + i);
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${getLocalDateString(d)} (Day ${i})`;
+                if (i === parseInt(block.startDay)) {
+                    opt.selected = true;
+                }
+                select.appendChild(opt);
+            }
+            
+            // Don't allow deletion of fixed anchor routes
+            const delBtn = document.getElementById('deleteBtn');
+            if (block.id === 'outbound-flight' || block.id === 'return-flight') {
+                delBtn.style.display = 'none';
+            } else {
+                delBtn.style.display = 'block';
+            }
+            
+            toggleNightsInput();
+            handleLockedChange();
+            
+            document.getElementById('editorPanel').classList.add('open');
+            document.getElementById('editorBackdrop').classList.add('open');
+            document.getElementById('editorTitle').textContent = `Inspect Booking`;
+        }
+
+        function closeEditor() {
+            document.getElementById('editorPanel').classList.remove('open');
+            document.getElementById('editorBackdrop').classList.remove('open');
+        }
+
+        function toggleNightsInput() {
+            const type = document.getElementById('editType').value;
+            const group = document.getElementById('nightsGroup');
+            if (type === 'stay' || type === 'accom') {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+                document.getElementById('editNights').value = 0;
+            }
+        }
+
+        function handleLockedChange() {
+            const isLocked = document.getElementById('editLocked').checked;
+            document.getElementById('editStartDay').disabled = isLocked;
+            const nightsInput = document.getElementById('editNights');
+            if (nightsInput) {
+                nightsInput.disabled = isLocked;
+            }
+            const typeInput = document.getElementById('editType');
+            if (typeInput) {
+                typeInput.disabled = isLocked;
+            }
+        }
+
+        function saveBooking(event) {
+            event.preventDefault();
+            const id = document.getElementById('editId').value;
+            const block = currentBlocks.find(b => b.id === id);
+            if (!block) return;
+            
+            const oldNights = parseInt(block.nights);
+            const oldStartDay = parseInt(block.startDay);
+            
+            const newCity = document.getElementById('editCity').value;
+            const newType = document.getElementById('editType').value;
+            const newNights = parseInt(document.getElementById('editNights').value) || 0;
+            const newStartDay = parseInt(document.getElementById('editStartDay').value);
+            const newCost = parseFloat(document.getElementById('editCost').value) || 0;
+            const newLink = document.getElementById('editLink').value;
+            const newNotes = document.getElementById('editNotes').value;
+            const newBooked = document.getElementById('editBooked').checked;
+            const newLocked = document.getElementById('editLocked').checked;
+            
+            pushToHistory();
+            
+            const autoShift = document.getElementById('autoShiftToggle').checked;
+            if (autoShift && !newLocked) { // only shift others if this item is not locked
+                if (newStartDay !== oldStartDay) {
+                    const delta = newStartDay - oldStartDay;
+                    block.startDay = newStartDay; // shift base
+                    shiftSubsequentBlocks(id, delta, false);
+                }
+                if ((newType === 'stay' || newType === 'accom') && newNights !== oldNights) {
+                    const delta = newNights - oldNights;
+                    block.nights = newNights;
+                    shiftSubsequentBlocks(id, delta, true, oldNights);
+                }
+            }
+            
+            block.city = newCity;
+            block.type = newType;
+            block.nights = newNights;
+            block.startDay = newStartDay;
+            block.cost = newCost;
+            block.link = newLink;
+            block.notes = newNotes;
+            block.booked = newBooked;
+            block.locked = newLocked;
+            
+            saveState();
+            renderApp();
+            closeEditor();
+            showToast('Saved changes!');
+        }
+
+        function deleteBooking() {
+            const id = document.getElementById('editId').value;
+            if (!id) return;
+            
+            const index = currentBlocks.findIndex(b => b.id === id);
+            if (index === -1) return;
+            
+            const block = currentBlocks[index];
+            if (confirm(`Remove "${block.city}" from planner?`)) {
+                pushToHistory();
+                currentBlocks.splice(index, 1);
+                saveState();
+                renderApp();
+                closeEditor();
+                showToast('Booking deleted.');
+            }
+        }
+
+        function addNewBooking() {
+            pushToHistory();
+            const id = 'custom-' + Date.now();
+            const newBlock = {
+                id: id,
+                type: 'accom',
+                city: 'New Accommodation',
+                nights: 1,
+                startDay: 0,
+                cost: 100,
+                notes: '',
+                link: '',
+                booked: false,
+                locked: false
+            };
+            currentBlocks.push(newBlock);
+            saveState();
+            renderApp();
+            openEditor(id);
+        }
+
+        function addNewBookingAt(day, lane) {
+            pushToHistory();
+            const id = 'custom-' + Date.now();
+            let type = 'flight';
+            let city = 'New Travel / Event';
+            let nights = 0;
+            let cost = 0;
+            
+            if (lane === 'stay-city') {
+                type = 'stay';
+                city = 'New City Stay';
+                nights = 1;
+            } else if (lane === 'accom-hotel') {
+                type = 'accom';
+                city = 'New Accommodation';
+                nights = 1;
+                cost = 100;
+            }
+            
+            const newBlock = {
+                id: id,
+                type: type,
+                city: city,
+                nights: nights,
+                startDay: day,
+                cost: cost,
+                notes: '',
+                link: '',
+                booked: false,
+                locked: false
+            };
+            currentBlocks.push(newBlock);
+            saveState();
+            renderApp();
+            openEditor(id);
+        }
+
+        // Toast Messages
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Export itinerary
+        function exportPlan() {
+            const sorted = getSortedBlocks();
+            let md = `# Europe Trip 2026 Itinerary\n\n`;
+            md += `Dave & KS · Aug 2–20 · Created on ${new Date().toLocaleDateString()}\n\n`;
+            
+            let totalEstimated = 0;
+            sorted.forEach(b => {
+                totalEstimated += parseFloat(b.cost) || 0;
+            });
+            md += `**Total Estimated Cost**: CA$${totalEstimated.toLocaleString()} (~CA$${(totalEstimated/2).toLocaleString()} per person)\n\n`;
+            md += `## Schedule Checklist\n\n`;
+            
+            sorted.forEach(b => {
+                const dates = getBookingDateRange(b.startDay, b.nights, b.type);
+                const costStr = b.cost > 0 ? ` - CA$${b.cost}` : '';
+                const status = b.booked ? ' [✓ Booked]' : ' [❌ To Book]';
+                md += `### ${b.type.toUpperCase()}: ${b.city}${status}\n`;
+                md += `- **Date/Duration**: ${dates}${costStr}\n`;
+                if (b.notes) md += `- **Notes**: ${b.notes}\n`;
+                if (b.link) md += `- **Booking link**: ${b.link}\n`;
+                md += `\n`;
+            });
+            
+            navigator.clipboard.writeText(md).then(() => {
+                showToast('Markdown itinerary copied to clipboard!');
+            }).catch(err => {
+                // Fallback downloading
+                const el = document.createElement('a');
+                el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(md));
+                el.setAttribute('download', 'europe_trip_2026_itinerary.md');
+                el.style.display = 'none';
+                document.body.appendChild(el);
+                el.click();
+                document.body.removeChild(el);
+                showToast('Itinerary downloaded as markdown file.');
+            });
+        }
+
+        // Initial Boot
+        loadState();
+        renderApp();
+    </script>
+</body>
+
+</html>
