@@ -1721,14 +1721,16 @@
     {
         "id": "fly-lpl",
         "type": "flight",
-        "city": "Lisbon → Liverpool (easyJet)",
+        "city": "Lisbon → Liverpool (EZY3434)",
         "nights": 0,
         "startDay": 2,
-        "locked": false,
-        "cost": 81,
-        "notes": "easyJet · Direct · ~2h 45m · Arrives 12:40 PM. Add priority boarding + cabin bag.",
+        "locked": true,
+        "cost": 164.95,
+        "currency": "EUR",
+        "notes": "easyJet · Direct · Ref: KCPLKPB · Departs 09:55, Arrives 12:40 · Paid by MasterCard",
         "link": "https://www.easyjet.com/",
-        "booked": false
+        "booked": true,
+        "baggage": "1 Small Cabin Bag (underseat)"
     },
     {
         "id": "stay-lpl",
@@ -2078,7 +2080,7 @@
                     currentBlocks.forEach(b => {
                         if (b.baggage === undefined) {
                             if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
-                            else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                            else if (b.id === 'fly-lpl') b.baggage = '1 Small Cabin Bag (underseat)';
                             else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
                             else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
                             else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
@@ -2105,7 +2107,7 @@
                         if (b.baggage === undefined) {
                             // Migrate baggage by default if available
                             if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
-                            else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                            else if (b.id === 'fly-lpl') b.baggage = '1 Small Cabin Bag (underseat)';
                             else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
                             else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
                             else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
@@ -2117,6 +2119,19 @@
                             else b.baggage = '';
                         }
                     });
+                    
+                    // Check if we need to upgrade the fly-lpl block with the confirmed details
+                    let flyLplBlock = currentBlocks.find(b => b.id === 'fly-lpl');
+                    if (flyLplBlock && (flyLplBlock.booked === false || flyLplBlock.cost === 81)) {
+                        flyLplBlock.booked = true;
+                        flyLplBlock.locked = true;
+                        flyLplBlock.cost = 164.95;
+                        flyLplBlock.currency = 'EUR';
+                        flyLplBlock.city = 'Lisbon → Liverpool (EZY3434)';
+                        flyLplBlock.notes = 'easyJet · Direct · Ref: KCPLKPB · Departs 09:55, Arrives 12:40 · Paid by MasterCard';
+                        flyLplBlock.baggage = '1 Small Cabin Bag (underseat)';
+                        saveState();
+                    }
                     
                     // Migrate old data if 'accom' type blocks don't exist yet
                     const hasAccom = currentBlocks.some(b => b.type === 'accom');
@@ -2180,7 +2195,7 @@
                 currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
                 currentBlocks.forEach(b => {
                     if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
-                    else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                    else if (b.id === 'fly-lpl') b.baggage = '1 Small Cabin Bag (underseat)';
                     else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
                     else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
                     else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
