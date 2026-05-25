@@ -33,11 +33,12 @@ function doPost(e) {
         "Cost",
         "Currency",
         "Notes",
-        "Booking Link"
+        "Booking Link",
+        "Baggage Allowance"
       ]);
       
       // Apply premium formatting to headers to match dashboard style
-      var headerRange = sheet.getRange(1, 1, 1, 10);
+      var headerRange = sheet.getRange(1, 1, 1, 11);
       headerRange.setBackground("#121524") // Card dark background
                  .setFontColor("#f3f5fa") // Accent white text
                  .setFontWeight("bold")
@@ -56,11 +57,12 @@ function doPost(e) {
       data.cost || 0,
       data.currency || "CAD",
       data.notes || "",
-      data.link || ""
+      data.link || "",
+      data.baggage || ""
     ]);
     
     // Auto-resize columns for readability
-    sheet.autoResizeColumns(1, 10);
+    sheet.autoResizeColumns(1, 11);
     
     return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Idea added to Google Sheets!" }))
                          .setMimeType(ContentService.MimeType.JSON);

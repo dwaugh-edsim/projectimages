@@ -663,6 +663,18 @@
             text-overflow: ellipsis;
         }
 
+        .calendar-block .block-baggage {
+            font-size: 0.58rem;
+            opacity: 0.85;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
         /* Resize Handle */
         .calendar-block .resize-handle {
             position: absolute;
@@ -1626,6 +1638,11 @@
                     <label for="editLink">Booking Link</label>
                     <input type="url" id="editLink" placeholder="https://airbnb.com/...">
                 </div>
+
+                <div class="form-group" id="baggageGroup" style="display: none;">
+                    <label for="editBaggage">Baggage Allowance</label>
+                    <input type="text" id="editBaggage" placeholder="e.g. 1 Carry-on, 1 Checked 23kg">
+                </div>
                 
                 <div class="form-group">
                     <label for="editNotes">Notes</label>
@@ -2041,6 +2058,9 @@
             if (storedIdeas) {
                 try {
                     currentIdeas = JSON.parse(storedIdeas);
+                    currentIdeas.forEach(i => {
+                        if (i.baggage === undefined) i.baggage = '';
+                    });
                 } catch (e) {
                     console.error('Error loading ideas:', e);
                     currentIdeas = [];
@@ -2055,6 +2075,21 @@
                 if (stored.includes('Warsaw') || stored.includes('stay-waw') || stored.includes('accom-waw') || !stored.includes('Focus: Alfama')) {
                     console.log('Old or outdated itinerary version detected. Overwriting local storage with new default itinerary.');
                     currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                    currentBlocks.forEach(b => {
+                        if (b.baggage === undefined) {
+                            if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                            else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
+                            else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
+                            else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
+                            else if (b.id === 'travel-wroclaw') b.baggage = 'PKP Intercity: Hand luggage free';
+                            else if (b.id === 'travel-olomouc') b.baggage = 'CD: Hand luggage free';
+                            else if (b.id === 'travel-prague') b.baggage = 'Leo Express: Hand luggage free';
+                            else if (b.id === 'fly-prg-lis') b.baggage = 'TAP standard limits apply';
+                            else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else b.baggage = '';
+                        }
+                    });
                     saveState();
                     return;
                 }
@@ -2067,6 +2102,20 @@
                         }
                         if (!b.currency) b.currency = 'CAD';
                         if (!b.paidBy) b.paidBy = 'Shared';
+                        if (b.baggage === undefined) {
+                            // Migrate baggage by default if available
+                            if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                            else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
+                            else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
+                            else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
+                            else if (b.id === 'travel-wroclaw') b.baggage = 'PKP Intercity: Hand luggage free';
+                            else if (b.id === 'travel-olomouc') b.baggage = 'CD: Hand luggage free';
+                            else if (b.id === 'travel-prague') b.baggage = 'Leo Express: Hand luggage free';
+                            else if (b.id === 'fly-prg-lis') b.baggage = 'TAP standard limits apply';
+                            else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else b.baggage = '';
+                        }
                     });
                     
                     // Migrate old data if 'accom' type blocks don't exist yet
@@ -2129,6 +2178,19 @@
                 pushToHistory();
                 localStorage.removeItem('europe_trip_2026_blocks');
                 currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                currentBlocks.forEach(b => {
+                    if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                    else if (b.id === 'fly-lpl') b.baggage = '1 Underseat Cabin Bag (free on easyJet)';
+                    else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
+                    else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
+                    else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
+                    else if (b.id === 'travel-wroclaw') b.baggage = 'PKP Intercity: Hand luggage free';
+                    else if (b.id === 'travel-olomouc') b.baggage = 'CD: Hand luggage free';
+                    else if (b.id === 'travel-prague') b.baggage = 'Leo Express: Hand luggage free';
+                    else if (b.id === 'fly-prg-lis') b.baggage = 'TAP standard limits apply';
+                    else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                    else b.baggage = '';
+                });
                 renderApp();
                 showToast('Itinerary reset to default!');
             }
@@ -2406,6 +2468,493 @@
                     `;
                 }
             }
+        function renderTimeline() {
+            const grid = document.getElementById('timelineGrid');
+            grid.innerHTML = '';
+            
+            // 1. Top-Left Empty Corner
+            const corner = document.createElement('div');
+            corner.className = 'calendar-corner-label';
+            corner.style.gridRow = '1';
+            corner.style.gridColumn = '1';
+            grid.appendChild(corner);
+            
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const start = new Date(TRIP_START_DATE + 'T00:00:00');
+            
+            // 2. Generate Header Row (Aug 2 - Aug 20)
+            for (let i = 0; i < 19; i++) {
+                const date = new Date(start);
+                date.setDate(date.getDate() + i);
+                const header = document.createElement('div');
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                header.className = 'calendar-header' + (isWeekend ? ' weekend' : '');
+                header.style.gridRow = '1';
+                header.style.gridColumn = `${2 + i}`;
+                header.innerHTML = `
+                    <div class="day-num">${date.getDate()}</div>
+                    <div class="day-name">${daysOfWeek[date.getDay()]}</div>
+                `;
+                grid.appendChild(header);
+            }
+            
+            // 3. Generate Stay (City) Row Label & Cells
+            const stayLabel = document.createElement('div');
+            stayLabel.className = 'calendar-row-label';
+            stayLabel.textContent = 'Stay (city)';
+            stayLabel.style.gridRow = '2';
+            stayLabel.style.gridColumn = '1';
+            grid.appendChild(stayLabel);
+            
+            const stayCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell stay-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '2';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'stay-city';
+                cell.title = 'Double-click to add a custom city stay on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'stay-city');
+                });
+                
+                grid.appendChild(cell);
+                stayCells[day] = cell;
+            }
+            
+            // 4. Generate Accom (Hotel) Row Label & Cells
+            const accomLabel = document.createElement('div');
+            accomLabel.className = 'calendar-row-label';
+            accomLabel.textContent = 'Accom (hotel)';
+            accomLabel.style.gridRow = '3';
+            accomLabel.style.gridColumn = '1';
+            grid.appendChild(accomLabel);
+            
+            const accomCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell accom-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '3';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'accom-hotel';
+                cell.title = 'Double-click to add a custom hotel accommodation on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'accom-hotel');
+                });
+                
+                grid.appendChild(cell);
+                accomCells[day] = cell;
+            }
+            
+            // 5. Generate Transportation Row Label & Cells
+            const transLabel = document.createElement('div');
+            transLabel.className = 'calendar-row-label';
+            transLabel.textContent = 'Transportation';
+            transLabel.style.gridRow = '4';
+            transLabel.style.gridColumn = '1';
+            grid.appendChild(transLabel);
+            
+            const transportCells = {};
+            for (let day = 0; day < 19; day++) {
+                const cellDate = new Date(start);
+                cellDate.setDate(cellDate.getDate() + day);
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6;
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell transport-cell' + (isWeekend ? ' weekend' : '');
+                cell.style.gridRow = '4';
+                cell.style.gridColumn = `${2 + day}`;
+                cell.dataset.day = day;
+                cell.dataset.lane = 'transportation';
+                cell.title = 'Double-click to add a custom transport/event on this day';
+                
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('dragleave', handleDragLeave);
+                cell.addEventListener('drop', handleDrop);
+                cell.addEventListener('dblclick', () => {
+                    addNewBookingAt(day, 'transportation');
+                });
+                
+                grid.appendChild(cell);
+                transportCells[day] = cell;
+            }
+            
+            // 6. Draw the timeline blocks
+            currentBlocks.forEach(block => {
+                const nights = parseInt(block.nights) || 0;
+                const startDay = parseInt(block.startDay);
+                
+                if (startDay < 0 || startDay >= 19) return;
+                
+                if (nights > 0) {
+                    // Spanning blocks (stays, accoms or multi-day travel)
+                    const blockEl = createBlockElement(block);
+                    
+                    let endCol = startDay + nights;
+                    if (endCol > 19) endCol = 19; // clamp to grid width
+                    
+                    if (block.type === 'stay') {
+                        blockEl.style.gridRow = '2';
+                    } else if (block.type === 'accom') {
+                        blockEl.style.gridRow = '3';
+                    } else {
+                        blockEl.style.gridRow = '4';
+                    }
+                    blockEl.style.gridColumnStart = `${2 + startDay}`;
+                    blockEl.style.gridColumnEnd = `${2 + endCol}`;
+                    
+                    grid.appendChild(blockEl);
+                } else {
+                    // Single day cards (flights, trains, buses, events)
+                    const blockEl = createBlockElement(block);
+                    if (block.type === 'stay') {
+                        if (stayCells[startDay]) stayCells[startDay].appendChild(blockEl);
+                    } else if (block.type === 'accom') {
+                        if (accomCells[startDay]) accomCells[startDay].appendChild(blockEl);
+                    } else {
+                        if (transportCells[startDay]) transportCells[startDay].appendChild(blockEl);
+                    }
+                }
+            });
+        }
+
+        function createBlockElement(block) {
+            const el = document.createElement('div');
+            const isLocked = !!block.locked;
+            el.className = `calendar-block ${block.type} ${block.booked ? 'booked' : ''} ${isLocked ? 'locked' : ''}`;
+            el.draggable = !isLocked;
+            el.dataset.blockId = block.id;
+            
+            if (!isLocked) {
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+            } else {
+                el.title = `${block.city} (Locked)`;
+            }
+            
+            el.addEventListener('click', (e) => {
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('block-link-icon')) return;
+                openEditor(block.id);
+            });
+            
+            // Title
+            const title = document.createElement('div');
+            title.className = 'block-title';
+            title.textContent = block.city;
+            el.appendChild(title);
+            
+            // Subtitle info
+            const subtitle = document.createElement('div');
+            subtitle.className = 'block-subtitle';
+            if (block.nights > 0) {
+                subtitle.textContent = `${block.nights} night${block.nights > 1 ? 's' : ''}`;
+            } else {
+                subtitle.textContent = block.cost > 0 ? `CA$${block.cost}` : 'Booked';
+            }
+            el.appendChild(subtitle);
+
+            // Baggage Allowance
+            if (block.baggage && (block.type === 'flight' || block.type === 'travel')) {
+                const baggageDiv = document.createElement('div');
+                baggageDiv.className = 'block-baggage';
+                baggageDiv.innerHTML = `🧳 ${block.baggage}`;
+                el.appendChild(baggageDiv);
+            }
+            
+            // Add resizing capability for spanning items ONLY if not locked
+            if (block.nights > 0 && !isLocked) {
+                const handle = document.createElement('div');
+                handle.className = 'resize-handle';
+                handle.addEventListener('mousedown', (e) => {
+                    initResize(e, block, el);
+                });
+                el.appendChild(handle);
+            }
+
+            // Add small link icon if block has a link
+            if (block.link) {
+                const linkIcon = document.createElement('a');
+                linkIcon.className = 'block-link-icon';
+                linkIcon.href = block.link;
+                linkIcon.target = '_blank';
+                linkIcon.title = 'Open booking website';
+                linkIcon.innerHTML = '↗';
+                linkIcon.addEventListener('click', (e) => {
+                    e.stopPropagation(); // prevent opening details editor
+                });
+                el.appendChild(linkIcon);
+            }
+            
+            return el;
+        }
+
+        // Drag & Drop Handlers
+        function handleDragStart(e) {
+            draggedBlockId = e.currentTarget.dataset.blockId;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedBlockId);
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('drag-over'));
+            draggedBlockId = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            if (draggedBlockId) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        // Drag & Drop Handlers cont...
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (!draggedBlockId) return;
+            
+            const block = currentBlocks.find(b => b.id === draggedBlockId);
+            if (!block || block.locked) return;
+            
+            const newDay = parseInt(e.currentTarget.dataset.day);
+            const oldDay = parseInt(block.startDay);
+            
+            // Check if dropped on a different lane and change type
+            const targetLane = e.currentTarget.dataset.lane;
+            let typeChanged = false;
+            
+            if (targetLane === 'stay-city' && block.type !== 'stay') {
+                block.type = 'stay';
+                typeChanged = true;
+            } else if (targetLane === 'accom-hotel' && block.type !== 'accom') {
+                block.type = 'accom';
+                typeChanged = true;
+            } else if (targetLane === 'transportation' && (block.type === 'stay' || block.type === 'accom')) {
+                block.type = 'flight'; // default transportation type
+                typeChanged = true;
+            }
+            
+            if (newDay === oldDay && !typeChanged) return;
+            
+            pushToHistory();
+            
+            const delta = newDay - oldDay;
+            block.startDay = newDay;
+            
+            // Adjust nights for types that don't support them if changed to transport
+            if (typeChanged && block.type !== 'stay' && block.type !== 'accom') {
+                block.nights = 0;
+            } else if (typeChanged && (block.type === 'stay' || block.type === 'accom') && block.nights === 0) {
+                block.nights = 1;
+            }
+            
+            const autoShift = document.getElementById('autoShiftToggle').checked;
+            if (autoShift) {
+                shiftSubsequentBlocks(block.id, delta, false);
+            }
+            
+            saveState();
+            renderApp();
+        }
+
+        // Resize Nights Handler
+        function initResize(e, block, el) {
+            e.preventDefault();
+            e.stopPropagation(); // Stop click editor triggering
+            
+            const startX = e.clientX;
+            const startNights = parseInt(block.nights);
+            const startCol = parseInt(block.startDay) + 2;
+            
+            const cell = document.querySelector('.calendar-cell[data-day="0"]');
+            const cellWidth = cell ? cell.getBoundingClientRect().width : 60;
+            
+            document.body.classList.add('resizing');
+            el.classList.add('resizing-active');
+            
+            function onMouseMove(moveEvent) {
+                const dx = moveEvent.clientX - startX;
+                const deltaNights = Math.round(dx / cellWidth);
+                let newNights = Math.max(1, startNights + deltaNights);
+                
+                // Clamp duration to end of grid (Aug 20 is Day 18, so grid max width is Day 19)
+                const maxNights = 19 - block.startDay;
+                newNights = Math.min(maxNights, newNights);
+                
+                el.style.gridColumnEnd = `${startCol + newNights}`;
+                
+                const sub = el.querySelector('.block-subtitle');
+                if (sub) {
+                    sub.textContent = `${newNights} night${newNights > 1 ? 's' : ''} (sliding)`;
+                }
+            }
+            
+            function onMouseUp(upEvent) {
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                document.body.classList.remove('resizing');
+                el.classList.remove('resizing-active');
+                
+                const dx = upEvent.clientX - startX;
+                const deltaNights = Math.round(dx / cellWidth);
+                let newNights = Math.max(1, startNights + deltaNights);
+                const maxNights = 19 - block.startDay;
+                newNights = Math.min(maxNights, newNights);
+                
+                if (newNights !== startNights) {
+                    pushToHistory();
+                    
+                    const delta = newNights - startNights;
+                    block.nights = newNights;
+                    
+                    const autoShift = document.getElementById('autoShiftToggle').checked;
+                    if (autoShift) {
+                        shiftSubsequentBlocks(block.id, delta, true, startNights);
+                    }
+                    
+                    saveState();
+                    renderApp();
+                    showToast(`Adjusted stay to ${newNights} nights.`);
+                } else {
+                    renderApp();
+                }
+            }
+            
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+        }
+
+        // Render Checklist details
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderChecklist();
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistContainer');
+            container.innerHTML = '';
+            
+            const sorted = getSortedBlocks();
+            const filtered = sorted.filter(b => {
+                if (b.type === 'stay') return false; // Exclude city stay blocks from checklist
+                if (currentFilter === 'booked') return b.booked;
+                if (currentFilter === 'pending') return !b.booked;
+                return true;
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state">No reservations found matching this filter.</div>`;
+                return;
+            }
+            
+            filtered.forEach(block => {
+                const card = document.createElement('div');
+                card.className = `item ${block.booked ? 'checked' : ''}`;
+                card.id = `checklist-item-${block.id}`;
+                
+                let icon = '📍';
+                if (block.type === 'flight') icon = '✈️';
+                else if (block.type === 'accom') icon = '🏨';
+                else if (block.type === 'travel') icon = '🚂';
+                else if (block.type === 'activity') icon = '🎟️';
+                
+                let costHtml = '';
+                if (block.cost > 0) {
+                    costHtml = `<div class="cost">CA$${block.cost}</div>`;
+                } else if (block.type === 'flight' && block.notes.toLowerCase().includes('miles')) {
+                    costHtml = `<div class="cost font-miles">Points / Miles</div>`;
+                } else {
+                    costHtml = `<div class="cost">Free / Included</div>`;
+                }
+                
+                let linkHtml = '';
+                if (block.link) {
+                    let linkLabel = '→ Book / View Details';
+                    if (block.link.includes('airbnb')) linkLabel = '→ Search Airbnb';
+                    else if (block.link.includes('ryanair')) linkLabel = '→ Search Ryanair';
+                    else if (block.link.includes('wizzair')) linkLabel = '→ Search Wizz Air';
+                    else if (block.link.includes('intercity')) linkLabel = '→ PKP Intercity';
+                    else if (block.link.includes('citylink')) linkLabel = '→ Citylink';
+                    else if (block.link.includes('aa.com')) linkLabel = '→ AA Award Search';
+                    
+                    linkHtml = `<a class="item-link" href="${block.link}" target="_blank">${linkLabel}</a>`;
+                }
+                
+                const displayType = block.type === 'accom' ? 'accommodation' : block.type;
+                
+                card.innerHTML = `
+                    <div class="item-top">
+                        <input type="checkbox" id="check-${block.id}" ${block.booked ? 'checked' : ''} onchange="toggleBookedState('${block.id}')">
+                        <div class="item-body">
+                            <div class="item-header-row">
+                                <div class="item-title">${icon} ${block.city}</div>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <button class="btn-lock-toggle" onclick="toggleLockState('${block.id}')" title="${block.locked ? 'Unlock booking' : 'Lock booking'}">
+                                        ${block.locked ? '🔒' : '🔓'}
+                                    </button>
+                                    <button class="btn-edit-inline" onclick="openEditor('${block.id}')">⚙️ Edit</button>
+                                </div>
+                            </div>
+                            <div class="item-detail">${getBookingDateRange(block.startDay, block.nights, block.type)}</div>
+                            ${costHtml}
+                            <span class="tag tag-${block.type}">${displayType}</span>
+                            ${block.baggage && (block.type === 'flight' || block.type === 'travel') ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 4px;">💼 Baggage: <strong>${block.baggage}</strong></div>` : ''}
+                            ${block.notes ? `<div class="item-notes">${block.notes}</div>` : ''}
+                            ${linkHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleBookedState(blockId) {
+            const block = currentBlocks.find(b => b.id === blockId);
+            if (block) {
+                pushToHistory();
+                block.booked = !block.booked;
+                saveState();
+                renderApp();
+            }
+        }
+
+        function toggleLockState(blockId) {
+            const block = currentBlocks.find(b => b.id === blockId);
+            if (block) {
+                pushToHistory();
+                block.locked = !block.locked;
+                saveState();
+                renderApp();
+                showToast(block.locked ? `Locked "${block.city}"` : `Unlocked "${block.city}"`);
+            }
         }
 
         // Inspector Form Modal Code
@@ -2426,6 +2975,7 @@
             document.getElementById('editCurrency').value = block.currency || 'CAD';
             document.getElementById('editPaidBy').value = block.paidBy || 'Shared';
             document.getElementById('editLink').value = block.link || '';
+            document.getElementById('editBaggage').value = block.baggage || '';
             document.getElementById('editNotes').value = block.notes || '';
             document.getElementById('editBooked').checked = block.booked;
             document.getElementById('editLocked').checked = !!block.locked;
@@ -2469,12 +3019,24 @@
 
         function toggleNightsInput() {
             const type = document.getElementById('editType').value;
-            const group = document.getElementById('nightsGroup');
-            if (type === 'stay' || type === 'accom') {
-                group.style.display = 'block';
-            } else {
-                group.style.display = 'none';
-                document.getElementById('editNights').value = 0;
+            const nightsGroup = document.getElementById('nightsGroup');
+            if (nightsGroup) {
+                if (type === 'stay' || type === 'accom') {
+                    nightsGroup.style.display = 'block';
+                } else {
+                    nightsGroup.style.display = 'none';
+                    document.getElementById('editNights').value = 0;
+                }
+            }
+
+            const baggageGroup = document.getElementById('baggageGroup');
+            if (baggageGroup) {
+                if (type === 'flight' || type === 'travel') {
+                    baggageGroup.style.display = 'block';
+                } else {
+                    baggageGroup.style.display = 'none';
+                    document.getElementById('editBaggage').value = '';
+                }
             }
         }
 
@@ -2513,6 +3075,7 @@
             const newCurrency = document.getElementById('editCurrency').value;
             const newPaidBy = document.getElementById('editPaidBy').value;
             const newLink = document.getElementById('editLink').value;
+            const newBaggage = document.getElementById('editBaggage').value;
             const newNotes = document.getElementById('editNotes').value;
             const newBooked = document.getElementById('editBooked').checked;
             const newLocked = document.getElementById('editLocked').checked;
@@ -2543,6 +3106,7 @@
             block.currency = newCurrency;
             block.paidBy = newPaidBy;
             block.link = newLink;
+            block.baggage = newBaggage;
             block.notes = newNotes;
             block.booked = newBooked;
             block.locked = newLocked;
@@ -2854,7 +3418,8 @@
                     cost: item.cost || 0,
                     currency: item.currency || 'CAD',
                     notes: item.notes || '',
-                    link: item.link || ''
+                    link: item.link || '',
+                    baggage: item.baggage || ''
                 })
             })
             .then(() => {
@@ -2987,6 +3552,7 @@
                             </div>
                             ${costHtml}
                             <span class="tag tag-${idea.type}">${idea.type} (draft)</span>
+                            ${idea.baggage && (idea.type === 'flight' || idea.type === 'travel') ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 4px;">💼 Baggage: <strong>${idea.baggage}</strong></div>` : ''}
                             ${idea.notes ? `<div class="item-notes">${idea.notes}</div>` : ''}
                             ${linkHtml}
                             ${mapsHtml}
