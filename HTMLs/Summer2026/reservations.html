@@ -68,6 +68,12 @@
             background: var(--border-hover);
         }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
@@ -1239,6 +1245,23 @@
 
 <body>
 
+    <!-- Lock Screen Overlay -->
+    <div id="lockScreen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #090b11; backdrop-filter: blur(12px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="background: #121524; border: 1px solid #222943; padding: 40px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; max-width: 380px; width: 90%;">
+            <div style="font-size: 3rem; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));">🔒</div>
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 8px; color: #f3f5fa; font-weight: 700;">Private Trip Itinerary</h2>
+            <p style="font-size: 0.85rem; color: #7e8baf; margin-bottom: 24px; line-height: 1.4;">This dashboard contains sensitive reservation details. Please enter the 4-digit PIN to unlock.</p>
+            
+            <form onsubmit="unlockDashboard(event)">
+                <div style="position: relative; margin-bottom: 20px;">
+                    <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="8" autocomplete="off" style="width: 100%; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid #222943; border-radius: 12px; color: #f3f5fa; text-align: center; font-size: 1.5rem; letter-spacing: 6px; font-weight: 700; outline: none; transition: border-color 0.2s;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-bottom: 0; padding: 12px; font-size: 0.95rem; width: 100%;">Unlock Planner</button>
+            </form>
+            <div id="lockError" style="color: #ef4444; font-size: 0.8rem; font-weight: 600; margin-top: 14px; height: 16px; opacity: 0; transition: opacity 0.2s;">Incorrect PIN. Please try again.</div>
+        </div>
+    </div>
+
     <header class="dashboard-header">
         <div class="header-content">
             <h1>✈️ Europe Trip 2026</h1>
@@ -1678,350 +1701,68 @@
     <script>
         // Core Trip Data
         const TRIP_START_DATE = '2026-08-02';
+        const CIPHERTEXT = "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";
         
         const tripData = {
             startDate: TRIP_START_DATE,
-            blocks: [
-    {
-        "id": "outbound-flight",
-        "type": "flight",
-        "city": "Halifax → Lisbon (WS32)",
-        "nights": 0,
-        "startDay": 0,
-        "locked": true,
-        "cost": 844,
-        "notes": "Direct · Departs Aug 2 · Arrives 8:55 PM local · CA$422 per person",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "stay-lis-1",
-        "type": "stay",
-        "city": "Lisbon Stay",
-        "nights": 2,
-        "startDay": 0,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Alfama, Belem tarts, and coastal hills. | Worth Seeing: Alfama oldest neighbourhood (maze-like, Fado music), Tram 28 through hills, Miradouro da Graça sunset, Belém Tower + Jerónimos Monastery, LX Factory, Time Out Market",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-lis-1",
-        "type": "accom",
-        "city": "Lisbon Airbnb",
-        "nights": 2,
-        "startDay": 0,
-        "locked": false,
-        "cost": 180,
-        "notes": "Check-in Aug 2 (late), checkout Aug 4. Near central metro.",
-        "link": "https://www.airbnb.com/s/Lisbon--Portugal/homes?checkin=2026-08-02&checkout=2026-08-04&adults=2",
-        "booked": false
-    },
-    {
-        "id": "fly-lpl",
-        "type": "flight",
-        "city": "Lisbon → Liverpool (EZY3434)",
-        "nights": 0,
-        "startDay": 2,
-        "locked": true,
-        "cost": 164.95,
-        "currency": "EUR",
-        "notes": "easyJet · Direct · Ref: KCPLKPB · Departs 09:55, Arrives 12:40 · Paid by MasterCard",
-        "link": "https://www.easyjet.com/",
-        "booked": true,
-        "baggage": "1 Small Cabin Bag (underseat)"
-    },
-    {
-        "id": "stay-lpl",
-        "type": "stay",
-        "city": "Liverpool Stay",
-        "nights": 2,
-        "startDay": 2,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Beatles history, Albert Dock, and historic pubs. | Worth Seeing: Cavern Club on Mathew Street, Penny Lane & Strawberry Field, Royal Albert Dock, Anfield Stadium tour, Baltic Triangle, Philharmonic Dining Rooms (Victorian pub)",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-lpl",
-        "type": "accom",
-        "city": "Liverpool Hotel",
-        "nights": 2,
-        "startDay": 2,
-        "locked": false,
-        "cost": 160,
-        "notes": "Check-in Aug 4, checkout Aug 6. Near Albert Dock or city centre.",
-        "link": "https://www.booking.com/searchresults.html?ss=Liverpool&checkin=2026-08-04&checkout=2026-08-06",
-        "booked": false
-    },
-    {
-        "id": "travel-galway",
-        "type": "travel",
-        "city": "Liverpool → Galway (via Dublin)",
-        "nights": 0,
-        "startDay": 4,
-        "locked": false,
-        "cost": 75,
-        "notes": "Flight LPL→DUB (~45 min) + Bus Dublin→Galway (~2.5 hrs). ⚠️ Multi-step transit day: expect it to eat up most of the morning and afternoon.",
-        "link": "https://www.ryanair.com/",
-        "booked": false
-    },
-    {
-        "id": "stay-gal",
-        "type": "stay",
-        "city": "Galway Stay",
-        "nights": 3,
-        "startDay": 4,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Traditional music sessions, the Latin Quarter, and a Connemara day trip. | Worth Seeing: Latin Quarter + Shop Street, Spanish Arch, Connemara wild Atlantic coast, Kylemore Abbey, traditional pub sessions in The Crane Bar or Tig Cóilí",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-gal",
-        "type": "accom",
-        "city": "Galway Airbnb",
-        "nights": 3,
-        "startDay": 4,
-        "locked": false,
-        "cost": 450,
-        "notes": "Check-in Aug 6, checkout Aug 9. Peak summer prices. Latin Quarter recommended.",
-        "link": "https://www.airbnb.com/s/Galway--Ireland/homes?checkin=2026-08-06&checkout=2026-08-09&adults=2",
-        "booked": false
-    },
-    {
-        "id": "travel-budapest",
-        "type": "travel",
-        "city": "Galway → Budapest (via Dublin)",
-        "nights": 0,
-        "startDay": 7,
-        "locked": false,
-        "cost": 65,
-        "notes": "Bus Galway→Dublin (~2.5 hrs) + Flight DUB→BUD using AA points.",
-        "link": "https://www.aa.com/",
-        "booked": false
-    },
-    {
-        "id": "stay-bud",
-        "type": "stay",
-        "city": "Budapest Stay",
-        "nights": 3,
-        "startDay": 7,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Thermal baths, ruin bars, and night views of Parliament. | Worth Seeing: Széchenyi Thermal Baths, Gellért Baths, Fisherman's Bastion, Ruin bars in Jewish Quarter, Parliament building (Danube views), Danube promenade walk at night",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-bud",
-        "type": "accom",
-        "city": "Budapest Airbnb",
-        "nights": 3,
-        "startDay": 7,
-        "locked": false,
-        "cost": 180,
-        "notes": "Check-in Aug 9, checkout Aug 12. District VII Jewish Quarter or District V Central.",
-        "link": "https://www.airbnb.com/s/Budapest--Hungary/homes?checkin=2026-08-09&checkout=2026-08-12&adults=2",
-        "booked": false
-    },
-    {
-        "id": "travel-krakow",
-        "type": "travel",
-        "city": "Budapest → Kraków Travel",
-        "nights": 0,
-        "startDay": 10,
-        "locked": false,
-        "cost": 50,
-        "notes": "⚠️ Look into a quick flight if budget allows. The train option is incredibly scenic but takes 7–8 hours (or overnight sleeper), rather than 4.",
-        "link": "https://www.ryanair.com/",
-        "booked": false
-    },
-    {
-        "id": "stay-krk",
-        "type": "stay",
-        "city": "Kraków Stay",
-        "nights": 2,
-        "startDay": 10,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: UNESCO Old Town, Kazimierz Jewish Quarter, and Wieliczka Salt Mine. | Worth Seeing: Old Town + Main Market Square, Wawel Castle, Kazimierz, Wieliczka Salt Mine, Planty Park, Schindler's Factory, Zapiekanki street food",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-krk",
-        "type": "accom",
-        "city": "Kraków Airbnb",
-        "nights": 2,
-        "startDay": 10,
-        "locked": false,
-        "cost": 120,
-        "notes": "Check-in Aug 12, checkout Aug 14. Kazimierz or Old Town.",
-        "link": "https://www.airbnb.com/s/Krakow--Poland/homes?checkin=2026-08-12&checkout=2026-08-14&adults=2",
-        "booked": false
-    },
-    {
-        "id": "travel-wroclaw",
-        "type": "travel",
-        "city": "Kraków → Wrocław Train",
-        "nights": 0,
-        "startDay": 12,
-        "locked": false,
-        "cost": 25,
-        "notes": "Train · PKP Intercity · ~3 hours · Frequent departures.",
-        "link": "https://www.intercity.pl/en/",
-        "booked": false
-    },
-    {
-        "id": "stay-wro",
-        "type": "stay",
-        "city": "Wrocław Stay",
-        "nights": 1,
-        "startDay": 12,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Rynek market square, Cathedral Island, and hunting dwarf statues. | Worth Seeing: Market Square (Rynek), Cathedral Island (Ostrów Tumski), dwarf statue hunt, Centennial Hall (UNESCO), Panorama of Racławice",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-wro",
-        "type": "accom",
-        "city": "Wrocław Hotel",
-        "nights": 1,
-        "startDay": 12,
-        "locked": false,
-        "cost": 80,
-        "notes": "Check-in Aug 14, checkout Aug 15. Near Market Square.",
-        "link": "https://www.booking.com/searchresults.html?ss=Wroclaw&checkin=2026-08-14&checkout=2026-08-15",
-        "booked": false
-    },
-    {
-        "id": "travel-olomouc",
-        "type": "travel",
-        "city": "Wrocław → Olomouc Train",
-        "nights": 0,
-        "startDay": 13,
-        "locked": false,
-        "cost": 30,
-        "notes": "Train · ~3.5 hours · Requires transfer. 💡 Great choice: breaks up train travel between Wrocław and Prague and gives a breather from massive tourist crowds.",
-        "link": "https://www.cd.cz/en/",
-        "booked": false
-    },
-    {
-        "id": "stay-olo",
-        "type": "stay",
-        "city": "Olomouc Stay",
-        "nights": 1,
-        "startDay": 13,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Holy Trinity Column, astronomical clock, and the authentic, low-tourist Czech vibe. | Worth Seeing: Holy Trinity Column (UNESCO), Horní náměstí + astronomical clock, Archbishop's Palace, St. Wenceslas Cathedral, baroque fountains",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-olo",
-        "type": "accom",
-        "city": "Olomouc Pension",
-        "nights": 1,
-        "startDay": 13,
-        "locked": false,
-        "cost": 70,
-        "notes": "Check-in Aug 15, checkout Aug 16. Near Upper Square.",
-        "link": "https://www.booking.com/searchresults.html?ss=Olomouc&checkin=2026-08-15&checkout=2026-08-16",
-        "booked": false
-    },
-    {
-        "id": "travel-prague",
-        "type": "travel",
-        "city": "Olomouc → Prague Train",
-        "nights": 0,
-        "startDay": 14,
-        "locked": false,
-        "cost": 20,
-        "notes": "Train · Leo Express, RegioJet, or Czech Railways (ČD) · Direct · ~2.5 hours.",
-        "link": "https://www.leoexpress.com/en",
-        "booked": false
-    },
-    {
-        "id": "stay-prg",
-        "type": "stay",
-        "city": "Prague Stay",
-        "nights": 2,
-        "startDay": 14,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Charles Bridge, Prague Castle, and classic beer halls. | Worth Seeing: Old Town Square + Astronomical Clock, Charles Bridge, Prague Castle, Jewish Quarter, Vyšehrad fortress, beer halls (U Fleků, Lokál)",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-prg",
-        "type": "accom",
-        "city": "Prague Airbnb",
-        "nights": 2,
-        "startDay": 14,
-        "locked": false,
-        "cost": 150,
-        "notes": "Check-in Aug 16, checkout Aug 18. Prague 1 (centre) or Prague 2 (Vinohrady).",
-        "link": "https://www.airbnb.com/s/Prague--Czech-Republic/homes?checkin=2026-08-16&checkout=2026-08-18&adults=2",
-        "booked": false
-    },
-    {
-        "id": "fly-prg-lis",
-        "type": "flight",
-        "city": "Prague → Lisbon Flight",
-        "nights": 0,
-        "startDay": 16,
-        "locked": false,
-        "cost": 150,
-        "notes": "Flight · Direct (TAP Portugal or easyJet) · ~3.5 hours · ~€100-150.",
-        "link": "https://www.flytap.com/",
-        "booked": false
-    },
-    {
-        "id": "stay-lis-2",
-        "type": "stay",
-        "city": "Lisbon Stay (Final)",
-        "nights": 2,
-        "startDay": 16,
-        "locked": false,
-        "cost": 0,
-        "notes": "🟢 Focus: Fly back to Lisbon to close the loop. | Worth Seeing: Bairro Alto, repeat favourites, sunset at Miradouro de Santa Catarina, Belém if missed first time",
-        "link": "",
-        "booked": true
-    },
-    {
-        "id": "accom-lis-2",
-        "type": "accom",
-        "city": "Lisbon Hotel (Final)",
-        "nights": 2,
-        "startDay": 16,
-        "locked": false,
-        "cost": 180,
-        "notes": "Check-in Aug 18, checkout Aug 20. Near airport or central metro.",
-        "link": "https://www.airbnb.com/s/Lisbon--Portugal/homes?checkin=2026-08-18&checkout=2026-08-20&adults=2",
-        "booked": false
-    },
-    {
-        "id": "return-flight",
-        "type": "flight",
-        "city": "Lisbon → Halifax (WS33)",
-        "nights": 0,
-        "startDay": 18,
-        "locked": true,
-        "cost": 0,
-        "notes": "Direct · Departs morning · Arrives 8:50 AM AST · Included in outbound booking.",
-        "link": "",
-        "booked": true
-    }
-]
+            blocks: []
         };
+
+        // RC4 Decryption Helper
+        function rc4(key, str) {
+            var s = [], j = 0, x, res = '';
+            for (var i = 0; i < 256; i++) {
+                s[i] = i;
+            }
+            for (i = 0; i < 256; i++) {
+                j = (j + s[i] + key.charCodeAt(i % key.length)) % 256;
+                x = s[i]; s[i] = s[j]; s[j] = x;
+            }
+            i = 0; j = 0;
+            for (var y = 0; y < str.length; y++) {
+                i = (i + 1) % 256;
+                j = (j + s[i]) % 256;
+                x = s[i]; s[i] = s[j]; s[j] = x;
+                res += String.fromCharCode(str.charCodeAt(y) ^ s[(s[i] + s[j]) % 256]);
+            }
+            return res;
+        }
+
+        function decryptData(ciphertextB64, pin) {
+            try {
+                var encrypted = atob(ciphertextB64);
+                var decrypted = rc4(pin, encrypted);
+                return JSON.parse(decrypted);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function unlockDashboard(event) {
+            if (event) event.preventDefault();
+            const pinInput = document.getElementById('pinInput');
+            const pin = pinInput.value;
+            const blocks = decryptData(CIPHERTEXT, pin);
+            
+            if (blocks && Array.isArray(blocks) && blocks.length > 0) {
+                tripData.blocks = blocks;
+                sessionStorage.setItem('europe_trip_2026_pin', pin);
+                document.getElementById('lockScreen').style.display = 'none';
+                
+                loadState();
+                renderApp();
+                loadPackState();
+            } else {
+                const errorEl = document.getElementById('lockError');
+                errorEl.style.opacity = '1';
+                const container = errorEl.parentElement;
+                container.style.animation = 'shake 0.4s';
+                pinInput.value = '';
+                setTimeout(() => {
+                    container.style.animation = '';
+                }, 400);
+            }
+        }
 
         let currentBlocks = [];
         let currentFilter = 'all';
@@ -2046,20 +1787,48 @@
             }
         }
 
-        // State Management
-        let currentIdeas = [];
-
         function saveState() {
-            localStorage.setItem('europe_trip_2026_blocks', JSON.stringify(currentBlocks));
-            localStorage.setItem('europe_trip_2026_ideas', JSON.stringify(currentIdeas));
+            const pin = sessionStorage.getItem('europe_trip_2026_pin');
+            if (pin) {
+                try {
+                    const encryptedBlocks = btoa(rc4(pin, JSON.stringify(currentBlocks)));
+                    const encryptedIdeas = btoa(rc4(pin, JSON.stringify(currentIdeas)));
+                    localStorage.setItem('europe_trip_2026_blocks_enc', encryptedBlocks);
+                    localStorage.setItem('europe_trip_2026_ideas_enc', encryptedIdeas);
+                } catch(e) {
+                    console.error('Error saving encrypted state:', e);
+                }
+            } else {
+                localStorage.setItem('europe_trip_2026_blocks', JSON.stringify(currentBlocks));
+                localStorage.setItem('europe_trip_2026_ideas', JSON.stringify(currentIdeas));
+            }
         }
 
         function loadState() {
             loadWebhookUrl();
-            const storedIdeas = localStorage.getItem('europe_trip_2026_ideas');
-            if (storedIdeas) {
+            const pin = sessionStorage.getItem('europe_trip_2026_pin');
+            if (!pin) return; // Wait for PIN unlock
+            
+            // Migrate plaintext to encrypted if available
+            const storedPlainBlocks = localStorage.getItem('europe_trip_2026_blocks');
+            const storedPlainIdeas = localStorage.getItem('europe_trip_2026_ideas');
+            if (storedPlainBlocks || storedPlainIdeas) {
                 try {
-                    currentIdeas = JSON.parse(storedIdeas);
+                    if (storedPlainBlocks) currentBlocks = JSON.parse(storedPlainBlocks);
+                    if (storedPlainIdeas) currentIdeas = JSON.parse(storedPlainIdeas);
+                    saveState();
+                    localStorage.removeItem('europe_trip_2026_blocks');
+                    localStorage.removeItem('europe_trip_2026_ideas');
+                } catch(e) {
+                    console.error('Migration error:', e);
+                }
+            }
+
+            const storedIdeasEnc = localStorage.getItem('europe_trip_2026_ideas_enc');
+            if (storedIdeasEnc) {
+                try {
+                    const decryptedIdeas = rc4(pin, atob(storedIdeasEnc));
+                    currentIdeas = JSON.parse(decryptedIdeas);
                     currentIdeas.forEach(i => {
                         if (i.baggage === undefined) i.baggage = '';
                     });
@@ -2068,6 +1837,119 @@
                     currentIdeas = [];
                 }
             } else {
+                currentIdeas = [];
+            }
+
+            const storedEnc = localStorage.getItem('europe_trip_2026_blocks_enc');
+            if (storedEnc) {
+                try {
+                    const decryptedBlocks = rc4(pin, atob(storedEnc));
+                    if (decryptedBlocks.includes('Warsaw') || decryptedBlocks.includes('stay-waw') || decryptedBlocks.includes('accom-waw') || !decryptedBlocks.includes('Focus: Alfama')) {
+                        console.log('Old or outdated itinerary version detected. Overwriting local storage.');
+                        currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                        currentBlocks.forEach(b => {
+                            if (b.baggage === undefined) {
+                                if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                                else if (b.id === 'fly-lpl') b.baggage = '1 Small Cabin Bag (underseat)';
+                                else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
+                                else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
+                                else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
+                                else if (b.id === 'travel-wroclaw') b.baggage = 'PKP Intercity: Hand luggage free';
+                                else if (b.id === 'travel-olomouc') b.baggage = 'CD: Hand luggage free';
+                                else if (b.id === 'travel-prague') b.baggage = 'Leo Express: Hand luggage free';
+                                else if (b.id === 'fly-prg-lis') b.baggage = 'TAP standard limits apply';
+                                else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                                else b.baggage = '';
+                            }
+                        });
+                        saveState();
+                        return;
+                    }
+                    currentBlocks = JSON.parse(decryptedBlocks);
+                    currentBlocks.forEach(b => {
+                        if (b.locked === undefined) b.locked = !b.fixed;
+                        if (!b.currency) b.currency = 'CAD';
+                        if (!b.paidBy) b.paidBy = 'Shared';
+                        if (b.baggage === undefined) {
+                            if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else if (b.id === 'fly-lpl') b.baggage = '1 Small Cabin Bag (underseat)';
+                            else if (b.id === 'travel-galway') b.baggage = 'Ryanair: 1 Personal Item · Citylink: 1 Checked + 1 Handbag';
+                            else if (b.id === 'travel-budapest') b.baggage = 'AA Award Flight limits apply';
+                            else if (b.id === 'travel-krakow') b.baggage = 'Ryanair: 1 Personal Item (underseat)';
+                            else if (b.id === 'travel-wroclaw') b.baggage = 'PKP Intercity: Hand luggage free';
+                            else if (b.id === 'travel-olomouc') b.baggage = 'CD: Hand luggage free';
+                            else if (b.id === 'travel-prague') b.baggage = 'Leo Express: Hand luggage free';
+                            else if (b.id === 'fly-prg-lis') b.baggage = 'TAP standard limits apply';
+                            else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
+                            else b.baggage = '';
+                        }
+                    });
+                    
+                    // Check if we need to upgrade the fly-lpl block with the confirmed details
+                    let flyLplBlock = currentBlocks.find(b => b.id === 'fly-lpl');
+                    if (flyLplBlock && (flyLplBlock.booked === false || flyLplBlock.cost === 81)) {
+                        flyLplBlock.booked = true;
+                        flyLplBlock.locked = true;
+                        flyLplBlock.cost = 164.95;
+                        flyLplBlock.currency = 'EUR';
+                        flyLplBlock.city = 'Lisbon → Liverpool (EZY3434)';
+                        flyLplBlock.notes = 'easyJet · Direct · Ref: KCPLKPB · Departs 09:55, Arrives 12:40 · Paid by MasterCard';
+                        flyLplBlock.baggage = '1 Small Cabin Bag (underseat)';
+                        saveState();
+                    }
+                    
+                    // Migrate old data if 'accom' type blocks don't exist yet
+                    const hasAccom = currentBlocks.some(b => b.type === 'accom');
+                    if (!hasAccom) {
+                        const migratedBlocks = [];
+                        currentBlocks.forEach(b => {
+                            if (b.type === 'stay') {
+                                const cityBase = b.city.replace(/Stay/, '').replace(/\(Final\)/, '').trim();
+                                migratedBlocks.push({
+                                    id: 'stay-' + b.id,
+                                    type: 'stay',
+                                    city: cityBase + ' Stay',
+                                    nights: b.nights,
+                                    startDay: b.startDay,
+                                    cost: 0,
+                                    currency: 'CAD',
+                                    paidBy: 'Shared',
+                                    notes: 'Stay in ' + cityBase,
+                                    link: '',
+                                    booked: true,
+                                    locked: b.locked
+                                });
+                                migratedBlocks.push({
+                                    id: 'accom-' + b.id,
+                                    type: 'accom',
+                                    city: b.city.includes('Final') ? cityBase + ' Hotel (Final)' : cityBase + ' Airbnb',
+                                    nights: b.nights,
+                                    startDay: b.startDay,
+                                    cost: b.cost,
+                                    currency: 'CAD',
+                                    paidBy: 'Shared',
+                                    notes: b.notes,
+                                    link: b.link,
+                                    booked: b.booked,
+                                    locked: b.locked
+                                });
+                            } else {
+                                if (!b.currency) b.currency = 'CAD';
+                                if (!b.paidBy) b.paidBy = 'Shared';
+                                migratedBlocks.push(b);
+                            }
+                        });
+                        currentBlocks = migratedBlocks;
+                        saveState();
+                    }
+                } catch (e) {
+                    console.error('Error loading state from localStorage:', e);
+                    currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+                }
+            } else {
+                currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
+            }
+        } else {
                 currentIdeas = [];
             }
 
@@ -2191,7 +2073,7 @@
         function resetCalendar() {
             if (confirm('Are you sure you want to reset the itinerary to original defaults? All your custom changes will be lost.')) {
                 pushToHistory();
-                localStorage.removeItem('europe_trip_2026_blocks');
+                localStorage.removeItem('europe_trip_2026_blocks_enc');
                 currentBlocks = JSON.parse(JSON.stringify(tripData.blocks));
                 currentBlocks.forEach(b => {
                     if (b.id === 'outbound-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
@@ -2206,6 +2088,7 @@
                     else if (b.id === 'return-flight') b.baggage = '1 Carry-on + 1 Personal Item (free on WestJet)';
                     else b.baggage = '';
                 });
+                saveState();
                 renderApp();
                 showToast('Itinerary reset to default!');
             }
@@ -3602,9 +3485,21 @@
         }
 
         // Initial Boot
-        loadState();
-        renderApp();
-        loadPackState();
+        const cachedPin = sessionStorage.getItem('europe_trip_2026_pin');
+        if (cachedPin) {
+            const blocks = decryptData(CIPHERTEXT, cachedPin);
+            if (blocks) {
+                tripData.blocks = blocks;
+                document.getElementById('lockScreen').style.display = 'none';
+                loadState();
+                renderApp();
+                loadPackState();
+            } else {
+                document.getElementById('lockScreen').style.display = 'flex';
+            }
+        } else {
+            document.getElementById('lockScreen').style.display = 'flex';
+        }
     </script>
 </body>
 
