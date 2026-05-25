@@ -2796,6 +2796,7 @@
             
             saveState();
             renderApp();
+            pushToWebhook(block, false);
         }
 
         // Resize Nights Handler
@@ -2856,6 +2857,7 @@
                     saveState();
                     renderApp();
                     showToast(`Adjusted stay to ${newNights} nights.`);
+                    pushToWebhook(block, false);
                 } else {
                     renderApp();
                 }
@@ -2959,6 +2961,7 @@
                 block.booked = !block.booked;
                 saveState();
                 renderApp();
+                pushToWebhook(block, false);
             }
         }
 
@@ -2970,6 +2973,7 @@
                 saveState();
                 renderApp();
                 showToast(block.locked ? `Locked "${block.city}"` : `Unlocked "${block.city}"`);
+                pushToWebhook(block, false);
             }
         }
 
@@ -3139,6 +3143,7 @@
             renderApp();
             closeEditor();
             showToast('Saved changes!');
+            pushToWebhook(block, isIdea);
         }
 
         function deleteBooking() {
@@ -3162,6 +3167,10 @@
                 renderApp();
                 closeEditor();
                 showToast('Booking deleted.');
+                
+                // Update status to "Deleted" in Google Sheets
+                const blockCopy = { ...block, source: "Deleted" };
+                pushToWebhook(blockCopy, false);
             }
         }
 
@@ -3413,11 +3422,11 @@
         function pushToWebhook(item, isIdea = true) {
             const url = localStorage.getItem('europe_trip_2026_webhook') || document.getElementById('webhookUrl').value;
             if (!url) {
-                alert('Please enter a Google App Script Webhook URL first in the setup field.');
+                console.warn('Webhook URL not set. Auto-sync disabled.');
                 return;
             }
             
-            showToast('Pushing to Google Sheet...');
+            showToast('Syncing with Google Sheets...');
             
             fetch(url, {
                 method: 'POST',
@@ -3426,7 +3435,8 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    source: isIdea ? 'Idea/Draft' : 'Committed',
+                    id: item.id || '',
+                    source: item.source || (isIdea ? 'Idea/Draft' : 'Committed'),
                     type: item.type,
                     city: item.city,
                     startDay: item.startDay !== undefined ? `Day ${item.startDay}` : '',
@@ -3469,6 +3479,10 @@
             pushToHistory();
             const idea = currentIdeas.splice(index, 1)[0];
             
+            // Mark the old draft row in Google Sheets as Committed/Moved
+            const oldIdeaCopy = { ...idea, source: "Committed (Moved)" };
+            pushToWebhook(oldIdeaCopy, true);
+            
             // Re-generate ID for main timeline block
             idea.id = 'custom-' + Date.now();
             idea.startDay = 0; // Default to Day 0
@@ -3480,18 +3494,26 @@
             saveState();
             renderApp();
             showToast(`Committed "${idea.city}" to timeline!`);
+            
+            // Add the committed block to Google Sheets
+            pushToWebhook(idea, false);
         }
 
         function deleteIdea(ideaId) {
             const index = currentIdeas.findIndex(i => i.id === ideaId);
             if (index === -1) return;
             
+            const idea = currentIdeas[index];
             if (confirm('Delete this draft idea?')) {
                 pushToHistory();
                 currentIdeas.splice(index, 1);
                 saveState();
                 renderApp();
                 showToast('Draft idea removed.');
+                
+                // Update status to "Deleted" on Google Sheets
+                const ideaCopy = { ...idea, source: "Deleted" };
+                pushToWebhook(ideaCopy, true);
             }
         }
 

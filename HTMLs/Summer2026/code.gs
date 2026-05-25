@@ -25,6 +25,7 @@ function doPost(e) {
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([
         "Timestamp",
+        "ID",
         "Status",
         "Booking Type",
         "City / Description",
@@ -38,7 +39,7 @@ function doPost(e) {
       ]);
       
       // Apply premium formatting to headers to match dashboard style
-      var headerRange = sheet.getRange(1, 1, 1, 11);
+      var headerRange = sheet.getRange(1, 1, 1, 12);
       headerRange.setBackground("#121524") // Card dark background
                  .setFontColor("#f3f5fa") // Accent white text
                  .setFontWeight("bold")
@@ -46,25 +47,54 @@ function doPost(e) {
       sheet.setFrozenRows(1);
     }
     
-    // Append the reservation idea or committed booking data
-    sheet.appendRow([
-      new Date(),
-      data.source || "Idea/Draft",
-      data.type || "",
-      data.city || "",
-      data.startDay !== undefined ? data.startDay : "",
-      data.nights !== undefined ? data.nights : "",
-      data.cost || 0,
-      data.currency || "CAD",
-      data.notes || "",
-      data.link || "",
-      data.baggage || ""
-    ]);
+    // Search the ID column (Column 2) for an existing match
+    var lastRow = sheet.getLastRow();
+    var foundIndex = -1;
+    if (lastRow > 1 && data.id) {
+      var ids = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+      for (var i = 0; i < ids.length; i++) {
+        if (ids[i][0].toString() === data.id.toString()) {
+          foundIndex = i + 2; // Data rows start at index 2 (row 1 is headers)
+          break;
+        }
+      }
+    }
+    
+    if (foundIndex !== -1) {
+      // Update existing row
+      sheet.getRange(foundIndex, 1).setValue(new Date()); // Timestamp
+      sheet.getRange(foundIndex, 3).setValue(data.source || "Idea/Draft");
+      sheet.getRange(foundIndex, 4).setValue(data.type || "");
+      sheet.getRange(foundIndex, 5).setValue(data.city || "");
+      sheet.getRange(foundIndex, 6).setValue(data.startDay !== undefined ? data.startDay : "");
+      sheet.getRange(foundIndex, 7).setValue(data.nights !== undefined ? data.nights : "");
+      sheet.getRange(foundIndex, 8).setValue(data.cost || 0);
+      sheet.getRange(foundIndex, 9).setValue(data.currency || "CAD");
+      sheet.getRange(foundIndex, 10).setValue(data.notes || "");
+      sheet.getRange(foundIndex, 11).setValue(data.link || "");
+      sheet.getRange(foundIndex, 12).setValue(data.baggage || "");
+    } else {
+      // Append a new row
+      sheet.appendRow([
+        new Date(),
+        data.id || "",
+        data.source || "Idea/Draft",
+        data.type || "",
+        data.city || "",
+        data.startDay !== undefined ? data.startDay : "",
+        data.nights !== undefined ? data.nights : "",
+        data.cost || 0,
+        data.currency || "CAD",
+        data.notes || "",
+        data.link || "",
+        data.baggage || ""
+      ]);
+    }
     
     // Auto-resize columns for readability
-    sheet.autoResizeColumns(1, 11);
+    sheet.autoResizeColumns(1, 12);
     
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Idea added to Google Sheets!" }))
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Sheets sync completed successfully!" }))
                          .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
