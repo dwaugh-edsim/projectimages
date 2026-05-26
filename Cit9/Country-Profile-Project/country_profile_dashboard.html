@@ -240,6 +240,39 @@
             border-left: 5px solid var(--warning);
         }
 
+        .topic-card.claimed {
+            border-left: 5px solid var(--success);
+            opacity: 0.85;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-available {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-claimed {
+            background: #dcfce3;
+            color: #166534;
+        }
+
+        .claimed-names {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: #dcfce3;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #166534;
+        }
+
         .topic-header {
             display: flex;
             justify-content: space-between;
@@ -485,37 +518,71 @@
             { id: 23, country: "Turkey", issue: "Earthquake Preparedness & Disaster Response" },
             { id: 24, country: "Indonesia", issue: "Palm Oil Production & Deforestation" },
             { id: 25, country: "Kenya", issue: "Wildlife Conservation & Tourism Impacts" },
-            { id: 26, country: "Israel/Palestine", issue: "Conflict and Human Rights" },
-            { id: 27, country: "Egypt", issue: "Water Security and the Nile River Dispute" },
-            { id: 28, country: "France", issue: "Social Protests & Economic Inequality" },
-            { id: 29, country: "New Zealand", issue: "Indigenous Rights and Reconciliation" },
-            { id: 30, country: "Venezuela", issue: "Economic Collapse and Migration Crisis" },
-            { id: 31, country: "Colombia", issue: "Drug Trade and Peace Process" },
-            { id: 32, country: "North Korea", issue: "Nuclear Weapons and Isolation" },
-            { id: 33, country: "Syria", issue: "Civil War and Refugee Crisis" },
-            { id: 34, country: "South Sudan", issue: "Civil Conflict and Food Insecurity" },
-            { id: 35, country: "Cuba", issue: "Political Freedom and Economic Sanctions" }
+            { id: 26, country: "Egypt", issue: "Water Security and the Nile River Dispute" },
+            { id: 27, country: "France", issue: "Social Protests & Economic Inequality" },
+            { id: 28, country: "New Zealand", issue: "Indigenous Rights and Reconciliation" },
+            { id: 29, country: "Venezuela", issue: "Economic Collapse and Migration Crisis" },
+            { id: 30, country: "Colombia", issue: "Drug Trade and Peace Process" },
+            { id: 31, country: "North Korea", issue: "Nuclear Weapons and Isolation" },
+            { id: 32, country: "Syria", issue: "Civil War and Refugee Crisis" },
+            { id: 33, country: "South Sudan", issue: "Civil Conflict and Food Insecurity" },
+            { id: 34, country: "Cuba", issue: "Political Freedom and Economic Sanctions" },
+            { id: 35, country: "Finland", issue: "Living Next Door to the Bear" }
         ];
+
+        const claimedTopics = {
+            1: "Sarah & Rifa",
+            2: "Evie",
+            3: "Madhavan & Leo",
+            6: "Josie & Laila",
+            8: "Zankia & Kendra",
+            9: "Jessa & Delisha",
+            15: "Yunho",
+            17: "Abdul & Isaac",
+            19: "Nolan & Josh",
+            26: "Ali & Kai",
+            28: "Elizabeth & Alia",
+            31: "Lachlan & Lachlan",
+            33: "Farhan",
+            34: "Huda",
+            35: "Natalia"
+        };
 
         function renderTopics() {
             const grid = document.getElementById('topicGrid');
             grid.innerHTML = '';
 
             topics.forEach(topic => {
+                const claimed = claimedTopics[topic.id];
                 const card = document.createElement('div');
-                card.className = 'topic-card available';
-                card.innerHTML = `
-                    <div class="topic-header">
-                        <div>
-                            <h3 class="topic-title">${topic.country}</h3>
-                            <p class="topic-country">${topic.issue}</p>
+                card.className = claimed ? 'topic-card claimed' : 'topic-card available';
+
+                if (claimed) {
+                    card.innerHTML = `
+                        <div class="topic-header">
+                            <div>
+                                <h3 class="topic-title">${topic.country}</h3>
+                                <p class="topic-country">${topic.issue}</p>
+                            </div>
+                            <span class="status-badge status-claimed">Claimed</span>
                         </div>
-                    </div>
-                    <div class="student-names">
-                        <label for="students-${topic.id}">Student Names:</label>
-                        <input type="text" id="students-${topic.id}" placeholder="">
-                    </div>
-                `;
+                        <div class="claimed-names">${claimed}</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="topic-header">
+                            <div>
+                                <h3 class="topic-title">${topic.country}</h3>
+                                <p class="topic-country">${topic.issue}</p>
+                            </div>
+                            <span class="status-badge status-available">Available</span>
+                        </div>
+                        <div class="student-names">
+                            <label for="students-${topic.id}">Student Names:</label>
+                            <input type="text" id="students-${topic.id}" placeholder="">
+                        </div>
+                    `;
+                }
                 grid.appendChild(card);
             });
         }
