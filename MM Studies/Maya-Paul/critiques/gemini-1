@@ -1,0 +1,77 @@
+This is a strong first draft. The **Maya Paul** assignment successfully adapts the investigative "case file" format of the Sarah project into a compelling exploration of the **Sixties Scoop**. You have a solid narrative hook, and the technical infrastructure for data persistence is clever and efficient.
+
+Below is a critique of the current package based on the goals of the **Maya-blueprint.md**.
+
+---
+
+## 1. Narrative & Pedagogical Alignment
+
+**The "Why" and the "What"**
+
+* **Strengths:** The connection to the Sarah Johnson family tree is excellent. It creates a "shared universe" that helps students see how the **Indian Act** (status erasure) and the **Sixties Scoop** (family erasure) were two sides of the same colonial coin.
+* **Narrative Progression:** The 6-part sequence in the HTML accurately reflects the blueprint's arc—moving from the "Evidence" (the box) to the "Pre-colonial context" (belonging) to the "Systemic causes" (neglect vs. policy).
+* **Gap:** The blueprint mentions an **"Evidence Pack"** with specific items (intake form, photo scan, school transfer card). In the `maya_assignment.html`, these are represented by generic `FILE_01` and `FILE_02` placeholders. To maintain the "investigator" role-play, these visual assets need to be distinct and "period-accurate" (e.g., a form with a heavy "APPREHENDED" stamp as mentioned in Chapter 1).
+
+---
+
+## 2. Technical Implementation: `maya_code.gs`
+
+**The Back-end Infrastructure**
+
+* **The "One Sheet" Strategy:** Using a single Google Sheet for both IRSSA and Maya simulations is a pro move. The `simulation` column filter in the `doGet` function is a robust way to keep data separate while minimizing deployment overhead.
+
+
+* 
+**The Save URL Limit:** You use `action=save` via a `GET` request to bypass Chromebook cross-origin issues.
+
+
+> **Critical Risk:** Standard browser/server limits for URLs are around **2,000 characters**. If a student writes detailed answers for all 6 chapters (as the blueprint encourages for "adult testimony" and "final reflection"), the stringified JSON payload will likely exceed this limit.
+
+
+* **Fix:** Ensure the HTML prioritizes the `fetch(POST)` method, only falling back to `GET` for the most basic pings, or warn students to "save often" so the payload stays small.
+
+
+* 
+**Performance:** The script uses a reverse loop `for (let i = rows.length - 1; i >= 1; i--)` to find the latest data. This is the correct way to handle a "ledger-style" sheet where students append new saves rather than overwriting rows.
+
+
+
+---
+
+## 3. Technical Implementation: `maya_assignment.html`
+
+**The Front-end UX**
+
+* **The "Briefing" Hook:** The use of an overlay for Maya’s letter creates an immediate "Mission Start" feeling.
+* **Question Scaffolding:** Currently, each `investigation` slide has one `textarea` for all prompt questions.
+* **Problem:** Chapter 1 asks 3 distinct questions (Name change, Silence/Trauma, Partial records). A student might only answer the first one they see.
+* **Fix:** In the `interaction-panel`, consider splitting the prompts into individual text boxes or using a multi-line placeholder that lists the questions as a checklist.
+
+
+* **PIN Security:** Hardcoding the `studentList` and `pins` in the HTML is fine for low-stakes classroom use, but it does allow tech-savvy students to "peek" at their classmates' work by viewing the page source.
+
+---
+
+## 4. Actionable Recommendations
+
+### UI/Visuals
+
+* **Visual Assets:** Update the `img` sources for the "Evidence" slides. Even if they are just stylized text boxes, they should look like 1963 government documents.
+* **Family Tree:** The blueprint suggests a family tree. This should be its own "Exhibit" (e.g., Chapter 2.5) to help students visualize the connection between Annie, Mary, Sarah, and Maya.
+
+### Data & Code
+
+* **Payload Management:** In the `saveProgress` function in the HTML, add a character count check. If `rationales.length > 1500`, trigger a warning that the response is too long for a single save.
+* 
+**Data Structure:** The `rationales` column is forced to `@STRING@` to preserve JSON. This is a smart way to ensure that if a student uses quotes ("), the spreadsheet doesn't break the JSON format.
+
+
+
+### Instructional Design
+
+* **The Final Task:** The blueprint asks for a specific "Final reflection sheet." Ensure the final chapter (Chapter 6) has a larger response area and explicit instructions to answer the inquiry question: *"Who gets to decide what counts as care, belonging, and family?"*
+
+---
+
+**Expert Guide Question:**
+Would you like me to generate the specific CSS and HTML "document" templates (like a 1960s intake form or a school record) to replace the `FILE_01` placeholders?
