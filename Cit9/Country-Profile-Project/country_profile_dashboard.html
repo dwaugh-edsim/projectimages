@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 - Country Profile Project Dashboard</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #475569;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            font-size: 1.25rem;
+        }
+
+        .nav-header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            padding-bottom: 8rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .site-footer {
+            background-color: var(--card-bg);
+            border-top: 2px solid var(--border);
+            padding: 1rem 2rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .footer-title {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.4rem;
+            min-width: 350px;
+        }
+
+        .footer-list {
+            list-style-type: disc;
+            margin: 0;
+            padding-left: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .footer-list li {
+            margin: 0;
+        }
+
+        .instructions-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 4rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-size: 1.4rem;
+        }
+
+        .instructions-card h1 {
+            color: var(--primary);
+            font-size: 3.5rem;
+            margin-top: 0;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .instructions-card h2 {
+            color: var(--secondary);
+            font-size: 2.4rem;
+            margin-top: 3rem;
+        }
+
+        .instructions-card h3 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            margin-top: 2rem;
+        }
+
+        .alert-box {
+            background-color: #fef2f2;
+            border-left: 6px solid var(--danger);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .alert-box h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+
+        .alert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .alert-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1.2rem;
+            border-top: 5px solid var(--danger);
+        }
+
+        .alert-card strong {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--danger);
+            font-size: 1.4rem;
+        }
+
+        .rubric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .rubric-item {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .rubric-item h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .topic-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topic-card.available {
+            border-left: 5px solid var(--warning);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .topic-title {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .topic-country {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--secondary);
+            margin: 0.5rem 0 0 0;
+        }
+
+        .topic-issue {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .student-names {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .student-names label {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .student-names input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .student-names input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .slideshow-requirements {
+            background: var(--background);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .slideshow-requirements h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .slideshow-requirements ul {
+            padding-left: 1.5rem;
+        }
+
+        .slideshow-requirements li {
+            margin-bottom: 0.5rem;
+        }
+
+        @container (max-width: 800px) {
+            .alert-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @container (max-width: 500px) {
+            .alert-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-header">
+        <button class="tab-btn active" onclick="switchTab('instructions')">Project Instructions</button>
+        <button class="tab-btn" onclick="switchTab('topics')">Country Topics & Sign-Up</button>
+        <div class="site-updated-badge">Country Profile Project</div>
+    </div>
+
+    <div class="container">
+        <!-- INSTRUCTIONS TAB -->
+        <div id="instructions" class="tab-content active">
+            <div class="instructions-card">
+                <h1>Global Citizenship Country Profile Project</h1>
+
+                <div class="alert-box">
+                    <h3>PROJECT OVERVIEW</h3>
+                    <p>In pairs, you will create a slideshow presentation profiling a selected country (other than
+                        Canada), focused on its role regarding one specific global issue. You'll investigate how this
+                        country has responded or failed to respond and evaluate the consequences of those actions.</p>
+                </div>
+
+                <div class="slideshow-requirements">
+                    <h3>Task Description: Required Slideshow Sections</h3>
+                    <ul>
+                        <li><strong>Introduction:</strong>
+                            <ul>
+                                <li>Country name</li>
+                                <li>Brief background (geography, culture, language - first section of Wikipedia)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Selected Global Issue:</strong>
+                            <ul>
+                                <li>Clearly describe the issue (e.g., climate change, human rights, poverty, conflict)
+                                </li>
+                                <li>Explain why this issue matters globally</li>
+                            </ul>
+                        </li>
+                        <li><strong>Country's Actions or Inaction:</strong>
+                            <ul>
+                                <li>Describe how the country has responded or failed to respond to the issue</li>
+                            </ul>
+                        </li>
+                        <li><strong>Consequences:</strong>
+                            <ul>
+                                <li>Discuss intended and unintended consequences of these actions or inactions</li>
+                            </ul>
+                        </li>
+                        <li><strong>Comparison with Canada:</strong>
+                            <ul>
+                                <li>Briefly compare your country's response to Canada's actions on this same issue</li>
+                            </ul>
+                        </li>
+                        <li><strong>Reflection:</strong>
+                            <ul>
+                                <li>Why should Canadians care about this issue?</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h2>Guidelines</h2>
+                <ul>
+                    <li>Your slideshow should contain <strong>6-8 slides</strong></li>
+                    <li>Use <strong>concise language</strong> and <strong>relevant visuals</strong></li>
+                    <li><strong>Cite at least 2 credible sources</strong> at the bottom of each slide</li>
+                </ul>
+
+                <h2>Evaluation Criteria</h2>
+                <div class="rubric-grid">
+                    <div class="rubric-item">
+                        <h3>1. Clear Introduction</h3>
+                        <p>Country and global issue are clearly introduced with relevant background information.</p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>2. Analysis of Actions & Consequences</h3>
+                        <p>Thorough analysis of how the country has responded (or not) and the resulting consequences.
+                        </p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>3. Comparison to Canada</h3>
+                        <p>Meaningful comparison between your country's response and Canada's actions on the same issue.
+                        </p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>4. Thoughtful Reflection</h3>
+                        <p>Clear explanation of why Canadians should care about this issue.</p>
+                    </div>
+                    <div class="rubric-item">
+                        <h3>5. Organization & Clarity</h3>
+                        <p>Well-organized slideshow with concise language, relevant visuals, and proper citations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOPICS & SIGN-UP TAB -->
+        <div id="topics" class="tab-content">
+            <div class="instructions-card">
+                <h1>Country Topic Options</h1>
+                <p>Select a country/issue pair below and enter your student names in the space provided.</p>
+
+                <div class="topic-grid" id="topicGrid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pinned Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-title">
+                Unit: Global Citizenship<br>
+                <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">Country Profile
+                    Project - Citizenship 9</span>
+            </div>
+            <ul class="footer-list">
+                <li>Profile a country and its response to a global issue</li>
+                <li>Evaluate intended and unintended consequences of action or inaction</li>
+                <li>Compare your country's response to Canada's</li>
+                <li>Reflect on why Canadians should care</li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        const topics = [
+            { id: 1, country: "Australia", issue: "Climate Change & Wildfires" },
+            { id: 2, country: "Brazil", issue: "Deforestation in the Amazon Rainforest" },
+            { id: 3, country: "India", issue: "Air Pollution and Public Health" },
+            { id: 4, country: "China", issue: "Surveillance and Human Rights (Uyghurs in Xinjiang)" },
+            { id: 5, country: "Ethiopia", issue: "Food Security and Famine Crisis" },
+            { id: 6, country: "Afghanistan", issue: "Women's Rights and Education" },
+            { id: 7, country: "Germany", issue: "Energy Transition & Renewable Energy" },
+            { id: 8, country: "South Africa", issue: "Income Inequality & Poverty" },
+            { id: 9, country: "Philippines", issue: "Natural Disasters & Climate Resilience" },
+            { id: 10, country: "United Kingdom", issue: "Refugee and Immigration Policies" },
+            { id: 11, country: "Haiti", issue: "Political Instability & Humanitarian Crisis" },
+            { id: 12, country: "Ukraine", issue: "Conflict and International Relations" },
+            { id: 13, country: "Russia", issue: "Freedom of Expression & Human Rights" },
+            { id: 14, country: "Myanmar", issue: "Rohingya Refugee Crisis & Human Rights" },
+            { id: 15, country: "Japan", issue: "Aging Population and Social Policy" },
+            { id: 16, country: "Bangladesh", issue: "Textile Industry & Labour Rights" },
+            { id: 17, country: "Somalia", issue: "Food Security & Drought" },
+            { id: 18, country: "Saudi Arabia", issue: "Women's Rights and Social Change" },
+            { id: 19, country: "Mexico", issue: "Drug Cartels & Public Safety" },
+            { id: 20, country: "Nigeria", issue: "Oil Production & Environmental Damage" },
+            { id: 21, country: "Yemen", issue: "Humanitarian Crisis & Conflict" },
+            { id: 22, country: "Pakistan", issue: "Flooding and Climate Change Impacts" },
+            { id: 23, country: "Turkey", issue: "Earthquake Preparedness & Disaster Response" },
+            { id: 24, country: "Indonesia", issue: "Palm Oil Production & Deforestation" },
+            { id: 25, country: "Kenya", issue: "Wildlife Conservation & Tourism Impacts" },
+            { id: 26, country: "Israel/Palestine", issue: "Conflict and Human Rights" },
+            { id: 27, country: "Egypt", issue: "Water Security and the Nile River Dispute" },
+            { id: 28, country: "France", issue: "Social Protests & Economic Inequality" },
+            { id: 29, country: "New Zealand", issue: "Indigenous Rights and Reconciliation" },
+            { id: 30, country: "Venezuela", issue: "Economic Collapse and Migration Crisis" },
+            { id: 31, country: "Colombia", issue: "Drug Trade and Peace Process" },
+            { id: 32, country: "North Korea", issue: "Nuclear Weapons and Isolation" },
+            { id: 33, country: "Syria", issue: "Civil War and Refugee Crisis" },
+            { id: 34, country: "South Sudan", issue: "Civil Conflict and Food Insecurity" },
+            { id: 35, country: "Cuba", issue: "Political Freedom and Economic Sanctions" }
+        ];
+
+        function renderTopics() {
+            const grid = document.getElementById('topicGrid');
+            grid.innerHTML = '';
+
+            topics.forEach(topic => {
+                const card = document.createElement('div');
+                card.className = 'topic-card available';
+                card.innerHTML = `
+                    <div class="topic-header">
+                        <div>
+                            <h3 class="topic-title">${topic.country}</h3>
+                            <p class="topic-country">${topic.issue}</p>
+                        </div>
+                    </div>
+                    <div class="student-names">
+                        <label for="students-${topic.id}">Student Names:</label>
+                        <input type="text" id="students-${topic.id}" placeholder="">
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        renderTopics();
+    </script>
+</body>
+
+</html>
