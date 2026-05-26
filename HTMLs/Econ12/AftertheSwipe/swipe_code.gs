@@ -126,10 +126,14 @@ function doPost(e) {
       sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
     }
 
-    // Support both JSON post payloads and URL-encoded forms
+    // Support both JSON post payloads (even if sent as text/plain to bypass CORS preflight) and URL-encoded forms
     let data = {};
-    if (e.postData && e.postData.type === "application/json") {
-      data = JSON.parse(e.postData.contents);
+    if (e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (err) {
+        data = e.parameter;
+      }
     } else {
       data = e.parameter;
     }

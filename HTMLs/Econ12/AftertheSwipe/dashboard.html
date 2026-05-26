@@ -169,10 +169,6 @@
     </div>
     
     <div class="actions">
-      <select id="block-filter" onchange="renderStudents()">
-        <option value="A Block (Waugh)">BLOCK A</option>
-        <option value="C Block (Waugh)">BLOCK C</option>
-      </select>
       <button onclick="fetchProgress()">🔄 Refresh Data</button>
     </div>
   </header>
@@ -182,19 +178,9 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwPYY_WeEfQXs6oUjaX0BPLtaj_SF5v9cvkx1OkTxLXnM3fjH_YyIKjXg_2iWaiHS1i/exec";
     const SIMULATION_NAME = "Michelle Credit Case";
     const SLIDES_IDS = ["slide1", "slide2", "slide3", "slide4", "slide5", "slide6"];
-
-    // Mock students data structure for testing or populating grid
-    const MOCK_STUDENTS = [
-      {"B":"A Block (Waugh)", "Name":"ALEXIS"},
-      {"B":"A Block (Waugh)", "Name":"DAVE"},
-      {"B":"A Block (Waugh)", "Name":"GALA"},
-      {"B":"C Block (Waugh)", "Name":"AIDEN"},
-      {"B":"C Block (Waugh)", "Name":"CLARA JONES"},
-      {"B":"C Block (Waugh)", "Name":"MYLES"}
-    ];
 
     let progressData = {};
 
@@ -215,7 +201,6 @@
     }
 
     function renderStudents() {
-      const filter = document.getElementById('block-filter').value;
       const grid = document.getElementById('dashboard-grid');
       grid.innerHTML = '';
 
@@ -223,24 +208,15 @@
       const activeData = Object.keys(progressData).length > 0 ? Object.keys(progressData) : [];
 
       if (activeData.length === 0) {
-        // Show placeholders
-        MOCK_STUDENTS.forEach(student => {
-          if (student.B === filter) {
-            grid.appendChild(createStudentCard(student.Name, student.B, null));
-          }
-        });
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px; font-family: IBM Plex Mono, monospace; border: 1px dashed var(--border); border-radius: 6px;">WAITING FOR STUDENT LOGINS... // NO ACTIVE TELEMETRY RECORDS FOUND IN GOOGLE SHEET</div>';
         return;
       }
 
-      // Filter and render real server cards
+      // Render real server cards
       activeData.forEach(studentKey => {
         const studentInfo = progressData[studentKey];
-        // Guess block (server returns student info including block parameter or payload details)
-        // Let's create card if it matches the current block filter
-        const studentDetail = studentInfo.block ? studentInfo.block : filter;
-        if (studentDetail === filter) {
-          grid.appendChild(createStudentCard(studentKey, studentDetail, studentInfo));
-        }
+        const studentDetail = studentInfo.block ? studentInfo.block : "Econ 12";
+        grid.appendChild(createStudentCard(studentKey, studentDetail, studentInfo));
       });
     }
 

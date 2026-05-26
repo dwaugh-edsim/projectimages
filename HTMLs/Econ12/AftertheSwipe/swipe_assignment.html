@@ -915,22 +915,13 @@
       <p style="color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono);">ECONOMICS 12 // CREDIT RISK CASE STUDY</p>
       
       <div class="input-group">
-        <select id="class-block">
-          <option value="" disabled selected>-- SELECT CLASS BLOCK --</option>
-          <option value="A Block (Waugh)">BLOCK A</option>
-          <option value="C Block (Waugh)">BLOCK C</option>
-        </select>
+        <input type="hidden" id="class-block" value="Econ 12">
 
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" style="text-transform: uppercase;">
         <input type="password" id="student-pin" maxlength="4" placeholder="INVENT OR ENTER 4-LETTER PASSCODE" style="text-transform: uppercase;">
         
         <div id="error-msg">ACCESS DENIED</div>
         <button class="begin-btn" onclick="validateAndStart()">Open Case File</button>
-      </div>
-
-      <div class="pedagogical-disclaimer">
-        <strong>Pedagogical Notice</strong>
-        This assignment is a historically informed financial literacy simulation. Case names and figures are adapted for educational purposes to evaluate budgeting tradeoffs, credit scores, and APR calculations.
       </div>
     </div>
   </div>
@@ -941,16 +932,16 @@
       <h2>📨 Incoming Message — Michelle Rivera</h2>
       <div class="letter-body">
         <p><strong>Hi,</strong></p>
-        <p>Yesterday I thought my first credit card was helping me stay flexible. Today I opened my statement and realized I’m starting to lean on it instead of just using it.</p>
-        <p>I haven’t completely crashed anything yet. But the balance looks bigger than I expected. I can make the minimum payment of $35, but I don’t know if that actually solves anything or if I'm just sliding into a trap.</p>
-        <p>Now I’ve started getting pre-approved rewards offers and balance-transfer ads in the mail, and my friends are giving me conflicting advice. One says open another card for breathing room. Another says just pay the minimum until my summer hours pick up.</p>
+        <p>Yesterday I thought my first credit card was helping me stay flexible while balancing classes and working part-time as a lifeguard at the Canada Games Centre. Today, I opened my statement and realized I'm sliding into a hole.</p>
+        <p>My shift hours were just cut from 20 down to 8 per week due to the pool's seasonal schedule, right as I had to pay for my community college textbooks. I haven't missed any payments yet, but my balance is sitting at $1,162.43. I can afford the minimum payment of $35 from my smaller paycheck, but I don't know if that actually gets me anywhere or if I'm just paying for air.</p>
+        <p>Now, pre-approved rewards card offers are showing up in my mail, and my friends are giving me conflicting advice. One says open another card to increase my limit and get breathing room. Another says just pay the minimum until my hours pick up in the summer.</p>
         <p><strong>I need someone to look at the numbers and help me make a smart plan.</strong></p>
         <p>Please investigate my case file and help me answer these specific questions:</p>
-        <p>1. What numbers on my statement matter most?<br>2. Which of my choices were manageable and which were warning signs?<br>3. Would another card help or hurt me?<br>4. How do utilization and interest rates change my future borrowing options?<br>5. What should I do over the next 30 and 90 days?</p>
+        <p>1. What numbers on my statement matter most?<br>2. Which of my spending choices were manageable and which were warning signs?<br>3. Would another card help or hurt me?<br>4. How do utilization and interest rates change my future borrowing options?<br>5. What should I do over the next 30 and 90 days?</p>
       </div>
       <div class="letter-sign">
         Thanks,<br>
-        Michelle Rivera
+        Michelle Rivera (Lifeguard, Canada Games Centre)
       </div>
       <button class="briefing-dismiss" onclick="dismissBriefing()">BEGIN INVESTIGATION →</button>
     </div>
@@ -1072,6 +1063,9 @@
     // ═══════════════════════════════════════════════════
     // STATE
     // ═══════════════════════════════════════════════════
+    const API_URL = "https://script.google.com/macros/s/AKfycbwPYY_WeEfQXs6oUjaX0BPLtaj_SF5v9cvkx1OkTxLXnM3fjH_YyIKjXg_2iWaiHS1i/exec";
+    const SIMULATION_NAME = "Michelle Credit Case";
+
     let currentSlideIndex = 0;
     let selectedStudent = null;
     let sessionData = { responses: {} };
@@ -1085,8 +1079,8 @@
           "id": "slide_1",
           "shortTitle": "The Ledger",
           "title": "Michelle's Spend Analysis",
-          "prompt": "INVESTIGATOR DIRECTIVE: Inspect Michelle's transaction ledger on the right. Filter items by category. What is the difference between Michelle's 'essential' and 'discretionary' choices, and where is the primary source of financial risk?",
-          "body": `<p>Michelle Rivera is 19 years old, working part-time, and trying to balance car payments, phone bills, and groceries. When she first got her credit card, she planned to use it only for emergencies or convenience. But over the last month, a drop in her work hours coincided with several purchases.</p><p>None of these purchases felt disastrous on their own: installment payments for a laptop she needed for school, gas to get to work shifts, and groceries. But when mixed with food delivery and concert tickets, her balance began to mount.</p><p>As her financial advisor, your first job is to examine her transactions and separate what was necessary from what was a warning sign.</p>`,
+          "prompt": "INVESTIGATOR DIRECTIVE: Inspect Michelle's transaction ledger on the right. Filter items by category and click individual entries to examine her rationale. What is the fundamental difference in urgency and financial impact between her 'essential' and 'discretionary' choices? Where lies the immediate risk to her budget?",
+          "body": `<p><strong>Client Profile:</strong> Michelle Rivera (19)<br><strong>Occupation:</strong> Part-Time Lifeguard / Swim Instructor (Canada Games Centre)<br><strong>Status:</strong> Classes starting at community college next semester; seasonal work shift cut from 20 to 8 hours/week.</p><p>When Michelle first opened her credit card, she intended it only for textbook purchases and emergency car repairs. However, a sudden reduction in lifeguard shifts forced her to rely on the card to cover standard monthly costs.</p><p>Examine her transaction records on the right. Analyze where her spending patterns transition from survival necessities to dangerous discretionary debt.</p>`,
           "credit": "Digital Banking App — Transaction Log",
           "customHtml": `
 <div class="finance-ledger">
@@ -1126,8 +1120,8 @@
           "id": "slide_2",
           "shortTitle": "The Calculator",
           "title": "Interactive Statement Calculator",
-          "prompt": "INVESTIGATOR DIRECTIVE: Drag the monthly payment slider on the right. How does raising the monthly payment above the $35 minimum change the total interest paid and payoff timeframe? What does this reveal about carrying a balance?",
-          "body": `<p>When Michelle's statement arrives, she sees a current balance of <strong>$1,162.43</strong>, a credit limit of <strong>$1,500.00</strong>, and an APR of <strong>19.99%</strong>. The minimum payment due is only <strong>$35.00</strong>.</p><p>Michelle tells you that paying $35/month feels safe because it matches what the bank asks for. As an economics student, you must show her the mathematics behind that number. Because interest is charged at 19.99% on the remaining balance each month, a tiny payment means most of her money goes toward paying off interest rather than the initial balance.</p>`,
+          "prompt": "INVESTIGATOR DIRECTIVE: Drag the monthly payment slider on the right to simulate payments from $35 up to $300. Calculate how much interest Michelle pays back at the minimum $35 rate versus a $100 rate. What does this mathematical difference tell us about the 'minimum payment' default setting?",
+          "body": `<p>Michelle's credit card statement shows a current balance of <strong>$1,162.43</strong> with a credit limit of <strong>$1,500.00</strong> and an APR of <strong>19.99%</strong>. The statement specifies a Minimum Payment Due of <strong>$35.00</strong>.</p><p>Michelle believes paying the minimum is a safe, bank-approved way to manage her balance until her summer pool hours return. Your job is to analyze the mathematical impact of this decision. Use the calculator to run different payment models and observe the exact ratio of interest to principal paydown.</p>`,
           "credit": "Interactive Credit Statement Calculator",
           "customHtml": `
 <div class="calculator-container">
@@ -1156,8 +1150,8 @@
           "id": "slide_3",
           "shortTitle": "The Graph",
           "title": "Payoff Trajectory Graph",
-          "prompt": "INVESTIGATOR DIRECTIVE: Analyze the trajectory graph on the right. Compare the three lines. What are the economic tradeoffs of paying only the minimum vs. committing to a fixed, higher payoff schedule?",
-          "body": `<p>To help Michelle visualize the long-term impact of her payment choices, you plot her debt payoff path under three scenarios: making the minimum payment ($35), paying $75/month, or paying $150/month.</p><p>This visualization highlights the concept of the <strong>Balance Trap</strong>. When monthly payments are low, the payoff timeline flatlines, keeping the borrower locked in debt. By increasing the payment slightly, the curve bends sharply downward, reclaiming financial freedom.</p>`,
+          "prompt": "INVESTIGATOR DIRECTIVE: Analyze the curves on the right. Compare the trajectories of $35/month, $75/month, and $150/month. What are the economic tradeoffs of a slow repayment timeline versus locking up her limited lifeguard income in aggressive short-term payments?",
+          "body": `<p>To help Michelle visualize how payment choices compound over time, we have plotted her debt payoff trajectory under three distinct strategies: the minimum payment, a moderate plan, and an aggressive paydown plan.</p><p>Note the shape of the curves. Identify how the duration of the debt impacts her cash flow flexibility and the total premium she pays the bank in interest fees.</p>`,
           "credit": "Payoff Trajectory Visualizer",
           "customHtml": `
 <div class="chart-container">
@@ -1203,8 +1197,8 @@
           "id": "slide_4",
           "shortTitle": "The Transfer",
           "title": "Teaser Card Offers",
-          "prompt": "INVESTIGATOR DIRECTIVE: Compare the terms of the Pre-Approved travel rewards card with Michelle's current card on the right. What are the key differences, and what hidden costs must she consider before making a decision?",
-          "body": `<p>A pre-approved promotional offer arrives in Michelle's mail. It promises a 0.99% introductory balance transfer rate for six months, 2% cash back on gas and groceries, and a higher credit limit. For Michelle, this feels like an easy escape route — a way to shift her balance and buy breathing room.</p><p>As her financial advisor, you must help her look closely at the fine print. Balance transfers are not free; they usually come with upfront fees. Furthermore, rewards cards often carry high annual fees that can quickly wipe out any short-term interest savings.</p>`,
+          "prompt": "INVESTIGATOR DIRECTIVE: Compare the terms of the Pre-Approved card with her current card. First, make the strongest possible argument for accepting the balance transfer to get breathing room. Then, critique that argument by identifying hidden costs and long-term interest traps. What is your final recommendation?",
+          "body": `<p>A pre-approved offer arrives in Michelle's mail promising a 0.99% introductory balance transfer rate for six months, 2% cash back on gas and groceries, and a higher credit limit. For Michelle, this feels like an easy escape route — a way to shift her balance and buy breathing room.</p><p>As her financial advisor, you must help her look closely at the fine print. Balance transfers are not free; they usually come with upfront fees. Furthermore, rewards cards often carry high annual fees that can quickly wipe out any short-term interest savings.</p>`,
           "credit": "Credit Card Offer Matrix",
           "customHtml": `
 <div class="comparison-container">
@@ -1228,8 +1222,8 @@
           "id": "slide_5",
           "shortTitle": "The Score",
           "title": "Credit Score Risk Gauge",
-          "prompt": "INVESTIGATOR DIRECTIVE: Click the variables on the right to simulate their impact on the Credit Score Gauge. How does credit card utilization affect score calculation, and what happens if Michelle misses a single payment?",
-          "body": `<p>Michelle wants to rent an apartment and buy a reliable car next year. She is surprised to learn that her credit score is already being affected, even though she has never missed a payment. Lenders look at **Credit Utilization** — the percentage of her credit limit currently used.</p><p>Because Michelle is using <strong>$1,162.43</strong> of her <strong>$1,500.00</strong> limit, her utilization is <strong>77%</strong>, well above the recommended limit of 30%. This flags her as a high-risk borrower.</p>`,
+          "prompt": "INVESTIGATOR DIRECTIVE: Toggle the variables on the right to simulate their impact on the Credit Score Gauge. How does credit card utilization affect score calculation, and what happens if Michelle misses a single payment? What does this imply for her goal of renting an apartment next year?",
+          "body": `<p>Michelle wants to rent a shared 2-bedroom apartment in <strong>Clayton Park West</strong> and buy a reliable used car to commute to classes next year. She is surprised to learn that property managers at the large rental buildings on Lacewood and Dunbrack Drive are already flagging her credit history, even though she has never missed a payment.</p><p>Lenders and landlords evaluate **Credit Utilization** — the percentage of her credit limit currently used. Because Michelle is using <strong>$1,162.43</strong> of her <strong>$1,500.00</strong> limit, her utilization is <strong>77%</strong> (well above the recommended 30% ceiling), flagging her as a high-risk borrower.</p>`,
           "credit": "Credit Score Simulator",
           "customHtml": `
 <div class="gauge-container">
@@ -1267,7 +1261,7 @@
           "id": "slide_6",
           "shortTitle": "The Plan",
           "title": "Advisory Plan Builder",
-          "prompt": "FINAL ADVISORY TASK: Write Michelle Rivera a clear credit advisory report. Synthesize your recommendations. Outline her three biggest risk factors, make a clear decision on the second card, and detail a practical 30-day and 90-day action plan.",
+          "prompt": "FINAL ADVISORY TASK: Write Michelle a formal Credit Recovery Memo. Rank her three biggest risk factors by urgency. Provide a definitive card transfer decision, and layout a concrete 30-day and 90-day action plan incorporating specific budget rules and paydown targets.",
           "body": `<p>You have reviewed all the evidence in Michelle's case file. You've analyzed her spending ledger, modeled her payoff options, evaluated the promotional credit card transfer offer, and simulated the impact of utilization on her credit score.</p><p>Now, it is time to write her a practical action plan. She does not need general advice about being responsible; she needs specific steps to get her credit back on track.</p>`,
           "credit": "Plan Workspace",
           "customHtml": `
@@ -1399,11 +1393,11 @@
     
     // Slide 1 Ledger Helpers
     const LEDGER_MEMOS = [
-      "School purchase. Michelle split the cost into 4 equal interest-free installments, but the first installment was posted right as her work hours were reduced.",
-      "Required transportation cost. She has to buy gas weekly to drive to her shifts at the community recreation center.",
-      "Discretionary convenience. She ordered food twice during midterm week when she felt she didn't have time to cook.",
-      "Discretionary entertainment. Bought tickets to see her favorite band with friends. She decided to put it on the card and pay it off later.",
-      "Required weekly groceries. Basic ingredients, fruit, and milk."
+      "NSCC Bookstore. Michelle split the upfront cost of her Business Administration textbooks for classes at the NSCC IT Campus (Leeds St) into 4 interest-free installments, but the first bill hit right as pool hours were cut.",
+      "Lacewood Esso/Wilson's commute. Essential fuel costs for driving her older sedan from her home in Clayton Park to her shifts at the Canada Games Centre.",
+      "Late Night Bite. Ordered dinner via UberEats from Clayton Park restaurants on Lacewood Drive during a heavy mid-term study block.",
+      "Scotiabank Centre Concert. Purchased floor tickets for a major tour stop in downtown Halifax. She paid for her friends' tickets to lock in the group block, expecting they would e-transfer her back immediately.",
+      "Sobeys Clayton Park. Weekly grocery trip on Lacewood Drive for basic food staples, milk, and household essentials."
     ];
 
     function filterLedger(cat) {
@@ -1612,7 +1606,7 @@
           method: 'POST',
           body: JSON.stringify(payload),
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain'
           }
         });
         const result = await res.json();
