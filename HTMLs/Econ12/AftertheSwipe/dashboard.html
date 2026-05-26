@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>After the Swipe — Progress Dashboard</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #09090b;
+      --accent: #10b981;
+      --accent-dim: rgba(16, 185, 129, 0.1);
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --text: #e4e4e7;
+      --text-muted: #a1a1aa;
+      --card-bg: #141419;
+      --border: #27272a;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .title-area h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .title-area p {
+      margin: 5px 0 0 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #fff;
+    }
+
+    select {
+      background: #141419;
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .student-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .student-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .student-block {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .segment {
+      flex: 1;
+      height: 8px;
+      background: #222;
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+
+    .segment.completed {
+      background: var(--accent);
+      box-shadow: 0 0 5px var(--accent-glow);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    .status-badge {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 0.65rem;
+    }
+
+    .status-badge.final {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .status-badge.progress {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-area">
+      <h1>After the Swipe — Telemetry Dashboard</h1>
+      <p>CLASSROOM MONITORING INTERFACE // ECONOMIC LITERACY STUDY</p>
+    </div>
+    
+    <div class="actions">
+      <select id="block-filter" onchange="renderStudents()">
+        <option value="A Block (Waugh)">BLOCK A</option>
+        <option value="C Block (Waugh)">BLOCK C</option>
+      </select>
+      <button onclick="fetchProgress()">🔄 Refresh Data</button>
+    </div>
+  </header>
+
+  <div class="grid" id="dashboard-grid">
+    <!-- Student progress cards loaded dynamically -->
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+    const SIMULATION_NAME = "Michelle Credit Case";
+    const SLIDES_IDS = ["slide1", "slide2", "slide3", "slide4", "slide5", "slide6"];
+
+    // Mock students data structure for testing or populating grid
+    const MOCK_STUDENTS = [
+      {"B":"A Block (Waugh)", "Name":"ALEXIS"},
+      {"B":"A Block (Waugh)", "Name":"DAVE"},
+      {"B":"A Block (Waugh)", "Name":"GALA"},
+      {"B":"C Block (Waugh)", "Name":"AIDEN"},
+      {"B":"C Block (Waugh)", "Name":"CLARA JONES"},
+      {"B":"C Block (Waugh)", "Name":"MYLES"}
+    ];
+
+    let progressData = {};
+
+    async function fetchProgress() {
+      const grid = document.getElementById('dashboard-grid');
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Fetching live telemetry...</div>';
+      
+      try {
+        const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+        const result = await res.json();
+        progressData = result.progress || {};
+        renderStudents();
+      } catch (e) {
+        console.error("API error, rendering mock/empty structure", e);
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red;">Failed to retrieve active telemetry from Sheet. Displaying local cache.</div>';
+        setTimeout(() => { renderStudents(); }, 1500);
+      }
+    }
+
+    function renderStudents() {
+      const filter = document.getElementById('block-filter').value;
+      const grid = document.getElementById('dashboard-grid');
+      grid.innerHTML = '';
+
+      // Fallback: If no server data, show mock/empty cards for visibility
+      const activeData = Object.keys(progressData).length > 0 ? Object.keys(progressData) : [];
+
+      if (activeData.length === 0) {
+        // Show placeholders
+        MOCK_STUDENTS.forEach(student => {
+          if (student.B === filter) {
+            grid.appendChild(createStudentCard(student.Name, student.B, null));
+          }
+        });
+        return;
+      }
+
+      // Filter and render real server cards
+      activeData.forEach(studentKey => {
+        const studentInfo = progressData[studentKey];
+        // Guess block (server returns student info including block parameter or payload details)
+        // Let's create card if it matches the current block filter
+        const studentDetail = studentInfo.block ? studentInfo.block : filter;
+        if (studentDetail === filter) {
+          grid.appendChild(createStudentCard(studentKey, studentDetail, studentInfo));
+        }
+      });
+    }
+
+    function createStudentCard(name, block, info) {
+      const card = document.createElement('div');
+      card.className = 'student-card';
+
+      const header = document.createElement('div');
+      header.innerHTML = `<h3 class="student-name">${name}</h3><span class="student-block">${block}</span>`;
+      card.appendChild(header);
+
+      const barContainer = document.createElement('div');
+      barContainer.className = 'progress-bar-container';
+
+      // Reconstruct rationales to paint complete bars
+      let completedCount = 0;
+      let rationales = {};
+      if (info && info.rationales) {
+        try {
+          rationales = JSON.parse(info.rationales);
+        } catch(e) {
+          console.error("Parsing error", e);
+        }
+      }
+
+      SLIDES_IDS.forEach(slideId => {
+        const segment = document.createElement('div');
+        segment.className = 'segment';
+        if (rationales[slideId] && rationales[slideId].trim() !== '') {
+          segment.classList.add('completed');
+          completedCount++;
+        }
+        barContainer.appendChild(segment);
+      });
+      card.appendChild(barContainer);
+
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+
+      let lastSeen = info ? new Date(info.timestamp).toLocaleTimeString() : 'Never';
+      let status = info && info.status === 'FINAL_SUBMISSION' ? 'FINAL' : 'IN PROGRESS';
+      let statusClass = info && info.status === 'FINAL_SUBMISSION' ? 'final' : 'progress';
+
+      footer.innerHTML = `
+        <span>Last: ${lastSeen}</span>
+        <span class="status-badge ${statusClass}">${status} (${completedCount}/6)</span>
+      `;
+      card.appendChild(footer);
+
+      return card;
+    }
+
+    fetchProgress();
+    // Auto-refresh every 30 seconds
+    setInterval(fetchProgress, 30000);
+  </script>
+</body>
+</html>
