@@ -1,5 +1,5 @@
 // Google Apps Script backend for Country Profile Project sign-ups
-// Deploy as Web App with "Anyone" access
+// Deploy as Web App: Execute as "Me", Who has access "Anyone"
 
 const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE';
 const SHEET_NAME = 'Claims';
@@ -15,8 +15,7 @@ function doGet(e) {
     return getSignUpStatus();
   }
   
-  return ContentService.createTextOutput(JSON.stringify({ error: 'Invalid action' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ error: 'Invalid action' });
 }
 
 function doPost(e) {
@@ -39,7 +38,11 @@ function doPost(e) {
     return setSignUpStatus(data.open);
   }
   
-  return ContentService.createTextOutput(JSON.stringify({ error: 'Invalid action' }))
+  return jsonResponse({ error: 'Invalid action' });
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -81,52 +84,36 @@ function getClaims() {
       }
     }
     
-    return ContentService.createTextOutput(JSON.stringify({ claims: claims }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ claims: claims });
   } catch (e) {
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   }
 }
 
 function claimTopic(topicId, topicName, students) {
-  // LockService prevents race conditions when 25+ students claim simultaneously
   const lock = LockService.getScriptLock();
   
   try {
-    // Wait up to 10 seconds for the lock
     lock.waitLock(10000);
     
     const sheet = getSheet();
     const data = sheet.getDataRange().getValues();
     
-    // Check if already claimed (inside the lock - atomic)
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] == topicId && data[i][5] === 'active') {
-        return ContentService.createTextOutput(JSON.stringify({ 
-          success: false, 
-          error: 'Topic already claimed' 
-        })).setMimeType(ContentService.MimeType.JSON);
+        return jsonResponse({ success: false, error: 'Topic already claimed' });
       }
     }
     
-    // Add new claim - only one request can reach here at a time
     sheet.appendRow([new Date(), topicId, topicName.split(' - ')[0], topicName.split(' - ')[1] || '', students, 'active']);
     
-    return ContentService.createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: true });
   } catch (e) {
-    // If we couldn't get the lock, someone else is claiming
     if (e.toString().indexOf('waitLock') !== -1) {
-      return ContentService.createTextOutput(JSON.stringify({ 
-        success: false, 
-        error: 'Server busy, please try again' 
-      })).setMimeType(ContentService.MimeType.JSON);
+      return jsonResponse({ success: false, error: 'Server busy, please try again' });
     }
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   } finally {
-    // Always release the lock
     lock.releaseLock();
   }
 }
@@ -143,16 +130,13 @@ function removeClaim(topicId) {
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] == topicId && data[i][5] === 'active') {
         sheet.getRange(i + 1, 6).setValue('removed');
-        return ContentService.createTextOutput(JSON.stringify({ success: true }))
-          .setMimeType(ContentService.MimeType.JSON);
+        return jsonResponse({ success: true });
       }
     }
     
-    return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'Claim not found' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: false, error: 'Claim not found' });
   } catch (e) {
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   } finally {
     lock.releaseLock();
   }
@@ -173,11 +157,9 @@ function clearAllClaims() {
       }
     }
     
-    return ContentService.createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: true });
   } catch (e) {
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   } finally {
     lock.releaseLock();
   }
@@ -190,16 +172,13 @@ function getSignUpStatus() {
     
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === 'signUpOpen') {
-        return ContentService.createTextOutput(JSON.stringify({ open: data[i][1] === 'true' }))
-          .setMimeType(ContentService.MimeType.JSON);
+        return jsonResponse({ open: data[i][1] === 'true' });
       }
     }
     
-    return ContentService.createTextOutput(JSON.stringify({ open: false }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ open: false });
   } catch (e) {
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   }
 }
 
@@ -215,17 +194,14 @@ function setSignUpStatus(open) {
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === 'signUpOpen') {
         sheet.getRange(i + 1, 2).setValue(open ? 'true' : 'false');
-        return ContentService.createTextOutput(JSON.stringify({ success: true }))
-          .setMimeType(ContentService.MimeType.JSON);
+        return jsonResponse({ success: true });
       }
     }
     
     sheet.appendRow(['signUpOpen', open ? 'true' : 'false']);
-    return ContentService.createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: true });
   } catch (e) {
-    return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ error: e.toString() });
   } finally {
     lock.releaseLock();
   }
