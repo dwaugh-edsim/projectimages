@@ -441,6 +441,99 @@
             font-size: 1rem;
             color: var(--secondary);
         }
+
+        /* Password Modal */
+        .password-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .password-overlay.show {
+            display: flex;
+        }
+
+        .password-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-card h2 {
+            color: var(--danger);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .password-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .password-card input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 4px;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        .password-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-card .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .password-card button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .password-card button:hover {
+            background: var(--primary-hover);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -448,7 +541,7 @@
 
     <div class="nav-header">
         <button class="tab-btn active" onclick="switchTab('student-signup')">Student Sign-Up</button>
-        <button class="tab-btn" onclick="switchTab('teacher-admin')">Teacher Admin</button>
+        <button class="tab-btn" onclick="requestAdminAccess()">Teacher Admin</button>
     </div>
 
     <div class="container">
@@ -497,6 +590,17 @@
         </div>
     </div>
 
+    <!-- Password Modal -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-card">
+            <h2>Teacher Access</h2>
+            <p>Enter your password to access the admin panel.</p>
+            <div class="error-msg" id="passwordError">Incorrect password. Try again.</div>
+            <input type="password" id="adminPassword" placeholder="Password" maxlength="20" onkeydown="if(event.key==='Enter')verifyPassword()">
+            <button onclick="verifyPassword()">Unlock</button>
+        </div>
+    </div>
+
     <footer class="site-footer">
         <div class="footer-content">
             <div class="footer-title">Citizenship 9 - Country Profile Project</div>
@@ -509,8 +613,8 @@
     </footer>
 
     <script>
-        // TEACHER: Replace with your deployed Google Apps Script URL
-        const API_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzYwRuGyNtAB-hyoDwWDVyneuhaBzRjDGd_ukpgNhar-y-67HvMp-9zf3eC4uvM_DfgMQ/exec";
+        const ADMIN_PASSWORD = "cit9";
 
         const topics = [
             { id: 1, country: "Australia", issue: "Climate Change & Wildfires" },
@@ -550,8 +654,31 @@
             { id: 35, country: "Cuba", issue: "Political Freedom and Economic Sanctions" }
         ];
 
-        let claimedTopics = JSON.parse(localStorage.getItem('claimedTopics') || '{}');
-        let signUpOpen = localStorage.getItem('signUpOpen') === 'true';
+        let claimedTopics = {};
+        let signUpOpen = false;
+        let adminAuthenticated = false;
+
+        async function loadFromBackend() {
+            try {
+                const res = await fetch(`${API_URL}?action=getClaims`);
+                const data = await res.json();
+                if (data.claims) {
+                    claimedTopics = data.claims;
+                }
+            } catch (e) {
+                console.error('Failed to load claims from backend:', e);
+            }
+
+            try {
+                const res = await fetch(`${API_URL}?action=getSignUpStatus`);
+                const data = await res.json();
+                if (typeof data.open === 'boolean') {
+                    signUpOpen = data.open;
+                }
+            } catch (e) {
+                console.error('Failed to load sign-up status from backend:', e);
+            }
+        }
 
         function renderTopics() {
             const grid = document.getElementById('topicGrid');
@@ -607,7 +734,7 @@
             });
         }
 
-        function claimTopic(id) {
+        async function claimTopic(id) {
             const student1 = document.getElementById(`student1-${id}`).value.trim();
             const student2 = document.getElementById(`student2-${id}`).value.trim();
 
@@ -616,27 +743,77 @@
                 return;
             }
 
-            claimedTopics[id] = `${student1} & ${student2}`;
-            localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
-            renderTopics();
-            renderAdminList();
+            const topic = topics.find(t => t.id === id);
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'claimTopic',
+                        topicId: id,
+                        topicName: `${topic.country} - ${topic.issue}`,
+                        students: `${student1} & ${student2}`
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    claimedTopics[id] = `${student1} & ${student2}`;
+                    renderTopics();
+                    renderAdminList();
+                } else {
+                    alert(data.error || 'Failed to claim topic. It may have been taken.');
+                }
+            } catch (e) {
+                alert('Connection error. Please try again.');
+                console.error(e);
+            }
         }
 
-        function toggleSignUp() {
-            signUpOpen = document.getElementById('signUpToggle').checked;
-            localStorage.setItem('signUpOpen', signUpOpen);
-            document.getElementById('switchStatus').textContent = signUpOpen
-                ? 'Sign-ups are currently OPEN'
-                : 'Sign-ups are currently closed';
-            renderTopics();
+        async function toggleSignUp() {
+            const isOpen = document.getElementById('signUpToggle').checked;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'setSignUpStatus',
+                        open: isOpen
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    signUpOpen = isOpen;
+                    document.getElementById('switchStatus').textContent = signUpOpen
+                        ? 'Sign-ups are currently OPEN'
+                        : 'Sign-ups are currently closed';
+                    renderTopics();
+                }
+            } catch (e) {
+                alert('Failed to update sign-up status.');
+                console.error(e);
+            }
         }
 
-        function clearAllClaims() {
+        async function clearAllClaims() {
             if (confirm('Are you sure you want to clear ALL topic claims? This cannot be undone.')) {
-                claimedTopics = {};
-                localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
-                renderTopics();
-                renderAdminList();
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'clearAllClaims' })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        claimedTopics = {};
+                        renderTopics();
+                        renderAdminList();
+                    }
+                } catch (e) {
+                    alert('Failed to clear claims.');
+                    console.error(e);
+                }
             }
         }
 
@@ -685,12 +862,48 @@
             }
         }
 
-        function removeClaim(id) {
+        async function removeClaim(id) {
             if (confirm('Remove this claim?')) {
-                delete claimedTopics[id];
-                localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
-                renderTopics();
-                renderAdminList();
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'removeClaim', topicId: id })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        delete claimedTopics[id];
+                        renderTopics();
+                        renderAdminList();
+                    }
+                } catch (e) {
+                    alert('Failed to remove claim.');
+                    console.error(e);
+                }
+            }
+        }
+
+        function requestAdminAccess() {
+            if (adminAuthenticated) {
+                switchTab('teacher-admin');
+                return;
+            }
+            document.getElementById('passwordOverlay').classList.add('show');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('adminPassword').value;
+            if (input === ADMIN_PASSWORD) {
+                adminAuthenticated = true;
+                document.getElementById('passwordOverlay').classList.remove('show');
+                switchTab('teacher-admin');
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
             }
         }
 
@@ -702,13 +915,17 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // Initialize
-        document.getElementById('signUpToggle').checked = signUpOpen;
-        document.getElementById('switchStatus').textContent = signUpOpen
-            ? 'Sign-ups are currently OPEN'
-            : 'Sign-ups are currently closed';
-        renderTopics();
-        renderAdminList();
+        async function init() {
+            await loadFromBackend();
+            document.getElementById('signUpToggle').checked = signUpOpen;
+            document.getElementById('switchStatus').textContent = signUpOpen
+                ? 'Sign-ups are currently OPEN'
+                : 'Sign-ups are currently closed';
+            renderTopics();
+            renderAdminList();
+        }
+
+        init();
     </script>
 </body>
 

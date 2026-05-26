@@ -1,7 +1,7 @@
 // Google Apps Script backend for Country Profile Project sign-ups
 // Deploy as Web App with "Anyone" access
 
-const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE'; // Replace with your sheet ID
+const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE';
 const SHEET_NAME = 'Claims';
 
 function doGet(e) {
@@ -70,7 +70,6 @@ function getClaims() {
     const data = sheet.getDataRange().getValues();
     const claims = {};
     
-    // Skip header row
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       const topicId = row[1];
@@ -91,11 +90,17 @@ function getClaims() {
 }
 
 function claimTopic(topicId, topicName, students) {
+  // LockService prevents race conditions when 25+ students claim simultaneously
+  const lock = LockService.getScriptLock();
+  
   try {
+    // Wait up to 10 seconds for the lock
+    lock.waitLock(10000);
+    
     const sheet = getSheet();
     const data = sheet.getDataRange().getValues();
     
-    // Check if already claimed
+    // Check if already claimed (inside the lock - atomic)
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] == topicId && data[i][5] === 'active') {
         return ContentService.createTextOutput(JSON.stringify({ 
@@ -105,19 +110,33 @@ function claimTopic(topicId, topicName, students) {
       }
     }
     
-    // Add new claim
+    // Add new claim - only one request can reach here at a time
     sheet.appendRow([new Date(), topicId, topicName.split(' - ')[0], topicName.split(' - ')[1] || '', students, 'active']);
     
     return ContentService.createTextOutput(JSON.stringify({ success: true }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (e) {
+    // If we couldn't get the lock, someone else is claiming
+    if (e.toString().indexOf('waitLock') !== -1) {
+      return ContentService.createTextOutput(JSON.stringify({ 
+        success: false, 
+        error: 'Server busy, please try again' 
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
     return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    // Always release the lock
+    lock.releaseLock();
   }
 }
 
 function removeClaim(topicId) {
+  const lock = LockService.getScriptLock();
+  
   try {
+    lock.waitLock(10000);
+    
     const sheet = getSheet();
     const data = sheet.getDataRange().getValues();
     
@@ -134,11 +153,17 @@ function removeClaim(topicId) {
   } catch (e) {
     return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }
 
 function clearAllClaims() {
+  const lock = LockService.getScriptLock();
+  
   try {
+    lock.waitLock(10000);
+    
     const sheet = getSheet();
     const data = sheet.getDataRange().getValues();
     
@@ -153,6 +178,8 @@ function clearAllClaims() {
   } catch (e) {
     return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -177,7 +204,11 @@ function getSignUpStatus() {
 }
 
 function setSignUpStatus(open) {
+  const lock = LockService.getScriptLock();
+  
   try {
+    lock.waitLock(10000);
+    
     const sheet = getStatusSheet();
     const data = sheet.getDataRange().getValues();
     
@@ -195,5 +226,7 @@ function setSignUpStatus(open) {
   } catch (e) {
     return ContentService.createTextOutput(JSON.stringify({ error: e.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }
