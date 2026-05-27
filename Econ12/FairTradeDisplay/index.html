@@ -255,7 +255,7 @@
             background: #111a14;
             border: 3px solid var(--border);
             padding: 25px;
-            min-height: 420px;
+            min-height: 580px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -276,11 +276,39 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 320px;
+            height: 480px;
             overflow: hidden;
             background: #000;
             border-radius: 4px;
             border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Fullscreen styles for the gallery */
+        .slideshow-container:fullscreen {
+            padding: 40px !important;
+            background: #111a14 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        .slideshow-container:fullscreen .slide-viewport {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .slideshow-container:fullscreen .slide-image-wrapper {
+            height: 80vh !important;
+            width: 100% !important;
+        }
+        .slideshow-container:fullscreen #slide-img {
+            max-height: 80vh !important;
+            object-fit: contain !important;
         }
 
         .slide-image-wrapper img {
@@ -720,6 +748,7 @@
                     <span class="slide-indicator" id="slide-indicator">Slide 1 of 4 | Team: Load</span>
                     <div style="display: flex; gap: 8px;">
                         <button class="btn btn-secondary" onclick="prevSlide()">&lt; Back</button>
+                        <button class="btn btn-secondary" onclick="toggleFullscreen()">🖥️ Fullscreen</button>
                         <button class="btn btn-accent" onclick="nextSlide()">Next &gt;</button>
                     </div>
                 </div>
@@ -1506,6 +1535,17 @@
             const proj = galleryData[state.activeProject];
             state.activeSlideIdx = (state.activeSlideIdx - 1 + proj.slides.length) % proj.slides.length;
             renderSlide();
+        }
+
+        function toggleFullscreen() {
+            const elem = document.querySelector('.slideshow-container');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
         /*

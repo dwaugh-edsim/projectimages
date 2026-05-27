@@ -886,6 +886,44 @@
             border-color: var(--border) !important;
         }
 
+        /* Fullscreen styles for the gallery */
+        #gallery-slideshow-preview:fullscreen {
+            padding: 40px !important;
+            background: #111a14 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        #gallery-slideshow-preview:fullscreen #gallery-slide-viewport {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #gallery-slideshow-preview:fullscreen #gallery-slide-viewport > div {
+            width: 100%;
+            max-width: 1400px;
+        }
+        #gallery-slideshow-preview:fullscreen #gallery-slide-viewport div[style*="height: 320px"],
+        #gallery-slideshow-preview:fullscreen #gallery-slide-viewport div[style*="height: 480px"] {
+            height: 80vh !important;
+        }
+        #gallery-slideshow-preview:fullscreen h3 {
+            font-size: 2.8rem !important;
+        }
+        #gallery-slideshow-preview:fullscreen p, 
+        #gallery-slideshow-preview:fullscreen li {
+            font-size: 1.4rem !important;
+        }
+        #gallery-slideshow-preview:fullscreen span[style*="font-size: 0.75rem"] {
+            font-size: 1.1rem !important;
+        }
+
         /* Print Dossier Styling */
         @media print {
             body {
@@ -1102,7 +1140,7 @@
             <div id="gallery-exhibit-container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; align-items: start;">
                 
                 <!-- Left: Reconstructed Slideshow Preview -->
-                <div style="background: #111a14; border: 3px solid var(--border); border-radius: 4px; padding: 25px; min-height: 380px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: #f0f7f3; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);">
+                <div id="gallery-slideshow-preview" style="background: #111a14; border: 3px solid var(--border); border-radius: 4px; padding: 25px; min-height: 560px; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: #f0f7f3; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);">
                     
                     <!-- Slide Viewport -->
                     <div id="gallery-slide-viewport">
@@ -1114,6 +1152,7 @@
                         <span id="gallery-slide-num" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #8ca395;">SLIDE 1 OF 4</span>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn" onclick="prevGallerySlide()" style="padding: 4px 10px; font-size: 0.8rem; background: transparent; border-color: rgba(255,255,255,0.3); color: white;">&lt; Back</button>
+                            <button class="btn" onclick="toggleFullscreenGallery()" style="padding: 4px 10px; font-size: 0.8rem; background: transparent; border-color: rgba(255,255,255,0.3); color: white;">🖥️ Fullscreen</button>
                             <button class="btn" onclick="nextGallerySlide()" style="padding: 4px 10px; font-size: 0.8rem; background: var(--accent-secondary); border-color: var(--accent-secondary); color: white;">Next &gt;</button>
                         </div>
                     </div>
@@ -3205,7 +3244,7 @@
 
             if (slide.image) {
                 viewport.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 320px; overflow: hidden; background: #000; border-radius: 4px;">
+                    <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 480px; overflow: hidden; background: #000; border-radius: 4px;">
                         <img src="${slide.image}" id="gallery-slide-img" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="${slide.title || 'Slide Image'}" />
                     </div>
                 `;
@@ -3344,6 +3383,17 @@
             const proj = galleryData[galleryState.activeProject];
             galleryState.activeSlideIdx = (galleryState.activeSlideIdx - 1 + proj.slides.length) % proj.slides.length;
             renderGallerySlide();
+        }
+
+        function toggleFullscreenGallery() {
+            const elem = document.getElementById('gallery-slideshow-preview');
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         }
 
         // Initial setup
