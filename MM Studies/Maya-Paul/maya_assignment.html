@@ -1517,8 +1517,8 @@
                     "id": "slide_7",
                     "shortTitle": "Inquiry",
                     "title": "Cross-Simulation Synthesis",
-                    "inputType": "normal",
-                    "prompt": "FINAL DIRECTIVE: Analyze how these policies functioned as a single system of control. Your synthesis must SPECIFICALLY CITE evidence from our previous case files: 1. Sarah's Status Case: Cite the specific status category (Section 6(1) vs 6(2)) and the role of Bill C-31 or Bill S-2 in Sarah's family line's erasure. 2. Leo's Treaty Case: Cite how the 1752 Treaty (Article 4/Truckhouse Clause) or the Sparrow Test defines sovereignty, and how Section 88 of the Indian Act overrides it. 3. IRSSA Dossier: Cite a specific piece of evidence or legacy of the Residential School system (e.g., Betty Ross's testimony or Shubenacadie records) to explain how intergenerational trauma led to conditions labeled as 'neglect' by provincial agents. Conclusion: How did these legal, economic, and physical strategies work together?",
+                    "inputType": "multipart",
+                    "prompt": "FINAL DIRECTIVE: Analyze how these policies functioned as a single system of control. Cite specific evidence from our previous case files in each section below.",
                     "body": `<h3>EXHIBIT 07 — THE SYSTEM OF CONTROL</h3><p>To understand the Sixties Scoop in full, we cannot look at child welfare in isolation. It is part of a larger, interlocking system of colonial control. The Indian Act stripped status to shrink bands on paper; the residential schools broke families and languages to assimilate children; and the provincial child welfare system stepped in to remove kids from communities already struggling with the resulting poverty and trauma. Meanwhile, the Crown used provincial regulations to shut down independent commerce and assert dominance over unceded territory.</p><p>As a final step in your investigation, you must bring the threads together. Show how the policies from Sarah's case, Leo's case, and the IRSSA assignment are not separate historical accidents, but different chapters of the same story.</p><p style="margin-top:20px; font-weight:bold; color:var(--accent);">Reference Archives (Open in new tabs):</p><ul style="line-height: 1.8; padding-left: 20px;"><li>🔗 <a href="https://dwaugh-edsim.github.io/projectimages/MM%20Studies/Sarah/index.html" target="_blank">Sarah's Status Case (Indian Act & Bill S-2)</a></li><li>🔗 <a href="https://dwaugh-edsim.github.io/projectimages/leo/leo_1752.html" target="_blank">Leo's Treaty Case (1752 Treaty & The Trading Post)</a></li><li>🔗 <a href="https://dwaugh-edsim.github.io/projectimages/MM%20Studies/Residentialschools-1/irssa_assignment.html" target="_blank">IRSSA Settlement Dossier (Residential Schools & Beyond 94)</a></li></ul>`,
                     "credit": "Cross-Simulation Synthesis Dossier"
                 }
@@ -1756,11 +1756,21 @@
                 const container = document.createElement('div');
                 container.className = 'multipart-prompt-container';
                 
-                const prompts = [
-                    "What is the name of Annie's parents and her home community according to the St. Anne's Parish baptismal card?",
-                    "What note is written on the back of the faded photograph, and who is pictured with Annie?",
-                    "What assigned name replaced Annie's name on the school record card, and what did the instructor note about her speech?"
-                ];
+                let prompts = [];
+                if (slide.id === 'slide_1') {
+                    prompts = [
+                        "What is the name of Annie's parents and her home community according to the St. Anne's Parish baptismal card?",
+                        "What note is written on the back of the faded photograph, and who is pictured with Annie?",
+                        "What assigned name replaced Annie's name on the school record card, and what did the instructor note about her speech?"
+                    ];
+                } else if (slide.id === 'slide_7') {
+                    prompts = [
+                        "Sarah's Status Case: Cite the specific status category (Section 6(1) vs 6(2)) and the role of Bill C-31 or Bill S-2 in Sarah's family line's erasure.",
+                        "Leo's Treaty Case: Cite how the 1752 Treaty (Article 4/Truckhouse Clause) or the Sparrow Test defines sovereignty, and how Section 88 of the Indian Act overrides it.",
+                        "IRSSA Dossier: Cite a specific piece of evidence or legacy of the Residential School system (e.g., Betty Ross's testimony or Shubenacadie records) to explain how intergenerational trauma led to conditions labeled as 'neglect' by provincial agents.",
+                        "Conclusion: Analyze how these legal, economic, and physical strategies worked together as a single system of control."
+                    ];
+                }
                 
                 let saved = {};
                 try {
@@ -1782,6 +1792,9 @@
                     t.id = `multipart-ans-${idx}`;
                     t.value = saved[`part_${idx}`] || '';
                     t.placeholder = "Enter your analysis here...";
+                    if (slide.id === 'slide_7') {
+                        t.style.minHeight = '120px';
+                    }
                     field.appendChild(t);
                     
                     container.appendChild(field);
@@ -1933,12 +1946,18 @@
             let val = '';
 
             if (slide.inputType === 'multipart') {
-                const ans = {
-                    part_0: document.getElementById('multipart-ans-0').value.trim(),
-                    part_1: document.getElementById('multipart-ans-1').value.trim(),
-                    part_2: document.getElementById('multipart-ans-2').value.trim()
-                };
-                if (!ans.part_0 && !ans.part_1 && !ans.part_2) return;
+                const ans = {};
+                let hasData = false;
+                let idx = 0;
+                while (true) {
+                    const el = document.getElementById(`multipart-ans-${idx}`);
+                    if (!el) break;
+                    const text = el.value.trim();
+                    ans[`part_${idx}`] = text;
+                    if (text) hasData = true;
+                    idx++;
+                }
+                if (!hasData) return;
                 val = JSON.stringify(ans);
             } else if (slide.inputType === 'highlighter') {
                 const words = [];
