@@ -21,8 +21,18 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     else if (action === "save") {
-      saveStudentProgress(request.name, request.password, request.history, request.strengths, request.weaknesses);
+      saveStudentProgress(request.name, request.password, request.history, request.strengths, request.weaknesses, request.progress);
       return ContentService.createTextOutput(JSON.stringify({ success: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    else if (action === "saveProgress") {
+      saveQuizProgress(request.name, request.password, request.progress);
+      return ContentService.createTextOutput(JSON.stringify({ success: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    else if (action === "getProgress") {
+      const progress = getQuizProgress(request.name, request.password);
+      return ContentService.createTextOutput(JSON.stringify({ success: true, data: progress }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     
@@ -119,7 +129,8 @@ function getStudentData(name, password) {
           name: data[i][0],
           strengths: data[i][2],
           weaknesses: data[i][3],
-          history: data[i][4] ? JSON.parse(data[i][4]) : []
+          history: data[i][4] ? JSON.parse(data[i][4]) : [],
+          progress: data[i][6] ? JSON.parse(data[i][6]) : null
         };
       } else {
         throw new Error("Incorrect password for this name.");
@@ -128,29 +139,58 @@ function getStudentData(name, password) {
   }
   
   // Create new student
-  const newRow = [name, password, "", "", "[]", new Date()];
+  const newRow = [name, password, "", "", "[]", new Date(), "{}"];
   sheet.appendRow(newRow);
   return {
     name: name,
     strengths: "",
     weaknesses: "",
-    history: []
+    history: [],
+    progress: null
   };
 }
 
-function saveStudentProgress(name, password, history, strengths, weaknesses) {
+function saveStudentProgress(name, password, history, strengths, weaknesses, progress) {
   const sheet = getStudentSheet();
   const data = sheet.getDataRange().getValues();
-  
+
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === name && data[i][1] === password) {
       sheet.getRange(i + 1, 3).setValue(strengths);
       sheet.getRange(i + 1, 4).setValue(weaknesses);
       sheet.getRange(i + 1, 5).setValue(JSON.stringify(history));
       sheet.getRange(i + 1, 6).setValue(new Date());
+      if (progress) {
+        sheet.getRange(i + 1, 7).setValue(JSON.stringify(progress));
+      }
       return { success: true };
     }
   }
+}
+
+function saveQuizProgress(name, password, progress) {
+  const sheet = getStudentSheet();
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === name && data[i][1] === password) {
+      sheet.getRange(i + 1, 7).setValue(JSON.stringify(progress));
+      sheet.getRange(i + 1, 6).setValue(new Date());
+      return { success: true };
+    }
+  }
+}
+
+function getQuizProgress(name, password) {
+  const sheet = getStudentSheet();
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === name && data[i][1] === password) {
+      return data[i][6] ? JSON.parse(data[i][6]) : null;
+    }
+  }
+  return null;
 }
 
 function getStudentSheet() {
@@ -158,9 +198,9 @@ function getStudentSheet() {
   let sheet = ss.getSheetByName('StudentData');
   if (!sheet) {
     sheet = ss.insertSheet('StudentData');
-    sheet.appendRow(['Name', 'Password', 'Strengths', 'Weaknesses', 'ChatHistory', 'LastActive']);
+    sheet.appendRow(['Name', 'Password', 'Strengths', 'Weaknesses', 'ChatHistory', 'LastActive', 'Progress']);
     sheet.setFrozenRows(1);
-    sheet.getRange("A1:F1").setFontWeight("bold").setBackground("#f3f4f6");
+    sheet.getRange("A1:G1").setFontWeight("bold").setBackground("#f3f4f6");
   }
   return sheet;
 }
