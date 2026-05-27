@@ -197,7 +197,7 @@ The most important lesson from Ipperwash is..."></textarea>
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=' + STUDENT_ID + '&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
                 const data = await response.json();
                 if (data.content) {
                     workArea.value = data.content;
@@ -235,9 +235,9 @@ The most important lesson from Ipperwash is..."></textarea>
             try {
                 await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
                 if (!completed.includes(9)) completed.push(9);
-                localStorage.setItem('mks_completed', JSON.stringify(completed));
+                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
             } catch (e) {
                 syncStatus.innerText = '⚠️ Saved Locally Only';
             }

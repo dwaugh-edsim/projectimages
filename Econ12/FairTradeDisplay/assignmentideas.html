@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ECON 12 Choice Architecture Assignment. Complete peer reviews, analyze behavioral economics nudges, and evaluate ethical sourcing tradeoffs.">
+    <title>ECON 12 | Choice Architecture Assignment</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f5f4ef;
+            --card-bg: #ffffff;
+            --accent: #1a1b35; /* Deep forest navy */
+            --accent-secondary: #4f46e5; /* Terracotta Indigo */
+            --accent-light: #eef2ff; /* Soft lavender/indigo light */
+            --text: #1a1b35;
+            --text-muted: #6b7280;
+            --border: #1a1b35;
+            --success: #059669;
+            --warning: #d97706;
+        }
+
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* Navigation & Header */
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--accent);
+            padding-bottom: 15px;
+        }
+
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 900;
+            font-size: 1.4rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .nav-link:hover {
+            border-color: var(--border);
+            background: #fff;
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .nav-link.active {
+            background: var(--accent-secondary);
+            color: #fff;
+            border-color: var(--border);
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 20px auto 40px auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            margin-top: 10px;
+            background: var(--accent);
+            color: #fff;
+            display: inline-block;
+            padding: 5px 15px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Section Cards (Brutalist style) */
+        .section-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            box-shadow: 8px 8px 0px var(--accent);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--accent);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-card-header h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        /* Assignment Task Styles */
+        .task-container {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .task-container:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .task-num {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 3px 10px;
+        }
+
+        .task-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .task-description {
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .task-bullet-list {
+            list-style: none;
+            margin-bottom: 15px;
+            padding-left: 5px;
+        }
+
+        .task-bullet-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .task-bullet-list li::before {
+            content: ">>";
+            position: absolute;
+            left: 0;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-secondary);
+            font-weight: 700;
+        }
+
+        .input-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .input-block label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .input-block textarea {
+            width: 100%;
+            border: 2px solid var(--border);
+            padding: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            resize: vertical;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .input-block textarea:focus {
+            background: var(--accent-light);
+        }
+
+        /* Action Buttons */
+        .btn-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: 2px solid var(--border);
+            padding: 12px 24px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 4px 4px 0px var(--accent);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .btn-accent {
+            background: var(--accent-secondary);
+            border-color: var(--border);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: white;
+            color: var(--accent-secondary);
+        }
+
+        .save-banner {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--success);
+            text-transform: uppercase;
+            display: none;
+        }
+
+        /* Header Info Card */
+        .info-card {
+            border-left: 6px solid var(--accent-secondary);
+            background: var(--accent-light);
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .info-card h3 {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            color: var(--accent-secondary);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        /* Print Layouts */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 1cm !important;
+                font-size: 10pt !important;
+            }
+
+            .nav-container, .btn-bar, .nav-links, .info-card h3 + p + .btn, footer {
+                display: none !important;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .section-card {
+                box-shadow: none !important;
+                border: 2px solid black !important;
+                padding: 20px !important;
+            }
+
+            .task-container {
+                page-break-inside: avoid;
+            }
+
+            .input-block textarea {
+                border: none !important;
+                border-bottom: 1px dashed black !important;
+                background: transparent !important;
+                color: black !important;
+                min-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Navigation Header -->
+        <nav class="nav-container">
+            <a href="index.html" class="nav-logo">Choice Architecture Lab</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Exhibition Gallery</a>
+                <a href="assignmentideas.html" class="nav-link active">Assignment Portfolio</a>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <header>
+            <h1>Assignment Portfolio</h1>
+            <p class="subtitle">Choice Architecture &amp; Global Interdependence</p>
+        </header>
+
+        <!-- Context & Instructions -->
+        <div class="info-card">
+            <h3>📝 Assignment Instructions</h3>
+            <p>
+                As part of the Global Fair Trade unit, you are required to complete these portfolio tasks. Utilize the active project gallery on the <a href="index.html" style="color:var(--accent-secondary); font-weight:700; text-decoration:underline;">Gallery Page</a> to select teams, review slides, and gather data metrics.
+            </p>
+            <p style="margin-top: 10px;">
+                Your written drafts are auto-saved locally on this browser. When you have completed all tasks, use the <strong>"Export Worksheet"</strong> button at the bottom to save your work or print a copy for evaluation.
+            </p>
+        </div>
+
+        <!-- Student Details Card -->
+        <section class="section-card">
+            <div class="section-card-header">
+                <h2>Identification</h2>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                <div class="input-block" style="margin-top:0;">
+                    <label for="student-name">Student Name(s)</label>
+                    <input type="text" id="student-name" style="border: 2px solid var(--border); padding: 8px 10px; font-family:'Space Grotesk',sans-serif; font-size:0.9rem;" placeholder="e.g. Jane Doe" oninput="saveInput('student-name')">
+                </div>
+                <div class="input-block" style="margin-top:0;">
+                    <label for="student-class">Class Period / Pin</label>
+                    <input type="text" id="student-class" style="border: 2px solid var(--border); padding: 8px 10px; font-family:'Space Grotesk',sans-serif; font-size:0.9rem;" placeholder="e.g. Period 3 / Pin 12" oninput="saveInput('student-class')">
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Tasks Sheet -->
+        <section class="section-card">
+            <div class="section-card-header">
+                <h2>Evaluation Tasks</h2>
+            </div>
+
+            <!-- Task 1: The Peer Consultant -->
+            <div class="task-container">
+                <div class="task-header">
+                    <div class="task-num">01</div>
+                    <h3 class="task-title">The Peer Consultant (Enhancement Task)</h3>
+                </div>
+                <p class="task-description">
+                    Select a completed project from the gallery. Act as an external design consultant and identify one area where the team could strengthen their choice architecture nudge design or expand their value proposition.
+                </p>
+                <ul class="task-bullet-list">
+                    <li>Which completed team project did you choose, and what is their current nudge strategy?</li>
+                    <li>Propose one additional or refined nudge mechanism (e.g., Decoy Effect, default preset, or salience) that would make their campaign even more persuasive.</li>
+                    <li>Write the draft text copy or outline the visual changes for this proposed improvement.</li>
+                </ul>
+                <div class="input-block">
+                    <label for="task-1-response">Your Response &amp; Proposed Enhancement</label>
+                    <textarea id="task-1-response" rows="6" placeholder="Identify the team, describe the proposed enhancement, and write the text copy or layout details..." oninput="saveInput('task-1-response')"></textarea>
+                </div>
+            </div>
+
+            <!-- Task 2: Nudge Strategy Showdown -->
+            <div class="task-container">
+                <div class="task-header">
+                    <div class="task-num">02</div>
+                    <h3 class="task-title">Nudge Strategy Showdown (Comparative Analysis)</h3>
+                </div>
+                <p class="task-description">
+                    Select two successfully completed projects from the gallery that use different behavioral economic nudges (for example: Marshall &amp; Dyson's <em>Soccer Balls</em> using Default Bias and Decoy Effect vs. Maggie &amp; Sivakami's <em>Coffee Beans</em> using per-cup Anchoring, Social Proof, and Priming).
+                </p>
+                <ul class="task-bullet-list">
+                    <li>List the two projects and their respective nudging mechanisms.</li>
+                    <li>Which nudge design do you believe is more persuasive for the average retail consumer, and why?</li>
+                    <li>How does the size of the product's price premium (e.g. +100% markup vs. +81% markup) influence which choice architecture strategy is most appropriate?</li>
+                </ul>
+                <div class="input-block">
+                    <label for="task-2-response">Your Comparative Analysis</label>
+                    <textarea id="task-2-response" rows="6" placeholder="Analyze the effectiveness of the selected nudges, comparing their mechanics, layout, and how the price premium size changes user responses..." oninput="saveInput('task-2-response')"></textarea>
+                </div>
+            </div>
+
+            <!-- Task 3: Choice Environment Prototyping -->
+            <div class="task-container">
+                <div class="task-header">
+                    <div class="task-num">03</div>
+                    <h3 class="task-title">Choice Environment Design (Wireframing &amp; Copy)</h3>
+                </div>
+                <p class="task-description">
+                    Take one of the products featured in the gallery and design a new, custom choice environment nudge. For this task, you must detail the exact visual design layout and write the exact text copy for the customer touchpoint.
+                </p>
+                <ul class="task-bullet-list">
+                    <li>State your product, selected nudge mechanism, and the consumer touchpoint (e.g., grocery store shelf sign, cafe menu, online shopping cart, checkout screen).</li>
+                    <li>Write the exact text copy (e.g., "82% of shoppers in Halifax switch to...") that triggers the consumer's cognitive shortcut.</li>
+                    <li>Describe the layout: where is the sign placed, what fonts or graphics are used, and how is the competitor product positioned relative to it?</li>
+                </ul>
+                <div class="input-block">
+                    <label for="task-3-response">Your Design Specifications &amp; Copywriting</label>
+                    <textarea id="task-3-response" rows="6" placeholder="Define the product, selected nudge, and outline the text copy and physical/digital layout in detail..." oninput="saveInput('task-3-response')"></textarea>
+                </div>
+            </div>
+
+            <!-- Task 4: Opportunity Cost & Socratic Reflection -->
+            <div class="task-container">
+                <div class="task-header">
+                    <div class="task-num">04</div>
+                    <h3 class="task-title">Opportunity Cost &amp; The Premium Debate</h3>
+                </div>
+                <p class="task-description">
+                    Compare a project with a low price premium (e.g. +47% for Luca's <em>Diamonds</em> or +50% for Anna's <em>Wine</em>) against one with a very high price premium (e.g. +200% for Angelique's <em>Fast Fashion</em> or +140% for Adarsha's <em>Shampoo</em>).
+                </p>
+                <ul class="task-bullet-list">
+                    <li>Define the opportunity cost of purchasing the Fair Trade alternative for both products.</li>
+                    <li>Socratic debate: Is it realistic to expect choice architecture nudges to overcome a 200% premium? What are the limits of nudging when a consumer is facing tight budget constraints?</li>
+                    <li>Should choice architecture be used to promote ethical goods, or does it border on psychological manipulation of the consumer? Justify your stance.</li>
+                </ul>
+                <div class="input-block">
+                    <label for="task-4-response">Your Socratic Reflection</label>
+                    <textarea id="task-4-response" rows="6" placeholder="Evaluate the opportunity costs, the limits of nudging against high markups, and the ethical boundaries of choice architecture..." oninput="saveInput('task-4-response')"></textarea>
+                </div>
+            </div>
+
+            <!-- Task 5: Sourcing & Democratic Premium Impact -->
+            <div class="task-container">
+                <div class="task-header">
+                    <div class="task-num">05</div>
+                    <h3 class="task-title">Democratic Premium Impact</h3>
+                </div>
+                <p class="task-description">
+                    Choose a project value proposition that details community infrastructure gains (such as Marshall &amp; Dyson's <em>Soccer Balls</em> mentioning the Atlanta Agreement funding schools, or Maggie &amp; Sivakami's <em>Coffee</em> funding wells).
+                </p>
+                <ul class="task-bullet-list">
+                    <li>How does a "Fair Trade Social Premium" differ in economic distribution from a typical corporate charity donation?</li>
+                    <li>Why is democratic worker voting (e.g. workers voting collectively on whether to buy agricultural machinery or hire community nurses) a central pillar of the Fair Trade model?</li>
+                    <li>Explain how this democratic self-determination represents a structural change in the global supply chain.</li>
+                </ul>
+                <div class="input-block">
+                    <label for="task-5-response">Your Economic Analysis</label>
+                    <textarea id="task-5-response" rows="6" placeholder="Analyze the distribution of social premiums, the role of democratic co-ops, and how they restructure global trade power dynamics..." oninput="saveInput('task-5-response')"></textarea>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="btn-bar">
+                <span class="save-banner" id="save-banner">Auto-saved to local browser!</span>
+                <div style="display:flex; gap:10px; width:100%; justify-content:flex-end;">
+                    <button class="btn btn-secondary" onclick="clearWorksheet()">Reset Sheet</button>
+                    <button class="btn btn-accent" onclick="exportWorksheet()">Export Worksheet</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            ECONOMICS 12 • CHOICE ARCHITECTURE &amp; GLOBAL INTERDEPENDENCE LABS
+        </footer>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Key fields to auto-save
+        const formFields = [
+            'student-name',
+            'student-class',
+            'task-1-response',
+            'task-2-response',
+            'task-3-response',
+            'task-4-response',
+            'task-5-response'
+        ];
+
+        // Load saved values on load
+        window.onload = function() {
+            formFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = localStorage.getItem(`assignment_${id}`) || '';
+                }
+            });
+        };
+
+        // Save active typing value to localStorage
+        function saveInput(id) {
+            const val = document.getElementById(id).value;
+            localStorage.setItem(`assignment_${id}`, val);
+            
+            // Show short auto-saved confirmation banner
+            const banner = document.getElementById('save-banner');
+            banner.style.display = 'inline-block';
+            
+            // Debounce banner hiding
+            if (window.saveTimeout) clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => {
+                banner.style.display = 'none';
+            }, 2000);
+        }
+
+        // Clear values from worksheet
+        function clearWorksheet() {
+            if (confirm("Are you sure you want to clear your entire assignment worksheet? All typed text will be deleted.")) {
+                formFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                    localStorage.removeItem(`assignment_${id}`);
+                });
+            }
+        }
+
+        // Print worksheet
+        function exportWorksheet() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

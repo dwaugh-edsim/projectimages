@@ -558,23 +558,64 @@
         }
 
         function migrateOldData() {
-            const oldKeys = [];
+            const migrations = [];
+            
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key.startsWith('mks_') && !key.startsWith('mks_' + currentStudentId) && key !== 'mks_current_student') {
-                    oldKeys.push(key);
+                
+                // Case 1: Broken migrated keys (e.g., mks_MKS11-DRAEDEN-10_MKS-11-ALPHA_m1_grid)
+                const brokenPrefix = 'mks_' + currentStudentId + '_MKS-11-ALPHA_';
+                if (key.startsWith(brokenPrefix)) {
+                    const suffix = key.substring(brokenPrefix.length);
+                    migrations.push({
+                        oldKey: key,
+                        newKey: 'mks_' + currentStudentId + '_' + suffix
+                    });
+                    continue;
+                }
+                
+                // Case 2: Old default student keys (e.g., mks_MKS-11-ALPHA_m1_grid)
+                const alphaPrefix = 'mks_MKS-11-ALPHA_';
+                if (key.startsWith(alphaPrefix)) {
+                    const suffix = key.substring(alphaPrefix.length);
+                    migrations.push({
+                        oldKey: key,
+                        newKey: 'mks_' + currentStudentId + '_' + suffix
+                    });
+                    continue;
+                }
+                
+                // Case 3: Legacy keys without student prefix (e.g., mks_m1_grid, mks_completed)
+                // But avoid migrating keys of OTHER logged-in students (which start with mks_MKS11-)
+                if (key.startsWith('mks_') && 
+                    !key.startsWith('mks_' + currentStudentId + '_') && 
+                    key !== 'mks_current_student') {
+                    
+                    // Check if it belongs to another student login (starts with mks_MKS11- or mks_MKS-11-)
+                    // If it does, do not touch it.
+                    if (key.startsWith('mks_MKS11-') || key.startsWith('mks_MKS-11-')) {
+                        continue;
+                    }
+                    
+                    const suffix = key.replace('mks_', '');
+                    migrations.push({
+                        oldKey: key,
+                        newKey: 'mks_' + currentStudentId + '_' + suffix
+                    });
                 }
             }
             
-            if (oldKeys.length === 0) return false;
+            if (migrations.length === 0) return false;
             
-            oldKeys.forEach(oldKey => {
-                const suffix = oldKey.replace('mks_', '');
-                const newKey = 'mks_' + currentStudentId + '_' + suffix;
-                if (!localStorage.getItem(newKey)) {
-                    localStorage.setItem(newKey, localStorage.getItem(oldKey));
+            migrations.forEach(({ oldKey, newKey }) => {
+                const value = localStorage.getItem(oldKey);
+                if (value !== null) {
+                    // Only copy if the new key doesn't already have data, or if we are fixing a broken key
+                    if (!localStorage.getItem(newKey) || oldKey.includes('MKS-11-ALPHA')) {
+                        localStorage.setItem(newKey, value);
+                    }
+                    localStorage.removeItem(oldKey);
                 }
-                localStorage.removeItem(oldKey);
             });
             
             return true;

@@ -872,9 +872,9 @@
                 syncStatus.innerText = 'Auto-saved';
                 syncDot.className = 'indicator-dot';
                 syncDot.style.background = '#10b981';
-                let completed = JSON.parse(localStorage.getItem('mks_completed') || '[]');
+                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
                 if (!completed.includes(14)) completed.push(14);
-                localStorage.setItem('mks_completed', JSON.stringify(completed));
+                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
             } catch (e) {
                 syncStatus.innerText = 'Saved locally';
                 syncDot.style.background = '#f59e0b';
@@ -950,7 +950,7 @@
             savedPatternsList.innerHTML = '<p style="padding: 1rem; color: var(--text-muted);">Loading...</p>';
             
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=' + STUDENT_ID + '&missionTitle=${encodeURIComponent(MISSION_TITLE)}&action=listPatterns`);
+                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}&action=listPatterns`);
                 const data = await response.json();
                 
                 savedPatterns = data.patterns || [];
@@ -1025,7 +1025,7 @@
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=' + STUDENT_ID + '&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
                 const data = await response.json();
                 
                 if (data.content) workArea.value = data.content;
