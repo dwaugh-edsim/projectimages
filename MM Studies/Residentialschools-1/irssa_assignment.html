@@ -493,14 +493,14 @@
     <script>
         // STUDENT DATA (A Block and C Block mapped to Block A and C)
         const STUDENTS = [
-            {"B":"A Block (Waugh)","S":"Alexis (ABCD)"},
+            {"B":"A Block (Waugh)","S":"Alexis (ALEX)"},
             {"B":"A Block (Waugh)","S":"ANANYA M. (OKOK)"},
             {"B":"A Block (Waugh)","S":"CALLUM (LLLL)"},
-            {"B":"A Block (Waugh)","S":"CONNOR (ABCD)"},
+            {"B":"A Block (Waugh)","S":"CONNOR (CONN)"},
             {"B":"A Block (Waugh)","S":"COVA (KIKI)"},
             {"B":"A Block (Waugh)","S":"DAVE (ABBA)"},
             {"B":"A Block (Waugh)","S":"Dmytro (BIBA)"},
-            {"B":"A Block (Waugh)","S":"ELLEE (ABCD)"},
+            {"B":"A Block (Waugh)","S":"ELLEE (ELLE)"},
             {"B":"A Block (Waugh)","S":"Gala (NIVA)"},
             {"B":"A Block (Waugh)","S":"GAVIN (AAAA)"},
             {"B":"A Block (Waugh)","S":"HARRISON (YNPH)"},
@@ -510,23 +510,23 @@
             {"B":"A Block (Waugh)","S":"Julianne (WASH)"},
             {"B":"A Block (Waugh)","S":"Kevin (CHIG)"},
             {"B":"A Block (Waugh)","S":"Lena (FOOD)"},
-            {"B":"A Block (Waugh)","S":"MAE (BALL)"},
+            {"B":"A Block (Waugh)","S":"MAE (MAES)"},
             {"B":"A Block (Waugh)","S":"MATEO (YOLO)"},
-            {"B":"A Block (Waugh)","S":"Michael (ABCD)"},
+            {"B":"A Block (Waugh)","S":"Michael (MIKE)"},
             {"B":"A Block (Waugh)","S":"MRWAUGH (XOXO)"},
             {"B":"A Block (Waugh)","S":"rose (ROSE)"},
             {"B":"A Block (Waugh)","S":"Ruby (NECK)"},
-            {"B":"A Block (Waugh)","S":"Sonja (ROSE)"},
+            {"B":"A Block (Waugh)","S":"Sonja (SONJ)"},
             {"B":"A Block (Waugh)","S":"Sophie (QASW)"},
             {"B":"A Block (Waugh)","S":"VITUSZ (XDXD)"},
             {"B":"C Block (Waugh)","S":"Abdel (AAAW)"},
             {"B":"C Block (Waugh)","S":"Abigail (ABIS)"},
-            {"B":"C Block (Waugh)","S":"AIDEN (KING)"},
-            {"B":"C Block (Waugh)","S":"Anthony (K00l)"},
+            {"B":"C Block (Waugh)","S":"AIDEN (HOPE)"},
+            {"B":"C Block (Waugh)","S":"Anthony (JUNE)"},
             {"B":"C Block (Waugh)","S":"BAASHIQ (NINE)"},
-            {"B":"C Block (Waugh)","S":"Caitlyn (ABCD)"},
-            {"B":"C Block (Waugh)","S":"Caleb (BALL)"},
-            {"B":"C Block (Waugh)","S":"CHRISTOPHER (CHIP)"},
+            {"B":"C Block (Waugh)","S":"Caitlyn (CAIT)"},
+            {"B":"C Block (Waugh)","S":"Caleb (CALE)"},
+            {"B":"C Block (Waugh)","S":"CHRISTOPHER (RACE)"},
             {"B":"C Block (Waugh)","S":"Clara Jones (CLAR)"},
             {"B":"C Block (Waugh)","S":"DAVE (ABBA)"},
             {"B":"C Block (Waugh)","S":"HARJAS (COLD)"},
@@ -538,18 +538,18 @@
             {"B":"C Block (Waugh)","S":"KOEN (LORI)"},
             {"B":"C Block (Waugh)","S":"Kulay cruz (CRUZ)"},
             {"B":"C Block (Waugh)","S":"Kyle Parsons (PUCK)"},
-            {"B":"C Block (Waugh)","S":"Kyra (ABCD)"},
+            {"B":"C Block (Waugh)","S":"Kyra (KYRA)"},
             {"B":"C Block (Waugh)","S":"Madina Mirza (INNA)"},
-            {"B":"C Block (Waugh)","S":"myles (QWER)"},
-            {"B":"C Block (Waugh)","S":"Noah Pinter (NOAH)"},
+            {"B":"C Block (Waugh)","S":"myles (MYLS)"},
+            {"B":"C Block (Waugh)","S":"Noah Pinter (PINT)"},
             {"B":"C Block (Waugh)","S":"Raida (QAZK)"},
-            {"B":"C Block (Waugh)","S":"Reiley (NOAH)"},
+            {"B":"C Block (Waugh)","S":"Reiley (RILE)"},
             {"B":"C Block (Waugh)","S":"River Thomas (DEWO)"},
-            {"B":"C Block (Waugh)","S":"Sam (QWER)"},
+            {"B":"C Block (Waugh)","S":"Sam (WAVE)"},
             {"B":"C Block (Waugh)","S":"Soulin Shehab (SOUL)"},
             {"B":"C Block (Waugh)","S":"Sukhbir (NICE)"},
             {"B":"C Block (Waugh)","S":"Zaid (ZAID)"},
-            {"B":"C Block (Waugh)","S":"ZAYDEN (ABCD)"}
+            {"B":"C Block (Waugh)","S":"ZAYDEN (RAIN)"}
         ];
 
         const MISSION_DATA = {
@@ -621,6 +621,23 @@
         let sessionData = {
             responses: {}
         };
+
+        // Telemetry tracking variables for ChatGPT / copy-paste detection
+        let slideStartTime = Date.now();
+        let slideKeystrokeCount = 0;
+        let slidePasted = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target && e.target.tagName === 'TEXTAREA' && e.target.closest('#interaction-ui')) {
+                slideKeystrokeCount++;
+            }
+        });
+
+        document.addEventListener('paste', (e) => {
+            if (e.target && e.target.tagName === 'TEXTAREA' && e.target.closest('#interaction-ui')) {
+                slidePasted = true;
+            }
+        });
 
         // UI Functions
         function filterStudents() {
@@ -720,6 +737,11 @@
         }
 
         function loadSlide(index) {
+            // Reset slide telemetry session trackers
+            slideStartTime = Date.now();
+            slideKeystrokeCount = 0;
+            slidePasted = false;
+
             currentSlideIndex = index;
             const slide = MISSION_DATA.slides[index];
 
@@ -759,6 +781,28 @@
             if (!val) return;
 
             sessionData.responses[slide.id] = val;
+
+            // Record telemetry data for copy-paste/typing detection
+            const elapsed = Math.round((Date.now() - slideStartTime) / 1000);
+            if (!sessionData.responses._telemetry) {
+                sessionData.responses._telemetry = {};
+            }
+            if (!sessionData.responses._telemetry[slide.id]) {
+                sessionData.responses._telemetry[slide.id] = {
+                    pasted: false,
+                    keystrokes: 0,
+                    duration_sec: 0
+                };
+            }
+            sessionData.responses._telemetry[slide.id].pasted = sessionData.responses._telemetry[slide.id].pasted || slidePasted;
+            sessionData.responses._telemetry[slide.id].keystrokes += slideKeystrokeCount;
+            sessionData.responses._telemetry[slide.id].duration_sec += elapsed;
+
+            // Reset trackers for the next active editing session
+            slideStartTime = Date.now();
+            slideKeystrokeCount = 0;
+            slidePasted = false;
+
             saveToLocal();
 
             // Mark this slide as done in the nav
