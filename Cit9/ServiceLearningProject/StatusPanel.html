@@ -676,6 +676,9 @@
         <div class="header">
             <h1>Service Learning Progress Dashboard</h1>
             <p>Real-time monitoring of student engagement and active mission completion</p>
+            <div style="margin-top: 12px; font-size: 0.95rem; font-weight: 700; display: inline-block; background: rgba(255, 255, 255, 0.2); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.35); text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                📅 Project Due Date: June 9, 2026 (<span id="statusCountdown">Loading countdown...</span>)
+            </div>
         </div>
 
         <div class="tabs">
@@ -1629,6 +1632,7 @@ Respond with ONLY a JSON object (no markdown fences) with these fields:
         // Initialize dashboard on load
         function initDashboard() {
             loadApiKey(); // restore saved API key
+            startDueCountdown(); // start the project due date countdown
             
             // Sync toggle UI elements with local preferences on load
             const gridBtn = document.getElementById('viewGridBtn');
@@ -1667,6 +1671,29 @@ Respond with ONLY a JSON object (no markdown fences) with these fields:
                     renderStudents(activeStudentData, btn.dataset.filter);
                 });
             });
+        }
+
+        function startDueCountdown() {
+            const targetDate = new Date("2026-06-09T23:59:59").getTime();
+            const el = document.getElementById("statusCountdown");
+            if (!el) return;
+            
+            function update() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+                if (diff < 0) {
+                    el.textContent = "Overdue!";
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                el.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s remaining`;
+            }
+            update();
+            setInterval(update, 1000);
         }
 
         document.addEventListener('DOMContentLoaded', initDashboard);

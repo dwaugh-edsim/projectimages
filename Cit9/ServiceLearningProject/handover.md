@@ -148,18 +148,33 @@ Today, we are executing a final cleanup and stabilization sweep focused on custo
 * **Human-in-the-Loop Review**: The teacher can read the drafted review, modify the text, adjust the quality rating, and click **Publish Feedback** to POST it to the sheet.
 * **Banner Notification**: When the teacher publishes feedback, a yellow banner (`#feedbackBanner`) automatically slides in at the top of the student's `File.html` workspace containing the teacher's exact text.
 
-### 7. In-Class Offline Research Audit
-* **Purpose**: Dave requested a quick "offline research audit" to spot obvious lapses in student research before they transition to their 14-day home projects.
-* **Methodology**: 
-  1. Ran a local powershell script (`analyze_students.ps1`) to parse the 5.5MB `live_student_data.json` pulled from the Google Apps Script Webhook.
-  2. Deduplicated records to identify the latest submission timestamp per student on the 29-name roster.
-  3. Checked character length of answers and citation validity, categorizing students into 6 progress tiers: Ready (4), Research Done but Plan Missing (7), Plan Done but Research Missing (3), Incomplete (2), Empty (9), and Idle (4).
-* **Key Findings & Specific Lapses**:
-  * **Placeholder Citation**: Madhavan used `"math by gemini"` as a source.
-  * **Truncated Template Argument**: Rifa left in template headings and got cutoff mid-sentence on Q4: `"A political party may oppose a battery tax a \n\nArgument FOR... Argument AGAINST..."`
-  * **Inline Citations**: Jessa pasted URLs directly into the text answer boxes rather than the designated `Source 1` and `Source 2` fields.
-  * **Empty Overwrite Clarification**: Sarah and 8 other students had empty profiles because they only selected their mission and haven't typed/saved any details yet (explaining the "No Backup Found" screen).
-* **Deliverable**: Generated [research_audit_report.md](file:///C:/Users/dave/.gemini/antigravity-ide/brain/9961cb78-808e-4f29-8fef-5b9d88215c49/research_audit_report.md) containing a class dashboard, individual lapses, and targeted walking-around scripts for Dave to call out during class.
+### 7. In-Class Offline Research Audits & Parser Stabilization
+* **First Run (May 21)**: 
+  * Analyzed `live_student_data.json` from the webhook database (25 active student records, 4 idle).
+  * Generated the initial class dashboard and identified minor gaps (Gemini placeholders, cutoff sentences).
+* **Second Run & Parser Fix (May 26)**:
+  * Dave uploaded `Cit9ServiceLearning - MissionLogs (1).csv` (5.06 MB, 2,588 rows) representing the state of the class after another session.
+  * **Parser Stabilization**: Discovered a critical crash in the original PowerShell parsing logic: when parsing raw `ReflectionJSON` strings, the script attempted to dynamically assign values on the `PSCustomObject` returned by `ConvertFrom-Json` (e.g. `$parsed.topic = ...`). This throws a runtime exception in Windows PowerShell 5.1 and silently skipped the student's records in the `catch {}` block (causing them to show as empty/missing). 
+  * Fixed this in `analyze_new_csv.ps1` by performing all data accumulation and key normalization (`topic` vs `missionSelect`, `studentId` vs `studentName`) safely inside a standard PowerShell hashtable (`$merged`) rather than mutating the parsed object.
+  * Rebuilt the summary using `build_summary.ps1` to correctly reflect all students' latest records.
+* **Significant Student Progress**:
+  * **10 Students** are now fully complete with Step 1, Step 2, and Step 3 Setup Plans and ready for home logs (Alia, Delisha, Elizabeth, Farhan, Jessa, Joshua A, Kai, Lachlan Mac, Lachlan McM, Nolan).
+  * **7 Students** completed Step 1 & 2 but only need to write their Step 3 Setup Plan (Kendra, Natalia, Remy, Rifa, Sarah, Yunho, Madhavan). 
+  * Sarah, Natalia, Kendra, and Remy have successfully transitioned from blank pages to complete research and plans.
+  * Only **3 students** remain completely idle (Brody, Fatima, Jana).
+* **New Lapses Identified**:
+  * **Keyboard Mashes**: Abdul entered `"lkfi3hfiphq2i;fphjfope2hfop2qhfoph"` for his final reflection text. Leo entered `"eeeeeeeeeeee"` for Clue 2.
+  * **AI & Gibberish Citations**: Abdul used Google Gemini and ChatGPT as primary sources; Nolan used `"uih9 8 88"` and `"r3w r 3w"`; Joshua A used `"none other used"`.
+  * **Incomplete Setup Template**: Josie wrote the headers `"-parent script: ... -target areas: ... -safety & materials: ..."` in Step 3 but left the actual content blank.
+* **Deliverable**: Generated the updated [research_audit_report.md](file:///C:/Users/dave/.gemini/antigravity-ide/brain/9961cb78-808e-4f29-8fef-5b9d88215c49/research_audit_report.md) featuring the new status board, custom walkthrough scripts, and details of these new lapses.
+
+### 8. Project Due Date Countdown Timer (2026-05-26)
+* **Objective**: Add a real-time countdown timer to track the project deadline of June 9, 2026 at 23:59:59.
+* **Implementation**: Added customized countdown containers and JavaScript logic to:
+  * `StatusPanel.html` (Teacher Dashboard header: `#statusCountdown`)
+  * `Menu.html` (Student Portal gateway banner: `#menuCountdown`)
+  * `ResearchSlides.html` (Classroom Presentation Slide 1: `#slideCountdown`)
+* **Behavior**: Computes time difference against the target datetime (`2026-06-09T23:59:59`) and updates the respective elements every second. Displays a friendly countdown string (e.g. `14d 8h 33m 21s remaining`) and falls back to a clear `OVERDUE!` warning once the deadline has passed.
 
 ---
 

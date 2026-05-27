@@ -57,7 +57,7 @@ function doGet(e) {
       const simulation = e.parameter.simulation || "Sixties Scoop — Maya Paul";
       const studentProgressMap = {};
       
-      for (let i = rows.length - 1; i >= 1; i--) {
+      for (let i = 1; i < rows.length; i++) {
         const rowStudent = String(rows[i][studentColIdx]).trim();
         const rowSim = String(rows[i][simColIdx]).trim();
         
@@ -66,9 +66,48 @@ function doGet(e) {
             studentProgressMap[rowStudent] = {
               timestamp: rows[i][timestampColIdx],
               status: rows[i][statusColIdx],
-              rationales: rows[i][rationalesColIdx]
+              rationales: rows[i][rationalesColIdx],
+              slideTimestamps: {}
             };
+          } else {
+            studentProgressMap[rowStudent].timestamp = rows[i][timestampColIdx];
+            studentProgressMap[rowStudent].status = rows[i][statusColIdx];
+            studentProgressMap[rowStudent].rationales = rows[i][rationalesColIdx];
           }
+          
+          // Reconstruct slide completion times from historical rows
+          try {
+            const rationalesStr = rows[i][rationalesColIdx];
+            if (rationalesStr) {
+              const responses = JSON.parse(rationalesStr);
+              for (const key in responses) {
+                if (key === "_timestamps") {
+                  // Merge client-side recorded timestamps
+                  const clientTimestamps = responses[key];
+                  for (const cKey in clientTimestamps) {
+                    if (!studentProgressMap[rowStudent].slideTimestamps[cKey]) {
+                      studentProgressMap[rowStudent].slideTimestamps[cKey] = clientTimestamps[cKey];
+                    }
+                  }
+                  continue;
+                }
+                
+                const val = responses[key];
+                let isCompleted = false;
+                if (val) {
+                  if (typeof val === 'string' && val.trim().length > 0) {
+                    isCompleted = true;
+                  } else if (typeof val === 'object') {
+                    isCompleted = true;
+                  }
+                }
+                
+                if (isCompleted && !studentProgressMap[rowStudent].slideTimestamps[key]) {
+                  studentProgressMap[rowStudent].slideTimestamps[key] = rows[i][timestampColIdx];
+                }
+              }
+            }
+          } catch(e) {}
         }
       }
       

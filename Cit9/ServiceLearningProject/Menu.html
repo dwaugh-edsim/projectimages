@@ -787,7 +787,10 @@
             <div class="stamp">CLASSIFIED</div>
             <span class="case-num">DEPT OF CITIZENSHIP / UNIT 1</span>
             <h1>Service Learning Action Intelligence</h1>
-            <p class="intro">Research is just step one. <strong>Select ONE mission</strong> â€” this will be your focus for the unit. Work through every step from initial commitment through to your final Collective Impact Report.</p>
+            <p class="intro">Research is just step one. <strong>Select ONE mission</strong> — this will be your focus for the unit. Work through every step from initial commitment through to your final Collective Impact Report.</p>
+            <div style="margin-top: 15px; font-size: 0.85rem; font-weight: 700; background: #fee2e2; border: 1px solid #fca5a5; color: var(--accent); padding: 8px 15px; display: inline-block; font-family: 'Courier Prime', monospace; letter-spacing: 0.05em; text-transform: uppercase;">
+                📅 PROJECT DUE: JUNE 9, 2026 (<span id="menuCountdown">Loading countdown...</span>)
+            </div>
             <div class="operative-info" id="operativeInfo" style="display: none; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 15px; margin-top: 15px; margin-bottom: 15px; font-family: 'Courier Prime', monospace; font-size: 0.85rem; border: 1px solid var(--border);">
                 <div><strong>OPERATIVE:</strong> <span id="op-name">PENDING</span></div>
                 <div><strong>ACTIVE MISSION:</strong> <span id="op-mission">NONE SELECTED</span></div>
@@ -1685,6 +1688,30 @@
             updateStats();
             renderLog();
         }
+
+        function startDueCountdown() {
+            const targetDate = new Date("2026-06-09T23:59:59").getTime();
+            const el = document.getElementById("menuCountdown");
+            if (!el) return;
+            
+            function update() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+                if (diff < 0) {
+                    el.textContent = "OVERDUE!";
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                el.textContent = `${days}D ${hours}H ${minutes}M ${seconds}S REMAINING`;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+        startDueCountdown();
 
         render();
     </script>

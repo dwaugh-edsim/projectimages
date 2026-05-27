@@ -360,6 +360,18 @@
             box-shadow: 0 0 6px var(--success-glow);
         }
 
+        .segment.completed.fast-warning {
+            background: #ffa726; /* Vibrant Orange */
+            border-color: #ffa726;
+            box-shadow: 0 0 6px rgba(255, 167, 38, 0.4);
+        }
+
+        .segment.completed.fast-critical {
+            background: #ef5350; /* Vibrant Crimson/Red */
+            border-color: #ef5350;
+            box-shadow: 0 0 6px rgba(239, 83, 80, 0.4);
+        }
+
         .segment.working {
             background: var(--accent);
             border-color: var(--accent);
@@ -637,6 +649,9 @@
         </div>
         
         <div class="stats-right">
+            <button class="sync-btn" id="demo-btn" onclick="toggleDemoMode()" style="border-color: #ffa726; color: #ffa726; margin-right: 10px;">
+                Demo Mode
+            </button>
             <button class="sync-btn" onclick="fetchTelemetry()">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -705,12 +720,12 @@
             {"B":"A Block (Waugh)","S":"VklUVVNaIChYRFhEKQ=="},
             {"B":"C Block (Waugh)","S":"QWJkZWwgKEFBQVcp"},
             {"B":"C Block (Waugh)","S":"QWJpZ2FpbCAoQUJJUyk="},
-            {"B":"C Block (Waugh)","S":"QUlERU4gKEtJTkcp"},
-            {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSzAwbCk="},
+            {"B":"C Block (Waugh)","S":"QUlERU4gKEhPUEUp"},
+            {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSlVORSk="},
             {"B":"C Block (Waugh)","S":"QkFBU0hJUSAoTklORSk="},
             {"B":"C Block (Waugh)","S":"Q2FpdGx5biAoQUJDRCk="},
             {"B":"C Block (Waugh)","S":"Q2FsZWIgKEJBTEwp"},
-            {"B":"C Block (Waugh)","S":"Q0hSSVNUT1BIRVIgKENISVAp"},
+            {"B":"C Block (Waugh)","S":"Q2hyaXN0b3BoZXIgKENocmlzKSAoUkFDRSk="},
             {"B":"C Block (Waugh)","S":"Q2xhcmEgSm9uZXMgKENMQVIp"},
             {"B":"C Block (Waugh)","S":"REFWRSAoQUJCQSk="},
             {"B":"C Block (Waugh)","S":"SEFSSkFTIChDT0xEKQ=="},
@@ -729,11 +744,11 @@
             {"B":"C Block (Waugh)","S":"UmFpZGEgKFFBWksp"},
             {"B":"C Block (Waugh)","S":"UmVpbGV5IChOT0FIKQ=="},
             {"B":"C Block (Waugh)","S":"Uml2ZXIgVGhvbWFzIChERVdPKQ=="},
-            {"B":"C Block (Waugh)","S":"U2FtIChRV0VSKQ=="},
+            {"B":"C Block (Waugh)","S":"U2FtIChXQVZFKQ=="},
             {"B":"C Block (Waugh)","S":"U291bGluIFNoZWhhYiAoU09VTCk="},
             {"B":"C Block (Waugh)","S":"U3VraGJpciAoTklDRSk="},
             {"B":"C Block (Waugh)","S":"WmFpZCAoWkFJRCk="},
-            {"B":"C Block (Waugh)","S":"WkFZREVOIChBQkNEKQ=="}
+            {"B":"C Block (Waugh)","S":"WkFZREVOIChSQUlOKQ=="}
         ];
 
         const SIMULATIONS = {
@@ -939,7 +954,7 @@
                     } catch (e) {}
 
                     // Formulate event text
-                    const displayName = studentKey.split(' (')[0];
+                    const displayName = studentKey.replace(/\s*\(([^)]+)\)\s*$/, "");
                     let logText = "";
                     let logClass = "save";
 
@@ -1003,7 +1018,7 @@
             activeStudents.forEach(student => {
                 const decodedS = atob(student.S);
                 const sheetKey = decodedS; // Format: "Name (PIN)"
-                const displayName = decodedS.split(' (')[0];
+                const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
                 
                 const rawData = telemetryData[sheetKey];
                 let slides = {};
@@ -1011,15 +1026,36 @@
                 let lastActiveTime = "Never";
                 let statusClass = "";
                 
+                let slideTimestamps = {};
+                let slideDurations = {};
+                let slideSpeedStatus = {}; // "normal", "warning" (< 3m), "critical" (< 2m)
+                let hasCriticalFast = false;
+                let hasWarningFast = false;
+
                 if (rawData) {
                     loggedInCount++;
                     lastActiveTime = formatRelativeTime(rawData.timestamp);
                     
-                    // Parse responses
+                    // Parse responses and timestamps
                     try {
                         const responses = JSON.parse(rawData.rationales);
+                        
+                        // Extract client-side recorded timestamps
+                        if (responses && responses._timestamps) {
+                            slideTimestamps = { ...responses._timestamps };
+                        }
+                        
                         activeKeys.forEach(key => {
-                            if (responses[key] && responses[key].trim().length > 0) {
+                            const val = responses[key];
+                            let isCompleted = false;
+                            if (val) {
+                                if (typeof val === 'string' && val.trim().length > 0) {
+                                    isCompleted = true;
+                                } else if (typeof val === 'object') {
+                                    isCompleted = true;
+                                }
+                            }
+                            if (isCompleted) {
                                 slides[key] = "completed";
                                 slidesDone++;
                             } else {
@@ -1027,6 +1063,67 @@
                             }
                         });
                     } catch(e) {}
+
+                    // Merge server-side timestamps from Apps Script if available
+                    if (rawData.slideTimestamps) {
+                        slideTimestamps = { ...slideTimestamps, ...rawData.slideTimestamps };
+                    }
+
+                    // Compute durations for completed slides
+                    const completedSlides = [];
+                    activeKeys.forEach((key, index) => {
+                        if (slides[key] === "completed" && slideTimestamps[key]) {
+                            const dateObj = new Date(slideTimestamps[key]);
+                            if (!isNaN(dateObj.getTime())) {
+                                completedSlides.push({ key, index, name: activeNames[key], time: dateObj.getTime() });
+                            }
+                        }
+                    });
+                    
+                    // Sort chronologically by completion time
+                    completedSlides.sort((a, b) => a.time - b.time);
+                    
+                    let prevTime = null;
+                    if (slideTimestamps.start) {
+                        const startT = new Date(slideTimestamps.start);
+                        if (!isNaN(startT.getTime())) {
+                            prevTime = startT.getTime();
+                        }
+                    }
+                    
+                    completedSlides.forEach((item, idx) => {
+                        if (prevTime !== null) {
+                            const diff = item.time - prevTime;
+                            slideDurations[item.key] = diff;
+                            if (diff < 120000) { // < 2 minutes
+                                slideSpeedStatus[item.key] = "critical";
+                                hasCriticalFast = true;
+                            } else if (diff < 180000) { // < 3 minutes
+                                slideSpeedStatus[item.key] = "warning";
+                                hasWarningFast = true;
+                            } else {
+                                slideSpeedStatus[item.key] = "normal";
+                            }
+                        } else {
+                            if (idx > 0) {
+                                const diff = item.time - completedSlides[idx - 1].time;
+                                slideDurations[item.key] = diff;
+                                if (diff < 120000) {
+                                    slideSpeedStatus[item.key] = "critical";
+                                    hasCriticalFast = true;
+                                } else if (diff < 180000) {
+                                    slideSpeedStatus[item.key] = "warning";
+                                    hasWarningFast = true;
+                                } else {
+                                    slideSpeedStatus[item.key] = "normal";
+                                }
+                            } else {
+                                slideDurations[item.key] = null;
+                                slideSpeedStatus[item.key] = "normal";
+                            }
+                        }
+                        prevTime = item.time;
+                    });
 
                     totalSlidesCompleted += slidesDone;
 
@@ -1052,22 +1149,46 @@
                 let segmentsHtml = "";
                 activeKeys.forEach((key, index) => {
                     let stepClass = "";
+                    let speedClass = "";
+                    let tooltipSuffix = "";
+                    
                     if (slides[key] === "completed") {
                         stepClass = "completed";
+                        const speed = slideSpeedStatus[key];
+                        const duration = slideDurations[key];
+                        
+                        if (speed === "critical") {
+                            speedClass = "fast-critical";
+                            tooltipSuffix = ` (Done in ${formatDuration(duration)} ⚠️ AI Risk)`;
+                        } else if (speed === "warning") {
+                            speedClass = "fast-warning";
+                            tooltipSuffix = ` (Done in ${formatDuration(duration)} ⏱️ Fast Pace)`;
+                        } else if (duration !== undefined && duration !== null) {
+                            tooltipSuffix = ` (Done in ${formatDuration(duration)})`;
+                        } else {
+                            tooltipSuffix = " (Done)";
+                        }
                     } else if (rawData && slidesDone === index) {
                         stepClass = "working"; // Pulsing gold on their current slide
                     }
                     
                     segmentsHtml += `
-                        <div class="segment ${stepClass}">
-                            <span class="tooltip">${activeNames[key]} (${slides[key] === 'completed' ? 'Done' : 'Pending'})</span>
+                        <div class="segment ${stepClass} ${speedClass}">
+                            <span class="tooltip">${activeNames[key]}${tooltipSuffix}</span>
                         </div>
                     `;
                 });
 
+                let warningBadgeHtml = "";
+                if (hasCriticalFast) {
+                    warningBadgeHtml = `<span style="color: #ef5350; font-weight: bold; margin-left: 6px; cursor: help; animation: pulse 1.5s infinite;" title="Critical AI Risk: Slide completed in under 2 minutes">⚠️</span>`;
+                } else if (hasWarningFast) {
+                    warningBadgeHtml = `<span style="color: #ffa726; font-weight: bold; margin-left: 6px; cursor: help;" title="Pace Warning: Slide completed in under 3 minutes">⚠️</span>`;
+                }
+
                 card.innerHTML = `
                     <div class="card-header">
-                        <span class="student-name" title="${decodedS}">${displayName}</span>
+                        <span class="student-name" title="${displayName}">${displayName}${warningBadgeHtml}</span>
                         <span class="time-elapsed">${lastActiveTime}</span>
                     </div>
                     <div class="segments-container">
@@ -1111,6 +1232,147 @@
             const diffDays = Math.floor(diffHours / 24);
             if (diffDays === 1) return "1d ago";
             return `${diffDays}d ago`;
+        }
+
+        // Duration formatting helper
+        function formatDuration(ms) {
+            if (ms === null || ms === undefined) return "";
+            const totalSecs = Math.floor(ms / 1000);
+            const mins = Math.floor(totalSecs / 60);
+            const secs = totalSecs % 60;
+            if (mins > 0) {
+                return `${mins}m ${secs}s`;
+            }
+            return `${secs}s`;
+        }
+
+        // Demo Mode State and Helpers
+        let isDemoMode = false;
+        
+        function toggleDemoMode() {
+            isDemoMode = !isDemoMode;
+            const btn = document.getElementById('demo-btn');
+            if (isDemoMode) {
+                btn.style.background = "#ffa726";
+                btn.style.color = "#000";
+                btn.innerText = "Demo: Active";
+                
+                // Add system alert in title
+                const alertHud = document.getElementById('hud-sync-alert');
+                alertHud.style.display = 'inline-flex';
+                alertHud.innerText = "// RUNNING DEMO TELEMETRY";
+                alertHud.style.color = "#ffa726";
+                alertHud.style.textShadow = "0 0 10px rgba(255, 167, 38, 0.4)";
+                
+                generateMockTelemetry();
+            } else {
+                btn.style.background = "transparent";
+                btn.style.color = "#ffa726";
+                btn.innerText = "Demo Mode";
+                
+                const alertHud = document.getElementById('hud-sync-alert');
+                alertHud.style.display = 'none';
+                
+                telemetryData = {};
+                fetchTelemetry();
+            }
+        }
+
+        function generateMockTelemetry() {
+            if (!isDemoMode) return;
+            
+            const now = new Date();
+            const activeKeys = SIMULATIONS[activeSimulation].keys;
+            const mockData = {};
+            
+            // Filter to students of active block
+            const activeStudents = STUDENTS.filter(s => s.B === activeBlock);
+            
+            activeStudents.forEach((student, index) => {
+                const decodedS = atob(student.S);
+                const sheetKey = decodedS;
+                
+                // Let's decide their progress level
+                let progressLevel;
+                if (index % 4 === 0) progressLevel = "completed_normal";
+                else if (index % 4 === 1) progressLevel = "completed_fast"; // AI use!
+                else if (index % 4 === 2) progressLevel = "in_progress_fast"; // Partial AI use!
+                else progressLevel = "not_started";
+                
+                if (progressLevel === "not_started") return;
+                
+                const responses = {};
+                const slideTimestamps = {};
+                
+                // Start time for the session
+                const startTime = new Date(now.getTime() - 40 * 60 * 1000); // 40 mins ago
+                slideTimestamps.start = startTime.toISOString();
+                
+                let lastTime = startTime.getTime();
+                let slidesToComplete = progressLevel.startsWith("completed") ? activeKeys.length : 3;
+                
+                for (let i = 0; i < slidesToComplete; i++) {
+                    const key = activeKeys[i];
+                    responses[key] = "Mock response content for " + key;
+                    
+                    // Determine duration for this slide
+                    let duration;
+                    if (progressLevel === "completed_normal") {
+                        duration = (5 + (i * 2) + Math.random() * 3) * 60 * 1000; // 5-15 mins
+                    } else if (progressLevel === "completed_fast") {
+                        // Suspiciously fast!
+                        if (i === 1 || i === 3) {
+                            duration = 45 * 1000; // 45 seconds (Critical)
+                        } else if (i === 2) {
+                            duration = 110 * 1000; // 1m 50s (Critical)
+                        } else {
+                            duration = 2.2 * 60 * 1000; // 2.2 mins (Warning)
+                        }
+                    } else {
+                        // In progress fast
+                        if (i === 1) {
+                            duration = 75 * 1000; // 1m 15s (Critical)
+                        } else {
+                            duration = 4 * 60 * 1000; // 4 mins
+                        }
+                    }
+                    
+                    lastTime += duration;
+                    slideTimestamps[key] = new Date(lastTime).toISOString();
+                }
+                
+                responses._timestamps = slideTimestamps;
+                
+                mockData[sheetKey] = {
+                    timestamp: new Date(lastTime).toISOString(),
+                    status: slidesToComplete === activeKeys.length ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                    rationales: JSON.stringify(responses),
+                    slideTimestamps: slideTimestamps // Simulate the backend doing it too
+                };
+            });
+            
+            telemetryData = mockData;
+            renderDashboard();
+            
+            // Populate simulation events for the live feed!
+            const container = document.getElementById('live-feed-container');
+            container.innerHTML = "";
+            
+            activeStudents.forEach((student, index) => {
+                const decodedS = atob(student.S);
+                const displayName = decodedS.split(' (')[0];
+                if (index % 4 === 1) {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item complete';
+                    item.innerHTML = `<span class="feed-highlight">${displayName}</span> completed the simulation! <span style="color: #ef5350; font-weight: bold;">[AI RISK DETECTED]</span> <span class="feed-time">Just now</span>`;
+                    container.appendChild(item);
+                } else if (index % 4 === 2) {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item save';
+                    item.innerHTML = `<span class="feed-highlight">${displayName}</span> committed slide <span class="feed-slide">Neglect</span>. <span style="color: #ffa726; font-weight: bold;">[Pace Warning]</span> <span class="feed-time">2 mins ago</span>`;
+                    container.appendChild(item);
+                }
+            });
         }
     </script>
 </body>
