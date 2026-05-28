@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two Paths: Liam's Journey — Interactive Graphic Novel</title>
+  
+  <!-- Typography & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #111520;
+      --bg-card: #181d2a;
+      --border-color: rgba(255, 255, 255, 0.08);
+      
+      --accent-gold: #e5a93b;      /* Healing / Circle / Wisdom */
+      --accent-teal: #00bfa5;      /* Balance / Healing */
+      --accent-blue: #29b6f6;      /* Truth / Clarity */
+      --accent-red: #ef5350;       /* Warning / System / Punitive */
+      
+      --color-text: #e2e8f0;
+      --color-text-muted: #8e9bb0;
+      --font-outfit: 'Outfit', sans-serif;
+      --font-inter: 'Inter', sans-serif;
+      --font-comic: 'Special Elite', cursive;
+      
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--color-text);
+      font-family: var(--font-inter);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-logo h1 {
+      font-family: var(--font-outfit);
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .header-logo span {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: var(--transition-smooth);
+      background-color: var(--bg-card);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: var(--accent-gold);
+      color: var(--bg-base);
+      border-color: var(--accent-gold);
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Comic Book / Graphic Novel Page Container */
+    .comic-page {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 100%;
+      min-height: 600px;
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-family: var(--font-outfit);
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .page-number {
+      font-family: var(--font-comic);
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+    }
+
+    /* Panel Grids */
+    .panels-grid {
+      display: grid;
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* Different Layout styles */
+    .grid-3-horiz {
+      grid-template-columns: 1fr;
+    }
+    @media(min-width: 768px) {
+      .grid-3-horiz {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .grid-2-vert {
+      grid-template-columns: 1fr;
+    }
+    @media(min-width: 768px) {
+      .grid-2-vert {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .grid-3-mixed {
+      grid-template-columns: 1fr;
+    }
+    @media(min-width: 768px) {
+      .grid-3-mixed {
+        grid-template-columns: 1.5fr 1fr;
+      }
+      .grid-3-mixed .panel:first-child {
+        grid-row: span 2;
+      }
+    }
+
+    .grid-1-splash {
+      grid-template-columns: 1fr;
+    }
+
+    /* Panel Card Style */
+    .panel {
+      background-color: var(--bg-card);
+      border: 1.5px solid #282f42;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 250px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: var(--transition-smooth);
+    }
+
+    .panel:hover {
+      border-color: var(--accent-gold);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(229, 169, 59, 0.1);
+    }
+
+    /* Interactive overlay stats alert button */
+    .panel-info-trigger {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: rgba(229, 169, 59, 0.1);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: var(--transition-smooth);
+    }
+
+    .panel-info-trigger:hover {
+      background-color: var(--accent-gold);
+      color: var(--bg-base);
+    }
+
+    /* Narration Text */
+    .narration {
+      background-color: #ffd54f;
+      color: #000;
+      padding: 10px 14px;
+      font-family: var(--font-inter);
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-left: 4px solid #b8860b;
+      margin-bottom: 16px;
+      line-height: 1.4;
+      border-radius: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Dialogue box (fallback, no-image mode) */
+    .dialogue-container {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .speech-bubble {
+      background-color: #fff;
+      color: #000;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      font-weight: 500;
+      position: relative;
+      max-width: 90%;
+      border: 2px solid #000;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.25);
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 20px;
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: #fff transparent;
+      display: block;
+      width: 0;
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 19px;
+      border-width: 9px 9px 0;
+      border-style: solid;
+      border-color: #000 transparent;
+      display: block;
+      width: 0;
+      z-index: -1;
+    }
+
+    /* Speaker Name Badge */
+    .speaker-name {
+      font-family: var(--font-outfit);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-gold);
+      margin-bottom: 2px;
+    }
+
+    /* Thought Bubble Style */
+    .thought-bubble {
+      background-color: rgba(255,255,255,0.92);
+      color: #000;
+      border-radius: 20px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      font-style: italic;
+      border: 2px dashed #556;
+      max-width: 90%;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+    }
+
+    /* Visual Direction Description */
+    .visual-description {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+      padding: 8px;
+      border: 1px dashed rgba(255,255,255,0.05);
+      border-radius: 4px;
+      background-color: rgba(0,0,0,0.1);
+    }
+
+    /* ── Panel Art Container (image + overlay bubbles) ── */
+    .panel-art-container {
+      position: relative;
+      width: 100%;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 2px solid #000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      margin-bottom: 8px;
+    }
+
+    .panel-art-container img {
+      width: 100%;
+      min-height: 240px;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Overlay dialogue layer on top of image */
+    .overlay-dialogue {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .overlay-dialogue .speech-bubble,
+    .overlay-dialogue .thought-bubble {
+      pointer-events: auto;
+      max-width: 75%;
+      font-size: 0.78rem;
+      padding: 8px 12px;
+    }
+
+    .overlay-dialogue .speech-bubble:nth-child(even) {
+      align-self: flex-end;
+    }
+
+    .overlay-dialogue .speech-bubble:nth-child(even)::after {
+      left: auto;
+      right: 20px;
+    }
+
+    .overlay-dialogue .speech-bubble:nth-child(even)::before {
+      left: auto;
+      right: 19px;
+    }
+
+    .overlay-dialogue .thought-bubble {
+      align-self: flex-end;
+    }
+
+    /* Overlay narration (top-left caption box on image) */
+    .overlay-narration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 4;
+      padding: 0;
+    }
+
+    .overlay-narration .narration {
+      margin: 0;
+      border-radius: 0 0 4px 0;
+      font-size: 0.78rem;
+      padding: 8px 12px;
+      max-width: 85%;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Panel Image rendering (fallback for no-container mode) */
+    .panel-image {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1.5px solid #000;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Footer Controls */
+    .controls-bar {
+      margin-top: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background-color: var(--bg-surface);
+      border-radius: 3px;
+      margin: 0 24px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-red) 0%, var(--accent-gold) 50%, var(--accent-teal) 100%);
+      width: 6.6%;
+      transition: var(--transition-smooth);
+    }
+
+    .page-select {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Modal / Popup for stats & explainer */
+    .info-modal {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(5, 6, 10, 0.9);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .modal-card {
+      background-color: var(--bg-surface);
+      border: 1.5px solid var(--accent-gold);
+      border-radius: 12px;
+      max-width: 500px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 0 40px rgba(229, 169, 59, 0.15);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .modal-title {
+      font-family: var(--font-outfit);
+      font-size: 1.25rem;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--color-text);
+    }
+
+    .modal-content strong {
+      color: #fff;
+    }
+
+    /* Circular Restorative Motif for Page 15 */
+    .motif-circle {
+      border: 3px double var(--accent-teal) !important;
+      border-radius: 50% !important;
+      aspect-ratio: 1;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-logo">
+      <h1>TWO PATHS: LIAM'S JOURNEY</h1>
+      <span>Interactive Graphic Novel // Mi'kmaw Studies 11</span>
+    </div>
+    <div class="nav-buttons">
+      <a href="student_assignment.html" class="btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Assignment
+      </a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <div class="comic-page" id="comic-viewer">
+      <div class="page-header">
+        <div class="page-title" id="page-title">Loading...</div>
+        <div class="page-number" id="page-number">PAGE 1/15</div>
+      </div>
+      
+      <div class="panels-grid" id="panels-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Navigation controls -->
+    <div class="controls-bar">
+      <button class="btn" id="prev-btn" onclick="prevPage()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Previous
+      </button>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-bar"></div>
+      </div>
+
+      <select class="page-select" id="page-select-dropdown" onchange="jumpToPage(this.value)">
+        <!-- Options populated dynamically -->
+      </select>
+
+      <button class="btn" id="next-btn" onclick="nextPage()">
+        Next
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- Interactive Explainer Modal -->
+  <div class="info-modal" id="info-modal" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="modal-title" id="modal-title">Statistical Fact-Check</div>
+      <div class="modal-content" id="modal-content">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════
+    // GRAPHIC NOVEL PAGE DATA
+    // ═══════════════════════════════════════════════════
+    const PAGES = [
+      // ── PAGE 1: THE COLD FRONT (Enhanced: Liam's lost connection) ──
+      {
+        title: "The Cold Front",
+        layoutClass: "grid-2-vert",
+        panels: [
+          {
+            visual: "Close-up on Liam's worn sneakers walking through deep snow. A freezing wind blows snow across the streetlamp-lit frame.",
+            image: "panels/p1_panel1.png",
+            narration: "Cape Breton. Mid-January. −15°C.",
+            speaker: "Liam",
+            thought: "I just need to get out of the wind. Just for a couple of hours."
+          },
+          {
+            visual: "Liam crouches against a brick wall, one bar of battery on his phone. His mother's contact glows on the cracked screen. His thumb hovers over the call button — then pulls away.",
+            image: "panels/p1_panel2.png",
+            narration: "The people who should catch you are sometimes the ones who were never caught themselves.",
+            speaker: "Liam",
+            thought: "She'd just worry. And she's got enough to carry."
+          },
+          {
+            visual: "Liam stands before an abandoned storefront with boarded-up windows. One plywood sheet is slightly loose.",
+            image: "panels/p1_panel3.png",
+            narration: "The shelters were full. The streets were empty.",
+            speaker: "Liam",
+            dialogue: "I can't feel my hands..."
+          },
+          {
+            visual: "Medium shot from inside the dark building. Liam pulls back the loose plywood sheet and squeezes through the gap.",
+            image: "panels/p1_panel4.png",
+            speaker: "Liam",
+            thought: "I'm not here to steal. Just need to stop shivering."
+          }
+        ]
+      },
+      // ── PAGE 2: THE APPREHENSION (Enhanced: Humanised officer) ──
+      {
+        title: "The Apprehension",
+        layoutClass: "grid-2-vert",
+        panels: [
+          {
+            visual: "Inside the dark storefront, a bright flashlight beam cuts through the frame, illuminating a sleeping Liam huddled in the corner.",
+            image: "panels/p2_panel1.png",
+            speaker: "Police Officer",
+            dialogue: "Hey! Wake up. Police. Hands where I can see them.",
+            speaker2: "Police Officer",
+            dialogue2: "Look... I don't want to do this, kid. But the call came in and I've got no discretion here."
+          },
+          {
+            visual: "Liam stands cuffed outside in the snow. The officer pauses before guiding him into the cruiser, glancing at Liam's thin jacket and worn sneakers.",
+            image: "panels/p2_panel2.png",
+            narration: "By morning, seeking warmth becomes a charge of break and enter. The system doesn't have a code for 'survival.'"
+          }
+        ]
+      },
+      // ── PAGE 3: ACTUARIAL JUDGMENT (Unchanged — already strong) ──
+      {
+        title: "Actuarial Judgment",
+        layoutClass: "grid-3-mixed",
+        panels: [
+          {
+            visual: "Liam sits in a sterile booking room. A booking officer looks at a computer monitor and a clipboard.",
+            image: "panels/p3_panel1.png",
+            speaker: "Booking Officer",
+            dialogue: "Address?",
+            speaker2: "Liam",
+            dialogue2: "I don't have one right now. I've been staying on couches."
+          },
+          {
+            visual: "Extreme close-up of a pen ticking off risk checklist items: No stable address, Unemployed.",
+            image: "panels/p3_panel2.png",
+            narration: "The assessment checklist doesn't have a box for 'poverty' or 'cold.' It only has boxes for 'risk.'",
+            explainer: {
+              title: "Systemic Risk Tool Bias",
+              text: "Courts use actuarial checklist tools to evaluate release. These tools score systemic challenges (unemployment, lack of housing) as risk factors. This disproportionately keeps marginalized individuals in custody before trial."
+            }
+          },
+          {
+            visual: "Close-up of the checklist form header marked: Risk Category: High Risk of Re-offending.",
+            image: "panels/p3_panel3.png",
+            speaker: "Booking Officer",
+            dialogue: "Under standard guidelines, you don't qualify for automatic release. You'll be held for court."
+          }
+        ]
+      },
+      // ── PAGE 4: ECHOES OF SHUBENACADIE (Enhanced: Grandfather language memory) ──
+      {
+        title: "Echoes of Shubenacadie",
+        layoutClass: "grid-1-splash",
+        panels: [
+          {
+            visual: "A single large splash panel. Liam sits on a metal cell bench. Looming behind the wall is the towering shadow of the Shubenacadie Residential School with ghostly historic frames of students in uniform. A faint memory-image shows a kitchen table where an old man sits with his mouth half-open, unable to finish a word.",
+            image: "panels/p4_splash.png",
+            narration: "My grandfather survived Shubenacadie. The school beat the Mi'kmaw language out of his mouth and the trust out of his hands. The court checklist calls the aftermath of that trauma my 'criminogenic risk factors.'",
+            speaker: "Liam",
+            thought: "Grandpa tried to teach me the word for 'home' once. He got halfway through and stopped. He never tried again.",
+            explainer: {
+              title: "Intergenerational Trauma",
+              text: "The Truth and Reconciliation Commission documented how residential schools disrupted family structures, language, and cultural identity. Children were punished for speaking Mi'kmaw. The trauma impacts generations — creating social inequities that are penalized rather than healed by conventional courts."
+            }
+          }
+        ]
+      },
+      // ── PAGE 5: THE PRODUCT OF THE COURT (Enhanced: Moment of despair) ──
+      {
+        title: "The Product of the Court",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Liam looks through cell bars at a harried duty counsel lawyer holding a stack of files.",
+            image: "panels/p5_panel1.png",
+            speaker: "Lawyer",
+            dialogue: "It's a non-violent offense, but because you scored 'high risk' on housing, the Crown is pushing for jail time. They want to send a message.",
+            speaker2: "Liam",
+            dialogue2: "I just wanted to get warm."
+          },
+          {
+            visual: "Symbolic conveyor belt fed with case folders, outputting uniform figures in orange jumpsuits.",
+            image: "panels/p5_panel2.png",
+            narration: "The conventional court processes people like parts in a factory. It checks boxes, delivers sentences, and moves to the next file."
+          },
+          {
+            visual: "Liam sits alone in the cell after the lawyer leaves. He slumps against the wall, staring at the concrete floor. The fluorescent light buzzes overhead.",
+            image: "panels/p5_panel3.png",
+            narration: "After the lawyer leaves, the silence is worse than the cold.",
+            speaker: "Liam",
+            thought: "Maybe the checklist is right. Maybe I am what they say I am."
+          }
+        ]
+      },
+      // ── PAGE 6: THE MEDICINE POUCH (Enhanced: Claire's personal motivation) ──
+      {
+        title: "The Medicine Pouch",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Claire, a Mi'kmaw elder from the MLSN network, sits across from Liam. She wears a beaded medallion. Her eyes carry a weight that isn't just professional.",
+            image: "panels/p6_panel1.png",
+            speaker: "Claire",
+            dialogue: "Kwe', Liam. My name is Claire. I'm from the Mi'kmaw Legal Support Network.",
+            speaker2: "Claire",
+            dialogue2: "I had a son who sat where you're sitting, fifteen years ago. Nobody showed up for him. I'm not letting that happen again."
+          },
+          {
+            visual: "Close-up of Claire placing a small, hand-crafted beaded medicine pouch on the table.",
+            image: "panels/p6_panel2.png",
+            speaker: "Claire",
+            dialogue: "Your family comes from Sipeknekatik. You come from a community of caretakers, not a checklist."
+          },
+          {
+            visual: "Liam looks at the medicine pouch, his expression softening for the first time.",
+            image: "panels/p6_panel3.png",
+            speaker: "Liam",
+            thought: "She sees me. Not the file — me."
+          }
+        ]
+      },
+      // ── PAGE 7: THE MARSHALL LANDMARK (Unchanged) ──
+      {
+        title: "The Marshall Landmark",
+        layoutClass: "grid-2-vert",
+        panels: [
+          {
+            visual: "Claire shows Liam a pamphlet detailing Donald Marshall Jr.'s story.",
+            image: "panels/p7_panel1.png",
+            speaker: "Claire",
+            dialogue: "In 1971, a Mi'kmaw teenager named Donald Marshall Jr. was wrongfully convicted in Nova Scotia. He spent 11 years in prison.",
+            explainer: {
+              title: "Donald Marshall Jr.",
+              text: "A Mi'kmaw youth wrongfully convicted of murder in Sydney, NS. The 1989 Royal Commission concluded that the system was plagued by systemic racism, leading to the creation of restorative justice initiatives in Nova Scotia."
+            }
+          },
+          {
+            visual: "Sepia-toned flashback of a young Donald Marshall Jr. walking out of court to a crowd of supporters.",
+            image: "panels/p7_panel2.png",
+            narration: "The 1989 Royal Commission proved the system failed him simply because he was Mi'kmaw. It forced the province to face its systemic racism."
+          }
+        ]
+      },
+      // ── PAGE 8: GLADUE RIGHTS (Unchanged) ──
+      {
+        title: "Gladue Rights",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Claire points to a section in a legal brief titled 'Gladue Principles.'",
+            image: "panels/p8_panel1.png",
+            speaker: "Claire",
+            dialogue: "Because of that history, Canadian law has Gladue Rights. The court must consider the colonial history that brings an Indigenous person to court, and look at alternatives to jail."
+          },
+          {
+            visual: "Liam looks thoughtful, tracing the word 'Gladue' on the brief.",
+            image: "panels/p8_panel2.png",
+            speaker: "Liam",
+            dialogue: "So the judge has to listen to why I didn't have a home?",
+            speaker2: "Claire",
+            dialogue2: "Yes. We need to divert this to a Sentencing Circle."
+          },
+          {
+            visual: "The Crown Prosecutor sits at a desk. Claire presents a diversion request.",
+            image: "panels/p8_panel3.png",
+            speaker: "Prosecutor",
+            dialogue: "We'll agree to Restorative Justice—but only if the property owner consents to join the circle."
+          }
+        ]
+      },
+      // ── PAGE 9: FACE TO FACE (Enhanced: Mr. Thomas resists, then agrees) ──
+      {
+        title: "Face to Face",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Claire sits with Mr. Thomas, the store owner, in a community center room. Mr. Thomas's arms are crossed, jaw tight. A photo of his damaged shop sits on the table between them.",
+            image: "panels/p9_panel1.png",
+            speaker: "Mr. Thomas",
+            dialogue: "I've been broken into three times this year. Three times. You want me to sit in a circle and talk about feelings?"
+          },
+          {
+            visual: "Claire listens without flinching. She doesn't argue. Her hands are folded, patient.",
+            image: "panels/p9_panel2.png",
+            speaker: "Claire",
+            dialogue: "I'm not asking you to forgive anything, Mr. Thomas. I'm asking if you want to hear why it happened — face to face — with the power to shape what comes next."
+          },
+          {
+            visual: "Long pause. Mr. Thomas looks out at the snow falling past the window, then turns back with an expression that's not soft, but willing.",
+            image: "panels/p9_panel3.png",
+            narration: "Restorative justice asks the hardest thing of the person who was harmed: the willingness to sit in the same room as the one who caused it.",
+            speaker: "Mr. Thomas",
+            dialogue: "...Alright. But I want to look him in the eye."
+          }
+        ]
+      },
+      // ── PAGE 10: THE CIRCLE GATHERS (Enhanced: Opens with silence + typo fixed) ──
+      {
+        title: "The Circle Gathers",
+        layoutClass: "grid-2-vert",
+        panels: [
+          {
+            visual: "Top-down view of a Sentencing Circle. Liam, Claire, Mr. Thomas, an Elder, and the Judge sit in normal clothes (without robes) around a sweetgrass braid. An eagle feather rests in the centre. No one is speaking.",
+            image: "panels/p10_panel1.png",
+            narration: "The hardest part of a circle is the beginning. There is no desk to hide behind. No lawyer to speak for you. Just the silence, and the people in it.",
+            explainer: {
+              title: "Sentencing Circles",
+              text: "A sentencing circle brings together the offender, victim, community support, and judge to collectively determine a sentence focused on rehabilitation and restoration, rather than isolation. Unlike adversarial courts, everyone speaks — and everyone listens."
+            }
+          },
+          {
+            visual: "Close-up of the eagle feather sitting untouched in the centre of the circle. The sweetgrass smoke drifts upward. Each face around the circle is visible — nervous, uncertain, brave.",
+            image: "panels/p10_panel2.png",
+            narration: "For thirty seconds, no one reaches for the feather. The silence is not empty. It is full of everything that brought them here."
+          }
+        ]
+      },
+      // ── PAGE 11: THE STORY UNTOLD (Enhanced: Mr. Thomas speaks his pain) ──
+      {
+        title: "The Story Untold",
+        layoutClass: "grid-2-vert",
+        panels: [
+          {
+            visual: "Liam holds the eagle feather, speaking quietly to the circle. His voice shakes but he doesn't stop.",
+            image: "panels/p11_panel1.png",
+            speaker: "Liam",
+            dialogue: "When my dad lost his status, we lost our housing on reserve. We had to move to town. We didn't have any family support there..."
+          },
+          {
+            visual: "The Elder nods slowly, holding a talking piece.",
+            image: "panels/p11_panel2.png",
+            speaker: "Elder",
+            dialogue: "When the Indian Act cut our family lines, it scattered our youth. Liam's story is our history's story."
+          },
+          {
+            visual: "Mr. Thomas holds the eagle feather now. His hands are rough, working hands. He speaks carefully, not with anger but with exhaustion.",
+            image: "panels/p11_panel3.png",
+            speaker: "Mr. Thomas",
+            dialogue: "Every time someone breaks in, I think about closing the shop. And if I close, that's six people without jobs in this town. Six families."
+          },
+          {
+            visual: "Wide shot of the full circle. Mr. Thomas and Liam look at each other for the first time — not as victim and offender, but as two people carrying weight.",
+            image: "panels/p11_panel4.png",
+            narration: "A standard court only asks what you did. The circle asks how we got here — and it asks everyone."
+          }
+        ]
+      },
+      // ── PAGE 12: ACCOUNTABILITY AND REMORSE (Enhanced: Apology costs something) ──
+      {
+        title: "Accountability and Remorse",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Liam stands up to address Mr. Thomas. He opens his mouth — and nothing comes out. He sits back down. The circle waits.",
+            image: "panels/p12_panel1.png",
+            narration: "Accountability isn't a speech. It's the hardest sentence you'll ever say out loud."
+          },
+          {
+            visual: "Liam stands again. His voice cracks. His eyes are wet. He looks directly at Mr. Thomas.",
+            image: "panels/p12_panel2.png",
+            speaker: "Liam",
+            dialogue: "I broke your board... and I scared your staff. I was wrong. I want—",
+            speaker2: "Liam",
+            dialogue2: "I want to repair it myself. The boards. Whatever else. I need you to know I'm sorry."
+          },
+          {
+            visual: "Mr. Thomas is quiet for a long moment. Then he nods, and places a hand on Liam's shoulder. It is not easy for either of them.",
+            image: "panels/p12_panel3.png",
+            speaker: "Mr. Thomas",
+            dialogue: "I accept your apology, Liam. I don't want to build walls around your future. But I need to know this means something.",
+            speaker2: "Liam",
+            dialogue2: "It does. I promise you."
+          }
+        ]
+      },
+      // ── PAGE 13: THE RESTORATIVE PLAN (Enhanced: Bill C-5 statistics) ──
+      {
+        title: "The Restorative Plan",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "The Judge addresses the circle, summarizing the agreement.",
+            image: "panels/p13_panel1.png",
+            speaker: "Judge",
+            dialogue: "Instead of jail, the court accepts the Circle's healing plan. Liam will perform 40 hours of restitution repairing community buildings, and MLSN will assist him with housing.",
+            explainer: {
+              title: "Bill C-5 & 2026 Statistics",
+              text: "Despite Bill C-5 (2022) removing mandatory minimum sentences for several offences, Indigenous incarceration rates have continued to rise. As of 2024–25, Indigenous adults represent 33% of federal admissions while comprising ~5% of the population. 50% of federally incarcerated women are Indigenous. Sentencing circles and Gladue-informed alternatives address the root causes that prison cannot."
+            }
+          },
+          {
+            visual: "Close-up of the signed document showing signatures of Liam, Mr. Thomas, Claire, and the Judge.",
+            image: "panels/p13_panel2.png",
+            narration: "This is not lenient. It is accountability that demands active repair — witnessed by every person in the room."
+          },
+          {
+            visual: "Liam walks out of the courthouse in the fresh air, beside Claire. He doesn't smile — not yet. But he stands taller.",
+            image: "panels/p13_panel3.png",
+            speaker: "Liam",
+            dialogue: "Thank you, Auntie Claire.",
+            speaker2: "Claire",
+            dialogue2: "Don't thank me yet. The work starts tomorrow."
+          }
+        ]
+      },
+      // ── PAGE 14: RESTORING THE BALANCE (Enhanced: Ongoing struggle) ──
+      {
+        title: "Restoring the Balance",
+        layoutClass: "grid-3-horiz",
+        panels: [
+          {
+            visual: "Liam is working with a construction crew, repairing Mr. Thomas's storefront. Sweat on his face, hands gripping a hammer.",
+            image: "panels/p14_panel1.png",
+            narration: "Accountability means putting sweat into the repair."
+          },
+          {
+            visual: "Liam stands in a small, warm apartment. Claire hands him a housewarming box. A plant sits on the windowsill.",
+            image: "panels/p14_panel2.png",
+            narration: "When you address the root cause of the crisis, you stop the cycle of return."
+          },
+          {
+            visual: "Late evening. Liam sits on his apartment floor, head in his hands. A missed call from an unknown number glows on his phone. Claire knocks on the door with two cups of tea.",
+            image: "panels/p14_panel3.png",
+            narration: "Healing isn't a straight line. Some days the circle holds you. Some days you hold on to it.",
+            speaker: "Claire",
+            dialogue: "Bad day?",
+            speaker2: "Liam",
+            dialogue2: "Bad day. But I'm still here."
+          }
+        ]
+      },
+      // ── PAGE 15: THE UNCUT CIRCLE (Enhanced: Ends with a question) ──
+      {
+        title: "The Uncut Circle",
+        layoutClass: "grid-1-splash",
+        panels: [
+          {
+            visual: "A beautiful circular panel. Liam stands on the banks of the Shubenacadie River at sunset, holding a sweetgrass braid. The border features gold and teal Mi'kmaw double-curve motifs. Behind him, faintly, the outlines of the circle — Claire, Mr. Thomas, the Elder, the Judge — surround him like a constellation.",
+            image: "panels/p15_splash.png",
+            narration: "Liam's story is fictional. The statistics are not. The system that scored him 'high risk' is real. The circles that could have helped him exist, but are underfunded. The question isn't whether Liam deserved a second chance. The question is: why does the system make it so hard to give one?",
+            speaker: "Liam",
+            thought: "Kinship is a circle that cannot be cut."
+          }
+        ]
+      }
+    ];
+
+    let currentPageIndex = 0;
+
+    // ═══════════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ═══════════════════════════════════════════════════
+    function init() {
+      // Populate select dropdown
+      const dropdown = document.getElementById('page-select-dropdown');
+      dropdown.innerHTML = '';
+      PAGES.forEach((page, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.innerText = `Ch. ${index + 1}: ${page.title}`;
+        dropdown.appendChild(opt);
+      });
+
+      renderPage(0);
+    }
+
+    function renderPage(index) {
+      currentPageIndex = index;
+      const page = PAGES[index];
+
+      // Update header details
+      document.getElementById('page-title').innerText = page.title;
+      document.getElementById('page-number').innerText = `PAGE ${index + 1} / 15`;
+      document.getElementById('page-select-dropdown').value = index;
+
+      // Update progress bar
+      document.getElementById('progress-bar').style.width = `${((index + 1) / 15) * 100}%`;
+
+      // Build Panels
+      const container = document.getElementById('panels-container');
+      container.className = `panels-grid ${page.layoutClass}`;
+      container.innerHTML = '';
+
+      page.panels.forEach((p, idx) => {
+        const panelDiv = document.createElement('div');
+        panelDiv.className = 'panel';
+
+        // Check if page 15 motif
+        if (index === 14 && page.layoutClass === "grid-1-splash") {
+          panelDiv.classList.add('motif-circle');
+        }
+
+        // Add info trigger if explainer exists
+        if (p.explainer) {
+          const trigger = document.createElement('button');
+          trigger.className = 'panel-info-trigger';
+          trigger.innerText = 'Fact Check';
+          trigger.onclick = () => showModal(p.explainer.title, p.explainer.text);
+          panelDiv.appendChild(trigger);
+        }
+
+        // ─── IMAGE WITH OVERLAY BUBBLES (comic-book mode) ───
+        if (p.image) {
+          const artContainer = document.createElement('div');
+          artContainer.className = 'panel-art-container';
+
+          const img = document.createElement('img');
+          img.src = p.image;
+          img.alt = p.visual;
+          img.onerror = function() {
+            // If image not found, fall back to visual description
+            artContainer.style.display = 'none';
+            fallbackVis.style.display = 'block';
+          };
+          artContainer.appendChild(img);
+
+          // Overlay narration caption on top of image
+          if (p.narration) {
+            const overlayNarr = document.createElement('div');
+            overlayNarr.className = 'overlay-narration';
+            const narrBox = document.createElement('div');
+            narrBox.className = 'narration';
+            narrBox.innerText = p.narration;
+            overlayNarr.appendChild(narrBox);
+            artContainer.appendChild(overlayNarr);
+          }
+
+          // Overlay dialogue bubbles on bottom of image
+          if (p.dialogue || p.thought) {
+            const overlayDlg = document.createElement('div');
+            overlayDlg.className = 'overlay-dialogue';
+
+            if (p.dialogue) {
+              const bubble = document.createElement('div');
+              bubble.className = 'speech-bubble';
+              bubble.innerHTML = `<div class="speaker-name">${p.speaker}</div>${p.dialogue}`;
+              overlayDlg.appendChild(bubble);
+            }
+
+            if (p.dialogue2) {
+              const bubble2 = document.createElement('div');
+              bubble2.className = 'speech-bubble';
+              bubble2.innerHTML = `<div class="speaker-name">${p.speaker2}</div>${p.dialogue2}`;
+              overlayDlg.appendChild(bubble2);
+            }
+
+            if (p.thought) {
+              const tb = document.createElement('div');
+              tb.className = 'thought-bubble';
+              tb.innerHTML = `<div class="speaker-name">${p.speaker} (Thought)</div>"${p.thought}"`;
+              overlayDlg.appendChild(tb);
+            }
+
+            artContainer.appendChild(overlayDlg);
+          }
+
+          panelDiv.appendChild(artContainer);
+        }
+
+        // ─── FALLBACK: Visual description (shown when no image or image fails) ───
+        const fallbackVis = document.createElement('div');
+        fallbackVis.className = 'visual-description';
+        fallbackVis.innerHTML = `<strong>VISUAL:</strong> ${p.visual}`;
+        if (p.image) fallbackVis.style.display = 'none';
+        panelDiv.appendChild(fallbackVis);
+
+        // Narration box (standalone, only if no image — image mode uses overlay)
+        if (p.narration && !p.image) {
+          const narr = document.createElement('div');
+          narr.className = 'narration';
+          narr.innerText = p.narration;
+          panelDiv.appendChild(narr);
+        }
+
+        // Dialogues (standalone, only if no image — image mode uses overlay)
+        if ((p.dialogue || p.thought) && !p.image) {
+          const dialogueDiv = document.createElement('div');
+          dialogueDiv.className = 'dialogue-container';
+
+          if (p.dialogue) {
+            const bubble = document.createElement('div');
+            bubble.className = 'speech-bubble';
+            bubble.innerHTML = `<div class="speaker-name">${p.speaker}</div>${p.dialogue}`;
+            dialogueDiv.appendChild(bubble);
+          }
+
+          if (p.dialogue2) {
+            const bubble2 = document.createElement('div');
+            bubble2.className = 'speech-bubble';
+            bubble2.innerHTML = `<div class="speaker-name">${p.speaker2}</div>${p.dialogue2}`;
+            dialogueDiv.appendChild(bubble2);
+          }
+
+          if (p.thought) {
+            const bubble = document.createElement('div');
+            bubble.className = 'thought-bubble';
+            bubble.innerHTML = `<div class="speaker-name">${p.speaker} (Thought)</div>"${p.thought}"`;
+            dialogueDiv.appendChild(bubble);
+          }
+
+          panelDiv.appendChild(dialogueDiv);
+        }
+
+        container.appendChild(panelDiv);
+      });
+
+      // Simple GSAP Page Entry Animation
+      gsap.fromTo("#panels-container .panel", 
+        { opacity: 0, y: 15 }, 
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }
+      );
+
+      // Disable/enable buttons
+      document.getElementById('prev-btn').disabled = (index === 0);
+      document.getElementById('next-btn').disabled = (index === 14);
+    }
+
+    function prevPage() {
+      if (currentPageIndex > 0) {
+        renderPage(currentPageIndex - 1);
+      }
+    }
+
+    function nextPage() {
+      if (currentPageIndex < 14) {
+        renderPage(currentPageIndex + 1);
+      }
+    }
+
+    function jumpToPage(index) {
+      renderPage(parseInt(index));
+    }
+
+    // Modal Helpers
+    function showModal(title, text) {
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-content').innerText = text;
+      const modal = document.getElementById('info-modal');
+      modal.style.display = 'flex';
+      gsap.fromTo(modal, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      gsap.fromTo(".modal-card", { scale: 0.95 }, { scale: 1, duration: 0.4, ease: "back.out(1.7)" });
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('info-modal');
+      gsap.to(modal, { opacity: 0, duration: 0.2, onComplete: () => {
+        modal.style.display = 'none';
+      }});
+    }
+
+    // Init call
+    window.onload = init;
+  </script>
+</body>
+</html>
