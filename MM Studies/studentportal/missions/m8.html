@@ -3,245 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 8 | Medal of Friendship</title>
+    <title>Mission 8 | The Clan Match</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #fbbf24; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #fbbf24; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 550px; margin: 1.5rem auto; }
+        .match-col-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); text-align: center; padding: 0.5rem; }
+        .match-btn { padding: 1rem; background: white; border: 2px solid var(--border); border-radius: 0.75rem; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: var(--text); transition: all 0.2s; text-align: center; }
+        .match-btn:hover { border-color: var(--primary); transform: scale(1.03); }
+        .match-btn.selected { border-color: var(--primary); background: #fefce8; box-shadow: 0 4px 12px rgba(251,191,36,0.2); }
+        .match-btn.matched { border-color: #10b981; background: #f0fdf4; color: #15803d; pointer-events: none; }
+        .match-btn.wrong { border-color: #ef4444; background: #fef2f2; animation: shake 0.4s; }
+        @keyframes shake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)} }
+        .match-emoji { font-size: 1.8rem; display: block; margin-bottom: 0.25rem; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
-
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .result-box { padding: 1rem; background: #fefce8; border-radius: 0.75rem; border: 1px solid #fde68a; margin: 1rem 0; font-size: 0.85rem; color: #92400e; text-align: center; min-height: 45px; }
+        .score-bar { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0.75rem 0; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(251,191,36,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 08</span>
-        <h1>Medal of Friendship</h1>
-        
-        <p class="significance-box">
-            When treaties were signed, "Treaty Medals" were often given to Mi'kmaw leaders. They featured symbols of the Sun and the King, representing an agreement that would last as long as the sun shines.
-        </p>
+        <h1>The Clan Match</h1>
+        <p class="significance-box">Mi'kmaw families belong to clans. Each clan animal has a special job in the community. Match the animal to its role!</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to design a **Modern Medal of Friendship**. What symbols would represent an agreement made today?
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">🤝 Treaty Promise Bank</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);">"To live in peace as long as the sun shines."</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);">"To share the bounty of the land and the waters."</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);">"To listen to each other with respect and honesty."</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);">"To protect the future for the next seven generations."</div>
-            </div>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: The Core Symbols</strong><br>
-            Pick two symbols to put on the front of the medal. (e.g., a handshake, the 8-pointed star, or two rivers meeting).
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Material</strong><br>
-            What would this medal be made of today? (e.g., Silver, recycled copper, or even carved wood).
-        </div>
+        <div class="match-grid" id="matchGrid"></div>
+        <div class="score-bar">Matched: <span id="scoreCount">0</span> / 6</div>
+        <div class="result-box" id="resultBox">Tap an animal on the left, then tap its role on the right.</div>
 
-        <div class="step">
-            <strong>Step 3: The Promise</strong><br>
-            Write the short sentence that is engraved on the back of the medal. What is the promise we are making to each other?
-        </div>
+        <div class="step"><strong>Step 1: Tap an Animal</strong><br>Tap a clan animal on the left side.</div>
+        <div class="step"><strong>Step 2: Match It</strong><br>Tap the role that matches on the right. Get all 6!</div>
 
-        <textarea id="workArea" placeholder="Front Symbols: 
-Material: 
-Engraved Promise: "></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
-
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="The clan I like best is... Because..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 8: The Clan Match';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 8: Medal of Friendship';
+        const clans = [
+            { id:'bear', emoji:'🐻', name:'Bear', role:'Protector — guards the community and keeps everyone safe.' },
+            { id:'turtle', emoji:'🐢', name:'Turtle', role:'Wisdom Keeper — remembers the old stories and teachings.' },
+            { id:'eagle', emoji:'🦅', name:'Eagle', role:'Messenger — carries prayers to the Creator and sees far.' },
+            { id:'wolf', emoji:'🐺', name:'Wolf', role:'Guide — leads the hunt and teaches teamwork.' },
+            { id:'moose', emoji:'🫎', name:'Moose', role:'Provider — strong and steady, provides for the family.' },
+            { id:'salmon', emoji:'🐟', name:'Salmon', role:'Perseverance — never gives up, always keeps swimming home.' }
+        ];
+
+        let selectedLeft = null;
+        let matched = {};
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const resultBox = document.getElementById('resultBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const grid = document.getElementById('matchGrid');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m8_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m8_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
+        const shuffledRoles = [...clans].sort(() => Math.random() - 0.5);
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+        grid.innerHTML = '<div class="match-col-title">Clan Animal</div><div class="match-col-title">Community Role</div>';
+
+        clans.forEach(c => {
+            const btn = document.createElement('div');
+            btn.className = 'match-btn'; btn.dataset.side = 'left'; btn.dataset.id = c.id;
+            btn.innerHTML = `<span class="match-emoji">${c.emoji}</span>${c.name}`;
+            btn.onclick = () => tapLeft(c.id);
+            grid.appendChild(btn);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m8_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
+        shuffledRoles.forEach(c => {
+            const btn = document.createElement('div');
+            btn.className = 'match-btn'; btn.dataset.side = 'right'; btn.dataset.id = c.id;
+            btn.innerHTML = c.role;
+            btn.onclick = () => tapRight(c.id);
+            grid.appendChild(btn);
+        });
 
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
+        function tapLeft(id) {
+            if (matched[id]) return;
+            selectedLeft = id;
+            document.querySelectorAll('[data-side="left"]').forEach(b => b.classList.toggle('selected', b.dataset.id === id && !matched[id]));
+            const c = clans.find(x => x.id === id);
+            resultBox.innerHTML = `Now tap the role for <strong>${c.emoji} ${c.name}</strong>`;
+        }
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(8)) completed.push(8);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+        function tapRight(id) {
+            if (!selectedLeft) { resultBox.innerText = 'Tap an animal first!'; return; }
+            if (matched[selectedLeft]) return;
+            const rightBtn = document.querySelector(`[data-side="right"][data-id="${id}"]`);
+            if (selectedLeft === id) {
+                matched[selectedLeft] = true;
+                document.querySelector(`[data-side="left"][data-id="${id}"]`).classList.remove('selected');
+                document.querySelector(`[data-side="left"][data-id="${id}"]`).classList.add('matched');
+                rightBtn.classList.add('matched');
+                const c = clans.find(x => x.id === id);
+                resultBox.innerHTML = `Correct! ${c.emoji} ${c.name} = ${c.role}`;
+                resultBox.style.background = '#f0fdf4'; resultBox.style.borderColor = '#86efac'; resultBox.style.color = '#166534';
+                scoreCount.textContent = Object.keys(matched).length;
+                if (Object.keys(matched).length === clans.length) { resultBox.innerHTML = 'All clans matched! You know the Mi\'kmaw clan system!'; }
+            } else {
+                rightBtn.classList.add('wrong');
+                setTimeout(() => rightBtn.classList.remove('wrong'), 500);
+                resultBox.innerHTML = 'Not a match — try again!';
+                resultBox.style.background = '#fef2f2'; resultBox.style.borderColor = '#fecaca'; resultBox.style.color = '#991b1b';
+            }
+            selectedLeft = null;
+            triggerSave();
+        }
+
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m8_work')||'';
+                const saved=d.matched?JSON.parse(d.matched):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m8_matched')||'{}');
+                if(Object.keys(saved).length){matched=saved;Object.keys(matched).forEach(id=>{const lb=document.querySelector(`[data-side="left"][data-id="${id}"]`);const rb=document.querySelector(`[data-side="right"][data-id="${id}"]`);if(lb)lb.classList.add('matched');if(rb)rb.classList.add('matched')});scoreCount.textContent=Object.keys(matched).length}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m8_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m8_matched')||'{}');
+                if(Object.keys(saved).length){matched=saved;Object.keys(matched).forEach(id=>{const lb=document.querySelector(`[data-side="left"][data-id="${id}"]`);const rb=document.querySelector(`[data-side="right"][data-id="${id}"]`);if(lb)lb.classList.add('matched');if(rb)rb.classList.add('matched')});scoreCount.textContent=Object.keys(matched).length}
+                syncStatus.innerText='Ready (Offline Mode)';
             }
         }
 
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m8_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m8_matched',JSON.stringify(matched));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,matched:JSON.stringify(matched),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Clans synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(8))c.push(8);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>

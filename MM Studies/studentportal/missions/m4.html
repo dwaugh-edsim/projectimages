@@ -3,243 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 4 | Dream School Design</title>
+    <title>Mission 4 | The Longhouse Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #10b981; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #10b981; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .floorplan { position: relative; width: 100%; max-width: 600px; margin: 1.5rem auto; height: 320px; background: linear-gradient(180deg, #d4a574, #c4956a); border-radius: 1rem; border: 4px solid #78350f; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.2); }
+        .floorplan-roof { position: absolute; top: 0; left: -20px; right: -20px; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent; border-bottom: 40px solid #78350f; }
+        .floor-grid { position: absolute; top: 45px; left: 15px; right: 15px; bottom: 15px; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 6px; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .grid-cell { border: 2px dashed rgba(120,53,15,0.4); border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.1); font-size: 0.6rem; color: rgba(120,53,15,0.5); font-weight: 700; }
+        .grid-cell:hover { background: rgba(255,255,255,0.3); border-color: #78350f; }
+        .grid-cell.placed { background: rgba(255,255,255,0.4); border-style: solid; border-color: #15803d; }
+        .grid-cell .cell-emoji { font-size: 1.8rem; }
+        .grid-cell .cell-label { font-size: 0.55rem; color: #78350f; margin-top: 2px; text-align: center; }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .room-tray { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .room-btn { padding: 0.6rem 0.75rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .room-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .room-btn.active { border-color: var(--primary); background: #ecfdf5; color: var(--primary); }
+        .room-btn .r-emoji { font-size: 1.2rem; }
+
+        .info-box { padding: 1rem; background: #ecfdf5; border-radius: 0.75rem; border: 1px solid #a7f3d0; margin: 1rem 0; font-size: 0.85rem; color: #065f46; min-height: 45px; text-align: center; transition: all 0.3s; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; transition: all 0.2s; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
         .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; transition: color 0.2s; }
         .btn-back:hover { color: var(--primary); }
+        .score-bar { text-align: center; margin-top: 0.75rem; font-size: 1.1rem; font-weight: 800; color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 04</span>
-        <h1>Dream School Design</h1>
-        
-        <p class="significance-box">
-            In the past, schools weren't always safe or welcoming for Mi'kmaw children. Today, we have the chance to design spaces that celebrate culture and make everyone feel proud.
-        </p>
+        <h1>The Longhouse Builder</h1>
+        <p class="significance-box">Mi'kmaw families lived in longhouses built from saplings and birch bark. Extended families shared one home, with a central fire for warmth and cooking.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to design a <strong>Dream School</strong> that celebrates Mi'kmaw culture and makes every student feel safe and excited to learn.
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">💡 Dream School Feature Bank</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Circle Room:</strong> A room for talking circles and community meetings.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Medicine Garden:</strong> A space to grow sage, cedar, and tobacco.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Mwikma'ki Map:</strong> A large floor mural of traditional territories.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Smudging Station:</strong> A safe place for traditional smudging ceremonies.</div>
-            </div>
+        <div class="room-tray" id="roomTray"></div>
+
+        <div class="floorplan">
+            <div class="floorplan-roof"></div>
+            <div class="floor-grid" id="floorGrid"></div>
         </div>
-        
-        <div class="step">
-            <strong>Step 1: The Environment</strong><br>
-            What colors and natural materials (like wood or stone) would you use to make the building feel connected to the land?
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Symbols</strong><br>
-            What Mi'kmaw symbols or art would you put in the hallways? (e.g., the 8-pointed star, petroglyphs, or community flags).
-        </div>
+        <div class="score-bar">Rooms placed: <span id="scoreCount">0</span> / 12</div>
+        <div class="info-box" id="infoBox">Pick a room below, then tap a square on the floor plan to place it.</div>
 
         <div class="step">
-            <strong>Step 3: The Feeling</strong><br>
-            How would a student know they are in a Mi'kmaw school the moment they walk through the door?
+            <strong>Step 1: Pick a Room</strong><br>
+            Tap a room type below (fire pit, sleeping area, etc.)
+        </div>
+        <div class="step">
+            <strong>Step 2: Place It</strong><br>
+            Tap a square on the floor plan to build it there. Fill the whole longhouse!
         </div>
 
-        <textarea id="workArea" placeholder="My dream school would look like... The walls would have... It would feel safe because..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
-
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="My longhouse has... The most important room is..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
-
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
+        function getStudentId() { try { const s = JSON.parse(localStorage.getItem('mks_current_student')); return s ? s.id : 'MKS-11-ALPHA'; } catch(e) { return 'MKS-11-ALPHA'; } }
         const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 4: Dream School';
+        const MISSION_TITLE = 'Mission 4: The Longhouse Builder';
+
+        const rooms = [
+            { id: 'fire', emoji: '🔥', name: 'Fire Pit', info: 'The heart of the longhouse — for cooking, warmth, and gathering.' },
+            { id: 'sleep', emoji: '🛏️', name: 'Sleeping', info: 'Raised platforms along the walls for families to sleep on.' },
+            { id: 'cook', emoji: '🍲', name: 'Cooking', info: 'Pots and tools for preparing traditional meals.' },
+            { id: 'store', emoji: '🧺', name: 'Storage', info: 'Baskets of food, tools, and supplies for winter.' },
+            { id: 'elder', emoji: '👴', name: 'Elder Area', info: 'A quiet space for Elders to rest and share teachings.' },
+            { id: 'smudge', emoji: '🌿', name: 'Smudge', info: 'Sacred medicines — sage, cedar, sweetgrass, tobacco.' }
+        ];
+
+        let selectedRoom = null;
+        let grid = Array(12).fill(null);
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const infoBox = document.getElementById('infoBox');
+        const scoreCount = document.getElementById('scoreCount');
+
+        const tray = document.getElementById('roomTray');
+        rooms.forEach(r => {
+            const btn = document.createElement('button');
+            btn.className = 'room-btn'; btn.dataset.id = r.id;
+            btn.innerHTML = `<span class="r-emoji">${r.emoji}</span>${r.name}`;
+            btn.onclick = () => { selectedRoom = r.id; infoBox.innerHTML = `<strong>${r.emoji} ${r.name}</strong> — ${r.info}`; document.querySelectorAll('.room-btn').forEach(b => b.classList.toggle('active', b.dataset.id === r.id)); };
+            tray.appendChild(btn);
+        });
+
+        const floorGrid = document.getElementById('floorGrid');
+        for (let i = 0; i < 12; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell'; cell.dataset.idx = i;
+            cell.onclick = () => placeRoom(i);
+            floorGrid.appendChild(cell);
+        }
+
+        function placeRoom(idx) {
+            if (!selectedRoom) { infoBox.innerText = 'Pick a room type first!'; return; }
+            grid[idx] = selectedRoom;
+            const r = rooms.find(x => x.id === selectedRoom);
+            const cell = floorGrid.children[idx];
+            cell.className = 'grid-cell placed';
+            cell.innerHTML = `<span class="cell-emoji">${r.emoji}</span><span class="cell-label">${r.name}</span>`;
+            scoreCount.textContent = grid.filter(g => g !== null).length;
+            triggerSave();
+        }
+
+        function triggerSave() { syncStatus.innerText = 'Changes...'; syncDot.className = 'indicator-dot'; clearTimeout(timeout); timeout = setTimeout(saveAndSync, 2000); }
+        workArea.addEventListener('input', triggerSave);
+
+        function renderGrid() {
+            for (let i = 0; i < 12; i++) {
+                const cell = floorGrid.children[i];
+                if (grid[i]) {
+                    const r = rooms.find(x => x.id === grid[i]);
+                    cell.className = 'grid-cell placed'; cell.innerHTML = `<span class="cell-emoji">${r.emoji}</span><span class="cell-label">${r.name}</span>`;
+                } else { cell.className = 'grid-cell'; cell.innerHTML = ''; }
+            }
+            scoreCount.textContent = grid.filter(g => g !== null).length;
+        }
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m4_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
+                const r = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d = await r.json();
+                if (d.content) workArea.value = d.content; else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m4_work') || '';
+                const saved = d.grid ? JSON.parse(d.grid) : JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m4_grid') || 'null');
+                if (saved) { grid = saved; renderGrid(); }
+                syncStatus.innerText = 'Loaded';
             } catch (e) {
                 workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m4_work') || '';
+                const saved = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m4_grid') || 'null');
+                if (saved) { grid = saved; renderGrid(); }
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
         }
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
-        });
-
         async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m4_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
-
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
-
+            localStorage.setItem('mks_' + STUDENT_ID + '_m4_work', workArea.value);
+            localStorage.setItem('mks_' + STUDENT_ID + '_m4_grid', JSON.stringify(grid));
+            syncStatus.innerText = 'Syncing...'; syncDot.className = 'indicator-dot active';
             try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(4)) completed.push(4);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
-            }
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ studentId: STUDENT_ID, missionTitle: MISSION_TITLE, reflection: workArea.value, grid: JSON.stringify(grid), timestamp: new Date().toISOString() }) });
+                syncStatus.innerText = 'Longhouse synced!';
+                let c = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
+                if (!c.includes(4)) c.push(4); localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(c));
+            } catch (e) { syncStatus.innerText = 'Saved locally'; }
         }
-
         retrieveFromCloud();
     </script>
 </body>

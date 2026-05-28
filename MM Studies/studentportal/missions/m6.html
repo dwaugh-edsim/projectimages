@@ -3,251 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 6 | The Secret Path</title>
+    <title>Mission 6 | The Medicine Wheel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #f43f5e; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #f43f5e; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .wheel-area { position: relative; width: 360px; height: 360px; margin: 1.5rem auto; }
+        .wheel-area svg { width: 100%; height: 100%; }
+        .wheel-quadrant { cursor: pointer; transition: all 0.3s; opacity: 0.3; }
+        .wheel-quadrant:hover { opacity: 0.6; }
+        .wheel-quadrant.placed { opacity: 1; }
+        .wheel-center { fill: #f8fafc; stroke: #e2e8f0; stroke-width: 3; }
+        .wheel-center-text { font-size: 12px; fill: var(--text); font-weight: 700; text-anchor: middle; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .item-tray { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .item-btn { padding: 0.5rem 0.75rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); transition: all 0.2s; text-align: center; }
+        .item-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .item-btn.active { border-color: var(--primary); color: var(--primary); background: #fff1f2; }
+        .item-btn.placed { background: #f0fdf4; border-color: #86efac; color: #15803d; opacity: 0.5; }
+        .item-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.15rem; }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .teach-box { padding: 1rem; background: #fff1f2; border-radius: 0.75rem; border: 1px solid #fecdd3; margin: 1rem 0; font-size: 0.85rem; color: #9f1239; text-align: center; min-height: 45px; }
+
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(244,63,94,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
+        .score-bar { text-align: center; margin-top: 0.75rem; font-size: 1.1rem; font-weight: 800; color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 06</span>
-        <h1>The Secret Path</h1>
-        
-        <p class="significance-box">
-            "The Secret Path" tells the story of Chanie Wenjack, a boy who died while trying to walk home from a residential school in Ontario. His story helped many people understand the pain of the residential school system.
-        </p>
+        <h1>The Medicine Wheel</h1>
+        <p class="significance-box">The Medicine Wheel teaches balance. It has 4 directions, 4 colors, 4 seasons, and 4 stages of life. Everything is connected.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to map out Chanie’s journey. You do <strong>not</strong> need to read the entire graphic novel for this mission. Instead, focus on the <strong>animated film</strong> or the key lyrics from the project. 
-            <br><br>
-            <a href="https://www.youtube.com/watch?v=yYfLPSJLeos" target="_blank" style="color: var(--primary); font-weight: 700;">📺 Watch 'The Secret Path' Animated Film (1 hour)</a>
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">📖 Chanie's Journey: Key Facts</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The School:</strong> Cecilia Jeffrey Residential School in Kenora, Ontario.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Path:</strong> Chanie followed the railroad tracks, trying to reach his home 600km away.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The 7 Matches:</strong> He only had seven matches in a jar to keep himself warm.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Legacy:</strong> His story led to the first-ever inquiry into the treatment of children in schools.</div>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Source: <a href="https://secretpath.ca/" target="_blank" style="color: var(--primary); font-weight: 700;">SecretPath.ca</a></p>
+        <div class="wheel-area">
+            <svg viewBox="0 0 360 360">
+                <g id="wheelQuads">
+                    <path class="wheel-quadrant" id="q-north" d="M180,180 L180,20 A160,160 0 0,1 340,180 Z" fill="#fef3c7" onclick="tapQuadrant('north')"/>
+                    <path class="wheel-quadrant" id="q-east" d="M180,180 L340,180 A160,160 0 0,1 180,340 Z" fill="#dcfce7" onclick="tapQuadrant('east')"/>
+                    <path class="wheel-quadrant" id="q-south" d="M180,180 L180,340 A160,160 0 0,1 20,180 Z" fill="#fee2e2" onclick="tapQuadrant('south')"/>
+                    <path class="wheel-quadrant" id="q-west" d="M180,180 L20,180 A160,160 0 0,1 180,20 Z" fill="#dbeafe" onclick="tapQuadrant('west')"/>
+                </g>
+                <line x1="180" y1="20" x2="180" y2="340" stroke="#94a3b8" stroke-width="2"/>
+                <line x1="20" y1="180" x2="340" y2="180" stroke="#94a3b8" stroke-width="2"/>
+                <circle class="wheel-center" cx="180" cy="180" r="50"/>
+                <text class="wheel-center-text" x="180" y="175" id="centerLabel">Medicine</text>
+                <text class="wheel-center-text" x="180" y="192" id="centerLabel2">Wheel</text>
+                <text id="qLabel-north" x="230" y="90" font-size="11" fill="#92400e" font-weight="700" text-anchor="middle"></text>
+                <text id="qLabel-east" x="270" y="280" font-size="11" fill="#166534" font-weight="700" text-anchor="middle"></text>
+                <text id="qLabel-south" x="120" y="290" font-size="11" fill="#991b1b" font-weight="700" text-anchor="middle"></text>
+                <text id="qLabel-west" x="100" y="100" font-size="11" fill="#1e40af" font-weight="700" text-anchor="middle"></text>
+            </svg>
         </div>
-        
-        <div class="step">
-            <strong>Step 1: The Departure</strong><br>
-            Why did Chanie decide to run away? What was he looking for?
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Challenges</strong><br>
-            What were 3 things Chanie faced on the "Secret Path"? (e.g., the cold, hunger, the distance).
-        </div>
+        <div class="score-bar">Quadrants filled: <span id="scoreCount">0</span> / 4</div>
+        <div class="teach-box" id="teachBox">Pick a card below, then tap a quadrant on the wheel.</div>
 
-        <div class="step">
-            <strong>Step 3: The Message</strong><br>
-            What is one thing you would say to Chanie if you could have met him on his path?
-        </div>
+        <div class="item-tray" id="itemTray"></div>
 
-        <textarea id="workArea" placeholder="Chanie ran away because... 
-On his path, he faced:
-1. 
-2. 
-3. 
-If I met Chanie, I would tell him..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="step"><strong>Step 1: Pick a Card</strong><br>Each card has a color, direction, season, and meaning.</div>
+        <div class="step"><strong>Step 2: Place It</strong><br>Tap the right quadrant on the wheel. Fill all 4!</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="The Medicine Wheel teaches... My direction is..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 6: The Medicine Wheel';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 6: The Secret Path';
+        const cards = [
+            { id:'north', quad:'north', name:'North — White', emoji:'⚪', color:'#fef3c7', season:'Winter', stage:'Elder', teaching:'White is the North. Winter. The time of Elders and wisdom. The turtle carries the teachings.', label:'White · Winter · Elder' },
+            { id:'east', quad:'east', name:'East — Yellow', emoji:'🟡', color:'#dcfce7', season:'Spring', stage:'Child', teaching:'Yellow is the East. Spring. The time of new beginnings and children. The eagle sees far.', label:'Yellow · Spring · Child' },
+            { id:'south', quad:'south', name:'South — Red', emoji:'🔴', color:'#fee2e2', season:'Summer', stage:'Youth', teaching:'Red is the South. Summer. The time of growing strong and learning who you are. The bear is brave.', label:'Red · Summer · Youth' },
+            { id:'west', quad:'west', name:'West — Blue', emoji:'🔵', color:'#dbeafe', season:'Fall', stage:'Adult', teaching:'Blue is the West. Fall. The time of reflection and giving back. The wolf protects the pack.', label:'Blue · Fall · Adult' }
+        ];
+
+        let selectedCard = null;
+        let placed = {};
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const teachBox = document.getElementById('teachBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const itemTray = document.getElementById('itemTray');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m6_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m6_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
-
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+        cards.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'item-btn'; btn.dataset.id = c.id;
+            btn.innerHTML = `<span class="item-emoji">${c.emoji}</span>${c.name}`;
+            btn.onclick = () => { selectedCard = c.id; teachBox.innerHTML = c.teaching; document.querySelectorAll('.item-btn').forEach(b => b.classList.toggle('active', b.dataset.id === c.id)); };
+            itemTray.appendChild(btn);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m6_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
+        function tapQuadrant(quad) {
+            if (!selectedCard) { teachBox.innerText = 'Pick a card first!'; return; }
+            const card = cards.find(c => c.id === selectedCard);
+            if (card.quad === quad) {
+                placed[quad] = card.id;
+                document.getElementById('q-' + quad).classList.add('placed');
+                document.getElementById('qLabel-' + quad).textContent = card.label;
+                document.querySelector(`.item-btn[data-id="${card.id}"]`).classList.add('placed');
+                teachBox.innerHTML = `Correct! ${card.teaching}`;
+                teachBox.style.background = '#f0fdf4'; teachBox.style.borderColor = '#86efac';
+            } else {
+                teachBox.innerHTML = 'Not quite — try a different spot!';
+                teachBox.style.background = '#fef2f2'; teachBox.style.borderColor = '#fecaca';
+            }
+            scoreCount.textContent = Object.keys(placed).length;
+            selectedCard = null;
+            document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+            if (Object.keys(placed).length === 4) { teachBox.innerHTML = 'The Medicine Wheel is complete! All 4 directions in balance.'; }
+            triggerSave();
+        }
 
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(6)) completed.push(6);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m6_work')||'';
+                const saved=d.placed?JSON.parse(d.placed):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m6_placed')||'{}');
+                if(saved){placed=saved;Object.entries(placed).forEach(([quad,cardId])=>{const card=cards.find(c=>c.id===cardId);if(card){document.getElementById('q-'+quad).classList.add('placed');document.getElementById('qLabel-'+quad).textContent=card.label;document.querySelector(`.item-btn[data-id="${cardId}"]`).classList.add('placed')}});scoreCount.textContent=Object.keys(placed).length}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m6_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m6_placed')||'{}');
+                if(saved){placed=saved;Object.entries(placed).forEach(([quad,cardId])=>{const card=cards.find(c=>c.id===cardId);if(card){document.getElementById('q-'+quad).classList.add('placed');document.getElementById('qLabel-'+quad).textContent=card.label;document.querySelector(`.item-btn[data-id="${cardId}"]`).classList.add('placed')}});scoreCount.textContent=Object.keys(placed).length}
+                syncStatus.innerText='Ready (Offline Mode)';
             }
         }
 
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m6_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m6_placed',JSON.stringify(placed));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,placed:JSON.stringify(placed),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Wheel synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(6))c.push(6);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>

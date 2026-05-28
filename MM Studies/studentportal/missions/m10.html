@@ -3,249 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 10 | The Justice Circle</title>
+    <title>Mission 10 | The Restorative Circle</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #10b981; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #10b981; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .circle-area { position: relative; width: 360px; height: 360px; margin: 1.5rem auto; background: radial-gradient(circle, #ecfdf5 30%, #f0fdf4 60%, #f8fafc 100%); border-radius: 50%; border: 3px solid #86efac; }
+        .circle-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 2.5rem; cursor: pointer; transition: all 0.3s; }
+        .circle-center:hover { transform: translate(-50%,-50%) scale(1.2); }
+        .circle-center.speaking { animation: glow 1s infinite; }
+        @keyframes glow { 0%,100%{filter:drop-shadow(0 0 5px #f59e0b)}50%{filter:drop-shadow(0 0 20px #f59e0b)} }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .seat { position: absolute; width: 80px; height: 80px; border: 3px dashed #86efac; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.5); }
+        .seat:hover { background: rgba(16,185,129,0.1); }
+        .seat.filled { border-style: solid; border-color: #10b981; background: rgba(16,185,129,0.15); }
+        .seat.speaking { border-color: #f59e0b; background: rgba(245,158,11,0.15); box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+        .seat-emoji { font-size: 1.8rem; }
+        .seat-label { font-size: 0.55rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; text-align: center; }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .people-tray { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .person-btn { padding: 0.5rem 0.75rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); transition: all 0.2s; text-align: center; }
+        .person-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .person-btn.active { border-color: var(--primary); background: #ecfdf5; color: var(--primary); }
+        .person-btn.placed { background: #f0fdf4; border-color: #86efac; color: #15803d; opacity: 0.5; }
+        .person-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.1rem; }
+
+        .speak-box { padding: 1rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a; margin: 0.75rem 0; font-size: 0.85rem; color: #92400e; text-align: center; min-height: 45px; }
+        .score-bar { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0.75rem 0; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 10</span>
-        <h1>The Justice Circle</h1>
-        
-        <p class="significance-box">
-            Restorative Justice (or Sentencing Circles) is a traditional Indigenous way of handling conflict. Instead of focusing on punishment, the circle focuses on healing the harm done to the victim and the community.
-        </p>
+        <h1>The Restorative Circle</h1>
+        <p class="significance-box">When someone causes harm, the Mi'kmaq sit in a circle to heal — not to punish. Everyone gets a turn with the talking feather.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to map out a <strong>Sentencing Circle</strong> for a small conflict (like someone breaking a window). Who sits in the circle?
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">⭕ The Circle Participants</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Elder:</strong> Provides wisdom and reminds the circle of the Sacred Teachings.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Harmed:</strong> Shares how they felt and what they need to heal.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Harmer:</strong> Takes responsibility and listens to the impact of their actions.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Community Supporter:</strong> Helps ensure the healing plan is followed.</div>
-            </div>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: The Participants</strong><br>
-            Name 4 people who must be in the circle to make it fair. (e.g., an Elder, the person who caused the harm, the victim, etc.).
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Talking Piece</strong><br>
-            In a circle, only the person holding the "Talking Piece" (like an Eagle Feather or a stone) can speak. Why is this rule important for healing?
-        </div>
+        <div class="people-tray" id="peopleTray"></div>
 
-        <div class="step">
-            <strong>Step 3: The Resolution</strong><br>
-            What is one "Healing Action" the person could take to fix the harm, instead of just going to jail?
+        <div class="circle-area">
+            <div class="circle-center" id="feather" onclick="passFeather()">🪶</div>
+            <div class="seat" id="seat0" style="top:0;left:140px;" onclick="placePerson(0)"></div>
+            <div class="seat" id="seat1" style="top:70px;right:20px;" onclick="placePerson(1)"></div>
+            <div class="seat" id="seat2" style="bottom:70px;right:20px;" onclick="placePerson(2)"></div>
+            <div class="seat" id="seat3" style="bottom:0;left:140px;" onclick="placePerson(3)"></div>
+            <div class="seat" id="seat4" style="bottom:70px;left:20px;" onclick="placePerson(4)"></div>
+            <div class="seat" id="seat5" style="top:70px;left:20px;" onclick="placePerson(5)"></div>
         </div>
+        <div class="score-bar">Circle members: <span id="scoreCount">0</span> / 6</div>
+        <div class="speak-box" id="speakBox">Pick a person below, then tap an empty seat. Tap the feather to pass it!</div>
 
-        <textarea id="workArea" placeholder="Circle Members: 
-1. 
-2. 
-3. 
-4. 
-The Talking Piece is important because... 
-A Healing Action would be..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="step"><strong>Step 1: Seat Everyone</strong><br>Pick people and fill all 6 seats around the circle.</div>
+        <div class="step"><strong>Step 2: Pass the Feather</strong><br>Tap the feather in the center to hear each person speak.</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="The talking feather means... The circle helps because..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 10: The Restorative Circle';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 10: The Justice Circle';
+        const people = [
+            { id:'elder', emoji:'👴', name:'Elder', words:'We must remember the teachings. What happened here is a chance to learn.' },
+            { id:'harmed', emoji:'😢', name:'Harmed', words:'I felt hurt when it happened. I need to know why it happened.' },
+            { id:'harmer', emoji:'😔', name:'Harmer', words:'I made a mistake. I want to make it right.' },
+            { id:'family', emoji:'👨‍👩‍👧', name:'Family', words:'Our family has been affected. We want to see healing, not more pain.' },
+            { id:'teacher', emoji:'👩‍🏫', name:'Teacher', words:'I have seen both sides. We can find a path forward together.' },
+            { id:'friend', emoji:'🤝', name:'Friend', words:'I am here to support both of them. We are a community.' }
+        ];
+
+        let selectedPerson = null;
+        let seats = Array(6).fill(null);
+        let featherIdx = -1;
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const speakBox = document.getElementById('speakBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const tray = document.getElementById('peopleTray');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m10_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m10_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
-
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+        people.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'person-btn'; btn.dataset.id = p.id;
+            btn.innerHTML = `<span class="person-emoji">${p.emoji}</span>${p.name}`;
+            btn.onclick = () => { selectedPerson = p.id; speakBox.innerHTML = `Tap an empty seat for <strong>${p.emoji} ${p.name}</strong>`; document.querySelectorAll('.person-btn').forEach(b => b.classList.toggle('active', b.dataset.id === p.id)); };
+            tray.appendChild(btn);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m10_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
+        function placePerson(idx) {
+            if (!selectedPerson) { speakBox.innerText = 'Pick a person first!'; return; }
+            const p = people.find(x => x.id === selectedPerson);
+            seats[idx] = selectedPerson;
+            const seat = document.getElementById('seat' + idx);
+            seat.innerHTML = `<span class="seat-emoji">${p.emoji}</span><span class="seat-label">${p.name}</span>`;
+            seat.classList.add('filled');
+            document.querySelector(`.person-btn[data-id="${selectedPerson}"]`).classList.add('placed');
+            scoreCount.textContent = seats.filter(s => s !== null).length;
+            selectedPerson = null;
+            document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+            if (seats.filter(s => s !== null).length === 6) speakBox.innerHTML = 'Everyone is seated! Tap the feather to begin.';
+            triggerSave();
+        }
 
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
+        function passFeather() {
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('speaking'));
+            document.getElementById('feather').classList.remove('speaking');
+            const filledSeats = seats.map((s, i) => s ? i : -1).filter(i => i >= 0);
+            if (filledSeats.length === 0) { speakBox.innerText = 'Seat people first!'; return; }
+            featherIdx = (featherIdx + 1) % filledSeats.length;
+            const seatIdx = filledSeats[featherIdx];
+            const p = people.find(x => x.id === seats[seatIdx]);
+            document.getElementById('seat' + seatIdx).classList.add('speaking');
+            document.getElementById('feather').classList.add('speaking');
+            speakBox.innerHTML = `<strong>${p.emoji} ${p.name} speaks:</strong> "${p.words}"`;
+            triggerSave();
+        }
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(10)) completed.push(10);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m10_work')||'';
+                const saved=d.seats?JSON.parse(d.seats):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m10_seats')||'null');
+                if(saved){saved.forEach((id,i)=>{if(id){selectedPerson=id;placePerson(i)}});selectedPerson=null;scoreCount.textContent=seats.filter(s=>s!==null).length}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m10_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m10_seats')||'null');
+                if(saved){saved.forEach((id,i)=>{if(id){selectedPerson=id;placePerson(i)}});selectedPerson=null;scoreCount.textContent=seats.filter(s=>s!==null).length}
+                syncStatus.innerText='Ready (Offline Mode)';
             }
         }
 
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m10_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m10_seats',JSON.stringify(seats));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,seats:JSON.stringify(seats),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Circle synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(10))c.push(10);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>

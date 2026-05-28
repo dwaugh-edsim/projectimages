@@ -3,321 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 3 | The Activist Trading Card</title>
+    <title>Mission 3 | The Talking Stick</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #f59e0b; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 850px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .stick-area { position: relative; width: 100%; height: 260px; background: linear-gradient(180deg, #fef3c7, #fde68a); border-radius: 1.5rem; margin: 1.5rem 0; border: 2px solid #d97706; overflow: hidden; }
+        .stick-shaft { position: absolute; left: 50%; top: 20px; bottom: 20px; width: 40px; transform: translateX(-50%); background: linear-gradient(90deg, #92400e, #b45309, #92400e); border-radius: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
+        .stick-shaft::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: radial-gradient(circle, #b45309, #78350f); border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
+        .carving-slot { position: absolute; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; border: 3px dashed #92400e; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.3); transition: all 0.3s; }
+        .carving-slot.filled { border-style: solid; border-color: #15803d; background: rgba(34,197,94,0.2); }
+        .carving-slot .carving-emoji { font-size: 2rem; }
+        .slot-label { position: absolute; right: -100px; font-size: 0.7rem; font-weight: 700; color: #92400e; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; }
+        .slot-label-left { position: absolute; left: -100px; font-size: 0.7rem; font-weight: 700; color: #92400e; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* ── Leader Scaffolding ── */
-        .leader-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
+        .carving-tray { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 1.5rem 0; padding: 1.25rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .carving-btn { width: 80px; height: 90px; background: white; border: 2px solid var(--border); border-radius: 0.75rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; transition: all 0.2s; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
+        .carving-btn:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .carving-btn.used { opacity: 0.3; pointer-events: none; }
+        .carving-btn .emoji { font-size: 2rem; }
 
-        .leader-card {
-            background: #fff;
-            border: 1px solid var(--border);
-            padding: 1rem;
-            border-radius: 1rem;
-            transition: all 0.2s;
-        }
+        .teaching-reveal { margin-top: 1rem; padding: 1rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a; min-height: 50px; font-size: 0.85rem; color: #92400e; text-align: center; transition: all 0.3s; }
 
-        .leader-card:hover {
-            border-color: var(--primary);
-            background: #fffbeb;
-        }
-
-        .leader-card strong {
-            display: block;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .leader-card p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-        
-        .teaching-reference {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-            background: #f1f5f9;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-        }
-
-        .teaching-item {
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-
-        .teaching-item strong {
-            display: block;
-            color: var(--text);
-            margin-bottom: 0.25rem;
-        }
-        
-        .step { 
-            background: #f8fafc; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-        }
-
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 250px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; transition: all 0.2s; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(245,158,11,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
         .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; transition: color 0.2s; }
         .btn-back:hover { color: var(--primary); }
+        .score-bar { text-align: center; margin-top: 1rem; font-size: 1.1rem; font-weight: 800; color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 03</span>
-        <h1>The Activist Trading Card</h1>
-        
-        <p class="significance-box">
-            History is made by people who stand up for their community. In this mission, you will design a "Trading Card" for a Mi'kmaw leader or activist who shows the Seven Sacred Teachings in action.
-        </p>
+        <h1>The Talking Stick</h1>
+        <p class="significance-box">In a talking circle, only the person holding the Talking Stick may speak. The carvings on the stick remind everyone of the teachings.</p>
 
-        <p style="font-weight: 700; margin-bottom: 0.5rem;">Pick Your Activist:</p>
-        <div class="leader-grid">
-            <div class="leader-card">
-                <strong>Donald Marshall Jr.</strong>
-                <p>Wrongfully convicted, he fought for Mi'kmaw fishing rights and won a landmark Supreme Court case.</p>
-            </div>
-            <div class="leader-card">
-                <strong>Nora Bernard</strong>
-                <p>A Shubenacadie survivor who led the largest class-action lawsuit in Canadian history for Residential School survivors.</p>
-            </div>
-            <div class="leader-card">
-                <strong>Rita Joe</strong>
-                <p>Known as the "Gentle Warrior," her poetry helped reclaim the Mi'kmaw language and identity.</p>
-            </div>
-            <div class="leader-card">
-                <strong>Daniel N. Paul</strong>
-                <p>A powerful historian and author of "We Were Not the Savages" who changed how Mi'kmaw history is told.</p>
-            </div>
+        <div class="stick-area" id="stickArea">
+            <div class="stick-shaft"></div>
+            <div class="carving-slot" id="slot0" style="top: 15px;"><span class="slot-label">Top</span></div>
+            <div class="carving-slot" id="slot1" style="top: 65px;"><span class="slot-label-left">Upper</span></div>
+            <div class="carving-slot" id="slot2" style="top: 115px;"><span class="slot-label">Middle</span></div>
+            <div class="carving-slot" id="slot3" style="top: 165px;"><span class="slot-label-left">Lower</span></div>
         </div>
 
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">💡 Virtue & Strength Bank</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>🐢 Truth:</strong> Speaking up for what is right even when it's hard.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>🐻 Courage:</strong> Facing fears to protect the community or the land.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>🦅 Love:</strong> Acting with kindness and care for all living things.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>👤 Honesty:</strong> Being true to yourself and your promises.</div>
-            </div>
-        </div>
+        <div class="score-bar">Carvings placed: <span id="scoreCount">0</span> / 4</div>
+
+        <div class="teaching-reveal" id="teachingReveal">Tap a carving below, then tap a spot on the stick</div>
+
+        <div class="carving-tray" id="carvingTray"></div>
 
         <div class="step">
-            <strong>Step 1: Choose Your Leader</strong><br>
-            Pick one person from the list above or someone you know who works for the community.
+            <strong>Step 1: Pick a Carving</strong><br>
+            Each carving has a meaning. Tap one, then tap an empty spot on the stick.
         </div>
-        
         <div class="step">
-            <strong>Step 2: Assign a Virtue</strong><br>
-            Which Teaching defines them? (Truth, Courage, Love, Wisdom, Humility, Respect, or Honesty)
+            <strong>Step 2: Fill All 4 Spots</strong><br>
+            Place 4 different carvings. What does your stick say?
         </div>
 
-        <div class="step">
-            <strong>Step 3: Design the "Stats"</strong><br>
-            What are their 3 "Power Strengths"? (e.g., Justice +100, Courage +99)
-        </div>
+        <textarea id="workArea" placeholder="My talking stick has... It reminds people to..."></textarea>
 
-        <textarea id="workArea" placeholder="TRADING CARD DESIGN:
-Name: [Name]
-Main Teaching: [Virtue]
-Power Strength 1: [Strength + Score]
-Power Strength 2: [Strength + Score]
-Biography: [1 sentence on why they are a hero]..."></textarea>
-        
         <div class="sync-indicator">
             <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
+            <span id="syncStatus">Linking to Command Center...</span>
         </div>
-
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
-
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
+        function getStudentId() { try { const s = JSON.parse(localStorage.getItem('mks_current_student')); return s ? s.id : 'MKS-11-ALPHA'; } catch(e) { return 'MKS-11-ALPHA'; } }
         const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 3: Activist Trading Card';
+        const MISSION_TITLE = 'Mission 3: The Talking Stick';
+
+        const carvings = [
+            { id: 'feather', emoji: '🪶', name: 'Eagle Feather', teaching: 'Truth — Speak honestly when you hold the stick.' },
+            { id: 'bear', emoji: '🐻', name: 'Bear Claw', teaching: 'Courage — Be brave enough to share your feelings.' },
+            { id: 'turtle', emoji: '🐢', name: 'Turtle Shell', teaching: 'Wisdom — Listen carefully before you speak.' },
+            { id: 'cedar', emoji: '🌿', name: 'Cedar Branch', teaching: 'Respect — Honor everyone in the circle.' },
+            { id: 'fire', emoji: '🔥', name: 'Sacred Fire', teaching: 'Love — Care for each other like family.' },
+            { id: 'stone', emoji: '🪨', name: 'Grandfather Stone', teaching: 'Humility — Remember you are part of a community.' },
+            { id: 'salmon', emoji: '🐟', name: 'Salmon', teaching: 'Perseverance — Keep going even when it is hard.' },
+            { id: 'star', emoji: '⭐', name: 'Eight-Point Star', teaching: 'Balance — Keep all parts of life in harmony.' }
+        ];
+
+        let selectedCarving = null;
+        let slots = [null, null, null, null];
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const teachingReveal = document.getElementById('teachingReveal');
+        const scoreCount = document.getElementById('scoreCount');
+
+        const tray = document.getElementById('carvingTray');
+        carvings.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'carving-btn';
+            btn.dataset.id = c.id;
+            btn.innerHTML = `<span class="emoji">${c.emoji}</span>${c.name}`;
+            btn.onclick = () => selectCarving(c.id);
+            tray.appendChild(btn);
+        });
+
+        function selectCarving(id) {
+            selectedCarving = id;
+            const c = carvings.find(x => x.id === id);
+            teachingReveal.innerHTML = `<strong>${c.emoji} ${c.name}</strong> — ${c.teaching}`;
+            document.querySelectorAll('.carving-btn').forEach(b => b.style.borderColor = b.dataset.id === id ? 'var(--primary)' : 'var(--border)');
+        }
+
+        for (let i = 0; i < 4; i++) {
+            document.getElementById('slot' + i).onclick = () => placeCarving(i);
+        }
+
+        function placeCarving(slotIdx) {
+            if (!selectedCarving) { teachingReveal.innerText = 'Pick a carving first!'; return; }
+            const prev = slots[slotIdx];
+            if (prev) { document.querySelector(`.carving-btn[data-id="${prev}"]`).classList.remove('used'); }
+            slots[slotIdx] = selectedCarving;
+            const c = carvings.find(x => x.id === selectedCarving);
+            const slot = document.getElementById('slot' + slotIdx);
+            slot.innerHTML = `<span class="carving-emoji">${c.emoji}</span>`;
+            slot.classList.add('filled');
+            document.querySelector(`.carving-btn[data-id="${selectedCarving}"]`).classList.add('used');
+            scoreCount.textContent = slots.filter(s => s !== null).length;
+            if (slots.filter(s => s !== null).length === 4) {
+                teachingReveal.innerHTML = 'Your Talking Stick is complete! Each carving carries a teaching.';
+                teachingReveal.style.background = '#f0fdf4'; teachingReveal.style.borderColor = '#86efac';
+            }
+            selectedCarving = null;
+            triggerSave();
+        }
+
+        function triggerSave() { syncStatus.innerText = 'Changes detected...'; syncDot.className = 'indicator-dot'; clearTimeout(timeout); timeout = setTimeout(saveAndSync, 2000); }
+        workArea.addEventListener('input', triggerSave);
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m3_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
+                const r = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d = await r.json();
+                if (d.content) workArea.value = d.content;
+                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m3_work') || '';
+                const saved = d.slots ? JSON.parse(d.slots) : JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m3_slots') || 'null');
+                if (saved) { saved.forEach((id, i) => { if (id) { selectedCarving = id; placeCarving(i); } }); selectedCarving = null; }
+                syncStatus.innerText = 'Mission data retrieved';
             } catch (e) {
                 workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m3_work') || '';
+                const saved = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m3_slots') || 'null');
+                if (saved) { saved.forEach((id, i) => { if (id) { selectedCarving = id; placeCarving(i); } }); selectedCarving = null; }
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
         }
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
-        });
-
         async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m3_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
-
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
-
+            localStorage.setItem('mks_' + STUDENT_ID + '_m3_work', workArea.value);
+            localStorage.setItem('mks_' + STUDENT_ID + '_m3_slots', JSON.stringify(slots));
+            syncStatus.innerText = 'Syncing...'; syncDot.className = 'indicator-dot active';
             try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ studentId: STUDENT_ID, missionTitle: MISSION_TITLE, reflection: workArea.value, slots: JSON.stringify(slots), timestamp: new Date().toISOString() }) });
+                syncStatus.innerText = 'Stick synced!';
                 let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
                 if (!completed.includes(3)) completed.push(3);
                 localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
-            }
+            } catch (e) { syncStatus.innerText = 'Saved locally'; }
         }
-
         retrieveFromCloud();
     </script>
 </body>

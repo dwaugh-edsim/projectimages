@@ -3,247 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 7 | TRC Report Card</title>
+    <title>Mission 7 | The Treaty Tree</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #3b82f6; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #3b82f6; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .tree-area { position: relative; width: 100%; max-width: 500px; height: 380px; margin: 1.5rem auto; background: linear-gradient(180deg, #bfdbfe 0%, #bfdbfe 60%, #86efac 60%, #22c55e 100%); border-radius: 1rem; border: 2px solid #16a34a; overflow: hidden; }
+        .tree-trunk { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 200px; background: linear-gradient(90deg, #78350f, #92400e, #78350f); border-radius: 4px 4px 0 0; }
+        .tree-canopy { position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%); width: 280px; height: 180px; background: radial-gradient(ellipse, #16a34a, #15803d); border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .leaf-slot { position: absolute; width: 70px; height: 70px; cursor: pointer; transition: all 0.5s; display: flex; align-items: center; justify-content: center; }
+        .leaf-slot .promise-leaf { width: 100%; height: 100%; background: #f0fdf4; border: 2px solid #86efac; border-radius: 50% 0 50% 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; font-size: 0.55rem; font-weight: 700; color: #15803d; text-align: center; line-height: 1.2; padding: 4px; }
+        .leaf-slot:hover .promise-leaf { transform: scale(1.1); box-shadow: 0 4px 15px rgba(34,197,94,0.3); }
+        .leaf-slot.kept .promise-leaf { background: #22c55e; color: white; border-color: #15803d; }
+        .leaf-slot.broken .promise-leaf { background: #fca5a5; color: #991b1b; border-color: #ef4444; animation: fall 3s ease-in forwards; }
+        @keyframes fall { 0%{transform:translateY(0) rotate(0)}100%{transform:translateY(300px) rotate(45deg);opacity:0} }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .promise-tray { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .promise-btn { padding: 0.5rem 0.75rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); transition: all 0.2s; max-width: 130px; text-align: center; }
+        .promise-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .promise-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
+        .promise-btn.placed { opacity: 0.4; pointer-events: none; }
+
+        .judge-row { display: flex; gap: 0.75rem; justify-content: center; margin: 0.75rem 0; }
+        .judge-btn { padding: 0.75rem 1.5rem; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-weight: 800; font-size: 0.85rem; transition: all 0.2s; background: white; }
+        .judge-btn.keep { color: #15803d; border-color: #86efac; }
+        .judge-btn.keep:hover { background: #22c55e; color: white; }
+        .judge-btn.break-btn { color: #dc2626; border-color: #fca5a5; }
+        .judge-btn.break-btn:hover { background: #ef4444; color: white; }
+
+        .info-box { padding: 1rem; background: #eff6ff; border-radius: 0.75rem; border: 1px solid #93c5fd; margin: 0.75rem 0; font-size: 0.85rem; color: #1e40af; text-align: center; min-height: 45px; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 07</span>
-        <h1>TRC Report Card</h1>
-        
-        <p class="significance-box">
-            The Truth and Reconciliation Commission (TRC) created 94 "Calls to Action" to fix the relationship between Indigenous people and the rest of Canada. 
-        </p>
+        <h1>The Treaty Tree</h1>
+        <p class="significance-box">Treaties are promises. The Mi'kmaq promised to share the land "as long as the sun shines and the rivers flow." Some promises were kept. Some were broken.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to look at the Calls to Action and pick the **3 most important ones** for your community. Give Canada a grade!
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">📜 TRC Call to Action Categories</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Education:</strong> Fixing the funding gap for schools on reserves (Calls 6-12).</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Language:</strong> Protecting and reviving Indigenous languages (Calls 13-17).</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Justice:</strong> Reducing the number of Indigenous people in prison (Calls 30-42).</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Health:</strong> Closing the gap in health outcomes (Calls 18-24).</div>
-            </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem;">Source: <a href="https://ehprnh2mwo3.exactdn.com/wp-content/uploads/2021/01/Calls_to_Action_English2.pdf" target="_blank" style="color: var(--primary); font-weight: 700;">Full TRC PDF</a></p>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: Pick the Priority</strong><br>
-            Which Call to Action do you think would help Mi'kmaw students the most? (e.g., Education, Language, or Health).
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: Give a Grade</strong><br>
-            On a scale of A to F, how well do you think Canada is doing at fulfilling that Call to Action? Why?
+        <div class="tree-area" id="treeArea">
+            <div class="tree-canopy"></div>
+            <div class="tree-trunk"></div>
         </div>
 
-        <div class="step">
-            <strong>Step 3: The Recommendation</strong><br>
-            What is one thing the government should do *tomorrow* to make things better?
+        <div class="promise-tray" id="promiseTray"></div>
+        <div class="info-box" id="infoBox">Pick a promise, then decide: KEPT or BROKEN?</div>
+        <div class="judge-row">
+            <button class="judge-btn keep" id="btnKeep" onclick="judgePromise('kept')">Kept</button>
+            <button class="judge-btn break-btn" id="btnBreak" onclick="judgePromise('broken')">Broken</button>
         </div>
 
-        <textarea id="workArea" placeholder="Priority Call to Action: [Category]
-My Grade for Canada: [A-F]
-Reason: 
-My Recommendation: "></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="step"><strong>Step 1: Pick a Promise</strong><br>Tap one of the promises above.</div>
+        <div class="step"><strong>Step 2: Judge It</strong><br>Is it KEPT or BROKEN? The tree will show the result.</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="The most important promise is... I think it was..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 7: The Treaty Tree';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 7: TRC Report Card';
+        const promises = [
+            { id:'share', name:'Share the Land', emoji:'🌍', detail:'"We will share the bounty of the land and waters."', status:null, leafX:180, leafY:80 },
+            { id:'peace', name:'Live in Peace', emoji:'☮️', detail:'"We will live in peace as long as the sun shines."', status:null, leafX:250, leafY:120 },
+            { id:'protect', name:'Protect the Children', emoji:'👶', detail:'"We will protect the future for seven generations."', status:null, leafX:130, leafY:110 },
+            { id:'respect', name:'Respect the Elders', emoji:'👴', detail:'"We will listen to each other with respect and honesty."', status:null, leafX:220, leafY:160 },
+            { id:'language', name:'Keep the Language', emoji:'🗣️', detail:'"We will help keep the Mi\'kmaw language alive."', status:null, leafX:160, leafY:155 },
+            { id:'rights', name:'Honor the Rights', emoji:'⚖️', detail:'"We will honor the rights of the Mi\'kmaq to fish and hunt."', status:null, leafX:190, leafY:200 }
+        ];
+
+        let selectedPromise = null;
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const infoBox = document.getElementById('infoBox');
+        const treeArea = document.getElementById('treeArea');
+        const tray = document.getElementById('promiseTray');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m7_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m7_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
+        promises.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'promise-btn'; btn.dataset.id = p.id;
+            btn.innerHTML = `${p.emoji} ${p.name}`;
+            btn.onclick = () => { selectedPromise = p.id; infoBox.innerHTML = p.detail; document.querySelectorAll('.promise-btn').forEach(b => b.classList.toggle('active', b.dataset.id === p.id)); };
+            tray.appendChild(btn);
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+            const leaf = document.createElement('div');
+            leaf.className = 'leaf-slot'; leaf.id = 'leaf-' + p.id;
+            leaf.style.left = (p.leafX - 35) + 'px'; leaf.style.top = (p.leafY - 35) + 'px';
+            leaf.innerHTML = `<div class="promise-leaf">${p.emoji}<br>${p.name}</div>`;
+            treeArea.appendChild(leaf);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m7_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
+        function judgePromise(status) {
+            if (!selectedPromise) { infoBox.innerText = 'Pick a promise first!'; return; }
+            const p = promises.find(x => x.id === selectedPromise);
+            p.status = status;
+            const leaf = document.getElementById('leaf-' + p.id);
+            leaf.className = 'leaf-slot ' + (status === 'kept' ? 'kept' : 'broken');
+            document.querySelector(`.promise-btn[data-id="${p.id}"]`).classList.add('placed');
+            if (status === 'kept') {
+                infoBox.innerHTML = `You marked "${p.name}" as <strong style="color:#15803d">KEPT</strong>. A green leaf stays on the tree.`;
+                infoBox.style.background = '#f0fdf4'; infoBox.style.borderColor = '#86efac'; infoBox.style.color = '#166534';
+            } else {
+                infoBox.innerHTML = `You marked "${p.name}" as <strong style="color:#dc2626">BROKEN</strong>. The leaf falls from the tree.`;
+                infoBox.style.background = '#fef2f2'; infoBox.style.borderColor = '#fecaca'; infoBox.style.color = '#991b1b';
+            }
+            selectedPromise = null;
+            document.querySelectorAll('.promise-btn').forEach(b => b.classList.remove('active'));
+            triggerSave();
+        }
 
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(7)) completed.push(7);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+        function renderLeaves(){promises.forEach(p=>{if(p.status){const leaf=document.getElementById('leaf-'+p.id);leaf.className='leaf-slot '+(p.status==='kept'?'kept':'');if(p.status==='broken'){leaf.style.display='none'}document.querySelector(`.promise-btn[data-id="${p.id}"]`).classList.add('placed')}})}
+
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m7_work')||'';
+                const saved=d.promises?JSON.parse(d.promises):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m7_promises')||'null');
+                if(saved){saved.forEach(s=>{const p=promises.find(x=>x.id===s.id);if(p)p.status=s.status});renderLeaves()}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m7_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m7_promises')||'null');
+                if(saved){saved.forEach(s=>{const p=promises.find(x=>x.id===s.id);if(p)p.status=s.status});renderLeaves()}
+                syncStatus.innerText='Ready (Offline Mode)';
             }
         }
 
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m7_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m7_promises',JSON.stringify(promises.map(p=>({id:p.id,status:p.status}))));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,promises:JSON.stringify(promises.map(p=>({id:p.id,status:p.status}))),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Tree synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(7))c.push(7);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>

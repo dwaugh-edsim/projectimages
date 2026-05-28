@@ -3,246 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 9 | Ipperwash Ticker</title>
+    <title>Mission 9 | The Fire Keeper</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #64748b; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #64748b; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .fire-area { position: relative; width: 300px; height: 300px; margin: 1.5rem auto; background: radial-gradient(circle, #fef3c7 0%, #fde68a 40%, #78716c 80%, #57534e 100%); border-radius: 50%; border: 4px solid #57534e; }
+        .fire-base { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 120px; height: 40px; background: #78350f; border-radius: 0 0 60px 60px; }
+        .fire-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 160px; height: 160px; border: 3px solid #a8a29e; border-radius: 50%; }
+        .fire-slot { position: absolute; width: 60px; height: 60px; border: 3px dashed rgba(120,53,15,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; background: rgba(255,255,255,0.2); }
+        .fire-slot.placed { border-style: solid; border-color: #16a34a; background: rgba(34,197,94,0.2); }
+        .fire-slot .slot-emoji { font-size: 1.8rem; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .medicine-tray { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .med-btn { padding: 0.6rem 0.75rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); transition: all 0.2s; text-align: center; }
+        .med-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .med-btn.active { border-color: var(--primary); background: #f8fafc; color: var(--primary); }
+        .med-btn.placed { background: #f0fdf4; border-color: #86efac; color: #15803d; opacity: 0.5; }
+        .med-emoji { font-size: 1.5rem; display: block; margin-bottom: 0.15rem; }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .teach-box { padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid var(--border); margin: 0.75rem 0; font-size: 0.85rem; color: var(--text); text-align: center; min-height: 45px; }
+        .score-bar { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0.75rem 0; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(100,116,139,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 09</span>
-        <h1>Ipperwash Ticker</h1>
-        
-        <p class="significance-box">
-            The Ipperwash Crisis was a land dispute in Ontario where the Stoney Point Ojibway community protested the theft of their land during WWII. It led to a major inquiry and a call for better land-claim systems.
-        </p>
+        <h1>The Fire Keeper</h1>
+        <p class="significance-box">The sacred fire connects the people to the Spirit World. The Fire Keeper adds medicines in the right order. Each one has a meaning.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to create a series of <strong>News Headlines</strong> (a "Ticker") that explains the crisis from the perspective of the land protectors.
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">📑 Ipperwash Crisis: Key Facts</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Stolen Land:</strong> In 1942, the army took the Stoney Point reserve to build a base, promising to return it. They didn't.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Dudley George:</strong> An unarmed Ojibway land protector who was shot and killed by police during the protest.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Inquiry:</strong> A 2007 report proved the government and police acted unfairly and ignored land rights.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>Return of Land:</strong> In 2016, the government finally signed a deal to return the land and pay for damages.</div>
-            </div>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: The Protest Begins</strong><br>
-            Write a headline for when the community first re-entered the park to reclaim their land.
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Inquiry</strong><br>
-            Write a headline for when the truth finally came out about how the land was stolen and the events of the protest.
-        </div>
+        <div class="medicine-tray" id="medTray"></div>
 
-        <div class="step">
-            <strong>Step 3: The Future</strong><br>
-            Write a headline for the day the land is finally returned to its rightful owners.
+        <div class="fire-area">
+            <div class="fire-ring"></div>
+            <div class="fire-base"></div>
+            <div class="fire-slot" id="slot0" style="top:60px;left:120px;"></div>
+            <div class="fire-slot" id="slot1" style="top:120px;left:185px;"></div>
+            <div class="fire-slot" id="slot2" style="top:190px;left:150px;"></div>
+            <div class="fire-slot" id="slot3" style="top:190px;left:80px;"></div>
         </div>
+        <div class="score-bar">Medicines placed: <span id="scoreCount">0</span> / 4</div>
+        <div class="teach-box" id="teachBox">Pick a sacred medicine, then tap a spot around the fire.</div>
 
-        <textarea id="workArea" placeholder="HEADLINE 1: [Text]
-HEADLINE 2: [Text]
-HEADLINE 3: [Text]
-The most important lesson from Ipperwash is..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="step"><strong>Step 1: Pick a Medicine</strong><br>Each medicine has a special meaning. Tap one.</div>
+        <div class="step"><strong>Step 2: Place It</strong><br>Tap an empty spot around the fire. Place all 4!</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="The sacred fire is for... My favorite medicine is..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 9: The Fire Keeper';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 9: Ipperwash Ticker';
+        const medicines = [
+            { id:'tobacco', emoji:'🌿', name:'Tobacco', teaching:'Tobacco is the first medicine. It is offered to the earth to say thank you before taking anything.' },
+            { id:'sage', emoji:'🍃', name:'Sage', teaching:'Sage is used to clean the spirit. It chases away bad feelings and brings clarity.' },
+            { id:'cedar', emoji:'🌲', name:'Cedar', teaching:'Cedar protects the body. It is used in sweat lodges and for healing sickness.' },
+            { id:'sweetgrass', emoji:'🌾', name:'Sweetgrass', teaching:'Sweetgrass brings good energy. Its sweet smell welcomes kindness and positive spirits.' }
+        ];
+
+        let selectedMed = null;
+        let slots = [null, null, null, null];
+        let timeout = null;
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const teachBox = document.getElementById('teachBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const tray = document.getElementById('medTray');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m9_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m9_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
-
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+        medicines.forEach(m => {
+            const btn = document.createElement('button');
+            btn.className = 'med-btn'; btn.dataset.id = m.id;
+            btn.innerHTML = `<span class="med-emoji">${m.emoji}</span>${m.name}`;
+            btn.onclick = () => { selectedMed = m.id; teachBox.innerHTML = m.teaching; document.querySelectorAll('.med-btn').forEach(b => b.classList.toggle('active', b.dataset.id === m.id)); };
+            tray.appendChild(btn);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m9_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
-
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
+        for (let i = 0; i < 4; i++) {
+            document.getElementById('slot' + i).onclick = () => {
+                if (!selectedMed) { teachBox.innerText = 'Pick a medicine first!'; return; }
+                const m = medicines.find(x => x.id === selectedMed);
+                slots[i] = selectedMed;
+                const slot = document.getElementById('slot' + i);
+                slot.innerHTML = `<span class="slot-emoji">${m.emoji}</span>`;
+                slot.classList.add('placed');
+                document.querySelector(`.med-btn[data-id="${selectedMed}"]`).classList.add('placed');
+                scoreCount.textContent = slots.filter(s => s !== null).length;
+                if (slots.filter(s => s !== null).length === 4) {
+                    teachBox.innerHTML = 'The sacred fire is complete! All four medicines are in place.';
+                    teachBox.style.background = '#f0fdf4'; teachBox.style.borderColor = '#86efac';
+                }
+                selectedMed = null;
+                document.querySelectorAll('.med-btn').forEach(b => b.classList.remove('active'));
+                triggerSave();
             };
+        }
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(9)) completed.push(9);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m9_work')||'';
+                const saved=d.slots?JSON.parse(d.slots):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m9_slots')||'null');
+                if(saved){saved.forEach((id,i)=>{if(id){const m=medicines.find(x=>x.id===id);const slot=document.getElementById('slot'+i);slot.innerHTML=`<span class="slot-emoji">${m.emoji}</span>`;slot.classList.add('placed');document.querySelector(`.med-btn[data-id="${id}"]`).classList.add('placed')}});slots=saved;scoreCount.textContent=slots.filter(s=>s!==null).length}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m9_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m9_slots')||'null');
+                if(saved){saved.forEach((id,i)=>{if(id){const m=medicines.find(x=>x.id===id);const slot=document.getElementById('slot'+i);slot.innerHTML=`<span class="slot-emoji">${m.emoji}</span>`;slot.classList.add('placed');document.querySelector(`.med-btn[data-id="${id}"]`).classList.add('placed')}});slots=saved;scoreCount.textContent=slots.filter(s=>s!==null).length}
+                syncStatus.innerText='Ready (Offline Mode)';
             }
         }
 
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m9_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m9_slots',JSON.stringify(slots));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,slots:JSON.stringify(slots),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Fire synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(9))c.push(9);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>

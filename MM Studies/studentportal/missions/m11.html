@@ -3,245 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 11 | Myth vs. Truth</title>
+    <title>Mission 11 | Mi'kmaw Sky Reader</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #f43f5e; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 800px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #f43f5e; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
+        .sky-canvas { display: block; margin: 1.5rem auto; border-radius: 1.5rem; border: 2px solid #1e3a5f; cursor: crosshair; touch-action: none; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
-        }
-        
-        .step { 
-            background: #f1f5f9; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border-left: 4px solid var(--primary); 
-        }
+        .constellation-tray { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: #f1f5f9; border-radius: 1rem; border: 1px solid var(--border); }
+        .const-btn { padding: 0.6rem 1rem; background: white; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); transition: all 0.2s; }
+        .const-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .const-btn.active { border-color: var(--primary); background: #fff1f2; color: var(--primary); }
+        .const-btn.found { background: #f0fdf4; border-color: #86efac; color: #15803d; }
 
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 200px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .story-box { padding: 1rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a; margin: 0.75rem 0; font-size: 0.9rem; color: #92400e; text-align: center; min-height: 50px; line-height: 1.5; }
+        .score-bar { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0.75rem 0; }
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; }
+        .step strong { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(244,63,94,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 11</span>
-        <h1>Myth vs. Truth</h1>
-        
-        <p class="significance-box">
-            History is often told through "Myths" (stories that are popular but not always true) and "Truths" (stories backed by primary sources). The story of Pocahontas is a classic example of a Disney myth.
-        </p>
+        <h1>Mi'kmaw Sky Reader</h1>
+        <p class="significance-box">The Mi'kmaq read the stars to find their way. Each constellation has a story. Pick one, then tap the stars to connect them.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to compare the "Myth" of Pocahontas with the "Truth" of Indigenous history.
-        </p>
-        
-        <div class="scaffold-box" style="background: #f1f5f9; padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem; border: 1px solid var(--border);">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">🍎 Pocahontas: The Real History</h4>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Age:</strong> She was only 10 or 11 when she met John Smith, not a grown woman.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Capture:</strong> She was kidnapped by the English in 1613 and held for ransom.</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Name:</strong> Her real name was Matoaka. Pocahontas was a nickname meaning "playful one".</div>
-                <div style="font-size: 0.8rem; line-height: 1.4; background: white; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);"><strong>The Death:</strong> She died in England at age 21, likely from a disease she caught there.</div>
-            </div>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: The Disney Myth</strong><br>
-            What is one thing the Disney movie says about Pocahontas that is clearly not true? (e.g., her age, her relationship, her choice to leave).
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The Truth</strong><br>
-            What was the actual reality for Indigenous women during that time period? How were they treated by explorers?
-        </div>
+        <div class="constellation-tray" id="constTray"></div>
 
-        <div class="step">
-            <strong>Step 3: Why it Matters</strong><br>
-            Why is it dangerous to believe the "Disney version" of history instead of the truth?
-        </div>
+        <canvas id="skyCanvas" class="sky-canvas" width="650" height="420"></canvas>
 
-        <textarea id="workArea" placeholder="The Disney Myth says... 
-The Truth is... 
-Believing myths is dangerous because..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="score-bar">Constellations found: <span id="scoreCount">0</span> / 5</div>
+        <div class="story-box" id="storyBox">Tap a constellation name above to begin.</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <div class="step"><strong>Step 1: Pick a Constellation</strong><br>Tap one of the constellation names above.</div>
+        <div class="step"><strong>Step 2: Connect the Stars</strong><br>Tap the bright stars on the sky to draw lines between them.</div>
+
+        <textarea id="workArea" placeholder="The stars tell me... My favorite constellation is..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE="Mission 11: Mi'kmaw Sky Reader";
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 11: Myth vs. Truth';
+        const constellations = [
+            {
+                id: 'bear', name: 'The Great Bear', emoji: '🐻',
+                story: 'The Great Bear is chased across the sky by seven bird warriors. In fall, they catch him and his red blood colors the leaves.',
+                stars: [
+                    {x:100,y:100},{x:160,y:85},{x:220,y:90},{x:260,y:120},
+                    {x:245,y:180},{x:185,y:200},{x:130,y:185}
+                ],
+                connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]
+            },
+            {
+                id: 'fisherman', name: 'The Fisherman', emoji: '🎣',
+                story: "A Mi'kmaw fisherman who stands by the river all winter. His belt of three bright stars guides travelers home.",
+                stars: [
+                    {x:400,y:80},{x:440,y:140},{x:420,y:180},
+                    {x:400,y:230},{x:460,y:230}
+                ],
+                connections: [[0,1],[1,2],[2,3],[2,4]]
+            },
+            {
+                id: 'moose', name: 'The Moose', emoji: '🫎',
+                story: 'A giant moose that walks across the winter sky. When he steps on thin ice, spring is coming.',
+                stars: [
+                    {x:520,y:100},{x:560,y:160},{x:500,y:200},{x:580,y:220}
+                ],
+                connections: [[0,1],[1,2],[1,3],[2,3]]
+            },
+            {
+                id: 'canoe', name: 'The Canoe', emoji: '🛶',
+                story: "Glooscap's canoe, paddling across the Milky Way river. The stars are his fire reflected in the water.",
+                stars: [
+                    {x:350,y:290},{x:410,y:270},{x:440,y:320},{x:380,y:340}
+                ],
+                connections: [[0,1],[1,2],[2,3],[3,0]]
+            },
+            {
+                id: 'feather', name: 'The Feather', emoji: '🪶',
+                story: 'The eagle feather points the way home. Follow it and you will never be lost.',
+                stars: [
+                    {x:120,y:280},{x:170,y:310},{x:230,y:330},{x:290,y:340},{x:340,y:350}
+                ],
+                connections: [[0,1],[1,2],[2,3],[3,4]]
+            }
+        ];
+
+        let selectedConst = null;
+        let foundConstellations = {};
+        let connectedStars = {};
+        let firstStar = null;
+        let timeout = null;
+        let bgStars = [];
+
+        const canvas = document.getElementById('skyCanvas');
+        const ctx = canvas.getContext('2d');
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const storyBox = document.getElementById('storyBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const tray = document.getElementById('constTray');
 
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
-                } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m11_work') || '';
-                    syncStatus.innerText = 'Ready to work';
-                }
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m11_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
+        for (let i = 0; i < 80; i++) {
+            bgStars.push({
+                x: Math.random() * 650,
+                y: Math.random() * 420,
+                r: Math.random() * 1.2 + 0.3,
+                a: Math.random() * 0.5 + 0.3
+            });
         }
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+        constellations.forEach(c => {
+            connectedStars[c.id] = [];
+            const btn = document.createElement('button');
+            btn.className = 'const-btn';
+            btn.dataset.id = c.id;
+            btn.textContent = c.emoji + ' ' + c.name;
+            btn.onclick = () => selectConstellation(c.id);
+            tray.appendChild(btn);
         });
 
-        async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m11_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
+        function selectConstellation(id) {
+            selectedConst = id;
+            firstStar = null;
+            const c = constellations.find(x => x.id === id);
+            storyBox.innerHTML = c.story;
+            document.querySelectorAll('.const-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+            drawSky();
+        }
 
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
+        function drawSky() {
+            const grad = ctx.createLinearGradient(0, 0, 0, 420);
+            grad.addColorStop(0, '#0a1628');
+            grad.addColorStop(0.5, '#0f2847');
+            grad.addColorStop(1, '#162d50');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 650, 420);
 
-            try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(11)) completed.push(11);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
+            bgStars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,' + s.a + ')';
+                ctx.fill();
+            });
+
+            constellations.forEach(c => {
+                const isActive = (c.id === selectedConst);
+                const isFound = foundConstellations[c.id];
+
+                if (isActive || isFound) {
+                    const starColor = isFound ? '#86efac' : '#fbbf24';
+                    const lineColor = isFound ? 'rgba(134,239,172,0.7)' : 'rgba(251,191,36,0.5)';
+
+                    c.stars.forEach((s, i) => {
+                        ctx.beginPath();
+                        ctx.arc(s.x, s.y, isFound ? 5 : 6, 0, Math.PI * 2);
+                        ctx.fillStyle = starColor;
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.arc(s.x, s.y, isFound ? 10 : 14, 0, Math.PI * 2);
+                        ctx.fillStyle = isFound ? 'rgba(134,239,172,0.15)' : 'rgba(251,191,36,0.15)';
+                        ctx.fill();
+                    });
+
+                    if (isFound) {
+                        ctx.strokeStyle = lineColor;
+                        ctx.lineWidth = 2;
+                        c.connections.forEach(([a, b]) => {
+                            ctx.beginPath();
+                            ctx.moveTo(c.stars[a].x, c.stars[a].y);
+                            ctx.lineTo(c.stars[b].x, c.stars[b].y);
+                            ctx.stroke();
+                        });
+                    } else if (connectedStars[c.id] && connectedStars[c.id].length >= 2) {
+                        ctx.strokeStyle = lineColor;
+                        ctx.lineWidth = 2;
+                        const connected = connectedStars[c.id];
+                        for (let i = 0; i < connected.length - 1; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(connected[i].x, connected[i].y);
+                            ctx.lineTo(connected[i + 1].x, connected[i + 1].y);
+                            ctx.stroke();
+                        }
+                    }
+
+                    if (isActive && firstStar) {
+                        ctx.beginPath();
+                        ctx.arc(firstStar.x, firstStar.y, 12, 0, Math.PI * 2);
+                        ctx.strokeStyle = 'rgba(251,191,36,0.6)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
+            });
+        }
+
+        function getCanvasPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = 650 / rect.width;
+            const scaleY = 420 / rect.height;
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
+
+        function handleStarClick(e) {
+            e.preventDefault();
+            if (!selectedConst) { storyBox.innerHTML = 'Pick a constellation first!'; return; }
+            if (foundConstellations[selectedConst]) return;
+
+            const c = constellations.find(x => x.id === selectedConst);
+            const pos = getCanvasPos(e);
+            let closest = -1;
+            let closestDist = Infinity;
+
+            c.stars.forEach((s, i) => {
+                const d = Math.sqrt((s.x - pos.x) ** 2 + (s.y - pos.y) ** 2);
+                if (d < closestDist) { closestDist = d; closest = i; }
+            });
+
+            if (closestDist > 25) return;
+
+            const clickedStar = c.stars[closest];
+            const alreadyConnected = connectedStars[c.id].some(s => s._idx === closest);
+            if (alreadyConnected) return;
+
+            if (firstStar === null) {
+                firstStar = { x: clickedStar.x, y: clickedStar.y, _idx: closest };
+                storyBox.innerHTML = c.story + '<br><br>⭐ Now tap another star to draw a line!';
+                drawSky();
+            } else {
+                if (firstStar._idx === closest) return;
+                connectedStars[c.id].push({ x: firstStar.x, y: firstStar.y, _idx: firstStar._idx });
+                connectedStars[c.id].push({ x: clickedStar.x, y: clickedStar.y, _idx: closest });
+                firstStar = null;
+
+                const uniqueStars = [...new Set(connectedStars[c.id].map(s => s._idx))];
+                if (uniqueStars.length >= c.stars.length) {
+                    foundConstellations[c.id] = true;
+                    const foundCount = Object.keys(foundConstellations).length;
+                    scoreCount.textContent = foundCount;
+                    const btn = document.querySelector(`.const-btn[data-id="${c.id}"]`);
+                    btn.classList.remove('active');
+                    btn.classList.add('found');
+                    storyBox.innerHTML = '🎉 ' + c.name + ' is complete!<br><br>' + c.story;
+                    if (foundCount === 5) {
+                        storyBox.innerHTML = '🌟 You found all 5 constellations! You are a true Sky Reader!';
+                        storyBox.style.background = '#f0fdf4';
+                        storyBox.style.borderColor = '#86efac';
+                    }
+                } else {
+                    storyBox.innerHTML = c.story + '<br><br>⭐ ' + uniqueStars.length + ' / ' + c.stars.length + ' stars connected. Keep going!';
+                }
+                drawSky();
+                triggerSave();
             }
         }
 
+        canvas.addEventListener('click', handleStarClick);
+        canvas.addEventListener('touchend', handleStarClick);
+
+        function triggerSave(){syncStatus.innerText='Changes...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                const r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m11_work')||'';
+                const saved=d.found?JSON.parse(d.found):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m11_found')||'null');
+                if(saved){
+                    Object.keys(saved).forEach(id=>{
+                        if(saved[id]){
+                            foundConstellations[id]=true;
+                            const btn=document.querySelector(`.const-btn[data-id="${id}"]`);
+                            if(btn)btn.classList.add('found');
+                        }
+                    });
+                    scoreCount.textContent=Object.keys(foundConstellations).length;
+                    if(Object.keys(foundConstellations).length===5){storyBox.innerHTML='🌟 You found all 5 constellations! You are a true Sky Reader!';storyBox.style.background='#f0fdf4';storyBox.style.borderColor='#86efac';}
+                }
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m11_work')||'';
+                const saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m11_found')||'null');
+                if(saved){
+                    Object.keys(saved).forEach(id=>{
+                        if(saved[id]){
+                            foundConstellations[id]=true;
+                            const btn=document.querySelector(`.const-btn[data-id="${id}"]`);
+                            if(btn)btn.classList.add('found');
+                        }
+                    });
+                    scoreCount.textContent=Object.keys(foundConstellations).length;
+                }
+                syncStatus.innerText='Ready (Offline Mode)';
+            }
+            drawSky();
+        }
+
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m11_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m11_found',JSON.stringify(foundConstellations));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,found:JSON.stringify(foundConstellations),timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Sky synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(11))c.push(11);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
         retrieveFromCloud();
     </script>
 </body>
