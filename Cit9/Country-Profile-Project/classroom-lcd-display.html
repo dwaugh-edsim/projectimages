@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom LCD: Global Citizenship Project</title>
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d9488; /* Pacific Teal */
+            --primary-light: #14b8a6;
+            --primary-glow: rgba(20, 184, 166, 0.15);
+            --accent: #f59e0b; /* Amber */
+            --bg-dark: #0b0f19; /* Deep Slate/Black */
+            --bg-card: rgba(17, 24, 39, 0.7); /* Translucent Slate 900 */
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --font-display: 'Outfit', sans-serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.95) 0px, transparent 50%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-left h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-light) 30%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em;
+        }
+
+        .header-left p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /* Large clock for LCD */
+        .live-clock-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-align: right;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .live-time {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            letter-spacing: 0.05em;
+        }
+
+        .live-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.1rem;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            flex-grow: 1;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .panel-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 1.7rem;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Stepper Flow */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-card {
+            display: flex;
+            gap: 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            border-color: rgba(20, 184, 166, 0.3);
+            background: rgba(20, 184, 166, 0.02);
+            transform: translateX(3px);
+        }
+
+        .step-number {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.1);
+        }
+
+        .step-content h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .step-content strong {
+            color: var(--accent);
+        }
+
+        /* Session countdown timer card */
+        .timer-panel {
+            background: radial-gradient(circle at 100% 0%, var(--primary-glow) 0%, transparent 60%);
+        }
+
+        .timer-display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .timer-digits {
+            font-family: var(--font-display);
+            font-size: 4.5rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            width: 100%;
+            margin-top: 1.25rem;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .control-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary-light);
+        }
+
+        .control-btn.play {
+            background: var(--primary-dark);
+            border-color: var(--primary);
+        }
+
+        .control-btn.play:hover {
+            background: var(--primary);
+        }
+
+        /* Milestones & Target box */
+        .target-box {
+            background: rgba(245, 158, 11, 0.04);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .target-box h3 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .target-box p {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        /* Project Criteria Checklist */
+        .criteria-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .criteria-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .criteria-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .criteria-list li {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .criteria-list li::before {
+            content: "✓";
+            color: var(--primary-light);
+            font-weight: 700;
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        footer strong {
+            color: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header bar -->
+    <header>
+        <div class="header-left">
+            <h1>Global Citizenship Country Profile</h1>
+            <p>Grade 9 Social Studies Research Work Period</p>
+        </div>
+        <div class="header-right">
+            <!-- Active Topic Info / LCD Clock -->
+            <div class="live-clock-card">
+                <div class="live-time" id="clockTime">00:00:00 AM</div>
+                <div class="live-date" id="clockDate">Thursday, May 28</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- Left Panel: Where to Start -->
+        <div class="panel">
+            <div>
+                <h2 class="panel-title">Where to Start Today</h2>
+                <div class="steps-container">
+                    
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Open Student Dashboard</h3>
+                            <p>Launch the file <strong>country_profile_dashboard.html</strong> on your computer. This is your central hub for the project guidance, timelines, and grading criteria.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Check Claims & Open Guidance Modal</h3>
+                            <p>Go to the <em>Country Topics & Sign-Up</em> tab. Find your country and click on it. This will open a customized modal filled with <strong>key vocabulary</strong>, <strong>targeted research questions</strong>, and <strong>starting links</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Copy Queries & Start Research</h3>
+                            <p>Use the copy-to-clipboard buttons in your country modal. Paste the queries into search tools to find articles. Remember to record at least <strong>two credible sources</strong> for your background and issue slides.</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Draft Slides 1 & 2</h3>
+                            <p>Organize into pairs and start drafting. Open the <em>Project Guide</em> tab to view the <strong>Slide Template</strong> and the **Tuvalu Example** slide outlines to help structure your notes.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; margin-top: 1.5rem; text-align: center;">
+                Need help with citations? Use the <strong>APA Citation Helper</strong> in the <em>Self-Assessment & Tools</em> tab.
+            </div>
+        </div>
+
+        <!-- Right Panel: Time & Reminders -->
+        <div class="panel timer-panel">
+            <div>
+                <h2 class="panel-title">Session Monitor</h2>
+                
+                <!-- Countdown Timer -->
+                <div class="timer-display-container">
+                    <div class="timer-label">Work Period Remaining</div>
+                    <div class="timer-digits" id="timerDigits">45:00</div>
+                    <div class="timer-controls">
+                        <button class="control-btn play" id="timerPlayBtn" onclick="toggleTimer()">
+                            <svg id="playIcon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span id="playText">Start</span>
+                        </button>
+                        <button class="control-btn" onclick="resetTimer()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Today's Target Milestone -->
+                <div class="target-box">
+                    <h3>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 16 12 12 8"></polygon></svg>
+                        Today's Milestone Goal
+                    </h3>
+                    <p><strong>Checkpoint 1 Checklist:</strong> Claim your country topic and write 1-2 draft paragraphs detailing the basic geography of your country and defining your global issue with 2 sources cited.</p>
+                </div>
+
+                <!-- Key Project Criteria -->
+                <div class="criteria-card">
+                    <h3>Core Project Criteria</h3>
+                    <ul class="criteria-list">
+                        <li>Maximum of <strong>6 slides</strong> in your deck.</li>
+                        <li>Minimum of <strong>2 credible sources</strong> cited per slide.</li>
+                        <li>Analyze **consequences** (intended vs. unintended).</li>
+                        <li>Include a side-by-side **Canada comparison** table.</li>
+                        <li>Explain why Canadians should care in a reflection.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 1rem;">
+                See the <strong>Tuvalu Case Study Slides</strong> for a model example.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Classroom Projector HUD &bull; Citizenship 9 Social Studies &bull; <strong>Antigravity Scaffolding</strong>
+    </footer>
+
+    <!-- Interactive Dashboard Script -->
+    <script>
+        // Live LCD Clock
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const hoursStr = String(hours).padStart(2, '0');
+            
+            document.getElementById('clockTime').textContent = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Countdown Timer Logic
+        let timerSeconds = 45 * 60;
+        let timerInterval = null;
+        let timerRunning = false;
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            document.getElementById('timerDigits').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            const playText = document.getElementById('playText');
+            const playIcon = document.getElementById('playIcon');
+            const playBtn = document.getElementById('timerPlayBtn');
+
+            if (timerRunning) {
+                // Pause the timer
+                clearInterval(timerInterval);
+                timerRunning = false;
+                playText.textContent = "Resume";
+                playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                playBtn.classList.add('play');
+            } else {
+                // Start the timer
+                timerRunning = true;
+                playText.textContent = "Pause";
+                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+                playBtn.classList.remove('play');
+                
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        alert("Work period has ended!");
+                        playText.textContent = "Start";
+                        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                        playBtn.classList.add('play');
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 45 * 60;
+            timerRunning = false;
+            updateTimerDisplay();
+            
+            const playText = document.getElementById('playText');
+            const playIcon = document.getElementById('playIcon');
+            const playBtn = document.getElementById('timerPlayBtn');
+            
+            playText.textContent = "Start";
+            playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+            playBtn.classList.add('play');
+        }
+
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
