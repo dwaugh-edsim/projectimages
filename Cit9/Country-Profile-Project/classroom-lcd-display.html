@@ -472,8 +472,51 @@
         Classroom Projector HUD &bull; Citizenship 9 Social Studies &bull; <strong>Antigravity Scaffolding</strong>
     </footer>
 
-    <!-- Interactive Dashboard Script -->
     <script>
+        // Countdown Timer Logic (75 minutes starting at 9:25 AM and ending at 10:40 AM)
+        function updateTimer() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentSecond = now.getSeconds();
+            
+            const currentSec = (currentHour * 3600) + (currentMinute * 60) + currentSecond;
+            const startSec = (9 * 3600) + (25 * 60); // 9:25 AM
+            const endSec = (10 * 3600) + (40 * 60);  // 10:40 AM
+            
+            const labelEl = document.querySelector('.timer-label');
+            const digitsEl = document.getElementById('timerDigits');
+            const controlsEl = document.querySelector('.timer-controls');
+            
+            // Hide the manual controls in automatic clock-sync mode
+            if (controlsEl) {
+                controlsEl.style.display = "none";
+            }
+            
+            if (currentSec < startSec) {
+                // Before class starts
+                const diff = startSec - currentSec;
+                const hours = Math.floor(diff / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = diff % 60;
+                
+                labelEl.textContent = "Class starts in " + (hours > 0 ? hours + "h " : "") + minutes + "m " + seconds + "s";
+                digitsEl.textContent = "75:00";
+            } else if (currentSec >= startSec && currentSec < endSec) {
+                // Class is active
+                const remainingSecs = endSec - currentSec;
+                const minutes = Math.floor(remainingSecs / 60);
+                const seconds = remainingSecs % 60;
+                
+                labelEl.textContent = "Work Period Remaining";
+                digitsEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                // Class has ended
+                labelEl.textContent = "Class Finished (10:40 AM)";
+                digitsEl.textContent = "00:00";
+            }
+        }
+
         // Live LCD Clock
         function updateClock() {
             const now = new Date();
@@ -490,74 +533,13 @@
             
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Sync countdown timer to the clock
+            updateTimer();
         }
         
         setInterval(updateClock, 1000);
         updateClock();
-
-        // Countdown Timer Logic (75 minutes)
-        let timerSeconds = 75 * 60;
-        let timerInterval = null;
-        let timerRunning = false;
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timerSeconds / 60);
-            const seconds = timerSeconds % 60;
-            document.getElementById('timerDigits').textContent = 
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        function toggleTimer() {
-            const playText = document.getElementById('playText');
-            const playIcon = document.getElementById('playIcon');
-            const playBtn = document.getElementById('timerPlayBtn');
-
-            if (timerRunning) {
-                // Pause the timer
-                clearInterval(timerInterval);
-                timerRunning = false;
-                playText.textContent = "Resume";
-                playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
-                playBtn.classList.add('play');
-            } else {
-                // Start the timer
-                timerRunning = true;
-                playText.textContent = "Pause";
-                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
-                playBtn.classList.remove('play');
-                
-                timerInterval = setInterval(() => {
-                    if (timerSeconds > 0) {
-                        timerSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        timerRunning = false;
-                        alert("Work period has ended!");
-                        playText.textContent = "Start";
-                        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
-                        playBtn.classList.add('play');
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timerSeconds = 75 * 60;
-            timerRunning = false;
-            updateTimerDisplay();
-            
-            const playText = document.getElementById('playText');
-            const playIcon = document.getElementById('playIcon');
-            const playBtn = document.getElementById('timerPlayBtn');
-            
-            playText.textContent = "Start";
-            playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
-            playBtn.classList.add('play');
-        }
-
-        updateTimerDisplay();
     </script>
 </body>
 </html>
