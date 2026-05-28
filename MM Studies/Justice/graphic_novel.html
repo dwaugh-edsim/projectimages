@@ -356,9 +356,7 @@
 
     .panel-art-container img {
       width: 100%;
-      min-height: 240px;
-      max-height: 420px;
-      object-fit: cover;
+      height: auto;
       display: block;
     }
 
@@ -536,6 +534,60 @@
       justify-content: center !important;
       align-items: center !important;
     }
+
+    /* Segmented Toggle Control for View Modes */
+    .toggle-container {
+      display: flex;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+      margin-right: 12px;
+    }
+
+    .toggle-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--color-text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    .toggle-btn:hover {
+      color: #fff;
+    }
+
+    .toggle-btn.active {
+      background-color: var(--accent-gold);
+      color: var(--bg-base);
+    }
+
+    /* Click-to-peek instructional overlay hint */
+    .panel-art-container::after {
+      content: 'Click panel to hide dialogue';
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.75);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.6rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .panel-art-container:hover::after {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -546,6 +598,10 @@
       <span>Interactive Graphic Novel // Mi'kmaw Studies 11</span>
     </div>
     <div class="nav-buttons">
+      <div class="toggle-container">
+        <button class="toggle-btn active" id="mode-overlay" onclick="setViewMode('overlay')">Comic Style</button>
+        <button class="toggle-btn" id="mode-storyboard" onclick="setViewMode('storyboard')">Storyboard</button>
+      </div>
       <a href="student_assignment.html" class="btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to Assignment
@@ -986,6 +1042,14 @@
     ];
 
     let currentPageIndex = 0;
+    let viewMode = 'overlay'; // 'overlay' or 'storyboard'
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      document.getElementById('mode-overlay').classList.toggle('active', mode === 'overlay');
+      document.getElementById('mode-storyboard').classList.toggle('active', mode === 'storyboard');
+      renderPage(currentPageIndex);
+    }
 
     // ═══════════════════════════════════════════════════
     // RENDER FUNCTIONS
@@ -1051,7 +1115,7 @@
           standaloneNarr = document.createElement('div');
           standaloneNarr.className = 'narration';
           standaloneNarr.innerText = p.narration;
-          if (p.image) standaloneNarr.style.display = 'none';
+          if (p.image && viewMode === 'overlay') standaloneNarr.style.display = 'none';
         }
 
         let standaloneDlg = null;
@@ -1080,7 +1144,7 @@
             standaloneDlg.appendChild(bubble);
           }
 
-          if (p.image) standaloneDlg.style.display = 'none';
+          if (p.image && viewMode === 'overlay') standaloneDlg.style.display = 'none';
         }
 
         // ─── IMAGE WITH OVERLAY BUBBLES (comic-book mode) ───
@@ -1101,6 +1165,23 @@
           };
           artContainer.appendChild(img);
 
+          // Click artwork to toggle overlays (fade out so reader can see behind bubbles)
+          artContainer.style.cursor = 'pointer';
+          artContainer.onclick = function() {
+            const overlays = artContainer.querySelectorAll('.overlay-dialogue, .overlay-narration');
+            const firstOverlay = overlays[0];
+            if (!firstOverlay) return;
+            const isCurrentlyHidden = firstOverlay.style.opacity === '0';
+            
+            overlays.forEach(overlay => {
+              gsap.to(overlay, { 
+                opacity: isCurrentlyHidden ? 1 : 0, 
+                duration: 0.25, 
+                ease: "power2.out" 
+              });
+            });
+          };
+
           // Overlay narration caption on top of image
           if (p.narration) {
             const overlayNarr = document.createElement('div');
@@ -1110,6 +1191,10 @@
             narrBox.innerText = p.narration;
             overlayNarr.appendChild(narrBox);
             artContainer.appendChild(overlayNarr);
+
+            if (viewMode === 'storyboard') {
+              overlayNarr.style.display = 'none';
+            }
           }
 
           // Overlay dialogue bubbles on bottom of image
@@ -1139,6 +1224,10 @@
             }
 
             artContainer.appendChild(overlayDlg);
+
+            if (viewMode === 'storyboard') {
+              overlayDlg.style.display = 'none';
+            }
           }
         }
 
