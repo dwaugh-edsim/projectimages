@@ -710,7 +710,8 @@
           {
             visual: "Liam stands cuffed outside in the snow. The officer pauses before guiding him into the cruiser, glancing at Liam's thin jacket and worn sneakers.",
             image: "panels/p2_panel2.png",
-            narration: "By morning, seeking warmth becomes a charge of break and enter. The system doesn't have a code for 'survival.'"
+            narration: "By morning, seeking warmth becomes a charge of break and enter. The system doesn't have a code for 'survival.'",
+            hasBakedInText: true
           }
         ]
       },
@@ -773,7 +774,8 @@
             speaker: "Lawyer",
             dialogue: "It's a non-violent offense, but because you scored 'high risk' on housing, the Crown is pushing for jail time. They want to send a message.",
             speaker2: "Liam",
-            dialogue2: "I just wanted to get warm."
+            dialogue2: "I just wanted to get warm.",
+            hasBakedInText: true
           },
           {
             visual: "Symbolic conveyor belt fed with case folders, outputting uniform figures in orange jumpsuits.",
@@ -800,7 +802,8 @@
             speaker: "Claire",
             dialogue: "Kwe', Liam. My name is Claire. I'm from the Mi'kmaw Legal Support Network.",
             speaker2: "Claire",
-            dialogue2: "I had a son who sat where you're sitting, fifteen years ago. Nobody showed up for him. I'm not letting that happen again."
+            dialogue2: "I had a son who sat where you're sitting, fifteen years ago. Nobody showed up for him. I'm not letting that happen again.",
+            hasBakedInText: true
           },
           {
             visual: "Close-up of Claire placing a small, hand-crafted beaded medicine pouch on the table.",
@@ -1091,6 +1094,10 @@
         const panelDiv = document.createElement('div');
         panelDiv.className = 'panel';
 
+        // Determine if we should show overlays or standalone text for this panel
+        const showOverlays = (viewMode === 'overlay' && !p.hasBakedInText);
+        const showStandaloneText = (viewMode === 'storyboard' || (viewMode === 'overlay' && p.hasBakedInText));
+
         // Check if page 15 motif
         if (index === 14 && page.layoutClass === "grid-1-splash") {
           panelDiv.classList.add('motif-circle');
@@ -1117,7 +1124,7 @@
           standaloneNarr = document.createElement('div');
           standaloneNarr.className = 'narration';
           standaloneNarr.innerText = p.narration;
-          if (p.image && viewMode !== 'storyboard') standaloneNarr.style.display = 'none';
+          if (p.image && !showStandaloneText) standaloneNarr.style.display = 'none';
         }
 
         let standaloneDlg = null;
@@ -1146,7 +1153,7 @@
             standaloneDlg.appendChild(bubble);
           }
 
-          if (p.image && viewMode !== 'storyboard') standaloneDlg.style.display = 'none';
+          if (p.image && !showStandaloneText) standaloneDlg.style.display = 'none';
         }
 
         // ─── IMAGE WITH OVERLAY BUBBLES (comic-book mode) ───
@@ -1194,7 +1201,7 @@
             overlayNarr.appendChild(narrBox);
             artContainer.appendChild(overlayNarr);
 
-            if (viewMode !== 'overlay') {
+            if (!showOverlays) {
               overlayNarr.style.display = 'none';
             }
           }
@@ -1227,7 +1234,7 @@
 
             artContainer.appendChild(overlayDlg);
 
-            if (viewMode !== 'overlay') {
+            if (!showOverlays) {
               overlayDlg.style.display = 'none';
             }
           }
