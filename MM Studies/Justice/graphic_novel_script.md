@@ -19,13 +19,13 @@
 * **Dialogue (Liam - thought bubble):** *She'd just worry. And she's got enough to carry.*
 
 ### Panel 1.3
-* **Visual:** Liam stands before an abandoned storefront with boarded-up windows. One plywood sheet is slightly loose.
-* **Narration (Caption):** "The shelters were full. The streets were empty."
-* **Dialogue (Liam):** "I can't feel my hands..."
+* **Visual:** Liam stands in a dark alleyway behind a small local convenience store ("Thomas's Corner Market"). The window is closed, but a back door has a glass pane that is already cracked.
+* **Narration (Caption):** "The shelters were full. The streets were empty. The cold was moving from his skin to his bones."
+* **Dialogue (Liam):** "I need to get warm... and get some food."
 
 ### Panel 1.4
-* **Visual:** Medium shot from inside the dark building. Liam pulls back the loose plywood sheet and squeezes through the gap.
-* **Dialogue (Liam - thought bubble):** *I'm not here to steal. Just need to stop shivering.*
+* **Visual:** Liam breaks the glass pane of the back door with a stone, reaching in to unlock it. Shivering violently, he steps inside.
+* **Dialogue (Liam - thought bubble):** *I'll just take some bread and a warm shirt. I'll leave my pocket change on the counter. I'm not a thief... I just need to survive.*
 
 ---
 
@@ -34,13 +34,13 @@
 * **Layout:** Two vertical panels.
 
 ### Panel 2.1
-* **Visual:** Inside the dark storefront, a bright flashlight beam cuts through the frame, illuminating a sleeping Liam huddled in the corner.
-* **Dialogue (Officer):** "Hey! Wake up. Police. Hands where I can see them."
-* **Dialogue (Officer):** "Look... I don't want to do this, kid. But the call came in and I've got no discretion here."
+* **Visual:** Inside the store aisle, a young clerk is cowering behind the counter, terrified, clutching a phone. In the background, Liam stands startled, holding a loaf of bread and a flannel shirt. A bright flashlight beam cuts through the window as a police siren flashes outside.
+* **Dialogue (Clerk):** "Please don't hurt me! Take whatever you want!"
+* **Dialogue (Liam):** "I—I'm not trying to hurt you! I just needed to get warm!"
 
 ### Panel 2.2
-* **Visual:** Liam stands cuffed outside in the snow. The officer pauses before guiding him into the cruiser, glancing at Liam's thin jacket and worn sneakers.
-* **Narration (Caption):** "By morning, seeking warmth becomes a charge of break and enter. The system doesn't have a code for 'survival.'"
+* **Visual:** Liam stands cuffed outside in the snow beside a police cruiser. The arresting officer pauses, looking at Liam's thin jacket, worn sneakers, and the loaf of bread left on the cruiser's hood.
+* **Narration (Caption):** "By morning, seeking warmth and bread becomes a charge of Break, Enter, and Theft. The system doesn't care that you were starving. It only cares that you scared someone and broke the law."
 
 ---
 
@@ -215,8 +215,8 @@
 
 ### Panel 12.2
 * **Visual:** Liam stands again. His voice cracks. His eyes are wet. He looks directly at Mr. Thomas.
-* **Dialogue (Liam):** "I broke your board... and I scared your staff. I was wrong. I want—"
-* **Dialogue (Liam):** "I want to repair it myself. The boards. Whatever else. I need you to know I'm sorry."
+* **Dialogue (Liam):** "I broke your window... and I scared your staff. I was wrong. I want—"
+* **Dialogue (Liam):** "I want to pay for the glass, and repair the frame. I need you to know I'm sorry."
 
 ### Panel 12.3
 * **Visual:** Mr. Thomas is quiet for a long moment. Then he nods, and places a hand on Liam's shoulder. It is not easy for either of them.
