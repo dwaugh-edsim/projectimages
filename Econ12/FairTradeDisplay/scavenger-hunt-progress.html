@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECON 12 | Scavenger Hunt Progress Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #1a1b35;
+            color: #fff;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .board-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(79, 70, 229, 0.5);
+        }
+
+        .header .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #4f46e5;
+            margin-top: 10px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #4f46e5;
+            padding: 20px 40px;
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            color: #4f46e5;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .student-card {
+            background: #fff;
+            border: 4px solid #4f46e5;
+            box-shadow: 6px 6px 0 #4f46e5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .student-card.in-progress {
+            border-color: #d97706;
+            box-shadow: 6px 6px 0 #d97706;
+        }
+
+        .student-card.completed {
+            border-color: #059669;
+            box-shadow: 6px 6px 0 #059669;
+        }
+
+        .student-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1b35;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .student-card.in-progress .student-name {
+            color: #92400e;
+        }
+
+        .student-card.completed .student-name {
+            color: #065f46;
+        }
+
+        .status-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            background: #6b7280;
+            color: #fff;
+        }
+
+        .student-card.in-progress .status-badge {
+            background: #d97706;
+        }
+
+        .student-card.completed .status-badge {
+            background: #059669;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4f46e5;
+            transition: width 0.3s;
+        }
+
+        .student-card.in-progress .progress-fill {
+            background: #d97706;
+        }
+
+        .student-card.completed .progress-fill {
+            background: #059669;
+        }
+
+        .questions-answered {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .last-updated {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border: 3px solid;
+        }
+
+        .legend-dot.not-started {
+            border-color: #6b7280;
+            background: transparent;
+        }
+
+        .legend-dot.in-progress {
+            border-color: #d97706;
+            background: transparent;
+        }
+
+        .legend-dot.completed {
+            border-color: #059669;
+            background: #059669;
+        }
+
+        .nav-links {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border: 2px solid #fff;
+            transition: all 0.15s;
+        }
+
+        .nav-link:hover {
+            background: #fff;
+            color: #1a1b35;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .footer span {
+            color: #4f46e5;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+            .board-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-links">
+        <a href="classroom-display.html" class="nav-link">Overview</a>
+        <a href="scavengerhunt.html" class="nav-link">Scavenger Hunt</a>
+    </div>
+
+    <div class="board-container">
+        <div class="header">
+            <h1>Scavenger Hunt Progress</h1>
+            <p class="subtitle">Fair Trade Exhibition — ECON 12</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-number" id="total-students">--</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="completed-count">--</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="in-progress-count">--</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="not-started-count">--</div>
+                <div class="stat-label">Not Started</div>
+            </div>
+        </div>
+
+        <div class="board-grid" id="student-grid">
+            <!-- Student cards populated by JavaScript -->
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot completed"></div>
+                <span>Completed (All 15 Questions)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot in-progress"></div>
+                <span>In Progress (1-14 Questions)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot not-started"></div>
+                <span>Not Started</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>ECON 12</span> — Data synced from student submissions
+        </div>
+    </div>
+
+    <script>
+        const ROSTER = [
+            "Adarsha H", "Albin", "Alex", "Ana", "Anderson", "Angelique",
+            "Anjolaoluwa", "Anna", "Cameron", "Christian", "Daniil", "Dyson",
+            "Efe", "Ellee", "Gabe", "Jack", "John", "Josh Gillego",
+            "Kendrake Lorenz Gaamil", "Luca Pomaski", "Maggie", "Marshall",
+            "Mr Waugh", "Nahla", "Nick", "Nicholas", "Peyton C", "ReyhaK",
+            "Riley", "Seth Boutilier", "Sivakami", "Yaroslav"
+        ];
+
+        const TOTAL_QUESTIONS = 15;
+        const API_URL = "https://script.google.com/macros/s/AKfycbwPYY_WeEfQXs6oUjaX0BPLtaj_SF5v9cvkx1OkTxLXnM3fjH_YyIKjXg_2iWaiHS1i/exec";
+        const SIMULATION_NAME = "Fair Trade Scavenger Hunt";
+
+        let studentData = {};
+
+        function initStudentData() {
+            ROSTER.forEach(name => {
+                studentData[name] = {
+                    name: name,
+                    questionsAnswered: 0,
+                    status: 'not-started',
+                    lastUpdated: null
+                };
+            });
+        }
+
+        function updateStats() {
+            const total = Object.keys(studentData).length;
+            const completed = Object.values(studentData).filter(s => s.status === 'completed').length;
+            const inProgress = Object.values(studentData).filter(s => s.status === 'in-progress').length;
+            const notStarted = Object.values(studentData).filter(s => s.status === 'not-started').length;
+
+            document.getElementById('total-students').textContent = total;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('in-progress-count').textContent = inProgress;
+            document.getElementById('not-started-count').textContent = notStarted;
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('student-grid');
+            grid.innerHTML = '';
+
+            const sortedStudents = [...ROSTER].sort((a, b) => {
+                const statusOrder = { 'completed': 0, 'in-progress': 1, 'not-started': 2 };
+                const statusCompare = statusOrder[studentData[a].status] - statusOrder[studentData[b].status];
+                if (statusCompare !== 0) return statusCompare;
+                return studentData[a].questionsAnswered - studentData[b].questionsAnswered;
+            });
+
+            sortedStudents.forEach(name => {
+                const data = studentData[name];
+                const card = document.createElement('div');
+                card.className = `student-card ${data.status}`;
+
+                const progressPercent = (data.questionsAnswered / TOTAL_QUESTIONS) * 100;
+
+                card.innerHTML = `
+                    <div class="student-name">${data.name}</div>
+                    <div class="status-badge">${getStatusLabel(data.status)}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                    <div class="questions-answered">${data.questionsAnswered}/${TOTAL_QUESTIONS} questions</div>
+                    ${data.lastUpdated ? `<div class="last-updated">Last active: ${data.lastUpdated}</div>` : ''}
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function getStatusLabel(status) {
+            switch(status) {
+                case 'completed': return 'Done!';
+                case 'in-progress': return 'Working';
+                default: return 'Not Started';
+            }
+        }
+
+        async function fetchAllSubmissions() {
+            try {
+                const responses = await Promise.all(
+                    ROSTER.map(name =>
+                        fetch(`${API_URL}?student=${encodeURIComponent(name)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`)
+                            .then(r => r.json())
+                            .catch(() => null)
+                    )
+                );
+
+                ROSTER.forEach((name, i) => {
+                    const result = responses[i];
+                    if (result && result.data) {
+                        const rationales = typeof result.data.rationales === 'string'
+                            ? JSON.parse(result.data.rationales)
+                            : result.data.rationales;
+
+                        const questionsAnswered = Object.keys(rationales || {})
+                            .filter(k => k.startsWith('q') && rationales[k] && rationales[k].trim() !== '')
+                            .length;
+
+                        studentData[name] = {
+                            name: name,
+                            questionsAnswered: questionsAnswered,
+                            status: questionsAnswered === TOTAL_QUESTIONS ? 'completed' :
+                                    questionsAnswered > 0 ? 'in-progress' : 'not-started',
+                            lastUpdated: result.data.timestamp || null
+                        };
+                    }
+                });
+            } catch (err) {
+                console.log('Could not fetch cloud data: ' + err.message);
+            }
+
+            updateStats();
+            renderBoard();
+        }
+
+        function startLiveRefresh() {
+            setInterval(() => {
+                fetchAllSubmissions();
+            }, 30000);
+        }
+
+        initStudentData();
+        fetchAllSubmissions();
+        startLiveRefresh();
+    </script>
+</body>
+</html>
