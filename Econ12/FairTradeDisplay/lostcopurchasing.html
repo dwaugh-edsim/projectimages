@@ -498,6 +498,7 @@
             <a href="index.html" class="nav-logo">Choice Architecture Lab</a>
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Exhibition Gallery</a>
+                <a href="scavengerhunt.html" class="nav-link">Scavenger Hunt</a>
                 <a href="lostcopurchasing.html" class="nav-link active">LOSTCO Procurement</a>
                 <a href="assignmentideas.html" class="nav-link">Assignment Portfolio</a>
             </div>
@@ -530,8 +531,44 @@
             </div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
                 <div class="input-block" style="margin-top:0;">
-                    <label for="officer-name">Lead Buyer Name(s)</label>
-                    <input type="text" id="officer-name" placeholder="e.g. Jane Doe & John Smith" oninput="saveInput('officer-name')">
+                    <label for="officer-name-select">Lead Buyer Name(s)</label>
+                    <select id="officer-name-select" onchange="onNameSelectChange()">
+                        <option value="" disabled selected>-- Select Your Name --</option>
+                        <option value="Adarsha H">Adarsha H</option>
+                        <option value="Albin">Albin</option>
+                        <option value="Alex">Alex</option>
+                        <option value="Ana">Ana</option>
+                        <option value="Anderson">Anderson</option>
+                        <option value="Angelique">Angelique</option>
+                        <option value="Anjolaoluwa">Anjolaoluwa</option>
+                        <option value="Anna">Anna</option>
+                        <option value="Cameron">Cameron</option>
+                        <option value="Christian">Christian</option>
+                        <option value="Daniil">Daniil</option>
+                        <option value="Dyson">Dyson</option>
+                        <option value="Efe">Efe</option>
+                        <option value="Ellee">Ellee</option>
+                        <option value="Gabe">Gabe</option>
+                        <option value="Jack">Jack</option>
+                        <option value="John">John</option>
+                        <option value="Josh Gillego">Josh Gillego</option>
+                        <option value="Kendrake Lorenz Gaamil">Kendrake Lorenz Gaamil</option>
+                        <option value="Luca Pomaski">Luca Pomaski</option>
+                        <option value="Maggie">Maggie</option>
+                        <option value="Marshall">Marshall</option>
+                        <option value="Mr Waugh">Mr Waugh</option>
+                        <option value="Nahla">Nahla</option>
+                        <option value="Nick">Nick</option>
+                        <option value="Nicholas">Nicholas</option>
+                        <option value="Peyton C">Peyton C</option>
+                        <option value="ReyhaK">ReyhaK</option>
+                        <option value="Riley">Riley</option>
+                        <option value="Seth Boutilier">Seth Boutilier</option>
+                        <option value="Sivakami">Sivakami</option>
+                        <option value="Yaroslav">Yaroslav</option>
+                        <option value="custom">[Other / Custom / Pair Work]</option>
+                    </select>
+                    <input type="text" id="officer-name" placeholder="e.g. Jane Doe & John Smith" oninput="saveInput('officer-name')" style="display:none; margin-top:10px;">
                 </div>
                 <div class="input-block" style="margin-top:0;">
                     <label for="officer-period">Committee Period / Pin</label>
@@ -1070,6 +1107,84 @@ Economics 12 • Outcomes: 4.5 & 5.2
             }
         }
 
+        const ROSTER_MAP = {
+            "Adarsha H": "31408",
+            "Albin": "232323",
+            "Alex": "697420",
+            "Ana": "111111",
+            "Anderson": "111111",
+            "Angelique": "676767",
+            "Anjolaoluwa": "111111",
+            "Anna": "230908",
+            "Cameron": "!4Juno1978",
+            "Christian": "111111",
+            "Daniil": "1234qwerty1234",
+            "Dyson": "851420",
+            "Efe": "Yarrak",
+            "Ellee": "111111",
+            "Gabe": "111111",
+            "Jack": "superb",
+            "John": "78420",
+            "Josh Gillego": "241922",
+            "Kendrake Lorenz Gaamil": "201109",
+            "Luca Pomaski": "640318",
+            "Maggie": "20088",
+            "Marshall": "101010",
+            "Mr Waugh": "HAHAHA",
+            "Nahla": "808090",
+            "Nick": "111111",
+            "Nicholas": "111111",
+            "Peyton C": "27777",
+            "ReyhaK": "201108",
+            "Riley": "Zxywavi",
+            "Seth Boutilier": "222222",
+            "Sivakami": "999999",
+            "Yaroslav": "727727"
+        };
+
+        function onNameSelectChange() {
+            const selectEl = document.getElementById('officer-name-select');
+            const nameInput = document.getElementById('officer-name');
+            const periodInput = document.getElementById('officer-period');
+            if (!selectEl || !nameInput || !periodInput) return;
+            
+            const selectedVal = selectEl.value;
+            if (selectedVal === 'custom') {
+                nameInput.style.display = 'block';
+                nameInput.value = '';
+                saveInput('officer-name');
+            } else {
+                nameInput.style.display = 'none';
+                nameInput.value = selectedVal;
+                
+                // Lookup pre-assigned PIN
+                const pin = ROSTER_MAP[selectedVal] || '';
+                periodInput.value = pin;
+                
+                // Save both inputs
+                saveInput('officer-name');
+                saveInput('officer-period'); // Triggers handlePinChange()
+            }
+        }
+
+        function updateRosterDropdownFromValue() {
+            const nameInput = document.getElementById('officer-name');
+            const selectEl = document.getElementById('officer-name-select');
+            if (!nameInput || !selectEl) return;
+            
+            const val = nameInput.value.trim();
+            if (val === '') {
+                selectEl.value = '';
+                nameInput.style.display = 'none';
+            } else if (ROSTER_MAP[val] !== undefined) {
+                selectEl.value = val;
+                nameInput.style.display = 'none';
+            } else {
+                selectEl.value = 'custom';
+                nameInput.style.display = 'block';
+            }
+        }
+
         function loadInputsForPin() {
             const prefix = getStoragePrefix();
             fields.forEach(id => {
@@ -1096,6 +1211,7 @@ Economics 12 • Outcomes: 4.5 & 5.2
             updatePreview('p2');
             updateBoardStatus('p1');
             updateBoardStatus('p2');
+            updateRosterDropdownFromValue();
         }
 
         function loadInputs() {
@@ -1215,6 +1331,7 @@ Economics 12 • Outcomes: 4.5 & 5.2
                     updatePreview('p2');
                     updateBoardStatus('p1');
                     updateBoardStatus('p2');
+                    updateRosterDropdownFromValue();
                     
                     // Show indicator
                     const indicator = document.getElementById('save-indicator');
@@ -1387,6 +1504,7 @@ Economics 12 • Outcomes: 4.5 & 5.2
                     updatePreview('p2');
                     updateBoardStatus('p1');
                     updateBoardStatus('p2');
+                    updateRosterDropdownFromValue();
 
                     if (syncStatusText) {
                         syncStatusText.textContent = "CLOUD DRAFT RETRIEVED";
