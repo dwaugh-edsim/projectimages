@@ -258,6 +258,56 @@
             padding-top: 20px;
         }
 
+        /* Board Simulator Status Box */
+        .board-status-box {
+            margin-top: 25px;
+            padding: 15px 20px;
+            border: 2px solid var(--border);
+            box-shadow: 4px 4px 0 var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .board-status-box.incomplete {
+            background: #fef2f2;
+            border-color: #dc2626;
+            color: #991b1b;
+        }
+
+        .board-status-box.in-progress {
+            background: #fffbeb;
+            border-color: #d97706;
+            color: #92400e;
+        }
+
+        .board-status-box.approved {
+            background: #ecfdf5;
+            border-color: #059669;
+            color: #065f46;
+        }
+
+        .board-status-icon {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .board-status-content h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .board-status-content p {
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
         /* LOSTCO Logo styles */
         .lostco-logo-container {
             display: inline-flex;
@@ -427,6 +477,15 @@
                 padding: 0 !important;
                 resize: none !important;
             }
+
+            .board-status-box {
+                background: transparent !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+                color: black !important;
+                margin-top: 15px !important;
+                padding: 10px !important;
+            }
         }
     </style>
 </head>
@@ -541,6 +600,15 @@
                 </label>
                 <textarea id="p1-value-prop" rows="4" placeholder="Write the 'Meet the Maker' origin story sprint and justify why this narrative moves bargain buyers..." oninput="saveInput('p1-value-prop')"></textarea>
             </div>
+
+            <!-- Board Review Simulator Status Box -->
+            <div class="board-status-box incomplete" id="p1-status-box">
+                <div class="board-status-icon" id="p1-status-icon">❌</div>
+                <div class="board-status-content">
+                    <h4 id="p1-status-title">Board Review: Memo Incomplete</h4>
+                    <p id="p1-status-desc">The Board of Directors will not review an empty or extremely brief memo. Please complete all three sections.</p>
+                </div>
+            </div>
         </section>
 
         <!-- Board Proposal Form Card #2 -->
@@ -602,6 +670,15 @@
                     </span>
                 </label>
                 <textarea id="p2-value-prop" rows="4" placeholder="Write the 'Meet the Maker' origin story sprint and justify why this narrative moves bargain buyers..." oninput="saveInput('p2-value-prop')"></textarea>
+            </div>
+
+            <!-- Board Review Simulator Status Box -->
+            <div class="board-status-box incomplete" id="p2-status-box">
+                <div class="board-status-icon" id="p2-status-icon">❌</div>
+                <div class="board-status-content">
+                    <h4 id="p2-status-title">Board Review: Memo Incomplete</h4>
+                    <p id="p2-status-desc">The Board of Directors will not review an empty or extremely brief memo. Please complete all three sections.</p>
+                </div>
             </div>
         </section>
 
@@ -706,6 +783,39 @@
             'p2-select', 'p2-premium-analysis', 'p2-nudge-strategy', 'p2-value-prop'
         ];
 
+        function updateBoardStatus(prefix) {
+            const analysis = document.getElementById(prefix + '-premium-analysis').value.trim();
+            const strategy = document.getElementById(prefix + '-nudge-strategy').value.trim();
+            const valProp = document.getElementById(prefix + '-value-prop').value.trim();
+
+            const box = document.getElementById(prefix + '-status-box');
+            const icon = document.getElementById(prefix + '-status-icon');
+            const title = document.getElementById(prefix + '-status-title');
+            const desc = document.getElementById(prefix + '-status-desc');
+
+            if (!box || !icon || !title || !desc) return;
+
+            const totalLength = analysis.length + strategy.length + valProp.length;
+            const hasEmptyField = analysis.length < 10 || strategy.length < 10 || valProp.length < 10;
+
+            if (hasEmptyField) {
+                box.className = 'board-status-box incomplete';
+                icon.textContent = '❌';
+                title.textContent = 'Board Review: Memo Incomplete';
+                desc.textContent = 'The Board of Directors will not review an empty or extremely brief memo. Please complete all three sections.';
+            } else if (totalLength < 350) {
+                box.className = 'board-status-box in-progress';
+                icon.textContent = '⚠️';
+                title.textContent = 'Board Review: Skeptical - Lacks Depth';
+                desc.textContent = 'The Board finds your proposals too brief. To convince bargain-focused shoppers to pay a premium, expand your choice architecture nudges and humanized story.';
+            } else {
+                box.className = 'board-status-box approved';
+                icon.textContent = '✅';
+                title.textContent = 'Board Review: Approved!';
+                desc.textContent = 'Excellent! The Board is impressed by your sourcing case, specific warehouse nudges, and the emotional storytelling pitch.';
+            }
+        }
+
         function saveInput(id) {
             const el = document.getElementById(id);
             if (el) {
@@ -714,6 +824,10 @@
             }
             if (id === 'p1-select') updatePreview('p1');
             if (id === 'p2-select') updatePreview('p2');
+            
+            // Update board status indicators
+            if (id.startsWith('p1-')) updateBoardStatus('p1');
+            if (id.startsWith('p2-')) updateBoardStatus('p2');
         }
 
         function loadInputs() {
@@ -726,6 +840,8 @@
             });
             updatePreview('p1');
             updatePreview('p2');
+            updateBoardStatus('p1');
+            updateBoardStatus('p2');
         }
 
         let saveTimeout;
@@ -753,6 +869,8 @@
                 });
                 updatePreview('p1');
                 updatePreview('p2');
+                updateBoardStatus('p1');
+                updateBoardStatus('p2');
             }
         }
 
