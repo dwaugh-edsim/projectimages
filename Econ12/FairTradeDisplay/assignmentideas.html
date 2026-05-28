@@ -400,6 +400,22 @@
                     <input type="text" id="student-class" style="border: 2px solid var(--border); padding: 8px 10px; font-family:'Space Grotesk',sans-serif; font-size:0.9rem;" placeholder="e.g. Period 3 / Pin 12" oninput="saveInput('student-class')">
                 </div>
             </div>
+
+            <!-- Cloud Sync Subsystem Panel -->
+            <div id="cloud-sync-banner" style="margin-top: 20px; padding: 15px; border: 2px solid var(--border); background: var(--accent-light); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;" class="no-print">
+                <div>
+                    <span style="font-weight: 700; text-transform: uppercase;">☁️ Google Sheets Sync:</span>
+                    <strong id="cloud-status-text" style="color: var(--text-muted); margin-left: 5px;">READY</strong>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.75rem; background: var(--accent); color: white; margin: 0; box-shadow: 2px 2px 0 var(--border);" onclick="retrieveFromCloud()" id="btn-cloud-fetch">
+                        📥 Retrieve Cloud Draft
+                    </button>
+                    <button class="btn btn-accent" style="padding: 6px 12px; font-size: 0.75rem; background: var(--accent-secondary); color: white; margin: 0; box-shadow: 2px 2px 0 var(--border);" onclick="submitToWebhook(false)" id="btn-cloud-save">
+                        💾 Save Cloud Draft
+                    </button>
+                </div>
+            </div>
         </section>
 
         <!-- Portfolio Tasks Sheet -->
@@ -509,12 +525,30 @@
             </div>
 
             <!-- Action Bar -->
-            <div class="btn-bar">
-                <span class="save-banner" id="save-banner">Auto-saved to local browser!</span>
-                <div style="display:flex; gap:10px; width:100%; justify-content:flex-end;">
-                    <button class="btn btn-secondary" onclick="clearWorksheet()">Reset Sheet</button>
-                    <button class="btn btn-accent" onclick="exportWorksheet()">Export Worksheet</button>
-                </div>
+            <div class="btn-bar" style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; width: 100%;">
+                <span class="save-banner" id="save-banner" style="margin-right: auto; align-self: center;">Auto-saved to local browser!</span>
+                <button class="btn" style="background: var(--success); color: white; border-color: var(--border); box-shadow: 4px 4px 0 var(--border);" onclick="submitToWebhook(true)">
+                    <span>🚀</span> Submit Final Portfolio
+                </button>
+                <button class="btn btn-accent" onclick="copyWorksheetToClipboard()">
+                    <span>📋</span> Copy to Clipboard
+                </button>
+                <button class="btn" style="background:#fff; color:var(--text); border: 2px solid var(--border);" onclick="downloadWorksheetTxt()">
+                    <span>📥</span> Download Submission (.txt)
+                </button>
+                <button class="btn" style="background:#fff; color:var(--text); border: 2px solid var(--border);" onclick="downloadDraftBackup()">
+                    <span>💾</span> Save Draft File
+                </button>
+                <button class="btn" style="background:#fff; color:var(--text); border: 2px solid var(--border);" onclick="triggerUploadDraft()">
+                    <span>📂</span> Load Draft File
+                </button>
+                <button class="btn" style="background:#fff; color:var(--text); border: 2px solid var(--border);" onclick="exportWorksheet()">
+                    <span>📄</span> Print Page
+                </button>
+                <button class="btn btn-secondary" onclick="clearWorksheet()">
+                    <span>🧹</span> Clear Worksheet
+                </button>
+                <input type="file" id="draft-upload-input" accept=".json" style="display:none;" onchange="handleDraftUpload(event)">
             </div>
 
         </section>
@@ -539,39 +573,120 @@
             'task-5-response'
         ];
 
+        function getStoragePrefix() {
+            const classEl = document.getElementById('student-class');
+            const pin = classEl ? classEl.value.trim().replace(/[^a-zA-Z0-9-_]/g, '') : '';
+            return 'assignment-' + (pin || 'default') + '-';
+        }
+
         // Load saved values on load
-        window.onload = function() {
+        function loadInputsForPin() {
+            const prefix = getStoragePrefix();
             formFields.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.value = localStorage.getItem(`assignment_${id}`) || '';
+                    const saved = localStorage.getItem(prefix + id);
+                    if (saved !== null) {
+                        el.value = saved;
+                    } else {
+                        // Reset fields to empty if not saved for this pin
+                        if (id !== 'student-class') el.value = '';
+                    }
                 }
             });
-        };
+        }
+
+        function loadInputs() {
+            const lastPin = localStorage.getItem('assignment-last-pin');
+            const classEl = document.getElementById('student-class');
+            if (lastPin && classEl) {
+                classEl.value = lastPin;
+            }
+            loadInputsForPin();
+        }
+
+        window.onload = loadInputs;
 
         // Save active typing value to localStorage
         function saveInput(id) {
-            const val = document.getElementById(id).value;
-            localStorage.setItem(`assignment_${id}`, val);
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            const prefix = getStoragePrefix();
+            localStorage.setItem(prefix + id, el.value);
             
+            if (id === 'student-class') {
+                const pinVal = el.value.trim();
+                localStorage.setItem('assignment-last-pin', pinVal);
+                handlePinChange();
+            }
+
+            showSaveIndicator();
+        }
+
+        function handlePinChange() {
+            const newPin = document.getElementById('student-class').value.trim();
+            const prefix = getStoragePrefix();
+
+            // Check if there is saved data under the new pin
+            let hasSavedData = false;
+            formFields.forEach(id => {
+                if (id !== 'student-class') {
+                    const saved = localStorage.getItem(prefix + id);
+                    if (saved !== null && saved.trim() !== '') {
+                        hasSavedData = true;
+                    }
+                }
+            });
+
+            if (hasSavedData) {
+                // If there's saved data and we currently have text typed, confirm before overwriting
+                let hasCurrentContent = false;
+                formFields.forEach(id => {
+                    if (id !== 'student-class' && id !== 'student-name') {
+                        const el = document.getElementById(id);
+                        if (el && el.value.trim() !== '') {
+                            hasCurrentContent = true;
+                        }
+                    }
+                });
+
+                if (!hasCurrentContent || confirm(`Found a saved assignment draft for pin/class "${newPin}". Load it? (This will overwrite your current typed text)`)) {
+                    loadInputsForPin();
+                }
+            } else {
+                // Save current data under the new pin prefix so it's migrated
+                formFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        localStorage.setItem(prefix + id, el.value);
+                    }
+                });
+            }
+        }
+
+        function showSaveIndicator() {
             // Show short auto-saved confirmation banner
             const banner = document.getElementById('save-banner');
-            banner.style.display = 'inline-block';
-            
-            // Debounce banner hiding
-            if (window.saveTimeout) clearTimeout(window.saveTimeout);
-            window.saveTimeout = setTimeout(() => {
-                banner.style.display = 'none';
-            }, 2000);
+            if (banner) {
+                banner.textContent = 'Auto-saved to local browser!';
+                banner.style.display = 'inline-block';
+                
+                if (window.saveTimeout) clearTimeout(window.saveTimeout);
+                window.saveTimeout = setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 2000);
+            }
         }
 
         // Clear values from worksheet
         function clearWorksheet() {
             if (confirm("Are you sure you want to clear your entire assignment worksheet? All typed text will be deleted.")) {
+                const prefix = getStoragePrefix();
                 formFields.forEach(id => {
+                    localStorage.removeItem(prefix + id);
                     const el = document.getElementById(id);
-                    if (el) el.value = '';
-                    localStorage.removeItem(`assignment_${id}`);
+                    if (el && id !== 'student-class') el.value = '';
                 });
             }
         }
@@ -579,6 +694,337 @@
         // Print worksheet
         function exportWorksheet() {
             window.print();
+        }
+
+        // Generate Structured Dossier for clipboard & text download
+        function generateWorksheetDossier() {
+            const studentName = document.getElementById('student-name').value.trim() || 'Not Specified';
+            const studentClass = document.getElementById('student-class').value.trim() || 'Not Specified';
+            
+            const r1 = document.getElementById('task-1-response').value.trim() || 'Empty';
+            const r2 = document.getElementById('task-2-response').value.trim() || 'Empty';
+            const r3 = document.getElementById('task-3-response').value.trim() || 'Empty';
+            const r4 = document.getElementById('task-4-response').value.trim() || 'Empty';
+            const r5 = document.getElementById('task-5-response').value.trim() || 'Empty';
+
+            return `===========================================================
+ECON 12: CHOICE ARCHITECTURE PORTFOLIO WORKSHEET
+===========================================================
+Student Name(s): ${studentName}
+Class Period / Pin: ${studentClass}
+
+-----------------------------------------------------------
+TASK 1: EXHIBITION SCOUTING & ANALYSIS
+-----------------------------------------------------------
+Your Analysis:
+${r1}
+
+-----------------------------------------------------------
+TASK 2: CHOOSING TO NUDGE - THE DESIGN PLAYBOOK
+-----------------------------------------------------------
+Your Analysis:
+${r2}
+
+-----------------------------------------------------------
+TASK 3: SOCRATIC DIALOGUE REFLECTION
+-----------------------------------------------------------
+Your Analysis:
+${r3}
+
+-----------------------------------------------------------
+TASK 4: THE SUSTAINABILITY CHALLENGE
+-----------------------------------------------------------
+Your Analysis:
+${r4}
+
+-----------------------------------------------------------
+TASK 5: GLOBAL INTERDEPENDENCE & RESTRUCTURING POWER
+-----------------------------------------------------------
+Your Analysis:
+${r5}
+
+===========================================================
+Generated via Choice Architecture Portfolio Worksheet
+Economics 12 • Outcomes: 4.5 & 5.2
+===========================================================`;
+        }
+
+        function copyWorksheetToClipboard() {
+            const dossier = generateWorksheetDossier();
+            navigator.clipboard.writeText(dossier).then(() => {
+                const banner = document.getElementById('save-banner');
+                if (banner) {
+                    banner.textContent = '📋 Dossier Copied to Clipboard!';
+                    banner.style.display = 'inline-block';
+                    banner.style.color = '#4f46e5'; // Indigo color matching theme
+                    
+                    if (window.saveTimeout) clearTimeout(window.saveTimeout);
+                    window.saveTimeout = setTimeout(() => {
+                        banner.style.display = 'none';
+                        banner.style.color = '';
+                    }, 2500);
+                }
+            }).catch(err => {
+                alert('Failed to copy text: ' + err);
+            });
+        }
+
+        function downloadWorksheetTxt() {
+            const dossier = generateWorksheetDossier();
+            const blob = new Blob([dossier], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const studentFilename = (document.getElementById('student-name').value.trim() || 'unnamed').replace(/[^a-zA-Z0-9-_]/g, '_');
+            const classFilename = (document.getElementById('student-class').value.trim() || 'default').replace(/[^a-zA-Z0-9-_]/g, '_');
+            const filename = `econ12_portfolio_worksheet_${classFilename}_${studentFilename}.txt`;
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Backup and Restore via JSON draft file
+        function downloadDraftBackup() {
+            const data = {};
+            formFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    data[id] = el.value;
+                }
+            });
+            
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const studentName = (document.getElementById('student-name').value.trim() || 'unnamed').replace(/[^a-zA-Z0-9-_]/g, '_');
+            const studentClass = (document.getElementById('student-class').value.trim() || 'default').replace(/[^a-zA-Z0-9-_]/g, '_');
+            const filename = `econ12_portfolio_draft_${studentClass}_${studentName}.json`;
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function triggerUploadDraft() {
+            const fileInput = document.getElementById('draft-upload-input');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+
+        function handleDraftUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate JSON format
+                    const keys = Object.keys(data);
+                    const hasFields = keys.some(key => formFields.includes(key));
+                    if (!hasFields) {
+                        alert('Invalid file format. Please upload a valid ECON12 portfolio draft backup.');
+                        return;
+                    }
+                    
+                    // Update inputs and save to namespaced storage
+                    if (data['student-class'] !== undefined) {
+                        document.getElementById('student-class').value = data['student-class'];
+                        localStorage.setItem('assignment-last-pin', data['student-class'].trim());
+                    }
+                    
+                    const prefix = getStoragePrefix();
+                    
+                    formFields.forEach(id => {
+                        if (data[id] !== undefined) {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.value = data[id];
+                                localStorage.setItem(prefix + id, el.value);
+                            }
+                        }
+                    });
+                    
+                    // Show indicator
+                    const banner = document.getElementById('save-banner');
+                    if (banner) {
+                        banner.textContent = '📂 Draft Loaded Successfully!';
+                        banner.style.display = 'inline-block';
+                        banner.style.color = '#059669'; // Emerald color
+                        
+                        if (window.saveTimeout) clearTimeout(window.saveTimeout);
+                        window.saveTimeout = setTimeout(() => {
+                            banner.style.display = 'none';
+                            banner.style.color = '';
+                        }, 2500);
+                    }
+                    
+                } catch(err) {
+                    alert('Failed to parse the backup file: ' + err.message);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // CLOUD SYNC & WEBHOOK INTEGRATION
+        // ═══════════════════════════════════════════════════
+        const API_URL = "https://script.google.com/macros/s/AKfycbwPYY_WeEfQXs6oUjaX0BPLtaj_SF5v9cvkx1OkTxLXnM3fjH_YyIKjXg_2iWaiHS1i/exec";
+        const SIMULATION_NAME = "Choice Architecture Portfolio";
+
+        async function submitToWebhook(isFinal = false) {
+            const studentName = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value.trim();
+
+            if (!studentName || !studentClass) {
+                alert("Please fill in both your Student Name and Class Period / Pin before syncing to the cloud.");
+                return;
+            }
+
+            const syncStatusText = document.getElementById('cloud-status-text');
+            if (syncStatusText) {
+                syncStatusText.textContent = isFinal ? "SUBMITTING..." : "SAVING DRAFT...";
+                syncStatusText.style.color = "var(--warning)";
+            }
+
+            // Construct payload
+            const payload = {
+                action: isFinal ? "submitFinal" : "saveProgress",
+                timestamp: new Date().toLocaleString(),
+                block: studentClass,
+                student: studentName,
+                subject: "ECON12",
+                simulation: SIMULATION_NAME,
+                status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                rationales: JSON.stringify({
+                    studentName: studentName,
+                    studentClass: studentClass,
+                    task1: document.getElementById('task-1-response').value.trim(),
+                    task2: document.getElementById('task-2-response').value.trim(),
+                    task3: document.getElementById('task-3-response').value.trim(),
+                    task4: document.getElementById('task-4-response').value.trim(),
+                    task5: document.getElementById('task-5-response').value.trim()
+                })
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    }
+                });
+                const result = await res.json();
+
+                if (result.ok) {
+                    if (syncStatusText) {
+                        syncStatusText.textContent = isFinal ? "SUBMITTED" : "DRAFT SAVED";
+                        syncStatusText.style.color = "var(--success)";
+                    }
+                    alert(isFinal ? "🎉 Portfolio successfully submitted to the teacher's spreadsheet!" : "💾 Draft successfully saved to the cloud!");
+                    showSaveIndicator();
+                } else {
+                    throw new Error(result.error || "Server error");
+                }
+            } catch (err) {
+                console.error("Cloud save failed:", err);
+                if (syncStatusText) {
+                    syncStatusText.textContent = "OFFLINE/FAILED";
+                    syncStatusText.style.color = "var(--danger)";
+                }
+                alert("⚠️ Cloud sync failed. Make sure you are online. Your work has still been saved to this browser locally! You can also download a draft backup file.");
+            }
+        }
+
+        async function retrieveFromCloud() {
+            const studentName = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value.trim();
+
+            if (!studentName || !studentClass) {
+                alert("Please enter both your Student Name and Class Period / Pin to retrieve your cloud draft.");
+                return;
+            }
+
+            const syncStatusText = document.getElementById('cloud-status-text');
+            if (syncStatusText) {
+                syncStatusText.textContent = "RETRIEVING...";
+                syncStatusText.style.color = "var(--warning)";
+            }
+
+            try {
+                const url = `${API_URL}?student=${encodeURIComponent(studentName)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`;
+                const res = await fetch(url);
+                const result = await res.json();
+
+                if (result.rationales) {
+                    const data = JSON.parse(result.rationales);
+                    
+                    // Save to local storage for the current prefix
+                    const prefix = getStoragePrefix();
+                    
+                    // Populate fields
+                    if (data.studentName) document.getElementById('student-name').value = data.studentName;
+                    if (data.studentClass) {
+                        document.getElementById('student-class').value = data.studentClass;
+                        localStorage.setItem('assignment-last-pin', data.studentClass.trim());
+                    }
+
+                    // Map keys to elements
+                    const elementMapping = {
+                        task1: 'task-1-response',
+                        task2: 'task-2-response',
+                        task3: 'task-3-response',
+                        task4: 'task-4-response',
+                        task5: 'task-5-response'
+                    };
+
+                    for (const [apiKey, elementId] of Object.entries(elementMapping)) {
+                        if (data[apiKey] !== undefined) {
+                            const el = document.getElementById(elementId);
+                            if (el) {
+                                el.value = data[apiKey];
+                                localStorage.setItem(prefix + elementId, el.value);
+                            }
+                        }
+                    }
+
+                    // Sync Student Name and Class to namespaced local storage
+                    localStorage.setItem(prefix + 'student-name', document.getElementById('student-name').value);
+                    localStorage.setItem(prefix + 'student-class', document.getElementById('student-class').value);
+
+                    if (syncStatusText) {
+                        syncStatusText.textContent = "CLOUD DRAFT RETRIEVED";
+                        syncStatusText.style.color = "var(--success)";
+                    }
+                    alert("📥 Draft successfully retrieved from the cloud!");
+                } else {
+                    if (syncStatusText) {
+                        syncStatusText.textContent = "NO CLOUD DRAFT";
+                        syncStatusText.style.color = "var(--warning)";
+                    }
+                    alert("ℹ️ No saved cloud draft was found for this combination of Name and Class Period/Pin.");
+                }
+            } catch (err) {
+                console.error("Cloud retrieval failed:", err);
+                if (syncStatusText) {
+                    syncStatusText.textContent = "FAILED";
+                    syncStatusText.style.color = "var(--danger)";
+                }
+                alert("⚠️ Failed to retrieve draft from cloud. Double-check your internet connection and spelling.");
+            }
         }
     </script>
 </body>
