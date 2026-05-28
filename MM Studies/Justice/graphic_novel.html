@@ -1039,18 +1039,65 @@
           panelDiv.appendChild(trigger);
         }
 
+        // ─── FALLBACK: Visual description (shown when no image or image fails) ───
+        const fallbackVis = document.createElement('div');
+        fallbackVis.className = 'visual-description';
+        fallbackVis.innerHTML = `<strong>VISUAL:</strong> ${p.visual}`;
+        if (p.image) fallbackVis.style.display = 'none';
+
+        // ─── STANDALONE FALLBACK BLOCKS (rendered and hidden initially if image exists) ───
+        let standaloneNarr = null;
+        if (p.narration) {
+          standaloneNarr = document.createElement('div');
+          standaloneNarr.className = 'narration';
+          standaloneNarr.innerText = p.narration;
+          if (p.image) standaloneNarr.style.display = 'none';
+        }
+
+        let standaloneDlg = null;
+        if (p.dialogue || p.thought) {
+          standaloneDlg = document.createElement('div');
+          standaloneDlg.className = 'dialogue-container';
+
+          if (p.dialogue) {
+            const bubble = document.createElement('div');
+            bubble.className = 'speech-bubble';
+            bubble.innerHTML = `<div class="speaker-name">${p.speaker}</div>${p.dialogue}`;
+            standaloneDlg.appendChild(bubble);
+          }
+
+          if (p.dialogue2) {
+            const bubble2 = document.createElement('div');
+            bubble2.className = 'speech-bubble';
+            bubble2.innerHTML = `<div class="speaker-name">${p.speaker2}</div>${p.dialogue2}`;
+            standaloneDlg.appendChild(bubble2);
+          }
+
+          if (p.thought) {
+            const bubble = document.createElement('div');
+            bubble.className = 'thought-bubble';
+            bubble.innerHTML = `<div class="speaker-name">${p.speaker} (Thought)</div>"${p.thought}"`;
+            standaloneDlg.appendChild(bubble);
+          }
+
+          if (p.image) standaloneDlg.style.display = 'none';
+        }
+
         // ─── IMAGE WITH OVERLAY BUBBLES (comic-book mode) ───
+        let artContainer = null;
         if (p.image) {
-          const artContainer = document.createElement('div');
+          artContainer = document.createElement('div');
           artContainer.className = 'panel-art-container';
 
           const img = document.createElement('img');
           img.src = p.image;
           img.alt = p.visual;
           img.onerror = function() {
-            // If image not found, fall back to visual description
+            // If image not found, hide the art container, show visual description and standalone text
             artContainer.style.display = 'none';
             fallbackVis.style.display = 'block';
+            if (standaloneNarr) standaloneNarr.style.display = 'block';
+            if (standaloneDlg) standaloneDlg.style.display = 'flex';
           };
           artContainer.appendChild(img);
 
@@ -1093,53 +1140,13 @@
 
             artContainer.appendChild(overlayDlg);
           }
-
-          panelDiv.appendChild(artContainer);
         }
 
-        // ─── FALLBACK: Visual description (shown when no image or image fails) ───
-        const fallbackVis = document.createElement('div');
-        fallbackVis.className = 'visual-description';
-        fallbackVis.innerHTML = `<strong>VISUAL:</strong> ${p.visual}`;
-        if (p.image) fallbackVis.style.display = 'none';
+        // Append to panel in structured order
+        if (artContainer) panelDiv.appendChild(artContainer);
         panelDiv.appendChild(fallbackVis);
-
-        // Narration box (standalone, only if no image — image mode uses overlay)
-        if (p.narration && !p.image) {
-          const narr = document.createElement('div');
-          narr.className = 'narration';
-          narr.innerText = p.narration;
-          panelDiv.appendChild(narr);
-        }
-
-        // Dialogues (standalone, only if no image — image mode uses overlay)
-        if ((p.dialogue || p.thought) && !p.image) {
-          const dialogueDiv = document.createElement('div');
-          dialogueDiv.className = 'dialogue-container';
-
-          if (p.dialogue) {
-            const bubble = document.createElement('div');
-            bubble.className = 'speech-bubble';
-            bubble.innerHTML = `<div class="speaker-name">${p.speaker}</div>${p.dialogue}`;
-            dialogueDiv.appendChild(bubble);
-          }
-
-          if (p.dialogue2) {
-            const bubble2 = document.createElement('div');
-            bubble2.className = 'speech-bubble';
-            bubble2.innerHTML = `<div class="speaker-name">${p.speaker2}</div>${p.dialogue2}`;
-            dialogueDiv.appendChild(bubble2);
-          }
-
-          if (p.thought) {
-            const bubble = document.createElement('div');
-            bubble.className = 'thought-bubble';
-            bubble.innerHTML = `<div class="speaker-name">${p.speaker} (Thought)</div>"${p.thought}"`;
-            dialogueDiv.appendChild(bubble);
-          }
-
-          panelDiv.appendChild(dialogueDiv);
-        }
+        if (standaloneNarr) panelDiv.appendChild(standaloneNarr);
+        if (standaloneDlg) panelDiv.appendChild(standaloneDlg);
 
         container.appendChild(panelDiv);
       });
