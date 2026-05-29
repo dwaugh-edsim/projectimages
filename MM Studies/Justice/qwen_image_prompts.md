@@ -4,52 +4,82 @@ Save all generated images to: `E:\Antigravity\simroom\Github Repos\projectimages
 
 ---
 
-## Liam's Character Consistency Profile
-Use this exact description of Liam in all prompts containing him to enforce hair and clothing continuity:
-> *"Liam, a 17-year-old Mi'kmaw youth with long black hair (shoulder-length, straight), brown eyes, clean-shaven, expressive and youthful face, wearing a dark green hooded sweatshirt (hoodie) under a thin, worn dark grey zippered jacket, blue jeans, and worn sneakers."*
+## Liam's Character Consistency Profiles
+
+To maintain visual continuity, Liam has two distinct profiles depending on the timeline of the story:
+
+### Profile A: Before/Outside the Sentencing Circle (Pages 1 to 9)
+* **Visuals**: Long straight black hair (loose, shoulder-length), brown eyes, clean-shaven, expressive and youthful face, wearing a dark green hooded sweatshirt (hoodie) under a thin, worn dark grey zippered jacket, blue jeans, and worn sneakers.
+
+### Profile B: Inside the Sentencing Circle (Pages 11 to 14)
+* **Visuals**: Long straight black hair **tied back in a neat ponytail**, brown eyes, clean-shaven, wearing a **light grey hooded sweatshirt (hoodie)**, blue jeans, and worn sneakers.
 
 ---
 
-## Part 1: Story Revision Regenerations (5 Panels)
-These panels must be regenerated to reflect the convenience store break-in, theft of bread/shirt, and the terrified clerk, as well as fixing Liam's appearance:
+## Part 1: Outside Circle Panel Regenerations (7 Panels)
+These panels must be generated to ensure Liam has long, loose hair and his green hoodie:
 
-### 1. Page 1 Panel 3 → Save as: `p1_panel3.png`
+### 1. Page 1 Panel 2 → Save as: `p1_panel2.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long black hair (shoulder-length, straight) and a thin dark jacket, stands in a dark alleyway behind a small convenience store ("Thomas's Corner Market"). The window is closed, but a back door has a cracked glass pane. The alley is cold, streetlamp lit, with falling snow. Shivering look. Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long black hair (shoulder-length, straight), sits crouched against a brick wall in the snow, looking cold. He is holding a smartphone with one bar of battery, his thumb hovering over the screen. Cinematic comic art.
 
-### 2. Page 1 Panel 4 → Save as: `p1_panel4.png`
+### 2. Page 5 Panel 1 → Save as: `p5_panel1.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie, dark jacket) breaks the glass pane of a back door with a stone, reaching in to unlock it. Shivering violently in the snow. He has a thought bubble containing the text: "I'll just take some bread and a warm shirt. I'll leave my pocket change on the counter. I'm not a thief... I just need to survive." Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length), wearing a dark green hoodie under a grey jacket, looks through cell bars at a harried lawyer holding files. Cinematic comic art.
 
-### 3. Page 2 Panel 1 → Save as: `p2_panel1.png`
+### 3. Page 5 Panel 3 → Save as: `p5_panel3.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Inside a convenience store aisle. A young clerk is cowering behind the counter, terrified, clutching a phone. In the background, Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie, dark jacket) stands startled, holding a loaf of bread and a flannel shirt. A police flashlight beam cuts through the store window. The clerk has a speech bubble: "Please don't hurt me! Take whatever you want!" Liam has a speech bubble: "I—I'm not trying to hurt you! I just needed to get warm!" Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length, straight), wearing a dark green hoodie under a grey jacket, sits slumped on a concrete bench in a jail cell, staring down in despair. A fluorescent light sits above. Cinematic comic art.
 
-### 4. Page 2 Panel 2 → Save as: `p2_panel2.png`
+### 4. Page 6 Panel 1 → Save as: `p6_panel1.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie, cuffed hands) stands cuffed outside in the snow beside a police cruiser. The arresting officer pauses, looking at Liam's thin jacket, worn sneakers, and a loaf of bread left on the cruiser's hood. Cool police lights reflecting on the snow. Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Claire, an elderly Mi'kmaw woman, sits across a table from Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length), wearing a dark green hoodie. Claire has a speech bubble pointing to her containing the exact text: "Kwe', Liam. My name is Claire. I'm from the Mi'kmaw Legal Support Network. I had a son who sat where you're sitting, fifteen years ago. Nobody showed up for him. I'm not letting that happen again." Cinematic comic art.
 
-### 5. Page 12 Panel 2 → Save as: `p12_panel2.png`
+### 5. Page 6 Panel 3 → Save as: `p6_panel3.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie) stands in a sentencing circle. His voice cracks, his eyes are wet with tears. He looks directly at a middle-aged man (Mr. Thomas) seated across from him. He has two speech bubbles pointing from his mouth containing the exact text: "I broke your window... and I scared your staff. I was wrong. I want—" and a second bubble containing: "I want to pay for the glass, and repair the frame. I need you to know I'm sorry." Community circle setting, dramatic warm lighting. Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Close-up on Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length), wearing a dark green hoodie. He is looking down at a small beaded medicine pouch in his hands, his face softening with a look of quiet hope. Cinematic comic art.
+
+### 6. Page 7 Panel 1 → Save as: `p7_panel1.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Claire, an elderly Mi'kmaw woman, shows a pamphlet detailing Donald Marshall Jr.'s story to Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length), wearing a dark green hoodie, seated at a community room table. Cinematic comic art.
+
+### 7. Page 9 Panel 1 → Save as: `p8_panel2.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long straight black hair (shoulder-length), wearing a dark green hoodie, sits looking thoughtful at a wooden table, tracing the word "Gladue" written on a legal brief with his finger. Close-up. Cinematic comic art.
 
 ---
 
-## Part 2: Remaining Panels (4 Panels)
-Generate these panels when the quota resets:
+## Part 2: Sentencing Circle Panel Regenerations (7 Panels)
+These panels must be generated with Liam wearing a grey hoodie and his long hair tied back. The circle members must be depicted consistently as Indigenous/Mi'kmaw:
 
-### 1. Page 14 Panel 1 → Save as: `p14_panel1.png`
+### 1. Page 11 Panel 1 → Save as: `p10_panel1.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie, hands dirty with labor) works with a construction crew, repairing a storefront glass window and wooden frame. Sweat on his face, hands gripping a hammer. He is focused and working hard. Hopeful daytime lighting. Cinematic comic art.
+  Graphic novel panel, top-down view, dramatic comic art with heavy ink lines and cel shading. A Sentencing Circle gathers in a large community room. A crowd of about 12 community members, including an elderly Mi'kmaw woman (Claire), a middle-aged store owner (Mr. Thomas), a Mi'kmaw Elder, and a Judge, sit in normal clothes in an equal circle of chairs surrounding a sweetgrass braid. Liam, a 17-year-old Mi'kmaw youth with long black hair tied back in a neat ponytail, wearing a light grey hoodie, sits in the circle. All chairs are at the exact same height. Warm, respectful atmosphere. Cinematic comic art.
 
-### 2. Page 14 Panel 2 → Save as: `p14_panel2.png`
+### 2. Page 12 Panel 1 → Save as: `p11_panel1.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie) stands in a small, warm apartment for the first time. Claire (Mi'kmaw elder woman) hands him a cardboard housewarming box. A small plant sits on the windowsill. Sunlight streams through the window. Hopeful, gentle atmosphere. Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam, a 17-year-old Mi'kmaw youth with long black hair tied back in a ponytail, wearing a light grey hoodie, holds an eagle feather and speaks quietly in the Sentencing Circle. The community members look on with support. Warm lighting. Cinematic comic art.
 
-### 3. Page 14 Panel 3 → Save as: `p14_panel3.png`
+### 3. Page 12 Panel 4 → Save as: `p11_panel4.png`
 * **Prompt**:
-  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Late evening scene. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie) sits on his apartment floor with his head in his hands, looking exhausted. A phone on the floor shows a missed call. Claire (Mi'kmaw elder woman) knocks on the open door holding two steaming cups of tea. The room is dim with warm lamp light. Claire has a speech bubble: "Bad day?" Liam has a speech bubble: "Bad day. But I'm still here." Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Wide shot of the Sentencing Circle. Liam, a 17-year-old Mi'kmaw youth with long black hair tied back in a ponytail, wearing a light grey hoodie, looks across at Mr. Thomas (a middle-aged shop owner). The equal circle is visible with supportive community faces. Cinematic comic art.
 
-### 4. Page 15 Splash → Save as: `p15_splash.png`
+### 4. Page 13 Panel 1 → Save as: `p12_panel1.png`
 * **Prompt**:
-  Graphic novel splash page, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair, shoulder-length, straight, green hoodie) stands on the banks of a river at golden sunset, holding a sweetgrass braid. The border features gold and teal Indigenous double-curve motifs. Behind him, faintly, ghostly outlines of the sentencing circle members surround him like a constellation in the sky. Liam has a thought bubble: "Kinship is a circle that cannot be cut." Beautiful, spiritual atmosphere. Circular composition. Cinematic comic art.
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth, long black hair tied back in a ponytail, wearing a light grey hoodie) stands up in the Sentencing Circle to address the store owner. He opens his mouth but looks nervous and silent as the circle waits patiently. Cinematic comic art.
+
+### 5. Page 13 Panel 2 → Save as: `p12_panel2.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth with long black hair tied back in a ponytail, wearing a light grey hoodie) stands in the Sentencing Circle, eyes wet with tears. He looks directly at Mr. Thomas. He has speech bubbles containing: "I broke your window... and I scared your staff. I was wrong. I want—" and a second bubble containing: "I want to pay for the glass, and repair the frame. I need you to know I'm sorry." Cinematic comic art.
+
+### 6. Page 13 Panel 3 → Save as: `p12_panel3.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Mr. Thomas (middle-aged shop owner) stands and places a hand on the shoulder of Liam (17-year-old Mi'kmaw youth, long black hair tied back in a ponytail, wearing a light grey hoodie) in a gesture of acceptance and agreement. Warm, emotional community setting. Cinematic comic art.
+
+### 7. Page 14 Panel 1 → Save as: `p13_panel1.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. The Judge (a Mi'kmaw man in business clothes, not judicial robes) addresses the Sentencing Circle. Seated in the circle are Claire, Mr. Thomas, and Liam (17-year-old Mi'kmaw youth, long black hair tied back in a ponytail, wearing a light grey hoodie). All participants are represented as Indigenous/Mi'kmaw. Warm lighting, focused on community healing. Cinematic comic art.
+
+### 8. Page 14 Panel 3 → Save as: `p13_panel3.png`
+* **Prompt**:
+  Graphic novel panel, dramatic comic book art style with heavy ink lines and cel shading. Liam (17-year-old Mi'kmaw youth, long black hair tied back in a ponytail, wearing a light grey hoodie) walks out of the court house building into the winter air next to Claire. Claire has a warm smile. Cinematic comic art.

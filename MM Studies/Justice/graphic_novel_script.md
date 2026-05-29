@@ -1,5 +1,5 @@
 # Two Paths: Liam's Journey
-**A 15-Page Graphic Novel Script & Visual Guide**
+**A 16-Page Graphic Novel Script & Visual Guide**
 *Course Context: Mi'kmaw Studies 11*
 
 ---
@@ -10,7 +10,7 @@
 
 ### Panel 1.1
 * **Visual:** Close-up on Liam's worn sneakers walking through deep snow. A freezing wind blows snow across the streetlamp-lit frame.
-* **Narration (Caption):** "Cape Breton. Mid-January. −15°C."
+* **Narration (Caption):** "Sydney, Cape Breton, Mid-January 2027, -15°C."
 * **Dialogue (Liam - thought bubble):** *I just need to get out of the wind. Just for a couple of hours.*
 
 ### Panel 1.2
@@ -130,135 +130,141 @@
 
 ---
 
-## PAGE 8: Gladue Rights
+## PAGE 8: Gladue Principles
 * **Theme:** Legislative acknowledgment of systemic factors.
-* **Layout:** Three horizontal panels.
+* **Layout:** Splash panel.
 
 ### Panel 8.1
 * **Visual:** Claire points to a section in a legal brief titled "Gladue Principles."
 * **Dialogue (Claire):** "Because of that history, Canadian law has Gladue Rights. The court must consider the colonial history that brings an Indigenous person to court, and look at alternatives. It is about substantive equality — different accountability, not less."
 * **Fact Check Explainer (Interactive):** **Gladue Rights & Funding Gap** — Gladue is a right to substantive equality, meaning the court must look at the offender's unique circumstances. However, a lack of funding for Indigenous-led housing, mental health, and healing programs often means the "alternatives to jail" aren't actually available, leading courts back to incarceration.
 
-### Panel 8.2
+---
+
+## PAGE 9: Gladue Rights
+* **Theme:** Alternatives to jail and sentencing circle referral.
+* **Layout:** Two vertical panels.
+
+### Panel 9.1
 * **Visual:** Liam looks thoughtful, tracing the word "Gladue" on the brief.
 * **Dialogue (Liam):** "So the judge has to listen to why I didn't have a home?"
 * **Dialogue (Claire):** "Yes. We need to divert this to a Sentencing Circle."
 
-### Panel 8.3
+### Panel 9.2
 * **Visual:** The Crown Prosecutor sits at a desk. Claire presents a diversion request.
 * **Dialogue (Prosecutor):** "We'll agree to Restorative Justice—but only if the property owner consents to join the circle."
 
 ---
 
-## PAGE 9: Face to Face
+## PAGE 10: Face to Face
 * **Theme:** Restorative preparation and victim resistance.
 * **Layout:** Three horizontal panels.
 
-### Panel 9.1
+### Panel 10.1
 * **Visual:** Claire sits with Mr. Thomas, the store owner, in a community center room. Mr. Thomas's arms are crossed, jaw tight. A photo of his damaged shop sits on the table between them.
 * **Dialogue (Mr. Thomas):** "I've been broken into three times this year. Three times. You want me to sit in a circle and talk about feelings?"
 
-### Panel 9.2
+### Panel 10.2
 * **Visual:** Claire listens without flinching. She doesn't argue. Her hands are folded, patient.
 * **Dialogue (Claire):** "I'm not asking you to forgive anything, Mr. Thomas. I'm asking if you want to hear why it happened — face to face — with the power to shape what comes next."
 
-### Panel 9.3
+### Panel 10.3
 * **Visual:** Long pause. Mr. Thomas looks out at the snow falling past the window, then turns back with an expression that's not soft, but willing.
 * **Narration (Caption):** "Restorative justice asks the hardest thing of the person who was harmed: the willingness to sit in the same room as the one who caused it."
 * **Dialogue (Mr. Thomas):** "...Alright. But I want to look him in the eye."
 
 ---
 
-## PAGE 10: The Circle Gathers
+## PAGE 11: The Circle Gathers
 * **Theme:** Transition to the circle and the power of silence.
 * **Layout:** Two vertical panels.
 
-### Panel 10.1
+### Panel 11.1
 * **Visual:** Top-down view of a Sentencing Circle. Liam, Claire, Mr. Thomas, an Elder, and the Judge sit in normal clothes (without robes) around a sweetgrass braid. An eagle feather rests in the centre. No one is speaking. All chairs (including the Judge's) are at the exact same height, removing standard courtroom hierarchy.
 * **Narration (Caption):** "The hardest part of a circle is the beginning. There is no desk to hide behind. No elevated judge's bench. Just the equal circle, and the silence."
 * **Fact Check Explainer (Interactive):** **Sentencing Circles & Equality of Height** — A sentencing circle brings together the offender, victim, community support, and judge. Unlike conventional courts where the judge sits elevated to symbolize authority, the circle places everyone at the same level. In Mi'kmaw culture, holding the **Eagle Feather** signifies that the speaker is speaking their absolute truth directly to the Creator, which raises the emotional stakes.
 
-### Panel 10.2
+### Panel 11.2
 * **Visual:** Close-up of the eagle feather sitting untouched in the centre of the circle. The sweetgrass smoke drifts upward. Each face around the circle is visible — nervous, uncertain, brave.
 * **Narration (Caption):** "For thirty seconds, no one reaches for the feather. The silence is not empty. It is full of everything that brought them here."
 
 ---
 
-## PAGE 11: The Story Untold
+## PAGE 12: The Story Untold
 * **Theme:** Presenting Gladue factors and victim pain.
 * **Layout:** Four panels (two vertical split, two horizontal split).
 
-### Panel 11.1
+### Panel 12.1
 * **Visual:** Liam holds the eagle feather, speaking quietly to the circle. His voice shakes but he doesn't stop.
 * **Dialogue (Liam):** "When my dad lost his status, we lost our housing on reserve. We had to move to town. We didn't have any family support there..."
 
-### Panel 11.2
+### Panel 12.2
 * **Visual:** The Elder nods slowly, holding a talking piece.
 * **Dialogue (Elder):** "When the Indian Act cut our family lines, it scattered our youth. Liam's story is our history's story."
 
-### Panel 11.3
+### Panel 12.3
 * **Visual:** Mr. Thomas holds the eagle feather now. His hands are rough, working hands. He speaks carefully, not with anger but with exhaustion.
 * **Dialogue (Mr. Thomas):** "Every time someone breaks in, I think about closing the shop. And if I close, that's six people without jobs in this town. Six families."
 
-### Panel 11.4
+### Panel 12.4
 * **Visual:** Wide shot of the full circle. Mr. Thomas and Liam look at each other for the first time — not as victim and offender, but as two people carrying weight.
 * **Narration (Caption):** "A standard court only asks what you did. The circle asks how we got here — and it asks everyone."
 
 ---
 
-## PAGE 12: Accountability and Remorse
+## PAGE 13: Accountability and Remorse
 * **Theme:** Hard-earned remorse and acceptance.
 * **Layout:** Three horizontal panels.
 
-### Panel 12.1
+### Panel 13.1
 * **Visual:** Liam stands up to address Mr. Thomas. He opens his mouth — and nothing comes out. He sits back down. The circle waits.
 * **Narration (Caption):** "Accountability isn't a speech. It's the hardest sentence you'll ever say out loud."
 
-### Panel 12.2
+### Panel 13.2
 * **Visual:** Liam stands again. His voice cracks. His eyes are wet. He looks directly at Mr. Thomas.
 * **Dialogue (Liam):** "I broke your window... and I scared your staff. I was wrong. I want—"
 * **Dialogue (Liam):** "I want to pay for the glass, and repair the frame. I need you to know I'm sorry."
 
-### Panel 12.3
+### Panel 13.3
 * **Visual:** Mr. Thomas is quiet for a long moment. Then he nods, and places a hand on Liam's shoulder. It is not easy for either of them.
 * **Dialogue (Mr. Thomas):** "I accept your apology, Liam. I don't want to build walls around your future. But I need to know this means something."
 * **Dialogue (Liam):** "It does. I promise you."
 
 ---
 
-## PAGE 13: The Restorative Plan
+## PAGE 14: The Restorative Plan
 * **Theme:** Collaborative sentencing and modern systemic realities.
 * **Layout:** Three horizontal panels.
 
-### Panel 13.1
+### Panel 14.1
 * **Visual:** The Judge addresses the circle, summarizing the agreement.
 * **Dialogue (Judge):** "Instead of jail, the court accepts the Circle's healing plan. Liam will perform 40 hours of restitution repairing community buildings, and MLSN will assist him with housing."
 * **Fact Check Explainer (Interactive):** **Bill C-5, Restorative Outcomes & Recidivism** — Despite Bill C-5 (2022) removing mandatory minimum sentences for several offences, Indigenous incarceration rates remain high. Indigenous adults represent 33% of federal admissions (and 50% of incarcerated women) while representing ~5% of the population. Research shows that Indigenous community-led restorative justice programs reduce recidivism (re-offending) by **15–20%** compared to traditional prison sentences because they address root causes like housing instability and social isolation.
 
-### Panel 13.2
+### Panel 14.2
 * **Visual:** Close-up of the signed document showing signatures of Liam, Mr. Thomas, Claire, and the Judge.
 * **Narration (Caption):** "This is not lenient. It is accountability that demands active repair — witnessed by every person in the room."
 
-### Panel 13.3
+### Panel 14.3
 * **Visual:** Liam walks out of the courthouse in the fresh air, beside Claire. He doesn't smile — not yet. But he stands taller.
 * **Dialogue (Liam):** "Thank you, Auntie Claire."
 * **Dialogue (Claire):** "Don't thank me yet. The work starts tomorrow."
 
 ---
 
-## PAGE 14: Restoring the Balance
+## PAGE 15: Restoring the Balance
 * **Theme:** Ongoing struggle and active repair.
 * **Layout:** Three horizontal panels.
 
-### Panel 14.1
+### Panel 15.1
 * **Visual:** Liam is working with a construction crew, repairing Mr. Thomas's storefront. Sweat on his face, hands gripping a hammer.
 * **Narration (Caption):** "Accountability means putting sweat into the repair."
 
-### Panel 14.2
+### Panel 15.2
 * **Visual:** Liam stands in a small, warm apartment. Claire hands him a housewarming box. A plant sits on the windowsill.
 * **Narration (Caption):** "When you address the root cause of the crisis, you stop the cycle of return."
 
-### Panel 14.3
+### Panel 15.3
 * **Visual:** Late evening. Liam sits on his apartment floor, head in his hands. A missed call from an unknown number glows on his phone. Claire knocks on the door with two cups of tea.
 * **Narration (Caption):** "Healing isn't a straight line. Some days the circle holds you. Some days you hold on to it."
 * **Dialogue (Claire):** "Bad day?"
@@ -266,11 +272,11 @@
 
 ---
 
-## PAGE 15: The Uncut Circle
+## PAGE 16: The Uncut Circle
 * **Theme:** Inquiry, connection, and systemic questions.
 * **Layout:** Circular splash panel.
 
-### Panel 15.1 (Splash)
+### Panel 16.1 (Splash)
 * **Visual:** A beautiful circular panel. Liam stands on the banks of the Shubenacadie River at sunset, holding a sweetgrass braid. The gold and teal Mi'kmaw double-curve border frame visually links to the people in his circle (Claire, Mr. Thomas, the Elder, the Judge) who surround him like a constellation in the sky. This creates a stark, warm golden contrast to the cold, grey walls of Page 5, representing the "Two Paths."
 * **Narration (Caption):** "Liam's story is fictional. The statistics are not. The system that scored him 'high risk' is real. The circles that could have helped him exist, but are underfunded. The question isn't whether Liam deserved a second chance. The question is: why does the system make it so hard to give one?"
 * **Dialogue (Liam - thought bubble):** *Msit No'kmaq — All my relations. Kinship is a circle that cannot be cut.*

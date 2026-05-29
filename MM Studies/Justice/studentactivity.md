@@ -42,7 +42,7 @@ Working in pairs, review the interactive pop-ups on **Page 3 (Actuarial Judgment
 **Primary Goal:** Critique systemic bias in the legal system using modern statistics.
 
 ### 📊 Discussion & Reflection Questions
-Analyze the statistics presented on **Page 3** and **Page 13** of the interactive reader:
+Analyze the statistics presented on **Page 3** and **Page 14** of the interactive reader:
 * **The Disparity:** *Indigenous adults represent 33% of federal custody (and 50% of federally incarcerated women) despite making up only 5% of Canada's population.* Where does this overrepresentation begin?
 * **Criminogenic Risk vs. Poverty:** Actuarial tools score individuals higher (meaning "more dangerous" or "less likely to be released") if they lack stable housing or jobs. How does this penalize poverty?
 * **Substantive Equality:** In your own words, explain why treating everyone *exactly the same* (formal equality) in court can lead to deeply unequal and unjust results for Indigenous people (substantive equality).
@@ -53,7 +53,7 @@ Analyze the statistics presented on **Page 3** and **Page 13** of the interactiv
 **Primary Goal:** Connect the graphic novel’s visual motifs to Mi'kmaw worldview.
 
 ### 🎨 Creative Assignment
-Look closely at **Page 5 (Conveyor Belt)** and **Page 15 (The Sunset River)**. Write a reflective paragraph or create a visual concept map contrasting these two settings:
+Look closely at **Page 5 (Conveyor Belt)** and **Page 16 (The Sunset River)**. Write a reflective paragraph or create a visual concept map contrasting these two settings:
 * **The Cold Path (Page 5):** How does the conventional legal system dehumanize individuals? Identify the colors, geometry, and figures used to show this.
 * **The Warm Path (Page 15):** How does the concept of *Msit No'kmaq* (All My Relations) change the visual layout? Explain the significance of the circular sunset frame, the constellation of circle members, and the sweetgrass braid.
 * **Outcome Comparison:** Fill out the comparison table below as a study reference:
