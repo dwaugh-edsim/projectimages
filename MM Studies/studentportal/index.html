@@ -477,24 +477,23 @@
     <div id="loginGate">
         <div class="login-box">
             <div class="login-logo">MKS-11 Portal</div>
-            <p class="login-subtitle">Enter your credentials to access your missions</p>
-            
+            <p class="login-subtitle">Enter your name to access your missions</p>
+
+            <div id="cookieWarning" style="display:none;background:#fef3c7;border:2px solid #f59e0b;border-radius:12px;padding:12px;margin-bottom:16px;font-size:0.85rem;color:#92400e;">
+                <strong>Note:</strong> Someone used this device before as "<span id="savedNameDisplay"></span>". Your work will be saved for 30 days.
+            </div>
+
             <div class="login-field">
                 <label for="studentName">Your Name</label>
                 <input type="text" id="studentName" placeholder="e.g. Jordan" maxlength="30" autocomplete="off">
             </div>
-            
-            <div class="login-field">
-                <label for="studentPin">Secret PIN (1-99)</label>
-                <input type="number" id="studentPin" placeholder="e.g. 42" min="1" max="99" autocomplete="off">
-            </div>
-            
-            <div class="login-error" id="loginError">Please enter both your name and a PIN between 1-99.</div>
-            
+
+            <div class="login-error" id="loginError">Enter your name to continue.</div>
+
             <button class="btn-login" onclick="handleLogin()">Enter Portal</button>
-            
+
             <p class="login-note">
-                Your name + PIN creates a unique ID. Use the same combo each time to restore your saved work.
+                Your name is saved for 30 days. Use the same device to keep your progress.
             </p>
         </div>
     </div>
@@ -543,10 +542,38 @@
             return currentStudentId;
         }
 
+function checkExistingStudent() {
+            const data = getCookieStudent();
+            if (data) {
+                document.getElementById('savedNameDisplay').textContent = data.name;
+                document.getElementById('cookieWarning').style.display = '';
+                document.getElementById('studentName').value = data.name;
+            }
+        }
+
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (const c of cookies) {
+                const [k, v] = c.trim().split('=');
+                if (k === name) return decodeURIComponent(v);
+            }
+            return null;
+        }
+
+        function setCookie(name, val, days) {
+            document.cookie = name + '=' + encodeURIComponent(val) + '; path=/; max-age=' + (60 * 60 * 24 * (days || 30));
+        }
+
+        function getCookieStudent() {
+            const val = getCookie('mks_student');
+            if (!val) return null;
+            const parts = val.split('|');
+            return { id: parts[0], name: parts[1] };
+        }
+
         function initStudent() {
-            const saved = localStorage.getItem('mks_current_student');
-            if (saved) {
-                const data = JSON.parse(saved);
+            const data = getCookieStudent();
+            if (data) {
                 currentStudentId = data.id;
                 currentStudentName = data.name;
                 document.getElementById('loginGate').classList.add('hidden');
@@ -557,124 +584,75 @@
             return false;
         }
 
-        function migrateOldData() {
-            const migrations = [];
-            
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                
-                // Case 1: Broken migrated keys (e.g., mks_MKS11-DRAEDEN-10_MKS-11-ALPHA_m1_grid)
-                const brokenPrefix = 'mks_' + currentStudentId + '_MKS-11-ALPHA_';
-                if (key.startsWith(brokenPrefix)) {
-                    const suffix = key.substring(brokenPrefix.length);
-                    migrations.push({
-                        oldKey: key,
-                        newKey: 'mks_' + currentStudentId + '_' + suffix
-                    });
-                    continue;
-                }
-                
-                // Case 2: Old default student keys (e.g., mks_MKS-11-ALPHA_m1_grid)
-                const alphaPrefix = 'mks_MKS-11-ALPHA_';
-                if (key.startsWith(alphaPrefix)) {
-                    const suffix = key.substring(alphaPrefix.length);
-                    migrations.push({
-                        oldKey: key,
-                        newKey: 'mks_' + currentStudentId + '_' + suffix
-                    });
-                    continue;
-                }
-                
-                // Case 3: Legacy keys without student prefix (e.g., mks_m1_grid, mks_completed)
-                // But avoid migrating keys of OTHER logged-in students (which start with mks_MKS11-)
-                if (key.startsWith('mks_') && 
-                    !key.startsWith('mks_' + currentStudentId + '_') && 
-                    key !== 'mks_current_student') {
-                    
-                    // Check if it belongs to another student login (starts with mks_MKS11- or mks_MKS-11-)
-                    // If it does, do not touch it.
-                    if (key.startsWith('mks_MKS11-') || key.startsWith('mks_MKS-11-')) {
-                        continue;
-                    }
-                    
-                    const suffix = key.replace('mks_', '');
-                    migrations.push({
-                        oldKey: key,
-                        newKey: 'mks_' + currentStudentId + '_' + suffix
-                    });
-                }
-            }
-            
-            if (migrations.length === 0) return false;
-            
-            migrations.forEach(({ oldKey, newKey }) => {
-                const value = localStorage.getItem(oldKey);
-                if (value !== null) {
-                    // Only copy if the new key doesn't already have data, or if we are fixing a broken key
-                    if (!localStorage.getItem(newKey) || oldKey.includes('MKS-11-ALPHA')) {
-                        localStorage.setItem(newKey, value);
-                    }
-                    localStorage.removeItem(oldKey);
-                }
-            });
-            
-            return true;
-        }
-
         function handleLogin() {
             const nameInput = document.getElementById('studentName');
-            const pinInput = document.getElementById('studentPin');
             const errorEl = document.getElementById('loginError');
-            
+
             const name = nameInput.value.trim();
-            const pin = parseInt(pinInput.value);
-            
-            if (!name || !pin || pin < 1 || pin > 99) {
+
+            if (!name) {
+                errorEl.textContent = 'Enter your name to continue.';
                 errorEl.classList.add('show');
-                if (!name) nameInput.classList.add('error');
-                if (!pin || pin < 1 || pin > 99) pinInput.classList.add('error');
+                nameInput.classList.add('error');
                 return;
             }
-            
+
             errorEl.classList.remove('show');
             nameInput.classList.remove('error');
-            pinInput.classList.remove('error');
-            
-            currentStudentName = name;
-            currentStudentId = 'MKS11-' + name.replace(/\s+/g, '').toUpperCase() + '-' + String(pin).padStart(2, '0');
-            
-            const migrated = migrateOldData();
-            
-            localStorage.setItem('mks_current_student', JSON.stringify({
-                id: currentStudentId,
-                name: currentStudentName
-            }));
-            
+
+            const cookieData = getCookieStudent();
+            if (cookieData) {
+                const cookieName = cookieData.name || '';
+                const cookieNameShort = cookieName.replace(/\s+/g, '').toUpperCase();
+                const enteredShort = name.replace(/\s+/g, '').toUpperCase();
+
+                if (cookieNameShort === enteredShort) {
+                    currentStudentName = cookieName;
+                    currentStudentId = cookieData.id;
+                } else {
+                    if (!confirm(`Someone already used this device: "${cookieName}". Start fresh as "${name}"? Their progress will be lost.`)) {
+                        nameInput.value = cookieName;
+                        nameInput.focus();
+                        return;
+                    }
+                    document.cookie = 'mks_student=; path=/; max-age=0';
+                    const pin = Math.floor(Math.random() * 98) + 1;
+                    currentStudentName = name;
+                    currentStudentId = 'MKS11-' + name.replace(/\s+/g, '').toUpperCase() + '-' + String(pin).padStart(2, '0');
+                    document.cookie = 'mks_student=' + encodeURIComponent(currentStudentId + '|' + currentStudentName) + '; path=/; max-age=' + (60 * 60 * 24 * 30);
+                }
+            } else {
+                const pin = Math.floor(Math.random() * 98) + 1;
+                currentStudentName = name;
+                currentStudentId = 'MKS11-' + name.replace(/\s+/g, '').toUpperCase() + '-' + String(pin).padStart(2, '0');
+                document.cookie = 'mks_student=' + encodeURIComponent(currentStudentId + '|' + currentStudentName) + '; path=/; max-age=' + (60 * 60 * 24 * 30);
+            }
+
             document.getElementById('loginGate').classList.add('hidden');
             document.getElementById('mainContent').style.display = '';
             document.getElementById('agentDisplay').textContent = currentStudentName.toUpperCase();
-            
-            if (migrated) {
-                alert('Welcome back! Your previous work has been restored.');
-            }
-            
+
             initPortal();
         }
 
         function switchStudent() {
-            if (confirm('Switch to a different student? Your current progress is saved.')) {
-                localStorage.removeItem('mks_current_student');
+            if (confirm('Switch to a different student? Your current progress will be lost.')) {
+                document.cookie = 'mks_student=; path=/; max-age=0';
                 location.reload();
             }
         }
 
-        document.getElementById('studentPin').addEventListener('keydown', (e) => {
+        document.getElementById('studentName').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') handleLogin();
         });
 
-        document.getElementById('studentName').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') document.getElementById('studentPin').focus();
-        });
+        checkExistingStudent();
+
+        if (!initStudent()) {
+            document.getElementById('studentName').focus();
+        } else {
+            initPortal();
+        }
 
         const activities = [
             { id: 1, title: 'Mission: Silent Wampum', desc: 'Tell a story of peace using only symbols.', url: 'missions/m1.html', thumb: 'missions/assets/wampum_belt.png' },
@@ -701,14 +679,15 @@
         }
 
         function initPortal() {
-            completedIds = JSON.parse(localStorage.getItem(getStorageKey('completed')) || '[]');
+            const saved = sessionStorage.getItem(getStorageKey('completed'));
+            completedIds = saved ? JSON.parse(saved) : [];
             updateUI();
         }
 
         function updateUI() {
             const grid = document.getElementById('activityGrid');
             grid.innerHTML = '';
-            
+
             activities.forEach(act => {
                 const isDone = completedIds.includes(act.id);
                 const card = document.createElement('div');
@@ -741,7 +720,7 @@
             } else {
                 completedIds.push(id);
             }
-            localStorage.setItem(getStorageKey('completed'), JSON.stringify(completedIds));
+            sessionStorage.setItem(getStorageKey('completed'), JSON.stringify(completedIds));
             updateUI();
         }
 
