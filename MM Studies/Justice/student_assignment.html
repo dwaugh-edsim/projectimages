@@ -555,6 +555,7 @@
         <a href="graphic_novel.html" class="btn btn-primary" style="background-color: var(--accent-teal); color: white;">📖 Read Graphic Novel</a>
         <a href="class_notes_2017.html" target="_blank" class="btn btn-secondary">📚 2017 Class Notes</a>
         <a href="overrepresentation_justice.html" target="_blank" class="btn btn-secondary">🔍 Overrepresentation Guide</a>
+        <button onclick="logoutStudent()" class="btn btn-secondary" style="background-color: rgba(211, 47, 47, 0.08); border: 1px solid rgba(211, 47, 47, 0.25); color: var(--accent-red); margin-left: 8px;">🚪 Switch User</button>
       </div>
     </div>
 
@@ -727,6 +728,22 @@
     let keystrokeCount = 0;
     let pastedText = false;
 
+    // Check for saved session on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedSession = localStorage.getItem('active_student_session');
+      if (savedSession) {
+        try {
+          selectedStudent = JSON.parse(savedSession);
+          document.getElementById('splash').style.opacity = '0';
+          document.getElementById('splash').style.display = 'none';
+          startSession();
+        } catch (e) {
+          console.error("Error restoring session:", e);
+          localStorage.removeItem('active_student_session');
+        }
+      }
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.target && e.target.classList.contains('student-input-field')) {
         keystrokeCount++;
@@ -803,6 +820,7 @@
       const expectedPin = pinMatch ? pinMatch[1].toUpperCase() : "";
 
       if (pinInput === expectedPin) {
+        localStorage.setItem('active_student_session', JSON.stringify(selectedStudent));
         gsap.to("#splash", { opacity: 0, duration: 0.6, onComplete: () => {
           document.getElementById('splash').style.display = 'none';
           startSession();
@@ -811,6 +829,34 @@
         error.innerText = "ACCESS DENIED: INVALID CODE";
         error.style.display = 'block';
       }
+    }
+
+    function logoutStudent() {
+      localStorage.removeItem('active_student_session');
+      selectedStudent = null;
+      
+      // Reset inputs & drop down
+      document.getElementById('student-search').value = '';
+      document.getElementById('student-pin').value = '';
+      document.getElementById('error-msg').style.display = 'none';
+      
+      // Reset UI elements
+      document.getElementById('panel-student-name').innerText = "Inquest Worksheet: Unidentified";
+      document.getElementById('panel-student-meta').innerText = "Access restricted until name verification.";
+      document.getElementById('display-student-name').innerText = "Unidentified";
+      document.getElementById('display-student-block').innerText = "Unidentified";
+      document.getElementById('display-student-key').innerText = "None";
+      document.getElementById('sync-bar').style.display = 'none';
+
+      // Clear text inputs
+      document.querySelectorAll('.student-input-field').forEach(field => {
+        field.value = '';
+      });
+
+      // Show splash screen again
+      const splash = document.getElementById('splash');
+      gsap.set(splash, { opacity: 1 });
+      splash.style.display = 'flex';
     }
 
     // ═══════════════════════════════════════════════════
