@@ -49,7 +49,7 @@ These panels must be generated to ensure Liam has long, loose hair and his green
 
 ---
 
-## Part 2: Sentencing Circle Panel Regenerations (7 Panels)
+## Part 2: Sentencing Circle Panel Regenerations (8 Panels)
 These panels must be generated with Liam wearing a grey hoodie and his long hair tied back. The circle members must be depicted consistently as Indigenous/Mi'kmaw:
 
 ### 1. Page 11 Panel 1 → Save as: `p10_panel1.png`
