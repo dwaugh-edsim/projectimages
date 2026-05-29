@@ -55,8 +55,8 @@
 
 ### Panel 3.2
 * **Visual:** Extreme close-up of a pen ticking off risk checklist items: No stable address, Unemployed.
-* **Narration (Caption):** "The assessment checklist doesn't have a box for 'poverty' or 'cold.' It only has boxes for 'risk.'"
-* **Fact Check Explainer (Interactive):** **Systemic Risk Tool Bias** — Courts use actuarial checklist tools to evaluate release. These tools score systemic challenges (unemployment, lack of housing) as risk factors. This disproportionately keeps marginalized individuals in custody before trial.
+* **Narration (Caption):** "The assessment checklist doesn't have a box for 'poverty' or 'cold.' It only has boxes for 'risk.' In this system, being poor is scored as a risk factor."
+* **Fact Check Explainer (Interactive):** **Systemic Risk Tool Bias** — Actuarial assessment tools evaluate pre-trial release. These tools score systemic challenges (unemployment, lack of housing, poverty) as risk factors to re-offend, rather than recognizing them as social inequities. This disproportionately keeps marginalized individuals in custody before trial. Nationally, Indigenous people account for roughly **32%** of people in federal custody, despite representing only **5%** of the general population—a disparity that begins at this assessment stage.
 
 ### Panel 3.3
 * **Visual:** Close-up of the checklist form header marked: `Risk Category: High Risk of Re-offending`.
@@ -69,10 +69,10 @@
 * **Layout:** A single large splash panel.
 
 ### Panel 4.1 (Splash)
-* **Visual:** A single large splash panel. Liam sits on a metal cell bench. Looming behind the wall is the towering shadow of the Shubenacadie Residential School with ghostly historic frames of students in uniform. A faint memory-image shows a kitchen table where an old man sits with his mouth half-open, unable to finish a word.
+* **Visual:** A single large splash panel. Liam sits on a metal cell bench. Looming behind the wall is the towering shadow of the Shubenacadie Residential School with ghostly historic frames of students in uniform. A faint memory-image shows a kitchen table where an old man sits with his mouth half-open, unable to finish a word; a visual motif of a broken chain link fades into the cold background, and the color slowly drains from his mouth to symbolize the lost Mi'kmaw language.
 * **Narration (Caption):** "My grandfather survived Shubenacadie. The school beat the Mi'kmaw language out of his mouth and the trust out of his hands. The court checklist calls the aftermath of that trauma my 'criminogenic risk factors.'"
 * **Dialogue (Liam - thought bubble):** *Grandpa tried to teach me the word for 'home' once. He got halfway through and stopped. He never tried again.*
-* **Fact Check Explainer (Interactive):** **Intergenerational Trauma** — The Truth and Reconciliation Commission documented how residential schools disrupted family structures, language, and cultural identity. Children were punished for speaking Mi'kmaw. The trauma impacts generations — creating social inequities that are penalized rather than healed by conventional courts.
+* **Fact Check Explainer (Interactive):** **Intergenerational Trauma & TRC Call to Action #30** — The Truth and Reconciliation Commission (TRC) documented how residential schools disrupted family structures, language, and cultural identity. The trauma impacts generations, creating social inequities that are penalized rather than healed by conventional courts. **TRC Call to Action #30** specifically calls on federal, provincial, and territorial governments to commit to eliminating the overrepresentation of Indigenous people in custody over the next decade.
 
 ---
 
@@ -136,7 +136,8 @@
 
 ### Panel 8.1
 * **Visual:** Claire points to a section in a legal brief titled "Gladue Principles."
-* **Dialogue (Claire):** "Because of that history, Canadian law has Gladue Rights. The court must consider the colonial history that brings an Indigenous person to court, and look at alternatives to jail."
+* **Dialogue (Claire):** "Because of that history, Canadian law has Gladue Rights. The court must consider the colonial history that brings an Indigenous person to court, and look at alternatives. It is about substantive equality — different accountability, not less."
+* **Fact Check Explainer (Interactive):** **Gladue Rights & Funding Gap** — Gladue is a right to substantive equality, meaning the court must look at the offender's unique circumstances. However, a lack of funding for Indigenous-led housing, mental health, and healing programs often means the "alternatives to jail" aren't actually available, leading courts back to incarceration.
 
 ### Panel 8.2
 * **Visual:** Liam looks thoughtful, tracing the word "Gladue" on the brief.
@@ -173,9 +174,9 @@
 * **Layout:** Two vertical panels.
 
 ### Panel 10.1
-* **Visual:** Top-down view of a Sentencing Circle. Liam, Claire, Mr. Thomas, an Elder, and the Judge sit in normal clothes (without robes) around a sweetgrass braid. An eagle feather rests in the centre. No one is speaking.
-* **Narration (Caption):** "The hardest part of a circle is the beginning. There is no desk to hide behind. No lawyer to speak for you. Just the silence, and the people in it."
-* **Fact Check Explainer (Interactive):** **Sentencing Circles** — A sentencing circle brings together the offender, victim, community support, and judge to collectively determine a sentence focused on rehabilitation and restoration, rather than isolation. Unlike adversarial courts, everyone speaks — and everyone listens.
+* **Visual:** Top-down view of a Sentencing Circle. Liam, Claire, Mr. Thomas, an Elder, and the Judge sit in normal clothes (without robes) around a sweetgrass braid. An eagle feather rests in the centre. No one is speaking. All chairs (including the Judge's) are at the exact same height, removing standard courtroom hierarchy.
+* **Narration (Caption):** "The hardest part of a circle is the beginning. There is no desk to hide behind. No elevated judge's bench. Just the equal circle, and the silence."
+* **Fact Check Explainer (Interactive):** **Sentencing Circles & Equality of Height** — A sentencing circle brings together the offender, victim, community support, and judge. Unlike conventional courts where the judge sits elevated to symbolize authority, the circle places everyone at the same level. In Mi'kmaw culture, holding the **Eagle Feather** signifies that the speaker is speaking their absolute truth directly to the Creator, which raises the emotional stakes.
 
 ### Panel 10.2
 * **Visual:** Close-up of the eagle feather sitting untouched in the centre of the circle. The sweetgrass smoke drifts upward. Each face around the circle is visible — nervous, uncertain, brave.
@@ -232,7 +233,7 @@
 ### Panel 13.1
 * **Visual:** The Judge addresses the circle, summarizing the agreement.
 * **Dialogue (Judge):** "Instead of jail, the court accepts the Circle's healing plan. Liam will perform 40 hours of restitution repairing community buildings, and MLSN will assist him with housing."
-* **Fact Check Explainer (Interactive):** **Bill C-5 & 2026 Statistics** — Despite Bill C-5 (2022) removing mandatory minimum sentences for several offences, Indigenous incarceration rates have continued to rise. As of 2024–25, Indigenous adults represent 33% of federal admissions while comprising ~5% of the population. 50% of federally incarcerated women are Indigenous. Sentencing circles and Gladue-informed alternatives address the root causes that prison cannot.
+* **Fact Check Explainer (Interactive):** **Bill C-5, Restorative Outcomes & Recidivism** — Despite Bill C-5 (2022) removing mandatory minimum sentences for several offences, Indigenous incarceration rates remain high. Indigenous adults represent 33% of federal admissions (and 50% of incarcerated women) while representing ~5% of the population. Research shows that Indigenous community-led restorative justice programs reduce recidivism (re-offending) by **15–20%** compared to traditional prison sentences because they address root causes like housing instability and social isolation.
 
 ### Panel 13.2
 * **Visual:** Close-up of the signed document showing signatures of Liam, Mr. Thomas, Claire, and the Judge.
@@ -270,6 +271,6 @@
 * **Layout:** Circular splash panel.
 
 ### Panel 15.1 (Splash)
-* **Visual:** A beautiful circular panel. Liam stands on the banks of the Shubenacadie River at sunset, holding a sweetgrass braid. The border features gold and teal Mi'kmaw double-curve motifs. Behind him, faintly, the outlines of the circle — Claire, Mr. Thomas, the Elder, the Judge — surround him like a constellation.
+* **Visual:** A beautiful circular panel. Liam stands on the banks of the Shubenacadie River at sunset, holding a sweetgrass braid. The gold and teal Mi'kmaw double-curve border frame visually links to the people in his circle (Claire, Mr. Thomas, the Elder, the Judge) who surround him like a constellation in the sky. This creates a stark, warm golden contrast to the cold, grey walls of Page 5, representing the "Two Paths."
 * **Narration (Caption):** "Liam's story is fictional. The statistics are not. The system that scored him 'high risk' is real. The circles that could have helped him exist, but are underfunded. The question isn't whether Liam deserved a second chance. The question is: why does the system make it so hard to give one?"
-* **Dialogue (Liam - thought bubble):** *Kinship is a circle that cannot be cut.*
+* **Dialogue (Liam - thought bubble):** *Msit No'kmaq — All my relations. Kinship is a circle that cannot be cut.*
