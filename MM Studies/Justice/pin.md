@@ -54,6 +54,7 @@
 | C Block (Waugh) | Raida | `QAZK` | `UmFpZGEgKFFBWksp` |
 | C Block (Waugh) | Reiley | `RILE` | `UmVpbGV5IChSSUxFKQ==` |
 | C Block (Waugh) | River Thomas | `DEWO` | `Uml2ZXIgVGhvbWFzIChERVdPKQ==` |
+| C Block (Waugh) | Sam | `WAVE` | `U2FtIChXQVZFKQ==` |
 | C Block (Waugh) | Soulin Shehab | `SOUL` | `U291bGluIFNoZWhhYiAoU09VTCk=` |
 | C Block (Waugh) | Sukhbir | `NICE` | `U3VraGJpciAoTklDRSk=` |
 | C Block (Waugh) | Zaid | `ZAID` | `WmFpZCAoWkFJRCk=` |
