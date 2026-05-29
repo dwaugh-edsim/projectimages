@@ -30,12 +30,13 @@ This guide outlines structured learning activities, discussions, and roleplay si
 
 ### 📝 Student Instructions
 Working in pairs, review the interactive pop-ups on **Page 3 (Actuarial Judgment)** and **Page 4 (Echoes of Shubenacadie)**. Draft a 1-page "Mini-Gladue Profile" for Liam’s lawyer to present to the judge. Your profile must answer:
-1. **Intergenerational Factors:** How did the grandfather’s experience at Shubenacadie Residential School affect the family's trust in institutions and language preservation?
-2. **Systemic Inequities:** What role did the Indian Act status rules play in his family losing reserve housing and being forced into town without support?
-3. **Poverty vs. Intent:** Explain how his "High Risk of Re-offending" factors (no fixed address, unemployed) are actually symptoms of systemic poverty rather than criminal intent.
-4. **Proposed Community Alternative:** Why is sending Liam to jail likely to increase recidivism? Propose three specific community-based supports that would address his root challenges.
+1. **Intergenerational Factors:** How did the grandfather’s experience at Shubenacadie Residential School affect the family's trust in institutions and language preservation? *(Connect this to your findings on school legacies in **[Sugar Falls](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/SugarFalls/Sugar_Falls_Assignment.html)**).*
+2. **Systemic Inequities:** What role did the Indian Act status rules play in his family losing reserve housing and being forced into town without support? *(Draw parallels to the family and kinship disruptions in **[Maya Paul's Case File](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/Maya-Paul/maya_assignment.html)**).*
+3. **Poverty vs. Intent:** Explain how his "High Risk of Re-offending" factors (no fixed address, unemployed) are actually symptoms of systemic poverty rather than criminal intent. *(Reference how the conflict between provincial rules and Mi'kmaw rights shapes legal standing in **[Leo's 1752 Treaty Case](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/leo/leo_1752.html)**).*
+4. **Proposed Community Alternative:** Why is sending Liam to jail likely to increase recidivism? Propose three specific community-based supports that would address his root challenges. *(You may also allude to the community solidarity and social responses seen in the **[Canadian Native Protests](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/protest/)** folder).*
 
 ---
+
 
 ## Activity 3: Risk vs. Poverty — Deconstructing Actuarial Bias (Critical Data Literacy)
 **Primary Goal:** Critique systemic bias in the legal system using modern statistics.
