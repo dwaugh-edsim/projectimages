@@ -54,7 +54,8 @@ These panels must be generated with Liam wearing a grey hoodie and his long hair
 
 ### 1. Page 11 Panel 1 → Save as: `p10_panel1.png`
 * **Prompt**:
-  Graphic novel panel, top-down view, dramatic comic art with heavy ink lines and cel shading. A Sentencing Circle gathers in a large community room. A crowd of about 12 community members, including an elderly Mi'kmaw woman (Claire), a middle-aged store owner (Mr. Thomas), a Mi'kmaw Elder, and a Judge, sit in normal clothes in an equal circle of chairs surrounding a sweetgrass braid. Liam, a 17-year-old Mi'kmaw youth with long black hair tied back in a neat ponytail, wearing a light grey hoodie, sits in the circle. All chairs are at the exact same height. Warm, respectful atmosphere. Cinematic comic art.
+  Graphic novel panel, top-down view, dramatic comic art with heavy ink lines and cel shading. must be generated with Liam wearing a grey hoodie and his long hair tied back. The circle members must be depicted consistently as Indigenous/Mi'kmaw:
+   A Sentencing Circle gathers in a large community room. A crowd of about 12 community members, including an elderly Mi'kmaw woman (Claire), a middle-aged store owner (Mr. Thomas), a Mi'kmaw Elder, and a Judge, sit in normal clothes in an equal circle of chairs surrounding a sweetgrass braid. Liam, a 17-year-old Mi'kmaw youth with long black hair tied back in a neat ponytail, wearing a light grey hoodie, sits in the circle. All chairs are at the exact same height. Warm, respectful atmosphere. Cinematic comic art.
 
 ### 2. Page 12 Panel 1 → Save as: `p11_panel1.png`
 * **Prompt**:

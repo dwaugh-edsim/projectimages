@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 15 | The Salmon Ladder Engineer</title>
+    <title>Mission 15 | The Salmon Run</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -27,7 +27,7 @@
         }
         
         .briefing-card { 
-            max-width: 800px; 
+            max-width: 850px; 
             width: 100%; 
             background: var(--card-bg); 
             padding: 3rem; 
@@ -78,7 +78,7 @@
             color: var(--text); 
             font-family: inherit; 
             font-size: 1.1rem; 
-            min-height: 150px; 
+            min-height: 120px; 
             margin-top: 1.5rem; 
             outline: none; 
             transition: all 0.2s;
@@ -94,9 +94,10 @@
             font-weight: 700; 
             text-transform: uppercase; 
             color: var(--text-muted); 
-            margin-top: 1.5rem; 
+            margin-top: 1rem; 
             display: flex; 
             align-items: center; 
+            justify-content: center;
             gap: 0.5rem; 
         }
         
@@ -126,7 +127,7 @@
             border-left: 2px solid var(--border);
         }
 
-        .physics-puzzle {
+        .river-puzzle {
             text-align: center;
             margin: 2rem 0;
             background: #f1f5f9;
@@ -135,146 +136,206 @@
             border: 1px solid var(--border);
         }
 
-        .river-container {
+        .canvas-wrapper {
             position: relative;
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(180deg, #1e3a5f 0%, #3b82f6 50%, #1e3a5f 100%);
+            display: inline-block;
             border-radius: 1rem;
             overflow: hidden;
-            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 100%;
+            transition: box-shadow 0.3s;
         }
 
-        .dam {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: #78716c;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 0.9rem;
+        .canvas-wrapper.drop-active {
+            box-shadow: 0 0 0 4px var(--primary), 0 4px 24px rgba(6,182,212,0.3);
         }
 
-        .salmon {
-            position: absolute;
-            font-size: 1.5rem;
-            transition: all 0.5s;
+        #riverCanvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
         }
 
-        .water-step {
-            position: absolute;
-            width: 60px;
-            height: 30px;
-            background: #06b6d4;
-            border-radius: 4px;
-            cursor: grab;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 700;
-            user-select: none;
-        }
-
-        .water-step:active { cursor: grabbing; }
-
-        .step-tray {
+        .weir-tray {
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin: 1.5rem 0 1rem;
+            flex-wrap: wrap;
         }
 
-        .tray-step {
-            width: 80px;
-            height: 35px;
-            background: #06b6d4;
-            border-radius: 6px;
+        .weir-piece {
+            width: 110px;
+            height: 80px;
+            border-radius: 14px;
             cursor: grab;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
             font-size: 0.75rem;
             user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            line-height: 1.3;
+            border: 3px solid rgba(255,255,255,0.3);
+            touch-action: none;
         }
 
-        .tray-step:active { cursor: grabbing; }
+        .weir-piece:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .weir-piece:active { cursor: grabbing; }
+
+        .weir-piece .emoji { font-size: 1.6rem; margin-bottom: 2px; }
+
+        .weir-stone { background: linear-gradient(135deg, #78716c, #57534e); }
+        .weir-log { background: linear-gradient(135deg, #b45309, #92400e); }
+        .weir-pool { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+        .weir-rest { background: linear-gradient(135deg, #059669, #047857); }
+
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.15);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-align: center;
+            line-height: 1.3;
+            border: 3px solid rgba(255,255,255,0.5);
+            width: 110px;
+            height: 80px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .drag-ghost .emoji { font-size: 1.6rem; margin-bottom: 2px; }
 
         .salmon-counter {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--text);
+            margin-top: 0.75rem;
         }
 
-        .success-message {
+        .celebration {
+            font-size: 1.3rem;
+            font-weight: 800;
             color: #10b981;
-            font-weight: 700;
             margin-top: 0.5rem;
             display: none;
+            animation: celebPulse 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes celebPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .puzzle-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .puzzle-btn {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8rem;
+            background: white;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .puzzle-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .puzzle-btn-clear { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .puzzle-btn-clear:hover { background: #fee2e2; }
+
+        .puzzle-status {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            min-height: 1.5em;
         }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 15</span>
-        <h1>The Salmon Ladder Engineer</h1>
+        <h1>The Salmon Run</h1>
         
         <p class="significance-box">
-            Fish are sacred. When humans build dams, we must create a "ladder" so the salmon can still get home to spawn.
+            The Mi'kmaq built weirs from stone and wood to guide fish into traps. They only took what they needed and always let enough fish pass to keep the river healthy for the next generation.
         </p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Your mission is to build a fish ladder using the "Physics Puzzle." Drag water steps into the river so the salmon can jump up.
-        </p>
-
-        <div class="physics-puzzle">
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1.5rem;">Physics Puzzle</h4>
-            <div class="river-container" id="riverContainer">
-                <div class="dam">DAM</div>
-                <div class="salmon" style="bottom: 20px; left: 50px;">🐟</div>
-                <div class="salmon" style="bottom: 20px; left: 100px;">🐟</div>
-                <div class="salmon" style="bottom: 20px; left: 150px;">🐟</div>
-                <div class="salmon" style="bottom: 20px; left: 200px;">🐟</div>
-                <div class="salmon" style="bottom: 20px; left: 250px;">🐟</div>
+        <div class="river-puzzle">
+            <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); margin-bottom: 1rem;">Build the Weir Path</h4>
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="riverCanvas" width="650" height="400"></canvas>
             </div>
-            <div class="step-tray" id="stepTray">
-                <div class="tray-step" draggable="true" data-step="1">Step 1</div>
-                <div class="tray-step" draggable="true" data-step="2">Step 2</div>
-                <div class="tray-step" draggable="true" data-step="3">Step 3</div>
+            <div class="weir-tray" id="weirTray">
+                <div class="weir-piece weir-stone" data-type="stone">
+                    <span class="emoji">🪨</span>
+                    <span>Stone Weir</span>
+                </div>
+                <div class="weir-piece weir-log" data-type="log">
+                    <span class="emoji">🪵</span>
+                    <span>Log Channel</span>
+                </div>
+                <div class="weir-piece weir-pool" data-type="pool">
+                    <span class="emoji">💧</span>
+                    <span>Pool</span>
+                </div>
+                <div class="weir-piece weir-rest" data-type="rest">
+                    <span class="emoji">🌿</span>
+                    <span>Rest Stop</span>
+                </div>
             </div>
-            <p class="salmon-counter">Salmon rescued: <span id="salmonCount">0</span> / 5</p>
-            <p class="success-message" id="successMessage">All salmon made it home!</p>
+            <p class="salmon-counter">Salmon rescued: <span id="salmonRescued">0</span> / 5</p>
+            <p class="celebration" id="celebrationMsg">All salmon made it upstream!</p>
+            <p class="puzzle-status" id="puzzleStatus">Drag weirs onto the river to build a path</p>
+            <div class="puzzle-controls">
+                <button class="puzzle-btn puzzle-btn-clear" onclick="clearWeirs()">Reset Weirs</button>
+            </div>
         </div>
         
         <div class="step">
-            <strong>Step 1: The Wall</strong><br>
-            See the dam blocking the fish from swimming upstream.
+            <strong>Step 1: Look</strong><br>
+            See the salmon stuck below the rapids? They need your help to swim up.
         </div>
 
         <div class="step">
-            <strong>Step 2: The Ladder</strong><br>
-            Place three steps so the fish can "jump" up the dam.
+            <strong>Step 2: Build</strong><br>
+            Drag weirs from the tray onto the river. Place them going UP - each one higher than the last.
         </div>
 
         <div class="step">
-            <strong>Step 3: The Goal</strong><br>
-            Help 5 salmon get to the top of the screen.
+            <strong>Step 3: Rescue</strong><br>
+            When 3 or more weirs form steps going up, the salmon will jump through them!
         </div>
 
-        <textarea id="workArea" placeholder="My fish ladder works by... The salmon need help because..."></textarea>
+        <textarea id="workArea" placeholder="The weirs I built help salmon by..."></textarea>
         
         <div class="sync-indicator">
             <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">Linking to Command Center...</span>
+            <span id="syncStatus">Ready</span>
         </div>
 
         <a href="../index.html" class="btn-back">Back to Mission Control</a>
@@ -290,145 +351,505 @@
             } catch(e) { return 'MKS-11-ALPHA'; }
         }
         const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 15: The Salmon Ladder Engineer';
+        const MISSION_TITLE = 'Mission 15: The Salmon Run';
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        const riverContainer = document.getElementById('riverContainer');
-        const stepTray = document.getElementById('stepTray');
-        const salmonCount = document.getElementById('salmonCount');
-        const successMessage = document.getElementById('successMessage');
-        
-        let placedSteps = [];
+        const canvas = document.getElementById('riverCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const salmonRescuedEl = document.getElementById('salmonRescued');
+        const celebrationMsg = document.getElementById('celebrationMsg');
+        const puzzleStatus = document.getElementById('puzzleStatus');
+
+        const CW = 650;
+        const CH = 400;
+        const BARRIER_X = 400;
+        const BARRIER_W = 40;
+
+        let waveOffset = 0;
+        let placedWeirs = [];
         let rescuedCount = 0;
+        let isAnimating = false;
+        let dragGhost = null;
+        let dragType = null;
         let timeout = null;
 
-        document.querySelectorAll('.tray-step').forEach(step => {
-            step.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', step.dataset.step);
-            });
-        });
-
-        riverContainer.addEventListener('dragover', (e) => e.preventDefault());
-
-        riverContainer.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const stepNum = e.dataTransfer.getData('text/plain');
-            const rect = riverContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left - 30;
-            const y = e.clientY - rect.top - 15;
-            
-            const placedStep = document.createElement('div');
-            placedStep.className = 'water-step';
-            placedStep.style.left = x + 'px';
-            placedStep.style.top = y + 'px';
-            placedStep.textContent = 'Step ' + stepNum;
-            placedStep.draggable = true;
-            
-            placedStep.addEventListener('dragstart', (ev) => {
-                ev.dataTransfer.setData('moveStep', placedSteps.length.toString());
-            });
-            
-            riverContainer.appendChild(placedStep);
-            placedSteps.push({ el: placedStep, x, y });
-            
-            checkSalmonRescue();
-            triggerSave();
-        });
-
-        function checkSalmonRescue() {
-            if (placedSteps.length >= 3) {
-                const sorted = [...placedSteps].sort((a, b) => b.y - a.y);
-                let canRescue = true;
-                
-                for (let i = 0; i < sorted.length - 1; i++) {
-                    if (sorted[i].y - sorted[i + 1].y > 80) {
-                        canRescue = false;
-                        break;
-                    }
-                }
-                
-                if (canRescue && sorted[sorted.length - 1].y < 100) {
-                    rescuedCount = 5;
-                    salmonCount.textContent = '5';
-                    successMessage.style.display = 'block';
-                    
-                    document.querySelectorAll('.salmon').forEach((salmon, i) => {
-                        setTimeout(() => {
-                            salmon.style.bottom = '260px';
-                            salmon.style.left = (50 + i * 50) + 'px';
-                        }, i * 300);
+        const barrierRocks = [];
+        (function() {
+            for (let y = 0; y < CH; y += 11) {
+                for (let x = 0; x < BARRIER_W; x += 9) {
+                    barrierRocks.push({
+                        rx: x + (Math.sin(y * 0.3 + x * 0.7) * 2),
+                        ry: y + (Math.cos(x * 0.5 + y * 0.2) * 2),
+                        w: 7 + (Math.sin(y * 0.5) * 3 + 3),
+                        h: 9 + (Math.cos(x * 0.3) * 3 + 3),
+                        shade: 75 + ((y * 7 + x * 13) % 45)
                     });
                 }
             }
+        })();
+
+        const fishList = [];
+        for (let i = 0; i < 5; i++) {
+            fishList.push({
+                x: 35 + i * 62,
+                y: CH - 52,
+                startX: 35 + i * 62,
+                startY: CH - 52,
+                rescued: false,
+                animating: false,
+                waypoints: [],
+                wpIndex: 0
+            });
+        }
+
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.arcTo(x + w, y, x + w, y + r, r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+            ctx.lineTo(x + r, y + h);
+            ctx.arcTo(x, y + h, x, y + h - r, r);
+            ctx.lineTo(x, y + r);
+            ctx.arcTo(x, y, x + r, y, r);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        const weirDrawFns = {
+            stone: function(cx, cy) {
+                ctx.fillStyle = '#a8a29e';
+                roundRect(cx - 22, cy - 16, 44, 12, 3);
+                ctx.fillStyle = '#78716c';
+                roundRect(cx - 28, cy - 5, 56, 14, 3);
+                ctx.fillStyle = '#57534e';
+                roundRect(cx - 25, cy + 7, 50, 10, 3);
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillStyle = '#d6d3d1';
+                ctx.textAlign = 'center';
+                ctx.fillText('STONE WEIR', cx, cy + 28);
+                ctx.textAlign = 'left';
+            },
+            log: function(cx, cy) {
+                ctx.fillStyle = '#78350f';
+                roundRect(cx - 26, cy - 16, 52, 10, 4);
+                ctx.fillStyle = '#92400e';
+                roundRect(cx - 30, cy - 5, 60, 10, 4);
+                ctx.fillStyle = '#b45309';
+                roundRect(cx - 24, cy + 7, 48, 8, 4);
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillStyle = '#fcd34d';
+                ctx.textAlign = 'center';
+                ctx.fillText('LOG CHANNEL', cx, cy + 28);
+                ctx.textAlign = 'left';
+            },
+            pool: function(cx, cy) {
+                ctx.fillStyle = 'rgba(14, 165, 233, 0.35)';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, 34, 20, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillStyle = '#bae6fd';
+                ctx.textAlign = 'center';
+                ctx.fillText('POOL', cx, cy + 32);
+                ctx.textAlign = 'left';
+            },
+            rest: function(cx, cy) {
+                ctx.fillStyle = 'rgba(5, 150, 105, 0.3)';
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, 30, 18, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                ctx.font = '14px serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('\u{1F33F}', cx - 7, cy + 5);
+                ctx.font = 'bold 9px Inter, sans-serif';
+                ctx.fillStyle = '#6ee7b7';
+                ctx.textAlign = 'center';
+                ctx.fillText('REST STOP', cx, cy + 32);
+                ctx.textAlign = 'left';
+            }
+        };
+
+        function draw() {
+            ctx.clearRect(0, 0, CW, CH);
+
+            var grad = ctx.createLinearGradient(0, 0, CW, 0);
+            grad.addColorStop(0, '#1e3a8a');
+            grad.addColorStop(0.3, '#1d4ed8');
+            grad.addColorStop(0.6, '#2563eb');
+            grad.addColorStop(1, '#1e3a8a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, CW, CH);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+            ctx.lineWidth = 1.5;
+            for (var row = 0; row < 12; row++) {
+                ctx.beginPath();
+                for (var wx = 0; wx < CW; wx += 4) {
+                    var wy = 20 + row * 34 + Math.sin((wx + waveOffset + row * 28) * 0.017) * 5;
+                    if (wx === 0) ctx.moveTo(wx, wy);
+                    else ctx.lineTo(wx, wy);
+                }
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#4b5563';
+            ctx.fillRect(BARRIER_X, 0, BARRIER_W, CH);
+            for (var ri = 0; ri < barrierRocks.length; ri++) {
+                var r = barrierRocks[ri];
+                ctx.fillStyle = 'rgb(' + r.shade + ',' + (r.shade - 5) + ',' + (r.shade - 10) + ')';
+                ctx.fillRect(BARRIER_X + r.rx, r.ry, r.w, r.h);
+            }
+            ctx.fillStyle = 'rgba(147, 197, 253, 0.18)';
+            ctx.fillRect(BARRIER_X, 0, BARRIER_W, CH);
+
+            ctx.save();
+            ctx.font = 'bold 11px Inter, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'center';
+            ctx.fillText('RAPIDS', BARRIER_X + BARRIER_W / 2, CH / 2 + 4);
+            ctx.restore();
+
+            ctx.save();
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.textAlign = 'center';
+            ctx.translate(CW - 50, CH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('UPSTREAM \u25B2', 0, 0);
+            ctx.restore();
+
+            for (var wi = 0; wi < placedWeirs.length; wi++) {
+                var w = placedWeirs[wi];
+                if (weirDrawFns[w.type]) weirDrawFns[w.type](w.x, w.y);
+            }
+
+            ctx.font = '30px serif';
+            for (var fi = 0; fi < fishList.length; fi++) {
+                var s = fishList[fi];
+                if (s.rescued && !s.animating) continue;
+                var bounce = s.animating ? 0 : Math.sin(Date.now() * 0.003 + fi * 1.5) * 3;
+                ctx.fillText('\u{1F41F}', s.x - 15, s.y + 10 + bounce);
+            }
+
+            if (!isAnimating && placedWeirs.length === 0 && rescuedCount === 0) {
+                ctx.font = 'bold 13px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.textAlign = 'center';
+                ctx.fillText('Drop weirs here to build a path for the salmon!', BARRIER_X / 2, 30);
+                ctx.textAlign = 'left';
+            }
+
+            waveOffset += 1.2;
+            requestAnimationFrame(draw);
+        }
+
+        function startDrag(type, clientX, clientY) {
+            if (isAnimating) return;
+            dragType = type;
+            var colors = {
+                stone: 'linear-gradient(135deg, #78716c, #57534e)',
+                log: 'linear-gradient(135deg, #b45309, #92400e)',
+                pool: 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                rest: 'linear-gradient(135deg, #059669, #047857)'
+            };
+            var emojis = { stone: '\u{1FAA8}', log: '\u{1FAB5}', pool: '\u{1F4A7}', rest: '\u{1F33F}' };
+            var labels = { stone: 'Stone Weir', log: 'Log Channel', pool: 'Pool', rest: 'Rest Stop' };
+
+            dragGhost = document.createElement('div');
+            dragGhost.className = 'drag-ghost';
+            dragGhost.style.background = colors[type];
+            dragGhost.innerHTML = '<span class="emoji">' + emojis[type] + '</span><span>' + labels[type] + '</span>';
+            dragGhost.style.left = clientX + 'px';
+            dragGhost.style.top = clientY + 'px';
+            document.body.appendChild(dragGhost);
+            canvasWrapper.classList.add('drop-active');
+        }
+
+        function moveDrag(clientX, clientY) {
+            if (dragGhost) {
+                dragGhost.style.left = clientX + 'px';
+                dragGhost.style.top = clientY + 'px';
+            }
+        }
+
+        function endDrag(clientX, clientY) {
+            if (!dragGhost || !dragType) return;
+            canvasWrapper.classList.remove('drop-active');
+
+            var rect = canvas.getBoundingClientRect();
+            var scaleX = CW / rect.width;
+            var scaleY = CH / rect.height;
+            var cx = (clientX - rect.left) * scaleX;
+            var cy = (clientY - rect.top) * scaleY;
+
+            if (cx > 25 && cx < BARRIER_X - 25 && cy > 25 && cy < CH - 25) {
+                placedWeirs.push({ type: dragType, x: cx, y: cy });
+                updatePuzzleStatus();
+                checkAndRescue();
+                triggerSave();
+            }
+
+            dragGhost.remove();
+            dragGhost = null;
+            dragType = null;
+        }
+
+        document.querySelectorAll('.weir-piece').forEach(function(piece) {
+            piece.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                startDrag(piece.dataset.type, e.clientX, e.clientY);
+            });
+            piece.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                var t = e.touches[0];
+                startDrag(piece.dataset.type, t.clientX, t.clientY);
+            }, { passive: false });
+        });
+
+        document.addEventListener('mousemove', function(e) { moveDrag(e.clientX, e.clientY); });
+        document.addEventListener('touchmove', function(e) {
+            if (dragGhost) { e.preventDefault(); moveDrag(e.touches[0].clientX, e.touches[0].clientY); }
+        }, { passive: false });
+        document.addEventListener('mouseup', function(e) { endDrag(e.clientX, e.clientY); });
+        document.addEventListener('touchend', function(e) {
+            if (dragGhost) { var t = e.changedTouches[0]; endDrag(t.clientX, t.clientY); }
+        });
+
+        function updatePuzzleStatus() {
+            if (rescuedCount === 5) return;
+            if (placedWeirs.length === 0) {
+                puzzleStatus.innerText = 'Drag weirs onto the river to build a path';
+                puzzleStatus.style.color = 'var(--text-muted)';
+            } else if (placedWeirs.length < 3) {
+                puzzleStatus.innerText = 'Place ' + (3 - placedWeirs.length) + ' more weir' + (3 - placedWeirs.length > 1 ? 's' : '') + ' to help the salmon';
+                puzzleStatus.style.color = 'var(--text-muted)';
+            } else {
+                var sorted = placedWeirs.slice().sort(function(a, b) { return a.x - b.x; });
+                var ascending = true;
+                for (var i = 1; i < sorted.length; i++) {
+                    if (sorted[i].y >= sorted[i - 1].y) { ascending = false; break; }
+                }
+                if (ascending) {
+                    puzzleStatus.innerText = 'Steps going up! Salmon are ready!';
+                    puzzleStatus.style.color = '#10b981';
+                } else {
+                    puzzleStatus.innerText = 'Each weir needs to be HIGHER than the last one';
+                    puzzleStatus.style.color = '#f59e0b';
+                }
+            }
+        }
+
+        function checkAndRescue() {
+            if (placedWeirs.length < 3 || isAnimating) return;
+
+            var sorted = placedWeirs.slice().sort(function(a, b) { return a.x - b.x; });
+            var ascending = true;
+            for (var i = 1; i < sorted.length; i++) {
+                if (sorted[i].y >= sorted[i - 1].y) { ascending = false; break; }
+            }
+
+            if (ascending) {
+                animateRescue(sorted);
+            }
+        }
+
+        function animateRescue(sortedWeirs) {
+            isAnimating = true;
+            rescuedCount = 0;
+            salmonRescuedEl.textContent = '0';
+            celebrationMsg.style.display = 'none';
+            puzzleStatus.innerText = 'Salmon are jumping!';
+            puzzleStatus.style.color = '#06b6d4';
+
+            for (var i = 0; i < fishList.length; i++) {
+                (function(idx) {
+                    var s = fishList[idx];
+                    s.animating = true;
+                    s.waypoints = [];
+
+                    for (var j = 0; j < sortedWeirs.length; j++) {
+                        s.waypoints.push({ x: sortedWeirs[j].x + 15, y: sortedWeirs[j].y });
+                    }
+                    s.waypoints.push({ x: CW - 55 - idx * 10, y: 40 + idx * 28 });
+
+                    s.wpIndex = 0;
+                    setTimeout(function() { animateSingleSalmon(s, idx); }, idx * 700);
+                })(i);
+            }
+        }
+
+        function animateSingleSalmon(s, index) {
+            if (s.wpIndex >= s.waypoints.length) {
+                s.animating = false;
+                s.rescued = true;
+                rescuedCount++;
+                salmonRescuedEl.textContent = rescuedCount;
+
+                if (rescuedCount === 5) {
+                    celebrationMsg.style.display = 'block';
+                    puzzleStatus.innerText = 'All salmon rescued!';
+                    puzzleStatus.style.color = '#10b981';
+                    isAnimating = false;
+                    saveAndSync();
+                }
+                return;
+            }
+
+            var target = s.waypoints[s.wpIndex];
+            var startX = s.x;
+            var startY = s.y;
+            var duration = 700;
+            var startTime = Date.now();
+
+            function step() {
+                var elapsed = Date.now() - startTime;
+                var t = Math.min(elapsed / duration, 1);
+                var ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+                s.x = startX + (target.x - startX) * ease;
+                s.y = startY + (target.y - startY) * ease - Math.sin(t * Math.PI) * 45;
+
+                if (t < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    s.x = target.x;
+                    s.y = target.y;
+                    s.wpIndex++;
+                    animateSingleSalmon(s, index);
+                }
+            }
+            step();
+        }
+
+        function clearWeirs() {
+            if (isAnimating) return;
+            placedWeirs = [];
+            rescuedCount = 0;
+            salmonRescuedEl.textContent = '0';
+            celebrationMsg.style.display = 'none';
+            puzzleStatus.innerText = 'Drag weirs onto the river to build a path';
+            puzzleStatus.style.color = 'var(--text-muted)';
+            for (var i = 0; i < fishList.length; i++) {
+                fishList[i].x = fishList[i].startX;
+                fishList[i].y = fishList[i].startY;
+                fishList[i].rescued = false;
+                fishList[i].animating = false;
+                fishList[i].waypoints = [];
+                fishList[i].wpIndex = 0;
+            }
+            triggerSave();
         }
 
         function triggerSave() {
-            syncStatus.innerText = 'Changes detected...';
+            syncStatus.innerText = 'Unsaved changes...';
             syncDot.className = 'indicator-dot';
             clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
+            timeout = setTimeout(saveAndSync, 3000);
         }
-
-        async function retrieveFromCloud() {
-            try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                
-                if (data.content) workArea.value = data.content;
-                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
-
-                if (data.placedSteps) {
-                    placedSteps = JSON.parse(data.placedSteps);
-                    placedSteps.forEach(ps => {
-                        const el = document.createElement('div');
-                        el.className = 'water-step';
-                        el.style.left = ps.x + 'px';
-                        el.style.top = ps.y + 'px';
-                        el.textContent = ps.text;
-                        riverContainer.appendChild(el);
-                        ps.el = el;
-                    });
-                    checkSalmonRescue();
-                }
-
-                syncStatus.innerText = 'Mission data retrieved';
-            } catch (e) {
-                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
-                syncStatus.innerText = 'Ready (Offline Mode)';
-            }
-        }
-
-        workArea.addEventListener('input', triggerSave);
 
         async function saveAndSync() {
-            const content = workArea.value;
+            var content = workArea.value;
             localStorage.setItem('mks_' + STUDENT_ID + '_m15_work', content);
-            localStorage.setItem('mks_' + STUDENT_ID + '_m15_steps', JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))));
-            
-            syncStatus.innerText = 'Syncing design...';
+            localStorage.setItem('mks_' + STUDENT_ID + '_m15_weirs', JSON.stringify(placedWeirs));
+            localStorage.setItem('mks_' + STUDENT_ID + '_m15_rescued', rescuedCount);
+
+            syncStatus.innerText = 'Auto-saving...';
             syncDot.className = 'indicator-dot active';
 
-            const payload = {
+            var payload = {
                 studentId: STUDENT_ID,
                 missionTitle: MISSION_TITLE,
                 reflection: content,
-                placedSteps: JSON.stringify(placedSteps.map(ps => ({ x: ps.x, y: ps.y, text: ps.el.textContent }))),
+                weirs: JSON.stringify(placedWeirs),
+                rescuedCount: rescuedCount,
                 timestamp: new Date().toISOString()
             };
 
             try {
                 await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = 'Design synced';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
+                syncStatus.innerText = 'Auto-saved';
+                syncDot.className = 'indicator-dot';
+                syncDot.style.background = '#10b981';
+                var completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
                 if (!completed.includes(15)) completed.push(15);
                 localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
             } catch (e) {
-                syncStatus.innerText = 'Saved Locally Only';
+                syncStatus.innerText = 'Saved locally';
+                syncDot.style.background = '#f59e0b';
             }
         }
 
-        retrieveFromCloud();
+        async function retrieveFromSync() {
+            try {
+                var response = await fetch(WEBHOOK_URL + '?studentId=' + STUDENT_ID + '&missionTitle=' + encodeURIComponent(MISSION_TITLE));
+                var data = await response.json();
+
+                if (data.content) workArea.value = data.content;
+                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
+
+                if (data.weirs) {
+                    placedWeirs = JSON.parse(data.weirs);
+                } else {
+                    var localWeirs = localStorage.getItem('mks_' + STUDENT_ID + '_m15_weirs');
+                    if (localWeirs) placedWeirs = JSON.parse(localWeirs);
+                }
+
+                var savedRescued = data.rescuedCount || parseInt(localStorage.getItem('mks_' + STUDENT_ID + '_m15_rescued')) || 0;
+                if (savedRescued === 5) {
+                    rescuedCount = 5;
+                    salmonRescuedEl.textContent = '5';
+                    celebrationMsg.style.display = 'block';
+                    puzzleStatus.innerText = 'All salmon rescued!';
+                    puzzleStatus.style.color = '#10b981';
+                    for (var i = 0; i < fishList.length; i++) {
+                        fishList[i].x = CW - 55 - i * 10;
+                        fishList[i].y = 40 + i * 28;
+                        fishList[i].rescued = true;
+                    }
+                } else {
+                    updatePuzzleStatus();
+                }
+
+                syncStatus.innerText = 'Loaded from cloud';
+                syncDot.style.background = '#10b981';
+            } catch (e) {
+                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m15_work') || '';
+                var localWeirs = localStorage.getItem('mks_' + STUDENT_ID + '_m15_weirs');
+                if (localWeirs) placedWeirs = JSON.parse(localWeirs);
+
+                var savedRescued = parseInt(localStorage.getItem('mks_' + STUDENT_ID + '_m15_rescued')) || 0;
+                if (savedRescued === 5) {
+                    rescuedCount = 5;
+                    salmonRescuedEl.textContent = '5';
+                    celebrationMsg.style.display = 'block';
+                    puzzleStatus.innerText = 'All salmon rescued!';
+                    puzzleStatus.style.color = '#10b981';
+                    for (var i = 0; i < fishList.length; i++) {
+                        fishList[i].x = CW - 55 - i * 10;
+                        fishList[i].y = 40 + i * 28;
+                        fishList[i].rescued = true;
+                    }
+                } else {
+                    updatePuzzleStatus();
+                }
+
+                syncStatus.innerText = 'Ready (Offline Mode)';
+            }
+        }
+
+        workArea.addEventListener('input', triggerSave);
+        retrieveFromSync();
+        draw();
     </script>
 </body>
 </html>
