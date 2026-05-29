@@ -83,12 +83,12 @@
         const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 7: The Treaty Tree';
 
         const promises = [
-            { id:'share', name:'Share the Land', emoji:'🌍', detail:'"We will share the bounty of the land and waters."', status:null, leafX:180, leafY:80 },
-            { id:'peace', name:'Live in Peace', emoji:'☮️', detail:'"We will live in peace as long as the sun shines."', status:null, leafX:250, leafY:120 },
-            { id:'protect', name:'Protect the Children', emoji:'👶', detail:'"We will protect the future for seven generations."', status:null, leafX:130, leafY:110 },
-            { id:'respect', name:'Respect the Elders', emoji:'👴', detail:'"We will listen to each other with respect and honesty."', status:null, leafX:220, leafY:160 },
-            { id:'language', name:'Keep the Language', emoji:'🗣️', detail:'"We will help keep the Mi\'kmaw language alive."', status:null, leafX:160, leafY:155 },
-            { id:'rights', name:'Honor the Rights', emoji:'⚖️', detail:'"We will honor the rights of the Mi\'kmaq to fish and hunt."', status:null, leafX:190, leafY:200 }
+            { id:'share', name:'Share the Land', emoji:'🌍', detail:'"We will share the bounty of the land and waters."', verdict:'broken', history:'The government took most of the land. Mi\'kmaq were moved to small reserves.', leafX:180, leafY:80 },
+            { id:'peace', name:'Live in Peace', emoji:'☮️', detail:'"We will live in peace as long as the sun shines."', verdict:'broken', history:'There were wars. Many Mi\'kmaq were forced to leave their homes.', leafX:250, leafY:120 },
+            { id:'protect', name:'Protect the Children', emoji:'👶', detail:'"We will protect the future for seven generations."', verdict:'broken', history:'Children were taken to residential schools. Many got sick. Many died.', leafX:130, leafY:110 },
+            { id:'respect', name:'Respect the Elders', emoji:'👴', detail:'"We will listen to each other with respect and honesty."', verdict:'mixed', history:'Ceremonies were banned. But families kept teaching children at home.', leafX:220, leafY:160 },
+            { id:'language', name:'Keep the Language', emoji:'🗣️', detail:'"We will help keep the Mi\'kmaw language alive."', verdict:'broken', history:'At school, children were punished for speaking Mi\'kmaw. The language almost died.', leafX:160, leafY:155 },
+            { id:'rights', name:'Honor the Rights', emoji:'⚖️', detail:'"We will honor the rights of the Mi\'kmaq to fish and hunt."', verdict:'mixed', history:'Fishing rights were taken away. Mi\'kmaq went to court and won their rights back.', leafX:190, leafY:200 }
         ];
 
         let selectedPromise = null;
@@ -104,7 +104,7 @@
             const btn = document.createElement('button');
             btn.className = 'promise-btn'; btn.dataset.id = p.id;
             btn.innerHTML = `${p.emoji} ${p.name}`;
-            btn.onclick = () => { selectedPromise = p.id; infoBox.innerHTML = p.detail; document.querySelectorAll('.promise-btn').forEach(b => b.classList.toggle('active', b.dataset.id === p.id)); };
+            btn.onclick = () => { selectedPromise = p.id; infoBox.innerHTML = `<strong>${p.name}</strong><br><em>"${p.detail}"</em><br><br><span style="background:#f1f5f9;padding:10px;border-radius:8px;display:block;">${p.history}</span><br><br>Now you decide:<br><button class="judge-btn keep" onclick="judgePromise('kept')" style="margin-top:8px;padding:8px 20px;border:2px solid #86efac;border-radius:8px;cursor:pointer;font-weight:700;background:#22c55e;color:white;">KEPT</button> <button class="judge-btn break-btn" onclick="judgePromise('broken')" style="margin-top:8px;padding:8px 20px;border:2px solid #fca5a5;border-radius:8px;cursor:pointer;font-weight:700;background:#ef4444;color:white;">BROKEN</button>`; document.querySelectorAll('.promise-btn').forEach(b => b.classList.toggle('active', b.dataset.id === p.id)); };
             tray.appendChild(btn);
 
             const leaf = document.createElement('div');
@@ -114,19 +114,39 @@
             treeArea.appendChild(leaf);
         });
 
-        function judgePromise(status) {
+function judgePromise(status) {
             if (!selectedPromise) { infoBox.innerText = 'Pick a promise first!'; return; }
             const p = promises.find(x => x.id === selectedPromise);
             p.status = status;
             const leaf = document.getElementById('leaf-' + p.id);
             leaf.className = 'leaf-slot ' + (status === 'kept' ? 'kept' : 'broken');
             document.querySelector(`.promise-btn[data-id="${p.id}"]`).classList.add('placed');
-            if (status === 'kept') {
-                infoBox.innerHTML = `You marked "${p.name}" as <strong style="color:#15803d">KEPT</strong>. A green leaf stays on the tree.`;
+
+            if (p.verdict === 'mixed') {
+                if (status === 'kept') {
+                    infoBox.innerHTML = `<strong>${p.name}</strong> — <span style="color:#15803d;font-weight:700;">KEPT</span><br><br><em>✓ You are correct! Some of this promise survived.</em>`;
+                    infoBox.style.background = '#f0fdf4'; infoBox.style.borderColor = '#86efac'; infoBox.style.color = '#166534';
+                } else {
+                    infoBox.innerHTML = `<strong>${p.name}</strong> — <span style="color:#dc2626;font-weight:700;">BROKEN</span><br><br><em>✓ You are correct! Parts of this promise were broken.</em>`;
+                    infoBox.style.background = '#fef2f2'; infoBox.style.borderColor = '#fecaca'; infoBox.style.color = '#991b1b';
+                }
+            } else if (status === p.verdict) {
+                infoBox.innerHTML = `<strong>${p.name}</strong> — <span style="color:#15803d;font-weight:700;">KEPT</span><br><br><em>✓ Correct!</em>`;
                 infoBox.style.background = '#f0fdf4'; infoBox.style.borderColor = '#86efac'; infoBox.style.color = '#166534';
             } else {
-                infoBox.innerHTML = `You marked "${p.name}" as <strong style="color:#dc2626">BROKEN</strong>. The leaf falls from the tree.`;
-                infoBox.style.background = '#fef2f2'; infoBox.style.borderColor = '#fecaca'; infoBox.style.color = '#991b1b';
+                infoBox.innerHTML = `<strong>${p.name}</strong><br><br><em>The correct answer is: <strong>${p.verdict === 'broken' ? 'BROKEN' : 'KEPT'}</strong></em>`;
+                infoBox.style.background = '#fef9c3'; infoBox.style.borderColor = '#fde047'; infoBox.style.color = '#854d0e';
+            }
+            selectedPromise = null;
+            document.querySelectorAll('.promise-btn').forEach(b => b.classList.remove('active'));
+            triggerSave();
+        }
+            } else if (status === p.verdict) {
+                infoBox.innerHTML = `<strong>${p.name}</strong> — <span style="color:#15803d;font-weight:700;">KEPT</span><br><br>${p.history}<br><br><em>✓ Correct!</em>`;
+                infoBox.style.background = '#f0fdf4'; infoBox.style.borderColor = '#86efac'; infoBox.style.color = '#166534';
+            } else {
+                infoBox.innerHTML = `<strong>${p.name}</strong><br><br>${p.history}<br><br><em>The correct answer is: <strong>${p.verdict === 'broken' ? 'BROKEN' : 'KEPT'}</strong></em>`;
+                infoBox.style.background = '#fef9c3'; infoBox.style.borderColor = '#fde047'; infoBox.style.color = '#854d0e';
             }
             selectedPromise = null;
             document.querySelectorAll('.promise-btn').forEach(b => b.classList.remove('active'));
