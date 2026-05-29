@@ -4,9 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Assignment: The Justice System Inquest</title>
+  
+  <!-- Fonts & Libraries -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Special+Elite&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
   <style>
     :root {
       --bg-base: #0f111a;
@@ -18,7 +22,7 @@
       --accent-teal: #00897b;
       --color-text: #f5f6f8;
       --color-text-muted: #9fa6b2;
-      --shadow-lg: 0 16px 48px rgba(0,0,0,0.4);
+      --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
       --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -33,7 +37,7 @@
       background-color: var(--bg-base);
       color: var(--color-text);
       line-height: 1.6;
-      padding: 40px 24px;
+      padding: 40px 24px 100px 24px; /* bottom padding to accommodate floating bar */
     }
 
     .container {
@@ -66,6 +70,7 @@
       font-size: 1.1rem;
       color: #fff;
       margin-bottom: 4px;
+      font-family: 'Outfit', sans-serif;
     }
 
     .panel-info p {
@@ -76,6 +81,7 @@
     .panel-actions {
       display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -122,6 +128,7 @@
       padding: 40px;
       box-shadow: var(--shadow-lg);
       border: 1px solid #e2e8f0;
+      position: relative;
     }
 
     .doc-header {
@@ -221,16 +228,27 @@
       font-family: 'Inter', sans-serif;
     }
 
-    .question-blank {
+    /* Student Textarea Fields */
+    .student-input-field {
+      width: 100%;
+      background-color: #f8fafc;
       border: 1.5px solid #cbd5e1;
       border-radius: 6px;
-      min-height: 80px;
-      background-color: #fafbfc;
+      padding: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: #0f172a;
+      resize: vertical;
+      min-height: 110px;
       margin: 12px 0 24px 0;
-      padding: 12px;
-      font-size: 0.85rem;
-      color: #94a3b8;
-      font-style: italic;
+      transition: var(--transition-smooth);
+    }
+
+    .student-input-field:focus {
+      outline: none;
+      background-color: #fff;
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 0 3px rgba(229, 169, 59, 0.15);
     }
 
     .quote-box {
@@ -241,6 +259,209 @@
       font-style: italic;
       font-size: 0.95rem;
       color: #4a5568;
+    }
+
+    /* Splash / Login Screen Overlay */
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(10, 12, 18, 0.98), rgba(17, 21, 32, 0.96));
+      backdrop-filter: blur(15px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease;
+    }
+
+    .login-card {
+      background: #111520;
+      border: 1px solid var(--accent-gold);
+      box-shadow: 0 20px 80px rgba(0,0,0,0.7), 0 0 40px rgba(229,169,59,0.1);
+      border-radius: 12px;
+      padding: 50px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .login-card h1 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .login-card p.sub {
+      color: var(--accent-gold);
+      font-family: 'Special Elite', cursive;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .input-group select, .input-group input {
+      padding: 14px;
+      background: #090b10;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      width: 100%;
+      text-align: center;
+      transition: var(--transition-smooth);
+    }
+
+    .input-group select:focus, .input-group input:focus {
+      border-color: var(--accent-gold);
+      outline: none;
+      box-shadow: 0 0 10px rgba(229,169,59,0.15);
+    }
+
+    .student-select-container {
+      position: relative;
+      width: 100%;
+    }
+
+    #student-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #111520;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1050;
+      text-align: left;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .student-option {
+      padding: 12px 16px;
+      cursor: pointer;
+      color: #b8c1d0;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: var(--transition-smooth);
+    }
+
+    .student-option:hover {
+      background: var(--accent-gold);
+      color: #12141c;
+      font-weight: bold;
+    }
+
+    .login-btn {
+      background: var(--accent-gold);
+      color: #12141c;
+      border: none;
+      padding: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .login-btn:hover {
+      background: #ffd073;
+      transform: translateY(-2px);
+    }
+
+    #error-msg {
+      color: #ff5252;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: none;
+      margin-top: 5px;
+    }
+
+    /* Floating Status / Sync Bar at Bottom */
+    .sync-bar {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      border-radius: 50px;
+      padding: 10px 24px;
+      display: none;
+      align-items: center;
+      gap: 20px;
+      z-index: 900;
+    }
+
+    .sync-status-indicator {
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-status-indicator::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-gold);
+      box-shadow: 0 0 8px var(--accent-gold);
+    }
+
+    .sync-status-indicator.ready::before {
+      background-color: var(--accent-gold);
+      box-shadow: 0 0 8px var(--accent-gold);
+    }
+
+    .sync-status-indicator.success {
+      color: #2ecc71;
+    }
+    .sync-status-indicator.success::before {
+      background-color: #2ecc71;
+      box-shadow: 0 0 8px #2ecc71;
+    }
+
+    .sync-status-indicator.error {
+      color: #ff4757;
+    }
+    .sync-status-indicator.error::before {
+      background-color: #ff4757;
+      box-shadow: 0 0 8px #ff4757;
+    }
+
+    .sync-status-indicator.syncing::before {
+      background-color: #3498db;
+      box-shadow: 0 0 8px #3498db;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
     }
 
     .toast {
@@ -264,35 +485,70 @@
       opacity: 1;
     }
 
+    /* Print styling overrides */
     @media print {
       body {
         background-color: #fff;
         padding: 0;
+        color: #000;
       }
-      .action-panel, .toast {
-        display: none;
+      .action-panel, .sync-bar, .toast, #splash {
+        display: none !important;
       }
       .handout-doc {
         box-shadow: none;
         border: none;
         padding: 0;
       }
-      .question-blank {
+      .student-input-field {
         border: 1px solid #000 !important;
         background-color: #fff !important;
+        color: #000 !important;
+        min-height: 120px !important;
+      }
+      .meta-box {
+        border-left: 4px solid #000 !important;
+        background-color: #fff !important;
+        border: 1px solid #ccc;
       }
     }
   </style>
 </head>
 <body>
 
+  <!-- ═══════ LOGIN SPLASH OVERLAY ═══════ -->
+  <div id="splash">
+    <div class="login-card">
+      <h1>THE JUSTICE SYSTEM INQUEST</h1>
+      <p class="sub">Critical Inquiry // Mi'kmaw Studies 11</p>
+      
+      <div class="input-group">
+        <select id="class-block" onchange="filterStudents()">
+          <option value="" disabled selected>-- SELECT CLASS BLOCK --</option>
+          <option value="A Block (Waugh)">BLOCK A</option>
+          <option value="C Block (Waugh)">BLOCK C</option>
+        </select>
+
+        <div class="student-select-container">
+          <input type="text" id="student-search" placeholder="SEARCH FOR YOUR NAME" onfocus="showList()" oninput="filterList()" autocomplete="off">
+          <div id="student-list"></div>
+        </div>
+
+        <input type="password" id="student-pin" maxlength="4" placeholder="ENTER 4-LETTER CODE" style="text-transform: uppercase;">
+        
+        <div id="error-msg">ACCESS DENIED: INVALID CREDENTIALS</div>
+        <button class="login-btn" onclick="validateAndStart()">OPEN DOCK DETAILS</button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     
-    <!-- Action Panel for Teachers -->
+    <!-- Action/Identity Panel -->
     <div class="action-panel">
       <div class="panel-info">
-        <h3>Google Docs Integration Panel</h3>
-        <p>This document is formatted for students. Copy the prompt to clipboard and paste it directly into a Google Doc.</p>
+        <h3 id="panel-student-name">Inquest Worksheet: Unidentified</h3>
+        <p id="panel-student-meta">Access restricted until name verification.</p>
       </div>
       <div class="panel-actions">
         <a href="ideas.html" class="btn btn-secondary">← Dashboard</a>
@@ -313,9 +569,9 @@
       </div>
 
       <div class="meta-box">
-        <p><strong>Student Name:</strong> ____________________________________</p>
-        <p><strong>Partner's Name:</strong> ___________________________________</p>
-        <p><strong>Submission Link (Google Doc):</strong> ______________________</p>
+        <p><strong>Student Identity:</strong> <span id="display-student-name" style="font-weight: bold; color: var(--accent-teal);">Unidentified</span></p>
+        <p><strong>Class Block:</strong> <span id="display-student-block" style="font-weight: bold;">Unidentified</span></p>
+        <p><strong>Database Sync Key:</strong> <span id="display-student-key" style="font-family: monospace; font-size: 0.8rem; color: #4a5568;">None</span></p>
       </div>
 
       <div class="doc-section">
@@ -325,16 +581,16 @@
 
       <div class="doc-section">
         <h2>Part 1: The Chronology Audit (Checking the Stats)</h2>
-        <p><strong>Instructions:</strong> Open the older class notes (<em>2. b Aboriginal Justice Full Notes.docx</em>) and compare the numbers in there against the current <em>2026 Reference Sheet (justice_stats_2026.html)</em>. Answer the questions below in your Google Doc.</p>
+        <p><strong>Instructions:</strong> Open the older class notes (<em>2. b Aboriginal Justice Full Notes.docx</em>) and compare the numbers in there against the current <em>2026 Reference Sheet (justice_stats_2026.html)</em>. Complete the fields below.</p>
 
         <p><strong>1. Incarceration Tracker:</strong> Look at the percentage of federally incarcerated Indigenous women in the 2017 notes vs. the 2026 statistics. By how much did the percentage go up? Why do you think this percentage is rising even though the government promised to fix it?</p>
-        <div class="question-blank">[ Record your statistical comparison and ideas here ]</div>
+        <textarea id="ans-part1-q1" class="student-input-field" placeholder="Record your statistical comparison and ideas here..."></textarea>
 
         <p><strong>2. Law Status Update:</strong> In your older notes, Bill C-5 is described as a 'proposed' law. Look at the 2026 sheet: when did it actually become law? In simple terms, what did it change about mandatory minimum sentences?</p>
-        <div class="question-blank">[ Outline when Bill C-5 passed and what it changed here ]</div>
+        <textarea id="ans-part1-q2" class="student-input-field" placeholder="Outline when Bill C-5 passed and what it changed here..."></textarea>
 
         <p><strong>3. The Policy Gap:</strong> The goal of Bill C-5 was to reduce the number of Indigenous people in prison. Based on the 2026 numbers, did it work? Why do you think changing a court law isn't enough to solve the problem if root issues like poor housing, lack of jobs, and poverty aren't fixed first?</p>
-        <div class="question-blank">[ Explain why changing court laws alone cannot solve systemic overrepresentation ]</div>
+        <textarea id="ans-part1-q3" class="student-input-field" placeholder="Explain why changing court laws alone cannot solve systemic overrepresentation..."></textarea>
       </div>
 
       <div class="doc-section">
@@ -346,10 +602,10 @@
         </div>
         <p><strong>Questions:</strong></p>
         <p><strong>1. Who was Donald Marshall Jr.?:</strong> Research Donald Marshall Jr. In your own words, who was he, and why was his wrongful conviction in Nova Scotia such a landmark event?</p>
-        <div class="question-blank">[ Write your summary here ]</div>
+        <textarea id="ans-part2-q1" class="student-input-field" placeholder="Write your summary here..."></textarea>
         
         <p><strong>2. Helping Communities:</strong> Look up the <strong>Mi'kmaw Legal Support Network (MLSN)</strong>. In plain language, what does this network do, and how does it help Mi'kmaw people who have to go to court?</p>
-        <div class="question-blank">[ Detail what MLSN does to support the community ]</div>
+        <textarea id="ans-part2-q2" class="student-input-field" placeholder="Detail what MLSN does to support the community..."></textarea>
       </div>
 
       <div class="doc-section">
@@ -357,46 +613,392 @@
         <p><strong>Scenario:</strong> Liam is 19 years old and lives in Cape Breton. He has been charged with a non-violent property crime. Liam doesn't have a stable place to live, is currently unemployed, and his grandparents are survivors of the Shubenacadie Residential School.</p>
         <p><strong>Questions:</strong></p>
         <p><strong>1. Two Paths of Justice:</strong> If Liam goes to a standard Western punitive court, what will his experience be like? How would his experience be different if he participated in a Restorative Sentencing Circle (run by MLSN)?</p>
-        <div class="question-blank">[ Compare the two systems here ]</div>
+        <textarea id="ans-part3-q1" class="student-input-field" placeholder="Compare the two systems here..."></textarea>
 
         <p><strong>2. The Risk Assessment Trap:</strong> When someone is arrested, the court uses a checklist to see if they are 'high risk' (likely to commit another crime). Liam gets points for being 'high risk' because he has no stable home, no job, and his family has trauma from residential schools. Why is it unfair to give someone a longer prison sentence for things that are actually the result of historical colonialism and poverty? How does this keep them trapped in the system?</p>
-        <div class="question-blank">[ Explain why this checklist trap makes overrepresentation worse ]</div>
+        <textarea id="ans-part3-q2" class="student-input-field" placeholder="Explain why this checklist trap makes overrepresentation worse..."></textarea>
       </div>
 
       <div class="doc-section">
         <h2>Part 4: Peer Dialogue</h2>
-        <p>Discuss your thoughts on Bill C-5 with a classmate. In your Google Doc:</p>
-        <ol>
-          <li>Record one thing you and your partner agreed on regarding why changing court laws is difficult.</li>
-          <li>Record one area where you had different ideas (for example, whether judges should have total freedom to decide sentences, or if some crimes should always have minimum punishments).</li>
-        </ol>
-        <div class="question-blank">[ Record your partner discussion notes here ]</div>
+        <p>Discuss your thoughts on Bill C-5 with a classmate. In your responses:</p>
+        <p><strong>1. Joint Agreement:</strong> Record one thing you and your partner agreed on regarding why changing court laws is difficult.</p>
+        <textarea id="ans-part4-q1" class="student-input-field" placeholder="Record your partner discussion agreement notes here..."></textarea>
+        
+        <p><strong>2. Divergent Ideas:</strong> Record one area where you had different ideas (for example, whether judges should have total freedom to decide sentences, or if some crimes should always have minimum punishments).</p>
+        <textarea id="ans-part4-q2" class="student-input-field" placeholder="Record where your opinions differed here..."></textarea>
       </div>
     </div>
+  </div>
+
+  <!-- ═══════ FLOATING BAR FOR DRAFT SAVING / WEBHOOK SYNCING ═══════ -->
+  <div id="sync-bar" class="sync-bar">
+    <div id="sync-status" class="sync-status-indicator ready">SYNC: READY</div>
+    <button class="btn btn-secondary" onclick="submitToWebhook(false)" style="padding: 6px 14px; font-size: 0.75rem;">Save Draft</button>
+    <button class="btn btn-primary" onclick="submitToWebhook(true)" style="padding: 6px 16px; font-size: 0.75rem; background-color: var(--accent-teal); color: white;">Submit Final</button>
   </div>
 
   <div id="toast" class="toast">Google Doc template copied to clipboard! Open your Google Doc and press Ctrl+V.</div>
 
   <script>
+    // ═══════════════════════════════════════════════════
+    // STUDENT ROSTER DATABASE — Shared with Sixties Scoop
+    // ═══════════════════════════════════════════════════
+    const STUDENTS = [
+      {"B":"A Block (Waugh)","S":"QWxleGlzIChBTEVYKQ=="},
+      {"B":"A Block (Waugh)","S":"QU5BTllBIE0uIChPS09LKQ=="},
+      {"B":"A Block (Waugh)","S":"Q0FMTFVNIChMTExMKQ=="},
+      {"B":"A Block (Waugh)","S":"Q09OTk9SIChDT05OKQ=="},
+      {"B":"A Block (Waugh)","S":"Q09WQSAoS0lLSSk="},
+      {"B":"A Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+      {"B":"A Block (Waugh)","S":"RG15dHJvIChCSUJBKQ=="},
+      {"B":"A Block (Waugh)","S":"RUxMRUUgKEVMTEUp"},
+      {"B":"A Block (Waugh)","S":"R2FsYSAoTklWQSk="},
+      {"B":"A Block (Waugh)","S":"R0FWSU4gKEFBQUEp"},
+      {"B":"A Block (Waugh)","S":"SEFSUklTT04gKFlOUEgp"},
+      {"B":"A Block (Waugh)","S":"SkVTU0UgKExPVVAp"},
+      {"B":"A Block (Waugh)","S":"Sk9TSCAoSk9TSCk="},
+      {"B":"A Block (Waugh)","S":"Sm9uIChEVURFKQ=="},
+      {"B":"A Block (Waugh)","S":"SnVsaWFubmUgKFdBU0gp"},
+      {"B":"A Block (Waugh)","S":"S2V2aW4gKENISUcp"},
+      {"B":"A Block (Waugh)","S":"TGVuYSAoRk9PRCk="},
+      {"B":"A Block (Waugh)","S":"TUFFIChNQUVTKQ=="},
+      {"B":"A Block (Waugh)","S":"TUFURU8gKFlPTE8p"},
+      {"B":"A Block (Waugh)","S":"TWljaGFlbCAoTUlLRSk="},
+      {"B":"A Block (Waugh)","S":"TVJXQVVHSCAoWE9YTyk="},
+      {"B":"A Block (Waugh)","S":"cm9zZSAoUk9TRSk="},
+      {"B":"A Block (Waugh)","S":"UnVieSAoTkVDSyk="},
+      {"B":"A Block (Waugh)","S":"U29uamEgKFNPTkop"},
+      {"B":"A Block (Waugh)","S":"U29waGllIChRQVNXKQ=="},
+      {"B":"A Block (Waugh)","S":"VklUVVNaIChYRFhEKQ=="},
+      {"B":"C Block (Waugh)","S":"QWJkZWwgKEFBQVcp"},
+      {"B":"C Block (Waugh)","S":"QWJpZ2FpbCAoQUJJUyk="},
+      {"B":"C Block (Waugh)","S":"QUlERU4gKEhPUEUp"},
+      {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSlVORSk="},
+      {"B":"C Block (Waugh)","S":"QkFBU0hJUSAoTklORSk="},
+      {"B":"C Block (Waugh)","S":"Q2FpdGx5biAoQ0FJVCk="},
+      {"B":"C Block (Waugh)","S":"Q2FsZWIgKENBTEUp"},
+      {"B":"C Block (Waugh)","S":"Q2hyaXN0b3BoZXIgKENocmlzKSAoUkFDRSk="},
+      {"B":"C Block (Waugh)","S":"Q2xhcmEgSm9uZXMgKENMQVIp"},
+      {"B":"C Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+      {"B":"C Block (Waugh)","S":"SEFSSkFTIChDT0xEKQ=="},
+      {"B":"C Block (Waugh)","S":"SXNhYWMgKElTTEUp"},
+      {"B":"C Block (Waugh)","S":"SXNhYmVsbGEgQmVjayAoQkVMTCk="},
+      {"B":"C Block (Waugh)","S":"SmFpdmVlciAoV0FTRCk="},
+      {"B":"C Block (Waugh)","S":"SnVsaWFuIChTUEVEKQ=="},
+      {"B":"C Block (Waugh)","S":"S2FkZW4gKENIVUQp"},
+      {"B":"C Block (Waugh)","S":"S09FTiAoTE9SSSk="},
+      {"B":"C Block (Waugh)","S":"S3VsYXkgY3J1eiAoQ1JVWik="},
+      {"B":"C Block (Waugh)","S":"S3lsZSBQYXJzb25zIChQVUNLKQ=="},
+      {"B":"C Block (Waugh)","S":"S3lyYSAoS1lSQSk="},
+      {"B":"C Block (Waugh)","S":"TWFkaW5hIE1pcnphIChJTk5BKQ=="},
+      {"B":"C Block (Waugh)","S":"bXlsZXMgKE1ZTFMp"},
+      {"B":"C Block (Waugh)","S":"Tm9haCBQaW50ZXIgKFBJTlQp"},
+      {"B":"C Block (Waugh)","S":"UmFpZGEgKFFBWksp"},
+      {"B":"C Block (Waugh)","S":"UmVpbGV5IChSSUxFKQ=="},
+      {"B":"C Block (Waugh)","S":"Uml2ZXIgVGhvbWFzIChERVdPKQ=="},
+      {"B":"C Block (Waugh)","S":"U291bGluIFNoZWhhYiAoU09VTCk="},
+      {"B":"C Block (Waugh)","S":"U3VraGJpciAoTklDRSk="},
+      {"B":"C Block (Waugh)","S":"WmFpZCAoWkFJRCk="},
+      {"B":"C Block (Waugh)","S":"WkFZREVOIChSQUlOKQ=="}
+    ];
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+    const SIMULATION_NAME = "Restorative Justice — Liam's Journey";
+
+    let selectedStudent = null;
+    let sessionData = { responses: {} };
+
+    // Telemetry tracking variables
+    let pageStartTime = Date.now();
+    let keystrokeCount = 0;
+    let pastedText = false;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target && e.target.classList.contains('student-input-field')) {
+        keystrokeCount++;
+      }
+    });
+
+    document.addEventListener('paste', (e) => {
+      if (e.target && e.target.classList.contains('student-input-field')) {
+        pastedText = true;
+      }
+    });
+
+    // ═══════════════════════════════════════════════════
+    // LOGIN & AUTHFILTER FUNCTIONS
+    // ═══════════════════════════════════════════════════
+    function filterStudents() {
+      const block = document.getElementById('class-block').value;
+      const searchInput = document.getElementById('student-search');
+      searchInput.value = '';
+      document.getElementById('student-pin').value = '';
+      filterList();
+    }
+
+    function showList() {
+      const block = document.getElementById('class-block').value;
+      if (!block) return;
+      document.getElementById('student-list').style.display = 'block';
+      filterList();
+    }
+
+    function filterList() {
+      const block = document.getElementById('class-block').value;
+      const query = document.getElementById('student-search').value.toLowerCase();
+      const list = document.getElementById('student-list');
+      list.innerHTML = '';
+
+      const filtered = STUDENTS.filter(s => s.B === block);
+      
+      filtered.forEach(s => {
+        const decodedS = atob(s.S);
+        const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+        if (displayName.toLowerCase().includes(query)) {
+          const div = document.createElement('div');
+          div.className = 'student-option';
+          div.innerText = displayName;
+          div.onclick = () => {
+            document.getElementById('student-search').value = displayName;
+            selectedStudent = s;
+            list.style.display = 'none';
+          };
+          list.appendChild(div);
+        }
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.student-select-container')) {
+        document.getElementById('student-list').style.display = 'none';
+      }
+    });
+
+    function validateAndStart() {
+      const pinInput = document.getElementById('student-pin').value.toUpperCase();
+      const error = document.getElementById('error-msg');
+
+      if (!selectedStudent) {
+        error.innerText = "PLEASE SELECT YOUR NAME";
+        error.style.display = 'block';
+        return;
+      }
+
+      const decodedS = atob(selectedStudent.S);
+      const pinMatch = decodedS.match(/\(([^)]+)\)\s*$/);
+      const expectedPin = pinMatch ? pinMatch[1].toUpperCase() : "";
+
+      if (pinInput === expectedPin) {
+        gsap.to("#splash", { opacity: 0, duration: 0.6, onComplete: () => {
+          document.getElementById('splash').style.display = 'none';
+          startSession();
+        }});
+      } else {
+        error.innerText = "ACCESS DENIED: INVALID CODE";
+        error.style.display = 'block';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // SESSION STATE MANAGEMENT
+    // ═══════════════════════════════════════════════════
+    function startSession() {
+      const decodedS = atob(selectedStudent.S);
+      const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+
+      // Update UI panels with identity
+      document.getElementById('panel-student-name').innerText = displayName;
+      document.getElementById('panel-student-meta').innerText = `Active Docket: ${selectedStudent.B} // MKS11`;
+      
+      document.getElementById('display-student-name').innerText = displayName;
+      document.getElementById('display-student-block').innerText = selectedStudent.B;
+      document.getElementById('display-student-key').innerText = selectedStudent.S;
+
+      document.getElementById('sync-bar').style.display = 'flex';
+
+      // Load previous drafts from local and retrieve from cloud
+      loadFromLocal();
+      retrieveFromCloud();
+
+      // Listen for local changes to trigger autosave timers
+      document.querySelectorAll('.student-input-field').forEach(field => {
+        field.addEventListener('input', debounceAutosave);
+      });
+    }
+
+    // Debounce timer for autosave
+    let autosaveTimeout = null;
+    function debounceAutosave() {
+      clearTimeout(autosaveTimeout);
+      autosaveTimeout = setTimeout(() => {
+        saveToLocal();
+        submitToWebhook(false); // Silent incremental save
+      }, 5000);
+    }
+
+    function saveToLocal() {
+      const decodedS = atob(selectedStudent.S);
+      const data = gatherInputs();
+      localStorage.setItem(`liam_inquest_${decodedS}`, JSON.stringify(data));
+    }
+
+    function loadFromLocal() {
+      const decodedS = atob(selectedStudent.S);
+      const saved = localStorage.getItem(`liam_inquest_${decodedS}`);
+      if (saved) {
+        sessionData.responses = JSON.parse(saved);
+        populateFields();
+      }
+    }
+
+    function gatherInputs() {
+      const responses = {};
+      document.querySelectorAll('.student-input-field').forEach(field => {
+        responses[field.id] = field.value;
+      });
+      
+      // Keep structural metadata
+      if (sessionData.responses._timestamps) {
+        responses._timestamps = sessionData.responses._timestamps;
+      } else {
+        responses._timestamps = { start: new Date().toISOString() };
+      }
+      
+      // Update telemetry
+      if (!responses._telemetry) {
+        responses._telemetry = {};
+      }
+      responses._telemetry.session = {
+        keystrokes: keystrokeCount,
+        pasted: pastedText,
+        duration_sec: Math.round((Date.now() - pageStartTime) / 1000)
+      };
+
+      return responses;
+    }
+
+    function populateFields() {
+      document.querySelectorAll('.student-input-field').forEach(field => {
+        if (sessionData.responses && sessionData.responses[field.id] !== undefined) {
+          field.value = sessionData.responses[field.id];
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════
+    // WEBHOOK SYNCHRONIZATION
+    // ═══════════════════════════════════════════════════
+    async function retrieveFromCloud() {
+      if (!selectedStudent) return;
+      const decodedS = atob(selectedStudent.S);
+      
+      setSyncStatus("RETRIEVING...", "ready");
+
+      try {
+        const res = await fetch(`${API_URL}?student=${encodeURIComponent(decodedS)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+        const result = await res.json();
+        
+        if (result.rationales) {
+          const cloudResponses = JSON.parse(result.rationales);
+          sessionData.responses = cloudResponses;
+          populateFields();
+          saveToLocal();
+          setSyncStatus("CLOUD LOADED", "success");
+          setTimeout(() => setSyncStatus("READY", "ready"), 3000);
+        } else {
+          setSyncStatus("READY (NEW)", "ready");
+        }
+      } catch (e) {
+        console.error("Cloud retrieve error, using local storage", e);
+        setSyncStatus("OFFLINE", "error");
+      }
+    }
+
+    async function submitToWebhook(isFinal = false) {
+      if (!selectedStudent) return;
+      const decodedS = atob(selectedStudent.S);
+      
+      setSyncStatus(isFinal ? "SUBMITTING..." : "SAVING DRAFT...", "syncing");
+      
+      const responses = gatherInputs();
+      
+      const payload = {
+        action: "save",
+        timestamp: new Date().toLocaleString(),
+        block: selectedStudent.B,
+        student: decodedS,
+        subject: "MIKMAW11",
+        simulation: SIMULATION_NAME,
+        status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+        rationales: JSON.stringify(responses)
+      };
+
+      try {
+        const params = new URLSearchParams();
+        for (const key in payload) {
+          params.append(key, payload[key]);
+        }
+
+        await fetch(API_URL, {
+          method: 'POST',
+          body: params,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          mode: 'no-cors'
+        });
+
+        setSyncStatus(isFinal ? "SUBMITTED" : "DRAFT SAVED", "success");
+        if (isFinal) {
+          showToastAlert("Assignment Submitted Successfully!");
+        }
+        setTimeout(() => setSyncStatus("READY", "ready"), 3000);
+      } catch (err) {
+        console.error("Webhook save error", err);
+        setSyncStatus("OFFLINE (AUTOSAVED LOCAL)", "error");
+      }
+    }
+
+    function setSyncStatus(text, type) {
+      const syncStatus = document.getElementById('sync-status');
+      syncStatus.innerText = `SYNC: ${text}`;
+      syncStatus.className = `sync-status-indicator ${type}`;
+    }
+
+    function showToastAlert(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3500);
+    }
+
+    // ═══════════════════════════════════════════════════
+    // TEMPLATE GENERATOR
+    // ═══════════════════════════════════════════════════
     function copyGoogleDocTemplate() {
-      // Create copyable text with clear headers
+      const studentName = selectedStudent ? atob(selectedStudent.S).replace(/\s*\(([^)]+)\)\s*$/, "") : "_____________________";
+      const blockName = selectedStudent ? selectedStudent.B : "________";
+      const responses = gatherInputs();
+
       const text = `MI'KMAW STUDIES 11: THE JUSTICE SYSTEM INQUEST
-Student Name: __________________________
-Partner's Name: _________________________
+Student Name: ${studentName}
+Class Block: ${blockName}
 
 ============================================================
 PART 1: THE CHRONOLOGY AUDIT (Checking the Stats)
 ============================================================
 1. Incarceration Tracker: Look at the percentage of federally incarcerated Indigenous women in the 2017 notes vs. the 2026 statistics. By how much did the percentage go up? Why do you think this percentage is rising even though the government promised to fix it?
 Response:
+${responses['ans-part1-q1'] || ""}
 
 
 2. Law Status Update: In your older notes, Bill C-5 is described as a 'proposed' law. Look at the 2026 sheet: when did it actually become law? In simple terms, what did it change about mandatory minimum sentences?
 Response:
+${responses['ans-part1-q2'] || ""}
 
 
 3. The Policy Gap: The goal of Bill C-5 was to reduce the number of Indigenous people in prison. Based on the 2026 numbers, did it work? Why do you think changing a court law isn't enough to solve the problem if root issues like poor housing, lack of jobs, and poverty aren't fixed first?
 Response:
+${responses['ans-part1-q3'] || ""}
 
 
 ============================================================
@@ -404,10 +1006,12 @@ PART 2: THE NOVA SCOTIA JUSTICE PROFILE
 ============================================================
 1. Who was Donald Marshall Jr.?: Research Donald Marshall Jr. In your own words, who was he, and why was his wrongful conviction in Nova Scotia such a landmark event?
 Response:
+${responses['ans-part2-q1'] || ""}
 
 
 2. Helping Communities: Look up the Mi'kmaw Legal Support Network (MLSN). In plain language, what does this network do, and how does it help Mi'kmaw people who have to go to court?
 Response:
+${responses['ans-part2-q2'] || ""}
 
 
 ============================================================
@@ -417,10 +1021,12 @@ Scenario: Liam is 19 years old and lives in Cape Breton. He has been charged wit
 
 1. Two Paths of Justice: If Liam goes to a standard Western punitive court, what will his experience be like? How would his experience be different if he participated in a Restorative Sentencing Circle (run by MLSN)?
 Response:
+${responses['ans-part3-q1'] || ""}
 
 
 2. The Risk Assessment Trap: When someone is arrested, the court uses a checklist to see if they are 'high risk' (likely to commit another crime). Liam gets points for being 'high risk' because he has no stable home, no job, and his family has trauma from residential schools. Why is it unfair to give someone a longer prison sentence for things that are actually the result of historical colonialism and poverty? How does this keep them trapped in the system?
 Response:
+${responses['ans-part3-q2'] || ""}
 
 
 ============================================================
@@ -428,17 +1034,16 @@ PART 4: PEER DIALOGUE
 ============================================================
 1. Record one thing you and your partner agreed on regarding why changing court laws is difficult:
 Response:
+${responses['ans-part4-q1'] || ""}
 
 
 2. Record one area where you had different ideas:
 Response:
-
+${responses['ans-part4-q2'] || ""}
 `;
 
       navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById("toast");
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 3000);
+        showToastAlert("Google Doc template copied with your inputs!");
       });
     }
   </script>

@@ -63,3 +63,34 @@ Look closely at **Page 5 (Conveyor Belt)** and **Page 15 (The Sunset River)**. W
 | **Key Participants** | Attorneys, elevated Judge, courtroom police | Offender, victim, Elder, Judge, community |
 | **Focus of Inquiry** | What law was broken? Who did it? | What harm was done? How do we repair it? |
 | **Long-Term Outcome** | Record, isolation, high risk of return | Active repair, housing/status aid, reintegration |
+
+---
+
+## Activity 5: Google Apps Script (GAS) Webhook Integration (Digital Submission)
+**Primary Goal:** Enable students to type their inquiry responses directly into the browser and submit them to the teacher's Google Sheet using the same webhook architecture as the previous *Sixties Scoop* assignment.
+
+### ⚙️ How It Works (The Tech Setup)
+The school's existing Google Apps Script webhook can collect and organize student submissions for this assignment without setting up new forms or spreadsheets:
+1. **Endpoint Reusability:** The digital handout uses the exact same `API_URL` as the previous assignment:
+   `https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec`
+2. **Simulation Demarcation:** In the form payload, we set a new simulation identifier:
+   `const SIMULATION_NAME = "Restorative Justice — Liam's Journey";`
+3. **Student Identification:** Students login with their encoded PIN (stored in `localStorage` and verified via base64 decoding), matching their class block and name to keep data clean.
+
+### 💻 Proposed Integration Ideas
+To deploy this system, we can upgrade the student files in two ways:
+
+#### Option A: Upgrade the Handout Sheet (`student_assignment.html`)
+Transform the passive `div.question-blank` blocks in [student_assignment.html](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/Justice/student_assignment.html) into active `<textarea>` input fields:
+* **The Interface:** Add a PIN login field at the top of the handout. When validated, it retrieves any previously saved progress from the cloud.
+* **Save/Submit Actions:** Add a floating toolbar at the bottom with:
+  * **"Save Progress"** (sends `status: "INCREMENTAL_SAVE"` so students can resume on Chromebooks).
+  * **"Submit Final Assignment"** (sends `status: "FINAL_SUBMISSION"` to lock in their answers).
+* **Feedback indicator:** Include a sync state tracker (`SYNC: READY`, `SYNC: UPLOADING...`, `SYNC: OFFLINE`) in the header matching the styling of the previous dashboard.
+
+#### Option B: Embedded Graphic Novel Notebook (`graphic_novel.html`)
+Integrate a collapsible "Reflection Notebook" panel directly inside the graphic novel reader:
+* **The Layout:** Add a split-screen or sliding sidebar on the right containing the student questions.
+* **Contextual Writing:** As students read Page 3 (Risk Assessment) or Page 10 (Sentencing Circle), they can type their responses right next to the artwork and save/submit to the Google Sheet immediately.
+* **Accessibility:** This keeps reading and critical writing in a single, focused classroom view.
+
