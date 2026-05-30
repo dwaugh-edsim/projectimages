@@ -2351,10 +2351,6 @@
             let travelCost = 0;
             let activityCost = 0;
             let doneCount = 0;
-
-            let davePaidTotal = 0;
-            let ksPaidTotal = 0;
-            
             currentBlocks.forEach(b => {
                 if (b.type === 'stay') return; // Skip city stays from booking metrics
                 const rawCost = parseFloat(b.cost) || 0;
@@ -2369,14 +2365,6 @@
                 else if (b.type === 'activity') activityCost += costCAD;
                 
                 if (b.booked) doneCount++;
-
-                // Split tracking
-                const paidBy = b.paidBy || 'Shared';
-                if (paidBy === 'Dave') {
-                    davePaidTotal += costCAD;
-                } else if (paidBy === 'KS') {
-                    ksPaidTotal += costCAD;
-                }
             });
             
             const totalCount = currentBlocks.filter(b => b.type !== 'stay').length;
@@ -2397,33 +2385,7 @@
             document.getElementById('flightCost').textContent = `CA$${flightCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('stayCost').textContent = `CA$${stayCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             document.getElementById('travelCost').textContent = `CA$${travelCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            document.getElementById('activityCost').textContent = `CA$${activityCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;)}`;
-                ksPaidEl.textContent = `CA$${ksPaidTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                
-                const balance = (davePaidTotal - ksPaidTotal) / 2;
-                if (Math.abs(balance) < 0.01) {
-                    balanceEl.innerHTML = `
-                        <div class="integrity-card success" style="padding: 10px;">
-                            <strong>✅ Perfectly Balanced</strong>
-                            <div class="integrity-sub" style="font-size: 0.72rem;">Individual contributions match exactly!</div>
-                        </div>
-                    `;
-                } else if (balance > 0) {
-                    balanceEl.innerHTML = `
-                        <div class="integrity-card warning" style="background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2); color: #fde047; padding: 10px;">
-                            <strong>💸 Settlement Balance</strong>
-                            <div class="integrity-sub" style="font-size: 0.72rem; margin-top: 4px;">KS owes Dave <strong style="font-size: 0.85rem;">CA$${balance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></div>
-                        </div>
-                    `;
-                } else {
-                    balanceEl.innerHTML = `
-                        <div class="integrity-card warning" style="background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2); color: #fde047; padding: 10px;">
-                            <strong>💸 Settlement Balance</strong>
-                            <div class="integrity-sub" style="font-size: 0.72rem; margin-top: 4px;">Dave owes KS <strong style="font-size: 0.85rem;">CA$${Math.abs(balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></div>
-                        </div>
-                    `;
-                }
-            }
+            document.getElementById('activityCost').textContent = `CA$${activityCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             
             // Footer
             document.getElementById('footerNights').textContent = currentBlocks.filter(b => b.type === 'stay').reduce((acc, curr) => acc + (parseInt(curr.nights) || 0), 0);
