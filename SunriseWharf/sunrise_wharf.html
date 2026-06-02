@@ -1523,14 +1523,26 @@
                 <div style="margin-bottom: 12px;">
                     <label style="color: var(--text-dim); font-size: 0.65rem; font-family: var(--font-mono); display: block; margin-bottom: 4px; letter-spacing: 0.5px;">SENTENCE 1: RECOGNITION OF RIGHTS</label>
                     <textarea id="accord-s1" oninput="updateAccordPreview()" placeholder="The Harbour Authority recognizes..." style="height: 60px; min-height: 60px; margin-bottom: 0; font-size: 0.78rem;"></textarea>
+                    <div id="tip-box-s1" style="font-size: 0.7rem; line-height: 1.3; color: #94a3b8; margin-top: 4px; padding: 6px 8px; background: rgba(56, 189, 248, 0.02); border-left: 2px solid var(--accent); border-radius: 2px;">
+                        <span id="recap-s1-header" style="color: var(--accent); font-family: var(--font-mono); font-size: 0.6rem; display: block; margin-bottom: 2px;">SUGGESTED CLAUSE (BASED ON CH 2 & 5 DECISIONS)</span>
+                        <span id="recap-s1-tip" style="cursor: pointer; text-decoration: underline dotted; color: #e2e8f0; display: block;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#e2e8f0'" onclick="insertTip(1)"></span>
+                    </div>
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="color: var(--text-dim); font-size: 0.65rem; font-family: var(--font-mono); display: block; margin-bottom: 4px; letter-spacing: 0.5px;">SENTENCE 2: RULES AND SAFETY</label>
                     <textarea id="accord-s2" oninput="updateAccordPreview()" placeholder="All vessels operating on the wharf shall..." style="height: 60px; min-height: 60px; margin-bottom: 0; font-size: 0.78rem;"></textarea>
+                    <div id="tip-box-s2" style="font-size: 0.7rem; line-height: 1.3; color: #94a3b8; margin-top: 4px; padding: 6px 8px; background: rgba(56, 189, 248, 0.02); border-left: 2px solid var(--accent); border-radius: 2px;">
+                        <span id="recap-s2-header" style="color: var(--accent); font-family: var(--font-mono); font-size: 0.6rem; display: block; margin-bottom: 2px;">SUGGESTED CLAUSE (BASED ON CH 3 DECISION)</span>
+                        <span id="recap-s2-tip" style="cursor: pointer; text-decoration: underline dotted; color: #e2e8f0; display: block;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#e2e8f0'" onclick="insertTip(2)"></span>
+                    </div>
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="color: var(--text-dim); font-size: 0.65rem; font-family: var(--font-mono); display: block; margin-bottom: 4px; letter-spacing: 0.5px;">SENTENCE 3: DISPUTE RESOLUTION</label>
                     <textarea id="accord-s3" oninput="updateAccordPreview()" placeholder="Disputes regarding access shall be resolved through..." style="height: 60px; min-height: 60px; margin-bottom: 0; font-size: 0.78rem;"></textarea>
+                    <div id="tip-box-s3" style="font-size: 0.7rem; line-height: 1.3; color: #94a3b8; margin-top: 4px; padding: 6px 8px; background: rgba(56, 189, 248, 0.02); border-left: 2px solid var(--accent); border-radius: 2px;">
+                        <span id="recap-s3-header" style="color: var(--accent); font-family: var(--font-mono); font-size: 0.6rem; display: block; margin-bottom: 2px;">SUGGESTED CLAUSE (BASED ON CH 4 DECISION)</span>
+                        <span id="recap-s3-tip" style="cursor: pointer; text-decoration: underline dotted; color: #e2e8f0; display: block;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#e2e8f0'" onclick="insertTip(3)"></span>
+                    </div>
                 </div>
                 
                 <div style="background: rgba(56, 189, 248, 0.04); border: 1px solid var(--border); padding: 12px; border-radius: 4px; margin-bottom: 15px;">
@@ -1992,6 +2004,63 @@
                 document.getElementById('accord-s2').value = parts[1] || '';
                 document.getElementById('accord-s3').value = parts[2] || '';
                 updateAccordPreview();
+
+                // Calculate dynamic scaffolding suggestions based on choices
+                const ch2 = studentSession.judgments[1];
+                const ch5 = studentSession.judgments[4];
+                let tip1 = "";
+                let ch2Label = ch2 === 'OPTION_A' ? 'TREATY-FIRST' : (ch2 === 'OPTION_B' ? 'BYLAW-FIRST' : 'UNSELECTED');
+                let ch5Label = ch5 === 'OPTION_A' ? 'PRIMACY' : (ch5 === 'OPTION_B' ? 'JOINT REGULATION' : 'UNSELECTED');
+                
+                if (ch2 === 'OPTION_A' && ch5 === 'OPTION_A') {
+                    tip1 = "that Jordan's inherent Treaty rights have priority on the wharf as a modern-day Treaty Truckhouse.";
+                } else if (ch2 === 'OPTION_A' && ch5 === 'OPTION_B') {
+                    tip1 = "that Jordan's Treaty right has priority, while sharing wharf management power equally between both communities.";
+                } else if (ch2 === 'OPTION_B' && ch5 === 'OPTION_A') {
+                    tip1 = "municipal bylaws apply to everyone, with special slip accommodations for Treaty-based fishers.";
+                } else if (ch2 === 'OPTION_B' && ch5 === 'OPTION_B') {
+                    tip1 = "shared equal governance over the physical docks under co-developed bylaw rules.";
+                } else {
+                    tip1 = "...(complete your Chapter 2 & 5 decisions to get a recommendation)";
+                }
+
+                const ch3 = studentSession.judgments[2];
+                let tip2 = "";
+                let ch3Label = ch3 === 'OPTION_A' ? 'CO-MANAGED SEASONS' : (ch3 === 'OPTION_B' ? 'INDEPENDENT SEASONS' : 'UNSELECTED');
+                if (ch3 === 'OPTION_A') {
+                    tip2 = "follow a single shared fishing window negotiated by a joint panel to protect lobster conservation.";
+                } else if (ch3 === 'OPTION_B') {
+                    tip2 = "allow the Mi'kmaw fishery to operate under community timelines while commercial fishers follow DFO seasons.";
+                } else {
+                    tip2 = "...(complete your Chapter 3 decision to get a recommendation)";
+                }
+
+                const ch4 = studentSession.judgments[3];
+                let tip3 = "";
+                let ch4Label = ch4 === 'OPTION_A' ? 'JOINT MEDIATION' : (ch4 === 'OPTION_B' ? 'ELDER-LED CIRCLES' : 'UNSELECTED');
+                if (ch4 === 'OPTION_A') {
+                    tip3 = "a joint mediation board representing both the Union and the Chief to resolve conflicts over slips and fuel.";
+                } else if (ch4 === 'OPTION_B') {
+                    tip3 = "traditional Mi'kmaw talking circles led by community Elders to build relationship-based consensus.";
+                } else {
+                    tip3 = "...(complete your Chapter 4 decision to get a recommendation)";
+                }
+
+                // Set content and dataset variables
+                const el1 = document.getElementById('recap-s1-tip');
+                el1.innerText = tip1.startsWith("...") ? tip1 : "Click to insert: \"... " + tip1 + "\"";
+                el1.dataset.tip = tip1;
+                document.getElementById('recap-s1-header').innerText = `SUGGESTED CLAUSE (CH 2: ${ch2Label} // CH 5: ${ch5Label})`;
+
+                const el2 = document.getElementById('recap-s2-tip');
+                el2.innerText = tip2.startsWith("...") ? tip2 : "Click to insert: \"... " + tip2 + "\"";
+                el2.dataset.tip = tip2;
+                document.getElementById('recap-s2-header').innerText = `SUGGESTED CLAUSE (CH 3: ${ch3Label})`;
+
+                const el3 = document.getElementById('recap-s3-tip');
+                el3.innerText = tip3.startsWith("...") ? tip3 : "Click to insert: \"... " + tip3 + "\"";
+                el3.dataset.tip = tip3;
+                document.getElementById('recap-s3-header').innerText = `SUGGESTED CLAUSE (CH 4: ${ch4Label})`;
             } else {
                 document.getElementById('rationale-block-single').style.display = 'block';
                 document.getElementById('rationale-block-accord').style.display = 'none';
@@ -2013,6 +2082,30 @@
             if (s3) compiled += (compiled ? "\n\n" : "") + s3;
             
             document.getElementById('accord-preview').innerText = compiled || "(Awaiting input...)";
+        }
+
+        function insertTip(sentenceNum) {
+            const s1 = document.getElementById('accord-s1');
+            const s2 = document.getElementById('accord-s2');
+            const s3 = document.getElementById('accord-s3');
+            
+            if (sentenceNum === 1) {
+                const tip = document.getElementById('recap-s1-tip').dataset.tip;
+                if (tip && !tip.startsWith("...")) {
+                    s1.value = "The Harbour Authority recognizes " + tip;
+                }
+            } else if (sentenceNum === 2) {
+                const tip = document.getElementById('recap-s2-tip').dataset.tip;
+                if (tip && !tip.startsWith("...")) {
+                    s2.value = "All vessels operating on the wharf shall " + tip;
+                }
+            } else if (sentenceNum === 3) {
+                const tip = document.getElementById('recap-s3-tip').dataset.tip;
+                if (tip && !tip.startsWith("...")) {
+                    s3.value = "Disputes regarding access shall be resolved through " + tip;
+                }
+            }
+            updateAccordPreview();
         }
 
         function switchTab(t) {
