@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Independent Project Description Draft | Mi'kmaw Studies 11</title>
+    <meta name="description" content="Submit your independent project description draft. Gallery label style: meaning, form, explanation, and ties to coursework.">
+    
+    <script>const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";</script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #07080b;
+            --bg-card: rgba(16, 18, 28, 0.7);
+            --bg-card-solid: #0d0f17;
+            --accent: #5DADE2;
+            --accent-glow: rgba(93, 173, 226, 0.25);
+            --accent-dim: rgba(93, 173, 226, 0.08);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f3f8;
+            --text-muted: #8fa0b5;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --font-title: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(93, 173, 226, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(161, 196, 253, 0.04) 0%, transparent 40%);
+        }
+
+        /* ─── Login Screen ─── */
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(8, 9, 14, 0.96), rgba(6, 7, 10, 0.94));
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: rgba(13, 15, 23, 0.95);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent);
+            border-radius: 16px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(93, 173, 226, 0.05);
+            text-align: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .login-card h1 {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .login-card p.subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .input-group select, .input-group input {
+            background: #06070a;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+            text-align: center;
+            outline: none;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .input-group select:focus, .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .student-select-container {
+            position: relative;
+            width: 100%;
+        }
+
+        #student-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #0d0f17;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1001;
+            text-align: left;
+            margin-top: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .student-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .student-option:hover {
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .begin-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .begin-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        #error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* ─── Main Form Layout ─── */
+        header {
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(8, 9, 13, 0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-weight: 800;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .student-auth-badge {
+            font-family: var(--font-title);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-dim);
+            border: 1px solid var(--accent-glow);
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hint-card {
+            background: rgba(93, 173, 226, 0.03);
+            border: 1px solid var(--accent-glow);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .hint-card h4 {
+            font-family: var(--font-title);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hint-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .hint-card li {
+            position: relative;
+            padding-left: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .hint-card li::before {
+            content: '•';
+            position: absolute;
+            left: 5px;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .hint-card li strong.highlight-hint {
+            color: var(--warning);
+            background: rgba(241, 196, 15, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .input-field label {
+            font-family: var(--font-title);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-field input[type="text"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-field input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .textarea-container {
+            position: relative;
+        }
+
+        .input-field textarea {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            outline: none;
+            resize: vertical;
+            min-height: 240px;
+            line-height: 1.6;
+            transition: all 0.3s;
+        }
+
+        .input-field textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* ─── Word Counter Widget ─── */
+        .counter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .progress-track {
+            flex-grow: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            margin: 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--warning);
+            border-radius: 2px;
+            transition: width 0.2s, background 0.3s;
+        }
+
+        .word-badge {
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .word-badge.valid {
+            color: var(--success);
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid rgba(46, 213, 115, 0.2);
+        }
+
+        .word-badge.warning {
+            color: var(--warning);
+            background: rgba(241, 196, 15, 0.1);
+            border: 1px solid rgba(241, 196, 15, 0.2);
+        }
+
+        .word-badge.overlimit {
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #fff;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .draft-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            font-family: var(--font-body);
+        }
+
+        .draft-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        /* ─── Footer / Status Bar ─── */
+        footer {
+            padding: 16px 40px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(8, 9, 13, 0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── Gallery Card Blueprint (Visual Preview) ─── */
+        .preview-box {
+            margin-top: 45px;
+            background: #faf9f6; /* Off-white linen color */
+            border: 4px solid #111111; /* Bold museum outline */
+            border-radius: 0px; /* Sharp, clean placard corners */
+            color: #111111;
+            padding: 40px;
+            font-family: var(--font-body);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0,0,0,0.15);
+            position: relative;
+            text-align: left;
+            display: none;
+            animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .preview-box::before {
+            content: 'GALLERY EXHIBIT LABEL';
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-family: var(--font-title);
+            font-size: 0.65rem;
+            color: #888888;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .preview-title {
+            font-family: var(--font-title);
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #111111;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .preview-meta {
+            font-family: var(--font-title);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 12px;
+        }
+
+        .preview-desc {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #222222;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen (Login) -->
+    <div id="splash">
+        <div class="login-card">
+            <h1>EXHIBIT LABEL DRAFT</h1>
+            <p class="subtitle">Independent Project Description // MIKMAW11</p>
+            
+            <div class="input-group">
+                <select id="class-block" onchange="filterStudents()">
+                    <option value="" disabled selected>-- SELECT CLASS BLOCK --</option>
+                    <option value="A Block (Waugh)">BLOCK A</option>
+                    <option value="C Block (Waugh)">BLOCK C</option>
+                </select>
+
+                <div class="student-select-container">
+                    <input type="text" id="student-search" placeholder="SEARCH FOR YOUR NAME" onfocus="showList()" oninput="filterList()">
+                    <div id="student-list"></div>
+                </div>
+
+                <input type="password" id="student-pin" maxlength="4" placeholder="ENTER 4-LETTER CODE" style="text-transform: uppercase;">
+                
+                <div id="error-msg">ACCESS DENIED: INVALID CODE</div>
+                <button class="begin-btn" onclick="validateAndStart()">START PROJECT DRAFT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Handout Form -->
+    <header>
+        <div class="logo">Mi'kmaw Studies 11</div>
+        <div class="student-auth-badge" id="student-auth-badge">AUTH: UNIDENTIFIED</div>
+    </header>
+
+    <div class="main-content">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Independent Project Exhibition Draft</h2>
+                <p>Compose your 250-word gallery card description. It must cover your project's **Meaning**, **Form**, **Explanation**, and **Ties to Coursework**.</p>
+            </div>
+
+            <div class="input-field">
+                <label for="project-title">Project Title</label>
+                <input type="text" id="project-title" placeholder="e.g., Reclaiming Kinship: An Artistic Representation of the Sixties Scoop" oninput="updatePreview()">
+            </div>
+
+            <div class="hint-card">
+                <h4>💡 Guidelines & Exhibition Cues</h4>
+                <ul>
+                    <li><strong>Describe the Topic & Ties:</strong> Briefly explain the topic of your project and explicitly how it connects to our classwork (e.g., peace treaties, Section 35, Living Tree doctrine, or residential school legacies).</li>
+                    <li><strong>Describe the Form:</strong> Briefly outline the artistic or structural form of your project (e.g., is it a shadow box, a timeline board, a graphic illustration, or a digital model?).</li>
+                    <li><strong class="highlight-hint">⚠️ DON'T say what you did. Describe what it is.</strong> Write in the third person or present tense to describe the completed work as it stands in the gallery, rather than summarizing your process or what you did to make it.</li>
+                </ul>
+            </div>
+
+            <div class="input-field">
+                <label for="project-desc">Project Description (Target: ~250 words)</label>
+                <div class="textarea-container">
+                    <textarea id="project-desc" placeholder="Write your gallery description here...&#10;&#10;Example format:&#10;This [medium/form] represents [topic/meaning]. The central elements draw directly on [coursework concept/treaties], displaying how... [Remember: describe what the piece is, not the steps you took to make it!]" oninput="handleTextareaInput()"></textarea>
+                </div>
+                <div class="counter-bar">
+                    <span id="char-count">0 characters</span>
+                    <div class="progress-track">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <span id="word-badge" class="word-badge">0 words / 250</span>
+                </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div id="preview-box" class="preview-box">
+                <div class="preview-title" id="preview-title">Project Title</div>
+                <div class="preview-meta" id="preview-meta">COMMISSIONED FOR EXHIBITION // MIKMAW11</div>
+                <div class="preview-desc" id="preview-desc">Project description description...</div>
+            </div>
+
+            <div class="action-row">
+                <button class="draft-btn" id="draftBtn" onclick="submitDescription(false)">Save Progress</button>
+                <button class="submit-btn" id="submitBtn" onclick="submitDescription(true)">Submit Final Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>PROTOCOL: IND_PROJ_DESC_11</div>
+        <div id="sync-status" style="color: var(--accent);">SYNC: OFFLINE</div>
+        <div>HALIFAX WEST HIGH // SOCIAL STUDIES AND LANGUAGES DEPARTMENT</div>
+    </footer>
+
+    <script>
+        // ─── Students List (Copied from Maya scoop assignment) ───
+        const STUDENTS = [
+            {"B":"A Block (Waugh)","S":"QWxleGlzIChBTEVYKQ=="},
+            {"B":"A Block (Waugh)","S":"QU5BTllBIE0uIChPS09LKQ=="},
+            {"B":"A Block (Waugh)","S":"Q0FMTFVNIChMTExMKQ=="},
+            {"B":"A Block (Waugh)","S":"Q09OTk9SIChDT05OKQ=="},
+            {"B":"A Block (Waugh)","S":"Q09WQSAoS0lLSSk="},
+            {"B":"A Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+            {"B":"A Block (Waugh)","S":"RG15dHJvIChCSUJBKQ=="},
+            {"B":"A Block (Waugh)","S":"RUxMRUUgKEVMTEUp"},
+            {"B":"A Block (Waugh)","S":"R2FsYSAoTklWQSk="},
+            {"B":"A Block (Waugh)","S":"R0FWSU4gKEFBQUEp"},
+            {"B":"A Block (Waugh)","S":"SEFSUklTT04gKFlOUEgp"},
+            {"B":"A Block (Waugh)","S":"SkVTU0UgKExPVVAp"},
+            {"B":"A Block (Waugh)","S":"Sk9TSCAoSk9TSCk="},
+            {"B":"A Block (Waugh)","S":"Sm9uIChEVURFKQ=="},
+            {"B":"A Block (Waugh)","S":"SnVsaWFubmUgKFdBU0gp"},
+            {"B":"A Block (Waugh)","S":"S2V2aW4gKENISUcp"},
+            {"B":"A Block (Waugh)","S":"TGVuYSAoRk9PRCk="},
+            {"B":"A Block (Waugh)","S":"TUFFIChNQUVTKQ=="},
+            {"B":"A Block (Waugh)","S":"TUFURU8gKFlPTE8p"},
+            {"B":"A Block (Waugh)","S":"TWljaGFlbCAoTUlLRSk="},
+            {"B":"A Block (Waugh)","S":"TVJXQVVHSCAoWE9YTyk="},
+            {"B":"A Block (Waugh)","S":"cm9zZSAoUk9TRSk="},
+            {"B":"A Block (Waugh)","S":"UnVieSAoTkVDSyk="},
+            {"B":"A Block (Waugh)","S":"U29uamEgKFNPTkop"},
+            {"B":"A Block (Waugh)","S":"U29waGllIChRQVNXKQ=="},
+            {"B":"A Block (Waugh)","S":"VklUVVNaIChYRFhEKQ=="},
+            {"B":"C Block (Waugh)","S":"QWJkZWwgKEFBQVcp"},
+            {"B":"C Block (Waugh)","S":"QWJpZ2FpbCAoQUJJUyk="},
+            {"B":"C Block (Waugh)","S":"QUlERU4gKEhPUEUp"},
+            {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSlVORSk="},
+            {"B":"C Block (Waugh)","S":"QkFBU0hJUSAoTklORSk="},
+            {"B":"C Block (Waugh)","S":"Q2FpdGx5biAoQ0FJVCk="},
+            {"B":"C Block (Waugh)","S":"Q2FsZWIgKENBTEUp"},
+            {"B":"C Block (Waugh)","S":"Q2hyaXN0b3BoZXIgKENocmlzKSAoUkFDRSk="},
+            {"B":"C Block (Waugh)","S":"Q2xhcmEgSm9uZXMgKENMQVIp"},
+            {"B":"C Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+            {"B":"C Block (Waugh)","S":"SEFSSkFTIChDT0xEKQ=="},
+            {"B":"C Block (Waugh)","S":"SXNhYWMgKElTTEUp"},
+            {"B":"C Block (Waugh)","S":"SXNhYmVsbGEgQmVjayAoQkVMTCk="},
+            {"B":"C Block (Waugh)","S":"SmFpdmVlciAoV0FTRCk="},
+            {"B":"C Block (Waugh)","S":"SnVsaWFuIChTUEVEKQ=="},
+            {"B":"C Block (Waugh)","S":"S2FkZW4gKENIVUQp"},
+            {"B":"C Block (Waugh)","S":"S09FTiAoTE9SSSk="},
+            {"B":"C Block (Waugh)","S":"S3VsYXkgY3J1eiAoQ1JVWik="},
+            {"B":"C Block (Waugh)","S":"S3lsZSBQYXJzb25zIChQVUNLKQ=="},
+            {"B":"C Block (Waugh)","S":"S3kyYSAoS1lSQSk="},
+            {"B":"C Block (Waugh)","S":"TWFkaW5hIE1pcnphIChJTk5BKQ=="},
+            {"B":"C Block (Waugh)","S":"bXlsZXMgKE1ZTFMp"},
+            {"B":"C Block (Waugh)","S":"Tm9haCBQaW50ZXIgKFBJTlQp"},
+            {"B":"C Block (Waugh)","S":"UmFpZGEgKFFBWksp"},
+            {"B":"C Block (Waugh)","S":"UmVpbGV5IChSSUxFKQ=="},
+            {"B":"C Block (Waugh)","S":"Uml2ZXIgVGhvbWFzIChERVdPKQ=="},
+            {"B":"C Block (Waugh)","S":"U2FtIChXQVZFKQ=="},
+            {"B":"C Block (Waugh)","S":"U291bGluIFNoZWhhYiAoU09VTCk="},
+            {"B":"C Block (Waugh)","S":"U3VraGJpciAoTklDRSk="},
+            {"B":"C Block (Waugh)","S":"WmFpZCAoWkFJRCk="},
+            {"B":"C Block (Waugh)","S":"WkFZREVOIChSQUlOKQ=="}
+        ];
+
+        const SIMULATION_NAME = "Independent Project - Description Draft";
+        let selectedStudent = null;
+        let sessionData = { responses: {} };
+
+        // ─── LOGIN FUNCTIONALITY ───
+        function filterStudents() {
+            document.getElementById('student-search').value = '';
+            document.getElementById('student-pin').value = '';
+            filterList();
+        }
+
+        function showList() {
+            const block = document.getElementById('class-block').value;
+            if (!block) return;
+            document.getElementById('student-list').style.display = 'block';
+            filterList();
+        }
+
+        function filterList() {
+            const block = document.getElementById('class-block').value;
+            const query = document.getElementById('student-search').value.toLowerCase();
+            const list = document.getElementById('student-list');
+            list.innerHTML = '';
+
+            const filtered = STUDENTS.filter(s => s.B === block);
+            filtered.forEach(s => {
+                const decodedS = atob(s.S);
+                const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+                if (displayName.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'student-option';
+                    div.innerText = displayName;
+                    div.onclick = () => {
+                        document.getElementById('student-search').value = displayName;
+                        selectedStudent = s;
+                        list.style.display = 'none';
+                    };
+                    list.appendChild(div);
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.student-select-container')) {
+                document.getElementById('student-list').style.display = 'none';
+            }
+        });
+
+        function validateAndStart() {
+            const pinInput = document.getElementById('student-pin').value.toUpperCase();
+            const error = document.getElementById('error-msg');
+
+            if (!selectedStudent) {
+                error.innerText = "PLEASE SELECT YOUR NAME";
+                error.style.display = 'block';
+                return;
+            }
+
+            const decodedS = atob(selectedStudent.S);
+            const pinMatch = decodedS.match(/\(([^)]+)\)\s*$/);
+            const expectedPin = pinMatch ? pinMatch[1].toUpperCase() : "";
+
+            if (pinInput === expectedPin) {
+                gsap.to("#splash", { opacity: 0, duration: 0.8, onComplete: () => {
+                    document.getElementById('splash').style.display = 'none';
+                    startSession();
+                }});
+            } else {
+                error.innerText = "ACCESS DENIED: INVALID CODE";
+                error.style.display = 'block';
+            }
+        }
+
+        // ─── SESSION FUNCTIONS ───
+        function startSession() {
+            const decodedS = atob(selectedStudent.S);
+            const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+            document.getElementById('student-auth-badge').innerText = `AUTH: ${displayName.toUpperCase()}`;
+            
+            document.getElementById('sync-status').innerText = "SYNC: READY";
+            document.getElementById('sync-status').style.color = "var(--accent)";
+
+            loadFromLocal();
+            retrieveFromCloud();
+        }
+
+        function loadFromLocal() {
+            const decodedS = atob(selectedStudent.S);
+            const saved = localStorage.getItem(`ind_proj_draft_${decodedS}`);
+            if (saved) {
+                sessionData = JSON.parse(saved);
+                document.getElementById('project-title').value = sessionData.responses.title || '';
+                document.getElementById('project-desc').value = sessionData.responses.description || '';
+                handleTextareaInput();
+                updatePreview();
+            }
+        }
+
+        function saveToLocal() {
+            const decodedS = atob(selectedStudent.S);
+            sessionData.responses = {
+                title: document.getElementById('project-title').value.trim(),
+                description: document.getElementById('project-desc').value.trim()
+            };
+            localStorage.setItem(`ind_proj_draft_${decodedS}`, JSON.stringify(sessionData));
+        }
+
+        // ─── WORD COUNT & PREVIEW ───
+        function handleTextareaInput() {
+            const textarea = document.getElementById('project-desc');
+            const text = textarea.value.trim();
+            
+            // Calculate words
+            const words = text ? text.split(/\s+/).filter(w => w.length > 0) : [];
+            const wordCount = words.length;
+            const charCount = text.length;
+
+            document.getElementById('char-count').innerText = `${charCount} characters`;
+            
+            // Word badge and progress bar updating
+            const badge = document.getElementById('word-badge');
+            const progress = document.getElementById('progress-fill');
+            
+            badge.innerText = `${wordCount} words / 250`;
+            
+            // Progress width (max at 100% which is 250 words)
+            const percentage = Math.min((wordCount / 250) * 100, 100);
+            progress.style.width = `${percentage}%`;
+
+            // Adjust color badges
+            if (wordCount >= 220 && wordCount <= 280) {
+                badge.className = "word-badge valid";
+                progress.style.background = "var(--success)";
+            } else if (wordCount > 280) {
+                badge.className = "word-badge overlimit";
+                progress.style.background = "var(--danger)";
+            } else {
+                badge.className = "word-badge warning";
+                progress.style.background = "var(--warning)";
+            }
+
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const title = document.getElementById('project-title').value.trim();
+            const desc = document.getElementById('project-desc').value.trim();
+            const previewBox = document.getElementById('preview-box');
+
+            if (title || desc) {
+                previewBox.style.display = 'block';
+                document.getElementById('preview-title').innerText = title || "Untitled Project";
+                document.getElementById('preview-desc').innerText = desc || "Project description draft will appear here as you type...";
+                
+                // Update gallery placard meta
+                let metaText = "COMMISSIONED FOR EXHIBITION // MIKMAW11";
+                if (selectedStudent) {
+                    const decodedS = atob(selectedStudent.S);
+                    const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+                    const blockShort = selectedStudent.B.replace(" (Waugh)", "");
+                    metaText = `BY ${displayName.toUpperCase()} // ${blockShort.toUpperCase()} // MIKMAW11`;
+                }
+                document.getElementById('preview-meta').innerText = metaText;
+            } else {
+                previewBox.style.display = 'none';
+            }
+        }
+
+        // ─── CLOUD SUBMISSION ───
+        async function retrieveFromCloud() {
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.innerText = "SYNC: RETRIEVING...";
+            syncStatus.style.color = "orange";
+            
+            try {
+                const decodedS = atob(selectedStudent.S);
+                const res = await fetch(`${API_URL}?student=${encodeURIComponent(decodedS)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+                const result = await res.json();
+                
+                if (result.rationales) {
+                    const cloudResponses = JSON.parse(result.rationales);
+                    sessionData.responses = cloudResponses;
+                    
+                    document.getElementById('project-title').value = sessionData.responses.title || '';
+                    document.getElementById('project-desc').value = sessionData.responses.description || '';
+                    
+                    handleTextareaInput();
+                    updatePreview();
+                    
+                    syncStatus.innerText = "SYNC: CLOUD LOADED";
+                    syncStatus.style.color = "var(--success)";
+                    saveToLocal();
+                    
+                    setTimeout(() => {
+                        syncStatus.innerText = "SYNC: READY";
+                        syncStatus.style.color = "var(--accent)";
+                    }, 2000);
+                } else {
+                    syncStatus.innerText = "SYNC: READY";
+                    syncStatus.style.color = "var(--accent)";
+                }
+            } catch (e) {
+                console.error("Cloud retrieval failed, relying on local storage", e);
+                syncStatus.innerText = "SYNC: OFFLINE";
+                syncStatus.style.color = "var(--danger)";
+            }
+        }
+
+        async function submitDescription(isFinal = true) {
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.innerText = isFinal ? "SYNC: SUBMITTING FINAL..." : "SYNC: SAVING PROGRESS...";
+            syncStatus.style.color = "orange";
+
+            const title = document.getElementById('project-title').value.trim();
+            const desc = document.getElementById('project-desc').value.trim();
+
+            if (!desc) {
+                alert("Please write a project description before submitting.");
+                syncStatus.innerText = "SYNC: READY";
+                syncStatus.style.color = "var(--accent)";
+                return;
+            }
+
+            saveToLocal();
+
+            const decodedS = atob(selectedStudent.S);
+            const payload = {
+                action: "save",
+                timestamp: new Date().toLocaleString(),
+                block: selectedStudent.B,
+                student: decodedS,
+                subject: "MIKMAW11",
+                simulation: SIMULATION_NAME,
+                status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                rationales: JSON.stringify(sessionData.responses)
+            };
+
+            try {
+                const params = new URLSearchParams();
+                for (const key in payload) {
+                    params.append(key, payload[key]);
+                }
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: params,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    mode: 'no-cors'
+                });
+
+                syncStatus.innerText = isFinal ? "SYNC: SUBMITTED" : "SYNC: PROGRESS SAVED";
+                syncStatus.style.color = "var(--success)";
+                
+                if (isFinal) {
+                    alert("Your final independent project description has been successfully submitted to the class record!");
+                }
+                
+                setTimeout(() => {
+                    syncStatus.innerText = "SYNC: READY";
+                    syncStatus.style.color = "var(--accent)";
+                }, 3000);
+            } catch (err) {
+                console.error("Cloud save failed", err);
+                syncStatus.innerText = "SYNC: OFFLINE (LOCAL SYNCED)";
+                syncStatus.style.color = "var(--danger)";
+                alert("Could not connect to the database. Your work has been saved locally on this device. We will retry connecting.");
+            }
+        }
+    </script>
+</body>
+</html>
