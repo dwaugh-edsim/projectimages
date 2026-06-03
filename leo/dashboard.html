@@ -146,6 +146,120 @@
             color: var(--accent);
             font-family: 'Courier Prime', monospace;
         }
+
+        .text-view-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .text-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .text-view-header h2 {
+            margin: 0;
+            color: var(--accent);
+            font-family: 'Merriweather', serif;
+        }
+
+        .block-section {
+            margin-bottom: 30px;
+        }
+
+        .block-title {
+            font-family: 'Merriweather', serif;
+            color: var(--accent);
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .student-card {
+            background: #222;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .student-name {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        .student-meta {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .exhibit-entry {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .exhibit-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .exhibit-label {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .exhibit-decision {
+            font-family: 'Courier Prime', monospace;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .exhibit-rationale {
+            color: #aaa;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            padding-left: 10px;
+            border-left: 2px solid #444;
+        }
+
+        .student-verdict {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .verdict-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .verdict-value {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .verdict-CROWN-text { color: #ff8888; }
+        .verdict-DEFENSE-text { color: #88ff88; }
+        .verdict-progress-text { color: #888; }
     </style>
 </head>
 <body>
@@ -171,12 +285,12 @@
 
     <div id="loading" class="loading">ESTABLISHING SECURE CONNECTION...</div>
     
-    <div id="text-view" style="display:none; background:var(--card-bg); border-radius:8px; padding:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0; color:var(--accent); font-family:'Merriweather', serif;">STUDENT RESPONSES</h2>
+    <div id="text-view" class="text-view-container" style="display:none;">
+        <div class="text-view-header">
+            <h2>STUDENT RESPONSES</h2>
             <button class="download-btn" onclick="downloadTXT()">DOWNLOAD TXT</button>
         </div>
-        <div id="text-content" style="font-family:'Courier Prime', monospace; white-space:pre-wrap; font-size:0.85rem; line-height:1.6;"></div>
+        <div id="text-content"></div>
     </div>
     
     <table id="dash-table" style="display:none;">
@@ -326,58 +440,109 @@
             const textContent = document.getElementById('text-content');
             
             if (filtered.length === 0) {
-                textContent.innerText = 'No data available.';
+                textContent.innerHTML = '<p style="color:#888; text-align:center; padding:40px;">No data available.</p>';
                 return;
             }
 
-            let text = '';
             const byBlock = {};
             filtered.forEach(d => {
                 if (!byBlock[d.block]) byBlock[d.block] = [];
                 byBlock[d.block].push(d);
             });
 
+            let html = '';
             Object.keys(byBlock).sort().forEach(block => {
-                text += `═══════════════════════════════════════════════════\n`;
-                text += `BLOCK: ${block}\n`;
-                text += `═══════════════════════════════════════════════════\n\n`;
+                html += `<div class="block-section">`;
+                html += `<div class="block-title">${block}</div>`;
 
                 byBlock[block].forEach(student => {
                     const displayName = student.codename.split('(')[0].trim();
-                    text += `┌─────────────────────────────────────────────────┐\n`;
-                    text += `│ ${displayName.padEnd(47)} │\n`;
-                    text += `│ Block: ${student.block.padEnd(42)} │\n`;
-                    text += `│ Time: ${new Date(student.timestamp).toLocaleString().padEnd(42)} │\n`;
-                    text += `├─────────────────────────────────────────────────┤\n`;
-                    
                     const choices = student.choices || {};
                     const rationales = student.rationales || {};
-                    
-                    Object.keys(choices).sort().forEach(exhibit => {
-                        text += `│ EXHIBIT ${exhibit}: ${(choices[exhibit] || 'N/A').padEnd(36)} │\n`;
-                        const rationale = rationales[exhibit] || '';
-                        if (rationale) {
-                            const rationaleLines = rationale.match(/.{1,45}/g) || [rationale];
-                            rationaleLines.forEach(line => {
-                                text += `│   > ${line.padEnd(44)} │\n`;
-                            });
-                        }
-                    });
-                    
                     const verdict = student.verdict || 'IN PROGRESS';
-                    text += `├─────────────────────────────────────────────────┤\n`;
-                    text += `│ VERDICT: ${verdict.padEnd(40)} │\n`;
-                    text += `└─────────────────────────────────────────────────┘\n\n`;
+                    const verdictClass = verdict === 'CROWN' ? 'verdict-CROWN-text' : verdict === 'DEFENSE' ? 'verdict-DEFENSE-text' : 'verdict-progress-text';
+
+                    html += `<div class="student-card">`;
+                    html += `<div class="student-header">`;
+                    html += `<span class="student-name">${displayName}</span>`;
+                    html += `<span class="student-meta">${student.block} | ${new Date(student.timestamp).toLocaleString()}</span>`;
+                    html += `</div>`;
+
+                    Object.keys(choices).sort().forEach(exhibit => {
+                        const decision = choices[exhibit] || 'N/A';
+                        const rationale = rationales[exhibit] || '';
+                        
+                        html += `<div class="exhibit-entry">`;
+                        html += `<div class="exhibit-label">EXHIBIT ${exhibit}</div>`;
+                        html += `<div class="exhibit-decision">${decision}</div>`;
+                        if (rationale) {
+                            html += `<div class="exhibit-rationale">${rationale}</div>`;
+                        }
+                        html += `</div>`;
+                    });
+
+                    html += `<div class="student-verdict">`;
+                    html += `<span class="verdict-label">Final Verdict: </span>`;
+                    html += `<span class="verdict-value ${verdictClass}">${verdict}</span>`;
+                    html += `</div>`;
+                    html += `</div>`;
                 });
-                text += '\n';
+
+                html += `</div>`;
             });
 
-            textContent.innerText = text;
+            textContent.innerHTML = html;
         }
 
         function downloadTXT() {
-            const textContent = document.getElementById('text-content');
-            const blob = new Blob([textContent.innerText], { type: 'text/plain' });
+            const filtered = allData.filter(d => currentFilter === 'ALL' || d.block === currentFilter);
+            
+            if (filtered.length === 0) {
+                alert('No data to export.');
+                return;
+            }
+
+            const byBlock = {};
+            filtered.forEach(d => {
+                if (!byBlock[d.block]) byBlock[d.block] = [];
+                byBlock[d.block].push(d);
+            });
+
+            let txt = 'LEO 1752 - STUDENT RESPONSES\n';
+            txt += `Generated: ${new Date().toLocaleString()}\n`;
+            txt += '='.repeat(50) + '\n\n';
+
+            Object.keys(byBlock).sort().forEach(block => {
+                txt += `BLOCK: ${block}\n`;
+                txt += '-'.repeat(50) + '\n\n';
+
+                byBlock[block].forEach(student => {
+                    const displayName = student.codename.split('(')[0].trim();
+                    const choices = student.choices || {};
+                    const rationales = student.rationales || {};
+                    const verdict = student.verdict || 'IN PROGRESS';
+
+                    txt += `  ${displayName}\n`;
+                    txt += `  Block: ${student.block} | Time: ${new Date(student.timestamp).toLocaleString()}\n`;
+                    txt += '\n';
+
+                    Object.keys(choices).sort().forEach(exhibit => {
+                        const decision = choices[exhibit] || 'N/A';
+                        const rationale = rationales[exhibit] || '';
+                        
+                        txt += `    EXHIBIT ${exhibit}: ${decision}\n`;
+                        if (rationale) {
+                            txt += `    > ${rationale}\n`;
+                        }
+                        txt += '\n';
+                    });
+
+                    txt += `  VERDICT: ${verdict}\n`;
+                    txt += '\n' + '='.repeat(50) + '\n\n';
+                });
+            });
+
+            const blob = new Blob([txt], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
