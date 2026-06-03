@@ -444,8 +444,15 @@
                 return;
             }
 
-            const byBlock = {};
+            const latestByStudent = {};
             filtered.forEach(d => {
+                if (!latestByStudent[d.codename] || new Date(d.timestamp) > new Date(latestByStudent[d.codename].timestamp)) {
+                    latestByStudent[d.codename] = d;
+                }
+            });
+
+            const byBlock = {};
+            Object.values(latestByStudent).forEach(d => {
                 if (!byBlock[d.block]) byBlock[d.block] = [];
                 byBlock[d.block].push(d);
             });
@@ -455,7 +462,7 @@
                 html += `<div class="block-section">`;
                 html += `<div class="block-title">${block}</div>`;
 
-                byBlock[block].forEach(student => {
+                byBlock[block].sort((a, b) => a.codename.localeCompare(b.codename)).forEach(student => {
                     const displayName = student.codename.split('(')[0].trim();
                     const choices = student.choices || {};
                     const rationales = student.rationales || {};
@@ -502,8 +509,15 @@
                 return;
             }
 
-            const byBlock = {};
+            const latestByStudent = {};
             filtered.forEach(d => {
+                if (!latestByStudent[d.codename] || new Date(d.timestamp) > new Date(latestByStudent[d.codename].timestamp)) {
+                    latestByStudent[d.codename] = d;
+                }
+            });
+
+            const byBlock = {};
+            Object.values(latestByStudent).forEach(d => {
                 if (!byBlock[d.block]) byBlock[d.block] = [];
                 byBlock[d.block].push(d);
             });
@@ -516,7 +530,7 @@
                 txt += `BLOCK: ${block}\n`;
                 txt += '-'.repeat(50) + '\n\n';
 
-                byBlock[block].forEach(student => {
+                byBlock[block].sort((a, b) => a.codename.localeCompare(b.codename)).forEach(student => {
                     const displayName = student.codename.split('(')[0].trim();
                     const choices = student.choices || {};
                     const rationales = student.rationales || {};
