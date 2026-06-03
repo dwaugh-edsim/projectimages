@@ -213,13 +213,13 @@
             text-transform: uppercase;
         }
 
-        /* ─── Split Panel Layout ─── */
+        /* ─── Main Workspace ─── */
         .workspace {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            padding: 28px 36px;
-            gap: 24px;
+            padding: 24px 36px;
+            gap: 20px;
             overflow-y: auto;
         }
 
@@ -241,38 +241,52 @@
             line-height: 1.4;
         }
 
-        .split-panels {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
-            flex-grow: 1;
-            min-height: 0;
-        }
-
-        /* ─── Left: Gallery Frame Preview ─── */
-        .panel-left {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(16, 18, 28, 0.4);
+        /* ─── Single Editor Card ─── */
+        .editor-card {
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 36px 28px;
+            padding: 28px 28px 24px;
             position: relative;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .panel-left::before {
+        .editor-card::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle at 30% 20%, rgba(93, 173, 226, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 70% 80%, rgba(161, 196, 253, 0.03) 0%, transparent 50%);
-            pointer-events: none;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            border-radius: 16px 16px 0 0;
         }
 
+        /* ─── Side-by-Side: Textarea + Gallery ─── */
+        .writing-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .writing-col {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .col-label {
+            font-family: var(--font-title);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        /* placeholder alias kept for clarity */
         .panel-label {
             font-family: var(--font-title);
             font-size: 0.65rem;
@@ -286,11 +300,11 @@
 
         .gallery-frame {
             width: 100%;
-            max-width: 420px;
+            height: 100%;
             background: #faf9f6;
             border: 5px solid #111111;
             color: #111111;
-            padding: 36px 32px 28px;
+            padding: 28px 24px 22px;
             font-family: var(--font-body);
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.05),
@@ -299,6 +313,7 @@
             position: relative;
             text-align: left;
             transition: box-shadow 0.4s ease;
+            box-sizing: border-box;
         }
 
         .gallery-frame:hover {
@@ -322,7 +337,7 @@
 
         .gallery-frame .preview-title {
             font-family: var(--font-title);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 800;
             line-height: 1.2;
             color: #111111;
@@ -333,19 +348,19 @@
 
         .gallery-frame .preview-meta {
             font-family: var(--font-title);
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
             color: #777777;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .gallery-frame .preview-desc {
-            font-size: 0.82rem;
-            line-height: 1.75;
+            font-size: 0.8rem;
+            line-height: 1.7;
             color: #222222;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -354,31 +369,8 @@
         .preview-placeholder {
             color: #bbbbbb;
             font-style: italic;
-            font-size: 0.82rem;
-            line-height: 1.75;
-        }
-
-        /* ─── Right: Editor Panel ─── */
-        .panel-right {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 28px 24px;
-            position: relative;
-        }
-
-        .panel-right::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, #fff, var(--accent));
-            border-radius: 16px 16px 0 0;
+            font-size: 0.8rem;
+            line-height: 1.7;
         }
 
         .editor-label {
@@ -424,19 +416,12 @@
         }
 
         .textarea-container {
-            position: relative;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .input-field.desc-field {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-field textarea {
+        textarea#project-desc {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
             color: #fff;
@@ -446,14 +431,15 @@
             font-family: var(--font-body);
             outline: none;
             resize: none;
-            flex-grow: 1;
-            min-height: 200px;
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
             line-height: 1.6;
             transition: all 0.3s;
-            width: 100%;
+            flex-grow: 1;
         }
 
-        .input-field textarea:focus {
+        textarea#project-desc:focus {
             border-color: var(--accent);
             box-shadow: 0 0 10px var(--accent-glow);
         }
@@ -673,7 +659,7 @@
 
         /* ─── Responsive ─── */
         @media (max-width: 900px) {
-            .split-panels {
+            .writing-row {
                 grid-template-columns: 1fr;
             }
             .checklist-grid {
@@ -727,46 +713,50 @@
             <p>Compose your ~250-word gallery card description. Write it as if it will be printed and placed next to your piece in a gallery.</p>
         </div>
 
-        <!-- Split Panels: Left = Preview, Right = Editor -->
-        <div class="split-panels">
+        <!-- Editor Card -->
+        <div class="editor-card">
 
-            <!-- LEFT: Gallery Frame Preview -->
-            <div class="panel-left">
-                <div class="panel-label">⬛ LIVE GALLERY PREVIEW</div>
-                <div class="gallery-frame" id="preview-box">
-                    <div class="preview-title" id="preview-title">Untitled Project</div>
-                    <div class="preview-meta" id="preview-meta">COMMISSIONED FOR EXHIBITION // MIKMAW11</div>
-                    <div class="preview-desc" id="preview-desc"><span class="preview-placeholder">Your gallery description will appear here as you type...</span></div>
-                </div>
+            <!-- Title input: full width at top -->
+            <div class="input-field">
+                <label for="project-title">Project Title</label>
+                <input type="text" id="project-title" placeholder="e.g., Reclaiming Kinship: An Artistic Representation of the Sixties Scoop" oninput="updatePreview()">
             </div>
 
-            <!-- RIGHT: Writing Editor -->
-            <div class="panel-right">
-                <div class="editor-label">✍️ Write Your Description</div>
+            <!-- Side-by-side: Textarea (left) + Gallery Preview (right) -->
+            <div class="writing-row">
 
-                <div class="input-field">
-                    <label for="project-title">Project Title</label>
-                    <input type="text" id="project-title" placeholder="e.g., Reclaiming Kinship: An Artistic Representation of the Sixties Scoop" oninput="updatePreview()">
-                </div>
-
-                <div class="input-field desc-field">
-                    <label for="project-desc">Project Description (Target: ~250 words)</label>
-                    <div class="textarea-container">
+                <!-- LEFT: Textarea -->
+                <div class="writing-col">
+                    <div class="col-label">✍️ Write Here</div>
+                    <div class="textarea-container" style="flex-grow:1;">
                         <textarea id="project-desc" placeholder="Write your gallery description here...&#10;&#10;Example: This [medium/form] represents [topic/meaning]. The central elements draw directly on [coursework concept], displaying how...&#10;&#10;Remember: describe what it IS, not what you DID." oninput="handleTextareaInput()"></textarea>
                     </div>
-                    <div class="counter-bar">
-                        <span id="char-count">0 characters</span>
-                        <div class="progress-track">
-                            <div id="progress-fill" class="progress-fill"></div>
-                        </div>
-                        <span id="word-badge" class="word-badge">0 / 250 words</span>
+                </div>
+
+                <!-- RIGHT: Gallery Frame Preview -->
+                <div class="writing-col">
+                    <div class="col-label">⬛ Gallery Preview</div>
+                    <div class="gallery-frame" id="preview-box">
+                        <div class="preview-title" id="preview-title">Untitled Project</div>
+                        <div class="preview-meta" id="preview-meta">COMMISSIONED FOR EXHIBITION // MIKMAW11</div>
+                        <div class="preview-desc" id="preview-desc"><span class="preview-placeholder">Your gallery description will appear here as you type...</span></div>
                     </div>
                 </div>
 
-                <div class="action-row">
-                    <button class="draft-btn" id="draftBtn" onclick="submitDescription(false)">Save Progress</button>
-                    <button class="submit-btn" id="submitBtn" onclick="submitDescription(true)">Submit Final Draft</button>
+            </div>
+
+            <!-- Counter bar + buttons below both columns -->
+            <div class="counter-bar">
+                <span id="char-count">0 characters</span>
+                <div class="progress-track">
+                    <div id="progress-fill" class="progress-fill"></div>
                 </div>
+                <span id="word-badge" class="word-badge">0 / 250 words</span>
+            </div>
+
+            <div class="action-row">
+                <button class="draft-btn" id="draftBtn" onclick="submitDescription(false)">Save Progress</button>
+                <button class="submit-btn" id="submitBtn" onclick="submitDescription(true)">Submit Final Draft</button>
             </div>
 
         </div>
