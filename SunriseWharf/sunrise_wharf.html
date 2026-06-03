@@ -1153,6 +1153,42 @@
             color: #2563eb !important;
             text-decoration-style: solid;
         }
+        .nav-retrospective-title {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Hardened Consequence and Memory Utility Styling */
+        .memory-log {
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+        .memory-log-treaty {
+            background: rgba(56, 189, 248, 0.03);
+            border-color: rgba(56, 189, 248, 0.15);
+            border-left: 4px solid var(--accent);
+        }
+        .memory-log-bylaw {
+            background: rgba(239, 68, 68, 0.03);
+            border-color: rgba(239, 68, 68, 0.15);
+            border-left: 4px solid #ef4444;
+        }
+        .constitutional-disclaimer {
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-left: 4px solid var(--accent);
+            padding: 14px 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
     </style>
 </head>
 
@@ -1497,6 +1533,10 @@
                     </div>
                 </div>
             </div>
+
+            <div id="retrospective-panel" style="display: none;">
+                <div class="news-article" id="retro-article-target"></div>
+            </div>
         </main>
 
         <aside class="right-panel">
@@ -1580,7 +1620,7 @@
                         "Share the decisions locally by building a joint committee of Mi'kmaw and commercial fishers to run the wharf together.",
                         "Rely on the provincial/federal police and DFO officers to enforce the law and keep the peace on the docks."
                     ],
-                    "overview": "<div style='background: rgba(234, 179, 8, 0.08); border: 2px solid #eab308; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem; line-height: 1.6; color: #fef08a;'>\n<strong style='color: #eab308; display: block; font-size: 0.95rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;'>⚠️ HISTORICAL NOTE</strong>\n<strong>Sunrise Harbour is fictional. But everything in this section absolutely happened.</strong>\n</div>\n\nThis unit examines the real-world tensions and physical violence that occurred in 2020-21 at St. Mary's Bay and Middle West Pubnico. You will review the historical evidence of the conflict, which arose from deep disagreements over how Treaty rights should be balanced against commercial fishing regulations. While Jordan and Bubs's harbour remained stable, the 'Saulnierville Shadow' hangs over the wharf. If there was a real Sunrise Harbour, the people on this dock would know all about what went down in 2020, and they'd be terrified it could happen here. That's where you come in. The goal is to build a framework of security and consensus that ensures the violence of the past never reaches this community; once lines are drawn and enemies are made in a small town, it takes generations to heal.",
+                    "overview": "<div class='constitutional-disclaimer'>\n<strong style='color: var(--accent); display: block; font-size: 0.95rem; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;'>⚠️ HISTORICAL NOTE</strong>\n<strong>Sunrise Harbour is fictional. But everything in this section absolutely happened.</strong>\n</div>\n\nThis unit examines the real-world tensions and physical violence that occurred in 2020-21 at St. Mary's Bay and Middle West Pubnico. You will review the historical evidence of the conflict, which arose from deep disagreements over how Treaty rights should be balanced against commercial fishing regulations. While Jordan and Bubs's harbour remained stable, the 'Saulnierville Shadow' hangs over the wharf. If there was a real Sunrise Harbour, the people on this dock would know all about what went down in 2020, and they'd be terrified it could happen here. That's where you come in. The goal is to build a framework of security and consensus that ensures the violence of the past never reaches this community; once lines are drawn and enemies are made in a small town, it takes generations to heal.",
                     "tabs": {
                         "primary": {
                             "body": "## THE REGULATORY VACUUM AND PHYSICAL CONFLICT\n\nThe 2020 dispute arose from a profound regulatory clash. While the Supreme Court's 1999 Marshall decision affirmed the Mi'kmaw Treaty right to fish for a moderate livelihood, it did not define 'moderate,' leaving the rules to federal regulation. In the decades that followed, successive governments failed to establish a shared framework. Non-Indigenous commercial fishers, who operate under strict conservation windows and quotas, feared that out-of-season fishing would deplete lobster stocks and threaten their families' livelihoods. When Mi'kmaw harvesters launched a self-regulated fishery to exercise their sovereign Treaty rights, commercial fishers viewed it as unregulated harvesting.\n\nThis unresolved tension quickly boiled over into physical conflict. In October 2020, a lobster pound in Middle West Pubnico used by Mi'kmaw fishers was set ablaze in a suspicious fire that destroyed the facility. [cite: 63] This followed days of confrontation where a crowd surrounded the facility and destroyed stored lobsters. [cite: 64]\n\nAt the wharf, Mi'kmaw harvesters were trapped inside a facility as a crowd grew increasingly aggressive outside. [cite: 68] Harvester Jason Marr live-streamed the incident as a vehicle was torched in the parking lot. [cite: 69] The violence proved that when the state fails to reconcile legal rights with resource management, the physical wharf descends into danger. The municipality must now account for both the history of conflict and the underlying regulatory failure when drafting the new Accord.",
@@ -1801,7 +1841,43 @@
 
         let currentSlideIndex = 0;
         let currentTab = 'overview';
-        let studentSession = { name: '', block: '', judgments: {}, rationales: {} };
+        let studentSession = {
+            name: '',
+            block: '',
+            studentPin: '',
+            judgments: {},
+            rationales: {}
+        };
+
+        // Data-driven mapping to decouple scoring logic from rigid loops
+        const SLIDE_PATH_MAPPING = {
+            1: { OPTION_A: 'treaty', OPTION_B: 'bylaw' },  // Slide 2: Jordan's Claim
+            2: { OPTION_A: 'treaty', OPTION_B: 'bylaw' },  // Slide 3: Bubs's Claim
+            3: { OPTION_A: 'bylaw',  OPTION_B: 'treaty' }, // Slide 4: Role of Elders (Inverted)
+            4: { OPTION_A: 'treaty', OPTION_B: 'bylaw' }   // Slide 5: Living Treaty
+        };
+
+        function getSessionPathProfile() {
+            // If student deferred accountability to a mediator, force the Mediation profile
+            if (studentSession.judgments[5] === 'OPTION_B') {
+                return 'MEDIATION_DELAY';
+            }
+            let treatyLean = 0;
+            let bylawLean = 0;
+                
+            for (const slideIndex in SLIDE_PATH_MAPPING) {
+                const choice = studentSession.judgments[slideIndex];
+                if (!choice) return 'BALANCED_COMPROMISE'; // Graceful data fault fallback
+                        
+                const pathLean = SLIDE_PATH_MAPPING[slideIndex][choice];
+                if (pathLean === 'treaty') treatyLean++;
+                if (pathLean === 'bylaw') bylawLean++;
+            }
+                
+            if (treatyLean >= 3) return 'TREATY_DOMINANT';
+            if (bylawLean >= 3) return 'BYLAW_DOMINANT';
+            return 'BALANCED_COMPROMISE';
+        }
 
         async function initializeSim() {
             const nameInput = document.getElementById('student-name').value.trim();
@@ -1973,6 +2049,7 @@
             document.getElementById('nav-briefing').classList.add('active');
             document.getElementById('mission-briefing').style.display = 'block';
             document.getElementById('slide-viewer').style.display = 'none';
+            document.getElementById('retrospective-panel').style.display = 'none';
             document.getElementById('hud-container').classList.add('briefing-mode');
         }
 
@@ -1984,6 +2061,7 @@
 
             document.getElementById('mission-briefing').style.display = 'none';
             document.getElementById('slide-viewer').style.display = 'block';
+            document.getElementById('retrospective-panel').style.display = 'none';
             document.getElementById('hud-container').classList.remove('briefing-mode');
 
             document.getElementById('interaction-prompt').innerText = s.interactionPrompt;
@@ -2117,6 +2195,39 @@
             const footnotes = document.getElementById('footnote-list');
             footnotes.innerHTML = '';
 
+            // --- CHARACTER MEMORY INJECTION ENGINE ---
+            let rawBodyText = "";
+            if (t !== 'overview' && s.tabs[t]) {
+                rawBodyText = s.tabs[t].body;
+                
+                // Contextual Interception: Chapter 3 Primary (Jordan's reaction to Ch 2)
+                if (currentSlideIndex === 2 && t === 'primary') {
+                    const ch2Choice = studentSession.judgments[1];
+                    if (ch2Choice === 'OPTION_A') {
+                        rawBodyText = `<div class="memory-log memory-log-treaty">As you complete your shift at the wharf office, Jordan catches your eye through the window. He looks visibly less defensive. <em>'The Authority is actually acknowledging the ink from 1760,'</em> he tells an onboard deckhand. <em>'It’s the first time I've seen town management put the Treaty framework out in the open before talking bylaws.'</em></div>\n\n` + rawBodyText;
+                    } else if (ch2Choice === 'OPTION_B') {
+                        rawBodyText = `<div class="memory-log memory-log-bylaw">Walking past the fuel lanes, you notice Jordan's posture go instantly rigid as your truck approaches. <em>'The Authority is using that old centralized rulebook phrasing,'</em> he tells his crew in a low voice. <em>'My grandfather heard that exact same administrative speak back in the eighties right before his gear was cut.'</em></div>\n\n` + rawBodyText;
+                    }
+                }
+
+                // Contextual Interception: Chapter 4 Intel (Bubs's Journal response to Ch 3 Timeline)
+                // Hardened: Pure conditional concatenation replacing the fragile string replace engine
+                if (currentSlideIndex === 3 && t === 'intel') {
+                    const ch3Choice = studentSession.judgments[2];
+                    let journalInsert = "";
+                    if (ch3Choice === 'OPTION_A') {
+                        journalInsert = `\n\n<p style="color:#f59e0b; font-style:italic;">"The joint panel meeting we had last Thursday was heavy, but we actually sat in the same room and hammered out a single starting window together. It felt weird. It felt right. At least my dad isn't talking about organizing the blockades at the gate anymore."</p>`;
+                    } else if (ch3Choice === 'OPTION_B') {
+                        journalInsert = `\n\n<p style="color:#cbd5e1; font-style:italic;">"Jordan's crew is already out on the water dropping pots while our entire fleet is stuck tied to the cleat waiting for the commercial calendar to flip. The guys down at the union hall are furious. I didn't even know where to look when I saw Jordan at hockey practice yesterday."</p>`;
+                    } else {
+                        // Hardening fix: Handle empty or broken state selection gracefully
+                        journalInsert = `\n\n<p style="color:#64748b; font-style:italic;">[Journal entry offline — timeline choice in Chapter 3 pending structural commit]</p>`;
+                    }
+                    rawBodyText = rawBodyText + journalInsert;
+                }
+            }
+            // ------------------------------------------
+
             const mdToHtml = (text) => {
                 let html = text
                     .replace(/## (.*)/g, '<h2>$1</h2>')
@@ -2137,13 +2248,12 @@
                 document.getElementById('exhibit-img').src = s.tabs.primary.image;
                 document.getElementById('exhibit-credit').innerText = `CH 0${currentSlideIndex + 1} PREVIEW`;
             } else {
-                const content = s.tabs[t];
-                document.getElementById('body-content').innerHTML = mdToHtml(content.body);
-                document.getElementById('exhibit-img').src = content.image;
-                document.getElementById('exhibit-credit').innerText = `VISUAL RECORD: ${content.credit}`;
+                document.getElementById('body-content').innerHTML = mdToHtml(rawBodyText);
+                document.getElementById('exhibit-img').src = s.tabs[t].image;
+                document.getElementById('exhibit-credit').innerText = `VISUAL RECORD: ${s.tabs[t].credit}`;
 
                 // Populate Footnotes (APA Style)
-                const cites = [...content.body.matchAll(/\[cite: (\d+)\]/g)].map(m => m[1]);
+                const cites = [...rawBodyText.matchAll(/\[cite: (\d+)\]/g)].map(m => m[1]);
                 const uniqueCites = [...new Set(cites)];
                 uniqueCites.forEach(id => {
                     const src = BIBLIOGRAPHY[id];
@@ -2199,21 +2309,103 @@
                 loadSlide(currentSlideIndex + 1);
             } else {
                 showNotification("Accord successfully committed and submitted!");
+                renderRetrospectiveNewspaper();
             }
         }
 
-        function showNotification(msg, isError = false) {
-            const el = document.getElementById('hud-notification');
-            if (!el) return;
-            el.innerText = msg.toUpperCase();
-            el.style.background = isError ? 'rgba(239, 68, 68, 0.95)' : 'rgba(16, 185, 129, 0.95)';
-            el.style.borderColor = isError ? '#ef4444' : '#10b981';
-            el.style.display = 'block';
-            gsap.fromTo(el, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.3 });
-            if (window.notificationTimeout) clearTimeout(window.notificationTimeout);
-            window.notificationTimeout = setTimeout(() => {
-                gsap.to(el, { opacity: 0, y: -20, duration: 0.3, onComplete: () => { el.style.display = 'none'; } });
-            }, 3000);
+        // Clean separation of structure and editorial copy for easy updates
+        const NEWSPAPER_VARIANTS = {
+            TREATY_DOMINANT: {
+                headline: "SUNRISE WHARF ACCORD MARKS ONE YEAR: RECONCILIATION BLUEPRINT HOLDS STRONG THROUGH FIRST SEASONS",
+                image: "images/chapter6_treaty.png",
+                caption: "A MODERN SITE: Sovereign community management structures coordinating directly at the concrete docks.",
+                body: `<p>One year after the highly contested implementation of the 2026 Sunrise Harbour Wharf Accord, the regional maritime sector reports historic operational stability. By organizing the physical logistics of the docks around constitutional Treaty primacy first, the authority has set an infrastructural blueprint that is drawing deep attention across the Atlantic provinces.</p>
+                       <p>"We still argue over line space," noted <strong>Jordan</strong>, speaking from his family's slip. "But we are arguing across an administrative table now, not across a blockaded wharf gate. Having our inherent rights verified before we step onto the concrete changed everything."</p>`
+            },
+            BYLAW_DOMINANT: {
+                headline: "REGULATORY ACCORD FACES JURISDICTIONAL CHALLENGE: SUPREME COURT INQUIRY PENDING AT SUNRISE HARBOUR",
+                image: "images/chapter6_bylaw.png",
+                caption: "STANDSTILL: Administrative control is uniform, but legal clouds gather over the local authority.",
+                body: `<p>Twelve months following the enactment of the centralized rules framework at Sunrise Harbour, the wharf finds itself returning to the crossfire of intense legal scrutiny. While local authorities boast that uniform, bylaw-first operations have ensured total mechanical alignment, legal representatives for the First Nation have officially filed a non-compliance claim, citing violations of the Honour of the Crown.</p>
+                       <p>Local commercial fishers like <strong>Bubs</strong> have voiced relief over uniform enforcement standards but remain uneasy. "The dock operations feel safe day-to-day, but the atmosphere is dead quiet. We're waiting to see if the courts are going to tear this entire accord apart by winter," he added.</p>`
+            },
+            BALANCED_COMPROMISE: {
+                headline: "SUNRISE HARBOUR REPORT CARD: 'GRUDGING RESPECT' STABILIZES THE DOCKS AFTER EXPERIMENTAL COMPROMISE YEAR",
+                image: "images/chapter6_compromise.png",
+                caption: "SHARED WATER: Commercial and Treaty vessels offloading catches side-by-side under the joint system.",
+                body: `<p>One year into the compromise framework brokered under the 2026 Wharf Accord, Sunrise Harbour serves as a living laboratory for cautious co-management. Moving away from total state enforcement and pure unilateral declarations, the local panel has maintained an operational peace characterized by mutual compromise and a delicate, day-to-day coordination of resources.</p>
+                       <p>"We aren't best friends out here," remarked <strong>Bubs</strong> while unloading his morning catch alongside Jordan's crew. "But we aren't cutting each other's lines either. We share the space because we know our families have to live together in the same town."</p>`
+            },
+            MEDIATION_DELAY: {
+                headline: "STANDOFF PROTOCOL PARALYZES HARBOUR: MEDIATION TIMELINE LEAVES DOCKS IN REGULATORY VACUUM",
+                image: "images/wharf_blockade_pots_1777472462638.png",
+                caption: "CONSEQUENCE OF DELAY: Unresolved infrastructure access leads to localized friction as the seasonal clock runs out.",
+                body: `<p>One year after the Sunrise Harbour Authority chose to defer immediate localized adjustments in favor of an outside federal mediator, the docks remain locked in administrative stagnation. Because formal arbitration failed to account for regional launch parameters and arrived weeks after the critical spring launch window, localized groups took tracking into their own hands, causing deep operational confusion and severe community friction.</p>
+                       <p>"When the Authority was forced to wait on a third-party mandate with unaligned timelines, it didn't buy us a shared path—it bought us chaos," stated a local union organizer. The region remains a clear example of how external policy interventions can trigger severe unintended stalemates on the water if they fail to align with local requirements.</p>`
+            }
+        };
+
+        function renderRetrospectiveNewspaper() {
+            const profile = getSessionPathProfile();
+            const article = NEWSPAPER_VARIANTS[profile] || NEWSPAPER_VARIANTS.BALANCED_COMPROMISE;
+            const target = document.getElementById('retro-article-target');
+            const panel = document.getElementById('retrospective-panel');
+            
+            // Constant fixed date anchoring to simulation baseline present (April 29, 2026)
+            const retroDate = "APRIL 29, 2027";
+
+            const s1 = document.getElementById('accord-s1').value.trim();
+            const s2 = document.getElementById('accord-s2').value.trim();
+            const s3 = document.getElementById('accord-s3').value.trim();
+
+            target.innerHTML = `
+                <div class="news-header">
+                    <div class="news-masthead">The Sunrise Chronicle</div>
+                    <div class="news-meta">
+                        <span>${retroDate}</span>
+                        <span>VOL. CXXXV NO. 01</span>
+                    </div>
+                </div>
+                <div class="news-headline">${article.headline}</div>
+                <div class="news-body">
+                    <div class="news-image-box">
+                        <img src="${article.image}" onerror="this.onerror=null; this.src='images/chapter6.png';">
+                        <div class="caption">${article.caption}</div>
+                    </div>
+                    ${article.body}
+                    <div class="quote-box" style="border-left: 4px solid #0f172a; padding: 15px; margin: 20px 0; background: rgba(0,0,0,0.03); font-style: italic; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.5; color: #1e293b;">
+                        <strong>THE ACCORD CLAUSES SUBMITTED BY THE AUTHORITY CHAIR:</strong><br><br>
+                        1. ${s1}<br><br>
+                        2. ${s2}<br><br>
+                        3. ${s3}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('slide-viewer').style.display = "none";
+            document.getElementById('hud-container').classList.add('briefing-mode');
+            panel.style.display = "block";
+
+            // Append persistent navigation choice to prevent getting trapped upon back-review
+            appendRetrospectiveNavLink();
+        }
+
+        function appendRetrospectiveNavLink() {
+            if (document.getElementById('nav-retrospective')) return;
+            const rail = document.getElementById('nav-rail');
+            const retroItem = document.createElement('div');
+            retroItem.className = 'nav-item';
+            retroItem.id = 'nav-retrospective';
+            retroItem.innerHTML = '<div class="nav-ch">CONCLUSION</div><div class="nav-title nav-retrospective-title">Retrospective Recoup</div>';
+            retroItem.onclick = () => {
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                retroItem.classList.add('active');
+                document.getElementById('mission-briefing').style.display = 'none';
+                document.getElementById('slide-viewer').style.display = 'none';
+                document.getElementById('hud-container').classList.add('briefing-mode');
+                document.getElementById('retrospective-panel').style.display = 'block';
+            };
+            rail.appendChild(retroItem);
         }
 
         function updateHistory() {
@@ -2228,6 +2420,9 @@
                     hist.appendChild(item);
                 }
             });
+            if (studentSession.judgments[5]) {
+                appendRetrospectiveNavLink();
+            }
         }
 
         const DEFINITIONS = {
