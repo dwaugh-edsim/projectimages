@@ -1189,6 +1189,62 @@
             line-height: 1.6;
             color: #cbd5e1;
         }
+
+        /* Continuous HUD Policy Slider Styling Architecture */
+        .slider-container {
+            margin: 22px 0;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        .slider-label-deck {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .hud-range-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #38bdf8 0%, #38bdf8 35%, #64748b 35%, #64748b 65%, #ef4444 65%, #ef4444 100%);
+            outline: none;
+            transition: background 0.3s ease;
+        }
+        .hud-range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 12px var(--accent);
+            transition: transform 0.1s ease, background-color 0.2s;
+        }
+        .hud-range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: var(--accent);
+        }
+        .slider-zone-indicator {
+            text-align: center;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            color: var(--accent);
+            margin-top: 14px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 
@@ -1846,7 +1902,8 @@
             block: '',
             studentPin: '',
             judgments: {},
-            rationales: {}
+            rationales: {},
+            sliderValues: { 0: 50, 1: 50, 2: 50, 3: 50, 4: 50 }
         };
 
         // Data-driven mapping to decouple scoring logic from rigid loops
@@ -1904,6 +1961,7 @@
                     const parsed = JSON.parse(localData);
                     studentSession.judgments = parsed.judgments || {};
                     studentSession.rationales = parsed.responses || {};
+                    studentSession.sliderValues = parsed.sliderValues || { 0: 50, 1: 50, 2: 50, 3: 50, 4: 50 };
                     updateHistory();
                 } catch(e) {
                     console.error("Local data parse error", e);
@@ -1964,7 +2022,8 @@
             if (action === "save_state") {
                 const localPayload = {
                     judgments: studentSession.judgments,
-                    responses: studentSession.rationales
+                    responses: studentSession.rationales,
+                    sliderValues: studentSession.sliderValues
                 };
                 localStorage.setItem(localKey, JSON.stringify(localPayload));
             }
@@ -1979,7 +2038,11 @@
                 missionId: MISSION_DATA.metadata.id,
                 studentName: `${studentSession.name} (${studentSession.studentPin})`,
                 classCode: studentSession.block,
-                state: JSON.stringify({ judgments: studentSession.judgments, responses: studentSession.rationales })
+                state: JSON.stringify({ 
+                    judgments: studentSession.judgments, 
+                    responses: studentSession.rationales,
+                    sliderValues: studentSession.sliderValues
+                })
             };
 
             try {
@@ -1999,12 +2062,14 @@
                 if (action === "get_state" && res.state) {
                     studentSession.judgments = res.state.judgments || {};
                     studentSession.rationales = res.state.responses || {};
+                    studentSession.sliderValues = res.state.sliderValues || { 0: 50, 1: 50, 2: 50, 3: 50, 4: 50 };
                     updateHistory();
                     
                     // Keep localStorage updated with server progress
                     const serverPayload = {
                         judgments: studentSession.judgments,
-                        responses: studentSession.rationales
+                        responses: studentSession.rationales,
+                        sliderValues: studentSession.sliderValues
                     };
                     localStorage.setItem(localKey, JSON.stringify(serverPayload));
                 }
@@ -2065,15 +2130,18 @@
             document.getElementById('hud-container').classList.remove('briefing-mode');
 
             document.getElementById('interaction-prompt').innerText = s.interactionPrompt;
-            document.getElementById('btn-option1').innerText = s.options[0];
-            document.getElementById('btn-option2').innerText = s.options[1];
 
-            // Populate option descriptions
-            document.getElementById('desc-option1').innerText = s.optionsInfo[0] || '';
-            document.getElementById('desc-option2').innerText = s.optionsInfo[1] || '';
-
-            // Toggle rationale block based on slide index (Chapter 6 Accord)
+            // Toggle rationale block and options UI based on slide index (Chapter 6 Accord)
             if (i === 5) {
+                const optionGrid = document.getElementById('option-grid');
+                optionGrid.style.display = "grid";
+                optionGrid.innerHTML = `
+                    <button class="option-btn" id="btn-option1" onclick="setSliderValue(15)">SIGN ACCORD</button>
+                    <div class="option-desc" id="desc-option1">Commit to the current drafted protocol immediately.</div>
+                    <button class="option-btn" id="btn-option2" onclick="setSliderValue(85)">SEEK MEDIATION</button>
+                    <div class="option-desc" id="desc-option2">Postpone signing and request a formal federal mediator.</div>
+                `;
+
                 document.getElementById('rationale-block-single').style.display = 'none';
                 document.getElementById('rationale-block-accord').style.display = 'block';
                 
@@ -2087,8 +2155,8 @@
                 const ch2 = studentSession.judgments[1];
                 const ch5 = studentSession.judgments[4];
                 let tip1 = "";
-                let ch2Label = ch2 === 'OPTION_A' ? 'TREATY-FIRST' : (ch2 === 'OPTION_B' ? 'BYLAW-FIRST' : 'UNSELECTED');
-                let ch5Label = ch5 === 'OPTION_A' ? 'PRIMACY' : (ch5 === 'OPTION_B' ? 'JOINT REGULATION' : 'UNSELECTED');
+                let ch2Label = ch2 === 'OPTION_A' ? 'TREATY-FIRST' : (ch2 === 'OPTION_B' ? 'BYLAW-FIRST' : (ch2 === 'BALANCED' ? 'COMPROMISE' : 'UNSELECTED'));
+                let ch5Label = ch5 === 'OPTION_A' ? 'PRIMACY' : (ch5 === 'OPTION_B' ? 'JOINT REGULATION' : (ch5 === 'BALANCED' ? 'COMPROMISE' : 'UNSELECTED'));
                 
                 if (ch2 === 'OPTION_A' && ch5 === 'OPTION_A') {
                     tip1 = "that Jordan's inherent Treaty rights have priority on the wharf as a modern-day Treaty Truckhouse.";
@@ -2098,28 +2166,40 @@
                     tip1 = "municipal bylaws apply to everyone, with special slip accommodations for Treaty-based fishers.";
                 } else if (ch2 === 'OPTION_B' && ch5 === 'OPTION_B') {
                     tip1 = "shared equal governance over the physical docks under co-developed bylaw rules.";
+                } else if (ch2 === 'BALANCED' || ch5 === 'BALANCED') {
+                    if (ch2 === 'OPTION_A' || ch5 === 'OPTION_A') {
+                        tip1 = "that Jordan's Treaty rights are recognized alongside standard operations under a co-managed priority model.";
+                    } else if (ch2 === 'OPTION_B' || ch5 === 'OPTION_B') {
+                        tip1 = "that standard bylaws apply as the baseline, with a co-developed joint advisory board to manage slips.";
+                    } else {
+                        tip1 = "that wharf operations are co-managed under a balanced model where bylaws and Treaty rights are harmonized.";
+                    }
                 } else {
                     tip1 = "...(complete your Chapter 2 & 5 decisions to get a recommendation)";
                 }
 
                 const ch3 = studentSession.judgments[2];
                 let tip2 = "";
-                let ch3Label = ch3 === 'OPTION_A' ? 'CO-MANAGED SEASONS' : (ch3 === 'OPTION_B' ? 'INDEPENDENT SEASONS' : 'UNSELECTED');
+                let ch3Label = ch3 === 'OPTION_A' ? 'CO-MANAGED SEASONS' : (ch3 === 'OPTION_B' ? 'INDEPENDENT SEASONS' : (ch3 === 'BALANCED' ? 'COMPROMISE WINDOWS' : 'UNSELECTED'));
                 if (ch3 === 'OPTION_A') {
                     tip2 = "follow a single shared fishing window negotiated by a joint panel to protect lobster conservation.";
                 } else if (ch3 === 'OPTION_B') {
                     tip2 = "allow the Mi'kmaw fishery to operate under community timelines while commercial fishers follow DFO seasons.";
+                } else if (ch3 === 'BALANCED') {
+                    tip2 = "use a staggered seasonal calendar that coordinates overlapping windows to prevent crowding while respecting both plans.";
                 } else {
                     tip2 = "...(complete your Chapter 3 decision to get a recommendation)";
                 }
 
                 const ch4 = studentSession.judgments[3];
                 let tip3 = "";
-                let ch4Label = ch4 === 'OPTION_A' ? 'JOINT MEDIATION' : (ch4 === 'OPTION_B' ? 'ELDER-LED CIRCLES' : 'UNSELECTED');
+                let ch4Label = ch4 === 'OPTION_A' ? 'JOINT MEDIATION' : (ch4 === 'OPTION_B' ? 'ELDER-LED CIRCLES' : (ch4 === 'BALANCED' ? 'HYBRID PANEL' : 'UNSELECTED'));
                 if (ch4 === 'OPTION_A') {
                     tip3 = "a joint mediation board representing both the Union and the Chief to resolve conflicts over slips and fuel.";
                 } else if (ch4 === 'OPTION_B') {
                     tip3 = "traditional Mi'kmaw talking circles led by community Elders to build relationship-based consensus.";
+                } else if (ch4 === 'BALANCED') {
+                    tip3 = "a hybrid dispute panel that combines traditional Elder talking circles with formal mediation procedures.";
                 } else {
                     tip3 = "...(complete your Chapter 4 decision to get a recommendation)";
                 }
@@ -2140,6 +2220,22 @@
                 el3.dataset.tip = tip3;
                 document.getElementById('recap-s3-header').innerText = `SUGGESTED CLAUSE (CH 4: ${ch4Label})`;
             } else {
+                const optionGrid = document.getElementById('option-grid');
+                optionGrid.style.display = "block";
+                const savedVal = studentSession.sliderValues && studentSession.sliderValues[i] ? studentSession.sliderValues[i] : 50;
+                
+                optionGrid.innerHTML = `
+                    <div class="slider-container">
+                        <div class="slider-label-deck">
+                            <span>← ${s.options[0]}</span>
+                            <span>${s.options[1]} →</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="${savedVal}" class="hud-range-slider" id="hud-slider-input" oninput="processSliderInteraction(${i}, this.value)">
+                        <div class="slider-zone-indicator" id="slider-zone-display">CALIBRATING FRAMEWORK...</div>
+                    </div>
+                `;
+                processSliderInteraction(i, savedVal);
+
                 document.getElementById('rationale-block-single').style.display = 'block';
                 document.getElementById('rationale-block-accord').style.display = 'none';
                 document.getElementById('student-rationale').value = studentSession.rationales[i] || '';
@@ -2202,11 +2298,16 @@
                 
                 // Contextual Interception: Chapter 3 Primary (Jordan's reaction to Ch 2)
                 if (currentSlideIndex === 2 && t === 'primary') {
-                    const ch2Choice = studentSession.judgments[1];
-                    if (ch2Choice === 'OPTION_A') {
-                        rawBodyText = `<div class="memory-log memory-log-treaty">As you complete your shift at the wharf office, Jordan catches your eye through the window. He looks visibly less defensive. <em>'The Authority is actually acknowledging the ink from 1760,'</em> he tells an onboard deckhand. <em>'It’s the first time I've seen town management put the Treaty framework out in the open before talking bylaws.'</em></div>\n\n` + rawBodyText;
-                    } else if (ch2Choice === 'OPTION_B') {
-                        rawBodyText = `<div class="memory-log memory-log-bylaw">Walking past the fuel lanes, you notice Jordan's posture go instantly rigid as your truck approaches. <em>'The Authority is using that old centralized rulebook phrasing,'</em> he tells his crew in a low voice. <em>'My grandfather heard that exact same administrative speak back in the eighties right before his gear was cut.'</em></div>\n\n` + rawBodyText;
+                    const ch2SliderVal = studentSession.sliderValues ? studentSession.sliderValues[1] : 50;
+                    
+                    if (ch2SliderVal <= 35) {
+                        const structuralAdverb = ch2SliderVal <= 15 ? "profoundly relieved" : "cautiously optimistic";
+                        rawBodyText = `<div class="memory-log memory-log-treaty">As you complete your shift at the wharf office, Jordan catches your eye through the window. He looks ${structuralAdverb}. <em>'The Authority is actually acknowledging the ink from 1760,'</em> he tells an onboard deckhand. <em>'It’s a clear step forward to see town management put the Treaty framework upfront.'</em></div>\n\n` + rawBodyText;
+                    } else if (ch2SliderVal >= 65) {
+                        const structuralAdverb = ch2SliderVal >= 85 ? "deeply combative" : "noticeably guarded";
+                        rawBodyText = `<div class="memory-log memory-log-bylaw">Walking past the fuel lanes, you notice Jordan's posture go ${structuralAdverb} as your truck approaches. <em>'The Authority is using a centralized rulebook layout,'</em> he tells his crew in a low voice. <em>'My grandfather heard that exact same administrative speak right before they cut his lines.'</em></div>\n\n` + rawBodyText;
+                    } else {
+                        rawBodyText = `<div class="memory-log">At the center pier, Jordan and Bubs are actively untangling a shared line hitch together. Neither looks thrilled, but they are communicating directly. Your choice to calibrate the initial bylaws into a balanced, neutral holding zone has forced both crews to coordinate dock positioning face-to-face.</div>\n\n` + rawBodyText;
                     }
                 }
 
@@ -2219,8 +2320,10 @@
                         journalInsert = `\n\n<p style="color:#f59e0b; font-style:italic;">"The joint panel meeting we had last Thursday was heavy, but we actually sat in the same room and hammered out a single starting window together. It felt weird. It felt right. At least my dad isn't talking about organizing the blockades at the gate anymore."</p>`;
                     } else if (ch3Choice === 'OPTION_B') {
                         journalInsert = `\n\n<p style="color:#cbd5e1; font-style:italic;">"Jordan's crew is already out on the water dropping pots while our entire fleet is stuck tied to the cleat waiting for the commercial calendar to flip. The guys down at the union hall are furious. I didn't even know where to look when I saw Jordan at hockey practice yesterday."</p>`;
+                    } else if (ch3Choice === 'BALANCED') {
+                        journalInsert = `\n\n<p style="color:#94a3b8; font-style:italic;">"The compromise windows we set up are causing some scheduling headaches, but at least Jordan's crew and our boats aren't blocking each other at the slip. We've had to talk about our departure times every night. It's annoying, but it's working better than expected."</p>`;
                     } else {
-                        // Hardening fix: Handle empty or broken state selection gracefully
+                        // Hardening fix: Handle empty or broken state selection gracefully (e.g. if skipped straight to Slide 4)
                         journalInsert = `\n\n<p style="color:#64748b; font-style:italic;">[Journal entry offline — timeline choice in Chapter 3 pending structural commit]</p>`;
                     }
                     rawBodyText = rawBodyText + journalInsert;
@@ -2272,10 +2375,54 @@
             updateJudgmentUI();
         }
 
+        function setSliderValue(val) {
+            processSliderInteraction(currentSlideIndex, val);
+            updateJudgmentUI();
+        }
+
+        function processSliderInteraction(slideIndex, val) {
+            const numericVal = parseInt(val);
+            if (!studentSession.sliderValues) {
+                studentSession.sliderValues = { 0: 50, 1: 50, 2: 50, 3: 50, 4: 50 };
+            }
+            studentSession.sliderValues[slideIndex] = numericVal;
+            
+            const display = document.getElementById('slider-zone-display');
+            let dynamicOptionString = "";
+            
+            // Convert mathematical slider steps cleanly into structural validation categories
+            if (numericVal <= 35) {
+                if (display) {
+                    display.innerText = "POSITION: INTENSE PRIORITY CO-MANAGEMENT";
+                    display.style.color = "var(--accent)";
+                }
+                dynamicOptionString = "OPTION_A";
+            } else if (numericVal >= 65) {
+                if (display) {
+                    display.innerText = "POSITION: RIGID STATE BYLAW REGULATION";
+                    display.style.color = "#ef4444";
+                }
+                dynamicOptionString = "OPTION_B";
+            } else {
+                if (display) {
+                    display.innerText = "POSITION: CALIBRATED BALANCE COMPROMISE";
+                    display.style.color = "#64748b";
+                }
+                dynamicOptionString = "BALANCED";
+            }
+            
+            // Store structural choice values back to legacy tracker arrays for backward compatibility
+            studentSession.judgments[slideIndex] = dynamicOptionString;
+        }
+
         function updateJudgmentUI() {
             const v = studentSession.judgments[currentSlideIndex];
-            document.getElementById('btn-option1').className = 'option-btn' + (v === 'OPTION_A' ? ' active' : '');
-            document.getElementById('btn-option2').className = 'option-btn' + (v === 'OPTION_B' ? ' active' : '');
+            const btn1 = document.getElementById('btn-option1');
+            const btn2 = document.getElementById('btn-option2');
+            if (btn1 && btn2) {
+                btn1.className = 'option-btn' + (v === 'OPTION_A' ? ' active' : '');
+                btn2.className = 'option-btn' + (v === 'OPTION_B' ? ' active' : '');
+            }
         }
 
         function saveProgress() {
