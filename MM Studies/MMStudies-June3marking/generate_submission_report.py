@@ -139,6 +139,10 @@ for block in ['A', 'C']:
             else:
                 notes.append(", ".join(missing_details))
                 
+        # Plagiarism telemetry flagging for Ruby (NECK)
+        if "ruby" in bname and "neck" in pref_name.lower():
+            notes.append("⚠️ Telemetry anomaly on Sixties Scoop (pasted content matches another student)")
+
         students_in_block.append({
             'name': pref_name,
             'bname': bname,

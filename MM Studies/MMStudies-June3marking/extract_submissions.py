@@ -8,7 +8,7 @@ import json
 import re
 from collections import defaultdict
 
-CSV_FILE = "Leo - Sheet1 (2).csv"
+CSV_FILE = "blockA-C-Jne4.csv"
 OUTPUT_FILE = "extracted_submissions.json"
 
 STATUS_PRIORITY = {"FINAL_SUBMIT": 2, "MANUAL_RESTORE": 1, "INCREMENTAL_SAVE": 0}
@@ -141,7 +141,7 @@ for sim, blocks in simulations.items():
                     }
                     abcd_names = [k for k, _ in abcd_pins]
                     if abcd_names:
-                        merge_log.append(f"  Merged {abcd_names} → {primary_key} [{sim[:30]} / {block}]")
+                        merge_log.append(f"  Merged {abcd_names} -> {primary_key} [{sim[:30]} / {block}]")
                 else:
                     # All variants are ABCD — just pick the one with most answers
                     abcd_pins.sort(key=lambda x: sum(1 for v in x[1]['rationales'].values()
@@ -166,14 +166,22 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(output, f, indent=2, ensure_ascii=False)
 
 print("Done. Written to", OUTPUT_FILE)
-if merge_log:
-    print("\n=== Merges performed ===")
-    for entry in merge_log:
-        print(entry)
 
-print()
+# Safe printing for console that handles non-cp1252 characters
+def safe_print(msg):
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        print(msg.encode('ascii', errors='backslashreplace').decode('ascii'))
+
+if merge_log:
+    safe_print("\n=== Merges performed ===")
+    for entry in merge_log:
+        safe_print(entry)
+
+safe_print("")
 for sim in output:
-    print(f"\n=== {sim} ===")
+    safe_print(f"\n=== {sim} ===")
     for block in output[sim]:
         students = list(output[sim][block].keys())
-        print(f"  {block}: {len(students)} students -> {', '.join(students)}")
+        safe_print(f"  {block}: {len(students)} students -> {', '.join(students)}")

@@ -450,10 +450,16 @@ FLAG_PATTERNS = [
     r'r2getg', r'\bloading\b', r'testing testing',
 ]
 
-def is_flagged(student_name, responses):
+def is_flagged(student_name, responses, sim_key=""):
     name_lower = student_name.lower()
     if any(re.search(p, name_lower) for p in FLAG_PATTERNS):
         return True
+    
+    # Specific plagiarism check for Ruby (NECK) on the 60s Scoop (Maya Paul) simulation.
+    # Her telemetry indicates copy-pasting (pasted: true) on all slides, and responses match Mae's.
+    if "ruby" in name_lower and "neck" in name_lower and sim_key == "scoop":
+        return True
+
     all_text = " ".join(str(v) for v in responses.values()).lower()
     if any(re.search(p, all_text) for p in FLAG_PATTERNS):
         return True
@@ -466,6 +472,7 @@ def is_flagged(student_name, responses):
 def is_test(student_name):
     tl = student_name.lower()
     return 'mrwaugh' in tl or 'xoxo' in tl or 'dave' in tl or 'abba' in tl
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -501,8 +508,8 @@ SCOOP_LABELS = {
     "slide_6": "Slide 6 — Connection to IRSSA and reconciliation",
 }
 
-def make_card(student_name, responses, rubric, question_keys, labels):
-    flagged = is_flagged(student_name, responses)
+def make_card(student_name, responses, rubric, question_keys, labels, sim_key=""):
+    flagged = is_flagged(student_name, responses, sim_key)
     test = is_test(student_name)
 
     grade, answered, deficiency_items, strength_items = generate_feedback(
@@ -587,12 +594,21 @@ def generate_html(sim_key, block_name, title, rubric, question_keys, labels, out
     grades = []
     flagged_count = 0
 
+    # Identify simple simulation identifier for flagging rules
+    sim_id = ""
+    if "scoop" in sim_key.lower():
+        sim_id = "scoop"
+    elif "irssa" in sim_key.lower():
+        sim_id = "irssa"
+    elif "liam" in sim_key.lower():
+        sim_id = "liam"
+
     for student, info in block_data.items():
         if is_test(student):
             continue
         responses = dict(info.get("rationales", {}))
         responses['_status'] = info.get("status", "")
-        card_html, grade, flagged = make_card(student, responses, rubric, question_keys, labels)
+        card_html, grade, flagged = make_card(student, responses, rubric, question_keys, labels, sim_id)
         cards.append(card_html)
         grades.append(grade)
         if flagged:
