@@ -27,6 +27,33 @@ def is_placeholder_pin(student_str):
     """Returns True if the student used the placeholder (ABCD) PIN."""
     return bool(re.search(r'\(ABCD\)', student_str, re.IGNORECASE))
 
+from datetime import datetime
+
+def parse_timestamp(ts_str):
+    if not ts_str:
+        return datetime.min
+    ts_str = ts_str.strip()
+    formats = [
+        "%m/%d/%Y, %I:%M:%S %p",
+        "%m/%d/%Y, %H:%M:%S",
+        "%d.%m.%Y, %H:%M:%S",
+        "%d.%m.%Y %H:%M:%S",
+        "%Y-%m-%d %H:%M:%S",
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(ts_str, fmt)
+        except ValueError:
+            pass
+    # Try cleaning dots to slashes as fallback
+    cleaned = ts_str.replace('.', '/')
+    for fmt in formats:
+        try:
+            return datetime.strptime(cleaned, fmt)
+        except ValueError:
+            pass
+    return datetime.min
+
 # ---- Read CSV ----
 # simulations[sim_name][block][student_key] = {timestamp, status, rationales}
 simulations = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
@@ -50,10 +77,14 @@ with open(CSV_FILE, encoding="utf-8", newline="") as f:
         existing_priority = STATUS_PRIORITY.get(existing.get("status", ""), -1)
         new_priority = STATUS_PRIORITY.get(status, -1)
 
+        existing_ts = parse_timestamp(existing.get("timestamp", ""))
+        new_ts = parse_timestamp(ts)
+
         if new_priority > existing_priority:
             simulations[sim][block][student] = {"timestamp": ts, "status": status, "rationales": rationales}
-        elif new_priority == existing_priority and ts > existing.get("timestamp", ""):
+        elif new_priority == existing_priority and new_ts > existing_ts:
             simulations[sim][block][student] = {"timestamp": ts, "status": status, "rationales": rationales}
+
 
 # ---- Merge ABCD placeholder entries with real-PIN entries ----
 output = {}
