@@ -34,11 +34,21 @@ def parse_timestamp(ts_str):
         return datetime.min
     ts_str = ts_str.strip()
     formats = [
+        # Standard slash formats
         "%m/%d/%Y, %I:%M:%S %p",
         "%m/%d/%Y, %H:%M:%S",
+        "%d/%m/%Y, %H:%M:%S",
+        "%d/%m/%Y, %I:%M:%S %p",
+        # Dot formats
         "%d.%m.%Y, %H:%M:%S",
         "%d.%m.%Y %H:%M:%S",
+        # ISO / Dash formats
+        "%Y-%m-%d, %I:%M:%S %p",
+        "%Y-%m-%d, %H:%M:%S",
         "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S.%fZ",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%SZ",
     ]
     for fmt in formats:
         try:
