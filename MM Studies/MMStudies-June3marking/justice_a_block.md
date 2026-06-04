@@ -1,744 +1,782 @@
-# Justice Assignment (Leo 1752 Simulation) - A Block
+# Restorative Justice: Liam's Journey - A Block
 
-**Students: 26**
+**Students: 17**
 
-## ALEXIS (ABCD)
+## Alexis (ALEX)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-For the defence, Article 4’s phrase “any other thing” should be read broadly and in favour of the Mi'kmaq, meaning it includes modern trade goods like cannabis. Because the treaty in Mi'kma'ki was meant to ensure survival through fair trade, the right must evolve with today’s economy rather than be limited to 1752 goods. Therefore, cannabis can be argued to fall within this protected “right to trade.”
+Indigenous women’s numbers in prison are going up faster than men’s, from 36% to 50%, while men went from 25% to 33%. Women are more overrepresented because they deal with extra problems like poverty, trauma, and discrimination. The risk scores they get punish things like being poor or having a rough past, not whether they actually mean to commit a crime.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-For the defence, the “public safety” argument is not supported by the evidence. The independent lab report found no pesticides, no mould, and accurate THC levels, showing the cannabis met safety standards. This weakens the Province’s justification and supports the argument that the raid was not truly about safety,.
+The TRC Call to Action #30 demands that the federal government commit to eleminating Indigenous overrepresentation over the next decade.  This connects to the residential school trauma in the sugar falls story because of how the government is taking control and trying to eleminate the Indigenous cultures and representations.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-the Sacred Fire is a legal boundary because it represents Mi’kmaw law, authority, and protection over the space. Indigenous communities have the right to maintain their own legal systems, so crossing the fire without consent violates that authority. Therefore, when officers crossed it, they breached the jurisdiction and rights of the Mi'kmaq, not just a physical space.
+Donald Marshall Jr., was a Mi'kmaw leader and he was wrongly convicted of murder in Sydney Nova Scotia. The Royal Commision concluded that the justice system failed him because it was plagued with systemic racism.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-For the defence, the “musket” argument makes sense because it shows that rights should update with time instead of staying stuck in 1752. Just like old tools can have modern versions, the Mi’kmaq right to trade can include modern goods like cannabis for the Mi'kmaq. This supports Leo’s point that their rights are real and active, not “empty” until a court says so.
+Substansive equality is when the court must look at the offenders unique circumstances. The lack of community resources prevents judges form offering alternatives because the alternatives arent accutully available leading back to incarceration.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-For the defence, the “fiduciary duty” claim is more focused on protecting provincial profits than public safety. The Armstrong Directive says “public confidence in the regulated market must be maintained,” which leads to protecting the NSLC’s market. NSLC reports also show lost sales near Millbrook, suggesting the raid was about competition, not safety.
+Sentencing Circle bring together the offenders, victim, community and judge into a circle for the case making them all at the same level, as to where Westeran courts have the judge sitting up higher above everyone to show authority over them. The Eagal Feather is significant because whoever is holding the feather is the person speaking and they are speaking their complete truth to the creator.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-Yes it does. The Frozen Rights treats people like pieces in a museam by limiting treaty rights to what existed in 1752, rather than allowing them to evolve. The text supports this by stating it  treats Treaty rights like a museum exhibit, and by showing how this restriction can kill any new business made by Indigenous people .
+They are comparable because they are both forms of court and have the goals to have a final desicion for the offender. They also both have the focus to look at the things that happened because of the offence that happened. The circle changes the role of the victim and the community because it focuses on healing and restoring instead of giving punishments.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-Yes. Leo’s business can still count as a “moderate livelihood” because that idea isn’t clearly defined and can include more than just basic survival. He argues you need a modern business to actually support a community, not just go by, so his shop fits under a broader meaning of moderate.
+Indigenous-led restorative justice programs reduce rates by 15-20% compared to traditional prison sentences. Changing court laws is not enough because without addressing root socioeconomic issues the court is only looking at how something occurred and was taken as to where root socioeconomic issues look at why something occurred.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-No. The Crown didn’t justify their actions because they didn’t consult the community and used too much force instead of easier options. It also looks like they cared more about money than respecting Treaty rights.
+Msit No'kmaq means the connection between all people, creator, community and ancestors. It is related to the sweetgrass braid because they both represent how everything is connected. The visual contrast between the two different visuals the cold grey walls and the warm golden sunset represent how with the two path one lead to a dark, sad and traumatic life and the other lead to a healed and warm life. This shows the two different types of justice that lead to two opposite paths.
 
----
+### Q9 — Maya Paul Connection
 
-## ANANYA M. (OKOK)
+Liam's case traces back to Maya's because in both cases they end up losing their rights such as their status and or family through the acts of the government. This is based of systemic racism and the belief that one race is superior and has more overall power.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-I believe the crown would argue that "any other thing" does NOT legally include cannabis because it should be interpreted to mean things similar to what’s listed, such as fish and animal products. What they stated is really limited to natural resources.
-
-### Slide 2
-
-I believe the Public Safety argument is not valid because the lab report clearly shows that the Mi'kmaq's use of drugs is not laced with any harmful substances, such as Fentanyl. It has the primary compound of cannabis, which is THC. Meaning the Government conducted this raid to enforce control over the Mi'kmaq people.
-
-### Slide 3
-
-The Sacred Fire is a legal boundary because it marks a spiritual space that should not be crossed. When officers stepped over it, they disrespected Mi’kmaq laws and traditions. The evidence is that it’s called a “spiritual boundary,” and crossing it is a “profound desecration.”
-
-### Slide 4
-
-The musket argument is valid because their rights already exist and can change over time. It shows rights are not empty. The evidence is Leo saying their rights are “inherent.”
+The override of Mi'kmaw community authority in conventional courts connects to Leo's case because of how in both cases something is being taken away by a higher power of authority without looking into all the reasons and details and simply just the surface level of information.
 
 ---
 
 ## CALLUM (LLLL)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-“Any other thing” is broad language that supports a flexible, ongoing Mi’kmaq right to trade. From the Mi’kmaq perspective, it protects the ability to trade modern goods, not just items from 1752. Based on this, cannabis can be included as part of that treaty-protected trade right.
+Mens: 25.2% - 33%
+Women: 36.1% - 50%
+Indigenous women increased faster.
+the system is unfair because it punishes people for being poor and or homless not just for crimes but for now reason.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-If lab findings show the cannabis was clean, accurately labeled, and within safe potency limits, the “public safety” argument is weak. This evidence suggests there was no real health risk to justify the raid. Instead, it supports the view that the enforcement was about control and jurisdiction, not safety.
+call to action #30 asks the government to reduce Indigenous people in prison.
+Residential schools caused trauma that still affects people today today.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-The Sacred Fire is a cultural and spiritual symbol, but it does not have legal authority to block police enforcement of the law. Provincial officers still have jurisdiction to carry out lawful actions on public or regulated land. Therefore, it represents cultural significance, not a legal boundary that can stop enforcement.
+Donald Marshall Jr. was a Mi'kmaw man who was wrongly convicted of murder. The justice system treated him unfairly because of racism. His case led to changes in the justice system.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-The analogy is valid because it shows that Indigenous rights exist inherently, not only when recognized by courts. Section 35 supports that these rights are pre-existing and must be upheld. The R v Sparrow confirms courts protect rights rather than create them.
+Gladue Rights mean judges must think about Indigenous backgrounds when sentencing. Many communities do not have enough money for programs that can replace jail.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-The fiduciary duty is being used to protect public health and safety by ensuring only regulated, tested products are sold. Under laws like the Cannabis Act, the province is responsible for preventing harm from unsafe or illegal markets. This shows the focus is on protecting people, not generating profit.
+Everyone sits in a circle no one sits higher than anyone else. The Eagle Feather is passed to the person speaking and shows respect.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-The “Frozen Rights” idea is unfair because it locks treaty rights in the past instead of letting them change over time. Indigenous rights should grow and adapt with modern life. The R v Marshall shows courts can interpret treaties in a modern way, not just old history.
+Court: Focuses on punishment
 
-### Slide 7
+Sentecing Circle: Focuses on healing and fixing harm, victims and community are more involved.
 
-A “moderate livelihood” in R v Marshall means small-scale income for basic needs, not a large commercial business. If Leo’s cannabis operation is making significant profit or operating like a storefront business, it goes beyond that limit. Therefore, it would not qualify as a treaty-protected moderate livelihood.
+### Q7 — Bill C-5 & Recidivism
 
-### Slide 8
+Restorative justice got ride of reoffending by about 40%. Changing laws is not enough if poverty and trauma continue.
 
-Under the R v Sparrow test, the Crown must also show proper consultation and minimal impairment of rights. If the Crown used force and did not consult the Mi’kmaq community, Step 2 fails because it did not respect the Honour of the Crown. This means the justification is weak, even if public safety is claimed.
+### Q8 — Msit No'kmaq & Two Paths
 
----
+Msit No'kmaq means "All My Relations" It means everyone is connected. The grey walls show punishment. The sunset shows healing and hope
 
-## CONNOR (ABCD)
+### Q9 — Maya Paul Connection
 
-### Slide 1
+Old government rules separated familys and limited reserve housing. These problems helped cause housing insecurity for people like Liam.
 
-Article 4 says any other thing so it’s not just about fish or skins. With the living tree idea it can use modern things too.
+### Q10 — Leo 1752 Treaty Connection
 
-### Slide 2
-
-The lab report shows no pesticides, no mould, and good THC levels. So there is no health risk. Because of this the crowns reason for the raid was on public safety is weaker.
-
-### Slide 3
-
-It represents Indigenous law and space. So crossing it can be seen as breaking rights and showing a fight between laws.
-
-### Slide 4
-
-If muskets were allowed in trade then the treaty meant freedom to trade many goods. It is unfair for the crown to allow bad items in the past but not allow modern legal ones like cannabis now.
-
-### Slide 5
-
-The point about falling NSLC sales say the shutdown may be about protecting government cannabis sales and not public safety.
-
-### Slide 6
-
-Yes it treats Indigenous rights like they are stuck in the past. Not allowing them to grow and apply to modern life.
-
-### Slide 7
-
-Yes it treats Indigenous rights like they are stuck in the past. Not allowing them to grow and apply to modern life.
-
-### Slide 8
-
-the defence says the crown should have talked first instead of doing a raid. If they could have solved issues another way the raid wasn’t the least harmful choice.
+Mi'kmaw communities often have little control in regular courts. This is similar to treaty disputes about Mi'kmaw rights and authority.
 
 ---
 
-## COVA (KIKI)
+## CONNOR (CONN)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-they don't seem like they actually got the license legitemately or care what the mikmaq think
+Indigenous women went up more than Indigenous men. Men went from 25.2% to 33%. Women went from 36.1% to 50%.This may be because women face more poverty and hard life situations. The system is unfair because it treats poverty and housing problems like “risk,” instead of real crime.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-They had not many reasons other than tax to raid
+TRC Call to Action #30 says governments should reduce Indigenous people in jail within 10 years. Sugar Falls shows residential schools caused trauma and broken families. That trauma passed down through generations. This is why Indigenous people are still overrepresented in the justice system.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-it seems the raid did a lot against the mikmaq
+A Mi’kmaw man in Sydney Nova Scotia was wrongly convicted of murder. In 1989 the Royal Commission found racism in the justice system. Nova Scotia started restorative justice programs.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-Leo is right and the guns are used for safety
+Substantive equality means treating people fairly based on their life situation which is not the same for everyone. The “Gladue funding gap” means there isn’t enough support for Indigenous services like housing and mental health help. Because of this the judges often have no choices except jail.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-the worry about more shops then necassary may draw in a lot more attention than Canada would want
+In a sentencing circle everyone sits together at the same level to show equality. A regular courtroom the judge sits higher to show power. In Mi’kmaw culture an Eagle Feather means someone is speaking the truth with respect and honesty.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-it treats idigenous peoples rights like they can be taken away at any moment
+A regular court focuses on punishment and finding guilt. The judge and lawyers are in control and the victim is mostly just a witness. A sentencing circle focuses on healing. The victim can share their stormy and the community helps decide how to fix the harm instead of just punishing.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-its hard to tell with how vague the term is, but with how legitamate his business may be, I'd say it counts
+Indigenous-led restorative justice programs lower repeat offending by about 15–20% compared to prison. Bill C-5 helps reduce harsh sentences but it is not enough by itself.If poverty housing problems and lack of support are not fixed people can still end up back in the justice system.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-No, their reasons were completely unjustified and needed a better reason or not do it, because this is really harmful
+Mist No’kmaq means “All My Relations” meaning everything is connected. The sweetgrass braid shows people are connected like strands. Grey walls show prison and punishment. The sunset shows healing and hope. These are two paths: punishment or healing.
 
----
+### Q9 — Maya Paul Connection
 
-## DAVE (ABBA)
+Liam’s housing problems come from old policies in Maya Paul’s case file. Families were separated and people had limits on where they could live. Some people were not recognized as Indigenous which affected housing rights. This is why Liam has unstable housing today.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-Daveaaaa
-
-### Slide 2
-
-Test
+In Leo’s 1752 Treaty Case the treaty says Mi’kmaw people have the right to govern themselves and their lands. When regular courts ignore Mi’kmaw authority the outside systems make decisions instead. This causes conflict because both systems disagree on who has the right to decide.
 
 ---
 
-## Dmytro (BIBA)
+## ELLEE (ELLE)
 
-### Slide 2
+### Q1 — Actuarial Bias & Prison Demographics
 
-I'm on side of goverment cause of that all of liquors, "drugs/medecine", and other substances that afect mental pearsons actions, mental and phisical state should be regolated by the goverment/state, only with lisence from state "distributer" can sell one of those products.
+indigenous women are overrepresented because they deal with both racism and sexism. They also experience poverty, trauma, violence, and discrimination, which can increase contact with the justice system. The scoring is unfair because it labels people as high risk based on things like unemployment, homelessness and oast hardships. this can unfairly disadvantage indigenous people and other who face social and economic 
+challanges.
 
----
+### Q2 — TRC Call to Action #30
 
-## ELLEE (ABCD)
+*Not answered.*
 
-### Slide 1
+### Q3 — Donald Marshall Jr.
 
-they are still subject of the law. if they were allowed to sell anything they could sell illigal things like fent and glocks. the reason the NSLC is able to sell cannibis is cause it was regulated by the governamentant.
+*Not answered.*
 
-### Slide 2
+### Q4 — Gladue Rights & Funding Gap
 
-the raid was justified because it was for public safty regulations. they also had warrents to go make stop them from selling weed
+*Not answered.*
 
-### Slide 3
+### Q5 — Sentencing Circle Design
 
-the argument about missing women who are indigenous has nothing to do with raiding truck houses. they are just trying to mske the governamenant look bad because theyre raidning truck houses rather then looking for the missing girls.
+*Not answered.*
 
-### Slide 4
+### Q6 — Conventional vs. Restorative Justice
 
-just because theyre able to sell gun foesnt mean they should be able to sell weed.  theyre 2 very difgferemt things anmmd should be treated as such. even tho guns are more deadly then weed doesnt mena they shouod ahve the right to sell something just because its deamed less deadly.
+*Not answered.*
 
-### Slide 5
+### Q7 — Bill C-5 & Recidivism
 
-therers a high chance that iuf leo wins that the market will have even more unregulasted things on sale that reallyu shojldnty be. shutting down the shops with a police ofder was a good thing.
+*Not answered.*
 
-### Slide 6
+### Q8 — Msit No'kmaq & Two Paths
 
-the rights dont evolve over time without documentation. riughts dont grow over time like a tre but thats not true. they can change in a heartbeat. yes.
+*Not answered.*
 
-### Slide 7
+### Q9 — Maya Paul Connection
 
-moderate livelyhood doesnt include selling weed. he can make money doing other things.
+*Not answered.*
 
-### Slide 8
+### Q10 — Leo 1752 Treaty Connection
 
-i think it is the goverments fault theyre choosing to maske money this way.
-
----
-
-## Gala (NIVA)
-
-### Slide 1
-
-The treaty itself states "any other thing". Even if it did not, situations change,  "To 'freeze' the right in 1752 treats Indigenous people like museum pieces" by assuming that they will not and could not change and still deserve the rights belonging to them.
-
-### Slide 2
-
-The government's "Public Safety" argument is not valid as an independent lab report finds "Pesticides (None), Mould (None), THC (Accurate)" . The government is defying the Band's "right to manage its own economy" by disallowing them from selling a product with cultural significance.
-
-### Slide 3
-
-The Sacred Fire is a legal boundary because it is a spiritual and cultural boundary and by ignoring it the government is saying "We do not respect your right to your culture" . The government claims to be doing this for "Public Safety" but ignores the problem of violence toward Indigenous women.
-
-### Slide 4
-
-The musket argument makes the case that if they were allowed to trade deadly weapons then how is cannabis "too dangerous"? This is a very good point, however the situation referenced happened 240 years ago and it is not completely accurate to the actions of the government now.
-
-### Slide 5
-
-The "Fiduciary Duty" is being used to protect profits as shown by "a significant loss in sales near Millbrook. Because Leo doesn't pay provincial tax, his product is cheaper." If the government was interested in protecting people it could make a system where the sellers could tell them about the sales they are making surrounding cannabis so it would no longer be "unregistered" while still letting them practice their rights given by the treaties.
-
-### Slide 6
-
-The "Frozen Rights" argument treats people as "museum pieces" by treating "Treaty rights like a museum exhibit [20] rather than a living law". It treats people like they are "museum pieces" by assuming that they cannot or should not change since the treaty rights were decided. If the treaty rights only apply to what they were doing when the rights were decided then they can no longer change and grow as a culture without defying the treaty rights.
-
-### Slide 7
-
-Leo's business qualifies as a "Moderate Livelihood" because the cost of living has gone up considerably and it is not just Leo's livelihood. It is the livelihood of the community and "to fix a community's schools, you need a modern economy, not just enough to buy bread".
-
-### Slide 8
-
-The Crown did not use "Minimal Impairment" as they needlessly defied multiple treaty rights. There was no dialog with the Chief before the raid which goes against "Step 3 of the Sparrow Test: Was there consultation?". ¨ Under the Honour of the Crown, the government must speak to its partners first ¨ and they did not speak with the Chief, treating them like they are not in fact partners.
+*Not answered.*
 
 ---
 
 ## GAVIN (AAAA)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-I feel that times have changed a lot and back in 1752 when the treaty's where signed they signed all these things and where not thinking about the future.  Also they should resign the treaty's saying all the things they want to sell/trade.
+the systems use poverty,trauma, and unstabled living conditions as "risk factors" which unfairly disadvantages many indigenous people because of historical inequality.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-I feel that the raid was not nesasery, the crown did not have to for full force at them they could have have a conversation with them .
+TRC call to action #30 specifically calls on federal, provincial, and territorial governments to commit to eliminating the overrepresentetion of indigenous people 
 
-### Slide 3
+call to action #30 wants fewer indigenous people in jail and more community help instead of prison. sugar falls shows residential schools trauma caused harm that still leads to justice system involvement today
 
-the legal raid did not have to turn into this big thing but it did, so then the human rights crisis was a whole other thing, so have a sacred fire inside a building was not helping the situation at all.
+### Q3 — Donald Marshall Jr.
 
-### Slide 4
+Donald Marshall Jr was wrounly convicted and spent 11 years in prison before being cleared. the roayal commission found he was failed due to systemic racism and major errors by police and prosecutors. it said the justice system did not treat him fairly and led to reforms to prevent future worungful convictions
 
-yes I think they trraty said nothing about cannabis so there for it should not be aloud because it was not in the treaty
+### Q4 — Gladue Rights & Funding Gap
 
-### Slide 5
+substantive equality means couts looking at the different indigenous people have faced to make fair desicions  
+the gladue funding gap is not having enough money for indigenous support programs without these programs, judges have fewer choices beside sending people to jail.
 
-the fiduciary duties are to protect people and their profit meaning they closed down all unauthorized stores to protect the people
+### Q5 — Sentencing Circle Design
 
-### Slide 6
+a sentencing circle has everyone sitting at the same height in a circlr, and judges do not wear robes, showing equality 
+in mi'kmaw culture, the eagle feather is scared. the person holding it speaks while other listen respectfully
 
-yes  I feel the frozen rights approach does treat indigenous people like" museums pieces"  because it denies moderm updates of the treatys rights. in the texts says "treatys treat rights like museums exhibit rather than living laws".
+### Q6 — Conventional vs. Restorative Justice
 
-### Slide 7
+a court focuses on punishment and deciding guilt a sentencing circle focuses on healing and making thing right 
+in a circle, the victim and community both have a voice in the process
 
-I think that moderate lively hood is not a reasonable treaty for cannabis, because you do not need it to survive, unlike your food and water which was on the treaty's "The cort ruled he had a treaty right to fish for a Moderate Livelihood" and are reasonable. so no I do not think that his store qualifys as "moderate Livelihood"
+### Q7 — Bill C-5 & Recidivism
 
-### Slide 8
+indigenous-led restorative justice programs reduce re-offering by about 40% compared to prison 
 
-no they did not follow all the legal steps in the sparrow test, they may have had a valid objective,  but didnt respect Leo's rights and did not properly consult, so the violation was not fully justified
+changing laws like Bill C-5 alone is not enough because it does not fix root people like poverty, lack of truma, lack of housing, and limited community programs without theses supports, people still end up in the same conditions that lead tpp crime.
+
+### Q8 — Msit No'kmaq & Two Paths
+
+Mist No'kmaw means everything is connected, people, nature, and community. 
+
+the sweet grass braid shows this connection though different strands woven together as one 
+
+the grey walls show punishment and separation, hile the golden sunset shows healing and community. theses represent two paths of justice, strict punishment vs restoration
+
+### Q9 — Maya Paul Connection
+
+Liam's housing problems and loss of status come from a past policies in Maya Paul's case 
+
+family separation broke support systems, reserve rules limited housing and resources, and status laws controlled who could live on reserve. 
+
+these caused long-term poverty and instability that still affects Liam today
+
+### Q10 — Leo 1752 Treaty Connection
+
+courts taking control ignores Mi'kmaw authority
+
+in Leo's 1752 treaty case, the treoaty says mi;kmaw people have the rights to make their own decisions, so this cause a conflict over who had power
+
+---
+
+## Gala (NIVA)
+
+### Q1 — Actuarial Bias & Prison Demographics
+
+The percentage of Indigenous men in federal admissions has risen from 25.2% to 33% in just nine years. Meanwhile, the percentage of Indigenous women in federal admissions has risen from 36.1% to 50% in the same nine years. The amount of Indigenous women in federal admissions was larger to start with and has only further grown, especially in comparison to Indigenous men. This is likely because of the mix of sexism and racism that Indigenous women could be subject to, as opposed to Indigenous men. The actuarial scoring system logically assesses the risk on a case by case basis, but is in a void where there should also be work done to lower the percentage of "risky" individuals on a systemic basis as this is a systemic problem.
+
+### Q2 — TRC Call to Action #30
+
+According to the Chapter 4 Fact Check, the TRC Call to Action #30 demands the federal government commit to eliminating the overrepresentation of Indigenous people in custody over the next decade. This connects to the residential school trauma as the overrepresentation of Indigenous people in federal admissions is a result of intergenerational trauma from abuses suffered by survivors.
+
+### Q3 — Donald Marshall Jr.
+
+Donald Marshall Jr. was a Mi'kmaw teen who was wrongfully convicted for murder in Sydney, Nova Scotia. The Royal Commission concluded that the justice system failed him because he had to serve a long sentence for a crime he did not commit and, after being proven innocent, was still blamed by the judge for "his own misfortune".
+
+### Q4 — Gladue Rights & Funding Gap
+
+Substantive equality in the court system means considering the (Indigenous) offender's unique circumstances and providing alternatives to outright incarceration. The "Gladue funding gap" is a lack of funding for such alternatives as Indigenous-led housing, mental health, and healing programs. The lack of community resources prevents judges from offering alternatives to jail because they are not viable options.
+
+### Q5 — Sentencing Circle Design
+
+The physical and cultural structure of a Sentencing Circle differs from a conventional Western courtroom in the ways that it places no one person over others, nor does it grant authority to a person over others. The Eagle Feather in Mi'kmaw culture signifies that the holder is speaking their absolute truth directly to their Creator.
+
+### Q6 — Conventional vs. Restorative Justice
+
+The goals and focus of a conventional court are built around punishing rule breaking while in a Sentencing Circle the goals and focus are built around harm and healing. The circle changes the role of the victim and the community from proving they were harmed to saying what they need to heal and move forward.
+
+### Q7 — Bill C-5 & Recidivism
+
+According to the Chapter 14 Fact Check, Indigenous-led restorative justice programs reduce recidivism by 15-20% compared to prison. The changing of court laws alone is not enough because as long as the cause of the issues are not addressed the issues will continue. If you want to stop water from filling your boat you cannot just throw it back, you have to fix the leak.
+
+### Q8 — Msit No'kmaq & Two Paths
+
+*Not answered.*
+
+### Q9 — Maya Paul Connection
+
+*Not answered.*
+
+### Q10 — Leo 1752 Treaty Connection
+
+*Not answered.*
 
 ---
 
 ## HARRISON (YNPH)
 
-### Slide 3
+### Q1 — Actuarial Bias & Prison Demographics
 
-The document clearly states the Sacred Fire is a “spiritual boundary” and that crossing it is a “profound desecration.” This shows that it is more than symbolic and represents an important boundary in Mi’kmaw law. It also says it “turned a legal raid into a human rights crisis,” which supports the idea that this boundary should be respected.
+Indigenous men increased from 25.2 to 33% of federal admissions, while Indigenous women increased from 36.1to 50%. This shows that Indigenous women have become overrepresented further and at a faster rate. This could be caused by Indigenous women often faceing additional challenges such as poverty, family disruption, violence, and the impacts of intergenerational trauma. The actuarial scoring systems can be unfair because they judge people based on factors like housing, employment, and past experiences rather than their true intentions. This means people who are poor or struggling may be labeled as higher risk even when they are just trying to survive.
 
-### Slide 5
+### Q2 — TRC Call to Action #30
 
-The evidence shows the Province is concerned with the market, not just safety. The line “Public confidence in the regulated market must be maintained” and the fact that Leo’s product is cheaper because “he doesn't pay provincial tax” suggest the focus is on protecting the NSLC. The document also states the Province is “using police force to crush a business competitor,” which supports that the issue is sorounding profits not ppeoples rotection.
+TRC Call to Action #30 calls on the federal government to reduce the overrepresentation of Indigenous people in custody. It also asks for progress to be measured and reported. This connects to intergenerational trauma because many Indigenous families were affected by residential schools, they affected the relationships, trust and mental health of generations. Like Betty Ross in Sugar Falls, its shown how the effects of that trauma can continue across generations and increase the risk of involvement with the justice system.
 
-### Slide 6
+### Q3 — Donald Marshall Jr.
 
-The crown states the “‘Frozen Rights’ approach, treats Treaty rights like a museum exhibit,” meaning it keeps rights focused on the past. This is a problem because it only looks at what the Mi’kmaq did in 1752 and ignores how the people have changed.Protesters protesting that “the law must evolve,” helps to shed light on the idea that rights should grow over time to prevent killing any new indigenous businesses.
+Donald Marshall Jr. was a Mi'kmaw man from Nova Scotia who was wrongfully convicted of murder in 1971. He spent 11 years in prison before being cleared. The Royal Commission found that the justice system failed him because of systemic racism and unfair treatment. His case led to important reforms and greater awareness of discrimination against Indigenous peoples in the justice system.
 
-### Slide 7
+### Q4 — Gladue Rights & Funding Gap
 
-The definition of “‘necessaries’ like food, clothing, and housing but not unlimited wealth” is described as vague in the document, since “‘Moderate’ was left vague by the government.” Because of this uncertainty, Treaties should be interpreted in a way that allows communities to build a sustainable economy, not just survive.
+Substantive equality means recognizing that people have different backgrounds and challenges, treating everyone exactly the same is not always fair. Gladue Rights require courts to consider the effects of colonialism, residential schools, poverty, and other factors when sentencing Indigenous people. The Gladue funding gap refers to the lack of funding for community programs, housing, and support services. Without these resources, judges have fewer alternatives to jail because they have little choice.
 
-### Slide 8
+### Q5 — Sentencing Circle Design
 
-The evidence shows the Crown failed the justification requirements. The document states “the Province never called the Chief before the raid,” meaning there was no consultation, and “they just sent tactical units,” which fails the requirement for minimal impairment. It also says the Crown focused on “protecting the NSLC tax monopoly rather than safety,” showing they did not properly prioritize Indigenous rights over government interests.
+A Sentencing Circle is different from a regular courtroom because everyone sits in a circle at the same level. The judge does not sit above everyone else and does not wear robes. This removes the usual hierarchy and encourages equal participation. In Mi'kmaw culture, the Eagle Feather is a sacred symbol that gives the holder the right to speak while others listen respectfully.
 
----
+### Q6 — Conventional vs. Restorative Justice
 
-## Harrison slade (YNPH)
+A conventional court focuses on determining guilt and assigning punishment. A Sentencing Circle focuses on repairing harm, accountability, and healing relationships. In a circle, the victim and community play an active role in finding a solution instead of being observers while the government handles the case.
 
-### Slide 1
+### Q7 — Bill C-5 & Recidivism
 
-Article 4 states the Mi’kmaq can sell “skins, feathers, fowl, fish or ANY OTHER THING they have to sell.” This wording is very broad and not limited to specific goods. The defense also argues that rights should not be “frozen” in 1752, meaning the right to trade should still apply today. the phrase “ANY OTHER THING”  and that the rights aren't frozen supports the idea that modern goods like cannabis can be included.
+Bill C-5 reduced some mandatory minimum sentences and gave judges more flexibility when sentencing. However, changing laws alone is not enough. Indigenous activists argue that issues such as poverty, housing shortages, lack of healthcare, and intergenerational trauma must also be addressed. Without community supports, many people will continue to face the same challenges that bring them into contact with the justice system.
 
-### Slide 2
+### Q8 — Msit No'kmaq & Two Paths
 
-The evidence shows “Pesticides (None), Mould (None), THC (Accurate)”, which indicates the product was not harmful. Since the Crown’s argument is based on “Public Safety,” but the findings show no health hazards, the justification for the seizure is not supported by the lab results and public safety.
+Msit No'kmaq means "All My Relations." It teaches that all people, communities, and living things are connected. The sweetgrass braid represents these connections and the importance of respect and healing. The cold grey walls earlier in the story symbolize isolation, punishment, and the conventional justice system. The warm golden sunset at the end symbolizes healing, community support, and restorative justice.
 
----
+### Q9 — Maya Paul Connection
 
-## JESSE (LOUP)
+Liam's housing insecurity connects to Maya's case because colonial policies separated Indigenous families and weakened community support systems. Maya's grandmother was taken during the Sixties Scoop, while other family members faced status restrictions under the Indian Act. These policies affected family connections and made it harder for future generations to access housing, support, and a strong sense of belonging causing the lack of options and lonelyness Liam had to face.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-Any other thing can include cannabis, but the right to trade it is not unlimited and will be regulated.
-
-### Slide 2
-
-If the lab didn’t show anything dangerous, then the public safety excuse isn’t strong. It just looks like the government is enforcing rules, not actually protecting people.
-
-### Slide 3
-
-the Sacred Fire should be treated as a boundary because it represents protected cultural and spiritual rights, even if it’s not written as a formal law.
-
-### Slide 4
-
-For the crown in strict legal terms, but the defense raises a strong constitutional and historical critique of how rights are recognized.
-
-### Slide 5
-
-unless the Crown can prove actual public safety risks, the “Fiduciary Duty” argument looks more like protecting regulatory control than directly protecting people.
-
-### Slide 6
-
-the “Frozen Rights” argument can be seen as treating Indigenous rights as stuck in the past, while modern legal interpretation supports evolving, living rights.
-
-### Slide 7
-
-the argument leans toward Leo because treaty rights are meant to support a modern, living livelihood, not just historical activities.
-
-### Slide 8
-
-the Crown likely fails the justification step because it did not clearly show proper consultation or minimal impairment of the treaty right.
+Leo's case showed how governments often ignored Mi'kmaw treaty rights and self-governance. In Liam's case, the conventional court system also makes decisions without community involvement. The Sentencing Circle is different because it gives the Mi'kmaw community a voice and respects Indigenous ways of resolving conflicts.
 
 ---
 
 ## Jon (DUDE)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-Because when the 1752 treaty was signed, truckhouses were made where Mi'kmaq could exchange goods without being cheated. As well if the Wampum is the true record, then the Mi'kmaq are Sovereign Partners and partners don't need a license from their partner to do business on their land. As well the treaty states that the Mi'kmaq have free liberty to sell anything they want to.
+Indigenous people only make up less than 5% of the general population but they make up a big part of the federal admissions.  Indigenous females make up 50% of federal admissions for women and Indigenous men make up 33% of federal admissions for men. In 2017 36.1% of in-custody females were Indigenous and 25.2% of in-custody males were Indigenous even though they only made up less than 5% of the population. The female group has widened faster which makes sense unfortunately because Indigenous people have always been undervalued but especially Indigenous women have been treated horribly. The scoring system is unfair because when Liam was being booked, the report says nothing about living in poverty or being cold but only being poor which Liam falls into that category.  Because he's poor, he is put at high risk and isn't qualified for immediate release and will be held in court.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-Even though the province has its own act, The Chief stated that they regulate cannabis on their land and the band has the right to self-government and the right to manage its own economy. As well, the government claims the raid was for public health, but results showed there was no harm to public health so the raid was actually for protecting the Province's Tax Monopoly
+The TRC documented how residential schools disrupted family structures, language, and cultural identity. The trauma impacts generations, creating social inequalities that are penalized rather than being healed in conventional courts. This call to action specifically calls on all levels of government to commit to eliminating the overrepresentation of Indigenous people in custody over the next decade. This is connected to Sugar Falls because this is the same trauma that Betty experienced while in residential schools.  She was forced to stop speaking her language and was stripped of any cultural identity she had.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-Because the fire is a spiritual boundary and stepping over it is a desecration and turns a legal raid into a human rights crisis. As well, the community states that the government raids their businesses but ignores the countless missing women and this frames the raid as part of a larger history of colonial violence and not just a drug case.
+He was a Mi'kmaw youth who was wrongfully convicted of murder in Sydney, Nova Scotia. However, the 1989 Royal Commission concluded that the system was plagued of systemic racism, leading to the creation of restorative justice initiatives in Nova Scotia. This led to him being released from jail.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-Yes it is because if the Mi'kmaq was trusted to protect deadly weapons, then why all the sudden are they not trusted to trade cannabis safely. As well, Leo states that for 200 years they made them dependent and now that we fund our own elders and you call us criminals. He's fighting the empty box theory the idea that rights are empty until a judge says they exist. Leo says his box is full of rights.
+Substantive equality means different accountability, not less. Glaude is a right to substantive equality, meaning the court must look at the offender's unique circumstances. However, a lack of funding for Indigenous-led housing, mental health, and healing problems often meant the alternatives to jail weren't available leading courts back to incarceration.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-It is used to protect their profits because they're upset of the huge loss in sales near Millbrook because Leo doesn't pay provincial tax and his product is cheaper. This proves their motive that the province is using police force to crush a business competitor rather than solve a safety issue.  This proves they care way more about their profits rather than the safety of its people which is embarassing. The government argues that if Leo wins than the province will be filled with unregulated shops and the Province argues its Fiduciary Duty is to protect everyone from an unregulated market but the reality is they are trying to protect their profits because they know they will lose sales because of the "unregulated" shops.
+A sentencing circle brings together the offender, the victim, the community support and the judge. Unlike conventional courts where the judge sits elevated to symbolize authority, the circle places everyone at the same level. In Mi'kmaw culture, holding the Eagle Feather signifies that the speaker is speaking their absolute truth directly to the creator which raises the emotional stakes.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-Even though in the R. V. Googoo the judge ruled because the Mi'kmaq didn't trade cannabis in 1752 then they don't have a right to it today, but the treaty stated that the Mi'kmaq have free liberty to trade anything they want and cannabis is definelty something so The Crown's strongest weapon isn't as strong as they think it is. The government is trying the frozen rights approach and they're doing this because they know the treaty rights favour the Mi'kmaq so they want to freeze them to get the upper hand. Freezing the rights makes the treaties feel like history that belongs in a museum.
+The goal of the sentencing circle is for healing and restoration rather than punishment and deterrence and the result is reintegration and restituition rather than isolation (jail).  Instead of lawyers and a judge, it's the victim, the offender, the community, and a judge. Instead of trying to figure out the law that was broken, the focus is the harm that was done. The circle changes the role of the victim and the community because unlike in a conventional court, there's no desk to hide behind and everyone can see each other.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-Leo's business qualifies as moderate because his business provides food, clothing and housing but his business doesn't give him unlimited wealth. The government argues that his business is too big to be moderate but Leo counters that to fix schools in the community you need a modern economy, not just enough to buy bread. The term moderate was left very vague by the government to avoid giving up power (shocker). If the court adopts a broad definition, it will help First Nations to move toward independence but a narrow definition will keep them dependent on governmnet funding.
+These justice programs reduce recidivism by 15 to 20% because unlike traditional prison sentences, they address things like housing instability and social isolation. Despite Bill C-5 removing mandatory minimum sentences for several offenses, Indigenous incarceration rates remain very high. Indigenous adults represent 33% of federal admissions and 50% of incarcerated women while representing less than 5% of the population.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-The government didn't consult with the Chief before the raid at all and they didn't try to develop safety rules together instead they sent the police. Under the Honour of the Crown, the government must speak to its partners first. The government raided them because of safety but in reality it was for revenue because there was no harm to public safety at all so if the court finds the raid was for revenue, the "Compelling Objective" step of the Sparrow Test fails completely.
+Msit No'kmaq is a foundational Mi'kmaw worldview meaning "All My Relations". It expresses the interconnectedness of all people, ancestors, community, and creation. In justice, this means that crime is not just a individual act but a tear in the relationships of the community. Healing the individual heals the entire circle. The cold grey walls of Chapter 5 is how he always has been, cold. He was searching for warmth and as a result, was put right back in the cold. In chapter 16, he finally gets to experience the warm golden sunset and no longer is always feeling cold. This represents that being in jail is a cold, empty experience, but not being in jail is a warm, enjoyable experience.
 
----
+### Q9 — Maya Paul Connection
 
-## JOSH (JOSH)
+Because Liam is struggling to find a sustainable place to stay and is always feeling cold and when he tries to be warm, he gets arrested and put right back in the cold. This traces back to Maya because she was separated from her family and her home and put in a cold, dark place. When she got taken away, her status was deemed inactive because she was actively using it since she was taken away. When she was taken away, documents made it seem like her old life no longer mattered.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-The words 'any other thing' make clear that Article 4 intended to include 'any other thing' that the Mi'kmaq could have to sell. I can't see why that can't include cannibis which is a legal product to sell in the province.
-
-### Slide 2
-
-No, 'public safety' is not a valid argument. The product was tested and no evidence was found that it was unsafe.  Cannabis sales in Nova Scotia totaled $127.1 million for the year ended March 31, 2025. This provides important funding for the government so it will encourage people to buy the cannabis it sells through the Nova Scotia Liquor Commission instead of from other sources. The 'public safety' argument is part of a marketing campaign by the government to encourage the purchase of 'safe' product through its retailers.
-
-### Slide 3
-
-The UN Declaration on the Rights of Indigenous Peoples says in Article 3 that Indigenous people have the right to self determination. They create their own laws and customs and can live by those. A sacred fire is a spritual boundary of great significance in Mi'kmaw culture. When a Mi'kmaw person dies a Sacred Fire is lit and is kept burning for four days. During this period, the spirit of the deceased person is making its final visits to people and places it has known during its life on Earth, and the Sacred Fire acts as a beacon so that the spirit can find its way back. The Sacred Fire marks a boundary and has a set of rules around how it is treated and managed. It is a legal boundary in indigenous law.
-
-### Slide 4
-
-I don't think this is a valid analogy. In 1760, gunpowder, lead and muskets were products used by the Mi'kmaq for hunting and to protect their territory. These were essential tools for their livelihoods. I would not argue that cannibis is essential to Mi'kmaq people's livelihood. It is a recreational product for personal consumption. Evaluating safety of something for personal consumption is very different from the saftey of products used for livelihood and survival.
+Because in the Leo case, the government tried to use land rights to shut down the store, but the store was located on reserve which had different land rights then the government so the store was completely legal according to the reserve's land rights. This connects to the Liam case because the community authority outpowered the conventional courts which gave Liam a better chance in his case. If his case was in a conventional court, then he's probably going to prison, but since it was a sentencing circle, he got 40 hours of community service  and MLSN will assist him with housing instead of being sent to prison.
 
 ---
 
 ## Julianne (WASH)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-The Mi'kmaw people as Sovereign Partners do not need the permission of the Crown to sell on their own land, and the treaty clearly states that the Mi'kmaw may sell anything they saw fit.
+Indigenous women are even more overrepresented than Indigenous men in federal admissions because the justice system and colonial policies are inherently gendered. It unfairly penalizes poverty and history rather than actual criminal intent because the scoring system does not see the people who are in poverty as people but liabilities that might do something "wrong" no matter the reason.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-The Defense had permission by its own Band Council to sell cannabis on the reserve which the Band Council has a right to allow as they govern their own land. The government had no right to raid them as they were in their rights to sell and were doing so in a safe way.
+It demands that the federal, provincial, and territorial governmentseleminate the overepresentation of Indigenous people in custody within a decade, and have reports that monitor this role.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-The government overstepped a huge boundary and ignored both Mi'kmaw rights and their communities cultural needs.
+Donald Marshall Jr. was a Mi'kmaw man from Membertou, Nova Scotia. He was wrongfully convicted of murder in Sydney, Cape Breton. The Royal Commission concluded that the justice system failed him because the conviction was driven by anti-Indigenous racism.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-If guns are not too dangerous to sell, then neither is cannabis. If the judge rules in the governments favour then they would be ignoring Mi'kmaw claim and saying that the government is more official than the Indigenous people and their rights.
+Substantive equality looks at the impact of a law or policy to see whether the outcome is equal for different groups of people. The Gladue funding gap is the difference between the rights of the Indigenous people to trauma-informed sentencing and rehabilitation and the actual financial resources given by the government. The lack of resources gives little choice to judges on sentences other than jail time.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-The 'Fiduciary Duty' is being used to protect profits not people, the government is only worried about losing money to the Mi'kmaw not about the health of the public.
+*Not answered.*
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-It does treat people museum pieces because its like freezing womens right to vote as if they aren't still there. By freezing it it says that that right never existed as a right in the first place.
+*Not answered.*
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-It does qualify as a moderate livelihood because it is his business and the way he makes his money to survive and help his community. By telling him that he can't do this it is saying that the Indigenous people cannot strive for more like a white person would.
+*Not answered.*
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-The Crown did not use Minimal Impairment as they just stormed the place without speaking to the Chief first. If they had of just spoken to the Chief he would have allowed them to search in a more peaceful and honorable way.
+*Not answered.*
 
----
+### Q9 — Maya Paul Connection
 
-## KEVIN (CHIG)
+*Not answered.*
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-if the mikmaq have the ability to sell anything  the mikmaq abstain the right it breaks more law than just if they were unable to sell it. giving the mikmaq the right to to sell anything makes keeping the country safe difficult because they could just sell anything that could be harmful to other people that the law trys to prevent like weapons drugs and other dangerous items.
-
-### Slide 2
-
-the raid  was valid because it was to prevent dangerous events and for public safed and  to keep regulations. they also had a warent to raid the truck house.
-
-### Slide 3
-
-This argument is about missing and murdered indigenous women and talk about how the government raids their indigenous business but ignores missing indigenous people. But I believe that the indigenous are just trying to making reason that make the government look bad. Like how they says the store the government raided provided jobs and funding for elder even tho stores owned by the goverment did the same thing.
-
-### Slide 4
-
-i choose for the crown because back in they day the mikmaq did trade for guns but back in the day guns were regularly sold and givent to people unless the went to people who produced it but now humans were more modernized so now we can mass produce dangerouse weapons making them more of a risk for the public. guns are also a different subject than cannabis because guns have no ilegal substances that can change how a person reacts to a situation rather than a gun would.
-
-### Slide 5
-
-I think its being used to protect the people because I can understand the way that they need to take down unregulated shops because if they didn't regulate it the shops are able to sell anything that was illegal to buy before which is now becoming avaliable for the public to buy making the law that was originally place for public safety pointless.
-
-### Slide 6
-
-I believe it does not because they government  Is only pointing out the past that they did not sell the cannabis because in the past people never got hooked on the drug untill it became popularized for the public which then caused mikmaq truck houses to start selling them.
-
-### Slide 7
-
-the business doesn't qualify as a moderate livelihood because the store does have the necessaries but because they sell other illegal products like cannabis their able to sell other things just for profit with out the government knowing and it also provides hazards such as people who might end up buying weapons that are dangerous and causing catastrophic events
-
-### Slide 8
-
-I think it is the government fault that they are choosing  a tax monopoly rather than safety. I dont think the crown met the requirements for justification in this case.
+*Not answered.*
 
 ---
 
-## lena (FOOD)
+## Kevin (CHIG)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-The phrase “any other thing” is intentionally broad and, under the 'Living Tree Doctrine' and 'R v Marshall,' must evolve to include modern goods tied to a livelihood. Therefore, cannabis can be included as part of a contemporary Mi’kmaq right to trade.
+women are overrepresented because they face both racism and sexism. many also experience poverty trauma violence and discrimination which can increase contact with the justice system.  the scoring is unfair because it labes people as high risk based on small things like unemployment homelessness and past hardships. this can give indigenous people a unfair disadvantage and others who face social and low income challenges.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-The independent lab report shows no pesticides, no mold, and accurate THC levels, undermining the Crown’s claim that the raid was necessary for public health. Without evidence of harm, the “public safety” justification is weak and doesn't appear with a compelling objective under R v Sparrow. This suggests the enforcement action was driven more by economic regulation than safety concerns.
+the trc call to action 30 asks the government to reduce and eliminate the overrepresentation of indigenous people in prisons and report  on their progress each year.
+in sugar falls Liam's grandfathers residential school experienced shows how trauma can be passed down through gerations.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-The Sacred Fire represents a Mi’kmaq legal and spiritual assertion of jurisdiction, reinforcing the nation-to-nation relationship recognized in treaty principles. Under United Nations Declaration on the Rights of Indigenous Peoples (Article 3), Indigenous peoples have the right to maintain their own legal traditions and governance systems. Ignoring this boundary risks violating the Honour of the Crown and escalating the conflict beyond a simple regulatory issue.
+Donald marshal Jr was a mikmaq man who was wrongfully convicted of a murder in Sydney.
+a royal commission found that the justice system failed him because of racism,police mistakes and unfair treatments by prosecutors and the courts. his case became a important example of discrimination against indigenous people in the canadian justice system.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-Historical evidence that the British traded muskets and ammunition supports the argument that treaty trade was not limited by modern safety standards. If dangerous goods were part of protected trade historically, it weakens the Crown’s claim that cannabis can be excluded purely on safety grounds. This analogy strengthens the view that “trade” under the treaty must be interpreted broadly and contextually.
+substantive equality means that the court must look at the offenders unique circumstances like background and experiences to unfair treatments.
+the the gladue funding gap  is the lack of funding for gladue services and community programs.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-Historical evidence that the British traded muskets and ammunition supports the argument that treaty trade was not limited by modern safety standards. If dangerous goods were part of protected trade historically, it weakens the Crown’s claim that cannabis can be excluded purely on safety grounds. This analogy strengthens the view that “trade” under the treaty must be interpreted broadly and contextually.
+in a mikmaq sentencing circle everyone sits equally in a circle with out  robes or raise seats meaning no judge that is elevated above others and no formal robes, unlike traditional courtrooms.
+in mikmaq culture the eagl feather is a sacred symbol. the person holding it has the right to speak and others listen respectfully.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-The “Frozen Rights” approach, reflected in R v Googoo, limits treaty rights to 1752 practices, effectively preventing Indigenous economic evolution. This conflicts with modern principles of treaty interpretation, including the Living Tree Doctrine, which require rights to adapt over time. As a result, it risks reducing Indigenous peoples to static “historical actors,” which courts have increasingly rejected.
+the convertional court  focuses on  determing guilt and punishment. a sentencing circle focus on healing and accountability for their actions and  repairing harm.
+in a sentencing circle the victim and community play a role by sharing their views and helping decide how to address the harm caused by the offense.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-In R v Marshall, the Court affirmed a right to earn a “moderate livelihood,” not merely subsistence. A modern business generating jobs and funding community services aligns with that purpose, even if it exceeds small-scale trade. Therefore, Leo’s operation can reasonably fit within a contemporary understanding of livelihood.
+indigenous people led restorative justice programs reduce reoffending about 50% Bill c5 alone isnt enough because it changes the laws but doesn't fix the root cause like poverty ,trauma , poor housing and lack of opportunities.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-In R v Marshall, the Court affirmed a right to earn a “moderate livelihood,” not merely subsistence. A modern business generating jobs and funding community services aligns with that purpose, even if it exceeds small-scale trade. Therefore, Leo’s operation can reasonably fit within a contemporary understanding of livelihood.
+mist no kmaq means all my relations like we are connected to the land the animals and our past ansestors. the sweet grass braid symbolizes connections and healing.The grey wall shows punishment, while the golden sunset represents healing and restoration showing the two paths of justice
 
----
+### Q9 — Maya Paul Connection
 
-## MAE (BALL)
+liams housing insecurity and status loss on the reserves are like the family separations because it can be traced to past policies that separated indigenous family's ,ristricted life on reserves and  limited who qualified for indigenous status.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-The reasoning for this is that they signed the treaty, and it is important to the indigenous culture that they get the supplies they want and need.  This includes cannabis and it was writen in the wampum agrement and the written one
-
-### Slide 5
-
-Public confidence in the regulated market and the drop in NSLC sales suggests the shutdown may also be about protecting government cannabis sales, not just public safety.
-
-### Slide 6
-
-its suck in the past, like a museum exhibit, by refusing to allow those rights to grow or to modern economic life.
+both cases show jurisdiction clashes. for example mikmaq authority is oftend overriden by Canadian courts dispite the treaty rights recognizing mikmaq self governanace and decision making
 
 ---
 
-## MATEO (YOLO)
+## Lena (FOOD)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-1752 treaty cant include cannabis, because treaty rights only cover goods historically traded or essential to Mi’kmaq subsistence
+The gap for Indigenous women has widened faster than for men. Their representation jumped approximately 13.9% (from 36.1% to 50%), while men increased by 7.8% (from 25.2% to 33%). Indigenous women often face double trauma as both victims of violence and targets of systemic discrimination. Factors like higher rates of childhood maltreatment and the risk of being separated from children by child welfare agencies further entrench them in the system. These systems penalize poverty and history by using "risk factors" such as unstable housing, unemployment, and past family trauma. Because these factors are often a direct result of colonial legacies rather than personal criminal intent, Indigenous individuals are disproportionately labeled "high risk".
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-Lab tests showed the seized cannabis was safe and uncontaminated, so the Province’s public safety argument is weak, the raid appears more about regulation than actual health risk.
+TRC "Call to Action" #30 demands that the federal government commit to eliminating the over-representation of Indigenous people in the custody of the correctional system. This connects to Sugar Falls because the trauma inflicted by residential schools often leads to cycles of displacement and poverty that increase the likelihood of Indigenous individuals entering the justice system.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-The Sacred Fire is a legal boundary because it embodies Mi’kmaq law recognized under Canadian legal principles, and ignoring it can create legal liability for the Crown
+Donald Marshall Jr. was a Mi’kmaw man from Nova Scotia who was wrongfully convicted of murder in 1971. The Royal Commission concluded that the justice system failed him due to systemic racism and incompetence, noting that his status as an Indigenous person significantly influenced the unfair treatment he received from police and prosecutors.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-The musket argument is legally valid as a principle, Indigenous rights exist inherently, independent of court acknowledgment
+In the court system, substantive equality means acknowledging unique systemic and historical factors to ensure equitable outcomes, rather than simply treating everyone the same regardless of their background. The Gladue funding gap refers to the lack of financial support for Indigenous led restorative justice programs, which forces judges to rely on incarceration because viable community based alternatives do not exist.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-the Fiduciary Duty is being invoked to protect people, not profits. The Province frames its duty as safeguarding citizens from the dangers of an unregulated market rather than maximizing economic gain.
+A Sentencing Circle replaces the hierarchical seating and formal robes of a conventional courtroom with a circular arrangement where everyone sits at the same level to represent equality. In Mi'kmaw culture, holding the Eagle Feather signifies that the speaker is committed to telling the truth with honesty and respect.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-Yes, the ‘Frozen Rights’ argument effectively treats people as ‘museum pieces’, because it denies the Mi’kmaq the ability to adapt their treaty rights to modern contexts.
+While conventional courts focus on determining guilt and issuing punishment, sentencing circles prioritize healing and restoring balance between all parties involved. This process shifts the victim and the community from passive observers to active participants who help decide the path for reconciliation and accountability.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-Leo’s business does not qualify as a “Moderate Livelihood”, because it is oriented toward commercial expansion rather than basic subsistence.
+According to the Chapter 14 Fact Check, Indigenous-led restorative justice programs reduce recidivism rates by up to 75% compared to traditional prison settings. Changing court laws alone is insufficient because without addressing root socio-economic issues,like poverty and lack of healthcare, the underlying triggers for criminal behavior remain, leading individuals back into the justice system regardless of the sentencing method.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-No, the Crown did not justify the infringement. Evidence shows they skipped consultation and used excessive force
+Msit No'kmaq translates to "All My Relations," representing the interconnectedness of all living things and the shared responsibility we have toward one another. This connects to the sweetgrass braid on the floor, as the individual strands are woven together to create a singular, stronger whole. The contrast between the cold grey walls and the warm golden sunset symbolizes the "Two Paths" by depicting the punitive, isolating nature of the current system versus the healing, hopeful potential of restorative justice.
 
----
+### Q9 — Maya Paul Connection
 
-## MICHAEL (ABCD)
+Liam’s housing insecurity is a direct result of colonial status codes and reservation restrictions that dictate who is legally allowed to reside on-reserve, mirroring the systemic displacement seen in Maya Paul’s case. These legislative barriers prioritize government defined "status" over familial and community ties, forcing individuals into housing instability when they lose their legal standing. Ultimately, both cases illustrate how historical family separations and rigid status exclusions continue to fracture Indigenous communities today.
 
-### Slide 1
+### Q10 — Leo 1752 Treaty Connection
 
-They are still subject to follow the laws, if they were aloud to sell anything then they could sell iligal things such as fentanyl, guns and weapons if they are aloud to sell anything that they want. The reason NSLC is aloud to sell canabus is because it is regulated by the government and they follow all of the nessisary regulations.
-
-### Slide 2
-
-The raid was valid because it was for public safety and regulations, they also had valed warents to go make stop them from selling iligal weed.
-
-### Slide 3
-
-This argument about missing indigenous women has nothing to do with them raiding truck houses, they are just trying to make the governemnt look bad and make it seam like they don't care about them while that is not true. And just because this is providing money to nursing homes doesn't mean that it should not be shut down if it is iligal.
-
-### Slide 4
-
-Just because they are able to sell guns doesn't mean that they should be able to sell weed, they are two completely separate things and they should be treated separate, even though some people may think that guns are more deadly it doesn't give them the right to seel anything that someone may deam is less deadly.
-
-### Slide 5
-
-there is a high possibility that if Leo wins then the market will have more iligal and unregulated shops, and the fact that they shut down the shops with a police order is a good thing because they could continue to sell iligal items.
-
-### Slide 6
-
-The rights don't evolve over time without proper documentation, if the providence of Nova Scotia signed something saying they can sell cannabis it would be a different story, however in 1752 they decided all the thing that they would be able to sell and it has not scence been uptaded so why would it evolve just because some people decided it would.
-
-### Slide 7
-
-For Leo fishing is moderate livelyhood because that is how many indigenous people have always made money and fed themselves. However, selling cannabis might make Leo some money but it is not essential and there are many other ways  he can make money.
-
-### Slide 8
-
-They failed to meat the first step of the sparrow test witch is the existing of the aboriginal right, however they were never selling cannnabus was never in the treaty.
+The override of community authority in Liam's case connects to the jurisdiction clashes in Leo’s 1752 Treaty Case, where Mi'kmaw sovereign rights were historically dismissed by colonial legal systems. By ignoring community led sentencing and local governance, modern courts continue to bypass the self-determination and protection rights guaranteed under the 1752 Treaty. This ongoing problem highlights a systemic failure to recognize Mi'kmaw legal traditions as valid, equal sources of authority in justice.
 
 ---
 
-## MRWAUGH (XOXO)
+## MAE (MAES)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-r2getgnbhsrdfyjrsymjnrwsyjrswynmsrhgmnrsymn
+The increase was larger for Indigenous women, showing they are becoming overrepresented faster. Actuarial scoring is biased because it treats factors like poverty, unemployment, and unstable housing as risk factors, which can unfairly punish people for their circumstances rather than their actual actions or intent.
+
+### Q2 — TRC Call to Action #30
+
+TRC Call to Action #30 calls on the federal government to reduce the overrepresentation of Indigenous people in prisons and to publish annual progress reports.
+
+This connects to intergenerational trauma because the effects of residential schools, including family separation, abuse, and loss of culture, continue to impact Indigenous families today. These lasting effects can contribute to poverty, addiction, and involvement with the justice system
+
+### Q3 — Donald Marshall Jr.
+
+*Not answered.*
+
+### Q4 — Gladue Rights & Funding Gap
+
+*Not answered.*
+
+### Q5 — Sentencing Circle Design
+
+*Not answered.*
+
+### Q6 — Conventional vs. Restorative Justice
+
+*Not answered.*
+
+### Q7 — Bill C-5 & Recidivism
+
+*Not answered.*
+
+### Q8 — Msit No'kmaq & Two Paths
+
+*Not answered.*
+
+### Q9 — Maya Paul Connection
+
+*Not answered.*
+
+### Q10 — Leo 1752 Treaty Connection
+
+*Not answered.*
 
 ---
 
-## rose (ROSE)
+## Michael (MIKE)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-Yes it does because the treaty states that they could sell what they wanted in their stores on their land. Cannibals is apart of their culture there for they should be able to sell it.
+Women are seen more in prisons because they fase both rasisum and sexism.  Many also have issues with trama, violence and discrimination witch makes them more likely for them to go to prison. This can give indigenous people an unfair disadvantage especially when it comes to finding employment. m
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-It says that the Mi'kmaq have the right to a self government, and control over their own economy. Because of this they should have final say over what they and don't sell.
+TRC Call to Action #30 calls for reducing Indigenous children’s overrepresentation in foster care, directly addressing the intergenerational trauma seen in Sugar Falls, where Liam’s grandfather’s residential school experience disrupted family bonds and continues to affect future generations.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-In the  treatys they the British(the crown) stated that they would live along side the Mi'kmaq, that means respecting their traditions. The Sacred Firelit is law for the Mi'kmaq.
+*Not answered.*
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-It is a valid, because he is telling the truth they treat them like criminals when all they are doing is surviving. It states that if the judge says that Leo is guilty, it would mean Canadian truth means more then Indigenous truth, even though the Indigenous were here first.
+*Not answered.*
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-They say that if Leo wins it will cause shops to take over Canada, but Mi'kmaq have been selling cannabis for decades and Canada wasn't;t taken over by shops at any point. Once again they are in their own territory with their own government, their own economy, and their own shops.
+*Not answered.*
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-The government is picking and choosing what to listen to from the treaty, using it as an advantage towards them instead of a law set in place over hundreds of years.
+*Not answered.*
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-It does qualify as moderate livelihood, with the economy changing it costs more to live, meaning that Mi'kmaq will have to sell more to survive. Things like housing, food, and clothing would be impossible for them to obtain if the court keeps going off of what happened priviuosly in history.
+*Not answered.*
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-They could have talked to the chief, and come up with an agreement on what to do about the shop. They instead sent police in right away with full force, took Leos products, and made arrests.
+*Not answered.*
+
+### Q9 — Maya Paul Connection
+
+*Not answered.*
+
+### Q10 — Leo 1752 Treaty Connection
+
+*Not answered.*
 
 ---
 
 ## Ruby (NECK)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-The phrase any other thing is broad and uncertin, so it includes all tradable goods, including cannabis today. Treaties must be flexible, by a modern iving tree way, meaning trade rights evolve and can include new lawful products like cannabis.
+Indigenous women have increased more than Indigenous men. Indigenous men went from 25.2% to 33%, while Indigenous women went from 36.1% to 50%, which is a bigger increase. This may be because Indigenous women are more affected by poverty, trauma, and unfair systems. The system is unfair because it treats poverty, unemployment, and housing problems as “risk,” instead of focusing on actual criminal behaviour.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-If the product is safe and uncontaminated, then there’s no real health risk. So the public safety reason doesn’t fully explain the raid and may instead be about enforcing laws or taxes.
+TRC Call to Action #30 asks the federal, provincial, and territorial governments to work to reduce and eventually eliminate the overrepresentation of Indigenous people in custody within 10 years. This connects to Sugar Falls because it shows how residential schools caused deep trauma, loss of culture, and broken family connections. That trauma was passed down through generations, which helps explain why Indigenous people are still overrepresented in the justice system today.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-It represents Indigenous law and sacred space, so crossing it can be seen as violating cultural rights and the legal-human rights conflict.
+A Mi’kmaw youth in Sydney, Nova Scotia was wrongly convicted of murder. The 1989 Royal Commission found the justice system had systemic racism. This led to new restorative justice programs in Nova Scotia.
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-If muskets were allowed in treaty trade, then the treaty likely meant broad freedom to trade different kinds of goods, not just limited items. It seems not right for the crown to allow dangerous goods in the past but restrict modern legal ones like cannabis now.
+Substantive equality means the court tries to give fair treatment by considering a person’s background and life circumstances, not treating everyone exactly the same. The “Gladue funding gap” means there is not enough funding for Indigenous services like housing, mental health care, and healing programs. Because these supports are missing, judges often don’t have real alternatives to jail, even when they are supposed to use them.
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-The thing about public confidence in the regulated market and the drop in NSLC sales suggests the shutdown may also be about protecting government cannabis sales, not just public safety.
+In a sentencing circle, everyone sits at the same level with no special chairs or robes, showing that everyone is equal. In a regular courtroom, the judge sits higher to show authority. In Mi’kmaw culture, the Eagle Feather means the speaker is telling their truth and speaking with honesty and respect.
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-Yes it can treat Indigenous rights as stuck in the past, like a museum exhibit, by refusing to allow those rights to grow or to modern economic life.
+A conventional court focuses on punishment and proving guilt, with the judge and lawyers in control. The victim is mostly a witness and does not take part in decisions. A sentencing circle focuses on healing and repairing harm. The victim plays a more active role by sharing their experience, and the community helps decide how to support healing and reintegration instead of just punishment.
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-Under r v marshall Leo can argue his business fits a moderate livelihood because it just needs to cover basic things like food, housing, and bills in today’s world. Since the Court didn’t limit it to small or old-style trading he can say his cannabis shop is simply a modern way to earn enough to live.
+Indigenous-led restorative justice programs reduce recidivism by about 15–20% compared to prison. Changing laws like Bill C-5 helps reduce harsh sentencing, but it is not enough on its own. If problems like poverty, housing instability, and lack of support are not fixed, people can still end up back in the justice system.
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-Under the defense view using r v sparrow the crown likely failed minimal impairment because they used a police raid instead of trying to talk or work out rules first. If they could have dealt with safety by negotiating instead of shutting the business down then the raid was not the least harmful option.
+Msit No’kmaq means “All My Relations,” showing that everyone and everything is connected, including people, family, community, and nature. The sweetgrass braid on the floor represents this connection because it shows different strands coming together as one, just like people are linked in life. The cold grey walls in Chapter 5 represent prison and punishment, while the warm golden sunset in Chapter 16 represents healing and hope. These show the “Two Paths” of justice which is focused on punishment and separation, and the other focused on healing and connection.
+
+### Q9 — Maya Paul Connection
+
+Liam’s housing insecurity and loss of status are connected to earlier policies in Maya Paul’s case file. Family separations and strict reservation rules broke up communities and limited where people could live. Status codes also excluded some people from being recognized as Indigenous, which affected their rights and access to housing on reserve. This history helps explain Liam’s unstable housing situation today.
+
+### Q10 — Leo 1752 Treaty Connection
+
+In Leo’s 1752 Treaty Case, the treaty recognizes Mi’kmaw rights to self-government and authority over their own lands and people. When conventional courts ignore Mi’kmaw community authority, it creates a similar conflict where outside systems make decisions instead of respecting treaty rights. This leads to jurisdiction clashes, because two systems of law are in disagreement over who has the right to decide.
 
 ---
 
-## SONJA (ROSE)
+## Sonja (SONJ)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-They shouldn't be allowed to sell anything because they could sell guns or worse even if they just start with Cannabis then they could make lots of profit. Then government knows what is going into the NSLC but they don't know what's going into the Truckhouse, therefore it could be bad things for people who shouldn't have it.
+Indigenous women are going to prison faster than men, this went up from 36% to 50%, while men going to prison went up from 25% to 33%. This is happening because Indigenous women often face more problems like poverty, unstable housing, and unfairly getting in trouble for survival choices.
 
-### Slide 2
+### Q2 — TRC Call to Action #30
 
-The Public Safety is valid because it was to help individuals out and make sure they're not getting stuff that had bad stuff in it. Both sides did labs test but both got different answers, therefore one of them is lying but we don't know which one. But I believe that the argument is valid.
+TRC Call to Action #30 asks the government to reduce the number of Indigenous people in prison and report on its progress each year. This connects to Sugar Falls because Liam's grandfather went to a residential school like Betty. The trauma from the residential schools affect the individuals and their families after many generations.
 
-### Slide 3
+### Q3 — Donald Marshall Jr.
 
-This argument is on MIssing and Murdered Indigenous Women, this has nothing to do with the raid. They're trying to make the government look bad and like they don't care, but there are so many missing reports for everyone and they don't have time for all of them. They using some of the money
+*Not answered.*
 
-### Slide 4
+### Q4 — Gladue Rights & Funding Gap
 
-They have the rights to sell guns but they don't have the right to sell weed because they're two different things. Also, just because guns are more deadly it still doesn't  mean that weed is okay to sell if it's less deadly.
+*Not answered.*
 
-### Slide 5
+### Q5 — Sentencing Circle Design
 
-The government is losing money because of the Truckhouses are selling stuff they're not allowed to. Therefore, with the government taking down the Truckhouses it's ok and they're earning their money back and the Truckhouses aren't selling Illegal things.
+*Not answered.*
 
-### Slide 6
+### Q6 — Conventional vs. Restorative Justice
 
-The rights don't evolve overtime and in 1752 they allowed them to sell certain things, and Canbis wasn't one of them. They're trying to say that they right should evolve to were they can, however rights aren't like that, they stay a certain way for a reason to keep individuals safe. Also, if they want that right to change then anyone could say that they want a different law to change creating chaos.
+*Not answered.*
 
-### Slide 7
+### Q7 — Bill C-5 & Recidivism
 
-In the treaty it says they're allowed to fishing because they need food to live, moderate livelihood. However, they're not allowed to sell cannabis because it's not something that you need to live with, it's something that you buy for a fun time. Therefore, they shouldn't be allowed to sell cannabis because it's not a daily need like clothing or food.
+*Not answered.*
 
-### Slide 8
+### Q8 — Msit No'kmaq & Two Paths
 
-They failed to meet the first step which means that they're not allowed to sell cannabis because it's not in the treaty. Also, they're trying to remake a law that was made for a specific reason, to help out individuals with their needs.
+*Not answered.*
+
+### Q9 — Maya Paul Connection
+
+*Not answered.*
+
+### Q10 — Leo 1752 Treaty Connection
+
+*Not answered.*
 
 ---
 
 ## Sophie (QASW)
 
-### Slide 1
+### Q1 — Actuarial Bias & Prison Demographics
 
-Yes  it does include Cannabis because of Art 4 states "the said Indians shall have free liberty to bring for Sale to Halifax or any other Settlement... Skins, feathers, fowl, fish or ANY OTHER THING they have to sell."
+*Not answered.*
+
+### Q2 — TRC Call to Action #30
+
+*Not answered.*
+
+### Q3 — Donald Marshall Jr.
+
+*Not answered.*
+
+### Q4 — Gladue Rights & Funding Gap
+
+*Not answered.*
+
+### Q5 — Sentencing Circle Design
+
+*Not answered.*
+
+### Q6 — Conventional vs. Restorative Justice
+
+*Not answered.*
+
+### Q7 — Bill C-5 & Recidivism
+
+*Not answered.*
+
+### Q8 — Msit No'kmaq & Two Paths
+
+*Not answered.*
+
+### Q9 — Maya Paul Connection
+
+*Not answered.*
+
+### Q10 — Leo 1752 Treaty Connection
+
+*Not answered.*
 
 ---
 
+## VITUSZ (XDXD)
+
+### Q1 — Actuarial Bias & Prison Demographics
+
+Indigenous men increase from 25.2% to 33%, while Indigenous women increase from 36.1% to 50%. Both groups are overrepresented, but Indigenous women have widened faster and are now disproportionately more overrepresented than men. This is often because women in the justice system are more likely to be criminalized for survival-related issues linked to poverty, housing instability, and trauma (such as survival offences or substance-related charges). Actuarial risk scoring is biased because it treats poverty, unstable housing, and unemployment as “risk factors,” even when they are the result of colonial policies, not criminal intent. This means the system punishes social conditions rather than actual dangerous behaviour.
+
+### Q2 — TRC Call to Action #30
+
+TRC Call to Action #30 demands that the federal government eliminate the overrepresentation of Indigenous people in custody by addressing the causes, including systemic discrimination, and implementing alternatives to imprisonment grounded in Indigenous approaches. This connects to residential school trauma (as seen in Sugar Falls) because survivors experienced disrupted parenting, loss of language, and intergenerational trauma. Those effects contributed to cycles of poverty and justice involvement, meaning the justice system is responding to harms that were originally created by earlier government policies.
+
+### Q3 — Donald Marshall Jr.
+
+Donald Marshall Jr. was a Mi’kmaw man from Nova Scotia who was wrongfully convicted of murder in 1971 in Sydney, Nova Scotia. He spent 11 years in prison before being exonerated. The Royal Commission concluded that the justice system failed him due to police misconduct, systemic racism, and confirmation bias, meaning investigators ignored evidence that could have proven his innocence. His case revealed deep structural racism in Canadian courts and led to major justice reforms.
+
+### Q4 — Gladue Rights & Funding Gap
+
+Substantive equality means that courts must treat Indigenous offenders in a way that recognizes historical and systemic disadvantages, not just apply the same punishment standards as everyone else. Gladue Rights require judges to consider background factors like residential school history, foster care, and poverty. The “Gladue funding gap” refers to the lack of funding for community-based alternatives like healing programs, counselling, and restorative justice options. Without these resources, judges often have no practical alternatives to jail, even when they want to apply Gladue principles.
+
+### Q5 — Sentencing Circle Design
+
+A sentencing circle removes hierarchy: everyone sits in a circle at equal height without robes or elevated benches, unlike a Western courtroom where the judge sits above others and lawyers are separated. The circle represents equality and shared responsibility. The Eagle Feather is passed around and only the person holding it may speak. It symbolizes truth, respect, and honesty, and is considered sacred in Mi’kmaw culture, meaning speakers are expected to speak sincerely.
+
+### Q6 — Conventional vs. Restorative Justice
+
+A conventional court focuses on punishment, legal guilt, and law enforcement, with the state acting as the main authority. A sentencing circle focuses on healing, accountability, and repairing harm, involving the victim, offender, and community. In a circle, the victim has a voice in the process and the community participates in creating a healing plan, rather than being passive observers while the state decides punishment.
+
+### Q7 — Bill C-5 & Recidivism
+
+Indigenous-led restorative justice programs reduce recidivism by approximately 30–50% compared to incarceration (depending on the program). However, changing laws like Bill C-5 is not enough because deeper issues, such as poverty, lack of housing, addiction services, education gaps, and intergenerational trauma, are still present. Without addressing these root causes, people may still end up back in the justice system even after alternative sentencing.
+
+### Q8 — Msit No'kmaq & Two Paths
+
+Msit No’kmaq means “All My Relations”, referring to the interconnectedness of all people, animals, land, and community. The sweetgrass braid represents this connection, as it symbolizes unity and balance among mind, body, and spirit. The contrast between the cold grey walls (earlier chapters) and the warm golden sunset (final chapter) represents two paths of justice: one based on punishment, isolation, and control, and the other based on healing, community, and relational responsibility.
+
+### Q9 — Maya Paul Connection
+
+Liam’s housing insecurity and status issues connect back to policies that restricted Indigenous land access and imposed status rules. From Maya Paul’s case, reserve confinement and Indian Act status codes limited economic opportunity and housing development, creating long-term poverty. These conditions later show up in Liam’s case as “risk factors,” even though they were historically created by government systems.
+
+### Q10 — Leo 1752 Treaty Connection
+
+The override of Mi’kmaw authority in Liam’s case reflects the same jurisdictional conflict seen in Leo’s 1752 Treaty case. Despite treaty rights recognizing Mi’kmaw self-governance, Canadian courts still apply provincial and federal legal authority over Indigenous communities. This limits community-based sentencing options and continues the historical pattern of the state overriding Indigenous legal systems and governance structures.
+
+---
