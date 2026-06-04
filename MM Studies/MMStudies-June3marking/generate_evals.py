@@ -454,11 +454,6 @@ def is_flagged(student_name, responses, sim_key=""):
     name_lower = student_name.lower()
     if any(re.search(p, name_lower) for p in FLAG_PATTERNS):
         return True
-    
-    # Specific plagiarism check for Ruby (NECK) on the 60s Scoop (Maya Paul) simulation.
-    # Her telemetry indicates copy-pasting (pasted: true) on all slides, and responses match Mae's.
-    if "ruby" in name_lower and "neck" in name_lower and sim_key == "scoop":
-        return True
 
     all_text = " ".join(str(v) for v in responses.values()).lower()
     if any(re.search(p, all_text) for p in FLAG_PATTERNS):

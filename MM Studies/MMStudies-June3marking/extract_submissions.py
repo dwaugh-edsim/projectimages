@@ -34,11 +34,12 @@ def parse_timestamp(ts_str):
         return datetime.min
     ts_str = ts_str.strip()
     formats = [
+        # Prioritize Day/Month/Year formats so June 1st (1/6) and June 2nd (2/6) parse correctly
+        "%d/%m/%Y, %H:%M:%S",
+        "%d/%m/%Y, %I:%M:%S %p",
         # Standard slash formats
         "%m/%d/%Y, %I:%M:%S %p",
         "%m/%d/%Y, %H:%M:%S",
-        "%d/%m/%Y, %H:%M:%S",
-        "%d/%m/%Y, %I:%M:%S %p",
         # Dot formats
         "%d.%m.%Y, %H:%M:%S",
         "%d.%m.%Y %H:%M:%S",
