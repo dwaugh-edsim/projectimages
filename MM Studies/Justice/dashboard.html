@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICE SYSTEM INQUEST — PROGRESS TELEMETRY</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --card-bg: rgba(14, 16, 24, 0.95);
+            --border: #22222a;
+            --accent: #e5a93b;
+            --accent-glow: rgba(229, 169, 59, 0.25);
+            --accent-teal: #00bfa5;
+            --teal-glow: rgba(0, 191, 165, 0.2);
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.2);
+            --inactive: #55555e;
+            --text-main: #f0f0f5;
+            --text-dim: #8a8a9e;
+            --cyber-font: 'Rajdhani', sans-serif;
+            --mono-font: 'Courier Prime', monospace;
+            --lcd-font: 'Orbitron', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--cyber-font);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(229, 169, 59, 0.06) 0%, transparent 70%),
+                linear-gradient(rgba(18, 18, 24, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 18, 24, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 40px;
+            background: rgba(8, 8, 10, 0.9);
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .hud-title-area {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hud-system-status {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.4; }
+            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--accent); }
+            100% { transform: scale(0.9); opacity: 0.4; }
+        }
+
+        .hud-title {
+            font-family: var(--lcd-font);
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(229, 169, 59, 0.2);
+            margin-top: 2px;
+        }
+
+        .hud-stats-control {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .clock-display {
+            font-family: var(--lcd-font);
+            font-size: 1.3rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .reload-timer-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .progress-ring {
+            width: 24px;
+            height: 24px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            stroke-dasharray: 88;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear;
+            stroke: var(--accent);
+            stroke-width: 2px;
+            fill: transparent;
+        }
+
+        .progress-ring__bg {
+            stroke: var(--border);
+            stroke-width: 2px;
+            fill: transparent;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 40px;
+            background: rgba(12, 12, 16, 0.9);
+            border-bottom: 1px solid var(--border);
+            gap: 20px;
+        }
+
+        .stats-left, .stats-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-mid {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 5px 20px;
+            border-radius: 4px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-family: var(--mono-font);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .progress-item {
+            gap: 12px;
+        }
+
+        .mini-progress-track {
+            width: 140px;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+            transition: width 0.8s cubic-bezier(0.1, 0.8, 0.2, 1);
+        }
+
+        .btn-selector {
+            background: rgba(20, 20, 25, 0.8);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 15px;
+            font-family: var(--lcd-font);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+
+        .btn-selector:hover {
+            color: #fff;
+            border-color: var(--text-dim);
+        }
+
+        .btn-selector.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .sync-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 14px;
+            font-family: var(--cyber-font);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            padding: 20px 40px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 10px;
+            align-content: start;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .student-card {
+            background: rgba(16, 16, 22, 0.75);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--inactive);
+            border-radius: 4px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.25s ease;
+        }
+
+        .student-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(229, 169, 59, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .student-card.active-student {
+            border-left-color: var(--accent);
+        }
+
+        .student-card.completed {
+            border-left-color: var(--success);
+            background: rgba(0, 230, 118, 0.01);
+        }
+
+        .student-card.completed:hover {
+            border-color: var(--success);
+            box-shadow: 0 0 15px var(--success-glow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-name {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .time-elapsed {
+            font-family: var(--mono-font);
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        .question-count {
+            font-family: var(--mono-font);
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .segments-container {
+            display: flex;
+            gap: 2px;
+            width: 100%;
+        }
+
+        .segment {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            position: relative;
+            cursor: help;
+            transition: all 0.3s ease;
+        }
+
+        .segment.completed {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 6px var(--success-glow);
+        }
+
+        .segment.completed.fast-warning {
+            background: #ffa726;
+            border-color: #ffa726;
+            box-shadow: 0 0 6px rgba(255, 167, 38, 0.4);
+        }
+
+        .segment.completed.fast-critical {
+            background: #ef5350;
+            border-color: #ef5350;
+            box-shadow: 0 0 6px rgba(239, 83, 80, 0.4);
+        }
+
+        .segment.working {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow);
+            animation: segment-pulse 1s infinite alternate;
+        }
+
+        @keyframes segment-pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .segment .tooltip {
+            visibility: hidden;
+            background-color: #121217;
+            color: #fff;
+            text-align: center;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: absolute;
+            z-index: 100;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            font-family: var(--mono-font);
+        }
+
+        .segment:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .activity-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .top-announcement-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 40px;
+            background: #000000;
+            border-bottom: 3px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(229, 169, 59, 0.15);
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .announcement-tag {
+            font-family: var(--lcd-font);
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: #000000;
+            background: var(--accent);
+            padding: 5px 14px;
+            border-radius: 3px;
+            letter-spacing: 1.5px;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px var(--accent-glow);
+            text-transform: uppercase;
+        }
+
+        .announcement-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            font-family: var(--cyber-font);
+            cursor: pointer;
+            text-shadow: 0 0 8px rgba(229, 169, 59, 0.2);
+            flex-grow: 1;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .announcement-edit {
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-family: var(--mono-font);
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid var(--accent);
+            padding: 4px 12px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
+            transition: all 0.3s;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .announcement-edit:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .activity-header {
+            font-family: var(--lcd-font);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+        }
+
+        .feed-container::-webkit-scrollbar,
+        .student-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .feed-container::-webkit-scrollbar-thumb,
+        .student-grid::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 2px;
+        }
+
+        .feed-container::-webkit-scrollbar-track,
+        .student-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .feed-item {
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            line-height: 1.35;
+            padding: 6px;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 2px solid var(--border);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feed-item.save {
+            border-left-color: var(--accent);
+        }
+
+        .feed-item.complete {
+            border-left-color: var(--success);
+            background: rgba(0, 230, 118, 0.02);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(15px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .feed-time {
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .feed-highlight {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .feed-status-done {
+            color: var(--success);
+        }
+
+        #hud-sync-alert {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: #ff1744;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 0 0 10px rgba(255, 23, 68, 0.4);
+            animation: text-pulse 1s infinite alternate;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-announcement-bar">
+        <span class="announcement-tag">Today's Work</span>
+        <span class="announcement-text" id="daily-instructions-text" onclick="editInstructions()">
+            Open the graphic novel and complete all 10 guided inquiry questions. Click Fact Check buttons in the novel to find the data you need.
+        </span>
+        <span class="announcement-edit" onclick="editInstructions()">Edit</span>
+    </div>
+
+    <header>
+        <div class="hud-title-area">
+            <div class="hud-system-status">
+                <span class="pulse-dot"></span>
+                Inquest Feed Active
+                <span id="hud-sync-alert">// DISCONNECTED FROM SHEET</span>
+            </div>
+            <div class="hud-title">JUSTICE SYSTEM INQUEST // TELEMETRY</div>
+        </div>
+        <div class="hud-stats-control">
+            <div class="clock-display" id="hud-clock">00:00:00 AM</div>
+            <div class="reload-timer-container">
+                <span>SYNC</span>
+                <svg class="progress-ring">
+                    <circle class="progress-ring__bg" cx="12" cy="12" r="10"></circle>
+                    <circle class="progress-ring__circle" id="reload-ring" cx="12" cy="12" r="10"></circle>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <section class="stats-bar">
+        <div class="stats-left">
+            <button class="btn-selector active" onclick="switchBlock('A Block (Waugh)')">BLOCK A</button>
+            <button class="btn-selector" onclick="switchBlock('C Block (Waugh)')">BLOCK C</button>
+        </div>
+        
+        <div class="stats-mid">
+            <div class="stat-item">
+                <span class="stat-label">ACTIVE:</span>
+                <span class="stat-value" id="kpi-block-name">BLOCK A</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">LOGGED IN:</span>
+                <span class="stat-value" id="kpi-active-count">0 / 24</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">SUBMITTED:</span>
+                <span class="stat-value" id="kpi-completed-count" style="color: var(--success);">0</span>
+            </div>
+            <div class="stat-item progress-item">
+                <span class="stat-label">CLASS PROGRESS:</span>
+                <div class="mini-progress-track">
+                    <div class="mini-progress-fill" id="class-progress-bar"></div>
+                </div>
+                <span class="stat-value" id="kpi-completion-percent" style="color: var(--accent);">0%</span>
+            </div>
+        </div>
+        
+        <div class="stats-right">
+            <button class="sync-btn" id="demo-btn" onclick="toggleDemoMode()" style="border-color: #ffa726; color: #ffa726; margin-right: 10px;">
+                Demo Mode
+            </button>
+            <button class="sync-btn" onclick="fetchTelemetry()">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                Sync
+            </button>
+        </div>
+    </section>
+
+    <main class="main-container">
+        <section class="student-grid" id="student-grid-container">
+        </section>
+
+        <aside class="activity-panel">
+            <div class="activity-header">
+                <span>Inquest Events</span>
+                <span style="font-family: var(--mono-font); font-size: 0.6rem; color: var(--text-dim);">Real-time</span>
+            </div>
+            <div class="feed-container" id="live-feed-container">
+                <div class="feed-item">
+                    Waiting for telemetry streams...
+                    <span class="feed-time">System ready</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+        const SIMULATION_NAME = "Restorative Justice — Liam's Journey";
+
+        const STUDENTS = [
+            {"B":"A Block (Waugh)","S":"QWxleGlzIChBTEVYKQ=="},
+            {"B":"A Block (Waugh)","S":"QU5BTllBIE0uIChPS09LKQ=="},
+            {"B":"A Block (Waugh)","S":"Q0FMTFVNIChMTExMKQ=="},
+            {"B":"A Block (Waugh)","S":"Q09OTk9SIChDT05OKQ=="},
+            {"B":"A Block (Waugh)","S":"Q09WQSAoS0lLSSk="},
+            {"B":"A Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+            {"B":"A Block (Waugh)","S":"RG15dHJvIChCSUJBKQ=="},
+            {"B":"A Block (Waugh)","S":"RHJhZWRlbiAoRFJBRSk="},
+            {"B":"A Block (Waugh)","S":"RUxMRUUgKEVMTEUp"},
+            {"B":"A Block (Waugh)","S":"R2FsYSAoTklWQSk="},
+            {"B":"A Block (Waugh)","S":"R0FWSU4gKEFBQUEp"},
+            {"B":"A Block (Waugh)","S":"SEFSUklTT04gKFlOUEgp"},
+            {"B":"A Block (Waugh)","S":"SkVTU0UgKExPVVAp"},
+            {"B":"A Block (Waugh)","S":"Sk9TSCAoSk9TSCk="},
+            {"B":"A Block (Waugh)","S":"Sm9uIChEVURFKQ=="},
+            {"B":"A Block (Waugh)","S":"SnVsaWFubmUgKFdBU0gp"},
+            {"B":"A Block (Waugh)","S":"S2V2aW4gKENISUcp"},
+            {"B":"A Block (Waugh)","S":"TGVuYSAoRk9PRCk="},
+            {"B":"A Block (Waugh)","S":"TUFFIChNQUVTKQ=="},
+            {"B":"A Block (Waugh)","S":"TUFURU8gKFlPTE8p"},
+            {"B":"A Block (Waugh)","S":"TWljaGFlbCAoTUlLRSk="},
+            {"B":"A Block (Waugh)","S":"TVJXQVVHSCAoWE9YTyk="},
+            {"B":"A Block (Waugh)","S":"cm9zZSAoUk9TRSk="},
+            {"B":"A Block (Waugh)","S":"UnVieSAoTkVDSyk="},
+            {"B":"A Block (Waugh)","S":"U29uamEgKFNPTkop"},
+            {"B":"A Block (Waugh)","S":"U29waGllIChRQVNXKQ=="},
+            {"B":"A Block (Waugh)","S":"VklUVVNaIChYRFhEKQ=="},
+            {"B":"C Block (Waugh)","S":"QWJkZWwgKEFBQVcp"},
+            {"B":"C Block (Waugh)","S":"QWJpZ2FpbCAoQUJJUyk="},
+            {"B":"C Block (Waugh)","S":"QUlERU4gKEhPUEUp"},
+            {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSlVORSk="},
+            {"B":"C Block (Waugh)","S":"QkFBU0hJUSAoTklORSk="},
+            {"B":"C Block (Waugh)","S":"Q2FpdGx5biAoQ0FJVCk="},
+            {"B":"C Block (Waugh)","S":"Q2FsZWIgKENBTEUp"},
+            {"B":"C Block (Waugh)","S":"Q2hyaXN0b3BoZXIgKENocmlzKSAoUkFDRSk="},
+            {"B":"C Block (Waugh)","S":"Q2xhcmEgSm9uZXMgKENMQVIp"},
+            {"B":"C Block (Waugh)","S":"REFWRSAoQUJCQSk="},
+            {"B":"C Block (Waugh)","S":"SEFSSkFTIChDT0xEKQ=="},
+            {"B":"C Block (Waugh)","S":"SXNhYWMgKElTTEUp"},
+            {"B":"C Block (Waugh)","S":"SXNhYmVsbGEgQmVjayAoQkVMTCk="},
+            {"B":"C Block (Waugh)","S":"SmFpdmVlciAoV0FTRCk="},
+            {"B":"C Block (Waugh)","S":"SnVsaWFuIChTUEVEKQ=="},
+            {"B":"C Block (Waugh)","S":"S2FkZW4gKENIVUQp"},
+            {"B":"C Block (Waugh)","S":"S09FTiAoTE9SSSk="},
+            {"B":"C Block (Waugh)","S":"S3VsYXkgY3J1eiAoQ1JVWik="},
+            {"B":"C Block (Waugh)","S":"S3lsZSBQYXJzb25zIChQVUNLKQ=="},
+            {"B":"C Block (Waugh)","S":"S3lyYSAoS1lSQSk="},
+            {"B":"C Block (Waugh)","S":"TWFkaW5hIE1pcnphIChJTk5BKQ=="},
+            {"B":"C Block (Waugh)","S":"bXlsZXMgKE1ZTFMp"},
+            {"B":"C Block (Waugh)","S":"Tm9haCBQaW50ZXIgKFBJTlQp"},
+            {"B":"C Block (Waugh)","S":"UmFpZGEgKFFBWksp"},
+            {"B":"C Block (Waugh)","S":"UmVpbGV5IChSSUxFKQ=="},
+            {"B":"C Block (Waugh)","S":"Uml2ZXIgVGhvbWFzIChERVdPKQ=="},
+            {"B":"C Block (Waugh)","S":"U2FtIChXQVZFKQ=="},
+            {"B":"C Block (Waugh)","S":"U291bGluIFNoZWhhYiAoU09VTCk="},
+            {"B":"C Block (Waugh)","S":"U3VraGJpciAoTklDRSk="},
+            {"B":"C Block (Waugh)","S":"WmFpZCAoWkFJRCk="},
+            {"B":"C Block (Waugh)","S":"WkFZREVOIChSQUlOKQ=="}
+        ];
+
+        const QUESTIONS = {
+            keys: [
+                "ans-q1-risk",
+                "ans-q2-trc",
+                "ans-q3-marshall",
+                "ans-q4-gladue",
+                "ans-q5-circle",
+                "ans-q6-comparison",
+                "ans-q7-recidivism",
+                "ans-q8-relations",
+                "ans-q9-maya",
+                "ans-q10-leo"
+            ],
+            names: {
+                "ans-q1-risk": "Q1: Actuarial Bias",
+                "ans-q2-trc": "Q2: TRC #30",
+                "ans-q3-marshall": "Q3: Marshall Jr.",
+                "ans-q4-gladue": "Q4: Gladue Rights",
+                "ans-q5-circle": "Q5: Circle Design",
+                "ans-q6-comparison": "Q6: Court vs Circle",
+                "ans-q7-recidivism": "Q7: Bill C-5",
+                "ans-q8-relations": "Q8: Msit No'kmaq",
+                "ans-q9-maya": "Q9: Maya Paul",
+                "ans-q10-leo": "Q10: Treaty Rights"
+            }
+        };
+
+        let activeBlock = "A Block (Waugh)";
+        let telemetryData = {};
+        let refreshSeconds = 15;
+        let countdownTimer = refreshSeconds;
+        let clockInterval, countdownInterval;
+        let seenTimestamps = new Set();
+
+        document.addEventListener("DOMContentLoaded", () => {
+            startClock();
+            startCountdown();
+            switchBlock(activeBlock);
+            fetchTelemetry();
+            loadInstructions();
+        });
+
+        function loadInstructions() {
+            const saved = localStorage.getItem('justice_dashboard_instructions');
+            if (saved) {
+                document.getElementById('daily-instructions-text').innerText = saved;
+            }
+        }
+
+        function editInstructions() {
+            const current = document.getElementById('daily-instructions-text').innerText;
+            const newInstructions = prompt("Edit Daily Instructions:", current);
+            if (newInstructions !== null && newInstructions.trim() !== "") {
+                document.getElementById('daily-instructions-text').innerText = newInstructions.trim();
+                localStorage.setItem('justice_dashboard_instructions', newInstructions.trim());
+            }
+        }
+
+        function startClock() {
+            const updateClock = () => {
+                const now = new Date();
+                let hrs = now.getHours();
+                let mins = now.getMinutes();
+                let secs = now.getSeconds();
+                let ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12;
+                hrs = hrs ? hrs : 12;
+                mins = mins < 10 ? '0' + mins : mins;
+                secs = secs < 10 ? '0' + secs : secs;
+                document.getElementById('hud-clock').innerText = `${hrs}:${mins}:${secs} ${ampm}`;
+            };
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        }
+
+        function startCountdown() {
+            const ring = document.getElementById('reload-ring');
+            const circumference = 2 * Math.PI * 10;
+            ring.style.strokeDasharray = circumference;
+            
+            const tick = () => {
+                countdownTimer -= 1;
+                const percentLeft = countdownTimer / refreshSeconds;
+                const offset = circumference * (1 - percentLeft);
+                ring.style.strokeDashoffset = offset;
+
+                if (countdownTimer <= 0) {
+                    countdownTimer = refreshSeconds;
+                    fetchTelemetry();
+                }
+            };
+            
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+        function switchBlock(block) {
+            activeBlock = block;
+            document.getElementById('kpi-block-name').innerText = block.split(' (')[0].toUpperCase();
+            
+            const btns = document.querySelectorAll('.stats-left .btn-selector');
+            btns.forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(block.split(' ')[0].toLowerCase())) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderDashboard();
+        }
+
+        async function fetchTelemetry() {
+            const alertHud = document.getElementById('hud-sync-alert');
+            try {
+                const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+                const data = await res.json();
+                
+                if (data.progress) {
+                    telemetryData = data.progress;
+                    alertHud.style.display = 'none';
+                    document.querySelector('.hud-system-status').style.color = 'var(--accent)';
+                    processLiveEvents();
+                    renderDashboard();
+                } else {
+                    throw new Error("Invalid sheet response format");
+                }
+            } catch (e) {
+                console.error("Telemetry retrieve failed:", e);
+                alertHud.style.display = 'inline-flex';
+                document.querySelector('.hud-system-status').style.color = '#ff1744';
+            }
+        }
+
+        function processLiveEvents() {
+            const container = document.getElementById('live-feed-container');
+            const events = [];
+
+            Object.keys(telemetryData).forEach(studentKey => {
+                const rawData = telemetryData[studentKey];
+                const timestampStr = rawData.timestamp;
+                
+                const sig = `${studentKey}_${timestampStr}`;
+
+                if (timestampStr && !seenTimestamps.has(sig)) {
+                    seenTimestamps.add(sig);
+
+                    let questionsDone = 0;
+                    let lastQuestion = "";
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        QUESTIONS.keys.forEach(key => {
+                            if (responses[key] && responses[key].trim().length > 0) {
+                                questionsDone++;
+                                lastQuestion = QUESTIONS.names[key];
+                            }
+                        });
+                    } catch (e) {}
+
+                    const displayName = studentKey.replace(/\s*\(([^)]+)\)\s*$/, "");
+                    let logText = "";
+                    let logClass = "save";
+
+                    if (rawData.status === "MANUAL_RESTORE") {
+                        logText = `<span class="feed-highlight">${displayName}</span> restored their inquest from backup.`;
+                        logClass = "save";
+                    } else if (questionsDone === QUESTIONS.keys.length) {
+                        logText = `<span class="feed-highlight">${displayName}</span> submitted all 10 questions! <span class="feed-status-done">[FINAL SUBMISSION]</span>`;
+                        logClass = "complete";
+                    } else if (lastQuestion) {
+                        logText = `<span class="feed-highlight">${displayName}</span> saved <span style="color: var(--accent);">${lastQuestion}</span> (${questionsDone}/10 done).`;
+                    } else {
+                        logText = `<span class="feed-highlight">${displayName}</span> logged in to the inquest.`;
+                    }
+
+                    const timeLabel = new Date(timestampStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    events.push({ text: logText, time: timeLabel, className: logClass, dateObj: new Date(timestampStr) });
+                }
+            });
+
+            events.sort((a, b) => a.dateObj - b.dateObj);
+
+            if (events.length > 0) {
+                if (container.innerText.includes("Waiting for telemetry")) {
+                    container.innerHTML = "";
+                }
+
+                events.forEach(ev => {
+                    const item = document.createElement('div');
+                    item.className = `feed-item ${ev.className}`;
+                    item.innerHTML = `${ev.text} <span class="feed-time">${ev.time}</span>`;
+                    container.insertBefore(item, container.firstChild);
+                });
+
+                while (container.childNodes.length > 30) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+        }
+
+        function renderDashboard() {
+            const grid = document.getElementById('student-grid-container');
+            grid.innerHTML = "";
+
+            const activeStudents = STUDENTS.filter(s => s.B === activeBlock);
+            
+            let totalStudents = activeStudents.length;
+            let loggedInCount = 0;
+            let fullyCompletedCount = 0;
+            let totalQuestionsCompleted = 0;
+
+            activeStudents.forEach(student => {
+                const decodedS = atob(student.S);
+                const sheetKey = decodedS;
+                const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+                
+                const rawData = telemetryData[sheetKey];
+                let questions = {};
+                let questionsDone = 0;
+                let lastActiveTime = "Never";
+                let statusClass = "";
+                let isFinalSubmission = false;
+                
+                let qTimestamps = {};
+                let qDurations = {};
+                let qSpeedStatus = {};
+                let hasCriticalFast = false;
+                let hasWarningFast = false;
+
+                if (rawData) {
+                    loggedInCount++;
+                    lastActiveTime = formatRelativeTime(rawData.timestamp);
+                    isFinalSubmission = rawData.status === "FINAL_SUBMISSION";
+                    
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        
+                        if (responses && responses._timestamps) {
+                            qTimestamps = { ...responses._timestamps };
+                        }
+                        
+                        QUESTIONS.keys.forEach(key => {
+                            const val = responses[key];
+                            let isCompleted = false;
+                            if (val && typeof val === 'string' && val.trim().length > 0) {
+                                isCompleted = true;
+                            }
+                            if (isCompleted) {
+                                questions[key] = "completed";
+                                questionsDone++;
+                            } else {
+                                questions[key] = "pending";
+                            }
+                        });
+                    } catch(e) {}
+
+                    if (rawData.slideTimestamps) {
+                        qTimestamps = { ...qTimestamps, ...rawData.slideTimestamps };
+                    }
+
+                    const completedQs = [];
+                    QUESTIONS.keys.forEach((key, index) => {
+                        if (questions[key] === "completed" && qTimestamps[key]) {
+                            const dateObj = new Date(qTimestamps[key]);
+                            if (!isNaN(dateObj.getTime())) {
+                                completedQs.push({ key, index, name: QUESTIONS.names[key], time: dateObj.getTime() });
+                            }
+                        }
+                    });
+                    
+                    completedQs.sort((a, b) => a.time - b.time);
+                    
+                    let prevTime = null;
+                    if (qTimestamps.start) {
+                        const startT = new Date(qTimestamps.start);
+                        if (!isNaN(startT.getTime())) {
+                            prevTime = startT.getTime();
+                        }
+                    }
+                    
+                    completedQs.forEach((item, idx) => {
+                        if (prevTime !== null) {
+                            const diff = item.time - prevTime;
+                            qDurations[item.key] = diff;
+                            if (diff < 120000) {
+                                qSpeedStatus[item.key] = "critical";
+                                hasCriticalFast = true;
+                            } else if (diff < 180000) {
+                                qSpeedStatus[item.key] = "warning";
+                                hasWarningFast = true;
+                            } else {
+                                qSpeedStatus[item.key] = "normal";
+                            }
+                        } else {
+                            if (idx > 0) {
+                                const diff = item.time - completedQs[idx - 1].time;
+                                qDurations[item.key] = diff;
+                                if (diff < 120000) {
+                                    qSpeedStatus[item.key] = "critical";
+                                    hasCriticalFast = true;
+                                } else if (diff < 180000) {
+                                    qSpeedStatus[item.key] = "warning";
+                                    hasWarningFast = true;
+                                } else {
+                                    qSpeedStatus[item.key] = "normal";
+                                }
+                            } else {
+                                qDurations[item.key] = null;
+                                qSpeedStatus[item.key] = "normal";
+                            }
+                        }
+                        prevTime = item.time;
+                    });
+
+                    totalQuestionsCompleted += questionsDone;
+
+                    if (questionsDone === QUESTIONS.keys.length) {
+                        statusClass = "completed";
+                        fullyCompletedCount++;
+                    } else {
+                        statusClass = "active-student";
+                    }
+                } else {
+                    QUESTIONS.keys.forEach(key => {
+                        questions[key] = "pending";
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = `student-card ${statusClass}`;
+                
+                let segmentsHtml = "";
+                QUESTIONS.keys.forEach((key, index) => {
+                    let stepClass = "";
+                    let speedClass = "";
+                    let tooltipSuffix = "";
+                    
+                    if (questions[key] === "completed") {
+                        stepClass = "completed";
+                        const speed = qSpeedStatus[key];
+                        const duration = qDurations[key];
+                        
+                        if (speed === "critical") {
+                            speedClass = "fast-critical";
+                            tooltipSuffix = ` (${formatDuration(duration)} ⚠️ AI Risk)`;
+                        } else if (speed === "warning") {
+                            speedClass = "fast-warning";
+                            tooltipSuffix = ` (${formatDuration(duration)} ⏱️ Fast)`;
+                        } else if (duration !== undefined && duration !== null) {
+                            tooltipSuffix = ` (${formatDuration(duration)})`;
+                        } else {
+                            tooltipSuffix = " ✓";
+                        }
+                    } else if (rawData && questionsDone === index) {
+                        stepClass = "working";
+                    }
+                    
+                    segmentsHtml += `
+                        <div class="segment ${stepClass} ${speedClass}">
+                            <span class="tooltip">${QUESTIONS.names[key]}${tooltipSuffix}</span>
+                        </div>
+                    `;
+                });
+
+                let warningBadgeHtml = "";
+                if (hasCriticalFast) {
+                    warningBadgeHtml = `<span style="color: #ef5350; font-weight: bold; margin-left: 6px; cursor: help; animation: pulse 1.5s infinite;" title="Critical: Question answered in under 2 minutes">⚠️</span>`;
+                } else if (hasWarningFast) {
+                    warningBadgeHtml = `<span style="color: #ffa726; font-weight: bold; margin-left: 6px; cursor: help;" title="Pace Warning: Question answered in under 3 minutes">⚠️</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="student-name" title="${displayName}">${displayName}${warningBadgeHtml}</span>
+                        <span class="question-count">${questionsDone}/10</span>
+                    </div>
+                    <div class="segments-container">
+                        ${segmentsHtml}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="time-elapsed">${lastActiveTime}</span>
+                        ${isFinalSubmission ? '<span style="font-family:var(--mono-font); font-size:0.55rem; color:var(--success); font-weight:700;">SUBMITTED</span>' : ''}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            const completionPercent = totalStudents > 0 ? Math.round((totalQuestionsCompleted / (totalStudents * QUESTIONS.keys.length)) * 100) : 0;
+            
+            document.getElementById('kpi-active-count').innerText = `${loggedInCount} / ${totalStudents}`;
+            document.getElementById('kpi-completion-percent').innerText = `${completionPercent}%`;
+            document.getElementById('class-progress-bar').style.width = `${completionPercent}%`;
+            document.getElementById('kpi-completed-count').innerText = fullyCompletedCount;
+            
+            gsap.fromTo(".student-card", 
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.35, stagger: 0.02 }
+            );
+        }
+
+        function formatRelativeTime(timestamp) {
+            if (!timestamp) return "Never";
+            const diffMs = new Date() - new Date(timestamp);
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return "Active Now";
+            if (diffMins === 1) return "1 min ago";
+            if (diffMins < 60) return `${diffMins}m ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours === 1) return "1h ago";
+            if (diffHours < 24) return `${diffHours}h ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays === 1) return "1d ago";
+            return `${diffDays}d ago`;
+        }
+
+        function formatDuration(ms) {
+            if (ms === null || ms === undefined) return "";
+            const totalSecs = Math.floor(ms / 1000);
+            const mins = Math.floor(totalSecs / 60);
+            const secs = totalSecs % 60;
+            if (mins > 0) {
+                return `${mins}m ${secs}s`;
+            }
+            return `${secs}s`;
+        }
+
+        let isDemoMode = false;
+        
+        function toggleDemoMode() {
+            isDemoMode = !isDemoMode;
+            const btn = document.getElementById('demo-btn');
+            if (isDemoMode) {
+                btn.style.background = "#ffa726";
+                btn.style.color = "#000";
+                btn.innerText = "Demo: Active";
+                
+                const alertHud = document.getElementById('hud-sync-alert');
+                alertHud.style.display = 'inline-flex';
+                alertHud.innerText = "// RUNNING DEMO TELEMETRY";
+                alertHud.style.color = "#ffa726";
+                alertHud.style.textShadow = "0 0 10px rgba(255, 167, 38, 0.4)";
+                
+                generateMockTelemetry();
+            } else {
+                btn.style.background = "transparent";
+                btn.style.color = "#ffa726";
+                btn.innerText = "Demo Mode";
+                
+                const alertHud = document.getElementById('hud-sync-alert');
+                alertHud.style.display = 'none';
+                
+                telemetryData = {};
+                fetchTelemetry();
+            }
+        }
+
+        function generateMockTelemetry() {
+            if (!isDemoMode) return;
+            
+            const now = new Date();
+            const mockData = {};
+            const activeStudents = STUDENTS.filter(s => s.B === activeBlock);
+            
+            activeStudents.forEach((student, index) => {
+                const decodedS = atob(student.S);
+                const sheetKey = decodedS;
+                
+                let progressLevel;
+                if (index % 5 === 0) progressLevel = "completed";
+                else if (index % 5 === 1) progressLevel = "completed_fast";
+                else if (index % 5 === 2) progressLevel = "in_progress";
+                else if (index % 5 === 3) progressLevel = "in_progress_fast";
+                else progressLevel = "not_started";
+                
+                if (progressLevel === "not_started") return;
+                
+                const responses = {};
+                const ts = {};
+                
+                const startTime = new Date(now.getTime() - 50 * 60 * 1000);
+                ts.start = startTime.toISOString();
+                
+                let lastTime = startTime.getTime();
+                let qsToComplete = progressLevel.startsWith("completed") ? 10 : Math.floor(3 + Math.random() * 4);
+                
+                for (let i = 0; i < qsToComplete; i++) {
+                    const key = QUESTIONS.keys[i];
+                    responses[key] = "Mock answer for " + key;
+                    
+                    let duration;
+                    if (progressLevel === "completed_fast") {
+                        if (i === 2 || i === 5) {
+                            duration = 45 * 1000;
+                        } else if (i === 7) {
+                            duration = 90 * 1000;
+                        } else {
+                            duration = 2.5 * 60 * 1000;
+                        }
+                    } else if (progressLevel === "in_progress_fast") {
+                        if (i === 1) {
+                            duration = 60 * 1000;
+                        } else {
+                            duration = 4 * 60 * 1000;
+                        }
+                    } else {
+                        duration = (4 + (i * 1.5) + Math.random() * 3) * 60 * 1000;
+                    }
+                    
+                    lastTime += duration;
+                    ts[key] = new Date(lastTime).toISOString();
+                }
+                
+                responses._timestamps = ts;
+                
+                mockData[sheetKey] = {
+                    timestamp: new Date(lastTime).toISOString(),
+                    status: qsToComplete === 10 ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                    rationales: JSON.stringify(responses),
+                    slideTimestamps: ts
+                };
+            });
+            
+            telemetryData = mockData;
+            renderDashboard();
+            
+            const container = document.getElementById('live-feed-container');
+            container.innerHTML = "";
+            
+            activeStudents.forEach((student, index) => {
+                const decodedS = atob(student.S);
+                const displayName = decodedS.split(' (')[0];
+                const level = index % 5;
+                
+                if (level === 0) {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item complete';
+                    item.innerHTML = `<span class="feed-highlight">${displayName}</span> submitted all 10 questions! <span class="feed-status-done">[FINAL SUBMISSION]</span> <span class="feed-time">Just now</span>`;
+                    container.appendChild(item);
+                } else if (level === 1) {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item complete';
+                    item.innerHTML = `<span class="feed-highlight">${displayName}</span> submitted all 10 questions! <span style="color: #ef5350; font-weight: bold;">[AI RISK DETECTED]</span> <span class="feed-time">Just now</span>`;
+                    container.appendChild(item);
+                } else if (level === 3) {
+                    const item = document.createElement('div');
+                    item.className = 'feed-item save';
+                    item.innerHTML = `<span class="feed-highlight">${displayName}</span> saved <span style="color: var(--accent);">Q3: Marshall Jr.</span> <span style="color: #ffa726; font-weight: bold;">[Pace Warning]</span> <span class="feed-time">2 mins ago</span>`;
+                    container.appendChild(item);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

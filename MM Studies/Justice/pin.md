@@ -9,6 +9,7 @@
 | A Block (Waugh) | COVA | `KIKI` | `Q09WQSAoS0lLSSk=` |
 | A Block (Waugh) | DAVE | `ABBA` | `REFWRSAoQUJCQSk=` |
 | A Block (Waugh) | Dmytro | `BIBA` | `RG15dHJvIChCSUJBKQ==` |
+| A Block (Waugh) | Draeden | `DRAE` | `RHJhZWRlbiAoRFJBRSk=` |
 | A Block (Waugh) | ELLEE | `ELLE` | `RUxMRUUgKEVMTEUp` |
 | A Block (Waugh) | Gala | `NIVA` | `R2FsYSAoTklWQSk=` |
 | A Block (Waugh) | GAVIN | `AAAA` | `R0FWSU4gKEFBQUEp` |
