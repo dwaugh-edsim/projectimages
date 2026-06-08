@@ -395,6 +395,7 @@
                     <td><span style="font-family:'Courier Prime'; font-size:0.7rem;">${student.verdict || 'IN PROGRESS'}</span></td>
                     <td>
                         ${student.verdict ? `<span class="verdict-tag verdict-${student.verdict}">${student.verdict}</span>` : '---'}
+                        ${student.rationales && student.rationales['final_rationale'] ? `<div style="font-size:0.75rem; color:#aaa; margin-top:5px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${student.rationales['final_rationale'].replace(/"/g, '&quot;')}">${student.rationales['final_rationale']}</div>` : ''}
                     </td>
                     <td style="font-size:0.7rem; color:#666;">${new Date(student.timestamp).toLocaleString()}</td>
                 `;
@@ -404,10 +405,11 @@
 
         function downloadCSV() {
             const filtered = allData.filter(d => currentFilter === 'ALL' || d.block === currentFilter);
-            let csv = "Timestamp,Block,Student,Decisions,Rationales,FinalVerdict\n";
+            let csv = "Timestamp,Block,Student,Decisions,Rationales,FinalVerdict,FinalRationale\n";
             
             filtered.forEach(d => {
-                csv += `"${d.timestamp}","${d.block}","${d.codename}","${JSON.stringify(d.choices).replace(/"/g, '""')}","${JSON.stringify(d.rationales).replace(/"/g, '""')}","${d.verdict}"\n`;
+                const finalRationale = d.rationales ? (d.rationales['final_rationale'] || '') : '';
+                csv += `"${d.timestamp}","${d.block}","${d.codename}","${JSON.stringify(d.choices).replace(/"/g, '""')}","${JSON.stringify(d.rationales).replace(/"/g, '""')}","${d.verdict}","${finalRationale.replace(/"/g, '""')}"\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -488,9 +490,13 @@
                         html += `</div>`;
                     });
 
+                    const finalRationale = rationales['final_rationale'] || '';
                     html += `<div class="student-verdict">`;
                     html += `<span class="verdict-label">Final Verdict: </span>`;
                     html += `<span class="verdict-value ${verdictClass}">${verdict}</span>`;
+                    if (finalRationale) {
+                        html += `<div class="exhibit-rationale" style="margin-top: 10px; font-style: italic;"><strong>Closing Statement:</strong> ${finalRationale}</div>`;
+                    }
                     html += `</div>`;
                     html += `</div>`;
                 });
@@ -551,7 +557,11 @@
                         txt += '\n';
                     });
 
+                    const finalRationale = rationales['final_rationale'] || '';
                     txt += `  VERDICT: ${verdict}\n`;
+                    if (finalRationale) {
+                        txt += `  CLOSING STATEMENT: ${finalRationale}\n`;
+                    }
                     txt += '\n' + '='.repeat(50) + '\n\n';
                 });
             });

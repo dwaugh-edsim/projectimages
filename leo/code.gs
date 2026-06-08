@@ -139,6 +139,14 @@ function doPost(e) {
         choices = state.judgments || [];
         rationales = state.responses || [];
         if (state.finalVerdict) data.score = state.finalVerdict;
+        
+        // Save the final verdict comment/rationale inside responses if present
+        if (state.finalRationale) {
+            if (typeof rationales !== 'object' || Array.isArray(rationales) || rationales === null) {
+                rationales = {};
+            }
+            rationales['final_rationale'] = state.finalRationale;
+        }
     }
     
     sheet.appendRow([

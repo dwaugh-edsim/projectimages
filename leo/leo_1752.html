@@ -828,6 +828,8 @@
                 if (response && response.state) {
                     studentSession.judgments = response.state.judgments || {};
                     studentSession.responses = response.state.responses || {};
+                    studentSession.finalVerdict = response.state.finalVerdict || '';
+                    studentSession.finalRationale = response.state.finalRationale || response.state.responses?.final_rationale || '';
                     console.log("Session Restored:", studentSession);
                 }
             } catch (e) {
@@ -873,6 +875,11 @@
             
             if (isLast) {
                 buildReview();
+                // Restore final verdict and final rationale
+                document.getElementById('final-rationale').value = studentSession.finalRationale || '';
+                if (studentSession.finalVerdict) {
+                    setFinal(studentSession.finalVerdict);
+                }
             }
 
             // Update Active Nav
@@ -996,6 +1003,11 @@
 
             studentSession.finalVerdict = finalVerdict;
             studentSession.finalRationale = rationale;
+            
+            // Also save in responses so that it is captured under 'final_rationale' key
+            if (typeof studentSession.responses === 'object') {
+                studentSession.responses['final_rationale'] = rationale;
+            }
 
             sync();
             alert("FINAL VERDICT SUBMITTED. THE COURT WILL RENDER JUDGMENT.");
