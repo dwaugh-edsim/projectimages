@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Independent Project Descriptions — Print Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<script>const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";</script>
+<style>
+:root {
+  --ink: #1a1814; --ink-soft: #4a443c; --paper: #f7f3e9; --paper-2: #efe9d8;
+  --accent: #6c5ce7; --accent-light: rgba(108,92,231,0.1); --accent-glow: rgba(108,92,231,0.25);
+  --bg: #0d0f17; --bg-card: rgba(16,18,28,0.7); --border: rgba(255,255,255,0.08);
+  --text: #f0f3f8; --text-muted: #8fa0b5; --green: #00b894; --yellow: #fdcb6e; --red: #e74c3c;
+  --font-title: 'Outfit', sans-serif; --font-body: 'Inter', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ─── Loading Overlay ─── */
+#loading-overlay {
+  position: fixed; inset: 0; background: rgba(8,9,14,0.95); z-index: 999;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;
+}
+#loading-overlay.hidden { display: none; }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-text { font-family: var(--font-title); font-size: 1rem; color: var(--text-muted); letter-spacing: 1px; }
+.load-progress { color: var(--accent); font-size: 0.85rem; }
+
+/* ─── Dashboard ─── */
+header {
+  padding: 20px 32px; border-bottom: 1px solid var(--border);
+  background: rgba(8,9,13,0.8); backdrop-filter: blur(12px);
+  display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
+}
+.logo { font-family: var(--font-title); font-weight: 700; font-size: 1.2rem; letter-spacing: 0.5px; }
+.logo span { color: var(--accent); }
+.header-badge { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-title); letter-spacing: 1px; }
+
+.controls-bar {
+  padding: 16px 32px; border-bottom: 1px solid var(--border);
+  background: rgba(8,9,13,0.6); display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.controls-bar button {
+  font-family: var(--font-body); font-size: 0.78rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 16px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.controls-bar button:hover { background: rgba(255,255,255,0.05); border-color: var(--text-muted); }
+.controls-bar button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.controls-bar button.primary:hover { background: #fff; color: var(--accent); }
+.controls-bar button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.controls-bar button.danger { border-color: var(--red); color: var(--red); }
+.controls-bar button.danger:hover { background: rgba(231,76,60,0.1); }
+.selected-count { font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-left: 8px; }
+.filter-select {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff;
+  padding: 8px 12px; border-radius: 6px; font-size: 0.78rem; font-family: var(--font-body); outline: none;
+}
+
+.block-section { padding: 24px 32px 0; }
+.block-title {
+  font-family: var(--font-title); font-size: 1rem; font-weight: 700;
+  color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.block-count { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; letter-spacing: 0.5px; }
+
+.student-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 12px; margin-bottom: 40px;
+}
+
+.student-row {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; display: flex; align-items: flex-start; gap: 14px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+}
+.student-row:hover { border-color: var(--accent-glow); }
+.student-row.selected { border-color: var(--accent); background: var(--accent-light); }
+.student-row.missing { opacity: 0.45; }
+
+.row-check {
+  flex-shrink: 0; width: 20px; height: 20px; border: 2px solid var(--border);
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  margin-top: 2px; transition: all 0.2s;
+}
+.student-row.selected .row-check { border-color: var(--accent); background: var(--accent); }
+.student-row.selected .row-check::after { content: '\2713'; color: #fff; font-size: 0.7rem; font-weight: 900; }
+
+.row-content { flex: 1; min-width: 0; }
+.row-name { font-family: var(--font-title); font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+.row-title-preview {
+  font-size: 0.8rem; color: var(--text-muted); line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.row-meta { display: flex; gap: 8px; margin-top: 6px; }
+.meta-tag {
+  font-size: 0.65rem; padding: 2px 8px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+}
+.meta-tag.has-data { background: rgba(0,184,148,0.1); color: var(--green); }
+.meta-tag.no-data { background: rgba(231,76,60,0.1); color: var(--red); }
+.meta-tag.word-count { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+/* ─── Print Styles ─── */
+.print-container { display: none; }
+
+@media print {
+  body { background: #fff !important; padding: 0; }
+  #loading-overlay, header, .controls-bar, .block-section, .dashboard-root { display: none !important; }
+  .print-container {
+    display: block !important; background: #fff; padding: 48px 20px 80px;
+    font-family: 'Cormorant Garamond', serif; color: #1a1814;
+  }
+  .print-container .block-header {
+    max-width: 1180px; margin: 44px auto 18px; text-align: center;
+    font-style: italic; font-weight: 400; font-size: 1.4rem; color: #4a443c; letter-spacing: 0.5px;
+  }
+  .print-container .block-header::before, .print-container .block-header::after { content: "\00b7"; margin: 0 14px; color: #1a1814; }
+  .print-container .cards {
+    display: grid; grid-template-columns: 1fr; gap: 0; max-width: none; margin: 0 auto;
+  }
+  .print-container .card {
+    background: #f7f3e9; color: #1a1814; position: relative; padding: 0;
+    width: 7.5in; min-height: 4.5in; margin: 0 auto 0.2in;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .print-container .card:nth-of-type(2n) { page-break-after: auto; }
+  .print-container .card:nth-of-type(2n+1) { page-break-after: auto; }
+  .print-container .card:last-child { page-break-after: auto; }
+  .print-container .description { font-size: 0.72rem; line-height: 1.32; }
+  .print-container .title { font-size: 1.25rem; }
+  .print-container body.print-one .card { min-height: 5in; margin: 0 auto; page-break-after: always; }
+  .print-container body.print-one .card:last-child { page-break-after: auto; }
+  .print-container body.print-one .description { font-size: 0.76rem; line-height: 1.36; }
+  .print-container body.print-one .title { font-size: 1.35rem; }
+  @page { size: letter; margin: 0.5in; }
+}
+
+/* Print preview: card styles embedded for print container */
+.print-container { color: #1a1814; font-family: 'Cormorant Garamond', serif; }
+.print-container .card-frame { border: 1px solid #1a1814; padding: 0.12in; }
+.print-container .card-frame-inner {
+  border: 0.5px solid #1a1814; padding: 0.28in 0.35in 0.2in;
+  position: relative;
+}
+.print-container .eyebrow {
+  text-align: center; font-size: 0.6rem; letter-spacing: 0.32em;
+  text-transform: uppercase; color: #4a443c; font-weight: 500;
+}
+.print-container .fleuron {
+  text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+  color: #1a1814; margin: 6px 0 12px; letter-spacing: 0.4em;
+}
+.print-container .title {
+  font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 1.35rem;
+  line-height: 1.18; text-align: center; margin: 0 0 4px; letter-spacing: 0.2px;
+}
+.print-container .title em { font-style: italic; color: #4a443c; }
+.print-container .byline {
+  text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.95rem; color: #1a1814; margin-bottom: 4px;
+}
+.print-container .divider-thin { width: 28px; height: 1px; background: #1a1814; margin: 14px auto 16px; }
+.print-container .description {
+  font-family: 'Cormorant Garamond', serif; font-size: 0.72rem; line-height: 1.36;
+  text-align: left; white-space: pre-wrap; color: #1a1814;
+  column-count: 2; column-gap: 0.22in; column-rule: 0.5px solid #4a443c;
+}
+.print-container .card-footer {
+  margin-top: 22px; padding-top: 12px; border-top: 0.5px solid #1a1814;
+  display: flex; justify-content: space-between; font-size: 0.62rem;
+  letter-spacing: 0.28em; text-transform: uppercase; color: #4a443c; font-weight: 500;
+}
+
+/* Screen preview of cards */
+body.preview-mode #loading-overlay, body.preview-mode header, body.preview-mode .controls-bar,
+body.preview-mode .block-section { display: none !important; }
+body.preview-mode { background: #cfc7b3 !important; }
+body.preview-mode .print-container {
+  display: block !important; background: transparent; padding: 0;
+}
+body.preview-mode .print-container .card { box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 0 auto 20px; width: 7.5in; min-height: 4.5in; }
+body.preview-mode .print-container .description { font-size: 0.72rem; line-height: 1.32; }
+body.preview-mode .print-container .title { font-size: 1.25rem; }
+body.preview-mode.print-one .print-container .card { min-height: 5in; }
+body.preview-mode.print-one .print-container .description { font-size: 0.76rem; line-height: 1.36; }
+body.preview-mode.print-one .print-container .title { font-size: 1.35rem; }
+body.preview-mode .print-container .cards { display: grid; grid-template-columns: 1fr; max-width: none; gap: 20px; margin: 20px auto; }
+body.preview-mode .print-container .block-header { display: block; }
+
+@media (max-width: 600px) {
+  .student-grid { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 10px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="load-text">FETCHING FROM GAS WEBHOOK</div>
+  <div class="load-progress" id="load-progress">0 / 0 students</div>
+</div>
+
+<header>
+  <div class="logo">Independent Project <span>Print Selector</span></div>
+  <div class="header-badge">MIKMAW11 &middot; SPRING 2026</div>
+</header>
+
+<div class="controls-bar" id="controls">
+  <button onclick="selectAll()">Select All with Data</button>
+  <button onclick="deselectAll()">Deselect All</button>
+  <button onclick="invertSelection()">Invert</button>
+  <select class="filter-select" id="filterBlock" onchange="renderDashboard()">
+    <option value="all">All Blocks</option>
+    <option value="A Block (Waugh)">Block A</option>
+    <option value="C Block (Waugh)">Block C</option>
+  </select>
+  <select class="filter-select" id="filterStatus" onchange="renderDashboard()">
+    <option value="all">All Status</option>
+    <option value="has">Has Data</option>
+    <option value="missing">Missing / Empty</option>
+  </select>
+  <span style="flex:1"></span>
+  <span class="selected-count" id="selectedCount">0 selected</span>
+  <button onclick="previewCards()">Preview</button>
+  <button class="primary" id="printBtn" onclick="printSelected()" disabled>Print Selected</button>
+</div>
+
+<div class="dashboard-root" id="dashboard"></div>
+
+<div class="print-container" id="printOutput"></div>
+
+<script>
+const SIMULATION = "Independent Project - Description Draft";
+const STUDENTS = [
+  {"B":"A Block (Waugh)","S":"QWxleGlzIChBTEVYKQ=="},
+  {"B":"A Block (Waugh)","S":"QU5BTllBIE0uIChPS09LKQ=="},
+  {"B":"A Block (Waugh)","S":"Q0FMTFVNIChMTExMKQ=="},
+  {"B":"A Block (Waugh)","S":"Q09OTk9SIChDT05OKQ=="},
+  {"B":"A Block (Waugh)","S":"Q09WQSAoS0lLSSk="},
+  {"B":"A Block (Waugh)","S":"Q0FWMUwgKENIUEIp"},
+  {"B":"A Block (Waugh)","S":"RG15dHJvIChCSEJBKQ=="},
+  {"B":"A Block (Waugh)","S":"RHJhZWRlbiAoRFJBRSk="},
+  {"B":"A Block (Waugh)","S":"RUxMRUUgKEVMTEUp"},
+  {"B":"A Block (Waugh)","S":"R2FsYSAoTklWQSk="},
+  {"B":"A Block (Waugh)","S":"R0FWSU4gKEFBQUEp"},
+  {"B":"A Block (Waugh)","S":"SEFSUklTT04gKFlOUEgp"},
+  {"B":"A Block (Waugh)","S":"SkVTU0UgKExPVVAp"},
+  {"B":"A Block (Waugh)","S":"Sk9TSCAoSk9TSCk="},
+  {"B":"A Block (Waugh)","S":"Sm9uIChEVURFKQ=="},
+  {"B":"A Block (Waugh)","S":"SnVsaWFubmUgKFdBU0gp"},
+  {"B":"A Block (Waugh)","S":"S2V2aW4gKENISUcp"},
+  {"B":"A Block (Waugh)","S":"TGVuYSAoRk9PRCk="},
+  {"B":"A Block (Waugh)","S":"TUFFIChNQUVTKQ=="},
+  {"B":"A Block (Waugh)","S":"TUFURU8gKFlPTE8p"},
+  {"B":"A Block (Waugh)","S":"TWljaGFlbCAoTUlLRSk="},
+  {"B":"A Block (Waugh)","S":"TWljaGFlbCAoTUlLRSk="},
+  {"B":"A Block (Waugh)","S":"cm9zZSAoUk9TRSk="},
+  {"B":"A Block (Waugh)","S":"UnVieSAoTkVDSyk="},
+  {"B":"A Block (Waugh)","S":"U29uamEgKFNPTkop"},
+  {"B":"A Block (Waugh)","S":"U29waGllIChRQVNXKQ=="},
+  {"B":"A Block (Waugh)","S":"VklUVVNaIChYRFhEKQ=="},
+  {"B":"C Block (Waugh)","S":"QWJkZWwgKEFBQVcp"},
+  {"B":"C Block (Waugh)","S":"QWJpZ2FpbCAoQUJJUyk="},
+  {"B":"C Block (Waugh)","S":"QUlERU4gKEhPUEUp"},
+  {"B":"C Block (Waugh)","S":"QW50aG9ueSAoSlVORSk="},
+  {"B":"C Block (Waugh)","S":"QkFBU0hJUSAoTklORSk="},
+  {"B":"C Block (Waugh)","S":"Q2FpdGx5biAoQ0FJVCk="},
+  {"B":"C Block (Waugh)","S":"Q2FsZWIgKENBTEUp"},
+  {"B":"C Block (Waugh)","S":"Q2hyaXN0b3BoZXIgKENocmlzKSAoUkFDRSk="},
+  {"B":"C Block (Waugh)","S":"Q2xhcmEgSm9uZXMgKENMQVIp"},
+  {"B":"C Block (Waugh)","S":"Q2F0bHluIChDQUlUKQ=="},
+  {"B":"C Block (Waugh)","S":"SEFSSkFTIChDT0xEKQ=="},
+  {"B":"C Block (Waugh)","S":"SXNhYWMgKElTTEUp"},
+  {"B":"C Block (Waugh)","S":"SXNhYmVsbGEgQmVjayAoQkVMTCk="},
+  {"B":"C Block (Waugh)","S":"SmFpdmVlciAoV0FTRCk="},
+  {"B":"C Block (Waugh)","S":"SnVsaWFuIChTUEVEKQ=="},
+  {"B":"C Block (Waugh)","S":"S2FkZW4gKENIVUQp"},
+  {"B":"C Block (Waugh)","S":"S09FTiAoTE9SSSk="},
+  {"B":"C Block (Waugh)","S":"S3VsYXkgY3J1eiAoQ1JVWik="},
+  {"B":"C Block (Waugh)","S":"S3lsZSBQYXJzb25zIChQVUNLKQ=="},
+  {"B":"C Block (Waugh)","S":"S3kyYSAoS1lSQSk="},
+  {"B":"C Block (Waugh)","S":"TWFkaW5hIE1pcnphIChJTk5BKQ=="},
+  {"B":"C Block (Waugh)","S":"bXlsZXMgKE1ZTFMp"},
+  {"B":"C Block (Waugh)","S":"Tm9haCBQaW50ZXIgKFBJTlQp"},
+  {"B":"C Block (Waugh)","S":"UmFpZGEgKFFBWksp"},
+  {"B":"C Block (Waugh)","S":"UmVpbGV5IChSSUxFKQ=="},
+  {"B":"C Block (Waugh)","S":"Uml2ZXIgVGhvbWFzIChERVdPKQ=="},
+  {"B":"C Block (Waugh)","S":"U2FtIChXQVZFKQ=="},
+  {"B":"C Block (Waugh)","S":"U291bGluIFNoZWhhYiAoU09VTCk="},
+  {"B":"C Block (Waugh)","S":"U3VraGJpciAoTklDRSk="},
+  {"B":"C Block (Waugh)","S":"WmFpZCAoWkFJRCk="},
+  {"B":"C Block (Waugh)","S":"WkFZREVOIChSQUlOKQ=="}
+];
+
+let studentData = new Map();
+let selectedSet = new Set();
+
+function decode(s) { return atob(s); }
+function displayName(s) { return decode(s).replace(/\s*\([^)]+\)\s*$/, ""); }
+function pinCode(s) { const m = decode(s).match(/\(([^)]+)\)/); return m ? m[1] : ""; }
+function blockShort(b) { return b.replace(" (Waugh)", ""); }
+
+async function fetchStudent(studentObj) {
+  const decoded = decode(studentObj.S);
+  try {
+    const res = await fetch(`${API_URL}?student=${encodeURIComponent(decoded)}&simulation=${encodeURIComponent(SIMULATION)}`);
+    const result = await res.json();
+    if (result.rationales) {
+      try {
+        const parsed = typeof result.rationales === "string" ? JSON.parse(result.rationales) : result.rationales;
+        return { ...studentObj, title: parsed.title || "", description: parsed.description || "" };
+      } catch(e) {
+        return { ...studentObj, title: "", description: "" };
+      }
+    }
+  } catch(e) { /* offline */ }
+  return { ...studentObj, title: "", description: "" };
+}
+
+async function fetchAll() {
+  const total = STUDENTS.length;
+  let done = 0;
+  const progress = document.getElementById("load-progress");
+  const batchSize = 5;
+
+  for (let i = 0; i < total; i += batchSize) {
+    const batch = STUDENTS.slice(i, i + batchSize);
+    const results = await Promise.all(batch.map(s => fetchStudent(s)));
+    results.forEach(r => {
+      const name = displayName(r.S);
+      studentData.set(name, r);
+    });
+    done += batch.length;
+    progress.textContent = `${done} / ${total} students`;
+  }
+
+  document.getElementById("loading-overlay").classList.add("hidden");
+  renderDashboard();
+}
+
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function wordCount(text) {
+  return text ? text.trim().split(/\s+/).filter(w => w.length > 0).length : 0;
+}
+
+function renderDashboard() {
+  const filterBlock = document.getElementById("filterBlock").value;
+  const filterStatus = document.getElementById("filterStatus").value;
+  const dashboard = document.getElementById("dashboard");
+
+  const groups = new Map();
+  for (const [name, data] of studentData) {
+    if (filterBlock !== "all" && data.B !== filterBlock) continue;
+    const hasData = !!(data.title || data.description);
+    if (filterStatus === "has" && !hasData) continue;
+    if (filterStatus === "missing" && hasData) continue;
+    if (!groups.has(data.B)) groups.set(data.B, []);
+    groups.get(data.B).push(data);
+  }
+
+  let html = "";
+  for (const [block, students] of groups) {
+    const hasCount = students.filter(s => s.title || s.description).length;
+    html += `<div class="block-section">`;
+    html += `<div class="block-title">${esc(block)} <span class="block-count">${students.length} students &middot; ${hasCount} with data</span></div>`;
+    html += `<div class="student-grid">`;
+    for (const s of students) {
+      const name = displayName(s.S);
+      const hasData = !!(s.title || s.description);
+      const wc = wordCount(s.description);
+      const isSelected = selectedSet.has(name);
+      html += `<div class="student-row${isSelected ? " selected" : ""}${!hasData ? " missing" : ""}" data-name="${esc(name)}" onclick="toggleStudent('${esc(name)}')">`;
+      html += `<div class="row-check"></div>`;
+      html += `<div class="row-content">`;
+      html += `<div class="row-name">${esc(name)}${hasData ? "" : " <em style='color:var(--red);font-weight:400;font-size:0.75rem'>&mdash; no data</em>"}</div>`;
+      if (s.title) html += `<div class="row-title-preview">${esc(s.title)}</div>`;
+      html += `<div class="row-meta">`;
+      html += `<span class="meta-tag ${hasData ? "has-data" : "no-data"}">${hasData ? "Has Data" : "Empty"}</span>`;
+      if (hasData && wc > 0) html += `<span class="meta-tag word-count">${wc} words</span>`;
+      html += `</div></div></div>`;
+    }
+    html += `</div></div>`;
+  }
+  dashboard.innerHTML = html;
+  updateCount();
+}
+
+function toggleStudent(name) {
+  if (selectedSet.has(name)) selectedSet.delete(name);
+  else selectedSet.add(name);
+  renderDashboard();
+}
+
+function selectAll() {
+  selectedSet.clear();
+  for (const [name, data] of studentData) {
+    if (data.title || data.description) selectedSet.add(name);
+  }
+  renderDashboard();
+}
+
+function deselectAll() {
+  selectedSet.clear();
+  renderDashboard();
+}
+
+function invertSelection() {
+  const newSet = new Set();
+  for (const [name] of studentData) {
+    if (!selectedSet.has(name)) newSet.add(name);
+  }
+  selectedSet = newSet;
+  renderDashboard();
+}
+
+function updateCount() {
+  document.getElementById("selectedCount").textContent = `${selectedSet.size} selected`;
+  document.getElementById("printBtn").disabled = selectedSet.size === 0;
+}
+
+function fallbackTitle(entry) {
+  if (entry.title) return entry.title;
+  const first = (entry.description || "").split(/\n+/).map(l => l.trim()).find(Boolean) || "";
+  return first.length > 80 ? first.slice(0, 77) + "\u2026" : first;
+}
+
+function buildPrintHTML(mode) {
+  const selected = [];
+  for (const name of selectedSet) {
+    if (studentData.has(name)) selected.push(studentData.get(name));
+  }
+
+  const groups = new Map();
+  for (const e of selected) {
+    if (!groups.has(e.B)) groups.set(e.B, []);
+    groups.get(e.B).push(e);
+  }
+
+  let html = "";
+  for (const [block, entries] of groups) {
+    html += `<div class="block-header">${esc(block)}</div>`;
+    html += `<div class="cards">`;
+    for (const e of entries) {
+      const title = esc(fallbackTitle(e));
+      const student = esc(displayName(e.S));
+      const desc = esc(e.description);
+      const titleHtml = title ? title : '<em>(untitled)</em>';
+      html += `<article class="card"><div class="card-frame"><div class="card-frame-inner">`;
+      html += `<div class="eyebrow">Independent Project \u00b7 Mi\u2019kmaw Studies 11</div>`;
+      html += `<div class="fleuron">\u2014 \u2766 \u2014</div>`;
+      html += `<h2 class="title">${titleHtml}</h2>`;
+      html += `<div class="byline">${student}</div>`;
+      html += `<div class="divider-thin"></div>`;
+      html += `<div class="description">${desc}</div>`;
+      html += `<div class="card-footer"><span></span><span>Spring \u00b7 2026</span></div>`;
+      html += `</div></div></article>`;
+    }
+    html += `</div>`;
+  }
+  return html;
+}
+
+function previewCards() {
+  document.body.classList.add("preview-mode", "print-two");
+  const output = document.getElementById("printOutput");
+  output.innerHTML = buildPrintHTML("two");
+  const closeBar = document.createElement("div");
+  closeBar.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;gap:10px;background:rgba(0,0,0,0.85);padding:12px 20px;border-radius:10px;backdrop-filter:blur(12px);";
+  closeBar.innerHTML = `
+    <button onclick="exitPreview()" style="font-family:var(--font-body);font-size:0.8rem;font-weight:600;padding:8px 16px;border:1px solid #fff;background:transparent;color:#fff;border-radius:6px;cursor:pointer;">Back to Selector</button>
+    <button onclick="window.print()" style="font-family:var(--font-body);font-size:0.8rem;font-weight:600;padding:8px 16px;border:none;background:#6c5ce7;color:#fff;border-radius:6px;cursor:pointer;">Print This View</button>
+    <button onclick="document.body.classList.remove('print-two');document.body.classList.add('print-one');document.getElementById('printOutput').innerHTML=buildPrintHTML('one')" style="font-family:var(--font-body);font-size:0.8rem;font-weight:600;padding:8px 16px;border:1px solid #fff;background:transparent;color:#fff;border-radius:6px;cursor:pointer;">One Per Page</button>
+  `;
+  document.body.appendChild(closeBar);
+  window._previewBar = closeBar;
+}
+
+function exitPreview() {
+  document.body.classList.remove("preview-mode", "print-two", "print-one");
+  document.getElementById("printOutput").innerHTML = "";
+  if (window._previewBar) { window._previewBar.remove(); window._previewBar = null; }
+}
+
+function printSelected() {
+  document.body.classList.add("print-two");
+  const output = document.getElementById("printOutput");
+  output.innerHTML = buildPrintHTML("two");
+  window.print();
+  document.body.classList.remove("print-two");
+}
+
+fetchAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Independent Project Descriptions — Mi’kmaw Studies 11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --ink-soft: #4a443c;
+    --paper: #f7f3e9;
+    --paper-2: #efe9d8;
+    --rule: #1a1814;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #cfc7b3; color: var(--ink); }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.55;
+    padding: 48px 20px 80px;
+  }
+
+  /* Screen controls */
+  .toolbar {
+    max-width: 980px;
+    margin: 0 auto 36px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 22px 28px;
+  }
+  .toolbar h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 1.9rem;
+    margin: 0 0 4px;
+    letter-spacing: 0.3px;
+  }
+  .toolbar p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; font-style: italic; font-family: 'Cormorant Garamond', serif; }
+  .toolbar .controls { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar button {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .toolbar button:hover { background: var(--ink); color: var(--paper); }
+  .toolbar .hint { font-size: 0.78rem; color: var(--ink-soft); margin-top: 10px; }
+
+  .block-header {
+    max-width: 1180px;
+    margin: 44px auto 18px;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.4rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+  }
+  .block-header::before, .block-header::after {
+    content: "·";
+    margin: 0 14px;
+    color: var(--ink);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 32px;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  /* The gallery card */
+  .card {
+    background: var(--paper);
+    color: var(--ink);
+    position: relative;
+    padding: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Outer thin border + inner hairline = classic museum frame */
+  .card-frame {
+    border: 1px solid var(--ink);
+    padding: 14px;
+    height: 100%;
+  }
+  .card-frame-inner {
+    border: 0.5px solid var(--ink);
+    padding: 38px 34px 26px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .eyebrow {
+    text-align: center;
+    font-size: 0.66rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .fleuron {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin: 8px 0 14px;
+    letter-spacing: 0.4em;
+  }
+
+  .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 1.7rem;
+    line-height: 1.18;
+    text-align: center;
+    margin: 0 0 4px;
+    letter-spacing: 0.2px;
+  }
+  .title em { font-style: italic; color: var(--ink-soft); }
+
+  .byline {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.02rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .divider-thin {
+    width: 28px;
+    height: 1px;
+    background: var(--ink);
+    margin: 14px auto 16px;
+  }
+
+  .description {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    text-align: left;
+    flex: 1;
+    white-space: pre-wrap;
+    overflow: hidden;
+    color: var(--ink);
+    column-count: 2;
+    column-gap: 22px;
+    column-rule: 0.5px solid var(--ink-soft);
+  }
+  .description > * { margin: 0; }
+
+  .card-footer {
+    margin-top: 22px;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  /* PRINT — landscape card per page (7.5 x 5 in) */
+  @page { size: letter; margin: 0.5in; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .toolbar, .block-header, .no-print { display: none !important; }
+    .cards {
+      max-width: none;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .card {
+      width: 7.5in;
+      height: 5in;
+      margin: 0 auto;
+      page-break-after: always;
+      box-shadow: none;
+      overflow: hidden;
+    }
+    .card:last-child { page-break-after: auto; }
+    .card-frame { padding: 0.12in; }
+    .card-frame-inner { padding: 0.28in 0.35in 0.2in; }
+    .description { font-size: 0.82rem; line-height: 1.38; column-gap: 0.22in; }
+    .title { font-size: 1.45rem; }
+  }
+
+  /* Two per page in print — two stacked cards share a page */
+  @media print {
+    body.print-two .card {
+      height: 4.85in;
+      margin: 0 auto 0.2in;
+    }
+    body.print-two .card:nth-of-type(2n) { page-break-after: always; }
+    body.print-two .card:nth-of-type(2n+1) { page-break-after: auto; }
+    body.print-two .card:last-child { page-break-after: auto; }
+    body.print-two .description { font-size: 0.78rem; line-height: 1.34; }
+    body.print-two .title { font-size: 1.35rem; }
+  }
+
+  /* Preview modes */
+  body.preview-single .toolbar, body.preview-single .block-header { display: none; }
+  body.preview-single .cards { grid-template-columns: 1fr; max-width: none; gap: 0.4in; }
+  body.preview-single .card { width: 7.5in; height: 5in; margin: 0 auto; overflow: hidden; }
+
+  body.preview-two .toolbar, body.preview-two .block-header { display: none; }
+  body.preview-two .cards { grid-template-columns: 1fr; max-width: 7.5in; margin: 0 auto; gap: 0.2in; }
+  body.preview-two .card { width: 7.5in; height: 4.85in; margin: 0 auto; overflow: hidden; }
+  body.preview-two .description { font-size: 0.78rem; line-height: 1.34; }
+  body.preview-two .title { font-size: 1.35rem; }
+
+  body.gallery .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+</style>
+</head>
+<body>
+
+<section class="toolbar no-print">
+  <h1>Independent Project Descriptions</h1>
+  <p>Mi’kmaw Studies 11 · A &amp; C Block · Waugh · Spring 2026</p>
+  <div class="controls">
+    <button onclick="window.print()">Print</button>
+    <button onclick="setMode('gallery')">Gallery view</button>
+    <button onclick="setMode('grid')">Card grid</button>
+    <button onclick="setMode('single')">One card per page</button>
+    <button onclick="setMode('two')">Two per page</button>
+  </div>
+  <p class="hint">For paper-saving output, pick “Two per page” then Print — cards stack two-up on each letter sheet. Use “One card per page” for full-size individual cards.</p>
+</section>
+
+<div id="root"></div>
+
+<script>
+const DATA = [
+  {
+    "block": "A Block (Waugh)",
+    "student": "CALLUM",
+    "title": "Wigwam with nature landscape",
+    "description": "Building a wigwam and making a landscape around it represents many things I learned in Mi'kmaw 11. It shows how important the land is to the Mi'kmaq people and how there culture is connected to nature. The wigwam was built using materials from outside such as trees,birch bark, moss and sand. This taught me that the Mi'kmaq respected the land and only used what they needed. They cared for nature and made sure resources would be available for future generations. The landscape around the wigwam represents the traditional land of the Mi'kmaq. In this course I learned that the land provided food, medicine, transportation, and a place for families and communities to live. Rivers, forests, and animals were all important parts of daily life. This project also shows the importance of family and community. Building a wigwam was something people often did together. Everyone shared knowledge and helped each other. This taught me about the values of teamwork, respect, and responsibility in Mi'kmaw culture. Another thing I learned in this course is that the Mi'kmaq people have shown great strength and resilience. Even though colonization brought many challenges, Mi'kmaw traditions and knowledge have continued to survive. Today many people are working to keep these traditions going. Making a wigwam and landscape helped me understand the history, culture, and connection to the land that are important to the Mi'kmaq people. It represents the lessons I learned about respect, community, and the importance of preserving Mi'kmaw traditions for future generations."
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "DAVE",
+    "title": "REILEY'S ART PROJECT",
+    "description": "This is a masterpiece of awesomeness. This project shows the link between the Kelp Highway and the 60s Scoop, as explained by Dr Glooscap at Dalhousie University. The impressionist art echoes the pointillism style popular at the turn of the 20th century. Notable details include the Indian Act color scheme, the motif that alludes to Section S(2)  status, and the smoke at the top that reminds of a smudging ceremony."
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "GAVIN",
+    "title": "traditional birch bark wigwam",
+    "description": "For this project, i created a model wigwam using birch bark and sticks. a wigwam is a traditional dome-shaped shelter that was used by many indigenous people in north America. these structures were built using materials that could be found in nature, making them practical, durable, and well suited to the environment. \n\nthe first step in building my wigwam was creating the frame. i gathered sticks and arranged them in a  triangle   shape then secured them together at the top to from a dome like structure. this frame made a support and gave the wigwam its distinctive shape. after completing the frame, i covered it with birch bark. Birch bark was an important piece to the wigwam because its waterproof and strong. I carefully put the birch bark onto the frames overlapping them making it look more realistic. \nthrough out this project I learned about the traditional indigenous building techniques and how natural resources were used to create effective shelters. I also understand the culture significance of wigwams and skills required to construct them"
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "Kevin",
+    "title": "A dipiction of whales with symbols on them that have a meaning to mikmaq culture",
+    "description": "a painting that depicts 7 whales with 3 different symbols. First the whales symbolizes wisdom longevity and the connection between families and community. Whales were also regarded as protectors and ancient knowledge keepers."
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "Lena",
+    "title": "A Tribute to the Stolen",
+    "description": "This mixed media watercolor painting serves as a visual representation of the Missing and Murdered Indigenous Women and Girls (MMIWG) crisis. The central figure of a woman stands as a testament to resilience, draped in cultural regalia that include symbols and designs passed through generations. These patterns are a language of identity, lineage, and survival, combating the systemic violence. By integrating mixed media elements, this piece of art achieves a tactile depth, bridging the gap between historical trauma and modern-day justice. The use of traditional symbols on the character’s clothing anchors the piece in their cultural history, honoring the vital concepts of Indigenous sovereignty and the sacredness of life. The lady in the artwork bears red clothing, in many Indigenous cultures, it is believed that red is the only color spirits can see. The incorporation of red lets the artwork symbolically calls back the spirits of missing and murdered women, allowing them a way to find their way home and connect with their mortal form. The background involving a mixture of colors portray the confusion that these individuals ponder, \"Why was I targeted?\" as the homicide rate for Indigenous women and girls is over 6 times higher than for their non-Indigenous counterparts. This piece demands that the viewer not just observe, but fuse their mindset to a victimized presence marked by absence, turning a national tragedy into something that could be a call for healing and accountability for all women."
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "MATEO",
+    "title": "The portrayal of Indigenous people in the media",
+    "description": "The portrayal of Indigenous people in the media has changed over time, but many challenges still remain. historically, Indigenous peoples were often represented through stereotypes that misrepresented their cultures, traditions, and ways of life. movies, television shows, newspapers, and advertisements frequently depicted Indigenous people as either aggressive warriors, helpless victims, or mysterious figures connected only to the past. These portrayals ignored the diversity and complexity of Indigenous communities and contributed to misunderstandings among the public.\nOne major issue with media representation is the lack of Indigenous voices in the creation of content. for many years, stories about Indigenous peoples were told by non-Indigenous writers, producers, and journalists. As a result, Indigenous perspectives were often excluded or distorted. This led to inaccurate depictions that reinforced harmful stereotypes and prejudice. Such representations can influence public opinion and affect how Indigenous people are treated in society. \nIn recent years, there has been growing awareness of the importance of authentic representation. More Indigenous filmmakers, actors, writers, and journalists are sharing their own stories and perspectives. This has helped create more accurate and respectful portrayals of Indigenous peoples in the media. Modern films, television series, and documentaries increasingly highlight Indigenous cultures, achievements, and contemporary issues, allowing audiences to gain a deeper understanding of Indigenous communities.\nDespite this progress, stereotypes and underrepresentation still exist. News coverage often focuses on negative topics such as poverty, crime, or conflict, while positive stories and achievements may receive less attention. This can reinforce harmful misconceptions and fail to reflect the full reality of Indigenous lives."
+  },
+  {
+    "block": "A Block (Waugh)",
+    "student": "Sophie",
+    "title": "",
+    "description": "This art project is a representation of traditional Mi'Kmaw quill embroidery ( quill work ).\nThis piece is done by thread unlike in the traditional way where they would use porcupine quills that they dyed. The 5 point star in the embroidery is a representation of the morning star which for the Mi'kmaw is seen as a symbol that brings the promise of a new day. \n\nThese stars were used pre-contact to serve as symbols for courage, guidance, wisdom that were on blanket that were given at major life events but closer to post contact  then were also used in a similar way as what this art piece shows"
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Abigail",
+    "title": "Quill Drop Earrings",
+    "description": "The porcupine is a delicate and defensive creature who walks their land. To the Mi’Kmaq people the porcupine represents strength and self protection because the porcupine is a kind, harmless animal equipped with a shield of quills for protection. Quill drop earrings aren’t just a way to show off indigenous culture, identity, and story telling but it connects the person wearing them to the ground they live on and the strength and worth they hold inside of themself. \n\nTraditionally Mi’Kmaq quill drop earrings were made from birch bark and porcupine quills that have been gathered after porcupine shed. They would start by cleaning the quills to remove all dirt and oils then the quills would have been boiled with roots, flowers or other types of organic dies. From there they would be flattened between finger nails or teeth, making them flexible so they could thread the end into tiny holes already made in the birch bark, fold the ends on the other side so when the bark completely dried they are secured and will not fall out. \n\nAs traditional clothing evolved, so did the jewelry and earrings. Quill drop earrings began to involve bright colored seed beads making the earrings easier to stitch and more desirable to practice. This change of medium made the materials more excessable, the process less labor intensive, much easier and faster and more detailed and  intricate designs could be achieved with these beads. This allowed Mi’Kmaq people to express their culture and stories in a much more effective and enjoyable way but that does not mean the traditional process is still not used today."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "AIDEN",
+    "title": "The Atlantic Salmon",
+    "description": "The Atlantic Salmon has always been a vital part of the Mi'kmaw peoples and their culture. It has been a food source for the Mi'kmaw peoples for thousands of years. Each year the Atlantic Salmon makes a journey from the ocean to the freshwater rivers to reproduce, and the Mi'kmaw fish for the Salmon so they have food for the cold winter.Fishing for Salmon gives the Mi'kmaw the opportunity to gather and exchange knowledge and traditions while being in harmony with nature. This fish can represent the resilience, strength, survival and balance that must be maintained in the wild due to its incredible journey up the rivers and down to the sea. The Mi'kmaw people held the Salmon with the utmost respect and only killed the animal when it was needed, either for food or to preserve it for the winter. This shows the importance that the Mi'kmaw people placed on living with nature, rather than in control of nature. The colors of this piece can be said to illustrate the importance of the Salmon, and nature itself, to the Mi'kmaw peoples. The strong hues of bright orange and yellow have ties to the color yellow meaning life,energy and warmth, as well as reminding people of sunshine and fire, which are both incredibly important in the daily lives of the Mi'kmaw peoples. The color blue surrounds the fish and reminds people of the rivers and seas that the fish inhabit, and the black outline helps to make the Salmon \"pop\" while paying homage to traditional art styles used in Indigenous art."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Caleb",
+    "title": "",
+    "description": "This sculpture shows how important fishing and natural resources are in Indigenous culture. It works with what we learned in class about Indigenous peoples living off the land and water. The artwork is on fish and other animals that were the main food sources helping communities over the years.\nIt really emphasizes the strong bond between Indigenous people and nature. The animals are not just seen as food, they represent wisdom and respect for the environment . So fishing comes across not just as a way to eat, but as a core part of their traditions and everyday life.\nAdding traditional foods like eel stew helps the point about using and learning to respect natural resources. These meals show how connected humans were to their surroundings and feeding the big communities in the process. Also the piece shows that resources were being used carefully to make sure nothing was wasted.\nOther than showing one event the sculpture shows a big picture of Indigenous life and ways. It really shows how important food and survival and respect is for nature everyday. Through its meaning and images the sculpture helps viewers understand why fishing and natural resources were such an important part of Indigenous culture. These traditions are still remembered today and continue to be an important part of Indigenous history, culture and identity."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Isabella Beck",
+    "title": "“Learning Through Language: A Mi’kmaw Children’s Book”",
+    "description": "For my Mi’kmaw independent project, I am creating a children’s book for my niece. This project is very meaningful to me because she is Indigenous, and I want her to grow up learning about her culture, language, and identity in a way that feels personal and accessible. Throughout this course, I have learned a lot about Mi’kmaw history, values, and ways of life, and I want my book to reflect that learning in a simple but respectful way. I chose words that are used in everyday life as well as words that carry deeper cultural meaning so a child can begin to understand both language and connection to Mi’kmaw identity.\n\nSome of the most important words I included in my book are Msit No’kmaq, Kasapskuk (Wampum belt), Plamu, and Tu’wa’timk. I chose Msit No’kmaq, meaning “all my relations,” because it is a key teaching in Mi’kmaw culture. It reminds us that everything is connected, including people, animals, land, and water, and teaches respect for all living things. I also included Kasapskuk (Wampum belt) because wampum belts are important symbols of agreements, history, and storytelling, showing how knowledge and responsibilities are passed down through generations.\n\nAnother important word I chose is Plamu (Atlantic salmon). I included this because salmon has been an important food source and part of Mi’kmaw life for generations. It reflects the strong relationship between the Mi’kmaq people and the land and water. I also selected Tu’wa’timk (lacrosse), which is a traditional game still played today. It represents teamwork, community, and cultural continuity.\n\nOverall, these words help connect language, culture, and identity. My goal is for my niece to not only learn Mi’kmaw words, but also understand the meaning and values behind them."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Jaiveer",
+    "title": "Medicine Wheel of Healing",
+    "description": "This artwork represents the culturally significant Medicine Wheel to hold up four pillars of Mi'kmaw life: land, community, culture, and language. The Medicine Wheel is an everyday symbol in the Mi'kmaw spiritual life of balance and wellbeing. Each section of the Medicine Wheel is being represented by a different perspective of life. If one part is broken, then it affects the whole wheel.\n\nWith areas that appear to be broken pieces, the wheel shows how something that is so common in everyday life can go sideways. In real life, where people once walked freely, now fence block paths to old hunting grounds. Instead of growing strong words like the ones on the Medicine Wheel, words fade under certain laws that are meant to silence the Mi'kmaw. From this, traditions and knowledge start to disappear."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "KOEN",
+    "title": "",
+    "description": "This artwork is about a period of time that took place in Canada known as the sixites scoop   this period of time would start in the 1960s and would continue into the 1980s during this time upwards of 20,000 indigenous children would be removed from their familes and commuities by child welfare agencies. These children would be place into foster houses all around Canada or they would be moved into the adoption system where they would be mostly fostered and adopted by non-indigenous families. this policy was created throught the colonial views of the native peoples and their coultures and practices, and the government would view these ways of life as inferior, this would lead to government athorities and social workers to frequently judge the indigenous families on the standards that would not look at or consider the social and economic hardships that were caused due  to racism, colonialism, and residential schools. Due to these factor many children were removed even when their communities and families showed no sign of abuse or neglect. \nThe sixites scoop effects on the children that went thorught it were long lasting and many survivers would lose their connections to language, culture, traditions, and history. Being forced to grow up away from their homes would cause the survivers to develop feeling of isolation, and depresssion. These feeling can lead to the survivers to develop addictions such as drinking, smoking and other hard drugs to cope with the truama."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Kyle Parsons",
+    "title": "",
+    "description": "The Mi’kmaw Treaties of 1778 and 1779 were important agreements between the Mi’kmaq people and the British government during the American Revolutionary War. These treaties were created to keep peace between the Mi’kmaq and the British and to make sure the Mi’kmaq would not join the American rebels in fighting against Britain.\nThe Treaty of 1778 was written and signed at Fort Howe, which is now part of Saint John, New Brunswick. The treaty was organized by Michael Francklin, the British Superintendent of Indian Affairs in Nova Scotia. He met with Mi’kmaq leaders from several communities, including Richibucto, Miramichi, and Chignecto. The Mi’kmaq chiefs signed the treaty on behalf of their people, while British officials signed it for the Crown.\nA second treaty was signed in 1779. This agreement renewed the promises made in 1778 and included Mi’kmaq leaders from other communities in the region. Like the earlier treaty, it was arranged by British officials and signed by both Mi’kmaq representatives and British authorities.\nThe main purpose of these treaties was to maintain peace and friendship. The Mi’kmaq agreed not to support the American rebels, and the British promised to continue peaceful relations with the Mi’kmaq. The treaties also recognized that the Mi’kmaq could continue hunting, fishing, and using natural resources to support their way of life.\nOne of the most important facts about the 1778 and 1779 treaties is that the Mi’kmaq did not give up their land. Unlike many later treaties in Canada, these agreements focused on peace, cooperation, and trade rather than land surrender.\nToday, the treaties remain important because they are still recognized by Canadian law. They help protect Mi’kmaw treaty rights and are an important part of the history of Atlantic Canada.\n\nIn my project i am going to draw about where the treaty was signed and the people signing it, a close replica of the actual treaty, and what they treated did for the Mi’kmaw people."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "myles",
+    "title": "Mi'kmaq dessert",
+    "description": "The topic I have chosen is Mi’kmaq desserts, and I will be making a blueberry cake. This cake combines Indigenous ingredients with European baking techniques. I chose to make a Mi’kmaq dessert because it connects to the past showing how the Mi’kmaq used berries, maple products, and other foods gathered from the land. Baking this cake allows me to share Mi’kmaq culture through taste, ingredients, and the baking process. The cake itself serves as the medium of my project, making it both an edible creation and a hands-on cultural demonstration. My piece is a blueberry cake inspired by Mi’kmaq food traditions. It combines blueberries and other ingredients connected to the land with European style baking methods. The cake represents the blending of Indigenous and European influences and shows how traditional foods can be adapted while still maintaining a connection to Mi’kmaq culture and history. Through this piece, I hope to demonstrate the importance of food in preserving cultural traditions and connecting people to their ancestors. This piece symbolizes family, community, and the passing down of knowledge from one generation to the next. My cake also represents respect for Mi’kmaq traditions and the importance of keeping cultural practices alive. By creating this dessert, I am recognizing how food can connect people, strengthen cultural identity, and help preserve traditions for future generations."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "River Thomas",
+    "title": "A Sweat lodge ceremony",
+    "description": "This Diorma shows the space within a  Sweat lodge where a traditional Indigenous Sweat Lodge ceremony would be performed. these ceremonies were performed all over the North America's by many of the indigenous populations, similar traditions can even be traced and practiced back in ancient northern south America and central America by the Olmec, Aztec, and early Mexican natives. for North American aboriginal peoples the ceremony was used to cleanse and heal the bodies of those that were afflicted with disease, the ceremony would be done in a large dome or oblong shaped tent-house made form natural wooden or bone supports draped with cloths and animal skins, the ceremony was always led by a recognized and wise elder who must know the traditions, songs , and steps taken exactly in order to properly perform the ceremony. The traditions entails one or people entering the sweat lodge where a fire pit and many stones of varying sizes would be placed, the people would sit in the lodge where they begin praying or singing, decoctions and water would be placed on the heated stones to create medicinal fumes and help to make the participants sweat more, after some time the people  will exit and begin performing more tradition rituals outside the lodge involving nother fire pit and exchanging seven stones between the lodge and outside. the indigenous people believed that the act of sweating allowed the body to cleanse itself of toxins and impurities as well as drive away ill thought and misfortune, this ceremony is  a very important part of Canadian indigenous tradition and is one of the ways that indigenous people of today can connect with old or lost culture."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Sukhbir",
+    "title": "Mi'kmaw Creation Story: A story from Glooscap",
+    "description": "My project is a game based on the Mi'kmaq creation story. In this game you will play as the protagonist Glooscap in an adventurous story while learning different parts about the mi'kmaq culture and traditions. Throughout the game you are able to walk around and explore different areas within the game such as forests, beaches and wigwams. Players will be able to speak to many different characters as they pass through these areas who share stories and knowledge about the Mi'kmaw history and the way of life. \n\nPlayers will learn about how Indigenous people perform many different everyday  and common practices such as healthcare or prayers. With players also interacting with the environment and characters, they will learn how the Mi'kmaq people live in peace and harmony. This game also teaches how important it is to be interactive in your community. These experiences are added in the game play to mimic how one might live in a first nations area.\n\nPlayers will also get to experience first hand what the Mi'kmaw creation story has to offer and get a deeper understanding of this story which has been passed down many generations. As they follow along, players will learn different events and lessons from the creation story. This experience will get players to learn in a different way and why it is culturally significant towards first nations people. \n\nOverall this game is meant to be educational and entertaining while teaching different cultural practices. By combining adventure and interactive learning, I will be successful in getting players to have a meaningful gaming experience."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "Zaid",
+    "title": "The Protector(Pewitekemkewey)",
+    "description": "A dream catcher is a traditional indigenous protective talisman consisting of a handmade hoop woven with a web-like pattern and decorated with items such as feathers and beads. Good dreams pass through the center hole and slide down the feather to the sleeper. Bad dreams become tangled in the web and evaporate at sunrise. People place dream catchers in their houses, cars, hallways, or above their beds to filter out bad dreams and protect those sleeping. Dream catchers are also displayed to express indigenous heritage and to show that the Mi’kmaw were the first humans on the land.\nThe dream catcher, also called “pewitekemkewey,” originated with the Ojibwe. It holds deep modern and cultural significance to the Mi’kmaq today. Dream catchers represent healing, cultural reclamation, community resilience, and the lasting presence of indigenous people's ancestral territory in Mi’kma’ki.  According to traditional Ojibwe teachings, the universe is watched over by Asibikaashi, the Spider Woman. She was the fierce protector and custodian of all the people, especially the infants and the small children.When the Ojibwe nation spread across North America, women found it difficult to care for their children alone. To ensure their children’s protection, mothers and grandmothers began weaving magical webs using willow hoops and sinew to catch harm and negative dreams.materials needed to make the dream catcher are a circular hoop,a circular hoop (like a metal ring or embroidery hoop), leather or suede cord, string, craft glue, feathers, and beads."
+  },
+  {
+    "block": "C Block (Waugh)",
+    "student": "ZAYDEN",
+    "title": "Medicine Wheel",
+    "description": "The medicine wheel is a visual represntation of the indigenous traditions, celebrations and their overall identity. It demonstrates who they are and what they have accomplished despite the challenges they have faced over many years. It is used to show materials they used to survive during both the extremely cold seasons, or the extremely hot seasons. It shows their way of life, where they lived, what they ate, how they got their food, just how they survived in general. The medicine wheel is a sacred symbol used by generations of the Idigenous people. It represents health, interconnectedness of life and the nature of existence. East (Yellow), is about spring, new beginnings, the rising sun, and childhood. South (Red) is about summer, youth, passion, and growth.West (Black) is about fall/autumn, adulthood, introspection, and the setting sun. North (White) is about winter, elders, wisdom, and the resting of the mind and body. The wheel teaches that having harmony and happiness needs balancing four essential parts of everyone. Mental, growth and clarity. Physical, body health and connection to Mother Earth. Spiritual faith, values, and connection to the Creator. Emotional feelings and the ability to process and express them. The medicine wheel also refers to ancient physical stone structures. Hundreds of these stone structures are located across North America, some being up to a thousands years old. The structures are central rock cairns, concentric rings, and radiating spokes that often align with the cardinal directions or astronomical events. To the Indigenous people, the wheel represents a map of the universe. It shows that everything operates in cycles (the seasons, human aging, the moon) and that no single part can work without the others."
+  }
+];
+
+const groups = DATA.reduce((acc, e) => {
+  (acc[e.block] = acc[e.block] || []).push(e);
+  return acc;
+}, {});
+
+function esc(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fallbackTitle(e){
+  if (!e.title) {
+    const first = (e.description||'').split(/\n+/).map(l=>l.trim()).find(Boolean) || '';
+    return first.length > 80 ? first.slice(0,77)+'…' : first;
+  }
+  return e.title;
+}
+
+function render(){
+  const root = document.getElementById('root');
+  let html = '';
+  for (const block of Object.keys(groups)) {
+    html += `<div class="block-header">${esc(block)}</div>`;
+    html += `<div class="cards">`;
+    for (const e of groups[block]) {
+      const title = esc(fallbackTitle(e));
+      const student = esc(e.student);
+      const desc = esc(e.description);
+      const titleHtml = title ? title : '<em>(untitled)</em>';
+      html += `
+        <article class="card">
+          <div class="card-frame">
+            <div class="card-frame-inner">
+              <div class="eyebrow">Independent Project · Mi’kmaw Studies 11</div>
+              <div class="fleuron">— ❦ —</div>
+              <h2 class="title">${titleHtml}</h2>
+              <div class="byline">${student}</div>
+              <div class="divider-thin"></div>
+              <div class="description">${desc}</div>
+              <div class="card-footer">
+                <span></span>
+                <span>Spring · 2026</span>
+              </div>
+            </div>
+          </div>
+        </article>`;
+    }
+    html += `</div>`;
+  }
+  root.innerHTML = html;
+}
+
+function setMode(mode){
+  document.body.classList.remove('gallery','preview-single','preview-two','print-two');
+  if (mode === 'gallery') document.body.classList.add('gallery');
+  if (mode === 'single') document.body.classList.add('preview-single');
+  if (mode === 'two') {
+    document.body.classList.add('preview-two');
+    document.body.classList.add('print-two');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

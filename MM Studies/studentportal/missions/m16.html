@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 16 | The Beaver Engineer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #7c3aed; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
+
+        .game-area {
+            text-align: center; margin: 1.5rem 0; background: #f1f5f9;
+            padding: 1.5rem; border-radius: 1.5rem; border: 1px solid var(--border);
+        }
+        .canvas-wrap { position: relative; display: inline-block; border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 100%; transition: box-shadow 0.3s; }
+        .canvas-wrap.drop-active { box-shadow: 0 0 0 4px var(--primary), 0 4px 24px rgba(124,58,237,0.3); }
+        #gameCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
+
+        .material-tray {
+            display: flex; justify-content: center; gap: 1rem; margin: 1.5rem 0 1rem; flex-wrap: wrap;
+        }
+        .mat-piece {
+            width: 100px; height: 75px; border-radius: 14px; cursor: grab;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.7rem; user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s; text-align: center; line-height: 1.3;
+            border: 3px solid rgba(255,255,255,0.3); touch-action: none;
+        }
+        .mat-piece:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .mat-piece:active { cursor: grabbing; }
+        .mat-piece .emoji { font-size: 1.5rem; margin-bottom: 2px; }
+        .mat-log { background: linear-gradient(135deg, #b45309, #92400e); }
+        .mat-stone { background: linear-gradient(135deg, #78716c, #57534e); }
+        .mat-mud { background: linear-gradient(135deg, #92400e, #78350f); }
+
+        .drag-ghost {
+            position: fixed; pointer-events: none; z-index: 10000; opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.15); border-radius: 14px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.7rem; text-align: center; line-height: 1.3;
+            border: 3px solid rgba(255,255,255,0.5); width: 100px; height: 75px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+        .drag-ghost .emoji { font-size: 1.5rem; margin-bottom: 2px; }
+
+        .game-status { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); margin: 0.5rem 0; }
+        .breach-indicators { display: flex; justify-content: center; gap: 1rem; margin: 0.75rem 0; }
+        .breach-dot {
+            width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--border);
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+            transition: all 0.3s; background: white;
+        }
+        .breach-dot.fixed { border-color: #10b981; background: #f0fdf4; }
+        .breach-dot.active { border-color: var(--primary); background: #f5f3ff; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.7}50%{opacity:1}100%{opacity:.7} }
+
+        .teaching-box {
+            padding: 1rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a;
+            margin: 0.75rem 0; font-size: 0.9rem; color: #92400e; text-align: center; min-height: 50px;
+        }
+        .celebration { font-size: 1.2rem; font-weight: 800; color: #10b981; margin: 0.5rem 0; display: none; animation: celebPulse 0.6s ease-in-out infinite alternate; }
+        @keyframes celebPulse { from{transform:scale(1)}to{transform:scale(1.05)} }
+        .game-controls { display: flex; justify-content: center; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap; }
+        .game-btn { padding: 0.5rem 1.25rem; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-weight: 700; font-size: 0.8rem; background: white; color: var(--text-muted); transition: all 0.2s; }
+        .game-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .game-btn-clear { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+        .game-btn-clear:hover { background: #fee2e2; }
+
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,58,237,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; animation: pulse2 1s infinite; }
+        @keyframes pulse2 { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-back:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="briefing-card">
+        <span class="mission-id">TOP SECRET // MISSION 16</span>
+        <h1>The Beaver Engineer</h1>
+        <p class="significance-box">The beaver is the engineer of the forest. Mi'kmaw people learned by watching beavers — first stones for a base, then logs for strength, then mud to seal. Build in the right order!</p>
+
+        <div class="game-area">
+            <h4 style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--primary);margin-bottom:1rem;">Fix the Dam — 3 Breaches</h4>
+            <div class="canvas-wrap" id="canvasWrap">
+                <canvas id="gameCanvas" width="650" height="400"></canvas>
+            </div>
+            <div class="material-tray" id="matTray">
+                <div class="mat-piece mat-stone" data-type="stone"><span class="emoji">🪨</span><span>Stones</span></div>
+                <div class="mat-piece mat-log" data-type="log"><span class="emoji">🪵</span><span>Logs</span></div>
+                <div class="mat-piece mat-mud" data-type="mud"><span class="emoji">🟤</span><span>Mud</span></div>
+            </div>
+            <div class="breach-indicators">
+                <div class="breach-dot active" id="bd0">1</div>
+                <div class="breach-dot" id="bd1">2</div>
+                <div class="breach-dot" id="bd2">3</div>
+            </div>
+            <p class="game-status" id="gameStatus">Breach 1: Start with stones for a strong base!</p>
+            <div class="teaching-box" id="teachingBox">Beavers always build from the bottom up. Drag the right material into the glowing breach.</div>
+            <p class="celebration" id="celebMsg">The dam holds! The wetland is alive! 🦫🐸🦆</p>
+            <div class="game-controls">
+                <button class="game-btn game-btn-clear" onclick="resetDam()">Start Over</button>
+            </div>
+        </div>
+
+        <div class="step"><strong>Step 1: Bottom Up</strong><br>Each breach needs 3 layers — stones first, then logs, then mud to seal.</div>
+        <div class="step"><strong>Step 2: Right Material</strong><br>Drop the wrong material and it washes away! Watch for the hint.</div>
+        <div class="step"><strong>Step 3: Watch the Water</strong><br>Each fixed breach stops water rushing through. Fix all 3 to create the wetland.</div>
+
+        <textarea id="workArea" placeholder="Beavers help the forest by... The dam creates..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
+    </div>
+
+    <script>
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 16: The Beaver Engineer';
+
+        const CW=650,CH=400;
+        const DAM_X=270,DAM_W=110;
+
+        const breachDefs = [
+            { id:0, y:270, h:90, label:'Bottom', teaching:'Stones go first — they anchor the dam in the riverbed.' },
+            { id:1, y:170, h:80, label:'Middle', teaching:'Logs lock together over the stones for strength.' },
+            { id:2, y:90,  h:70, label:'Top',    teaching:'Mud seals the cracks so water can\'t leak through.' }
+        ];
+
+        let breaches = [
+            { layer:0, filled:[], fixed:false },
+            { layer:0, filled:[], fixed:false },
+            { layer:0, filled:[], fixed:false }
+        ];
+
+        let currentBreach = 0;
+        let isComplete = false;
+        let dragGhost = null;
+        let dragType = null;
+        let timeout = null;
+        let waterOff = 0;
+        let splashParticles = [];
+        let wrongFlash = -1;
+        let wrongTimer = 0;
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const wrap = document.getElementById('canvasWrap');
+        const gameStatus = document.getElementById('gameStatus');
+        const teachingBox = document.getElementById('teachingBox');
+        const celebEl = document.getElementById('celebMsg');
+        const workArea = document.getElementById('workArea');
+        const syncStatus = document.getElementById('syncStatus');
+        const syncDot = document.getElementById('syncDot');
+
+        const layerOrder = ['stone','log','mud'];
+        const layerColors = { stone:'#78716c', log:'#92400e', mud:'#78350f' };
+        const layerEmoji = { stone:'\u{1FAA8}', log:'\u{1FAB5}', mud:'\u{1F7E4}' };
+
+        var wallCache = document.createElement('canvas');
+        wallCache.width = CW; wallCache.height = CH;
+        var wctx = wallCache.getContext('2d');
+        (function(){
+            var skyGrad=wctx.createLinearGradient(0,0,0,80);
+            skyGrad.addColorStop(0,'#7dd3fc');skyGrad.addColorStop(1,'#bae6fd');
+            wctx.fillStyle=skyGrad;wctx.fillRect(0,0,CW,80);
+            wctx.fillStyle='#22c55e';wctx.fillRect(0,70,CW,20);
+            var wallColors=['#6b7280','#78716c','#9ca3af','#a8a29e'];
+            drawStoneWallCached(0,90,DAM_X,CH-90,wallColors);
+            drawStoneWallCached(DAM_X+DAM_W,90,CW-DAM_X-DAM_W,CH-90,wallColors);
+            wctx.fillStyle='#65a30d';
+            wctx.fillRect(DAM_X+DAM_W+5,70,CW-DAM_X-DAM_W-5,20);
+        })();
+
+        function drawStoneWallCached(x,y,w,h,colors){
+            for(var sy=y;sy<y+h;sy+=14){
+                for(var sx=x;sx<x+w;sx+=12){
+                    wctx.fillStyle=colors[Math.floor(Math.random()*colors.length)];
+                    wctx.fillRect(sx+(sy%2===0?0:6),sy,10,12);
+                }
+            }
+        }
+
+        function getActiveBreach(){
+            for(var i=0;i<3;i++){if(!breaches[i].fixed)return i}
+            return -1;
+        }
+
+        function updateUI(){
+            for(var i=0;i<3;i++){
+                var dot=document.getElementById('bd'+i);
+                dot.classList.remove('active','fixed');
+                if(breaches[i].fixed)dot.classList.add('fixed');
+                else if(i===currentBreach)dot.classList.add('active');
+            }
+            if(isComplete){
+                gameStatus.textContent='All breaches sealed! The wetland thrives!';
+                teachingBox.textContent='Beavers create wetlands that support fish, birds, frogs, and plants. The Mi\'kmaq learned sustainable building by watching them.';
+            }else{
+                var b=breaches[currentBreach];
+                var def=breachDefs[currentBreach];
+                var nextLayer=layerOrder[b.layer];
+                var layerNames={stone:'stones',log:'logs',mud:'mud'};
+                gameStatus.textContent='Breach '+(currentBreach+1)+' ('+def.label+'): Add '+layerNames[nextLayer]+'! ('+b.filled.length+'/2 placed)';
+                teachingBox.textContent=def.teaching;
+            }
+        }
+
+        function draw(){
+            ctx.clearRect(0,0,CW,CH);
+            ctx.drawImage(wallCache,0,0);
+
+            drawRiverLeft();
+            drawRiverRight();
+            drawBreaches();
+            drawSplash();
+
+            ctx.font='24px serif';
+            ctx.fillText('\u{1F9AB}',35,CH-35);
+
+            if(isComplete){
+                ctx.font='20px serif';
+                ctx.fillText('\u{1F438}',DAM_X-40,120);
+                ctx.fillText('\u{1F986}',DAM_X-40,160);
+                ctx.fillText('\u{1F40B}',DAM_X+DAM_W+15,130);
+            }
+
+            waterOff+=1.2;
+            if(wrongFlash>=0){wrongTimer--;if(wrongTimer<=0)wrongFlash=-1}
+            requestAnimationFrame(draw);
+        }
+
+        function drawRiverLeft(){
+            var grad=ctx.createLinearGradient(0,0,DAM_X,0);
+            grad.addColorStop(0,'#1d4ed8');
+            grad.addColorStop(1,'#2563eb');
+            ctx.fillStyle=grad;
+            ctx.fillRect(0,90,DAM_X,CH-90);
+
+            ctx.strokeStyle='rgba(255,255,255,0.08)';
+            ctx.lineWidth=1;
+            for(var r=0;r<6;r++){
+                ctx.beginPath();
+                for(var x=0;x<DAM_X;x+=4){
+                    var y=100+r*50+Math.sin((x+waterOff+r*20)*0.02)*5;
+                    if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+                }
+                ctx.stroke();
+            }
+        }
+
+        function drawRiverRight(){
+            var fixedCount=breaches.filter(function(b){return b.fixed}).length;
+            var waterLevel=90+fixedCount*30;
+            var rightX=DAM_X+DAM_W;
+
+            if(fixedCount>0){
+                var pondGrad=ctx.createLinearGradient(rightX,0,CW,0);
+                pondGrad.addColorStop(0,'#2563eb');
+                pondGrad.addColorStop(1,'#1d4ed8');
+                ctx.fillStyle=pondGrad;
+                ctx.fillRect(rightX,waterLevel,CW-rightX,CH-waterLevel);
+
+                ctx.strokeStyle='rgba(255,255,255,0.06)';
+                ctx.lineWidth=1;
+                for(var r=0;r<4;r++){
+                    ctx.beginPath();
+                    for(var x=rightX;x<CW;x+=4){
+                        var y=waterLevel+10+r*35+Math.sin((x+waterOff*0.5+r*15)*0.015)*3;
+                        if(x===rightX)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            ctx.fillStyle='#7dd3fc';
+            ctx.fillRect(rightX,90,CW-rightX,waterLevel-90);
+
+            ctx.fillStyle='#65a30d';
+            ctx.fillRect(rightX+5,70,CW-rightX-5,20);
+        }
+
+        function drawBreaches(){
+            for(var i=0;i<3;i++){
+                var def=breachDefs[i];
+                var b=breaches[i];
+                var bx=DAM_X,by=def.y,bw=DAM_W,bh=def.h;
+
+                if(b.fixed){
+                    ctx.fillStyle=layerColors.stone;
+                    ctx.fillRect(bx,by+bh-25,bw,25);
+                    ctx.fillStyle=layerColors.log;
+                    ctx.fillRect(bx,by+bh-50,bw,25);
+                    ctx.fillStyle=layerColors.mud;
+                    ctx.fillRect(bx,by,bw,bh-50);
+                    continue;
+                }
+
+                ctx.fillStyle='#1e40af';
+                ctx.fillRect(bx,by,bw,bh);
+
+                ctx.strokeStyle='rgba(255,255,255,0.15)';
+                ctx.lineWidth=1;
+                for(var fy=by;fy<by+bh;fy+=8){
+                    ctx.beginPath();
+                    for(var fx=bx;fx<bx+bw;fx+=3){
+                        var ffy=fy+Math.sin((fx+waterOff*4)*0.08)*4;
+                        if(fx===bx)ctx.moveTo(fx,ffy);else ctx.lineTo(fx,ffy);
+                    }
+                    ctx.stroke();
+                }
+
+                for(var li=0;li<b.filled.length;li++){
+                    var layer=layerOrder[b.layer-1+li-b.filled.length+1]||layerOrder[li];
+                    if(li<b.filled.length){
+                        var ly=by+bh-(li+1)*Math.floor(bh/3);
+                        ctx.fillStyle=layerColors[b.filled[li]];
+                        ctx.fillRect(bx+2,ly,bw-4,Math.floor(bh/3)-2);
+                    }
+                }
+
+                if(i===currentBreach&&!isComplete){
+                    var glowAlpha=0.3+Math.sin(Date.now()*0.005)*0.15;
+                    ctx.strokeStyle='rgba(124,58,237,'+glowAlpha+')';
+                    ctx.lineWidth=3;
+                    ctx.strokeRect(bx-1,by-1,bw+2,bh+2);
+
+                    ctx.font='bold 10px Inter, sans-serif';
+                    ctx.fillStyle='rgba(255,255,255,0.6)';
+                    ctx.textAlign='center';
+                    ctx.fillText(b.layer<3?layerEmoji[layerOrder[b.layer]]+'\u2193':'',bx+bw/2,by+14);
+                    ctx.textAlign='left';
+                }
+
+                if(wrongFlash===i){
+                    ctx.fillStyle='rgba(239,68,68,0.3)';
+                    ctx.fillRect(bx,by,bw,bh);
+                }
+            }
+        }
+
+        function drawSplash(){
+            for(var i=splashParticles.length-1;i>=0;i--){
+                var p=splashParticles[i];
+                p.x+=p.vx;p.y+=p.vy;p.vy+=0.3;p.life--;
+                ctx.fillStyle='rgba(59,130,246,'+(p.life/20)+')';
+                ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();
+                if(p.life<=0)splashParticles.splice(i,1);
+            }
+        }
+
+        function spawnSplash(x,y){
+            for(var i=0;i<12;i++){
+                splashParticles.push({x:x,y:y,vx:(Math.random()-0.5)*6,vy:-Math.random()*5-2,life:20});
+            }
+        }
+
+        function tryPlaceMaterial(breachIdx,type){
+            if(isComplete||breachIdx!==currentBreach)return false;
+            var b=breaches[breachIdx];
+            var needed=layerOrder[b.layer];
+            if(type===needed){
+                b.filled.push(type);
+                if(b.filled.length>=2){
+                    b.filled=[];
+                    b.layer++;
+                    if(b.layer>=3){
+                        b.fixed=true;
+                        var def=breachDefs[breachIdx];
+                        spawnSplash(DAM_X+DAM_W/2,def.y+def.h/2);
+                        currentBreach=getActiveBreach();
+                        if(currentBreach===-1){
+                            isComplete=true;
+                            celebEl.style.display='block';
+                            saveAndSync();
+                        }
+                    }
+                }
+                updateUI();
+                return true;
+            }else{
+                wrongFlash=breachIdx;
+                wrongTimer=30;
+                spawnSplash(DAM_X+DAM_W/2,breachDefs[breachIdx].y+breachDefs[breachIdx].h/2);
+                return false;
+            }
+        }
+
+        function startDrag(type,cx,cy){
+            if(isComplete)return;
+            dragType=type;
+            var colors={log:'linear-gradient(135deg,#b45309,#92400e)',stone:'linear-gradient(135deg,#78716c,#57534e)',mud:'linear-gradient(135deg,#92400e,#78350f)'};
+            var emojis={log:'\u{1FAB5}',stone:'\u{1FAA8}',mud:'\u{1F7E4}'};
+            var labels={log:'Logs',stone:'Stones',mud:'Mud'};
+            dragGhost=document.createElement('div');dragGhost.className='drag-ghost';
+            dragGhost.style.background=colors[type];
+            dragGhost.innerHTML='<span class="emoji">'+emojis[type]+'</span><span>'+labels[type]+'</span>';
+            dragGhost.style.left=cx+'px';dragGhost.style.top=cy+'px';
+            document.body.appendChild(dragGhost);
+            wrap.classList.add('drop-active');
+        }
+        function moveDrag(cx,cy){if(dragGhost){dragGhost.style.left=cx+'px';dragGhost.style.top=cy+'px'}}
+        function endDrag(cx,cy){
+            if(!dragGhost||!dragType)return;
+            wrap.classList.remove('drop-active');
+            var rect=canvas.getBoundingClientRect();
+            var scaleX=CW/rect.width,scaleY=CH/rect.height;
+            var px=(cx-rect.left)*scaleX,py=(cy-rect.top)*scaleY;
+
+            if(px>=DAM_X&&px<=DAM_X+DAM_W){
+                for(var i=0;i<3;i++){
+                    var def=breachDefs[i];
+                    if(py>=def.y&&py<=def.y+def.h){
+                        tryPlaceMaterial(i,dragType);
+                        triggerSave();
+                        break;
+                    }
+                }
+            }
+
+            dragGhost.remove();dragGhost=null;dragType=null;
+        }
+
+        document.querySelectorAll('.mat-piece').forEach(function(piece){
+            piece.addEventListener('mousedown',function(e){e.preventDefault();startDrag(piece.dataset.type,e.clientX,e.clientY)});
+            piece.addEventListener('touchstart',function(e){e.preventDefault();var t=e.touches[0];startDrag(piece.dataset.type,t.clientX,t.clientY)},{passive:false});
+        });
+        document.addEventListener('mousemove',function(e){moveDrag(e.clientX,e.clientY)});
+        document.addEventListener('touchmove',function(e){if(dragGhost){e.preventDefault();moveDrag(e.touches[0].clientX,e.touches[0].clientY)}},{passive:false});
+        document.addEventListener('mouseup',function(e){endDrag(e.clientX,e.clientY)});
+        document.addEventListener('touchend',function(e){if(dragGhost){var t=e.changedTouches[0];endDrag(t.clientX,t.clientY)}});
+
+        function resetDam(){
+            breaches=[
+                {layer:0,filled:[],fixed:false},
+                {layer:0,filled:[],fixed:false},
+                {layer:0,filled:[],fixed:false}
+            ];
+            currentBreach=0;isComplete=false;
+            celebEl.style.display='none';
+            splashParticles=[];
+            updateUI();triggerSave();
+        }
+
+        function triggerSave(){syncStatus.innerText='Building...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                var r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                var d=await r.json();
+                if(d.content)workArea.value=d.content;else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m16_work')||'';
+                var saved=d.breaches?JSON.parse(d.breaches):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m16_breaches')||'null');
+                if(saved){
+                    breaches=saved;
+                    currentBreach=getActiveBreach();
+                    if(currentBreach===-1){isComplete=true;celebEl.style.display='block'}
+                    updateUI();
+                }
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m16_work')||'';
+                var saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m16_breaches')||'null');
+                if(saved){
+                    breaches=saved;
+                    currentBreach=getActiveBreach();
+                    if(currentBreach===-1){isComplete=true;celebEl.style.display='block'}
+                    updateUI();
+                }
+                syncStatus.innerText='Ready (Offline Mode)';
+            }
+        }
+
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m16_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m16_breaches',JSON.stringify(breaches));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,breaches:JSON.stringify(breaches),complete:isComplete,timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Dam synced!';
+                let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(16))c.push(16);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
+        updateUI();
+        retrieveFromCloud();
+        draw();
+    </script>
+</body>
+</html>

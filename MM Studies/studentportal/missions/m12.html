@@ -3,278 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission 12 | 2050 Vision</title>
+    <title>Mission 12 | Birch Bark Message</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #8b5cf6; 
-            --bg: #f8fafc; 
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            padding: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .briefing-card { 
-            max-width: 850px; 
-            width: 100%; 
-            background: var(--card-bg); 
-            padding: 3rem; 
-            border-radius: 2rem; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        h1 { 
-            font-family: 'Outfit', sans-serif; 
-            font-size: 2.5rem; 
-            text-transform: uppercase; 
-            margin-bottom: 1rem; 
-            color: var(--text);
-            letter-spacing: -0.02em;
-        }
+        :root { --primary: #92400e; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
 
-        .mission-id {
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: 0.2em;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-            display: block;
+        .bark-canvas-area {
+            background: linear-gradient(135deg, #d4a574, #c4956a, #b8845a, #c4956a, #d4a574);
+            border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0;
+            border: 3px solid #8b6914; position: relative;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.15), 0 10px 30px rgba(0,0,0,0.15);
         }
+        .bark-canvas-area::before {
+            content: ''; position: absolute; inset: 0; border-radius: 1rem;
+            background: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.03' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        #barkCanvas { display: block; margin: 0 auto; border-radius: 0.5rem; cursor: crosshair; touch-action: none; }
 
-        .significance-box {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--border);
+        .stamp-tray {
+            display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;
+            margin: 1.5rem 0; padding: 1.25rem; background: #f1f5f9;
+            border-radius: 1rem; border: 1px solid var(--border);
         }
+        .stamp-btn {
+            width: 62px; height: 62px; background: white; border: 2px solid var(--border);
+            border-radius: 0.6rem; cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.15rem; transition: all 0.2s;
+            font-size: 0.55rem; font-weight: 700; color: var(--text-muted);
+        }
+        .stamp-btn:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .stamp-btn.active { border-color: var(--primary); background: #fef3c7; color: var(--primary); }
+        .stamp-btn svg { width: 28px; height: 28px; }
 
-        .scaffold-box {
-            background: #f1f5f9;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
+        .tool-row {
+            display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0;
         }
+        .tool-btn {
+            padding: 0.5rem 1rem; background: #f1f5f9; border: 1px solid var(--border);
+            border-radius: 0.5rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        .tool-btn:hover { background: #e2e8f0; }
+        .tool-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tool-btn.clear-btn { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+        .tool-btn.clear-btn:hover { background: #fee2e2; }
 
-        .scaffold-box h4 {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .idea-bank {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-        }
-
-        .idea-item {
-            font-size: 0.8rem;
-            line-height: 1.4;
-            background: white;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border);
-        }
-        
-        .step { 
-            background: #f8fafc; 
-            padding: 1.25rem; 
-            border-radius: 0.75rem; 
-            margin-bottom: 1rem; 
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary); 
-        }
-
-        .step strong {
-            color: var(--text);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        textarea { 
-            width: 100%; 
-            background: #fff; 
-            border: 2px solid var(--border); 
-            border-radius: 1rem; 
-            padding: 1.5rem; 
-            color: var(--text); 
-            font-family: inherit; 
-            font-size: 1.1rem; 
-            min-height: 250px; 
-            margin-top: 1.5rem; 
-            outline: none; 
-            transition: all 0.2s;
-        }
-        
-        textarea:focus { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
-        }
-        
-        .sync-indicator { 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            color: var(--text-muted); 
-            margin-top: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; transition: all 0.2s; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(146,64,14,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
         .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
-        .indicator-dot.active { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse 1s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .btn-back { 
-            display: inline-block; 
-            margin-top: 2rem; 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            transition: color 0.2s;
-        }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
         .btn-back:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <div class="briefing-card">
         <span class="mission-id">TOP SECRET // MISSION 12</span>
-        <h1>2050 Vision</h1>
-        
-        <p class="significance-box">
-            Indigenous people have been here for over 10,000 years. As we look towards the next 100 years, what does a thriving, modern Mi'kmaw community look like in the year 2050?
-        </p>
+        <h1>Birch Bark Message</h1>
+        <p class="significance-box">The Mi'kmaq carved messages into birch bark using symbols and pictures. Each symbol had meaning. Now it's your turn to carve a story.</p>
 
-        <p style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
-            Your mission is to describe or draw the future. How has technology, environment, and culture blended together?
-        </p>
+        <div class="stamp-tray" id="stampTray"></div>
 
-        <div class="scaffold-box">
-            <h4>💡 Idea Bank: Future Tech & Culture</h4>
-            <div class="idea-bank">
-                <div class="idea-item"><strong>Eco-Housing:</strong> Solar-powered longhouses with vertical gardens.</div>
-                <div class="idea-item"><strong>Language Tech:</strong> Holographic dictionaries for Mi'kmaw words.</div>
-                <div class="idea-item"><strong>Governance:</strong> Digital voting circles for community decisions.</div>
-                <div class="idea-item"><strong>Transport:</strong> Solar canoes or electric transit between reserves.</div>
-            </div>
-        </div>
-        
-        <div class="step">
-            <strong>Step 1: The Landscape</strong><br>
-            What does the community look like? Is it more green? Are there new buildings?
-        </div>
-        
-        <div class="step">
-            <strong>Step 2: The People</strong><br>
-            How are the children learning? Are Elders using new technology to share stories?
+        <div class="tool-row">
+            <button class="tool-btn" id="drawBtn" onclick="setTool('draw')">Draw</button>
+            <button class="tool-btn" id="eraseBtn" onclick="setTool('erase')">Erase</button>
+            <button class="tool-btn clear-btn" onclick="clearCanvas()">Clear All</button>
         </div>
 
-        <div class="step">
-            <strong>Step 3: The Connection</strong><br>
-            How does the community stay connected to the Seven Sacred Teachings in this high-tech future?
+        <div class="bark-canvas-area">
+            <canvas id="barkCanvas" width="650" height="400"></canvas>
         </div>
 
-        <textarea id="workArea" placeholder="In the year 2050, the community will... 
-The buildings will look like... 
-Students will learn by... 
-We will still honor the teachings by..."></textarea>
-        
-        <div class="sync-indicator">
-            <div id="syncDot" class="indicator-dot"></div>
-            <span id="syncStatus">📡 Linking to Command Center...</span>
-        </div>
+        <div class="step"><strong>Step 1: Pick a Symbol</strong><br>Tap a symbol stamp from the tray above.</div>
+        <div class="step"><strong>Step 2: Carve It</strong><br>Tap the bark to place your symbol. Use Draw to add freehand lines.</div>
 
-        <a href="../index.html" class="btn-back">← Back to Mission Control</a>
+        <textarea id="workArea" placeholder="My birch bark message means... The symbols I chose tell the story of..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 12: Birch Bark Message';
 
-        function getStudentId() {
-            try {
-                const s = JSON.parse(localStorage.getItem('mks_current_student'));
-                return s ? s.id : 'MKS-11-ALPHA';
-            } catch(e) { return 'MKS-11-ALPHA'; }
-        }
-        const STUDENT_ID = getStudentId();
-        const MISSION_TITLE = 'Mission 12: 2050 Vision';
+        const stamps = [
+            { id:'sun', label:'Sun', draw:function(ctx,x,y,s){ctx.beginPath();ctx.arc(x,y,12*s,0,Math.PI*2);ctx.stroke();for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*16*s,y+Math.sin(a)*16*s);ctx.lineTo(x+Math.cos(a)*22*s,y+Math.sin(a)*22*s);ctx.stroke()}}},
+            { id:'moon', label:'Moon', draw:function(ctx,x,y,s){ctx.beginPath();ctx.arc(x,y,12*s,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(x+6*s,y-4*s,10*s,0,Math.PI*2);ctx.fillStyle='#c4956a';ctx.fill();ctx.stroke()}},
+            { id:'canoe', label:'Canoe', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x-20*s,y);ctx.quadraticCurveTo(x,y+14*s,x+20*s,y);ctx.quadraticCurveTo(x,y+6*s,x-20*s,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x-5*s,y-2*s);ctx.lineTo(x-5*s,y-12*s);ctx.stroke()}},
+            { id:'fish', label:'Fish', draw:function(ctx,x,y,s){ctx.beginPath();ctx.ellipse(x,y,16*s,8*s,0,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x+16*s,y);ctx.lineTo(x+24*s,y-8*s);ctx.lineTo(x+24*s,y+8*s);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.arc(x-6*s,y-2*s,2*s,0,Math.PI*2);ctx.fill()}},
+            { id:'tree', label:'Tree', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x,y-20*s);ctx.lineTo(x-12*s,y);ctx.lineTo(x+12*s,y);ctx.closePath();ctx.stroke();ctx.fillRect(x-2*s,y,4*s,12*s)}},
+            { id:'bear', label:'Bear', draw:function(ctx,x,y,s){ctx.beginPath();ctx.arc(x,y,12*s,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(x-10*s,y-12*s,5*s,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(x+10*s,y-12*s,5*s,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(x-4*s,y-2*s,2*s,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x+4*s,y-2*s,2*s,0,Math.PI*2);ctx.fill()}},
+            { id:'water', label:'Water', draw:function(ctx,x,y,s){for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(x-16*s,y-6*s+i*8*s);ctx.quadraticCurveTo(x-8*s,y-10*s+i*8*s,x,y-6*s+i*8*s);ctx.quadraticCurveTo(x+8*s,y-2*s+i*8*s,x+16*s,y-6*s+i*8*s);ctx.stroke()}}},
+            { id:'arrow', label:'Travel', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x-18*s,y);ctx.lineTo(x+14*s,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x+14*s,y);ctx.lineTo(x+6*s,y-8*s);ctx.moveTo(x+14*s,y);ctx.lineTo(x+6*s,y+8*s);ctx.stroke()}},
+            { id:'hand', label:'Peace', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x,y+16*s);ctx.lineTo(x,y-4*s);ctx.stroke();for(let i=0;i<4;i++){const fx=x-9*s+i*6*s;ctx.beginPath();ctx.moveTo(fx,y-4*s);ctx.quadraticCurveTo(fx,y-16*s,x+i*3*s-3*s,y-18*s);ctx.stroke()}ctx.beginPath();ctx.arc(x,y+20*s,5*s,0,Math.PI*2);ctx.stroke()}},
+            { id:'fire', label:'Fire', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x,y-18*s);ctx.quadraticCurveTo(x+10*s,y-6*s,x+6*s,y+4*s);ctx.quadraticCurveTo(x,y+12*s,x-6*s,y+4*s);ctx.quadraticCurveTo(x-10*s,y-6*s,x,y-18*s);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-8*s);ctx.quadraticCurveTo(x+5*s,y,x+3*s,y+6*s);ctx.quadraticCurveTo(x,y+8*s,x-3*s,y+6*s);ctx.quadraticCurveTo(x-5*s,y,x,y-8*s);ctx.stroke()}},
+            { id:'tent', label:'Wigwam', draw:function(ctx,x,y,s){ctx.beginPath();ctx.moveTo(x,y-20*s);ctx.lineTo(x-16*s,y+10*s);ctx.lineTo(x+16*s,y+10*s);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.arc(x,y+10*s,5*s,Math.PI,0);ctx.stroke()}},
+            { id:'person', label:'Person', draw:function(ctx,x,y,s){ctx.beginPath();ctx.arc(x,y-14*s,6*s,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-8*s);ctx.lineTo(x,y+6*s);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y+6*s);ctx.lineTo(x-8*s,y+16*s);ctx.moveTo(x,y+6*s);ctx.lineTo(x+8*s,y+16*s);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-4*s);ctx.lineTo(x-10*s,y+4*s);ctx.moveTo(x,y-4*s);ctx.lineTo(x+10*s,y+4*s);ctx.stroke()}}
+        ];
+
+        let currentTool = 'draw';
+        let activeStamp = stamps[0].id;
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+        let timeout = null;
+
+        const canvas = document.getElementById('barkCanvas');
+        const ctx = canvas.getContext('2d');
         const workArea = document.getElementById('workArea');
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
-        
-        let timeout = null;
+        const tray = document.getElementById('stampTray');
+
+        stamps.forEach(st => {
+            const btn = document.createElement('button');
+            btn.className = 'stamp-btn' + (st.id === activeStamp ? ' active' : '');
+            btn.dataset.id = st.id;
+            const miniCanvas = document.createElement('canvas');
+            miniCanvas.width = 40; miniCanvas.height = 40;
+            const mctx = miniCanvas.getContext('2d');
+            mctx.strokeStyle = '#57534e'; mctx.fillStyle = '#57534e'; mctx.lineWidth = 1.5;
+            st.draw(mctx, 20, 24, 0.8);
+            btn.appendChild(miniCanvas);
+            const label = document.createElement('span');
+            label.textContent = st.label;
+            btn.appendChild(label);
+            btn.onclick = () => {
+                activeStamp = st.id;
+                currentTool = 'draw';
+                document.querySelectorAll('.stamp-btn').forEach(b => b.classList.toggle('active', b.dataset.id === st.id));
+                document.getElementById('drawBtn').classList.add('active');
+                document.getElementById('eraseBtn').classList.remove('active');
+                canvas.style.cursor = 'crosshair';
+            };
+            tray.appendChild(btn);
+        });
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.getElementById('drawBtn').classList.toggle('active', tool === 'draw');
+            document.getElementById('eraseBtn').classList.toggle('active', tool === 'erase');
+            canvas.style.cursor = tool === 'erase' ? 'cell' : 'crosshair';
+        }
+
+        function drawBarkBg() {
+            const grad = ctx.createLinearGradient(0, 0, 650, 400);
+            grad.addColorStop(0, '#e8c99b');
+            grad.addColorStop(0.3, '#dbb888');
+            grad.addColorStop(0.6, '#d4a574');
+            grad.addColorStop(1, '#e8c99b');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 650, 400);
+            ctx.strokeStyle = 'rgba(139,105,20,0.08)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 30; i++) {
+                ctx.beginPath();
+                let y = i * 14 + Math.random() * 4;
+                ctx.moveTo(0, y);
+                for (let x = 0; x < 650; x += 20) {
+                    ctx.lineTo(x, y + Math.sin(x * 0.02 + i) * 3);
+                }
+                ctx.stroke();
+            }
+        }
+        drawBarkBg();
+
+        function getCanvasPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = 650 / rect.width;
+            const scaleY = 400 / rect.height;
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+            else if (e.changedTouches && e.changedTouches.length > 0) { clientX = e.changedTouches[0].clientX; clientY = e.changedTouches[0].clientY; }
+            else { clientX = e.clientX; clientY = e.clientY; }
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
+
+        canvas.addEventListener('mousedown', function(e) {
+            const pos = getCanvasPos(e);
+            if (currentTool === 'erase') {
+                ctx.fillStyle = '#dbb888';
+                ctx.beginPath(); ctx.arc(pos.x, pos.y, 18, 0, Math.PI * 2); ctx.fill();
+                isDrawing = true; lastX = pos.x; lastY = pos.y;
+            } else {
+                placeStamp(pos.x, pos.y);
+            }
+        });
+        canvas.addEventListener('mousemove', function(e) {
+            if (!isDrawing || currentTool !== 'erase') return;
+            const pos = getCanvasPos(e);
+            ctx.strokeStyle = '#dbb888'; ctx.lineWidth = 36; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+            lastX = pos.x; lastY = pos.y;
+        });
+        canvas.addEventListener('mouseup', function() { isDrawing = false; triggerSave(); });
+        canvas.addEventListener('mouseleave', function() { isDrawing = false; });
+
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const pos = getCanvasPos(e);
+            if (currentTool === 'erase') {
+                ctx.fillStyle = '#dbb888';
+                ctx.beginPath(); ctx.arc(pos.x, pos.y, 18, 0, Math.PI * 2); ctx.fill();
+                isDrawing = true; lastX = pos.x; lastY = pos.y;
+            } else { placeStamp(pos.x, pos.y); }
+        }, { passive: false });
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (!isDrawing || currentTool !== 'erase') return;
+            const pos = getCanvasPos(e);
+            ctx.strokeStyle = '#dbb888'; ctx.lineWidth = 36; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+            lastX = pos.x; lastY = pos.y;
+        }, { passive: false });
+        canvas.addEventListener('touchend', function() { isDrawing = false; triggerSave(); });
+
+        function placeStamp(x, y) {
+            const st = stamps.find(s => s.id === activeStamp);
+            ctx.strokeStyle = '#3d2b1f'; ctx.fillStyle = '#3d2b1f'; ctx.lineWidth = 2;
+            st.draw(ctx, x, y, 1);
+            triggerSave();
+        }
+
+        function clearCanvas() { drawBarkBg(); triggerSave(); }
+
+        function triggerSave() { syncStatus.innerText = 'Carving...'; syncDot.className = 'indicator-dot'; clearTimeout(timeout); timeout = setTimeout(saveAndSync, 2000); }
+        workArea.addEventListener('input', triggerSave);
 
         async function retrieveFromCloud() {
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const data = await response.json();
-                if (data.content) {
-                    workArea.value = data.content;
-                    syncStatus.innerText = '✅ Work retrieved from Cloud';
+                const r = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                const d = await r.json();
+                if (d.content) workArea.value = d.content;
+                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m12_work') || '';
+                if (d.canvas) {
+                    const img = new Image();
+                    img.onload = function() { ctx.clearRect(0, 0, 650, 400); ctx.drawImage(img, 0, 0); };
+                    img.src = d.canvas;
                 } else {
-                    workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m12_work') || '';
-                    syncStatus.innerText = 'Ready to work';
+                    const saved = localStorage.getItem('mks_' + STUDENT_ID + '_m12_canvas');
+                    if (saved) { const img = new Image(); img.onload = function() { ctx.clearRect(0, 0, 650, 400); ctx.drawImage(img, 0, 0); }; img.src = saved; }
                 }
+                syncStatus.innerText = 'Loaded';
             } catch (e) {
                 workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m12_work') || '';
+                const saved = localStorage.getItem('mks_' + STUDENT_ID + '_m12_canvas');
+                if (saved) { const img = new Image(); img.onload = function() { ctx.clearRect(0, 0, 650, 400); ctx.drawImage(img, 0, 0); }; img.src = saved; }
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
         }
 
-        workArea.addEventListener('input', () => {
-            syncStatus.innerText = 'Typing...';
-            syncDot.className = 'indicator-dot';
-            clearTimeout(timeout);
-            timeout = setTimeout(saveAndSync, 2000);
-        });
-
         async function saveAndSync() {
-            const content = workArea.value;
-            localStorage.setItem('mks_' + STUDENT_ID + '_m12_work', content);
-            syncStatus.innerText = '🛰️ Autosaving...';
-            syncDot.className = 'indicator-dot active';
-
-            const payload = {
-                studentId: STUDENT_ID,
-                missionTitle: MISSION_TITLE,
-                reflection: content,
-                timestamp: new Date().toISOString()
-            };
-
+            localStorage.setItem('mks_' + STUDENT_ID + '_m12_work', workArea.value);
+            const canvasData = canvas.toDataURL('image/png');
+            localStorage.setItem('mks_' + STUDENT_ID + '_m12_canvas', canvasData);
+            syncStatus.innerText = 'Syncing...'; syncDot.className = 'indicator-dot active';
             try {
-                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                syncStatus.innerText = '✅ Saved to Cloud';
-                let completed = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]');
-                if (!completed.includes(12)) completed.push(12);
-                localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(completed));
-            } catch (e) {
-                syncStatus.innerText = '⚠️ Saved Locally Only';
-            }
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ studentId: STUDENT_ID, missionTitle: MISSION_TITLE, reflection: workArea.value, canvas: canvasData, timestamp: new Date().toISOString() }) });
+                syncStatus.innerText = 'Bark synced!';
+                let c = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]'); if (!c.includes(12)) c.push(12); localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(c));
+            } catch (e) { syncStatus.innerText = 'Saved locally'; }
         }
-
         retrieveFromCloud();
     </script>
 </body>

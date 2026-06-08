@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 18 | The Canoe Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0ea5e9; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
+
+        .game-area {
+            text-align: center; margin: 1.5rem 0; background: #f1f5f9;
+            padding: 1.5rem; border-radius: 1.5rem; border: 1px solid var(--border);
+        }
+        .canvas-wrap { position: relative; display: inline-block; border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 100%; }
+        #gameCanvas { display: block; max-width: 100%; height: auto; touch-action: none; }
+
+        .controls-row {
+            display: flex; justify-content: center; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;
+        }
+        .ctrl-btn {
+            width: 90px; height: 60px; border-radius: 12px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.5rem; border: 3px solid var(--border);
+            background: white; color: var(--text-muted); transition: all 0.15s; user-select: none;
+            touch-action: none;
+        }
+        .ctrl-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+        .ctrl-btn:active, .ctrl-btn.pressed { background: var(--primary); color: white; border-color: var(--primary); transform: scale(0.95); }
+        .ctrl-btn span { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+        .game-hud { display: flex; justify-content: center; gap: 2rem; margin: 0.75rem 0; flex-wrap: wrap; }
+        .hud-item { font-size: 0.9rem; font-weight: 700; color: var(--text-muted); }
+        .hud-item strong { color: var(--primary); }
+
+        .game-msg {
+            padding: 0.75rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a;
+            margin: 0.5rem 0; font-size: 0.9rem; color: #92400e; text-align: center; min-height: 40px;
+        }
+        .game-msg.won { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+        .game-msg.lost { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+
+        .game-btn { padding: 0.5rem 1.5rem; border: 2px solid var(--border); border-radius: 0.5rem; cursor: pointer; font-weight: 700; font-size: 0.8rem; background: white; color: var(--text-muted); transition: all 0.2s; }
+        .game-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .game-btn-start { background: #f0f9ff; border-color: #7dd3fc; color: #0284c7; }
+
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14,165,233,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-back:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="briefing-card">
+        <span class="mission-id">TOP SECRET // MISSION 18</span>
+        <h1>The Canoe Journey</h1>
+        <p class="significance-box">The Mi'kmaq traveled rivers by canoe for thousands of years. Steer your canoe through the rapids — dodge rocks and collect items along the way!</p>
+
+        <div class="game-area">
+            <div class="canvas-wrap">
+                <canvas id="gameCanvas" width="500" height="600"></canvas>
+            </div>
+
+            <div class="controls-row">
+                <button class="ctrl-btn" id="btnLeft" ontouchstart="startSteer('left')" ontouchend="stopSteer('left')" onmousedown="startSteer('left')" onmouseup="stopSteer('left')">
+                    ← <span>Left</span>
+                </button>
+                <button class="game-btn game-btn-start" id="btnStart" onclick="startGame()">Start Journey</button>
+                <button class="ctrl-btn" id="btnRight" ontouchstart="startSteer('right')" ontouchend="stopSteer('right')" onmousedown="startSteer('right')" onmouseup="stopSteer('right')">
+                    → <span>Right</span>
+                </button>
+            </div>
+
+            <div class="game-hud">
+                <div class="hud-item">Distance: <strong id="distText">0</strong>m / 1000</div>
+                <div class="hud-item">Items: <strong id="itemsText">0</strong> / 5</div>
+                <div class="hud-item">Lives: <strong id="livesText">❤️❤️❤️</strong></div>
+            </div>
+            <div class="game-msg" id="gameMsg">Press Start to begin your canoe journey!</div>
+        </div>
+
+        <div class="step"><strong>Step 1: Steer</strong><br>Use the Left/Right buttons (or arrow keys) to dodge rocks in the river.</div>
+        <div class="step"><strong>Step 2: Collect</strong><br>Pick up 5 items floating in the river — each one has a teaching.</div>
+        <div class="step"><strong>Step 3: Arrive</strong><br>Travel 1000m to reach the village safely!</div>
+
+        <textarea id="workArea" placeholder="On my canoe journey I learned... The river teaches us..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
+    </div>
+
+    <script>
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 18: The Canoe Journey';
+
+        const CW=500,CH=600;
+        const RIVER_LEFT=60,RIVER_RIGHT=440,RIVER_W=RIVER_RIGHT-RIVER_LEFT;
+
+        const canvas=document.getElementById('gameCanvas');
+        const ctx=canvas.getContext('2d');
+        const gameMsg=document.getElementById('gameMsg');
+        const distText=document.getElementById('distText');
+        const itemsText=document.getElementById('itemsText');
+        const livesText=document.getElementById('livesText');
+        const workArea=document.getElementById('workArea');
+        const syncStatus=document.getElementById('syncStatus');
+        const syncDot=document.getElementById('syncDot');
+
+        const collectibles = [
+            { emoji:'🪶', name:'Eagle Feather', msg:'The feather represents respect — honor the river.' },
+            { emoji:'🌰', name:'Acorn', msg:'Acorns remind us to prepare for the future.' },
+            { emoji:'🫎', name:'Moose Spirit', msg:'The moose gives strength for the long journey.' },
+            { emoji:'🌿', name:'Sweetgrass', msg:'Sweetgrass brings kindness — be gentle with the water.' },
+            { emoji:'🪨', name:'Grandfather Stone', msg:'Stones carry wisdom — be patient like the rock.' }
+        ];
+
+        let canoe={x:CW/2,y:CH-80,w:36,h:50};
+        let rocks=[];
+        let items=[];
+        let collectedItems=[];
+        let distance=0;
+        let lives=3;
+        let itemsCollected=0;
+        let steerDir=null;
+        let gameState='idle';
+        let waveOff=0;
+        let timeout=null;
+        let animId=null;
+        let lastTime=0;
+        let rockCooldown=1.5;
+        let itemCooldown=3;
+        let rockTimer=0;
+        let itemTimer=0;
+
+        const TARGET_DIST=1000;
+        const BASE_SPEED=40;
+
+        function startGame(){
+            canoe={x:CW/2,y:CH-80,w:36,h:50};
+            rocks=[];items=[];collectedItems=[];
+            distance=0;lives=3;itemsCollected=0;
+            steerDir=null;rockTimer=0;itemTimer=0;
+            rockCooldown=1.5;itemCooldown=3;
+            gameState='playing';
+            lastTime=performance.now();
+            gameMsg.textContent='Paddle! Dodge the rocks!';
+            gameMsg.className='game-msg';
+            updateHUD();
+            if(animId)cancelAnimationFrame(animId);
+            loop();
+        }
+
+        function startSteer(dir){
+            if(gameState!=='playing')return;
+            steerDir=dir;
+            document.getElementById(dir==='left'?'btnLeft':'btnRight').classList.add('pressed');
+        }
+        function stopSteer(dir){
+            if(steerDir===dir)steerDir=null;
+            document.getElementById(dir==='left'?'btnLeft':'btnRight').classList.remove('pressed');
+        }
+
+        document.addEventListener('keydown',function(e){
+            if(e.key==='ArrowLeft')startSteer('left');
+            if(e.key==='ArrowRight')startSteer('right');
+        });
+        document.addEventListener('keyup',function(e){
+            if(e.key==='ArrowLeft')stopSteer('left');
+            if(e.key==='ArrowRight')stopSteer('right');
+        });
+
+        function spawnRock(){
+            var rx=RIVER_LEFT+40+Math.random()*(RIVER_W-80);
+            var rw=30+Math.random()*30;
+            var rh=25+Math.random()*20;
+            rocks.push({x:rx,y:-40,w:rw,h:rh});
+        }
+
+        function spawnItem(){
+            var ix=RIVER_LEFT+50+Math.random()*(RIVER_W-100);
+            var ci=collectibles[itemsCollected%collectibles.length];
+            items.push({x:ix,y:-30,emoji:ci.emoji,name:ci.name,msg:ci.msg});
+        }
+
+        function update(){
+            if(gameState!=='playing')return;
+
+            var now=performance.now();
+            var dt=(now-lastTime)/1000;
+            if(dt>0.1)dt=0.1;
+            lastTime=now;
+
+            var curSpeed=BASE_SPEED+(distance/TARGET_DIST)*30;
+
+            if(steerDir==='left')canoe.x-=200*dt;
+            if(steerDir==='right')canoe.x+=200*dt;
+            canoe.x=Math.max(RIVER_LEFT+20,Math.min(RIVER_RIGHT-20,canoe.x));
+
+            distance+=curSpeed*dt;
+
+            var rockFallSpeed=200+curSpeed*2;
+            var itemFallSpeed=150+curSpeed*2;
+
+            rockTimer+=dt;
+            var spawnInterval=Math.max(0.6,1.5-(distance/TARGET_DIST)*0.8);
+            if(rockTimer>=spawnInterval){spawnRock();rockTimer=0}
+
+            itemTimer+=dt;
+            if(itemTimer>=2.5&&itemsCollected<5){spawnItem();itemTimer=0}
+
+            for(var i=rocks.length-1;i>=0;i--){
+                rocks[i].y+=rockFallSpeed*dt;
+                if(rocks[i].y>CH+50){rocks.splice(i,1);continue}
+                if(checkCollision(canoe,rocks[i])){
+                    rocks.splice(i,1);
+                    lives--;
+                    updateHUD();
+                    if(lives<=0){
+                        gameState='lost';
+                        gameMsg.textContent='Your canoe tipped! The river is strong. Try again!';
+                        gameMsg.className='game-msg lost';
+                        return;
+                    }
+                    gameMsg.textContent='Hit a rock! Be careful!';
+                    gameMsg.className='game-msg';
+                }
+            }
+
+            for(var j=items.length-1;j>=0;j--){
+                items[j].y+=itemFallSpeed*dt;
+                if(items[j].y>CH+30){items.splice(j,1);continue}
+                if(Math.abs(canoe.x-items[j].x)<30&&Math.abs(canoe.y-items[j].y)<35){
+                    var item=items[j];
+                    collectedItems.push(item);
+                    itemsCollected++;
+                    items.splice(j,1);
+                    gameMsg.innerHTML=item.emoji+' '+item.name+': '+item.msg;
+                    gameMsg.className='game-msg won';
+                    gameMsg.style.background='#f0f9ff';gameMsg.style.borderColor='#7dd3fc';gameMsg.style.color='#0369a1';
+                    updateHUD();
+                    triggerSave();
+                }
+            }
+
+            if(distance>=TARGET_DIST){
+                gameState='won';
+                gameMsg.textContent='You made it to the village! Safe journey!';
+                gameMsg.className='game-msg won';
+                saveAndSync();
+            }
+
+            distText.textContent=Math.min(TARGET_DIST,Math.floor(distance));
+            waveOff+=120*dt;
+        }
+
+        function checkCollision(a,b){
+            return Math.abs(a.x-b.x)<(a.w/2+b.w/2)*0.7&&Math.abs(a.y-b.y)<(a.h/2+b.h/2)*0.7;
+        }
+
+        function draw(){
+            ctx.clearRect(0,0,CW,CH);
+
+            ctx.fillStyle='#22c55e';
+            ctx.fillRect(0,0,RIVER_LEFT,CH);
+            ctx.fillRect(RIVER_RIGHT,0,CW-RIVER_RIGHT,CH);
+
+            ctx.fillStyle='#16a34a';
+            for(var ty=0;ty<CH;ty+=20){
+                ctx.fillRect(RIVER_LEFT-8,ty,8,12);
+                ctx.fillRect(RIVER_RIGHT,ty,8,12);
+            }
+
+            var waterGrad=ctx.createLinearGradient(0,0,0,CH);
+            waterGrad.addColorStop(0,'#1d4ed8');
+            waterGrad.addColorStop(0.5,'#2563eb');
+            waterGrad.addColorStop(1,'#1d4ed8');
+            ctx.fillStyle=waterGrad;
+            ctx.fillRect(RIVER_LEFT,0,RIVER_W,CH);
+
+            ctx.strokeStyle='rgba(255,255,255,0.08)';
+            ctx.lineWidth=1;
+            for(var wr=0;wr<15;wr++){
+                ctx.beginPath();
+                for(var wx=RIVER_LEFT;wx<RIVER_RIGHT;wx+=4){
+                    var wy=wr*40+Math.sin((wx+waveOff+wr*30)*0.015)*8;
+                    if(wx===RIVER_LEFT)ctx.moveTo(wx,wy);else ctx.lineTo(wx,wy);
+                }
+                ctx.stroke();
+            }
+
+            if(distance<TARGET_DIST){
+                var progressY=CH-(distance/TARGET_DIST)*CH;
+                ctx.strokeStyle='rgba(16,185,129,0.5)';
+                ctx.lineWidth=3;
+                ctx.setLineDash([8,4]);
+                ctx.beginPath();ctx.moveTo(CW-25,CH);ctx.lineTo(CW-25,progressY);ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.font='12px serif';
+                ctx.fillText('\u{1F3D8}\uFE0F',CW-32,progressY-5);
+            }
+
+            for(var ri=0;ri<rocks.length;ri++){
+                var r=rocks[ri];
+                ctx.fillStyle='#78716c';
+                ctx.beginPath();
+                ctx.ellipse(r.x,r.y,r.w/2,r.h/2,0,0,Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle='#a8a29e';
+                ctx.beginPath();
+                ctx.ellipse(r.x-3,r.y-3,r.w/3,r.h/3,0.3,0,Math.PI*2);
+                ctx.fill();
+            }
+
+            for(var ii=0;ii<items.length;ii++){
+                var it=items[ii];
+                ctx.font='28px serif';
+                ctx.fillText(it.emoji,it.x-14,it.y+10);
+                ctx.strokeStyle='rgba(251,191,36,0.5)';
+                ctx.lineWidth=2;
+                ctx.beginPath();
+                ctx.arc(it.x,it.y,18,0,Math.PI*2);
+                ctx.stroke();
+            }
+
+            ctx.save();
+            ctx.translate(canoe.x,canoe.y);
+            ctx.beginPath();
+            ctx.moveTo(0,-canoe.h/2);
+            ctx.quadraticCurveTo(canoe.w/2,-5,canoe.w/2+3,canoe.h/2-5);
+            ctx.quadraticCurveTo(0,canoe.h/2+5,-canoe.w/2-3,canoe.h/2-5);
+            ctx.quadraticCurveTo(-canoe.w/2,-5,0,-canoe.h/2);
+            ctx.fillStyle='#92400e';
+            ctx.fill();
+            ctx.strokeStyle='#78350f';
+            ctx.lineWidth=2;
+            ctx.stroke();
+            ctx.fillStyle='#b45309';
+            ctx.beginPath();
+            ctx.moveTo(-4,-canoe.h/2+8);
+            ctx.lineTo(-4,canoe.h/2-10);
+            ctx.lineTo(4,canoe.h/2-10);
+            ctx.lineTo(4,-canoe.h/2+8);
+            ctx.fill();
+            ctx.restore();
+
+            ctx.font='20px serif';
+            ctx.fillText('\u{1F9AB}',RIVER_LEFT-45,CH-30);
+            ctx.fillText('\u{1F426}\uFE0F',RIVER_RIGHT+10,60);
+            ctx.fillText('\u{1F3DE}\uFE0F',10,CH-50);
+
+            ctx.fillStyle='rgba(0,0,0,0.3)';
+            ctx.fillRect(0,0,60,CH);
+            ctx.fillRect(440,0,60,CH);
+        }
+
+        function loop(){
+            update();draw();
+            if(gameState==='playing')animId=requestAnimationFrame(loop);
+        }
+
+        function updateHUD(){
+            distText.textContent=Math.min(TARGET_DIST,Math.floor(distance));
+            itemsText.textContent=itemsCollected+' / 5';
+            var hearts='';
+            for(var i=0;i<lives;i++)hearts+='\u2764\uFE0F';
+            for(var j=lives;j<3;j++)hearts+='\u{1F5A4}';
+            livesText.textContent=hearts;
+        }
+
+        draw();
+
+        function triggerSave(){syncStatus.innerText='Paddling...';syncDot.className='indicator-dot';clearTimeout(timeout);timeout=setTimeout(saveAndSync,2000)}
+        workArea.addEventListener('input',triggerSave);
+
+        async function retrieveFromCloud(){
+            try{
+                var r=await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                var d=await r.json();
+                if(d.content)workArea.value=d.content;
+                else workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m18_work')||'';
+                var saved=d.collected?JSON.parse(d.collected):JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m18_collected')||'null');
+                if(saved&&saved.length>0){
+                    collectedItems=saved;itemsCollected=saved.length;
+                    itemsText.textContent=itemsCollected+' / 5';
+                }
+                if(d.bestDist){distText.textContent=d.bestDist}
+                syncStatus.innerText='Loaded';
+            }catch(e){
+                workArea.value=localStorage.getItem('mks_'+STUDENT_ID+'_m18_work')||'';
+                var saved=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_m18_collected')||'null');
+                if(saved&&saved.length>0){collectedItems=saved;itemsCollected=saved.length;itemsText.textContent=itemsCollected+' / 5'}
+                syncStatus.innerText='Ready (Offline Mode)';
+            }
+        }
+
+        async function saveAndSync(){
+            localStorage.setItem('mks_'+STUDENT_ID+'_m18_work',workArea.value);
+            localStorage.setItem('mks_'+STUDENT_ID+'_m18_collected',JSON.stringify(collectedItems));
+            localStorage.setItem('mks_'+STUDENT_ID+'_m18_best',Math.floor(distance));
+            syncStatus.innerText='Syncing...';syncDot.className='indicator-dot active';
+            try{
+                await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({studentId:STUDENT_ID,missionTitle:MISSION_TITLE,reflection:workArea.value,collected:JSON.stringify(collectedItems),bestDistance:Math.floor(distance),won:gameState==='won',timestamp:new Date().toISOString()})});
+                syncStatus.innerText='Journey synced!';
+                if(gameState==='won'){
+                    let c=JSON.parse(localStorage.getItem('mks_'+STUDENT_ID+'_completed')||'[]');if(!c.includes(18))c.push(18);localStorage.setItem('mks_'+STUDENT_ID+'_completed',JSON.stringify(c));
+                }
+            }catch(e){syncStatus.innerText='Saved locally';}
+        }
+        retrieveFromCloud();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MI'KMAW STUDIES 11 — JUNE STUDY GUIDE (INTEGRATED ARCHIVE)</title>
+    
+    <!-- External Fonts & GSAP -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Special+Elite&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+    <style>
+        /* CSS Custom Properties for Theme Switching */
+        :root {
+            /* TACTILE PAPER DOSSIER (Default Light Mode) */
+            --bg-body: #e6dfd3;
+            --bg-container: #fcfbf7;
+            --border-color: #2b2b2b;
+            --border-accent: #c0392b;
+            --text-color: #1a1a1a;
+            --text-muted: #555555;
+            --accent-red: #c0392b;
+            --accent-blue: #2980b9;
+            --accent-green: #27ae60;
+            --accent-gold: #d4ac0d;
+            --highlight-bg: #fffde7;
+            --card-bg: #f5f0e6;
+            --grid-opacity: 0.03;
+            
+            --font-headers: 'Special Elite', cursive;
+            --font-body: 'Courier Prime', monospace;
+            --box-shadow: 15px 15px 0px rgba(0,0,0,0.06);
+            --border-style: 2px solid var(--border-color);
+        }
+
+        [data-theme="cyber"] {
+            /* CYBER HUD (Dark Mode) */
+            --bg-body: #07090e;
+            --bg-container: #0f131f;
+            --border-color: #1e293b;
+            --border-accent: #5DADE2;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-red: #ef5350;
+            --accent-blue: #5DADE2;
+            --accent-green: #00bfa5;
+            --accent-gold: #f39c12;
+            --highlight-bg: rgba(243, 156, 18, 0.15);
+            --card-bg: #172030;
+            --grid-opacity: 0.15;
+            
+            --font-headers: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --box-shadow: 0px 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(93, 173, 226, 0.05);
+            --border-style: 1px solid var(--border-color);
+        }
+
+        /* Base Resets */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(93, 173, 226, 0.02) 0%, transparent 60%),
+                linear-gradient(rgba(0, 0, 0, var(--grid-opacity)) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, var(--grid-opacity)) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* Top HUD Controls */
+        .hud-controls {
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: var(--bg-container);
+            border: var(--border-style);
+            padding: 15px 25px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .hud-title {
+            font-family: var(--font-headers);
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hud-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--accent-red);
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--card-bg);
+            border: var(--border-style);
+            color: var(--text-color);
+            padding: 8px 16px;
+            font-family: var(--font-headers);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--text-color);
+            color: var(--bg-container);
+            border-color: var(--text-color);
+        }
+
+        .btn.active {
+            background-color: var(--accent-red);
+            color: #fff;
+            border-color: var(--accent-red);
+        }
+
+        /* Search input */
+        .search-container {
+            position: relative;
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: var(--border-style);
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        /* Study Guide Dossier Container */
+        .dossier {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--bg-container);
+            border: var(--border-style);
+            padding: 50px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            min-height: 800px;
+        }
+
+        /* Dossier Header */
+        .header {
+            border-bottom: var(--border-style);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-family: var(--font-headers);
+            font-size: 2.2rem;
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 1.1;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .meta {
+            font-size: 0.8rem;
+            text-align: right;
+            line-height: 1.6;
+            min-width: 250px;
+        }
+
+        .meta strong { color: var(--accent-red); }
+
+        /* Stamp */
+        .stamp {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            border: 4px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 12px 20px;
+            font-family: 'Special Elite', cursive;
+            font-size: 20px;
+            transform: rotate(-6deg);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 100;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Tabs Navigation */
+        .tabs-nav {
+            display: flex;
+            border-bottom: var(--border-style);
+            margin-bottom: 35px;
+            overflow-x: auto;
+            gap: 5px;
+        }
+
+        .tab-nav-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            font-family: var(--font-headers);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-transform: uppercase;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-nav-btn:hover {
+            color: var(--text-color);
+        }
+
+        .tab-nav-btn.active {
+            color: var(--accent-red);
+            border-bottom-color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        /* Tab Content */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Standard Content Typography */
+        .section-number {
+            font-family: var(--font-headers);
+            color: var(--accent-red);
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            margin-top: 40px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        h2 {
+            font-family: var(--font-headers);
+            font-size: 1.6rem;
+            margin: 20px 0 15px 0;
+            text-transform: uppercase;
+            color: var(--accent-red);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: 5px;
+        }
+
+        [data-theme="cyber"] h2 {
+            border-bottom-color: rgba(255,255,255,0.05);
+        }
+
+        h3 {
+            font-family: var(--font-headers);
+            font-weight: bold;
+            margin: 25px 0 10px 0;
+            color: var(--text-color);
+            font-size: 1.15rem;
+            text-transform: uppercase;
+        }
+
+        p {
+            margin-bottom: 18px;
+            font-size: 0.95rem;
+        }
+
+        ul, ol {
+            margin: 0 0 20px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* Highlighting and Callouts */
+        .highlight-box {
+            background: var(--highlight-bg);
+            border-left: 4px solid var(--accent-red);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .highlight-box strong { color: var(--accent-red); }
+
+        .quiz-hint {
+            background-color: transparent;
+            border-bottom: 2px dashed var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .quiz-mode-active .quiz-hint {
+            background-color: #ffee58;
+            color: #000;
+            border-bottom: none;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .quiz-legend {
+            background: var(--highlight-bg);
+            border: 1px dashed var(--accent-gold);
+            border-left: 5px solid var(--accent-gold);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Custom grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 35px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 850px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            border: var(--border-style);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--text-color);
+            color: var(--bg-container);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: var(--font-headers);
+            font-size: 0.8rem;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(0,0,0,0.015);
+        }
+
+        [data-theme="cyber"] tr:nth-child(even) {
+            background: rgba(255,255,255,0.015);
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            margin: 30px 0;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed rgba(0,0,0,0.05);
+        }
+
+        [data-theme="cyber"] .timeline-item {
+            border-bottom-color: rgba(255,255,255,0.05);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-container);
+            border: 2px solid var(--accent-red);
+            z-index: 2;
+        }
+
+        .timeline-item:hover::before {
+            background: var(--accent-red);
+            box-shadow: 0 0 8px var(--accent-red);
+        }
+
+        .timeline-year {
+            font-family: var(--font-headers);
+            color: var(--accent-red);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        .timeline-filter-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* Interactive Family Tree */
+        .family-tree-wrapper {
+            background: var(--card-bg);
+            border: var(--border-style);
+            padding: 30px 20px;
+            border-radius: 4px;
+            margin: 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tree-nodes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            gap: 30px;
+            position: relative;
+        }
+
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .tree-node {
+            background: var(--bg-container);
+            border: var(--border-style);
+            padding: 12px 18px;
+            min-width: 200px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.05);
+            border-radius: 2px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .tree-node:hover {
+            border-color: var(--accent-red);
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+        }
+
+        .tree-node.active {
+            background: var(--accent-red);
+            color: #fff;
+            border-color: var(--accent-red);
+        }
+
+        .tree-node.active .node-relation {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .tree-node strong {
+            display: block;
+            font-family: var(--font-headers);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .node-relation {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tree-node-details {
+            width: 100%;
+            background: var(--bg-container);
+            border: var(--border-style);
+            border-left: 5px solid var(--accent-red);
+            padding: 18px;
+            font-size: 0.9rem;
+            min-height: 100px;
+            margin-top: 15px;
+        }
+
+        .tree-node-details h4 {
+            font-family: var(--font-headers);
+            color: var(--accent-red);
+            margin-bottom: 8px;
+        }
+
+        /* Two Paths UI */
+        .path-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        @media (max-width: 800px) {
+            .path-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .path-column {
+            border: var(--border-style);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .path-column-header {
+            background: var(--text-color);
+            color: var(--bg-container);
+            padding: 15px;
+            text-align: center;
+            font-family: var(--font-headers);
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .path-column.cold {
+            border-top: 4px solid var(--accent-blue);
+        }
+
+        .path-column.cold .path-column-header {
+            background-color: var(--accent-blue);
+        }
+
+        .path-column.warm {
+            border-top: 4px solid var(--accent-gold);
+        }
+
+        .path-column.warm .path-column-header {
+            background-color: var(--accent-gold);
+        }
+
+        .path-content {
+            background: var(--bg-container);
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .path-item {
+            border-bottom: 1px dashed rgba(0,0,0,0.05);
+            padding-bottom: 10px;
+        }
+
+        [data-theme="cyber"] .path-item {
+            border-bottom-color: rgba(255,255,255,0.05);
+        }
+
+        .path-item:last-child {
+            border-bottom: none;
+        }
+
+        .path-item strong {
+            display: block;
+            font-family: var(--font-headers);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .path-column.cold .path-item strong { color: var(--accent-blue); }
+        .path-column.warm .path-item strong { color: var(--accent-gold); }
+
+        .path-item p {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+        }
+
+        /* Study Cards & Glossary Grid */
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .glossary-card {
+            background: var(--card-bg);
+            border: var(--border-style);
+            padding: 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .glossary-card:hover {
+            border-color: var(--accent-red);
+            transform: translateY(-2px);
+        }
+
+        .glossary-card h4 {
+            font-family: var(--font-headers);
+            color: var(--accent-red);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 1rem;
+        }
+
+        .glossary-card p {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        /* Quiz Panel */
+        .quiz-card {
+            background: var(--bg-container);
+            border: var(--border-style);
+            border-left: 5px solid var(--accent-red);
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.02);
+        }
+
+        .quiz-question {
+            font-family: var(--font-headers);
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .quiz-answer {
+            background: var(--card-bg);
+            border: var(--border-style);
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+            font-size: 0.9rem;
+            border-radius: 2px;
+        }
+
+        .quiz-answer.show {
+            display: block;
+        }
+
+        .btn-toggle-answer {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 5px 12px;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn-toggle-answer:hover {
+            background: var(--text-color);
+            color: var(--bg-container);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: var(--border-style);
+            font-size: 0.75rem;
+            text-align: center;
+            opacity: 0.7;
+            font-family: var(--font-body);
+        }
+
+        /* Print Override */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0;
+                font-family: 'Courier Prime', monospace !important;
+            }
+            .hud-controls, .tabs-nav, .timeline-filter-buttons, .btn-toggle-answer, .btn, .search-container {
+                display: none !important;
+            }
+            .dossier {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+                width: 100% !important;
+                padding: 20px !important;
+            }
+            .stamp {
+                display: none !important;
+            }
+            .tab-pane {
+                display: block !important;
+                page-break-after: always;
+            }
+            .quiz-answer {
+                display: block !important;
+                background: white !important;
+                border: 1px dashed #000 !important;
+            }
+            .quiz-hint {
+                background-color: #ffee58 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: #000 !important;
+            }
+            .tree-node-details, .path-content, .glossary-card {
+                background: white !important;
+                border: 1px solid #000 !important;
+            }
+            .tree-node {
+                background: white !important;
+                border: 1px solid #000 !important;
+                color: black !important;
+            }
+            .path-column-header {
+                background: #ccc !important;
+                color: black !important;
+                border-bottom: 1px solid black !important;
+            }
+            h1, h2, h3, .timeline-year, .section-number {
+                font-family: 'Special Elite', cursive !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HUD Header and Controls -->
+    <div class="hud-controls">
+        <div class="hud-title">
+            <span class="hud-dot"></span>
+            <span>JUNE SYSTEM ARCHIVE // MKS-11 STUDY GUIDE</span>
+        </div>
+        <div class="control-buttons">
+            <button class="btn" onclick="toggleTheme()" id="btn-theme-toggle">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <span>Switch Theme</span>
+            </button>
+            <button class="btn" onclick="toggleQuizMode()" id="btn-quiz-toggle">
+                <span>Quiz Mode: Off</span>
+            </button>
+            <button class="btn" onclick="window.print()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                <span>Print Guide</span>
+            </button>
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" id="search-box" placeholder="Search guide terms..." oninput="handleSearch()">
+        </div>
+    </div>
+
+    <!-- MAIN DOSSIER -->
+    <div class="dossier" id="main-dossier">
+        <div class="stamp">CLASSIFIED // MI'KMAW STUDIES 11</div>
+        
+        <div class="header">
+            <div>
+                <h1>June Curriculum Study Guide</h1>
+                <p style="margin-top: 8px; font-size: 14px; color: var(--text-muted);">Historical Inquest &amp; Restorative Systems Archive</p>
+            </div>
+            <div class="meta">
+                <div><strong>Created:</strong> June 8, 2026</div>
+                <div><strong>Coverage:</strong> Residential Schools, Centralization, Sixties Scoop (Classroom Simulations), Oka Crisis, Restorative Justice Concepts</div>
+                <div><strong>Classification:</strong> MI'KMAW STUDIES 11 — ACADEMIC DOSSIER</div>
+            </div>
+        </div>
+
+        <div class="quiz-legend" id="quiz-legend-box">
+            <strong style="color: var(--accent-gold);">STUDY HUD:</strong> 
+            <span style="font-size: 0.85rem;">Clicking "Quiz Mode" highlights exam concepts in yellow. Reveal answers on the "Quiz & Analysis" tab.</span>
+        </div>
+
+        <!-- TABS NAV -->
+        <div class="tabs-nav">
+            <button class="tab-nav-btn active" onclick="switchTab('tab-residential-school')">1. Residential Schools &amp; Centralization</button>
+            <button class="tab-nav-btn" onclick="switchTab('tab-scoop-dossier')">2. Sixties Scoop &amp; Simulation Case</button>
+            <button class="tab-nav-btn" onclick="switchTab('tab-restorative-justice')">3. Two Paths: Restorative Justice</button>
+            <button class="tab-nav-btn" onclick="switchTab('tab-timeline')">4. Timeline &amp; History</button>
+            <button class="tab-nav-btn" onclick="switchTab('tab-glossary')">5. Glossary</button>
+            <button class="tab-nav-btn" onclick="switchTab('tab-quiz')">6. Quiz &amp; Analysis</button>
+        </div>
+
+        <!-- TAB 1: RESIDENTIAL SCHOOLS & CENTRALIZATION -->
+        <div class="tab-pane active" id="tab-residential-school">
+            <span class="section-number">PART 01 — THE CANADIAN RESIDENTIAL SCHOOL SYSTEM</span>
+            <h2>What Were Residential Schools?</h2>
+            <p>Residential schools were boarding schools funded by the Canadian government and run by churches. The main goal was to force Indigenous children to give up their culture, language, and traditions and act like white Canadians (forced assimilation).</p>
+            <p>The policy mandate behind these schools was explicitly described as <em>"killing the Indian in the child."</em> This meant separating children from their parents, banning Indigenous languages and spiritual practices, and replacing them with English or French instruction and the Christian religion.</p>
+            <p>Over <strong>130 residential schools</strong> operated across Canada, causing deep, long-lasting damage to Indigenous families and communities.</p>
+
+            <div class="highlight-box">
+                <strong>Shubenacadie Indian Residential School (Nova Scotia):</strong>
+                <p>This was the <strong><span class="quiz-hint">only residential school in the Maritime Provinces</span></strong>. It operated in Shubenacadie (the Sipekne'katik district of Nova Scotia) from <strong>February 5, 1930, to June 22, 1967 (for 37 years)</strong>. The school was known for terrible conditions: freezing temperatures, leaky buildings, overcrowding, underfunding, and very poor food (malnutrition).</p>
+            </div>
+
+            <h3>How the Schools Were Started (Policy Origins)</h3>
+            <ul>
+                <li><strong>Bagot Commission (1842–1844):</strong> A government report that recommended taking Indigenous children away from their families to force them to assimilate. This became the blueprint for residential schools.</li>
+                <li><strong>1920 Mandatory Law:</strong> The government changed the <span class="quiz-hint">Indian Act</span> to make residential school attendance <strong>compulsory (mandatory)</strong>. Parents were forced to send their kids; if they refused, child welfare agents or police would threaten to take the children away anyway.</li>
+            </ul>
+
+            <span class="section-number">PART 02 — THE 1940s CENTRALIZATION POLICY</span>
+            <h2>Failed Centralization Policy</h2>
+            <p><span class="quiz-hint">Centralization was a failed 1940s Canadian federal policy</span> that forced Mi'kmaq families off their traditional scattered homelands across Nova Scotia. The government relocated them into just <span class="quiz-hint">two central reserves: Eskasoni and Sipekne'katik (Shubenacadie)</span>.</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Why Did the Government Do This?</h3>
+                    <ul>
+                        <li>To save money on providing services like schools and healthcare by packing everyone into two spots.</li>
+                        <li>To make it easier for government agents to watch and control the Mi'kmaq, helping force them to assimilate.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>What Actually Happened?</h3>
+                    <ul>
+                        <li>The government promised new houses, jobs, and farms, but these never showed up. Families faced homelessness and starvation.</li>
+                        <li>The Mi'kmaq resisted the policy and fought to keep their freedom.</li>
+                        <li>The project was such a disaster that the federal government officially stopped it in <strong>1949</strong>. However, it permanently damaged land rights and left a legacy of trauma.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: SIXTIES SCOOP & SIMULATION CASE -->
+        <div class="tab-pane" id="tab-scoop-dossier">
+            <span class="section-number">PART 03 — THE SIXTIES SCOOP</span>
+            <h2>What Was the Sixties Scoop?</h2>
+            <p>As residential schools began closing in the 1960s, provincial child welfare agents became the new way the government took kids. The <span class="quiz-hint">"Sixties Scoop"</span> refers to the mass removal of Indigenous children from their families into foster care and adoption systems—usually putting them with <strong>non-Indigenous families</strong> who raised them away from their culture.</p>
+            
+            <div class="highlight-box">
+                <strong>The Legal Tool (Section 88):</strong>
+                <p>In 1951, the government added Section 88 to the Indian Act. This rule allowed provincial laws (like child welfare codes) to apply to reserve land, giving social workers the legal power to go onto reserves and apprehend children.</p>
+            </div>
+
+            <h3>How the Numbers Grew (Disproportionate Representation)</h3>
+            <table>
+                <tr>
+                    <th>Year / Context</th>
+                    <th>Region</th>
+                    <th>Percentage of Kids in Care Who Were Indigenous</th>
+                </tr>
+                <tr>
+                    <td>1955</td>
+                    <td>British Columbia</td>
+                    <td>Less than 1%</td>
+                </tr>
+                <tr>
+                    <td>1964</td>
+                    <td>British Columbia</td>
+                    <td><strong>34%</strong> (The peak of the Scoop)</td>
+                </tr>
+                <tr>
+                    <td>2012</td>
+                    <td>Alberta</td>
+                    <td><strong>68%</strong></td>
+                </tr>
+                <tr>
+                    <td>Modern Day</td>
+                    <td>Canada (National)</td>
+                    <td><strong>The "Millennial Scoop"</strong> — Indigenous children are still overrepresented in foster care today at rates even higher than during the residential school era.</td>
+                </tr>
+            </table>
+
+            <span class="section-number">CLASSROOM SIMULATION CONNECTION</span>
+            <h2>Illustrating the History: The Case of Annie Francis</h2>
+            <p style="font-style: italic; color: var(--text-muted); margin-bottom: 15px;">Note: The case study and character tree below are fictional examples created for our classroom simulation to show how the Sixties Scoop and the Indian Act impacted families.</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>1. The Fictional 1963 Welfare Form</h3>
+                    <p>In our assignment, a fictional child named **Annie Francis** (age 8) is taken from her reserve and renamed **Anne Peters**. The form is stamped "APPREHENDED" and uses detached language to make poverty look like bad parenting:</p>
+                    <ul>
+                        <li><strong>"Material Poverty":</strong> Criticized the family's simple lifestyle, ignoring that reserve poverty was caused by government land rules.</li>
+                        <li><strong>"Lacks municipal infrastructure":</strong> Punished the family for not having running water, even though the government was responsible for build services on reserves.</li>
+                        <li><strong>"Lack of resource management":</strong> Blamed parents for struggling to get by under systemic isolation.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>2. The Box in the Closet (Silence vs. Memory)</h3>
+                    <p>In the simulation, Annie's family keeps a box hidden in a closet wrapped in a scarf. It holds a childhood photo of Annie laughing and a hand-knit sweetgrass sweater. This shows how trauma and silence work: the memory was too painful to talk about (silence), but too precious to throw away (memory).</p>
+                </div>
+            </div>
+
+            <h3>The Fictional Francis Family Tree: Two Ways of Erasing Identity</h3>
+            <p>Our classroom simulation uses this fictional family tree to show how the government used different laws to erase Indigenous identity—physically and legally.</p>
+            
+            <div class="family-tree-wrapper">
+                <div class="tree-nodes">
+                    <!-- Generation 1 -->
+                    <div class="tree-level">
+                        <div class="tree-node" onclick="showNodeDetails('ancestors')">
+                            <strong>Joseph &amp; Lena Francis</strong>
+                            <span class="node-relation">Simulation Grandparents</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Generation 2 -->
+                    <div class="tree-level">
+                        <div class="tree-node" onclick="showNodeDetails('annie')">
+                            <strong>Annie Francis</strong>
+                            <span class="node-relation">Daughter (Simulation)</span>
+                            <div style="font-size:0.7rem; color:var(--accent-red); margin-top:4px;">Apprehended 1963</div>
+                        </div>
+                        <div class="tree-node" onclick="showNodeDetails('mary')">
+                            <strong>Mary Francis Johnson</strong>
+                            <span class="node-relation">Daughter (Simulation)</span>
+                            <div style="font-size:0.7rem; color:var(--accent-gold); margin-top:4px;">Lost Status on Marriage</div>
+                        </div>
+                    </div>
+
+                    <!-- Generation 3 -->
+                    <div class="tree-level">
+                        <div class="tree-node" style="opacity:0.7;">
+                            <strong>Maya Paul</strong>
+                            <span class="node-relation">Annie's Line (Simulation Character)</span>
+                        </div>
+                        <div class="tree-node" style="opacity:0.7;">
+                            <strong>Sarah Johnson</strong>
+                            <span class="node-relation">Mary's Line (Simulation Character)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tree-node-details" id="tree-details-box">
+                    <h4>Click a family tree node above to inspect its details from the simulation.</h4>
+                    <p>See how the physical removal of kids (Sixties Scoop) and paper status laws (Indian Act) targeted the same family line in our class project.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: TWO PATHS: RESTORATIVE JUSTICE -->
+        <div class="tab-pane" id="tab-restorative-justice">
+            <span class="section-number">PART 04 — THE CRIMINAL JUSTICE SYSTEM</span>
+            <h2>Fictional Classroom Study: "Two Paths" (Liam's Journey)</h2>
+            <p style="font-style: italic; color: var(--text-muted); margin-bottom: 20px;">Note: "Two Paths: Liam's Journey" is a fictional graphic novel read in class. It tells the story of Liam, a Mi'kmaw youth in Cape Breton who breaks into a store ("Thomas's Corner Market") simply to get warm and find food on a freezing winter night. We use his case to study how the actual Canadian justice system compares to restorative justice.</p>
+
+            <div class="grid-2">
+                <div>
+                    <h3>Pre-Trial Risk Checklist Bias</h3>
+                    <p>In the story, when police book Liam, a checklist scores him as "High Risk of Re-offending" because he is unemployed and couch-surfing. In real courts, these check-box tools score <strong>poverty</strong> (not having a job or house) as a risk factor. This means the system penalizes people for being poor, rather than checking if they have criminal intent.</p>
+                    <p><strong>Overrepresentation Statistics:</strong> In 2017 class records, Indigenous men made up 25.2% of federal inmates and women made up 36.1%. Today, Indigenous adults make up <strong>33%</strong> of federal inmates, and Indigenous women make up <strong>50%</strong> of federal custody admissions, even though Indigenous people are only 5% of Canada's population. <strong>TRC Call to Action #30</strong> asks the government to commit to ending this overrepresentation.</p>
+                </div>
+                <div>
+                    <h3>Real Precedents: Donald Marshall Jr. &amp; Gladue Rights</h3>
+                    <p><strong>Donald Marshall Jr.</strong> was a real Mi'kmaw teenager who was wrongfully convicted of murder in <strong>1971</strong> in Sydney, NS. He spent 11 years in prison for a crime he did not commit. A <strong>1989 Royal Commission</strong> proved that systemic racism caused his wrongful conviction, forcing Nova Scotia to establish restorative justice groups like the <strong>Mi'kmaw Legal Support Network (MLSN)</strong>.</p>
+                    <p><strong>Gladue Rights &amp; Funding Gap:</strong> A constitutional right requiring judges to look at an Indigenous person's background (like trauma and colonialism) and look for alternatives to jail. It aims for <em>substantive equality</em> (different accountability, not less). But because there is a <strong>funding gap</strong> (a lack of money for reserve housing, counseling, and healing programs), these alternatives are often unavailable, forcing judges to send people to jail anyway.</p>
+                </div>
+            </div>
+
+            <h2>Conventional Court vs. Sentencing Circle</h2>
+            <p>Below is a breakdown of the two paths of justice compared in our class activities.</p>
+
+            <div class="path-comparison">
+                <div class="path-column cold">
+                    <div class="path-column-header">Conventional Court (The Cold Path)</div>
+                    <div class="path-content">
+                        <div class="path-item">
+                            <strong>Primary Goal</strong>
+                            <p>Punishment, isolation, and deterring others (retributive justice).</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Key Participants</strong>
+                            <p>Attorneys, an elevated judge in robes, and police. The accused person sits passively and is represented by others.</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Focus of Inquiry</strong>
+                            <p>What law was broken? Who did it? How much jail time or punishment does the code require?</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Physical Structure</strong>
+                            <p>Hierarchical. The judge sits high up on a bench to represent state authority over the people.</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Real-World Outcome</strong>
+                            <p>A criminal record, isolation, and a high rate of returning to prison (recidivism) because the root problems are ignored.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="path-column warm">
+                    <div class="path-column-header">Sentencing Circle (The Restorative Path)</div>
+                    <div class="path-content">
+                        <div class="path-item">
+                            <strong>Primary Goal</strong>
+                            <p>Healing, repairing the harm, restoring relationships, and reintegrating the offender.</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Key Participants</strong>
+                            <p>The offender, the victim, community Elders, support workers (like MLSN), and the judge sitting at the same level.</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Focus of Inquiry</strong>
+                            <p>What harm was done? How do we fix it? What root problems caused the behavior?</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Physical Structure</strong>
+                            <p>Circular. Everyone sits at the same height to show equal worth. A <strong>sweetgrass braid</strong> (harmony) and an <strong>eagle feather</strong> (speaking absolute truth) sit in the center.</p>
+                        </div>
+                        <div class="path-item">
+                            <strong>Real-World Outcome</strong>
+                            <p>An active plan to repair the damage. Research shows that community-led restorative justice reduces re-offending rates by <strong>15–20%</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="border-left-color: var(--accent-gold);">
+                <strong>Msit No'kmaq (All My Relations):</strong>
+                <p>The Mi'kmaw worldview that everything in the universe is connected—families, land, history, and nature. Kinship is a circle that cannot be cut. In our study of "Two Paths," this is shown visually by comparing the cold, grey walls of the prison conveyor belt on Page 5 with the warm golden sunset on the Shubenacadie River on Page 16.</p>
+            </div>
+        </div>
+
+        <!-- TAB 4: TIMELINE -->
+        <div class="tab-pane" id="tab-timeline">
+            <span class="section-number">HISTORICAL CHRONOLOGY</span>
+            <h2>Timeline of Key Historical Events</h2>
+            <p style="font-size: 0.85rem; margin-bottom: 20px; font-style: italic; color: var(--text-muted);">This timeline lists real historical dates from Canadian history. Our fictional class simulation cases are set in 1963 (Annie's Scoop case) and 2027 (Liam's restorative circle case).</p>
+            
+            <div class="timeline-filter-buttons">
+                <button class="btn active" onclick="filterTimeline('all')">Show All</button>
+                <button class="btn" onclick="filterTimeline('residential')">Residential &amp; Centralization</button>
+                <button class="btn" onclick="filterTimeline('scoop')">Sixties Scoop Era</button>
+                <button class="btn" onclick="filterTimeline('justice')">Justice &amp; Legal Precedents</button>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-item" data-category="early">
+                    <span class="timeline-year">1749</span>
+                    <p><strong>Scalp Bounties:</strong> Governor Edward Cornwallis issues bounties offering money for Mi'kmaq scalps, showing early violent colonial tactics.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1842–1844</span>
+                    <p><strong>Bagot Commission:</strong> A government report recommends separating Indigenous children from their families to force assimilation, creating the blueprint for residential schools.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1876</span>
+                    <p><strong><span class="quiz-hint">Indian Act enacted</span>:</strong> Canada passes the Indian Act, the main law used to govern reserves, status, and bands. It contains many discriminatory rules.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1920</span>
+                    <p><strong>Mandatory Attendance:</strong> The government makes attendance at residential schools mandatory (compulsory) by law for all Indigenous children.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1930</span>
+                    <p><strong>Shubenacadie Opens:</strong> The <strong><span class="quiz-hint">Shubenacadie Indian Residential School opens</span></strong> in Nova Scotia. It is the only residential school built in the Maritimes.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1942–1949</span>
+                    <p><strong>Centralization Policy:</strong> The federal government forces Nova Scotia's Mi'kmaq off their traditional scattered lands onto central reserves in Eskasoni and Sipekne'katik. Abandoned in 1949 due to severe starvation and resistance.</p>
+                </div>
+                <div class="timeline-item" data-category="scoop">
+                    <span class="timeline-year">1951</span>
+                    <p><strong>Section 88 Added:</strong> An amendment to the Indian Act allows provincial child welfare laws to apply on reserves, opening the door for the Sixties Scoop.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1967</span>
+                    <p><strong>Shubenacadie Closes:</strong> The Shubenacadie Indian Residential School officially closes on June 22.</p>
+                </div>
+                <div class="timeline-item" data-category="scoop">
+                    <span class="timeline-year">1960s–1980s</span>
+                    <p><strong>The Sixties Scoop Peaks:</strong> Tens of thousands of Indigenous children are taken from their parents by child welfare agencies and placed with non-Indigenous families.</p>
+                </div>
+                <div class="timeline-item" data-category="justice">
+                    <span class="timeline-year">1971</span>
+                    <p><strong>Donald Marshall Jr. Case:</strong> Mi'kmaw teenager Donald Marshall Jr. is wrongfully convicted of murder in Sydney, Cape Breton, and spends 11 years in prison for a crime he didn't commit.</p>
+                </div>
+                <div class="timeline-item" data-category="scoop">
+                    <span class="timeline-year">1985</span>
+                    <p><strong>Bill C-31 Status Reform:</strong> The government amends the Indian Act to stop stripping women of status when they marry non-status men, but adds new cut-off categories (like the second-generation cut-off).</p>
+                </div>
+                <div class="timeline-item" data-category="justice">
+                    <span class="timeline-year">1989</span>
+                    <p><strong>Marshall Royal Commission:</strong> An official report proves that systemic racism in the legal system caused Donald Marshall Jr.'s wrongful conviction, leading to the creation of restorative justice networks in Nova Scotia.</p>
+                </div>
+                <div class="timeline-item" data-category="justice">
+                    <span class="timeline-year">1990</span>
+                    <p><strong><span class="quiz-hint">Oka Crisis begins (July 11)</span>:</strong> A 78-day standoff between Mohawk people and Oka, Quebec, over expanding a golf course on a sacred burial ground.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">1996</span>
+                    <p><strong>Last Residential School Closes:</strong> The last government-run residential school in Canada closes down in Saskatchewan.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">2006</span>
+                    <p><strong>IRSSA Signed:</strong> The Indian Residential Schools Settlement Agreement is signed. It is the largest class-action settlement in Canadian history ($5+ billion).</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">2008–2015</span>
+                    <p><strong>Truth and Reconciliation Commission:</strong> The TRC travels across Canada to collect testimonies. Its final report calls the residential school system "cultural genocide" and issues 94 Calls to Action.</p>
+                </div>
+                <div class="timeline-item" data-category="justice">
+                    <span class="timeline-year">2022</span>
+                    <p><strong>Bill C-5 Passed:</strong> Canada removes mandatory minimum sentences for several crimes, encouraging judges to look for community-led restorative justice options instead of automatic prison time.</p>
+                </div>
+                <div class="timeline-item" data-category="residential">
+                    <span class="timeline-year">2025</span>
+                    <p><strong>Beyond 94 Tracking:</strong> An update shows that nearly ten years after the TRC, less than 20% (only 15 of 94) of the Calls to Action are fully complete.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: GLOSSARY -->
+        <div class="tab-pane" id="tab-glossary">
+            <span class="section-number">VOCABULARY DATABASE</span>
+            <h2>Core Terms &amp; Plain Language Definitions</h2>
+            
+            <div class="glossary-grid" id="glossary-container">
+                <div class="glossary-card">
+                    <h4>Assimilation</h4>
+                    <p>Forcing a minority group to give up their culture, language, and beliefs and adopt the culture of the dominant group.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4><span class="quiz-hint">Indian Act</span></h4>
+                    <p><span class="quiz-hint">1876 federal legislation that governs status, bands, and reserves; contains discriminatory provisions</span> used by the Canadian government to control and assimilate Indigenous peoples.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Section 88</h4>
+                    <p>A rule added to the Indian Act in 1951 that let provincial laws (like child welfare codes) apply on reserves, enabling the Sixties Scoop.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4><span class="quiz-hint">Sixties Scoop</span></h4>
+                    <p><span class="quiz-hint">Mass removal of Indigenous children by child welfare agencies (1960s–1980s)</span> who were placed into non-Indigenous adoptive and foster homes away from their culture.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>IRSSA</h4>
+                    <p>Indian Residential Schools Settlement Agreement (2006) — the largest class-action settlement in Canadian history ($5+ billion) to help survivors and set up the TRC.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4><span class="quiz-hint">TRC</span></h4>
+                    <p><span class="quiz-hint">Truth and Reconciliation Commission (2008–2015)</span> which traveled Canada to listen to survivors, document the history of residential schools, and issue <span class="quiz-hint">94 Calls to Action</span>.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Intergenerational Trauma</h4>
+                    <p>Trauma passed down through generations. Children of survivors grow up dealing with the emotional damage, loss of language, and family disruptions their parents went through.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4><span class="quiz-hint">Centralization</span></h4>
+                    <p><span class="quiz-hint">Failed 1940s Canadian federal policy</span> that forced Nova Scotia's Mi'kmaq off their scattered lands into just <span class="quiz-hint">two central reserves (Eskasoni and Sipekne'katik)</span> to save money and increase control.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4><span class="quiz-hint">Oka Crisis</span></h4>
+                    <p><span class="quiz-hint">1990 land dispute between Mohawk people and Oka, Quebec, over a golf course expansion</span> on a sacred burial ground; lasted 78 days with two deaths.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Gladue Rights</h4>
+                    <p>The legal right of Indigenous people in court to have their background factors (colonialism, family trauma) considered by the judge, who must look for alternatives to jail.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Substantive Equality</h4>
+                    <p>Recognizing that treating everyone exactly the same (formal equality) doesn't work if they start from unequal places. It means treating people differently to make sure outcomes are fair (like using Gladue factors).</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Sentencing Circle</h4>
+                    <p>A community-led court meeting where the offender, victim, community Elders, and judge sit in a circle at the same level to agree on a plan to repair the damage and heal.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Eagle Feather</h4>
+                    <p>A sacred symbol in Mi'kmaw culture. In a circle, holding the Eagle Feather means the speaker is speaking their absolute, honest truth directly to the Creator.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Msit No'kmaq</h4>
+                    <p>"All My Relations" — the Mi'kmaw belief that all things (people, history, land, nature) are connected in a circle of kinship that cannot be cut.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>Actuarial Risk Assessment</h4>
+                    <p>A checklist used by booking officers to decide if someone can go home before trial. These lists score being poor (no job, no house) as "high risk," which unfairly penalizes poverty.</p>
+                </div>
+                <div class="glossary-card">
+                    <h4>MLSN</h4>
+                    <p>Mi'kmaw Legal Support Network — a group created in Nova Scotia after the Donald Marshall Jr. inquiry to help Indigenous people get fair treatment in the legal system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: QUIZ & ANALYSIS -->
+        <div class="tab-pane" id="tab-quiz">
+            <span class="section-number">STUDY HUB</span>
+            <h2>Practice Questions &amp; Answer Keys</h2>
+            
+            <div class="quiz-card">
+                <div class="quiz-question">Q1: In our Sixties Scoop simulation, why is a name change from Annie Francis to Anne Peters such a powerful and disturbing detail? What does it show about identity?</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key (Fictional Example Analysis):</strong> In our class assignment, this name change represents <strong>cultural erasure</strong>. By changing a child's name in official files, the government physically and bureaucratically cuts their ties to their family and history. It makes the child "disappear" on paper, making it very hard for them to find their family or reclaim their status under the Indian Act later in life.</p>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-question">Q2: In the class simulation, what does Annie's "box in the closet" wrapped in a scarf tell us about how trauma, memory, and silence work?</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key (Fictional Example Analysis):</strong> The hidden box represents <strong>intergenerational trauma and silence</strong>. The fact that the box was hidden shows the pain of child removal was too deep to speak about out loud (silence). But the fact that she kept the sweetgrass sweater and childhood photo for decades shows that preserving the memory of love and belonging was too important to throw away (resistance against erasure).</p>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-question">Q3: Using our class simulation characters, explain how Sarah Johnson's legal status case and Annie Francis's child apprehension case show the same colonial goal.</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key (Fictional Example Analysis):</strong> Both cases represent the goal of erasing Indigenous identity using different tools. Mary's branch (Sarah's mother) represents **legal erasure** on paper (losing Indian status under discriminatory Indian Act rules). Annie's branch represents **physical erasure** (being taken from the reserve and placed in foster care). Both methods served to separate the family from their reserve land, kinship circles, and cultural rights.</p>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-question">Q4: Why does a bail assessment checklist that labels an unemployed or couch-surfing person as "high risk" represent systemic bias? How does it penalize poverty?</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key:</strong> Pre-trial checklists score people as "high risk" (meaning they shouldn't be released) if they lack a permanent address, are unemployed, or couch-surf. These factors are actually signs of poverty and systemic inequities, not proof of criminal intent. By treating poverty as a risk factor, the system penalizes people for not having money or stable housing, keeping them locked up before their trial has even started.</p>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-question">Q5: Contrast the goals, physical setup, and role of participants in a Western court versus a Mi'kmaw Sentencing Circle.</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key:</strong> 
+                    <ul>
+                        <li><strong>Western Court:</strong> Focuses on punishment (jail time). It is hierarchical (judge sits high up on a bench) and adversarial (lawyers argue, the accused sits isolated and stays silent). It asks: *What law was broken and who did it?*</li>
+                        <li><strong>Sentencing Circle:</strong> Focuses on healing and fixing the harm. It is circular (everyone sits at the same height, showing equal value) and collaborative (victim, offender, Elder, judge, and community work together). It asks: *What harm was done and how do we repair it?*</li>
+                    </ul>
+                    </p>
+                </div>
+            </div>
+
+            <div class="quiz-card">
+                <div class="quiz-question">Q6: What is the "Gladue funding gap" and why does it stop the legal system from achieving substantive equality?</div>
+                <button class="btn-toggle-answer" onclick="toggleAnswer(this)">Reveal Analysis</button>
+                <div class="quiz-answer">
+                    <p><strong>Answer Key:</strong> While Gladue Rights require judges to look for community-led alternatives to jail, a lack of government funding for Indigenous-led programs (like reserve housing, counseling, and healing centers) means these alternatives often do not exist. This is the **funding gap**: the court has a legal obligation to look for options, but has no actual programs to send people to, forcing judges to return to standard prison sentences. This prevents real substantive equality.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>MI'KMAW STUDIES 11 — INTEGRATED JUNE STUDY GUIDE // FOR EDUCATIONAL USE ONLY</p>
+            <p style="margin-top: 8px; font-size: 10px;">COMPILED FROM THE MAY 21 DOSSIER, SIMULATION ASSIGNMENTS, AND CRITICAL INQUIRY RESTORATIVE JUSTICE Slide Decks.</p>
+        </div>
+    </div>
+
+    <script>
+        // JS State Variables
+        let isCyberTheme = false;
+        let isQuizMode = false;
+
+        // Page Start Anim
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.from("#main-dossier", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Remove active classes
+            document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+            document.querySelectorAll(".tab-nav-btn").forEach(btn => btn.classList.remove("active"));
+
+            // Set active
+            document.getElementById(tabId).classList.add("active");
+            
+            // Find corresponding nav button
+            const activeBtn = Array.from(document.querySelectorAll(".tab-nav-btn")).find(btn => {
+                return btn.getAttribute("onclick").includes(tabId);
+            });
+            if (activeBtn) activeBtn.classList.add("active");
+
+            // Scroll to top of dossier smoothly
+            window.scrollTo({
+                top: document.getElementById("main-dossier").offsetTop - 20,
+                behavior: 'smooth'
+            });
+
+            // Animate tab content entry
+            gsap.fromTo(`#${tabId} > *`, 
+                { opacity: 0, y: 15 }, 
+                { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+            );
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            isCyberTheme = !isCyberTheme;
+            const body = document.body;
+            const btn = document.getElementById("btn-theme-toggle");
+            
+            if (isCyberTheme) {
+                body.setAttribute("data-theme", "cyber");
+                btn.querySelector("span").innerText = "Dossier Theme";
+                gsap.to(body, { backgroundColor: "#07090e", duration: 0.3 });
+            } else {
+                body.removeAttribute("data-theme");
+                btn.querySelector("span").innerText = "Switch Theme";
+                gsap.to(body, { backgroundColor: "#e6dfd3", duration: 0.3 });
+            }
+        }
+
+        // Quiz Mode Toggle
+        function toggleQuizMode() {
+            isQuizMode = !isQuizMode;
+            const body = document.body;
+            const btn = document.getElementById("btn-quiz-toggle");
+            
+            if (isQuizMode) {
+                body.classList.add("quiz-mode-active");
+                btn.classList.add("active");
+                btn.querySelector("span").innerText = "Quiz Mode: On";
+            } else {
+                body.classList.remove("quiz-mode-active");
+                btn.classList.remove("active");
+                btn.querySelector("span").innerText = "Quiz Mode: Off";
+            }
+        }
+
+        // Quiz Reveal answers
+        function toggleAnswer(btn) {
+            const answer = btn.nextElementSibling;
+            answer.classList.toggle("show");
+            if (answer.classList.contains("show")) {
+                btn.innerText = "Hide Analysis";
+                gsap.from(answer, { opacity: 0, y: -10, duration: 0.3 });
+            } else {
+                btn.innerText = "Reveal Analysis";
+            }
+        }
+
+        // Timeline Filtering
+        function filterTimeline(category) {
+            // Update buttons active class
+            const filterButtons = document.querySelectorAll(".timeline-filter-buttons .btn");
+            filterButtons.forEach(btn => btn.classList.remove("active"));
+            
+            // Set clicked button active
+            const clickedBtn = Array.from(filterButtons).find(btn => {
+                return btn.getAttribute("onclick").includes(category);
+            });
+            if (clickedBtn) clickedBtn.classList.add("active");
+
+            // Filter items
+            const items = document.querySelectorAll(".timeline-item");
+            
+            items.forEach(item => {
+                const itemCat = item.getAttribute("data-category");
+                if (category === "all") {
+                    gsap.to(item, { display: "block", opacity: 1, y: 0, duration: 0.3 });
+                } else if (category === "residential" && (itemCat === "residential" || itemCat === "early")) {
+                    gsap.to(item, { display: "block", opacity: 1, y: 0, duration: 0.3 });
+                } else if (category === itemCat) {
+                    gsap.to(item, { display: "block", opacity: 1, y: 0, duration: 0.3 });
+                } else {
+                    gsap.to(item, { opacity: 0, y: -10, duration: 0.2, onComplete: () => {
+                        item.style.display = "none";
+                    }});
+                }
+            });
+        }
+
+        // Interactive Family Tree Nodes Details (Simulation Case Studies)
+        const nodeData = {
+            ancestors: {
+                title: "Joseph & Lena Francis (Simulation Grandparents)",
+                text: "The head of our fictional simulation family tree, residing on reserve in Sipekne'katik. Their daughters represent the two different pathways of state-sponsored assimilation and family disruption that we studied: physical removal (Annie) and status stripping (Mary)."
+            },
+            annie: {
+                title: "Annie Francis (Apprehended 1963, Renamed Anne Peters)",
+                text: "Annie represents the fictional case study of **physical removal** under the Sixties Scoop. Taken from Sipekne'katik in 1963 at age 8 under Section 88 of the Indian Act. Renamed Anne Peters in welfare files to show how children were cut off from their family trees on paper and placed in non-Indigenous foster homes."
+            },
+            mary: {
+                title: "Mary Francis Johnson (Lost Status on Marriage)",
+                text: "Mary represents the fictional case study of **legal status cutoff**. Under Section 12(1)(b) of the pre-1985 Indian Act, marrying a non-status man stripped her of Indian status, reserve residency rights, and inheritance. This cut-off carried over to her daughter, Sarah Johnson, showing how legal status erased family lineages on paper."
+            }
+        };
+
+        function showNodeDetails(nodeKey) {
+            const detailsBox = document.getElementById("tree-details-box");
+            const data = nodeData[nodeKey];
+
+            // Set active class on tree nodes
+            document.querySelectorAll(".tree-node").forEach(node => {
+                node.classList.remove("active");
+            });
+            // Add to clicked node
+            event.currentTarget.classList.add("active");
+
+            gsap.to(detailsBox, { opacity: 0, y: -5, duration: 0.2, onComplete: () => {
+                detailsBox.querySelector("h4").innerText = data.title;
+                detailsBox.querySelector("p").innerHTML = data.text;
+                detailsBox.style.borderLeftColor = nodeKey === 'annie' ? 'var(--accent-red)' : (nodeKey === 'mary' ? 'var(--accent-gold)' : 'var(--border-color)');
+                gsap.to(detailsBox, { opacity: 1, y: 0, duration: 0.3 });
+            }});
+        }
+
+        // Glossary Searching
+        function handleSearch() {
+            const query = document.getElementById("search-box").value.toLowerCase();
+            const cards = document.querySelectorAll(".glossary-card");
+
+            cards.forEach(card => {
+                const term = card.querySelector("h4").innerText.toLowerCase();
+                const def = card.querySelector("p").innerText.toLowerCase();
+                
+                if (term.includes(query) || def.includes(query)) {
+                    gsap.to(card, { display: "block", opacity: 1, scale: 1, duration: 0.2 });
+                } else {
+                    gsap.to(card, { opacity: 0, scale: 0.95, duration: 0.1, onComplete: () => {
+                        card.style.display = "none";
+                    }});
+                }
+            });
+        }
+    </script>
+</body>
+</html>

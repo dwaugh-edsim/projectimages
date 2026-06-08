@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKS 11 — Project Command Center</title>
+    <meta name="description" content="Mi'kmaw Studies 11 Independent Project Management Dashboard">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════
+           DESIGN SYSTEM
+           ═══════════════════════════════════════════ */
+        :root {
+            --bg-0: #070714;
+            --bg-1: #0c0c20;
+            --bg-2: #13132e;
+            --bg-card: #181845;
+            --bg-card-hover: #1f1f55;
+            --bg-input: rgba(0,0,0,0.35);
+            --accent: #ec4899;
+            --accent-dim: #be185d;
+            --accent-glow: rgba(236,72,153,0.2);
+            --accent-glow-strong: rgba(236,72,153,0.45);
+            --accent-text: #f9a8d4;
+            --success: #10b981;
+            --success-bg: rgba(16,185,129,0.12);
+            --success-border: rgba(16,185,129,0.3);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245,158,11,0.12);
+            --warning-border: rgba(245,158,11,0.3);
+            --danger: #ef4444;
+            --danger-bg: rgba(239,68,68,0.12);
+            --danger-border: rgba(239,68,68,0.3);
+            --info: #3b82f6;
+            --info-bg: rgba(59,130,246,0.12);
+            --text-1: #f1f5f9;
+            --text-2: #94a3b8;
+            --text-3: #64748b;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(255,255,255,0.14);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow: 0 4px 30px rgba(0,0,0,0.5);
+            --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        [data-block="C"] {
+            --accent: #06b6d4;
+            --accent-dim: #0891b2;
+            --accent-glow: rgba(6,182,212,0.2);
+            --accent-glow-strong: rgba(6,182,212,0.45);
+            --accent-text: #67e8f9;
+        }
+
+        /* ═══ RESET ═══ */
+        *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-0);
+            color: var(--text-1);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background var(--transition);
+        }
+        .bg-gradient {
+            position: fixed; inset: 0; z-index: -1; opacity: 0.5;
+            background:
+                radial-gradient(ellipse 800px 600px at 15% 10%, var(--accent-glow) 0%, transparent 70%),
+                radial-gradient(ellipse 600px 500px at 85% 85%, var(--accent-glow) 0%, transparent 70%);
+            transition: all 0.6s ease;
+        }
+
+        /* ═══ TOP NAV ═══ */
+        .top-nav {
+            background: rgba(7,7,20,0.85);
+            backdrop-filter: blur(20px);
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 200;
+        }
+        .nav-brand h1 {
+            font-size: 1.1rem; font-weight: 800;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            background: linear-gradient(135deg, var(--accent), var(--accent-text));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-brand .subtitle {
+            font-size: 0.72rem; color: var(--text-3);
+            letter-spacing: 0.5px; display: block; margin-top: 2px;
+        }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .block-switcher {
+            display: flex; background: var(--bg-2); padding: 3px;
+            border-radius: 10px; gap: 3px; border: 1px solid var(--border);
+        }
+        .block-btn {
+            padding: 7px 20px; border-radius: 7px; border: none;
+            cursor: pointer; font-weight: 700; font-size: 0.82rem;
+            color: var(--text-3); background: transparent;
+            transition: all var(--transition); text-transform: uppercase;
+            letter-spacing: 1px; font-family: inherit;
+        }
+        .block-btn.active-a {
+            background: #ec4899; color: white;
+            box-shadow: 0 0 18px rgba(236,72,153,0.4);
+        }
+        .block-btn.active-c {
+            background: #06b6d4; color: white;
+            box-shadow: 0 0 18px rgba(6,182,212,0.4);
+        }
+        .block-btn:hover:not(.active-a):not(.active-c) {
+            color: var(--text-2); background: rgba(255,255,255,0.04);
+        }
+        .icon-btn {
+            padding: 7px 14px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-2); cursor: pointer; font-size: 0.82rem;
+            font-weight: 600; transition: all var(--transition);
+            font-family: inherit; display: flex; align-items: center; gap: 6px;
+        }
+        .icon-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+
+        /* ═══ TAB BAR ═══ */
+        .tab-bar {
+            display: flex; gap: 0;
+            background: rgba(12,12,32,0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            position: sticky; top: 45px; z-index: 190;
+        }
+        .tab-btn {
+            padding: 10px 20px; border: none; background: transparent;
+            color: var(--text-3); font-weight: 600; font-size: 0.88rem;
+            cursor: pointer; position: relative; transition: color var(--transition);
+            font-family: inherit; letter-spacing: 0.3px;
+        }
+        .tab-btn:hover { color: var(--text-2); }
+        .tab-btn.active { color: var(--accent-text); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: 0; left: 12px; right: 12px;
+            height: 3px; background: var(--accent); border-radius: 3px 3px 0 0;
+            animation: tabSlide 0.3s ease;
+        }
+        @keyframes tabSlide { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+        /* ═══ SUMMARY BAR ═══ */
+        .summary-bar {
+            display: flex; align-items: center; gap: 16px;
+            padding: 10px 24px;
+            background: var(--bg-1);
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 50px;
+            font-weight: 600; font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .stat-pill.success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .stat-pill.warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+        .stat-pill.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .stat-pill.info { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59,130,246,0.3); }
+        .stat-pill .count { font-size: 1.1rem; font-weight: 700; }
+        .summary-search {
+            margin-left: auto; position: relative;
+        }
+        .summary-search input {
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 8px 16px 8px 36px;
+            color: var(--text-1); font-size: 0.88rem; width: 240px;
+            font-family: inherit; transition: all var(--transition); outline: none;
+        }
+        .summary-search input:focus {
+            border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow);
+        }
+        .summary-search::before {
+            content: '🔍'; position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%); font-size: 0.85rem;
+        }
+
+        /* ═══ MAIN CONTENT ═══ */
+        .main-content { padding: 16px 24px 80px; max-width: 1800px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+        /* ═══ STUDENT GRID ═══ */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 10px;
+        }
+
+        /* ═══ STUDENT CARD ═══ */
+        .student-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 10px 14px;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .student-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .student-card.highlight {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .card-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .card-name {
+            font-size: 0.95rem; font-weight: 700; color: var(--text-1);
+            line-height: 1.2;
+        }
+        .card-code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+            color: var(--accent-text); background: var(--accent-glow);
+            padding: 2px 6px; border-radius: 6px; font-weight: 600;
+            letter-spacing: 1px; flex-shrink: 0; margin-left: 8px;
+        }
+        .card-meta {
+            display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px;
+        }
+        .meta-tag {
+            font-size: 0.65rem; padding: 2px 6px;
+            border-radius: 50px; font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-3); border: 1px solid var(--border);
+        }
+        .meta-tag.art { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+        .meta-tag.essay { color: #60a5fa; border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08); }
+        .meta-tag.presentation { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08); }
+        .meta-tag.other { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+        .meta-tag.changed { color: #fb923c; border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.08); }
+        .meta-tag.flag { color: #f472b6; border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.08); }
+        .card-topic {
+            font-size: 0.78rem; color: var(--text-2);
+            line-height: 1.35; margin-bottom: 8px;
+        }
+        .card-topic strong { color: var(--text-1); font-weight: 600; }
+
+        /* ═══ STATUS BADGES ═══ */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 50px;
+            font-weight: 700; font-size: 0.72rem;
+            cursor: pointer; border: none;
+            transition: all var(--transition);
+            font-family: inherit; text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-badge:hover { filter: brightness(1.2); transform: scale(1.03); }
+        .status-on-time { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .status-late { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+        .status-missing { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .status-pending { background: rgba(100,116,139,0.12); color: var(--text-3); border: 1px solid rgba(100,116,139,0.3); }
+        .status-received { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+
+        /* ═══ DESCRIPTION PREVIEW ═══ */
+        .desc-preview {
+            font-size: 0.75rem; color: var(--text-3); line-height: 1.5;
+            margin-top: 6px; padding-top: 6px;
+            border-top: 1px solid var(--border);
+            max-height: 40px; overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .desc-preview::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 20px;
+            background: linear-gradient(transparent, var(--bg-card));
+        }
+        .desc-preview:hover { color: var(--text-2); }
+
+        /* ═══ CARD ACTIONS (Finals) ═══ */
+        .card-actions { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+        .card-actions input[type="date"] {
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 4px 8px;
+            color: var(--text-1); font-family: inherit; font-size: 0.72rem;
+            outline: none; transition: all var(--transition);
+        }
+        .card-actions input[type="date"]:focus { border-color: var(--accent); }
+        .card-notes {
+            width: 100%; margin-top: 8px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 5px 8px;
+            color: var(--text-1); font-family: inherit; font-size: 0.75rem;
+            resize: vertical; min-height: 28px; outline: none;
+            transition: all var(--transition);
+        }
+        .card-notes:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+        .card-notes::placeholder { color: var(--text-3); }
+
+        /* ═══ INTERVIEW TAB ═══ */
+        .interview-layout { display: flex; flex-direction: column; gap: 20px; }
+        .day-selector {
+            display: flex; gap: 4px; background: var(--bg-2);
+            padding: 4px; border-radius: var(--radius); border: 1px solid var(--border);
+            align-self: flex-start;
+        }
+        .day-btn {
+            padding: 8px 18px; border-radius: var(--radius-sm);
+            border: none; cursor: pointer; font-weight: 600;
+            font-size: 0.82rem; color: var(--text-3);
+            background: transparent; transition: all var(--transition);
+            font-family: inherit; position: relative;
+        }
+        .day-btn:hover { color: var(--text-2); }
+        .day-btn.active { background: var(--accent); color: white; }
+        .day-btn .day-count {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--accent-dim); color: white;
+            font-size: 0.65rem; width: 18px; height: 18px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 800;
+        }
+
+        /* Interview Assignment Card */
+        .assign-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 18px;
+            display: flex; align-items: center; gap: 14px;
+            transition: all var(--transition);
+        }
+        .assign-card:hover { border-color: var(--border-hover); }
+        .assign-card .card-name { font-size: 0.95rem; flex: 1; }
+        .assign-card select {
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 6px 12px;
+            color: var(--text-1); font-family: inherit; font-size: 0.82rem;
+            outline: none; cursor: pointer;
+        }
+        .assign-card select:focus { border-color: var(--accent); }
+        .assign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 10px;
+        }
+
+        /* Active Interview Panel */
+        .interview-panel {
+            background: rgba(19,19,46,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+        .interview-panel.active { display: block; }
+        .panel-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr 200px;
+            gap: 24px; align-items: start;
+        }
+        .panel-student-info h3 {
+            font-size: 0.75rem; color: var(--accent);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;
+        }
+        .panel-student-name {
+            font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 4px;
+        }
+        .panel-student-topic {
+            font-size: 0.9rem; color: var(--text-2); line-height: 1.4;
+        }
+        .panel-eval {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .eval-col {
+            background: rgba(0,0,0,0.2); padding: 16px;
+            border-radius: var(--radius); border: 1px solid var(--border);
+        }
+        .eval-label {
+            font-size: 0.88rem; font-weight: 600; color: var(--text-1);
+            margin-bottom: 10px; display: block; line-height: 1.4;
+        }
+        .rating-row { display: flex; gap: 6px; margin-bottom: 10px; }
+        .rating-btn {
+            flex: 1; height: 34px; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border); border-radius: 6px;
+            color: var(--text-3); cursor: pointer; font-weight: 700;
+            font-size: 0.95rem; transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .rating-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); }
+        .rating-btn.active {
+            background: var(--accent); color: white; border-color: transparent;
+            box-shadow: 0 0 12px var(--accent-glow-strong);
+        }
+        .eval-textarea {
+            width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 10px 12px;
+            color: var(--text-1); font-family: inherit; font-size: 0.88rem;
+            resize: vertical; min-height: 100px; outline: none;
+            line-height: 1.5; transition: all var(--transition);
+        }
+        .eval-textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .panel-controls {
+            display: flex; flex-direction: column;
+            gap: 16px; align-items: center; justify-content: center;
+        }
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.8rem; font-weight: 600;
+            color: var(--warning); line-height: 1;
+        }
+        .timer-display.overtime { color: var(--danger); animation: timerPulse 1s infinite; }
+        @keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .timer-btns { display: flex; gap: 6px; }
+        .btn {
+            padding: 8px 16px; border-radius: var(--radius-sm);
+            border: none; cursor: pointer; font-weight: 700;
+            font-size: 0.82rem; transition: all var(--transition);
+            font-family: inherit; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-outline {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-2);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent-text); }
+        .btn-success {
+            background: var(--success); color: white;
+            padding: 12px 24px; font-size: 0.95rem; border-radius: var(--radius);
+        }
+        .btn-success:hover { filter: brightness(1.15); transform: scale(1.02); }
+        .btn-accent {
+            background: var(--accent); color: white;
+        }
+        .btn-accent:hover { filter: brightness(1.15); }
+
+        /* Interview schedule card (within day view) */
+        .interview-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 18px;
+            display: flex; align-items: center; gap: 14px;
+            cursor: pointer; transition: all var(--transition);
+        }
+        .interview-card:hover {
+            transform: translateY(-2px); border-color: var(--accent);
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+        .interview-card.active-interview {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 24px var(--accent-glow-strong);
+            background: rgba(255,255,255,0.03);
+        }
+        .interview-card.done { opacity: 0.5; }
+        .interview-card.done .card-name { text-decoration: line-through; }
+        .interview-card .card-number {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .interview-card .card-status {
+            font-size: 1.2rem; margin-left: auto;
+        }
+
+        /* Day section headers */
+        .day-header {
+            display: flex; align-items: center; gap: 16px;
+            padding: 14px 20px; margin-bottom: 12px; margin-top: 20px;
+            background: linear-gradient(90deg, var(--bg-card), transparent);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+        .day-header:first-child { margin-top: 0; }
+        .day-header h3 { font-size: 1.2rem; font-weight: 700; }
+        .day-header .day-info {
+            margin-left: auto; color: var(--text-3); font-size: 0.85rem;
+        }
+
+        /* ═══ MODAL ═══ */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            z-index: 1000; justify-content: center; align-items: center;
+            padding: 32px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-2); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); max-width: 700px; width: 100%;
+            max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px; border-bottom: 1px solid var(--border);
+        }
+        .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-2); cursor: pointer; font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all var(--transition);
+        }
+        .modal-close:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+        .modal-body {
+            padding: 24px; overflow-y: auto;
+            font-size: 0.9rem; line-height: 1.7; color: var(--text-2);
+        }
+        .modal-body .draft-label {
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--accent); font-weight: 700; margin-bottom: 8px;
+        }
+
+        /* ═══ TOAST ═══ */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--bg-card); color: white;
+            padding: 14px 28px; border-radius: 50px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            opacity: 0; transition: all 0.3s ease; z-index: 2000;
+            font-size: 0.9rem; font-weight: 600;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ═══ EMPTY STATE ═══ */
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-3);
+        }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state p { font-size: 0.95rem; }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 1200px) {
+            .panel-grid { grid-template-columns: 1fr; }
+            .panel-eval { grid-column: 1; }
+            .panel-controls { flex-direction: row; justify-content: center; }
+        }
+        @media (max-width: 768px) {
+            .top-nav, .tab-bar, .summary-bar, .main-content { padding-left: 16px; padding-right: 16px; }
+            .student-grid { grid-template-columns: 1fr; }
+            .panel-eval { grid-template-columns: 1fr; }
+            .summary-bar { flex-wrap: wrap; }
+        }
+
+        /* ═══ SECTION LABEL ═══ */
+        .section-label {
+            font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--text-3);
+            font-weight: 700; margin-bottom: 14px; margin-top: 24px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .section-label:first-child { margin-top: 0; }
+
+        /* ═══ PROJECT DESC MODAL ═══ */
+        .desc-full { white-space: pre-wrap; }
+
+        /* ═══ EXPORT MODAL ═══ */
+        .export-textarea {
+            width: 100%; height: 200px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 12px;
+            color: var(--text-1); font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem; resize: vertical; outline: none;
+        }
+        .modal-actions {
+            display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end;
+        }
+
+        /* ═══ TODAY'S NEWS (LCD VIEW) ═══ */
+        .news-drawer {
+            background: rgba(12, 12, 32, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 32px;
+            display: none;
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 100;
+        }
+        .news-drawer.open {
+            display: block;
+        }
+        .news-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 12px;
+        }
+        .news-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .news-title h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px var(--accent-glow-strong);
+        }
+        .pulse-dot {
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 15px var(--accent);
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 var(--accent-glow-strong); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 14px rgba(0,0,0,0); }
+            100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+        }
+        .close-news-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .close-news-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-color: var(--text-2);
+        }
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 1200px) {
+            .news-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .news-grid { grid-template-columns: 1fr; }
+        }
+        .news-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: var(--text-3);
+        }
+        .news-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+        .news-card-past::before { background: var(--danger); }
+        .news-card-past:hover { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.25); }
+        
+        .news-card-upcoming {
+            animation: warning-pulse-glow 2.5s infinite ease-in-out;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .news-card-upcoming::before { background: var(--warning); }
+        .news-card-upcoming:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
+            border-color: rgba(245, 158, 11, 0.85);
+        }
+        @keyframes warning-pulse-glow {
+            0% {
+                box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 10px rgba(245, 158, 11, 0.15);
+                border-color: rgba(245, 158, 11, 0.35);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 24px rgba(245, 158, 11, 0.45);
+                border-color: rgba(245, 158, 11, 0.75);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 10px rgba(245, 158, 11, 0.15);
+                border-color: rgba(245, 158, 11, 0.35);
+            }
+        }
+        
+        .news-card-deadline::before { background: var(--accent); }
+        .news-card-deadline:hover { box-shadow: 0 12px 30px var(--accent-glow-strong); }
+        
+        .news-card-interviews::before { background: var(--info); }
+        .news-card-interviews:hover { box-shadow: 0 12px 30px rgba(59, 130, 246, 0.25); }
+
+        .news-card-badge {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .news-card-past .news-card-badge { color: var(--danger); }
+        .news-card-upcoming .news-card-badge { color: var(--warning); }
+        .news-card-deadline .news-card-badge { color: var(--accent-text); }
+        .news-card-interviews .news-card-badge { color: #60a5fa; }
+
+        .news-card-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+        .news-card-list {
+            padding-left: 22px;
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+        .news-card-list li {
+            margin-bottom: 8px;
+        }
+        .news-card-list li::marker {
+            color: var(--accent);
+        }
+        .news-card-desc {
+            font-size: 1.25rem;
+            color: var(--text-2);
+            line-height: 1.6;
+        }
+        .icon-btn.active {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body data-block="A">
+    <div class="bg-gradient"></div>
+
+    <!-- ═══ TOP NAV ═══ -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>MKS 11 Command Center</h1>
+            <span class="subtitle">Independent Project Manager — Spring 2026</span>
+        </div>
+        <div class="nav-right">
+            <button class="icon-btn" onclick="toggleNews()" id="btnNews">📢 Today's News</button>
+            <button class="icon-btn" onclick="openExportModal()">💾 Backup</button>
+            <div class="block-switcher">
+                <button class="block-btn active-a" id="btnBlockA" onclick="switchBlock('A')">Block A</button>
+                <button class="block-btn" id="btnBlockC" onclick="switchBlock('C')">Block C</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ TODAY'S NEWS SECTION (LCD READABLE) ═══ -->
+    <div class="news-drawer" id="newsDrawer">
+        <div class="news-container">
+            <div class="news-header">
+                <div class="news-title">
+                    <span class="pulse-dot"></span>
+                    <h2>Today's News & Announcements • June 8, 2026</h2>
+                </div>
+                <button class="close-news-btn" onclick="toggleNews()">✕ Hide Announcements</button>
+            </div>
+            <div class="news-grid">
+                <!-- 1. ALREADY DUE -->
+                <div class="news-card news-card-past">
+                    <div class="news-card-badge">⚠️ Already Due (Friday June 5)</div>
+                    <div class="news-card-title">Draft Deliverables</div>
+                    <ul class="news-card-list">
+                        <li><strong>250-word</strong> project descriptions</li>
+                        <li>Drafts, photos, or drawings (for Art projects)</li>
+                        <li>Research logs (for Essays or Presentations)</li>
+                    </ul>
+                </div>
+                <!-- 2. THURSDAY JUNE 11 -->
+                <div class="news-card news-card-upcoming">
+                    <div class="news-card-badge">📅 Thursday June 11</div>
+                    <div class="news-card-title">Last Test</div>
+                    <p class="news-card-desc">Your final test is scheduled for this Thursday. A comprehensive <strong>review document</strong> is coming soon to help you prepare.</p>
+                </div>
+                <!-- 3. FRIDAY JUNE 12 -->
+                <div class="news-card news-card-deadline">
+                    <div class="news-card-badge">🔥 Friday June 12</div>
+                    <div class="news-card-title">Final Projects Due</div>
+                    <p class="news-card-desc">All final project deliverables must be submitted. This includes your completed art piece, essay, slides, and final write-ups.</p>
+                </div>
+                <!-- 4. JUNE 15-18 -->
+                <div class="news-card news-card-interviews">
+                    <div class="news-card-badge">🎙️ June 15–18</div>
+                    <div class="news-card-title">Student Interviews</div>
+                    <p class="news-card-desc">Individual 8-minute hallway interviews will run Monday through Thursday. Be ready to discuss what you learned and show your work. Additional classwork will run in parallel.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ TAB BAR ═══ -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="drafts" onclick="switchTab('drafts')">📋 Draft Tracker</button>
+        <button class="tab-btn" data-tab="finals" onclick="switchTab('finals')">📦 Final Submissions</button>
+        <button class="tab-btn" data-tab="interviews" onclick="switchTab('interviews')">🎙️ Interviews</button>
+    </div>
+
+    <!-- ═══ SUMMARY BAR ═══ -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <div class="main-content">
+        <!-- Draft Tracker Tab -->
+        <div class="tab-content active" id="tabDrafts">
+            <div class="student-grid" id="draftGrid"></div>
+        </div>
+
+        <!-- Final Submissions Tab -->
+        <div class="tab-content" id="tabFinals">
+            <div class="student-grid" id="finalGrid"></div>
+        </div>
+
+        <!-- Interviews Tab -->
+        <div class="tab-content" id="tabInterviews">
+            <div class="interview-layout">
+                <div class="interview-panel" id="interviewPanel">
+                    <div class="panel-grid">
+                        <div class="panel-student-info">
+                            <h3 id="panelLabel">Current Interview</h3>
+                            <div class="panel-student-name" id="panelName">Select a Student</div>
+                            <div class="panel-student-topic" id="panelTopic"></div>
+                        </div>
+                        <div class="panel-eval">
+                            <div class="eval-col">
+                                <span class="eval-label">Q1: What did you learn from the project?</span>
+                                <div class="rating-row" id="q1Ratings"></div>
+                                <textarea class="eval-textarea" id="q1Notes" placeholder="Q1 comments..."></textarea>
+                            </div>
+                            <div class="eval-col">
+                                <span class="eval-label">Q2: How does this piece demonstrate that learning?</span>
+                                <div class="rating-row" id="q2Ratings"></div>
+                                <textarea class="eval-textarea" id="q2Notes" placeholder="Q2 comments..."></textarea>
+                            </div>
+                        </div>
+                        <div class="panel-controls">
+                            <div style="text-align:center">
+                                <div class="timer-display" id="timerDisplay">08:00</div>
+                                <div class="timer-btns">
+                                    <button class="btn btn-outline" id="timerBtn" onclick="toggleTimer()">START</button>
+                                    <button class="btn btn-outline" onclick="resetTimer()">RESET</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" onclick="completeAndNext()">DONE & NEXT →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="day-selector" id="daySelector">
+                    <button class="day-btn active" data-day="assign" onclick="switchDay('assign')">📝 Assign</button>
+                    <button class="day-btn" data-day="monday" onclick="switchDay('monday')">Mon 15</button>
+                    <button class="day-btn" data-day="tuesday" onclick="switchDay('tuesday')">Tue 16</button>
+                    <button class="day-btn" data-day="wednesday" onclick="switchDay('wednesday')">Wed 17</button>
+                    <button class="day-btn" data-day="thursday" onclick="switchDay('thursday')">Thu 18</button>
+                </div>
+
+                <div id="interviewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ TOAST ═══ -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ═══ DESCRIPTION MODAL ═══ -->
+    <div class="modal-overlay" id="descModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="descModalTitle"></h2>
+                <button class="modal-close" onclick="closeDescModal()">✕</button>
+            </div>
+            <div class="modal-body" id="descModalBody"></div>
+        </div>
+    </div>
+
+    <!-- ═══ EXPORT MODAL ═══ -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>💾 Backup & Restore</h2>
+                <button class="modal-close" onclick="closeExportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:12px;color:var(--text-2)">Copy JSON below to save a backup. Paste saved JSON and click Import to restore.</p>
+                <textarea class="export-textarea" id="exportData"></textarea>
+                <div class="modal-actions" style="justify-content: space-between;">
+                    <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger-border);" onclick="confirmReset()">🔄 Reset All Data</button>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-outline" onclick="importData()">📥 Import</button>
+                        <button class="btn btn-accent" onclick="exportData()">📤 Export</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STUDENT DATA
+   ═══════════════════════════════════════════════════════ */
+const STUDENTS = {
+A: [
+  { id:'alexis',     n:'Alexis O\'Leary',     c:'ALEX', t:'art',   p:'Peopling Theories Drawing',      d:true,  tc:false, f:null },
+  { id:'ananya',     n:'Ananya Maringanthi',   c:null,   t:'art',   p:'Two-Eyed Seeing Comparison',     d:false, tc:false, f:null },
+  { id:'callum',     n:'Callum',               c:'LLLL', t:'art',   p:'Wigwam Model & Landscape',       d:true,  tc:false, f:null },
+  { id:'connor',     n:'Connor',               c:null,   t:'essay', p:'How the Mi\'kmaw Fish',          d:false, tc:false, f:null },
+  { id:'dmytro',     n:'Dmytro Nikolinko',     c:null,   t:'art',   p:'Mi\'kmaq Two-Eyed Seeing',       d:false, tc:false, f:null },
+  { id:'ellee',      n:'Ellee',               c:null,   t:'art',   p:'Traditional Spiritual Rituals',  d:false, tc:false, f:null },
+  { id:'gala',       n:'Gala Miranovic',       c:null,   t:'essay', p:'Media Representation of First Nations', d:false, tc:false, f:null },
+  { id:'gavin',      n:'Gavin',               c:'AAAA', t:'art',   p:'Wigwam Model (birch bark)',      d:true,  tc:false, f:'Not in original proposal roster' },
+  { id:'harrison',   n:'Harrison',            c:'YNPH', t:'art',   p:'Mi\'kmaw Petroglyphs',           d:true,  tc:false, f:null },
+  { id:'jesse',      n:'Jesse Baker',         c:'LOUP', t:'art',   p:'Painted Rock — Mi\'kmaw Culture',d:true,  tc:false, f:null },
+  { id:'jonathan',   n:'Jonathan Greene',      c:null,   t:'essay', p:'History of Mi\'kmaq Entertainment', d:true,  tc:false, f:null },
+  { id:'julianne',   n:'Julianne Warham',      c:null,   t:'art',   p:'Embroidered Mi\'kmaw Calendar',  d:false, tc:false, f:null },
+  { id:'kevin',      n:'Kevin',               c:'CHIG', t:'art',   p:'Eight-Pointed Star & Whales',    d:true,  tc:false, f:null },
+  { id:'lena',       n:'Lena Dogan',          c:'FOOD', t:'art',   p:'MMIWG Watercolor Painting',      d:true,  tc:false, f:null },
+  { id:'mae',        n:'Mae',                 c:null,   t:'other', p:'Traditional Mi\'kmaq Cookbook',   d:false, tc:false, f:null },
+  { id:'mateo-a',    n:'Mateo',               c:'YOLO', t:'art',   p:'Indigenous People in Media',     d:true,  tc:false, f:'Proposal was under Block C' },
+  { id:'michael',    n:'Michael Wilson',       c:'MIKE', t:'art',   p:'Clovis Point Spear',             d:true,  tc:false, f:null },
+  { id:'rose',       n:'Rose',                c:'ROSE', t:'other', p:'Mi\'kmaq Recipe Book',           d:true,  tc:false, f:null },
+  { id:'ruby',       n:'Ruby Hennessey',       c:null,   t:'art',   p:'Petroglyph-Inspired Stone',      d:true,  tc:false, f:null },
+  { id:'sonja',      n:'Sonja Logan',          c:'SONJ', t:'art',   p:'Sixties Scoop — 7 Panel Painting', d:true, tc:false, f:null },
+  { id:'sophie',     n:'Sophie',              c:'QASW', t:'art',   p:'Mi\'kmaq Quill Work / Embroidery', d:true, tc:false, f:null },
+  { id:'vitusz',     n:'Vitusz Smith',         c:'XDXD', t:'art',   p:'Rita Joe / MMIWG Collage',       d:true,  tc:false, f:null },
+],
+C: [
+  { id:'abdel',      n:'Abdel Aziz',          c:'AAAW', t:'art',   p:'Wampum Belt',                    d:true,  tc:false, f:null },
+  { id:'abigail',    n:'Abigail Gaudet',       c:'ABIS', t:'art',   p:'Porcupine Quill Drop Earrings',  d:true,  tc:false, f:null },
+  { id:'aiden',      n:'Aiden',               c:'HOPE', t:'art',   p:'Atlantic Salmon Painting',       d:true,  tc:false, f:null },
+  { id:'anthony',    n:'Anthony',             c:'JUNE', t:'art',   p:'Glooscap Lightning Strike',      d:true,  tc:false, f:null },
+  { id:'baashiq',    n:'Baashiq',             c:'NINE', t:'art',   p:'Donald Marshall Jr. — 7 Panel Comic', d:true, tc:false, f:null },
+  { id:'caitlyn',    n:'Caitlyn',             c:null,   t:'art',   p:'Medicine Wheel',                 d:false, tc:false, f:null },
+  { id:'caleb',      n:'Caleb Chandler',       c:'CALE', t:'art',   p:'Fishing & Natural Resources Sculpture', d:true, tc:true, f:null },
+  { id:'chris',      n:'Christopher Merlin',   c:'RACE', t:'art',   p:'Brook Trout & Mi\'kmaw Culture', d:true,  tc:false, f:null },
+  { id:'clara',      n:'Clara Jones',          c:null,   t:'art',   p:'Mi\'kmaq Music/Dance',           d:false, tc:false, f:null },
+  { id:'harjas',     n:'Harjas',              c:null,   t:'art',   p:'Basket Weaving',                 d:false, tc:false, f:null },
+  { id:'isabella',   n:'Isabella Beck',        c:'BELL', t:'art',   p:'Mi\'kmaq Language Children\'s Book', d:true, tc:false, f:null },
+  { id:'jaiveer',    n:'Jaiveer Bhullar',      c:'WASD', t:'art',   p:'Medicine Wheel — Damage & Healing', d:true, tc:false, f:null },
+  { id:'julian',     n:'Julian Keddy',         c:null,   t:'art',   p:'Clovis Point',                   d:false, tc:false, f:null },
+  { id:'kaden',      n:'Kaden',               c:null,   t:'art',   p:'Animal/Reindeer Painting',       d:false, tc:false, f:null },
+  { id:'koen',       n:'Koen',                c:'LORI', t:'art',   p:'Sixties Scoop Artwork',          d:true,  tc:false, f:null },
+  { id:'kulay',      n:'Kulay Cruz',           c:'CRUZ', t:'art',   p:'Traditional Fishing Net',        d:true,  tc:true,  f:null },
+  { id:'kyle',       n:'Kyle Parsons',         c:'PUCK', t:'presentation', p:'Mi\'kmaw Treaties 1778–1779', d:true, tc:false, f:null },
+  { id:'kyra',       n:'Kyra',                c:null,   t:'art',   p:'Symbols of Mi\'kmaq Spirituality', d:false, tc:false, f:null },
+  { id:'madina',     n:'Madina Mirza',         c:null,   t:'art',   p:'Mi\'kmaq Embroidered Clothing',  d:false, tc:false, f:null },
+  { id:'mateo-c',    n:'Mateo Desilets',       c:null,   t:'art',   p:'Indigenous People in Media',     d:false, tc:false, f:'Draft submitted under Block A' },
+  { id:'myles',      n:'Myles Aitken',         c:'MYLS', t:'art',   p:'Mi\'kmaq Blueberry Cake',        d:true,  tc:false, f:null },
+  { id:'noah',       n:'Noah Pinter',          c:null,   t:'art',   p:'Log House / Centralization Policy', d:false, tc:false, f:null },
+  { id:'reiley',     n:'Reiley Locke',         c:null,   t:'art',   p:'Clay Canoe Workshop Model',     d:false, tc:false, f:null },
+  { id:'river',      n:'River Thomas',         c:'DEWO', t:'art',   p:'Sweat Lodge Diorama',            d:true,  tc:false, f:null },
+  { id:'sam',        n:'Sam',                 c:'WAVE', t:'art',   p:'Mi\'kmaw Birchbark Canoe',       d:true,  tc:false, f:null },
+  { id:'soulin',     n:'Soulin',              c:null,   t:'art',   p:'Restigouche Incident 3D Model',  d:false, tc:false, f:null },
+  { id:'sukhbir',    n:'Sukhbir',             c:'NICE', t:'art',   p:'Mi\'kmaq Creation Story Game',   d:true,  tc:false, f:'Not in original proposal roster' },
+  { id:'zaid',       n:'Zaid Alhamzi',         c:'ZAID', t:'art',   p:'Dream Catcher',                  d:true,  tc:true,  f:null },
+  { id:'zayden',     n:'Zayden Cooper',        c:'RAIN', t:'art',   p:'Medicine Wheel',                 d:true,  tc:true,  f:null },
+]
+};
+
+/* Topic change details */
+const TOPIC_CHANGES = {
+  'caleb':  'Proposal: Generic painting → Now: Fishing & sculpture',
+  'kulay':  'Proposal: Traditional basket → Now: Fishing net',
+  'zaid':   'Proposal: Essay on entertainment → Now: Dream catcher art piece',
+  'zayden': 'Proposal: Mi\'kmaq snowshoes → Now: Medicine wheel',
+};
+
+/* ═══ DRAFT DESCRIPTIONS ═══ */
+const DRAFTS = {
+/* ── Block A ── */
+'alexis': `My topic that I am doing is the people of America and the seven migration theories. The form of my project is a seven paneled drawing on paper that are each labeled with the theory they represent. They all go in order from on land migrations to ocean migrations so that there is a flow between each panel and theory. In the panels I have put different symbols are pieces to show the ideas behind the theories, the pointed spears, shapes and lengths of the boast symbolizes the different groups and places people theoretically traveled from and how important those specific things are to the evidence found. The different shading and colors in each panel represents the weather, temperatures and conditions of each one of the theories. The foot prints and the boats in the panels are facing the direction that they would be traveling from to America to show all the different paths taken over different times. This connects to what we first learned at the start of the course about all the different theories and beliefs around them. This project connects to the things we learned in class because of all the different aspects we learned toward the start of the year, learning different ways of finding evidence, looking at the evidence and why it is true or false, different weather types that would make theories true or false and the different ways of travel that were found or created throughout the timeline. This also includes the different Indigenous stories beliefs we learned.`,
+
+'callum': `Building a wigwam and making a landscape around it represents many things I learned in Mi'kmaw 11. It shows how important the land is to the Mi'kmaq people and how there culture is connected to nature. The wigwam was built using materials from outside such as trees, birch bark, moss and sand. This taught me that the Mi'kmaq respected the land and only used what they needed. They cared for nature and made sure resources would be available for future generations. The landscape around the wigwam represents the traditional land of the Mi'kmaq. In this course I learned that the land provided food, medicine, transportation, and a place for families and communities to live. Rivers, forests, and animals were all important parts of daily life. This project also shows the importance of family and community. Building a wigwam was something people often did together. Everyone shared knowledge and helped each other. This taught me about the values of teamwork, respect, and responsibility in Mi'kmaw culture. Another thing I learned in this course is that the Mi'kmaq people have shown great strength and resilience. Even though colonization brought many challenges, Mi'kmaw traditions and knowledge have continued to survive. Today many people are working to keep these traditions going. Making a wigwam and landscape helped me understand the history, culture, and connection to the land that are important to the Mi'kmaq people. It represents the lessons I learned about respect, community, and the importance of preserving Mi'kmaw traditions for future generations.`,
+
+'gavin': `For this project, i created a model wigwam using birch bark and sticks. A wigwam is a traditional dome-shaped shelter that was used by many indigenous people in north America. These structures were built using materials that could be found in nature, making them practical, durable, and well suited to the environment.\n\nThe first step in building my wigwam was creating the frame. I gathered sticks and arranged them in a triangle shape then secured them together at the top to from a dome like structure. This frame made a support and gave the wigwam its distinctive shape. After completing the frame, i covered it with birch bark. Birch bark was an important piece to the wigwam because its waterproof and strong. I carefully put the birch bark onto the frames overlapping them making it look more realistic.\n\nThroughout this project I learned about the traditional indigenous building techniques and how natural resources were used to create effective shelters. I also understand the culture significance of wigwams and skills required to construct them.`,
+
+'harrison': `My project focuses on Mi'kmaw petroglyphs and their importance as a form of cultural expression and historical record. Petroglyphs are images carved into stone that were used by Indigenous peoples to communicate stories, beliefs, experiences, and important events. Many Mi'kmaw petroglyphs can be found throughout Mi'kma'ki, especially in Nova Scotia, where they provide valuable insight into the lives and traditions of the Mi'kmaq. My project includes a recreated petroglyph inspired by traditional Mi'kmaw carvings. The design reflects the artistic style and symbolism often found in historical petroglyphs while demonstrating an understanding of their cultural significance. Along with the visual piece, information is provided about the history of Mi'kmaw petroglyphs, their meanings, and their role in preserving knowledge across generations. Petroglyphs are important because they offer a connection to the past and help preserve Mi'kmaw culture. They serve as evidence of a rich history that existed long before European contact and continue to be valued as cultural and historical artifacts today. Through studying petroglyphs, people can learn about Mi'kmaw traditions, spirituality, daily life, and relationships with the natural world. It highlights the importance of protecting and respecting Indigenous cultural heritage while increasing awareness of Mi'kmaw history. By combining artistic representation with historical information, the project demonstrates how petroglyphs continue to educate people and preserve cultural knowledge for future generations.`,
+
+'jesse': `For my Mi'kmaw project I made a painted rock that represents important elements of Mi'kmaw culture, traditions and values. The rock features Mi'kmaw-inspired designs, symbols and colours, reflecting the Mi'kmaq people's connection to nature, the land and their community. I added in things like animals and traditional patterns and other meaningful images that represent the Mi'kmaw culture and teachings. I chose to build my project on a rock because it is a easily attainable and it represents the environment that is an important part of Mi'kmaw life and beliefs. The Mi'kmaq have lived in nature and have respected the land and its resources for generations. My art can relate with these values and I made something meaningful and unique with a rock. This project is a good fit because of the creativity and cultural learning. I painted a rock to show what I've learned about the Mi'kmaq and their relationship with nature, and also to practice my art skills. The project encourages me to research Mi'kmaw traditions and symbols so my artwork is respectful. I made a piece that celebrates Mi'kmaw culture. My painted rock is a visual representation of the history of the Mi'kmaq people using a natural material and meaningful designs. I think this project is a great way to share my learning and show my appreciation for Mi'kmaw culture in a creative and respectful way.`,
+
+'kevin': `A painting that depicts seven whales with three different symbols and an eight pointed star. First the whales symbolize wisdom, longevity and the connections between families and community, whales were also regarded as protectors and ancient knowledge keepers and guides who symbolize ultimate connections to the natural world.\n\nThe eight pointed star represents unity, balance and also the sun. The four colors on the eight pointed star is a meaning for the four seasons spring, summer, autumn and winter, as well as different stages of life. Together they represent a continuous cycle of growth, change and renewal.\n\nOn the whales there are also a double curve on the whales tale and body representing spiritual balance and harmony. The reason I drew this on the whale is because it is a symmetrical nature of the curve showing the need for balance in our lives and mirroring the harmony between people and their surroundings — this serves also as a reminder that maintaining balance is essential for personal well being and healthy communities.\n\nThe L'nu symbol represents the Mi'kmaq people or people who speak the same tongue and it signifies connection, the life cycle and Mi'kmaq identity. It also celebrates Mi'kmaq culture and the relationships that unite people across generations.`,
+
+'lena': `This mixed media watercolor painting serves as a visual representation of the Missing and Murdered Indigenous Women and Girls (MMIWG) crisis. The central figure of a woman stands as a testament to resilience, draped in cultural regalia that include symbols and designs passed through generations. These patterns are a language of identity, lineage, and survival, combating the systemic violence. By integrating mixed media elements, this piece of art achieves a tactile depth, bridging the gap between historical trauma and modern-day justice. The use of traditional symbols on the character's clothing anchors the piece in their cultural history, honoring the vital concepts of Indigenous sovereignty and the sacredness of life. The lady in the artwork bears red clothing, in many Indigenous cultures, it is believed that red is the only color spirits can see. The incorporation of red lets the artwork symbolically call back the spirits of missing and murdered women, allowing them a way to find their way home and connect with their mortal form. The background involving a mixture of colors portray the confusion that these individuals ponder, "Why was I targeted?" as the homicide rate for Indigenous women and girls is over 6 times higher than for their non-Indigenous counterparts. This piece demands that the viewer not just observe, but fuse their mindset to a victimized presence marked by absence, turning a national tragedy into something that could be a call for healing and accountability for all women.`,
+
+'mateo-a': `The portrayal of Indigenous people in the media has changed over time, but many challenges still remain. Historically, Indigenous peoples were often represented through stereotypes that misrepresented their cultures, traditions, and ways of life. Movies, television shows, newspapers, and advertisements frequently depicted Indigenous people as either aggressive warriors, helpless victims, or mysterious figures connected only to the past. These portrayals ignored the diversity and complexity of Indigenous communities and contributed to misunderstandings among the public.\n\nOne major issue with media representation is the lack of Indigenous voices in the creation of content. For many years, stories about Indigenous peoples were told by non-Indigenous writers, producers, and journalists. As a result, Indigenous perspectives were often excluded or distorted. This led to inaccurate depictions that reinforced harmful stereotypes and prejudice.\n\nIn recent years, there has been growing awareness of the importance of authentic representation. More Indigenous filmmakers, actors, writers, and journalists are sharing their own stories and perspectives. This has helped create more accurate and respectful portrayals of Indigenous peoples in the media.\n\nDespite this progress, stereotypes and underrepresentation still exist. News coverage often focuses on negative topics such as poverty, crime, or conflict, while positive stories and achievements may receive less attention.`,
+
+'michael': `This scale model represents a Clovis point spear, one of the earliest hunting tools used by Indigenous peoples in North America more than 13,000 years ago. While this model is not an exact replica, it has many of the main features and is as accurate as possible. Some changes were made, such as shortening the wooden shaft to about 3–4 feet instead of the original 6–10 feet, making it more practical for this project.\n\nThe most important part of the spear is the Clovis point, a carefully shaped stone tip known for its distinctive fluted design. However, these points were extremely hard to make and were extremely time consuming. These points were attached to wooden shafts and were highly effective hunting tools. Creating them required great skill, showing the advanced knowledge and craftsmanship of the people who made them. People would sometimes spend days just making one spear without stopping.\n\nClovis point spears were mainly used for hunting large animals during the Ice Age, including mammoths, mastodons, and bison. Successful hunts provided food, clothing and tools making these spears essential for survival. Because of their effectiveness, Clovis points are considered one of the most significant technological developments of the Mi'kmaq people.\n\nAlthough this model is a simplified version of the original, it reflects the importance of the Clovis spear and the people who used it.`,
+
+'sonja': `The Sixties Scoop happened in 1960s to the 1980s, during this time all residential schools were being closed down but they still wanted to remove children from their homes. What they did is they removed the children and put them into a European style home so they can learn "the right way". This caused the children to feel disconnected to their culture and not have the same relationship with their families.\n\nFor my final project I choose to do a painting that represented how an individual's life was during this time. For the first panel I painted a child being removed from their home while their parents just stand there because they legally can't do anything. For the second panel, the child is sitting in a corner while the adults are yelling at her, in this frame they were saying rude things to her because she wasn't the same culture as them. In the third panel it's a lot like the second one but this time the child is at a school sitting alone because the children won't play with her due to her culture. The fourth panel this child is growing up but she is looking at her self in the mirror and half of the mirror she see her culture but it's slowly fading into a culture she was forced into. The fifth panel she is looking at old photos seeing how she was as a child happy in her culture. In the sixth panel she is talking about her past to future generations. Then in the last one it's a group of Mi'kmaq people standing in a circle still fighting towards this day for rights, and to try and find healing for the damage from the past.`,
+
+'sophie': `This art project is a representation of traditional Mi'kmaw quill embroidery (quill work). This piece is done by thread unlike in the traditional way where they would use porcupine quills that they dyed. The 5 point star in the embroidery is a representation of the morning star which for the Mi'kmaw is seen as a symbol that brings the promise of a new day. The materials that they originally used were porcupine quills and birch bark because as the bark dies it locks the quills into place.\n\nThese stars were used pre-contact to serve as symbols for courage, guidance, wisdom that were on blankets that were given at major life events. But closer to post contact they were also used in a similar way as what this art piece shows — they were put on smaller pieces of bark and given to others in exchange for resources. More specifically they adapted their quill work into trade and souvenirs starting in the 18th century and that practice is still continued. The other change that happened in the 1900s was to be part of the fashion. The women started creating furniture with the same style and care as before. They made lidded boxes, tabletops, custom panels for wooden chairs and more. One group was so good at this skill they started being called the porcupine people by others.`,
+
+'vitusz': `This mixed-media assemblage explores the lasting impact of violence against Indigenous women and the strength of Indigenous voices in the face of historical and ongoing injustice. The central image represents Rita Joe, the renowned Mi'kmaw poet whose work advocated for Indigenous identity, cultural survival, and social awareness. Surrounding and forming her portrait are images connected to Indigenous women whose lives were lost, creating a visual connection between remembrance, resilience, and advocacy. The layered composition draws directly on themes studied while learning about the Mi'kmaw, including the effects of colonialism, systemic discrimination, and the importance of preserving Indigenous stories. By merging individual faces into a larger figure, the work emphasizes how personal experiences become part of a collective history. The portrait functions as both a memorial and a symbol of resistance, highlighting the voices that continue to speak through art, literature, and community memory. The wooden support reinforces themes of endurance, connection to the land, and cultural continuity. The transparent glass surface creates a physical barrier between the viewer and the imagery beneath, encouraging reflection on how these histories are often observed from a distance while remaining deeply significant in the present. The glass also suggests preservation, protecting memories that should not be forgotten. Together, these elements invite viewers to consider the relationship between remembrance and responsibility. The work honors Indigenous women, acknowledges the realities of loss and injustice, and reflects the ongoing effort to ensure that their stories, identities, and contributions remain visible for future generations.`,
+
+'rose': `My project is a recipe book on many different traditional foods in Mi'kmaq culture. It has ten different recipes on it. All of the recipes have an ingredients list, and instructions on how to make it, and how much time it will take. The book itself is made of six pieces of printer paper tied together by twin string, and the pages have been stained with coffee. One recipe will be made into a dish. You can find this recipe by looking for a symbol in the corner, it will be the only recipe with one.`,
+
+/* ── Block C ── */
+'abdel': `These wampum belts serve as visual or tactile records where Indigenous nations documented laws and maintained collective memory. Central sections inside accepted notions of ancestral Indigenous governance and oral customs demonstrate ways First Nations dealt with purple and white marine seashell beads in place of written texts. In class we learned about Mi'kmaw culture and other pre-contact rituals and how societies relied on spoken tales. The precise geometric patterns woven into beads act as memory cues enabling people to recall complex tribal laws, communal histories, and the life narratives of their ancestors. Besides, such artifacts function like official papers linked to our units involving Peace and Friendship treaties whenever groups entered alliances or renewed old compacts. Wampum belts were physical proof of sacred promises and legislation such as the present Indian Act. When messengers carried straps tribes tested if they told truth infused with full tribal power. The shades themselves have an important significance because light colors picture peaceful harmony and dark purple shades represent serious political business. The artifacts are lasting pacts that preserve sovereign authority across time, knit together by these shells objects in general show how visual form, history and rules are combined in unique structures.`,
+
+'abigail': `The porcupine is a delicate and defensive creature who walks their land. To the Mi'Kmaq people the porcupine represents strength and self protection because the porcupine is a kind, harmless animal equipped with a shield of quills for protection. Quill drop earrings aren't just a way to show off indigenous culture, identity, and story telling but it connects the person wearing them to the ground they live on and the strength and worth they hold inside of themselves.\n\nTraditionally Mi'Kmaq quill drop earrings were made from birch bark and porcupine quills that have been gathered after porcupine shed. They would start by cleaning the quills to remove all dirt and oils then the quills would have been boiled with roots, flowers or other types of organic dyes. From there they would be flattened between finger nails or teeth, making them flexible so they could thread the end into tiny holes already made in the birch bark, fold the ends on the other side so when the bark completely dried they are secured and will not fall out.\n\nAs traditional clothing evolved, so did the jewelry and earrings. Quill drop earrings began to involve bright colored seed beads making the earrings easier to stitch and more desirable to practice. This change of medium made the materials more accessible, the process less labor intensive, much easier and faster and more detailed and intricate designs could be achieved with these beads.`,
+
+'aiden': `The Atlantic Salmon has always been a vital part of the Mi'kmaw peoples and their culture. It has been a food source for the Mi'kmaw peoples for thousands of years. Each year the Atlantic Salmon makes a journey from the ocean to the freshwater rivers to reproduce, and the Mi'kmaw fish for the Salmon so they have food for the cold winter. Fishing for Salmon gives the Mi'kmaw the opportunity to gather and exchange knowledge and traditions while being in harmony with nature. This fish can represent the resilience, strength, survival and balance that must be maintained in the wild due to its incredible journey up the rivers and down to the sea. The Mi'kmaw people held the Salmon with the utmost respect and only killed the animal when it was needed, either for food or to preserve it for the winter. This shows the importance that the Mi'kmaw people placed on living with nature, rather than in control of nature. The colors of this piece can be said to illustrate the importance of the Salmon, and nature itself, to the Mi'kmaw peoples. The strong hues of bright orange and yellow have ties to the color yellow meaning life, energy and warmth, as well as reminding people of sunshine and fire, which are both incredibly important in the daily lives of the Mi'kmaw peoples.`,
+
+'anthony': `Glooscap and the Lightning Strike Creation Story — This exhibit presents the Mi'kmaq creation story of Glooscap, an important cultural hero and teacher. In the story, Glooscap is created when a powerful lightning bolt strikes the earth. The lightning represents the strength of nature and the connection between the spiritual world and the land. Glooscap rises from this event with special abilities and becomes responsible for helping shape the world and guiding the Mi'kmaq people. The project is a painting that shows Glooscap lying on his back as lightning strikes him. The image focuses on the moment of creation and transformation. The lightning symbolizes life, power, and the beginning of a new world. Glooscap's position on the ground highlights his connection to the earth, while the bright bolt represents the spiritual forces that bring him into existence. This topic connects to classwork about Indigenous worldviews, oral traditions, and the importance of creation stories. Like many Indigenous teachings, the story explains how people, nature, and the spirit world are connected. The artwork serves as a visual representation of an important Mi'kmaq teaching.`,
+
+'baashiq': `On an August morning in 1993, Donald Marshall Jr. and a companion launched a small outboard motorboat into the coastal waters of Pomquet Harbour, Nova Scotia, to fish for eels. They landed 463 pounds of eel, which they sold for $787.10. Marshall was arrested after being charged under the federal Fisheries Act and the Maritime Provinces Fishery Regulations for fishing without a licence, selling eels without a licence, and using an illegal net during the closed season.\n\nMarshall argued that he had a treaty right to fish which exempted him from compliance with the regulations. He was convicted by Nova Scotia's Provincial Court in 1996, with his conviction upheld by the Court of Appeal in 1997. He then appealed to the Supreme Court of Canada. Justice Binnie, writing for the majority, overturned the convictions, holding that the Mi'kmaq did have treaty rights based on the 1760–61 treaties to catch and sell fish, including eels.\n\nThe seven panel comic directly connects to this incident, leading the viewer through each phase of Marshall's story. Each panel is not simply an illustration — it is a chapter of a story about Mi'kmaw power, resilience, and the right of a people to live from their ancestral waters. The colours shift deliberately from the warm ocean blues of freedom to the cold institutional reds of colonial law, and back again to the golden greens of victory — mirroring Marshall's own journey from the harbour, through injustice, and into history.`,
+
+'caleb': `This sculpture shows how important fishing and natural resources are in Indigenous culture. It works with what we learned in class about Indigenous peoples living off the land and water. The artwork is on fish and other animals that were the main food sources helping communities over the years. It really emphasizes the strong bond between Indigenous people and nature. The animals are not just seen as food, they represent wisdom and respect for the environment. So fishing comes across not just as a way to eat, but as a core part of their traditions and everyday life. Adding traditional foods like eel stew helps the point about using and learning to respect natural resources. These meals show how connected humans were to their surroundings and feeding the big communities in the process. Also the piece shows that resources were being used carefully to make sure nothing was wasted. Other than showing one event the sculpture shows a big picture of Indigenous life and ways. It really shows how important food and survival and respect is for nature everyday. Through its meaning and images the sculpture helps viewers understand why fishing and natural resources were such an important part of Indigenous culture.`,
+
+'chris': `In my artwork, I chose to focus on the brook trout because it is an important part of Mi'kmaw culture and has a strong connection to the land and water. The brook trout is the main part of my drawing, and I made it colourful to show its beauty and importance. Inside the fish, I included Mi'kmaw symbols and Indigenous designs that represent traditions, culture, and the relationship between people and nature. In the background, I added a lake and northern lights to show the environment where brook trout live, and to connect the fish to a larger cultural story in general. I wanted to show that the brook trout is more than just a fish — it has been an important source of food and a part of Mi'kmaw life for many generations. The bright colours help the artwork stand out and show how important the trout is. The forests, water, and natural scenery represent the places where brook trout are found and where traditional fishing has taken place for years. Through this artwork, I wanted to show the importance of protecting brook trout and keeping Mi'kmaw traditions alive. I also wanted viewers to understand how closely connected Mi'kmaw culture is to nature and the environment. Overall, my drawing shows the connection between the Mi'kmaq people, nature, and the brook trout, while showing why it remains an important part of their culture today.`,
+
+'isabella': `For my Mi'kmaw independent project, I am creating a children's book for my niece. This project is very meaningful to me because she is Indigenous, and I want her to grow up learning about her culture, language, and identity in a way that feels personal and accessible. Throughout this course, I have learned a lot about Mi'kmaw history, values, and ways of life, and I want my book to reflect that learning in a simple but respectful way.\n\nSome of the most important words I included in my book are Msit No'kmaq, Kasapskuk (Wampum belt), Plamu, and Tu'wa'timk. I chose Msit No'kmaq, meaning "all my relations," because it is a key teaching in Mi'kmaw culture. It reminds us that everything is connected — people, animals, land, and water — and teaches respect for all living things. I also included Kasapskuk because wampum belts are important symbols of agreements, history, and storytelling.\n\nAnother important word I chose is Plamu (Atlantic salmon). I included this because salmon has been an important food source and part of Mi'kmaw life for generations. I also selected Tu'wa'timk (lacrosse), which is a traditional game still played today. It represents teamwork, community, and cultural continuity.\n\nOverall, these words help connect language, culture, and identity. My goal is for my niece to not only learn Mi'kmaw words, but also understand the meaning and values behind them.`,
+
+'jaiveer': `This artwork represents the culturally significant Medicine Wheel to hold up four pillars of Mi'kmaw life: land, community, culture, and language. The Medicine Wheel is an everyday symbol in the Mi'kmaw spiritual life of balance and wellbeing. Each section of the Medicine Wheel is being represented by a different perspective of life. If one part is broken, then it affects the whole wheel.\n\nWith areas that appear to be broken pieces, the wheel shows how something that is so common in everyday life can go sideways. In real life, where people once walked freely, now fences block paths to old hunting grounds. Instead of growing strong words like the ones on the Medicine Wheel, words fade under certain laws that are meant to silence the Mi'kmaw. From this, traditions and knowledge start to disappear.\n\nIn the other area of the Medicine Wheel, areas that are full of colour and areas that are unaffected or repaired represent healing, spirituality, and resilience. In many Mi'kmaw communities in Nova Scotia, there are many attempts to aid and strengthen the language of the Mi'kmaw.\n\nThe Medicine Wheel shows that everything is connected within a circle, and it also shows change over time, showing the damage that is caused and also the efforts that people are trying to do to help aid things that happened in the past and bring them back together in a better way.`,
+
+'koen': `This artwork is about a period of time that took place in Canada known as the Sixties Scoop. This period of time would start in the 1960s and would continue into the 1980s. During this time upwards of 20,000 indigenous children would be removed from their families and communities by child welfare agencies. These children would be placed into foster houses all around Canada or they would be moved into the adoption system where they would be mostly fostered and adopted by non-indigenous families. This policy was created through the colonial views of the native peoples and their cultures and practices, and the government would view these ways of life as inferior. This would lead to government authorities and social workers to frequently judge the indigenous families on the standards that would not look at or consider the social and economic hardships that were caused due to racism, colonialism, and residential schools. Due to these factors many children were removed even when their communities and families showed no sign of abuse or neglect.\n\nThe Sixties Scoop effects on the children that went through it were long lasting and many survivors would lose their connections to language, culture, traditions, and history. Being forced to grow up away from their homes would cause the survivors to develop feelings of isolation and depression.`,
+
+'kulay': `Fishing Nets were an integral part of the Mi'kmaq lifestyle, since most of the food that the Indigenous First Nation ate was seafood. Using the Nets that they styled from plant fibres and wood, some looking like just a half dome, or sometimes extended out a few more feet with supports. The Mi'kmaq men would go out and catch fish with the nets that they had, along with spears. Using these tools they had caught a lot of food for their communities and family using a traditional net.\n\nThere are other effective ways fishing nets could be put to use, and one of the more popular and effective ways is Weirs. Weirs are a V-shaped structure opening up to a single point to catch or trap fish, namely Sturgeon, Salmon, and during the right season, Eel.\n\nThere is a deep history of fishing in Mi'kmaq culture as for most of the year they hunted seafood, as such the nets themselves are a major part of the history as it's an essential part of fishing. The nets also convey the identity of the people who created those nets. Fishing is a deeply rooted part of Mi'kmaq history and fishing nets, bag nets, all show the importance of fishing to the Mi'kmaq culture.`,
+
+'kyle': `The Mi'kmaw Treaties of 1778 and 1779 were important agreements between the Mi'kmaq people and the British government during the American Revolutionary War. These treaties were created to keep peace between the Mi'kmaq and the British and to make sure the Mi'kmaq would not join the American rebels in fighting against Britain.\n\nThe Treaty of 1778 was written and signed at Fort Howe, which is now part of Saint John, New Brunswick. The treaty was organized by Michael Francklin, the British Superintendent of Indian Affairs in Nova Scotia.\n\nThe main purpose of these treaties was to maintain peace and friendship. The Mi'kmaq agreed not to support the American rebels, and the British promised to continue peaceful relations with the Mi'kmaq. The treaties also recognized that the Mi'kmaq could continue hunting, fishing, and using natural resources to support their way of life.\n\nOne of the most important facts about the 1778 and 1779 treaties is that the Mi'kmaq did not give up their land. Unlike many later treaties in Canada, these agreements focused on peace, cooperation, and trade rather than land surrender.\n\nToday, the treaties remain important because they are still recognized by Canadian law. They help protect Mi'kmaw treaty rights and are an important part of the history of Atlantic Canada.\n\nIn my project I am going to draw about where the treaty was signed and the people signing it, a close replica of the actual treaty, and what the treaty did for the Mi'kmaw people.`,
+
+'river': `This Diorama shows the space within a Sweat Lodge where a traditional Indigenous Sweat Lodge ceremony would be performed. These ceremonies were performed all over North America by many of the indigenous populations. For North American aboriginal peoples the ceremony was used to cleanse and heal the bodies of those that were afflicted with disease. The ceremony would be done in a large dome or oblong shaped tent-house made from natural wooden or bone supports draped with cloths and animal skins. The ceremony was always led by a recognized and wise elder who must know the traditions, songs, and steps taken exactly in order to properly perform the ceremony. The tradition entails one or more people entering the sweat lodge where a fire pit and many stones of varying sizes would be placed, the people would sit in the lodge where they begin praying or singing, decoctions and water would be placed on the heated stones to create medicinal fumes and help to make the participants sweat more. After some time the people will exit and begin performing more traditional rituals outside the lodge. The indigenous people believed that the act of sweating allowed the body to cleanse itself of toxins and impurities as well as drive away ill thought and misfortune. This ceremony is a very important part of Canadian indigenous tradition and is one of the ways that indigenous people of today can connect with old or lost culture.`,
+
+'sam': `The Mi'kmaw canoe was one of the most important tools used by the Mi'kmaw people for transportation, fishing, hunting and trading. It was carefully designed to be able to travel through rivers, lakes and coastal waters. Traditional Mi'kmaw canoes were usually made from birch bark stretched over a light wooden frame. The bark was sewn together with spruce roots to keep the canoe waterproof. Because the materials were lightweight, the canoe could easily be carried between waterways during long journeys on land. The shape of the Mi'kmaw canoe was different from many other Indigenous canoes. It had high curved ends and a narrow body that allowed it to move quickly and smoothly through the water. The canoe helped connect Mi'kmaw communities and supported trade with neighbouring nations. Building a canoe required skill, patience and teamwork. Knowledge was passed down through generations. Canoes reflected the Mi'kmaw relationship with nature because builders used natural resources respectfully and carefully using all they could with what they had. Today the Mi'kmaw canoe remains as an important symbol of Indigenous culture, survival and their tradition. Many communities still continue to teach canoe building techniques to preserve this important part of Mi'kmaw heritage.`,
+
+'sukhbir': `My project is a game based on the Mi'kmaq creation story. In this game you will play as the protagonist Glooscap in an adventurous story while learning different parts about the Mi'kmaq culture and traditions. Throughout the game you are able to walk around and explore different areas within the game such as forests, beaches and wigwams. Players will be able to speak to many different characters as they pass through these areas who share stories and knowledge about the Mi'kmaw history and the way of life.\n\nPlayers will learn about how Indigenous people perform many different everyday and common practices such as healthcare or prayers. With players also interacting with the environment and characters, they will learn how the Mi'kmaq people live in peace and harmony.\n\nPlayers will also get to experience first hand what the Mi'kmaw creation story has to offer and get a deeper understanding of this story which has been passed down many generations. As they follow along, players will learn different events and lessons from the creation story.\n\nOverall this game is meant to be educational and entertaining while teaching different cultural practices. By combining adventure and interactive learning, I will be successful in getting players to have a meaningful gaming experience.`,
+
+'zayden': `The medicine wheel is a visual representation of the indigenous traditions, celebrations and their overall identity. It demonstrates who they are and what they have accomplished despite the challenges they have faced over many years. It is used to show materials they used to survive during both the extremely cold seasons, or the extremely hot seasons. The medicine wheel is a sacred symbol used by generations of the Indigenous people. It represents health, interconnectedness of life and the nature of existence. East (Yellow) is about spring, new beginnings, the rising sun, and childhood. South (Red) is about summer, youth, passion, and growth. West (Black) is about fall/autumn, adulthood, introspection, and the setting sun. North (White) is about winter, elders, wisdom, and the resting of the mind and body. The wheel teaches that having harmony and happiness needs balancing four essential parts of everyone: Mental (growth and clarity), Physical (body health and connection to Mother Earth), Spiritual (faith, values, and connection to the Creator), Emotional (feelings and the ability to process and express them). The medicine wheel also refers to ancient physical stone structures. Hundreds of these stone structures are located across North America, some being up to a thousand years old.`,
+
+'zaid': `A dream catcher is a traditional indigenous protective talisman consisting of a handmade hoop woven with a web-like pattern and decorated with items such as feathers and beads. Good dreams pass through the center hole and slide down the feather to the sleeper. Bad dreams become tangled in the web and evaporate at sunrise. People place dream catchers in their houses, cars, hallways, or above their beds to filter out bad dreams and protect those sleeping. Dream catchers are also displayed to express indigenous heritage and to show that the Mi'kmaw were the first humans on the land.\n\nThe dream catcher, also called "pewitekemkewey," originated with the Ojibwe. It holds deep modern and cultural significance to the Mi'kmaq today. Dream catchers represent healing, cultural reclamation, community resilience, and the lasting presence of indigenous people's ancestral territory in Mi'kma'ki. According to traditional Ojibwe teachings, the universe is watched over by Asibikaashi, the Spider Woman. She was the fierce protector and custodian of all the people, especially the infants and the small children. When the Ojibwe nation spread across North America, women found it difficult to care for their children alone. To ensure their children's protection, mothers and grandmothers began weaving magical webs using willow hoops and sinew to catch harm and negative dreams.`,
+
+'myles': `The topic I have chosen is Mi'kmaq desserts, and I will be making a blueberry cake. This cake combines Indigenous ingredients with European baking techniques. I chose to make a Mi'kmaq dessert because it connects to the past showing how the Mi'kmaq used berries, maple products, and other foods gathered from the land. Baking this cake allows me to share Mi'kmaq culture through taste, ingredients, and the baking process. The cake itself serves as the medium of my project, making it both an edible creation and a hands-on cultural demonstration. My piece is a blueberry cake inspired by Mi'kmaq food traditions. It combines blueberries and other ingredients connected to the land with European style baking methods. The cake represents the blending of Indigenous and European influences and shows how traditional foods can be adapted while still maintaining a connection to Mi'kmaq culture and history. Through this piece, I hope to demonstrate the importance of food in preserving cultural traditions and connecting people to their ancestors.`,
+};
+
+
+/* ═══════════════════════════════════════════════════════
+   STATE MANAGEMENT
+   ═══════════════════════════════════════════════════════ */
+const STORAGE_KEY = 'mks11-command-center-v1';
+let currentBlock = 'A';
+let currentTab = 'drafts';
+let currentDay = 'assign';
+let activeInterview = null;
+let timerInterval = null;
+let timeLeft = 480; // 8 minutes
+let searchQuery = '';
+
+function getDefaultState() {
+    const state = {};
+    for (const block of ['A','C']) {
+        state[block] = {};
+        for (const s of STUDENTS[block]) {
+            state[block][s.id] = {
+                draftStatus: s.d ? 'on-time' : 'missing',
+                finalStatus: 'pending',
+                finalDate: '',
+                finalNotes: '',
+                generalNotes: '',
+                interviewDay: '',
+                interviewStatus: 'pending',
+                q1Rating: 0, q1Notes: '',
+                q2Rating: 0, q2Notes: '',
+            };
+        }
+    }
+    return state;
+}
+
+function loadState() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return getDefaultState();
+        // Merge with defaults to handle new students
+        const defaults = getDefaultState();
+        for (const block of ['A','C']) {
+            if (!saved[block]) saved[block] = defaults[block];
+            for (const s of STUDENTS[block]) {
+                if (!saved[block][s.id]) saved[block][s.id] = defaults[block][s.id];
+                else saved[block][s.id] = { ...defaults[block][s.id], ...saved[block][s.id] };
+            }
+        }
+        // Force update for newly submitted draft students
+        let stateChanged = false;
+        for (const id of ['jonathan', 'ruby', 'callum', 'alexis']) {
+            if (saved.A && saved.A[id] && saved.A[id].draftStatus !== 'on-time') {
+                saved.A[id].draftStatus = 'on-time';
+                stateChanged = true;
+            }
+        }
+        if (stateChanged) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+        }
+        return saved;
+    } catch(e) { return getDefaultState(); }
+}
+
+let state = loadState();
+
+function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getStudentState(id) {
+    return state[currentBlock][id];
+}
+
+/* ═══════════════════════════════════════════════════════
+   UI SWITCHING
+   ═══════════════════════════════════════════════════════ */
+function switchBlock(block) {
+    currentBlock = block;
+    document.body.setAttribute('data-block', block);
+    document.getElementById('btnBlockA').className = 'block-btn' + (block === 'A' ? ' active-a' : '');
+    document.getElementById('btnBlockC').className = 'block-btn' + (block === 'C' ? ' active-c' : '');
+    // Reset interview
+    activeInterview = null;
+    stopTimer();
+    render();
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    document.querySelectorAll('.tab-content').forEach(tc => {
+        tc.classList.toggle('active', tc.id === 'tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    });
+    render();
+}
+
+function switchDay(day) {
+    currentDay = day;
+    document.querySelectorAll('.day-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.day === day);
+    });
+    renderInterviews();
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER ENGINE
+   ═══════════════════════════════════════════════════════ */
+function render() {
+    renderSummary();
+    if (currentTab === 'drafts') renderDrafts();
+    else if (currentTab === 'finals') renderFinals();
+    else if (currentTab === 'interviews') renderInterviews();
+}
+
+function getTypeLabel(t) {
+    const map = { art:'🎨 Art Piece', essay:'📝 Essay', presentation:'📊 Presentation', other:'📦 Other' };
+    return map[t] || t;
+}
+function getTypeClass(t) {
+    return t || 'other';
+}
+
+function matchesSearch(student) {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return student.n.toLowerCase().includes(q) ||
+           (student.c && student.c.toLowerCase().includes(q)) ||
+           student.p.toLowerCase().includes(q);
+}
+
+/* ═══ SUMMARY BAR ═══ */
+function renderSummary() {
+    const bar = document.getElementById('summaryBar');
+    const students = STUDENTS[currentBlock].filter(matchesSearch);
+    const total = students.length;
+
+    if (currentTab === 'drafts') {
+        let onTime = 0, late = 0, missing = 0;
+        students.forEach(s => {
+            const st = getStudentState(s.id).draftStatus;
+            if (st === 'on-time') onTime++;
+            else if (st === 'late') late++;
+            else missing++;
+        });
+        bar.innerHTML = `
+            <span class="stat-pill success"><span class="count">${onTime}</span> On-Time</span>
+            <span class="stat-pill warning"><span class="count">${late}</span> Late</span>
+            <span class="stat-pill danger"><span class="count">${missing}</span> Missing</span>
+            <span style="color:var(--text-3);font-size:0.85rem;font-weight:600">
+                Block ${currentBlock} · ${total} students · Drafts due June 5
+            </span>
+            <div class="summary-search">
+                <input type="text" id="searchInput" placeholder="Search students..." value="${searchQuery}" oninput="handleSearch(this.value)">
+            </div>
+        `;
+    } else if (currentTab === 'finals') {
+        let received = 0, fLate = 0, pending = 0;
+        students.forEach(s => {
+            const st = getStudentState(s.id).finalStatus;
+            if (st === 'received') received++;
+            else if (st === 'late') fLate++;
+            else pending++;
+        });
+        bar.innerHTML = `
+            <span class="stat-pill success"><span class="count">${received}</span> Received</span>
+            <span class="stat-pill warning"><span class="count">${fLate}</span> Late</span>
+            <span class="stat-pill info"><span class="count">${pending}</span> Pending</span>
+            <span style="color:var(--text-3);font-size:0.85rem;font-weight:600">
+                Block ${currentBlock} · ${total} students · Finals due June 12
+            </span>
+            <div class="summary-search">
+                <input type="text" id="searchInput" placeholder="Search students..." value="${searchQuery}" oninput="handleSearch(this.value)">
+            </div>
+        `;
+    } else {
+        let unassigned = 0, assigned = 0, done = 0;
+        students.forEach(s => {
+            const st = getStudentState(s.id);
+            if (st.interviewStatus === 'done') done++;
+            else if (st.interviewDay) assigned++;
+            else unassigned++;
+        });
+        bar.innerHTML = `
+            <span class="stat-pill danger"><span class="count">${unassigned}</span> Unassigned</span>
+            <span class="stat-pill info"><span class="count">${assigned}</span> Scheduled</span>
+            <span class="stat-pill success"><span class="count">${done}</span> Complete</span>
+            <span style="color:var(--text-3);font-size:0.85rem;font-weight:600">
+                Block ${currentBlock} · 8 min/interview · 70 min period · June 15–18
+            </span>
+            <div class="summary-search">
+                <input type="text" id="searchInput" placeholder="Search students..." value="${searchQuery}" oninput="handleSearch(this.value)">
+            </div>
+        `;
+    }
+}
+
+function handleSearch(val) {
+    searchQuery = val;
+    render();
+    // Restore focus
+    setTimeout(() => {
+        const inp = document.getElementById('searchInput');
+        if (inp) { inp.focus(); inp.selectionStart = inp.selectionEnd = val.length; }
+    }, 0);
+}
+
+/* ═══ DRAFT TRACKER ═══ */
+function renderDrafts() {
+    const grid = document.getElementById('draftGrid');
+    const students = STUDENTS[currentBlock].filter(matchesSearch);
+
+    // Sort: missing first, then late, then on-time
+    const order = { missing: 0, late: 1, 'on-time': 2 };
+    const sorted = [...students].sort((a, b) => {
+        const sa = order[getStudentState(a.id).draftStatus] ?? 1;
+        const sb = order[getStudentState(b.id).draftStatus] ?? 1;
+        if (sa !== sb) return sa - sb;
+        return a.n.localeCompare(b.n);
+    });
+
+    grid.innerHTML = sorted.map(s => {
+        const st = getStudentState(s.id);
+        const statusClass = st.draftStatus === 'on-time' ? 'status-on-time' :
+                           st.draftStatus === 'late' ? 'status-late' : 'status-missing';
+        const statusLabel = st.draftStatus === 'on-time' ? '✅ Submitted' :
+                           st.draftStatus === 'late' ? '⚠️ Late' : '❌ Missing';
+        const desc = DRAFTS[s.id];
+        const descPreview = desc ? desc.substring(0, 140) + (desc.length > 140 ? '...' : '') : '';
+
+        return `
+        <div class="student-card ${s.d ? '' : 'highlight'}" style="${!s.d ? 'border-color:var(--danger-border)' : ''}">
+            <div class="card-header">
+                <div>
+                    <div class="card-name">${s.n}</div>
+                </div>
+                ${s.c ? `<span class="card-code">${s.c}</span>` : ''}
+            </div>
+            <div class="card-meta">
+                <span class="meta-tag ${getTypeClass(s.t)}">${getTypeLabel(s.t)}</span>
+                ${s.tc ? `<span class="meta-tag changed" title="${TOPIC_CHANGES[s.id] || ''}">🔄 Topic Changed</span>` : ''}
+                ${s.f ? `<span class="meta-tag flag" title="${s.f}">⚑ ${s.f}</span>` : ''}
+            </div>
+            <div class="card-topic"><strong>${s.p}</strong></div>
+            <div class="card-actions">
+                <button class="status-badge ${statusClass}" onclick="cycleDraftStatus('${s.id}')">${statusLabel}</button>
+            </div>
+            ${descPreview ? `
+                <div class="desc-preview" onclick="openDescModal('${s.id}')">${descPreview}</div>
+            ` : ''}
+        </div>`;
+    }).join('');
+}
+
+function cycleDraftStatus(id) {
+    const st = state[currentBlock][id];
+    const cycle = ['on-time', 'late', 'missing'];
+    const idx = cycle.indexOf(st.draftStatus);
+    st.draftStatus = cycle[(idx + 1) % 3];
+    saveState();
+    render();
+}
+
+/* ═══ FINAL SUBMISSIONS ═══ */
+function renderFinals() {
+    const grid = document.getElementById('finalGrid');
+    const students = STUDENTS[currentBlock].filter(matchesSearch);
+
+    const order = { pending: 0, late: 1, received: 2 };
+    const sorted = [...students].sort((a, b) => {
+        const sa = order[getStudentState(a.id).finalStatus] ?? 0;
+        const sb = order[getStudentState(b.id).finalStatus] ?? 0;
+        if (sa !== sb) return sa - sb;
+        return a.n.localeCompare(b.n);
+    });
+
+    grid.innerHTML = sorted.map(s => {
+        const st = getStudentState(s.id);
+        const statusClass = st.finalStatus === 'received' ? 'status-received' :
+                           st.finalStatus === 'late' ? 'status-late' : 'status-pending';
+        const statusLabel = st.finalStatus === 'received' ? '✅ Received' :
+                           st.finalStatus === 'late' ? '⚠️ Late' : '⏳ Pending';
+
+        return `
+        <div class="student-card">
+            <div class="card-header">
+                <div>
+                    <div class="card-name">${s.n}</div>
+                </div>
+                ${s.c ? `<span class="card-code">${s.c}</span>` : ''}
+            </div>
+            <div class="card-meta">
+                <span class="meta-tag ${getTypeClass(s.t)}">${getTypeLabel(s.t)}</span>
+            </div>
+            <div class="card-topic"><strong>${s.p}</strong></div>
+            <div class="card-actions">
+                <button class="status-badge ${statusClass}" onclick="cycleFinalStatus('${s.id}')">${statusLabel}</button>
+                <input type="date" value="${st.finalDate || ''}" onchange="setFinalDate('${s.id}', this.value)">
+            </div>
+            <textarea class="card-notes" placeholder="Notes..." rows="1"
+                oninput="setFinalNotes('${s.id}', this.value)">${st.finalNotes || ''}</textarea>
+        </div>`;
+    }).join('');
+}
+
+function cycleFinalStatus(id) {
+    const st = state[currentBlock][id];
+    const cycle = ['pending', 'received', 'late'];
+    const idx = cycle.indexOf(st.finalStatus);
+    st.finalStatus = cycle[(idx + 1) % 3];
+    saveState();
+    render();
+}
+
+function setFinalDate(id, val) {
+    state[currentBlock][id].finalDate = val;
+    saveState();
+}
+
+function setFinalNotes(id, val) {
+    state[currentBlock][id].finalNotes = val;
+    saveState();
+}
+
+/* ═══ INTERVIEW MANAGER ═══ */
+function renderInterviews() {
+    const content = document.getElementById('interviewContent');
+    const panel = document.getElementById('interviewPanel');
+    const students = STUDENTS[currentBlock].filter(matchesSearch);
+
+    // Update day counts
+    document.querySelectorAll('.day-btn[data-day]').forEach(btn => {
+        const day = btn.dataset.day;
+        if (day === 'assign') return;
+        const count = students.filter(s => getStudentState(s.id).interviewDay === day).length;
+        let countEl = btn.querySelector('.day-count');
+        if (count > 0) {
+            if (!countEl) { countEl = document.createElement('span'); countEl.className = 'day-count'; btn.appendChild(countEl); }
+            countEl.textContent = count;
+        } else if (countEl) { countEl.remove(); }
+    });
+
+    if (currentDay === 'assign') {
+        panel.classList.remove('active');
+        renderAssignView(content, students);
+    } else {
+        renderDayView(content, students);
+        if (activeInterview) panel.classList.add('active');
+        else panel.classList.remove('active');
+    }
+}
+
+function renderAssignView(container, students) {
+    const days = [
+        { val: '', label: 'Unassigned' },
+        { val: 'monday', label: 'Mon 15' },
+        { val: 'tuesday', label: 'Tue 16' },
+        { val: 'wednesday', label: 'Wed 17' },
+        { val: 'thursday', label: 'Thu 18' },
+    ];
+
+    const sorted = [...students].sort((a, b) => {
+        const da = getStudentState(a.id).interviewDay || '';
+        const db = getStudentState(b.id).interviewDay || '';
+        if (da !== db) return da.localeCompare(db);
+        return a.n.localeCompare(b.n);
+    });
+
+    container.innerHTML = `
+        <div class="assign-grid">
+            ${sorted.map(s => {
+                const st = getStudentState(s.id);
+                const statusIcon = st.interviewStatus === 'done' ? '✅' :
+                                  st.interviewStatus === 'inprogress' ? '⏳' : '';
+                return `
+                <div class="assign-card">
+                    <div style="flex:1">
+                        <div class="card-name">${s.n} ${s.c ? `<span class="card-code" style="font-size:0.7rem">${s.c}</span>` : ''}</div>
+                        <div style="font-size:0.78rem;color:var(--text-3);margin-top:2px">${s.p}</div>
+                    </div>
+                    <span style="font-size:1.1rem">${statusIcon}</span>
+                    <select onchange="assignDay('${s.id}', this.value)">
+                        ${days.map(d => `<option value="${d.val}" ${st.interviewDay === d.val ? 'selected' : ''}>${d.label}</option>`).join('')}
+                    </select>
+                </div>`;
+            }).join('')}
+        </div>
+    `;
+}
+
+function renderDayView(container, students) {
+    const dayLabel = { monday:'Monday, June 15', tuesday:'Tuesday, June 16', wednesday:'Wednesday, June 17', thursday:'Thursday, June 18' };
+    const dayStudents = students.filter(s => getStudentState(s.id).interviewDay === currentDay);
+
+    if (dayStudents.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <p>No students assigned to ${dayLabel[currentDay] || currentDay}</p>
+                <p style="font-size:0.82rem;margin-top:8px;color:var(--text-3)">Go to "Assign" view to schedule students</p>
+            </div>`;
+        return;
+    }
+
+    // Calculate times (8 min per student, start at period start)
+    const startMin = 0;
+    container.innerHTML = `
+        <div class="day-header">
+            <h3>${dayLabel[currentDay]}</h3>
+            <span class="day-info">${dayStudents.length} interviews · ~${dayStudents.length * 8} min</span>
+        </div>
+        <div class="assign-grid">
+            ${dayStudents.map((s, i) => {
+                const st = getStudentState(s.id);
+                const isActive = activeInterview && activeInterview.id === s.id;
+                const statusIcon = st.interviewStatus === 'done' ? '✅' :
+                                  st.interviewStatus === 'inprogress' ? '⏳' : '';
+                const doneClass = st.interviewStatus === 'done' ? 'done' : '';
+                const activeClass = isActive ? 'active-interview' : '';
+                return `
+                <div class="interview-card ${doneClass} ${activeClass}" onclick="selectInterview('${s.id}')">
+                    <div class="card-number">${i + 1}</div>
+                    <div style="flex:1">
+                        <div class="card-name">${s.n}</div>
+                        <div style="font-size:0.8rem;color:var(--text-3)">${s.p}</div>
+                    </div>
+                    <div class="card-status">${statusIcon}</div>
+                </div>`;
+            }).join('')}
+        </div>
+    `;
+}
+
+function assignDay(id, day) {
+    state[currentBlock][id].interviewDay = day;
+    saveState();
+    renderInterviews();
+    renderSummary();
+}
+
+function selectInterview(id) {
+    // Save current interview notes
+    if (activeInterview) saveInterviewNotes();
+
+    const student = STUDENTS[currentBlock].find(s => s.id === id);
+    const st = getStudentState(id);
+    activeInterview = { id, student };
+
+    // Update panel
+    document.getElementById('panelName').textContent = student.n + (student.c ? ` (${student.c})` : '');
+    document.getElementById('panelTopic').innerHTML = `<strong>${student.p}</strong>${DRAFTS[id] ? '<br><span style="font-size:0.82rem;color:var(--text-3);cursor:pointer" onclick="openDescModal(\'' + id + '\')">📄 View draft description</span>' : ''}`;
+
+    // Load ratings
+    renderRatingButtons('q1Ratings', 1, st.q1Rating);
+    renderRatingButtons('q2Ratings', 2, st.q2Rating);
+    document.getElementById('q1Notes').value = st.q1Notes || '';
+    document.getElementById('q2Notes').value = st.q2Notes || '';
+
+    // Mark in progress
+    if (st.interviewStatus !== 'done') {
+        st.interviewStatus = 'inprogress';
+        saveState();
+    }
+
+    // Show panel & reset timer
+    document.getElementById('interviewPanel').classList.add('active');
+    resetTimer();
+    startTimer();
+    renderInterviews();
+}
+
+function renderRatingButtons(containerId, qNum, currentRating) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = [1,2,3,4,5].map(r =>
+        `<button class="rating-btn ${r === currentRating ? 'active' : ''}" onclick="setRating(${qNum}, ${r})">${r}</button>`
+    ).join('');
+}
+
+function setRating(qNum, rating) {
+    if (!activeInterview) return;
+    const st = getStudentState(activeInterview.id);
+    st[`q${qNum}Rating`] = rating;
+    renderRatingButtons(`q${qNum}Ratings`, qNum, rating);
+    saveState();
+}
+
+function saveInterviewNotes() {
+    if (!activeInterview) return;
+    const st = getStudentState(activeInterview.id);
+    st.q1Notes = document.getElementById('q1Notes').value;
+    st.q2Notes = document.getElementById('q2Notes').value;
+    saveState();
+}
+
+function completeAndNext() {
+    if (!activeInterview) return;
+    saveInterviewNotes();
+
+    const st = getStudentState(activeInterview.id);
+    st.interviewStatus = 'done';
+    saveState();
+    showToast(`✅ ${activeInterview.student.n} — interview complete`);
+
+    // Find next student in current day
+    const students = STUDENTS[currentBlock].filter(s =>
+        getStudentState(s.id).interviewDay === currentDay &&
+        matchesSearch(s)
+    );
+    const currentIdx = students.findIndex(s => s.id === activeInterview.id);
+    let nextStudent = null;
+    for (let i = currentIdx + 1; i < students.length; i++) {
+        if (getStudentState(students[i].id).interviewStatus !== 'done') {
+            nextStudent = students[i];
+            break;
+        }
+    }
+
+    if (nextStudent) {
+        selectInterview(nextStudent.id);
+    } else {
+        activeInterview = null;
+        stopTimer();
+        document.getElementById('interviewPanel').classList.remove('active');
+        renderInterviews();
+        renderSummary();
+    }
+}
+
+/* ═══ TIMER ═══ */
+function toggleTimer() {
+    if (timerInterval) stopTimer();
+    else startTimer();
+}
+
+function startTimer() {
+    if (timerInterval) return;
+    document.getElementById('timerBtn').textContent = 'STOP';
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+            document.getElementById('timerDisplay').classList.add('overtime');
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    document.getElementById('timerBtn').textContent = 'START';
+}
+
+function resetTimer() {
+    stopTimer();
+    timeLeft = 480;
+    document.getElementById('timerDisplay').classList.remove('overtime');
+    updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+    const abs = Math.abs(timeLeft);
+    const mins = Math.floor(abs / 60);
+    const secs = abs % 60;
+    const sign = timeLeft < 0 ? '-' : '';
+    document.getElementById('timerDisplay').textContent =
+        `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+/* ═══ AUTO-SAVE INTERVIEW NOTES ═══ */
+let noteTimeout;
+function setupAutoSave() {
+    ['q1Notes', 'q2Notes'].forEach(id => {
+        document.getElementById(id).oninput = () => {
+            clearTimeout(noteTimeout);
+            noteTimeout = setTimeout(() => saveInterviewNotes(), 800);
+        };
+    });
+}
+
+/* ═══ DESCRIPTION MODAL ═══ */
+function openDescModal(id) {
+    const student = STUDENTS[currentBlock].find(s => s.id === id) ||
+                    STUDENTS[currentBlock === 'A' ? 'C' : 'A'].find(s => s.id === id);
+    const desc = DRAFTS[id];
+    if (!student || !desc) return;
+
+    document.getElementById('descModalTitle').textContent = `${student.n} — Draft Description`;
+    document.getElementById('descModalBody').innerHTML = `
+        <div class="draft-label">Project: ${student.p}</div>
+        <div class="desc-full">${desc}</div>
+    `;
+    document.getElementById('descModal').classList.add('active');
+}
+
+function closeDescModal() {
+    document.getElementById('descModal').classList.remove('active');
+}
+
+/* ═══ EXPORT / IMPORT ═══ */
+function openExportModal() {
+    document.getElementById('exportData').value = '';
+    document.getElementById('exportModal').classList.add('active');
+}
+function closeExportModal() {
+    document.getElementById('exportModal').classList.remove('active');
+}
+function exportData() {
+    document.getElementById('exportData').value = JSON.stringify(state, null, 2);
+    document.getElementById('exportData').select();
+    showToast('📋 Data exported — copy to save');
+}
+function importData() {
+    try {
+        const data = JSON.parse(document.getElementById('exportData').value);
+        state = data;
+        saveState();
+        render();
+        closeExportModal();
+        showToast('✅ Data imported successfully');
+    } catch(e) {
+        showToast('❌ Invalid JSON — check your data');
+    }
+}
+function confirmReset() {
+    if (confirm("Are you sure you want to reset ALL student data back to the default loaded values? This will erase all changes, notes, schedules, and interview ratings!")) {
+        localStorage.removeItem(STORAGE_KEY);
+        window.location.reload();
+    }
+}
+
+/* ═══ TOAST ═══ */
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ═══ TODAY'S NEWS (LCD) ═══ */
+function toggleNews() {
+    const drawer = document.getElementById('newsDrawer');
+    const btn = document.getElementById('btnNews');
+    const isOpen = drawer.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+    localStorage.setItem('mks11-news-visible', isOpen ? 'true' : 'false');
+}
+
+/* ═══ MODAL CLICK OUTSIDE ═══ */
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+    }
+});
+
+/* ═══ KEYBOARD SHORTCUTS ═══ */
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    }
+});
+
+/* ═══ INIT ═══ */
+window.onload = () => {
+    setupAutoSave();
+    updateTimerDisplay();
+    render();
+    
+    // Check news visibility setting (default to true)
+    const newsVisible = localStorage.getItem('mks11-news-visible') !== 'false';
+    if (newsVisible) {
+        document.getElementById('newsDrawer').classList.add('open');
+        document.getElementById('btnNews').classList.add('active');
+    }
+};
+</script>
+</body>
+</html>

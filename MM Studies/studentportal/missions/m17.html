@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission 17 | The Seasonal Round</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .briefing-card { max-width: 850px; width: 100%; background: var(--card-bg); padding: 3rem; border-radius: 2rem; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.02em; }
+        .mission-id { font-weight: 800; color: var(--primary); letter-spacing: 0.2em; font-size: 0.8rem; margin-bottom: 0.5rem; display: block; }
+        .significance-box { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
+
+        .wheel-container {
+            position: relative; width: 420px; height: 420px; margin: 1.5rem auto;
+        }
+        .wheel {
+            width: 420px; height: 420px; border-radius: 50%; position: relative;
+            border: 4px solid var(--border); overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .wheel.spinning { animation: spinWheel 2s ease-in-out; }
+        @keyframes spinWheel { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+
+        .wheel-quarter {
+            position: absolute; width: 50%; height: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 0.5rem; transition: all 0.3s;
+        }
+        .wheel-quarter.spring { top:0;left:0; background:linear-gradient(135deg,#bbf7d0,#dcfce7); border-radius:100% 0 0 0; }
+        .wheel-quarter.summer { top:0;right:0;left:50%; background:linear-gradient(135deg,#fef08a,#fef9c3); border-radius:0 100% 0 0; }
+        .wheel-quarter.fall { bottom:0;left:0;top:50%; background:linear-gradient(135deg,#fed7aa,#ffedd5); border-radius:0 0 0 100%; }
+        .wheel-quarter.winter { bottom:0;right:0;left:50%;top:50%; background:linear-gradient(135deg,#bfdbfe,#dbeafe); border-radius:0 0 100% 0; }
+
+        .wheel-quarter .season-icon { font-size: 2rem; margin-bottom: 0.25rem; }
+        .wheel-quarter .season-name { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); }
+        .wheel-quarter .season-slot {
+            margin-top: 0.3rem; min-height: 32px; width: 100%; max-width: 140px;
+            border: 2px dashed rgba(0,0,0,0.15); border-radius: 0.5rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.55rem;
+            color: rgba(0,0,0,0.3); transition: all 0.3s; padding: 0.2rem; gap: 1px;
+        }
+        .wheel-quarter .season-slot.filled {
+            border-style: solid; background: rgba(255,255,255,0.6);
+            color: var(--text); font-weight: 700; font-size: 0.48rem;
+        }
+        .wheel-quarter .season-slot.correct { border-color: #10b981; background: rgba(16,185,129,0.15); }
+        .wheel-quarter .season-slot.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+        .wheel-quarter .season-slot.hover { border-color: var(--primary); background: rgba(245,158,11,0.1); }
+
+        .wheel-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            width: 70px; height: 70px; border-radius: 50%; background: white;
+            border: 3px solid var(--border); display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; z-index: 5; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer;
+        }
+        .wheel-center:hover { transform: translate(-50%,-50%) scale(1.1); }
+
+        .activity-tray {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+            margin: 1rem 0; padding: 1rem; background: #f1f5f9;
+            border-radius: 1rem; border: 1px solid var(--border);
+        }
+        .act-card {
+            padding: 0.5rem 0.75rem; background: white; border: 2px solid var(--border);
+            border-radius: 0.5rem; cursor: grab; font-size: 0.7rem; font-weight: 700;
+            color: var(--text-muted); transition: all 0.2s; user-select: none; touch-action: none;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        .act-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .act-card.placed { opacity: 0.4; pointer-events: none; }
+        .act-card .act-emoji { font-size: 1.1rem; }
+
+        .drag-ghost {
+            position: fixed; pointer-events: none; z-index: 10000; opacity: 0.9;
+            padding: 0.5rem 0.75rem; background: white; border: 2px solid var(--primary);
+            border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; color: var(--primary);
+            display: flex; align-items: center; gap: 0.3rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .drag-ghost .act-emoji { font-size: 1.1rem; }
+
+        .score-bar { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--primary); margin: 0.75rem 0; }
+        .feedback-box { padding: 1rem; background: #fffbeb; border-radius: 0.75rem; border: 1px solid #fde68a; margin: 0.75rem 0; font-size: 0.9rem; color: #92400e; text-align: center; min-height: 45px; }
+        .celebration { font-size: 1.2rem; font-weight: 800; color: #10b981; margin: 0.5rem 0; display: none; animation: celebPulse 0.6s ease-in-out infinite alternate; }
+        @keyframes celebPulse { from{transform:scale(1)}to{transform:scale(1.05)} }
+
+        .step { background: #f1f5f9; padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid var(--primary); font-size: 0.9rem; line-height: 1.5; }
+        .step strong { color: var(--text); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        textarea { width: 100%; background: #fff; border: 2px solid var(--border); border-radius: 1rem; padding: 1.25rem; color: var(--text); font-family: inherit; font-size: 1rem; min-height: 100px; margin-top: 1rem; outline: none; resize: vertical; }
+        textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(245,158,11,0.1); }
+        .sync-indicator { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .indicator-dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .indicator-dot.active { background: #10b981; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{opacity:.5}50%{opacity:1}100%{opacity:.5} }
+        .btn-back { display: inline-block; margin-top: 1.5rem; color: var(--text-muted); text-decoration: none; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-back:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="briefing-card">
+        <span class="mission-id">TOP SECRET // MISSION 17</span>
+        <h1>The Seasonal Round</h1>
+        <p class="significance-box">The Mi'kmaq moved with the seasons — fishing in spring, gathering in summer, hunting in fall, and storytelling in winter. Drag each activity to its season.</p>
+
+        <div class="activity-tray" id="actTray"></div>
+
+        <div class="wheel-container">
+            <div class="wheel" id="wheel">
+                <div class="wheel-quarter spring" data-season="spring">
+                    <span class="season-icon">🌱</span>
+                    <span class="season-name">Spring</span>
+                    <div class="season-slot" data-season="spring" id="slot-spring">Drop here</div>
+                </div>
+                <div class="wheel-quarter summer" data-season="summer">
+                    <span class="season-icon">☀️</span>
+                    <span class="season-name">Summer</span>
+                    <div class="season-slot" data-season="summer" id="slot-summer">Drop here</div>
+                </div>
+                <div class="wheel-quarter fall" data-season="fall">
+                    <span class="season-icon">🍂</span>
+                    <span class="season-name">Fall</span>
+                    <div class="season-slot" data-season="fall" id="slot-fall">Drop here</div>
+                </div>
+                <div class="wheel-quarter winter" data-season="winter">
+                    <span class="season-icon">❄️</span>
+                    <span class="season-name">Winter</span>
+                    <div class="season-slot" data-season="winter" id="slot-winter">Drop here</div>
+                </div>
+            </div>
+            <div class="wheel-center" id="wheelCenter" onclick="spinWheel()">🌍</div>
+        </div>
+
+        <div class="score-bar">Placed: <span id="scoreCount">0</span> / 12</div>
+        <div class="feedback-box" id="feedbackBox">Drag an activity onto the right season!</div>
+        <p class="celebration" id="celebMsg">You know the Seasonal Round! The land gives what we need, when we need it.</p>
+
+        <div class="step"><strong>Step 1: Pick an Activity</strong><br>Grab an activity card from the tray above.</div>
+        <div class="step"><strong>Step 2: Drop It</strong><br>Drop it on the correct season. If it's right, it sticks!</div>
+
+        <textarea id="workArea" placeholder="The seasons teach us... In spring the Mi'kmaq would..."></textarea>
+        <div class="sync-indicator"><div id="syncDot" class="indicator-dot"></div><span id="syncStatus">Linking to Command Center...</span></div>
+        <a href="../index.html" class="btn-back">Back to Mission Control</a>
+    </div>
+
+    <script>
+        const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbxg2PJjjedeu_wvSjxxII0aEqusA9-kvXF9or9RhKc_bwsyqC4ZGnV-6DA0Xng6xLOMiQ/exec';
+        function getStudentId(){try{const s=JSON.parse(localStorage.getItem('mks_current_student'));return s?s.id:'MKS-11-ALPHA'}catch(e){return'MKS-11-ALPHA'}}
+        const STUDENT_ID=getStudentId();const MISSION_TITLE='Mission 17: The Seasonal Round';
+
+        const activities = [
+            { id:'maple', emoji:'🍁', label:'Boil maple sap', season:'spring', hint:'Maple sap only runs when nights freeze and days thaw — that is spring.' },
+            { id:'fiddle', emoji:'🌿', label:'Pick fiddleheads', season:'spring', hint:'Fiddleheads sprout along riverbanks in spring before the ferns uncurl.' },
+            { id:'iceout', emoji:'🐟', label:'Fish the ice breakup', season:'spring', hint:'When spring ice melts, salmon rush upstream to spawn.' },
+            { id:'berry', emoji:'🫐', label:'Pick blueberries', season:'summer', hint:'Blueberries need the long hot days of summer to ripen on the barrens.' },
+            { id:'clam', emoji:'🐚', label:'Dig clams on the flats', season:'summer', hint:'Warm summer days mean low tide sandbars perfect for clam digging.' },
+            { id:'sweetgrass', emoji:'🌾', label:'Harvest sweetgrass', season:'summer', hint:'Sweetgrass grows tall only in the warm summer sun, ready to braid.' },
+            { id:'moose', emoji:'🫎', label:'Hunt moose', season:'fall', hint:'Moose are fattest in fall before winter — that is hunting time.' },
+            { id:'dryfish', emoji:'🎣', label:'Dry fish for storage', season:'fall', hint:'Fall winds and cool air dry fish perfectly for winter storage.' },
+            { id:'weave', emoji:'🧺', label:'Weave storage baskets', season:'fall', hint:'Fall harvest needs baskets — ash strips are split and woven before freeze.' },
+            { id:'story', emoji:'📖', label:'Tell creation stories', season:'winter', hint:'Mi\'kmaw stories are told only in winter when snow covers the ground.' },
+            { id:'snowshoe', emoji:'🥾', label:'Hunt on snowshoes', season:'winter', hint:'Deep snow means snowshoes are the only way to travel and hunt.' },
+            { id:'icefish', emoji:'❄️', label:'Ice fish on frozen lakes', season:'winter', hint:'Lakes freeze solid in winter — chop a hole and fish through the ice.' }
+        ];
+
+        let placedActs = {};
+        let correctCount = 0;
+        let dragGhost = null;
+        let dragId = null;
+        let timeout = null;
+
+        const workArea = document.getElementById('workArea');
+        const syncStatus = document.getElementById('syncStatus');
+        const syncDot = document.getElementById('syncDot');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const scoreCount = document.getElementById('scoreCount');
+        const celebMsg = document.getElementById('celebMsg');
+        const tray = document.getElementById('actTray');
+
+        activities.forEach(function(act) {
+            const card = document.createElement('div');
+            card.className = 'act-card';
+            card.dataset.id = act.id;
+            card.innerHTML = '<span class="act-emoji">' + act.emoji + '</span>' + act.label;
+            card.addEventListener('mousedown', function(e) { e.preventDefault(); startDrag(act.id, e.clientX, e.clientY); });
+            card.addEventListener('touchstart', function(e) { e.preventDefault(); var t = e.touches[0]; startDrag(act.id, t.clientX, t.clientY); }, { passive: false });
+            tray.appendChild(card);
+        });
+
+        document.querySelectorAll('.season-slot').forEach(function(slot) {
+            slot.addEventListener('mouseenter', function() { if (dragGhost) slot.classList.add('hover'); });
+            slot.addEventListener('mouseleave', function() { slot.classList.remove('hover'); });
+        });
+
+        function startDrag(id, cx, cy) {
+            if (placedActs[id]) return;
+            var act = activities.find(function(a) { return a.id === id; });
+            dragId = id;
+            dragGhost = document.createElement('div');
+            dragGhost.className = 'drag-ghost';
+            dragGhost.innerHTML = '<span class="act-emoji">' + act.emoji + '</span>' + act.label;
+            dragGhost.style.left = cx + 'px';
+            dragGhost.style.top = cy + 'px';
+            document.body.appendChild(dragGhost);
+        }
+
+        function moveDrag(cx, cy) {
+            if (dragGhost) { dragGhost.style.left = cx + 'px'; dragGhost.style.top = cy + 'px'; }
+        }
+
+        function endDrag(cx, cy) {
+            if (!dragGhost || !dragId) return;
+            document.querySelectorAll('.season-slot').forEach(function(s) { s.classList.remove('hover'); });
+
+            var dropTarget = null;
+            document.querySelectorAll('.season-slot').forEach(function(slot) {
+                var rect = slot.getBoundingClientRect();
+                if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+                    dropTarget = slot;
+                }
+            });
+
+            if (dropTarget) {
+                var season = dropTarget.dataset.season;
+                var act = activities.find(function(a) { return a.id === dragId; });
+
+                if (act.season === season) {
+                    placedActs[dragId] = season;
+                    dropSlotIntoSeason(season, act);
+                    dropTarget.classList.add('filled', 'correct');
+                    correctCount++;
+                    scoreCount.textContent = correctCount;
+                    feedbackBox.innerHTML = act.emoji + ' ' + act.label + ' — ' + act.hint;
+                    feedbackBox.style.background = '#f0fdf4';
+                    feedbackBox.style.borderColor = '#86efac';
+                    feedbackBox.style.color = '#15803d';
+
+                    var card = document.querySelector('.act-card[data-id="' + dragId + '"]');
+                    if (card) card.classList.add('placed');
+
+                    if (correctCount === 12) {
+                        celebMsg.style.display = 'block';
+                        feedbackBox.innerHTML = 'All 12 activities placed! You understand the Seasonal Round!';
+                        spinWheel();
+                        saveAndSync();
+                    }
+                    triggerSave();
+                } else {
+                    dropTarget.classList.add('wrong');
+                    setTimeout(function() { dropTarget.classList.remove('wrong'); }, 800);
+                    feedbackBox.innerHTML = act.emoji + ' Not quite! ' + act.hint;
+                    feedbackBox.style.background = '#fef2f2';
+                    feedbackBox.style.borderColor = '#fecaca';
+                    feedbackBox.style.color = '#dc2626';
+                }
+            }
+
+            dragGhost.remove();
+            dragGhost = null;
+            dragId = null;
+        }
+
+        function dropSlotIntoSeason(season, act) {
+            var slot = document.getElementById('slot-' + season);
+            if (!slot.classList.contains('filled')) {
+                slot.textContent = '';
+            }
+            slot.classList.add('filled');
+            var line = document.createElement('span');
+            line.textContent = act.emoji + ' ' + act.label;
+            slot.appendChild(line);
+        }
+
+        document.addEventListener('mousemove', function(e) { moveDrag(e.clientX, e.clientY); });
+        document.addEventListener('touchmove', function(e) { if (dragGhost) { e.preventDefault(); moveDrag(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
+        document.addEventListener('mouseup', function(e) { endDrag(e.clientX, e.clientY); });
+        document.addEventListener('touchend', function(e) { if (dragGhost) { var t = e.changedTouches[0]; endDrag(t.clientX, t.clientY); } });
+
+        function spinWheel() {
+            var wheel = document.getElementById('wheel');
+            wheel.classList.add('spinning');
+            setTimeout(function() { wheel.classList.remove('spinning'); }, 2000);
+        }
+
+        function triggerSave() { syncStatus.innerText = 'Sorting...'; syncDot.className = 'indicator-dot'; clearTimeout(timeout); timeout = setTimeout(saveAndSync, 2000); }
+        workArea.addEventListener('input', triggerSave);
+
+        async function retrieveFromCloud() {
+            try {
+                var r = await fetch(`${WEBHOOK_URL}?studentId=${STUDENT_ID}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
+                var d = await r.json();
+                if (d.content) workArea.value = d.content;
+                else workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m17_work') || '';
+                var saved = d.placed ? JSON.parse(d.placed) : JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m17_placed') || 'null');
+                if (saved) {
+                    Object.keys(saved).forEach(function(id) {
+                        var act = activities.find(function(a) { return a.id === id; });
+                        if (act && act.season === saved[id]) {
+                            placedActs[id] = saved[id];
+                            dropSlotIntoSeason(saved[id], act);
+                            var slot = document.getElementById('slot-' + saved[id]);
+                            if (slot) slot.classList.add('filled', 'correct');
+                            var card = document.querySelector('.act-card[data-id="' + id + '"]');
+                            if (card) card.classList.add('placed');
+                            correctCount++;
+                        }
+                    });
+                    scoreCount.textContent = correctCount;
+                    if (correctCount === 12) { celebMsg.style.display = 'block'; feedbackBox.innerHTML = 'All 12 activities placed!'; }
+                }
+                syncStatus.innerText = 'Loaded';
+            } catch (e) {
+                workArea.value = localStorage.getItem('mks_' + STUDENT_ID + '_m17_work') || '';
+                var saved = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_m17_placed') || 'null');
+                if (saved) {
+                    Object.keys(saved).forEach(function(id) {
+                        var act = activities.find(function(a) { return a.id === id; });
+                        if (act && act.season === saved[id]) {
+                            placedActs[id] = saved[id];
+                            dropSlotIntoSeason(saved[id], act);
+                            var slot = document.getElementById('slot-' + saved[id]);
+                            if (slot) slot.classList.add('filled', 'correct');
+                            var card = document.querySelector('.act-card[data-id="' + id + '"]');
+                            if (card) card.classList.add('placed');
+                            correctCount++;
+                        }
+                    });
+                    scoreCount.textContent = correctCount;
+                    if (correctCount === 12) { celebMsg.style.display = 'block'; }
+                }
+                syncStatus.innerText = 'Ready (Offline Mode)';
+            }
+        }
+
+        async function saveAndSync() {
+            localStorage.setItem('mks_' + STUDENT_ID + '_m17_work', workArea.value);
+            localStorage.setItem('mks_' + STUDENT_ID + '_m17_placed', JSON.stringify(placedActs));
+            syncStatus.innerText = 'Syncing...'; syncDot.className = 'indicator-dot active';
+            try {
+                await fetch(WEBHOOK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ studentId: STUDENT_ID, missionTitle: MISSION_TITLE, reflection: workArea.value, placed: JSON.stringify(placedActs), correctCount: correctCount, timestamp: new Date().toISOString() }) });
+                syncStatus.innerText = 'Wheel synced!';
+                let c = JSON.parse(localStorage.getItem('mks_' + STUDENT_ID + '_completed') || '[]'); if (!c.includes(17)) c.push(17); localStorage.setItem('mks_' + STUDENT_ID + '_completed', JSON.stringify(c));
+            } catch (e) { syncStatus.innerText = 'Saved locally'; }
+        }
+        retrieveFromCloud();
+    </script>
+</body>
+</html>
