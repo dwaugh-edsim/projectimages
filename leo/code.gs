@@ -58,32 +58,85 @@ function doGet(e) {
 
   // DASHBOARD DATA (For the Teacher Dashboard)
   if (e.parameter.action === 'get_dashboard') {
-    const sheet = getOrCreateSheet('CanvasSubmissions');
-    const rows = sheet.getDataRange().getValues();
-    if (rows.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-    
-    const data = rows.slice(1)
-      .filter(row => row[2] && String(row[5]).trim() !== "Choices") // Skip header duplicates or empty rows
-      .map(row => {
-        try {
-          return {
-            timestamp: row[0],
-            block: row[1],
-            codename: row[2],
-            missionId: row[3],
-            choices: JSON.parse(row[5] || "{}"),
-            rationales: JSON.parse(row[6] || "{}"),
-            verdict: row[8]
-          };
-        } catch (e) {
-          console.error("Skipping corrupted row: " + row[2], e);
-          return null;
+    var allRecords = [];
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var isV2 = (e.parameter.version === '2');
+
+    // 1. Fetch CanvasSubmissions (original Leo project data)
+    var canvasSheet = ss.getSheetByName('CanvasSubmissions');
+    if (canvasSheet) {
+      var rows = canvasSheet.getDataRange().getValues();
+      if (rows.length > 1) {
+        var data = rows.slice(1)
+          .filter(function(row) { 
+            return row[2] && String(row[5]).trim() !== "Choices"; 
+          })
+          .map(function(row) {
+            try {
+              return {
+                timestamp: row[0],
+                block: row[1],
+                codename: row[2],
+                missionId: row[3] || 'leo',
+                missionTitle: row[4] || 'Leo 1752 Simulation',
+                choices: JSON.parse(row[5] || "{}"),
+                rationales: JSON.parse(row[6] || "{}"),
+                verdict: row[8],
+                submissionType: 'CanvasSubmissions'
+              };
+            } catch (err) {
+              console.error("Skipping corrupted CanvasSubmissions row: " + row[2], err);
+              return null;
+            }
+          })
+          .filter(function(item) { return item !== null; });
+        allRecords = allRecords.concat(data);
+      }
+    }
+
+    // 2. Fetch IRSSA_Submissions (other projects data) - ONLY for V2 requests
+    if (isV2) {
+      var irssaSheet = ss.getSheetByName('IRSSA_Submissions');
+      if (irssaSheet) {
+        var rows = irssaSheet.getDataRange().getValues();
+        if (rows.length > 1) {
+          var data = rows.slice(1)
+            .filter(function(row) {
+              return row[2] && String(row[5]).trim() !== "SubmissionType";
+            })
+            .map(function(row) {
+              try {
+                var payload = {};
+                var payloadStr = String(row[6] || "{}").trim();
+                try {
+                  payload = JSON.parse(payloadStr);
+                } catch (pe) {
+                  console.error("Error parsing IRSSA JSON payload: " + payloadStr, pe);
+                }
+                return {
+                  timestamp: row[0],
+                  block: row[1],
+                  codename: row[2],
+                  missionId: row[3] || row[4] || 'unknown',
+                  missionTitle: row[4] || 'Independent Project',
+                  choices: payload,
+                  rationales: {},
+                  verdict: row[5], // INCREMENTAL or FINAL_SUBMIS
+                  submissionType: 'IRSSA_Submissions'
+                };
+              } catch (err) {
+                console.error("Skipping corrupted IRSSA_Submissions row: " + row[2], err);
+                return null;
+              }
+            })
+            .filter(function(item) { return item !== null; });
+          allRecords = allRecords.concat(data);
         }
-      })
-      .filter(item => item !== null);
-    
+      }
+    }
+
     return ContentService
-      .createTextOutput(JSON.stringify(data))
+      .createTextOutput(JSON.stringify(allRecords))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
