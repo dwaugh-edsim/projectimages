@@ -35,6 +35,16 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ success: true, data: progress }))
         .setMimeType(ContentService.MimeType.JSON);
     }
+    else if (action === "saveGameScore") {
+      saveGameScore(request.name, request.password, request.scoreData);
+      return ContentService.createTextOutput(JSON.stringify({ success: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    else if (action === "getGameScores") {
+      const scores = getGameScores(request.name, request.password);
+      return ContentService.createTextOutput(JSON.stringify({ success: true, data: scores }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     
     return ContentService.createTextOutput(JSON.stringify({ success: false, error: "Unknown action" }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -198,11 +208,46 @@ function getStudentSheet() {
   let sheet = ss.getSheetByName('StudentData');
   if (!sheet) {
     sheet = ss.insertSheet('StudentData');
-    sheet.appendRow(['Name', 'Password', 'Strengths', 'Weaknesses', 'ChatHistory', 'LastActive', 'Progress']);
+    sheet.appendRow(['Name', 'Password', 'Strengths', 'Weaknesses', 'ChatHistory', 'LastActive', 'Progress', 'Notes', 'GameScores']);
     sheet.setFrozenRows(1);
     sheet.getRange("A1:G1").setFontWeight("bold").setBackground("#f3f4f6");
   }
   return sheet;
+}
+
+function saveGameScore(name, password, scoreData) {
+  const sheet = getStudentSheet();
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === name && data[i][1] === password) {
+      const existingScores = data[i][8] ? JSON.parse(data[i][8]) : [];
+      existingScores.push({
+        score: scoreData.score,
+        correct: scoreData.correct,
+        total: scoreData.total,
+        pct: scoreData.pct,
+        bestStreak: scoreData.bestStreak,
+        mode: scoreData.mode,
+        date: new Date().toISOString()
+      });
+      sheet.getRange(i + 1, 9).setValue(JSON.stringify(existingScores));
+      sheet.getRange(i + 1, 6).setValue(new Date());
+      return { success: true };
+    }
+  }
+}
+
+function getGameScores(name, password) {
+  const sheet = getStudentSheet();
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === name && data[i][1] === password) {
+      return data[i][8] ? JSON.parse(data[i][8]) : [];
+    }
+  }
+  return [];
 }
 
 function getStudyMaterial() {
