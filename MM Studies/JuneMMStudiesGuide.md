@@ -1,6 +1,6 @@
 # MI'KMAW STUDIES 11 — JUNE STUDY GUIDE (INTEGRATED CURRICULUM ARCHIVE)
 
-This study guide helps you prepare for the June exam. It breaks down history, laws, timeline dates, vocabulary, and big ideas in plain, easy-to-understand language. It integrates the previous units on Residential Schools, Centralization, Sugar Falls, and The Outside Circle with our recent work on the **Sixties Scoop (Annie Francis Case Study)** and **Restorative Justice (Liam's Journey graphic novel)**.
+This study guide helps you prepare for the June assessment. It breaks down history, laws, timeline dates, vocabulary, and big ideas in plain, easy-to-understand language. It integrates the previous units on Residential Schools, Centralization, Sugar Falls, and The Outside Circle with our recent work on the **Sixties Scoop (Annie Francis Case Study)** and **Restorative Justice (Liam's Journey graphic novel)**.
 
 ---
 
