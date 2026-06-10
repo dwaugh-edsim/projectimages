@@ -78,15 +78,15 @@
 
 ### 4. Leo Ewing — CPOH (member)
 **Platform Status:** INCOMPLETE (party had platform in opposition-research but did not lock in)
-**Contribution:** Describes group behavior rather than personal contribution. BUT submitted 6 questions during the Final 4 Town Hall (2 on_stage, 2 pending, 2 rejected) — the second-highest question count in the class.
+**Contribution:** Describes group behavior rather than personal contribution. BUT submitted 6 questions during the Final 4 Town Hall (2 on_stage, 2 pending, 2 rejected) — the second-highest question count in the class. Notably more effort than Kai or Abdul, who had similar platform completion issues.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 2+ | CPOH platform had real issues (transit, housing, cost of living) but Leo's reflection doesn't show deep engagement with why these issues matter. Q3 — "They will maybe start to work together on the walk in clinics because it is the same for everyone" — finds common ground but doesn't go deeper. |
+| 5.1 Issue Valuation | 3 | CPOH platform had real issues (transit, housing, cost of living). Leo's reflection doesn't go deep on issue valuation, but his 6 Town Hall questions — targeting sponsorship risks, renewable energy specifics, and teacher funding — show he was actively interrogating other parties' issue claims. That's issue engagement, even if it came through opposition rather than his own platform. |
 | 5.2 Government Structure | 2+ | Q4 shows basic understanding of margins. His Town Hall questions (renewable energy sources, sponsorship risks, teacher salaries) show he was thinking about policy feasibility. |
-| 5.3 Democratic Engagement | 3 | 6 Town Hall questions is the second-highest in the class. He challenged parties on sponsorship backup plans, renewable energy specifics, and teacher funding. Two of his questions were selected for the stage. That's active democratic participation, even if his reflection didn't capture it. |
+| 5.3 Democratic Engagement | 3 | 6 Town Hall questions is the second-highest in the class. He challenged parties on sponsorship backup plans, renewable energy specifics, and teacher funding. Two of his questions were selected for the stage. That's active democratic participation, notably more engagement than classmates in similar platform situations. |
 
-**Reflection Notes:** Leo's reflection was brief and described group behavior. But the Town Hall data tells a different story — he was one of the most active questioners, challenging multiple parties with specific policy questions. His question about sponsorship risks ("what if the company gets exposed for something bad") shows real critical thinking about public-private partnerships.
+**Reflection Notes:** Leo's reflection was brief and described group behavior. But the Town Hall data tells a different story — he was one of the most active questioners, challenging multiple parties with specific policy questions. His question about sponsorship risks ("what if the company gets exposed for something bad") shows real critical thinking about public-private partnerships. Among students whose parties didn't complete their platforms, Leo stands out for the effort he put into the Town Hall process.
 
 ---
 
@@ -424,7 +424,7 @@ These students appear only in the Code.gs roster. No grading possible.
 | 1 | Kai Kilgour | Climate Protection | 2+ | 2+ | 2+ | Tried, team didn't present |
 | 2 | Joshua Abraham | Healthier Future | 4 | 3+ | 4 | Did everything in 2-person group, major contributor |
 | 3 | Yunho Park | Party De Solution | 3 | 2+ | 3+ | Active under leader, 2 Town Hall questions |
-| 4 | Leo Ewing | CPOH | 2+ | 2+ | 3 | 6 Town Hall questions, 2 on_stage |
+| 4 | Leo Ewing | CPOH | 3 | 2+ | 3 | 6 Town Hall questions, 2 on_stage, more effort than peers |
 | 5 | Clark Feng | Healthier Future | 3+ | 3+ | 3 | Exceptional Q4 critical thinking |
 | 6 | Madhavan Karia | Party De Solution | 4 | 3+ | 4 | Leader, refiner, strategist |
 | 7 | Elizabeth Sanyaolu | Unity Party | 3 | 3 | 3+ | Won primary, confident speaker, major participant |
