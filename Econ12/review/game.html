@@ -658,6 +658,9 @@ a:hover { color: var(--accent); }
     <p style="font-size:12px;color:#888;margin-top:18px;font-family:'Nova Mono',cursive;">
       First time? Pick a PIN and you'll be registered automatically.
     </p>
+    <div style="margin-top:20px;text-align:center;font-family:'Nova Mono',cursive;border-top:1px dashed var(--rule);padding-top:16px">
+      <a href="#" onclick="showFullscreenBoard(event)" style="color:var(--accent);font-size:13px;text-shadow:0 0 8px var(--accent-glow);">🏆 view class standings</a>
+    </div>
   </div>
 </div>
 
@@ -768,6 +771,20 @@ a:hover { color: var(--accent); }
       <button class="btn wrong" id="review-retry-missed-btn" style="margin-right:8px; display:none;" onclick="retryMissed()">retry missed</button>
       <button class="btn accent" style="margin-right:8px" onclick="playAgain()">play again</button>
       <button class="btn outline" onclick="hideReview()">back to summary</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== FULLSCREEN LEADERBOARD ============== -->
+<div id="leaderboard-view-screen" class="screen">
+  <div class="brand" style="text-align:center;">
+    <h1>econ<span>12</span> class standings</h1>
+    <p>// top scores class-wide</p>
+  </div>
+  <div class="panel" style="max-width:640px;margin:0 auto;">
+    <div id="fullscreen-board-body">Loading class standings...</div>
+    <div style="margin-top:24px;text-align:center;">
+      <button class="btn outline" style="width:100%" onclick="location.reload()">go to login / back</button>
     </div>
   </div>
 </div>
@@ -1396,6 +1413,49 @@ async function loadGlobalLeaderboard() {
   }
 }
 
+function showFullscreenBoard(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  SFX.play('click');
+  goTo('leaderboard-view');
+  loadFullscreenLeaderboard();
+}
+
+async function loadFullscreenLeaderboard() {
+  const body = document.getElementById('fullscreen-board-body');
+  try {
+    body.innerHTML = '<div style="color:var(--ink-dim);font-family:\'Nova Mono\',cursive;font-size:16px;">fetching class scores...</div>';
+    const r = await api('getLeaderboard', {});
+    const scores = r.data || [];
+    if (scores.length === 0) {
+      body.innerHTML = '<div style="color:var(--ink-dim);font-family:\'Nova Mono\',cursive;font-size:16px;">no scores recorded yet.</div>';
+      return;
+    }
+    
+    body.innerHTML = `
+      <table style="width:100%;font-size:16px;border-collapse:collapse;text-align:left;">
+        <tr style="border-bottom:2px solid var(--rule);"><th style="padding:10px 12px;color:var(--ink-dim);">rank</th><th style="padding:10px 12px;color:var(--ink-dim);">student</th><th style="padding:10px 12px;color:var(--ink-dim);">mode</th><th style="padding:10px 12px;color:var(--ink-dim);">score</th><th style="padding:10px 12px;color:var(--ink-dim);">accuracy</th></tr>
+        ${scores.map((s, idx) => `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:12px;font-family:'Nova Mono',cursive;font-weight:bold;color:${idx === 0 ? 'var(--warning)' : idx === 1 ? '#cbd5e1' : idx === 2 ? '#b45309' : 'var(--ink)'}">
+              ${idx === 0 ? '🥇 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : '#' + (idx + 1)}
+            </td>
+            <td style="padding:12px;font-weight:bold;color:var(--accent);">${s.name}</td>
+            <td style="padding:12px;font-family:'Nova Mono',cursive;color:var(--ink-dim);">${s.mode}</td>
+            <td style="padding:12px;font-family:'Nova Mono',cursive;font-weight:bold;color:var(--ink);">${s.score}</td>
+            <td style="padding:12px;font-family:'Nova Mono',cursive;font-weight:bold;color:var(--accent);">${s.pct}%</td>
+          </tr>
+        `).join('')}
+      </table>
+    `;
+  } catch (e) {
+    console.error(e);
+    body.innerHTML = '<div style="color:var(--wrong);font-family:\'Nova Mono\',cursive;font-size:16px;">error loading standings.</div>';
+  }
+}
+
 /* ============================================================
    NAV
    ============================================================ */
@@ -1926,6 +1986,14 @@ function filterReview(type) {
    INIT
    ============================================================ */
 window.addEventListener('DOMContentLoaded', () => {
+  // Check for leaderboard view parameters in URL
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('leaderboard') || params.has('board')) {
+    goTo('leaderboard-view');
+    loadFullscreenLeaderboard();
+    return;
+  }
+
   // Restore sound settings
   const savedMute = localStorage.getItem('econ12g_muted');
   if (savedMute !== null) {
