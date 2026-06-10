@@ -41,7 +41,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 2+ | The Climate Protection platform had real issues (1M trees, renewable energy, plastic ban) but Kai's personal engagement with issue valuation is thin. Q4 response ("Personality is key especially in the leader") is surface-level. |
-| 5.2 Government Structure | 2 | Reflection doesn't demonstrate understanding of government structure. Q2 describes helping with "research and typing" rather than engaging with how government works. |
+| 5.2 Government Structure | 2+ | Reflection doesn't demonstrate deep understanding of government structure, but Q4 insight about likability shows some awareness of electoral dynamics. |
 | 5.3 Democratic Engagement | 2+ | Made genuine effort — "I helped with the research and typing it and making it look good" — but the team never presented. "Too bad we didnt present because we had a fair shot at winning the vote." Engagement was real but hampered by group dynamics. |
 
 **Reflection Notes:** Kai's reflection is honest. He acknowledges his team didn't present and explains what he did contribute. Q1 shows he understands the irony of the 1-vote margin. Q3's suggestion of "neutral questions" to bridge parties is a reasonable civic strategy. The reflection reveals a student who was present and trying, but whose group couldn't follow through.
@@ -64,29 +64,29 @@
 
 ### 3. Yunho Park — Party De Solution (member)
 **Platform Status:** WAR ROOM COMPLETE (detailed Comms, Strategy, Finance)
-**Contribution:** Followed Madhavan's lead; participated in war room under direction
+**Contribution:** Followed Madhavan's lead; participated in war room under direction. Submitted 2 Town Hall questions (1 on_stage, 1 pending), challenging the Environmentalists on coastal protection specifics.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 3 | The Party De Solution had strong issues (school funding, bus safety, nurse offices) and creative funding (Subway partnership). Yunho's reflection shows he understood the issues even if he didn't drive them. Q4 insight about social media influence on voting is relevant. |
 | 5.2 Government Structure | 2+ | Reflection doesn't demonstrate deep understanding of government structure. Q4 is honest but brief — "some people are not really Interested on government thing and they commonly vote for the people who they saw in a good way on YouTube or Instagram." |
-| 5.3 Democratic Engagement | 3 | "Madhavan lead our team and he told us what to do, what to ask and by the lead, our team was successfully possible to tackle other teams." Active participant under leader's direction. Contributed to a strong platform. Q1 — "It feels like I need to participate in voting" — shows genuine engagement. |
+| 5.3 Democratic Engagement | 3+ | "Madhavan lead our team and he told us what to do, what to ask and by the lead, our team was successfully possible to tackle other teams." Active participant under leader's direction. Contributed to a strong platform. And 2 Town Hall questions submitted — including a specific challenge to the Environmentalists: "your slides state that you are going to protect the coastlines in Nova Scotia, but there is no information on how, why is that?" That's opposition research in action. |
 
-**Reflection Notes:** Yunho's reflection is honest about his role. He followed Madhavan's lead and participated actively. His Q4 answer is one of the most candid in the class — he admits "I even voted for the party that members are my friend" and connects this to how social media shapes real elections. That honesty is worth something.
+**Reflection Notes:** Yunho's reflection is honest about his role. He followed Madhavan's lead and participated actively. His Town Hall questions show he was doing more than just following directions — he was actively challenging other parties on their policy specifics. The coastal protection question targeted a real gap in the Environmentalists' platform.
 
 ---
 
 ### 4. Leo Ewing — CPOH (member)
-**Platform Status:** INCOMPLETE (platform in opposition-research but did not lock in)
-**Contribution:** Describes group behavior rather than personal contribution
+**Platform Status:** INCOMPLETE (party had platform in opposition-research but did not lock in)
+**Contribution:** Describes group behavior rather than personal contribution. BUT submitted 6 questions during the Final 4 Town Hall (2 on_stage, 2 pending, 2 rejected) — the second-highest question count in the class.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 2+ | CPOH platform had real issues (transit, housing, cost of living) but Leo's reflection doesn't show deep engagement with why these issues matter. Q3 — "They will maybe start to work together on the walk in clinics because it is the same for everyone" — finds common ground but doesn't go deeper. |
-| 5.2 Government Structure | 2 | Q4 — "no matter what the margin is you win 1 vote 2 votes 100 votes you win just being the minority" — shows basic understanding of margins but not of government structure. |
-| 5.3 Democratic Engagement | 2+ | Q2 describes the party's debate style rather than his personal contribution: "The biggest impact is the explanation and how they argued and how they didnt pick sides." Doesn't describe what he specifically did. |
+| 5.2 Government Structure | 2+ | Q4 shows basic understanding of margins. His Town Hall questions (renewable energy sources, sponsorship risks, teacher salaries) show he was thinking about policy feasibility. |
+| 5.3 Democratic Engagement | 3 | 6 Town Hall questions is the second-highest in the class. He challenged parties on sponsorship backup plans, renewable energy specifics, and teacher funding. Two of his questions were selected for the stage. That's active democratic participation, even if his reflection didn't capture it. |
 
-**Reflection Notes:** Leo's reflection is brief and describes group behavior more than individual engagement. He shows some understanding of the election dynamics but doesn't articulate a personal role in the process. The CPOH platform existed but wasn't completed, and Leo's reflection doesn't explain why or what he tried to do about it.
+**Reflection Notes:** Leo's reflection was brief and described group behavior. But the Town Hall data tells a different story — he was one of the most active questioners, challenging multiple parties with specific policy questions. His question about sponsorship risks ("what if the company gets exposed for something bad") shows real critical thinking about public-private partnerships.
 
 ---
 
@@ -260,15 +260,15 @@
 
 ### 17. Lachlan MacKay — Niche Haligonians (member)
 **Platform Status:** WAR ROOM COMPLETE
-**Contribution:** "My duties for my team was feeding information to Lachlan McM While he was in battles with the AI and for out policies, promises and goals. My biggest contribution was making the slideshow and through asking questions during the debate through the niche website and feeding him information of other parties and responses throughout his speech. (he was kind of a work hog)."
+**Contribution:** "My duties for my team was feeding information to Lachlan McM While he was in battles with the AI and for out policies, promises and goals. My biggest contribution was making the slideshow and through asking questions during the debate through the niche website and feeding him information of other parties and responses throughout his speech. (he was kind of a work hog)." Also submitted 6 Town Hall questions (1 on_stage, 5 pending) — third-highest in the class.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 3 | Strong platform. Q3 — "The Niche Haligonians can do something like changing their funding plan to something less argumentative to help settle with other groups and compromise with other groups when it cones to their plan" — practical compromise thinking. |
 | 5.2 Government Structure | 3 | Q4 — "Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote therefore varying based on factors like stakes of the election and what its for" — nuanced understanding of how stakes affect democratic dynamics. |
-| 5.3 Democratic Engagement | 3+ | Multiple specific contributions — slideshow, debate questions, real-time information feeding during the AI interview. "(he was kind of a work hog)" — honest and humorous about the leader dynamics. Active throughout the process. |
+| 5.3 Democratic Engagement | 4 | Multiple specific contributions — slideshow, debate questions, real-time information feeding during the AI interview. And 6 Town Hall questions submitted (1 on_stage, 5 pending), the third-highest in the class. His questions challenged the Environmentalists on offshore energy, climate laws vs housing, and financial sustainability. "(he was kind of a work hog)" — honest and humorous about the leader dynamics. Active and engaged throughout the entire process. |
 
-**Reflection Notes:** Lachlan Mac's reflection reveals a student who was actively engaged throughout the entire process — making the slideshow, asking debate questions, feeding real-time information to his leader during the AI press scrum. His "(he was kind of a work hog)" comment is honest and shows he was paying attention to group dynamics. His Q4 answer about how stakes affect the role of likability is one of the more nuanced in the class.
+**Reflection Notes:** Lachlan Mac's reflection reveals a student who was actively engaged throughout the entire process — making the slideshow, asking debate questions, feeding real-time information to his leader during the AI press scrum. His Town Hall question count (6) confirms he was one of the most engaged participants in the democratic process. His questions were substantive challenges to other parties' platforms.
 
 ---
 
@@ -306,9 +306,9 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 2 | Platform issues exist but Abdul's personal engagement with them is thin. Q3 — "we team and take down the niche party" — very brief. Q4 — "it will not be in the real life election will have about 3 m people" — doesn't engage with the likability vs policy question. |
-| 5.2 Government Structure | 2 | Very brief reflection doesn't demonstrate structural understanding. Q4 doesn't engage with the question. |
-| 5.3 Democratic Engagement | 2 | Tried to contribute — "i made the slide I gave him ideas for what to add on it" — but his ideas weren't used by the leader. "He himself said its good i will add from it he did add some and i made the stuff he wants to say he did not add it." This is frustrating and likely demotivating. The reflection is very brief, suggesting disengagement. |
+| 5.1 Issue Valuation | 2+ | Platform issues exist but Abdul's personal engagement with them is thin. Q3 — "we team and take down the niche party" — very brief. Q4 — "it will not be in the real life election will have about 3 m people" — doesn't engage with the likability vs policy question. |
+| 5.2 Government Structure | 2+ | Very brief reflection doesn't demonstrate structural understanding. Q4 doesn't engage with the question. |
+| 5.3 Democratic Engagement | 2+ | Tried to contribute — "i made the slide I gave him ideas for what to add on it" — but his ideas weren't used by the leader. "He himself said its good i will add from it he did add some and i made the stuff he wants to say he did not add it." This is frustrating and likely demotivating. The reflection is very brief, suggesting disengagement. |
 
 **Reflection Notes:** Abdul's reflection is the most frustrated in the class. He tried to contribute — made slides, gave ideas, wrote talking points — but his leader didn't use them. "He did not add any of it he added some but not most." This is a group dynamics failure, not necessarily an individual engagement failure. But the brief responses to Q3 and Q4 suggest he checked out. The gap between his attempted contribution and the leader's response is worth noting.
 
@@ -336,15 +336,15 @@ These students appear in the roster but submitted no reflection. Grades are base
 
 ### 22. Remy Perks — Party De Solution (member)
 **Platform Status:** WAR ROOM COMPLETE (party platform is strong)
-**Contribution:** Unknown — no reflection submitted
+**Contribution:** Unknown — no reflection submitted. BUT submitted 1 Town Hall question (on_stage) — a detailed challenge to the Environmentalists about the Coastal Protection Act.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 3 | Party platform is strong but cannot assess individual engagement with issues without reflection. |
 | 5.2 Government Structure | 2+ | Cannot assess without reflection. |
-| 5.3 Democratic Engagement | 2+ | Listed as a member of a completed party, but no individual evidence of contribution. The party succeeded, but without a reflection we don't know Remy's role. |
+| 5.3 Democratic Engagement | 3 | No reflection, but the Town Hall data shows engagement. Remy's on_stage question was substantive: "what exactly does the coastal protection act you want to bring back entail? what will happen if you implement it? will the coastlines stop being eroded by not building near them?" That's a specific policy challenge that shows he was reading the opposition research and thinking critically about it. |
 
-**Reflection Notes:** No reflection submitted. The party platform is strong, but we cannot determine Remy's individual contribution or understanding.
+**Reflection Notes:** No reflection submitted. But Remy asked a detailed, specific question during the Town Hall about the Coastal Protection Act — challenging the Environmentalists on exactly what the act would do and whether it would actually work. That's opposition research engagement.
 
 ---
 
@@ -392,15 +392,15 @@ These students appear in the roster but submitted no reflection. Grades are base
 
 ### 26. Ali Abdelfattah — Climate Protection (leader)
 **Platform Status:** INCOMPLETE (party had platform in opposition-research but did not lock in)
-**Contribution:** Unknown — no reflection submitted
+**Contribution:** Unknown — no reflection submitted. BUT submitted 8 questions during the Final 4 Town Hall (3 on_stage, 5 pending) — the HIGHEST question count in the entire class.
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 2+ | Climate Protection platform (1M trees, renewable energy, plastic ban) has real issues. Ali led the party. |
-| 5.2 Government Structure | 2 | Cannot assess without reflection. |
-| 5.3 Democratic Engagement | 2+ | Led a party but did not lock in the platform. No reflection to confirm contribution or understanding. |
+| 5.2 Government Structure | 2+ | Cannot assess from reflection. His Town Hall questions showed understanding of policy trade-offs — asking about ER staffing, transit overcrowding, coastline funding costs, and economic stability. |
+| 5.3 Democratic Engagement | 3 | 8 Town Hall questions — the most of anyone in the class. 3 were selected for the stage. He asked challenging, specific policy questions to multiple parties: "How will your plan actually increase the number of doctors and nurses instead of just promising faster service?" (Unity), "If buses become free for everyone, how will you prevent overcrowding?" (Unity), "You compared us to Kazakhstan... Why is that a fair comparison?" (Niche). This is active, engaged democratic participation. The lack of reflection is a gap, but the Town Hall data shows someone who was deeply engaged in the process. |
 
-**Reflection Notes:** No reflection submitted. The Climate Protection party had a platform but didn't complete it. Without a reflection, we cannot assess Ali's individual contribution.
+**Reflection Notes:** No reflection submitted. But the Town Hall data tells a clear story: Ali was the most active questioner in the class, with 8 questions submitted to the moderation queue. His questions were specific, challenging, and targeted multiple parties. He asked about ER staffing, transit overcrowding, coastline funding, happiness metrics, and economic trade-offs. That level of engagement with the democratic process is significant, even without a reflection.
 
 ---
 
@@ -421,29 +421,29 @@ These students appear only in the Code.gs roster. No grading possible.
 
 | # | Student | Party | 5.1 | 5.2 | 5.3 | Key Signal |
 |---|---------|-------|-----|-----|-----|------------|
-| 1 | Kai Kilgour | Climate Protection | 2+ | 2 | 2+ | Tried, team didn't present |
+| 1 | Kai Kilgour | Climate Protection | 2+ | 2+ | 2+ | Tried, team didn't present |
 | 2 | Joshua Abraham | Healthier Future | 4 | 3+ | 4 | Did everything in 2-person group, major contributor |
-| 3 | Yunho Park | Party De Solution | 3 | 2+ | 3 | Active under leader's direction |
-| 4 | Leo Ewing | CPOH | 2+ | 2 | 2+ | Describes group, not self |
+| 3 | Yunho Park | Party De Solution | 3 | 2+ | 3+ | Active under leader, 2 Town Hall questions |
+| 4 | Leo Ewing | CPOH | 2+ | 2+ | 3 | 6 Town Hall questions, 2 on_stage |
 | 5 | Clark Feng | Healthier Future | 3+ | 3+ | 3 | Exceptional Q4 critical thinking |
 | 6 | Madhavan Karia | Party De Solution | 4 | 3+ | 4 | Leader, refiner, strategist |
 | 7 | Elizabeth Sanyaolu | Unity Party | 3 | 3 | 3+ | Won primary, confident speaker, major participant |
-| 8 | Nolan Hamilton | Niche Haligonians | 3 | 3 | 3+ | Co-wrote financial plan, major participant |
-| 9 | Rifa Shahul Mydeen Ali | Equitable Rights | 4 | 3+ | 4 | Most thoughtful reflection, did everything |
+| 8 | Nolan Hamilton | Niche Haligonians | 3 | 3 | 3+ | Co-wrote financial plan, 4 Town Hall questions |
+| 9 | Rifa Shahul Mydeen Ali | Equitable Rights | 4 | 3+ | 4 | Most thoughtful reflection, 7 Town Hall questions |
 | 10 | Natalia Filipovic | Env. at Work | 4 | 3+ | 4 | Speech, finance, slideshow — full drive |
 | 11 | Lachlan McMahon | Niche Haligonians | 4 | 3+ | 4 | Won election, governance-level thinking |
 | 12 | Josie Sullivan | Team tomorrow | 3 | 2+ | 3 | Contributed to goals and slides |
-| 13 | Zankia van der Walt | Env. at Work | 3+ | 3 | 3+ | All slides, war room help, honest reflection |
-| 14 | Kendra Bell | Env. at Work | 3+ | 3 | 3+ | Structured civic strategy, debate support |
+| 13 | Zankia van der Walt | Env. at Work | 3+ | 3 | 3+ | All slides, war room help, 3 Town Hall questions |
+| 14 | Kendra Bell | Env. at Work | 3+ | 3 | 3+ | Structured civic strategy, 3 Town Hall questions |
 | 15 | Alia Doaia | Unity Party | 3 | 2+ | 3 | Debate points, confidence builder |
-| 16 | Laila Awad | Team tomorrow | 3+ | 3 | 3+ | Leader, speech, respectful engagement |
-| 17 | Lachlan MacKay | Niche Haligonians | 3 | 3 | 3+ | Slideshow, debate questions, real-time support |
+| 16 | Laila Awad | Team tomorrow | 3+ | 3 | 3+ | Leader, speech, 4 Town Hall questions |
+| 17 | Lachlan MacKay | Niche Haligonians | 3 | 3 | 4 | Slideshow, 6 Town Hall questions, real-time support |
 | 18 | Jessa Salasalan | Env. at Work | 4 | 3+ | 4 | Director of Comms, drove intellectual direction |
 | 19 | MD Farhan Rahman | Islamic Associations | 3+ | 3 | 3+ | Detailed platform, major participant |
-| 20 | Abdul Aboukoura | Islamic Associations | 2 | 2 | 2 | Tried, ideas weren't used, brief reflection |
-| 21 | Sarah Tiga | Equitable Rights | 3 | 3+ | 3+ | Comms + finance, poetic Q1, major participant |
-| 22 | Remy Perks | Party De Solution | 3 | 2+ | 2+ | No reflection — party succeeded, role unknown |
+| 20 | Abdul Aboukoura | Islamic Associations | 2+ | 2+ | 2+ | Tried, ideas weren't used, brief reflection |
+| 21 | Sarah Tiga | Equitable Rights | 3 | 3+ | 3+ | Comms + finance, poetic Q1, 4 Town Hall questions |
+| 22 | Remy Perks | Party De Solution | 3 | 2+ | 3 | No reflection but 1 on_stage Town Hall question |
 | 23 | Evie | Equity Party | 3 | 2+ | 3 | No reflection — led party with clear direction |
 | 24 | Delisha Devabattula | Env. at Work | 4 | 3+ | 4 | No reflection but major participant, led Final 4 |
 | 25 | Isaac | CPOH | 2+ | 2+ | 2+ | No reflection, incomplete party |
-| 26 | Ali Abdelfattah | Climate Protection | 2+ | 2 | 2+ | No reflection, incomplete party |
+| 26 | Ali Abdelfattah | Climate Protection | 2+ | 2+ | 3 | No reflection but 8 Town Hall questions — most in class |
