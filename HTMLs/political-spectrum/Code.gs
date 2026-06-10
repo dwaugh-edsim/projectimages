@@ -737,7 +737,6 @@ function populateFeedbackFromMatrix() {
   // Each record: [Name, Party, Role, PIN, G51, T51, X51, Q51, G52, T52, X52, Q52, G53, T53, X53, Q53, Closing, Provisional]
   // Quotes (Q*) are passed as empty strings and edited in the sheet after import if needed.
   var rows = [
-var rows = [
     ['Madhavan', 'The Party De Solution', 'Leader', 'R4MT',
       '4', 'You picked issues people actually cared about.',
         'Your platform hit three things that matter to students and families: better schools, safer buses, and actual healthcare in schools instead of just an ice pack. But what set you apart was the funding idea -- partnering with Subway so people get something back while supporting schools. You weren\'t just listing promises. You were thinking about why people would buy in.',
@@ -1098,14 +1097,13 @@ var rows = [
         '',
       'Jana, you were part of the Equity Party, which had a clear philosophical direction. Without a reflection, I don\'t know your individual contribution, but the platform your party built was distinct and meaningful. The grades above are provisional and based on roster membership only -- they do not reflect confirmed individual work. If you had the chance to share your experience, I\'d want to hear it.', true]
   ];
-];
 
   // Write rows starting at row 2 (after header)
   var startRow = sheet.getLastRow() + 1;
   if (startRow < 2) startRow = 2;
   sheet.getRange(startRow, 1, rows.length, FB_HEADERS.length - 1).setValues(rows);
   SpreadsheetApp.flush();
-  Logger.log('Wrote ' + rows.length + ' rows starting at row ' + startRow + '. Add remaining 25 students via the sheet.');
+  Logger.log('Wrote ' + rows.length + ' rows starting at row ' + startRow + '. All 30 students seeded.');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
