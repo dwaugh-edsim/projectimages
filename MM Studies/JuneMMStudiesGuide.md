@@ -104,11 +104,20 @@ Signed in **2006** and enacted in **2007**, it is the **largest class-action set
 
 ---
 
-## PART 06 — THE OKA CRISIS
+## PART 06 — TERRITORIAL SOVEREIGNTY & RESOURCE CLASHES
 
+### 1. The Oka Crisis (1990)
 *   **What Was It?** A **1990** land dispute between Mohawk people and the town of Oka, Quebec, over plans to expand a golf course on a sacred Indigenous burial ground.
 *   **Duration:** Lasted 78 days (July 11 – September 26) and resulted in two deaths.
 *   **Why It Matters:** The first major, violent conflict between First Nations and provincial/federal governments in the late 20th century, highlighting unresolved land claims.
+
+### 2. Marshall Decision & Moderate Livelihood Fishing Disputes
+*   **1999 Marshall Decision:** The Supreme Court of Canada confirmed that Donald Marshall Jr. (and all Mi'kmaq) had treaty rights under the 1760-61 Treaties to hunt, fish, and gather to earn a **"moderate livelihood."**
+*   **The Conflict:** The Supreme Court did not define exactly what a "moderate livelihood" was, nor did it clarify who had final regulation rights. This led to ongoing clashes between Mi'kmaw fishers (exercising their self-regulated treaty rights) and federal Department of Fisheries and Oceans (DFO) agents or non-Indigenous commercial fishers over who has jurisdiction to regulate, manage, and control resource harvesting on traditional waters.
+
+### 3. The Leo Cannabis Case (Jurisdictional Disputes)
+*   **The Issue:** A clash of legal jurisdiction over businesses operating on sovereign reserve lands.
+*   **The Conflict:** Indigenous business owners operating cannabis dispensaries on reserves assert that their businesses are governed by community band laws and sovereign Indigenous jurisdiction. However, provincial and federal authorities argue that provincial licensing rules and state cannabis acts must apply, leading to disputes, raids, and legal battles over who has the final authority to regulate commerce on reserve land.
 
 ---
 
@@ -176,6 +185,7 @@ Signed in **2006** and enacted in **2007**, it is the **largest class-action set
 *   **1989:** Donald Marshall Jr. Royal Commission report released, exposing systemic racism.
 *   **1990:** Oka Crisis begins (July 11).
 *   **1996:** Last residential school in Canada closes.
+*   **1999:** Marshall Decision confirms Mi'kmaw moderate livelihood treaty fishing rights.
 *   **2006:** IRSSA signed ($5+ billion settlement).
 *   **2007:** IRSSA enacted.
 *   **2008–2015:** Truth and Reconciliation Commission operates.
@@ -229,3 +239,10 @@ Signed in **2006** and enacted in **2007**, it is the **largest class-action set
 
 ### Q6: What is the "Gladue funding gap" and why does it stop the legal system from achieving substantive equality?
 **Answer:** While Gladue Rights require judges to look for community-led alternatives to jail, a lack of government funding for Indigenous-led programs (like reserve housing, counseling, and healing centers) means these alternatives often do not exist. This is the **funding gap**: the court has a legal obligation to look for options, but has no actual programs to send people to, forcing judges to return to standard prison sentences. This prevents real substantive equality.
+
+### Q7: Explain the ongoing tension between Indigenous self-determination (self-rule) and Canadian federal/provincial governments regarding territorial/resource control. What are some key examples of these clashes we covered in class?
+**Answer:** The conflict revolves around who has the right to make decisions and govern Indigenous lands, resources, and communities. Indigenous peoples assert their inherent right to self-determination and self-governance, while federal and provincial authorities attempt to impose state-level jurisdiction and licensing. Key examples of these clashes covered in class include:
+*   **The 1940s Centralization Policy:** Federal relocation of Mi'kmaq families to central reserves (Eskasoni and Sipekne'katik) to ease state control and surveillance.
+*   **The Marshall Fishery Decision & Fishing Disputes:** Clashes between Mi'kmaw fishers (asserting self-regulated treaty rights to earn a moderate livelihood) and federal DFO agents or commercial fishers over who regulates the resource.
+*   **The Leo Cannabis Case:** Clashes over reserve businesses where dispensary owners assert sovereignty and band laws to trade, while provincial police raid shops to enforce state licensing acts.
+*   **The Oka Crisis (1990):** Mohawk resistance against a local municipality attempting to expand a golf course onto sacred burial grounds.
