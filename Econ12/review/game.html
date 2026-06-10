@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Econ12 Challenge</title>
+<link href='https://fonts.googleapis.com/css?family=Nova+Mono' rel='stylesheet' type='text/css' />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BLACKWHITE TEMPLATE BASE
+   ============================================================ */
+body {
+  margin: 0;
+  padding: 0;
+  background: #FFFFFF url(images/img04.jpg) repeat;
+  font-family: 'Outfit', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #808080;
+  min-height: 100vh;
+}
+h1, h2, h3 {
+  margin: 0;
+  padding: 0;
+  font-family: 'Nova Mono', cursive;
+  font-weight: normal;
+  color: #2E9F13;
+}
+a { text-decoration: none; color: #000000; }
+a:hover { text-decoration: underline; }
+
+/* ============================================================
+   GAME OVERRIDES
+   ============================================================ */
+:root {
+  --accent: #2E9F13;
+  --accent-d: rgba(46, 159, 19, 0.12);
+  --wrong: #A53602;
+  --wrong-d: rgba(165, 54, 2, 0.12);
+  --ink: #1A1A1A;
+  --paper: #FFFFFF;
+  --rule: #D0D0D0;
+}
+
+#wrapper { width: 100%; }
+
+#menu {
+  width: 100%;
+  height: 44px;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-family: 'Nova Mono', cursive;
+  font-size: 18px;
+  position: sticky; top: 0; z-index: 50;
+}
+#menu a {
+  display: block;
+  padding: 8px 22px;
+  color: #B5B5B5;
+  border: none;
+}
+#menu a.on, #menu a:hover { color: #FFFFFF; background: #1A1A1A; text-decoration: none; }
+#menu .spacer { flex: 1; }
+#menu .who { color: #2E9F13; padding-right: 24px; font-size: 14px; }
+
+#page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 24px 60px;
+}
+
+/* SCREENS */
+.screen { display: none; }
+.screen.on { display: block; }
+
+/* HEADER LOGO (login + start) */
+.brand {
+  border-bottom: 1px solid var(--rule);
+  padding: 28px 0 22px;
+  margin-bottom: 32px;
+}
+.brand h1 {
+  font-size: 56px;
+  letter-spacing: -2px;
+  text-transform: lowercase;
+  color: var(--ink);
+  line-height: 1;
+}
+.brand h1 span { color: var(--accent); }
+.brand p {
+  font-family: 'Nova Mono', cursive;
+  font-size: 16px;
+  color: #A4A4A4;
+  margin-top: 6px;
+}
+
+/* LOGIN + START CARDS */
+.panel {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  padding: 32px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+}
+.panel h2 {
+  font-size: 28px;
+  letter-spacing: -1px;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.panel label {
+  display: block;
+  font-family: 'Nova Mono', cursive;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #1A1A1A;
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+.panel input[type=text], .panel input[type=password] {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  padding: 10px 12px;
+  font-family: 'Nova Mono', cursive;
+  font-size: 16px;
+  color: #1A1A1A;
+  outline: none;
+  box-sizing: border-box;
+}
+.panel input:focus { border-color: var(--accent); }
+
+.btn {
+  display: inline-block;
+  background: #000000;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 28px;
+  font-family: 'Nova Mono', cursive;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 1px;
+  transition: 0.15s;
+}
+.btn:hover { background: var(--accent); }
+.btn:disabled { background: #888; cursor: not-allowed; }
+.btn.big { width: 100%; padding: 16px; font-size: 18px; }
+.btn.outline { background: transparent; color: #000; border: 1px solid #000; }
+.btn.outline:hover { background: #000; color: #fff; }
+.btn.accent { background: var(--accent); }
+.btn.wrong { background: var(--wrong); }
+.btn.wrong:hover { background: #8a2a02; }
+
+.error {
+  color: var(--wrong);
+  font-size: 13px;
+  font-family: 'Nova Mono', cursive;
+  margin-top: 10px;
+  display: none;
+}
+.error.on { display: block; }
+
+/* MODE SELECTOR */
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0 22px; }
+.mode {
+  background: #FFFFFF;
+  border: 2px solid var(--rule);
+  padding: 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.15s;
+}
+.mode:hover { border-color: #999; }
+.mode.sel { border-color: var(--accent); background: var(--accent-d); }
+.mode .ico { font-size: 28px; display: block; margin-bottom: 6px; }
+.mode .nm { font-family: 'Nova Mono', cursive; font-size: 18px; color: var(--ink); }
+.mode .ds { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* PAST SCORES TABLE */
+.scores-box {
+  background: #FAFAFA;
+  border: 1px solid var(--rule);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+.scores-box h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #1A1A1A;
+  margin-bottom: 10px;
+  font-family: 'Nova Mono', cursive;
+}
+.scores-box table { width: 100%; border-collapse: collapse; }
+.scores-box th { text-align: left; font-family: 'Nova Mono', cursive; font-size: 11px; color: #888; padding: 4px 6px; border-bottom: 1px solid var(--rule); }
+.scores-box td { padding: 6px; border-bottom: 1px solid #F0F0F0; color: #1A1A1A; font-family: 'Nova Mono', cursive; font-size: 13px; }
+.scores-box td.pct { color: var(--accent); font-weight: bold; }
+
+/* ============================================================
+   GAME SCREEN
+   ============================================================ */
+#game-screen .hud {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+.hud .score {
+  font-family: 'Nova Mono', cursive;
+  font-size: 22px;
+  color: #1A1A1A;
+}
+.hud .score small { display: block; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.hud .streak {
+  font-family: 'Nova Mono', cursive;
+  font-size: 14px;
+  color: var(--wrong);
+  border-left: 1px solid var(--rule);
+  padding-left: 18px;
+}
+.hud .streak.zen { color: #888; }
+.hud .streak.zero { opacity: 0; }
+.hud .progress {
+  font-family: 'Nova Mono', cursive;
+  font-size: 14px;
+  color: #1A1A1A;
+  border-left: 1px solid var(--rule);
+  padding-left: 18px;
+}
+.hud .lives {
+  margin-left: auto;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+.hud .lives .heart { opacity: 0.2; }
+.hud .lives .heart.on { opacity: 1; }
+
+.timer {
+  height: 4px;
+  background: #EEE;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.timer-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 100%;
+  transition: width 0.2s linear, background 0.3s;
+}
+.timer-fill.warn { background: #E0A800; }
+.timer-fill.danger { background: var(--wrong); }
+
+.qcard {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  padding: 28px 32px;
+  position: relative;
+}
+.qcard .topic {
+  font-family: 'Nova Mono', cursive;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.qcard .qnum {
+  font-family: 'Nova Mono', cursive;
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 14px;
+}
+.qcard .qtext {
+  font-size: 19px;
+  font-weight: 600;
+  color: #1A1A1A;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 2px solid var(--rule);
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 15px;
+  color: #1A1A1A;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.12s;
+}
+.opt:hover:not(.locked) { border-color: #1A1A1A; }
+.opt .lt {
+  width: 26px; height: 26px;
+  background: #F0F0F0;
+  font-family: 'Nova Mono', cursive;
+  font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.opt.correct { border-color: var(--accent); background: var(--accent-d); }
+.opt.correct .lt { background: var(--accent); color: #FFF; }
+.opt.wrong { border-color: var(--wrong); background: var(--wrong-d); }
+.opt.wrong .lt { background: var(--wrong); color: #FFF; }
+.opt.locked { cursor: default; opacity: 0.5; }
+.opt.locked.correct { opacity: 1; }
+
+.feedback {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-left: 4px solid;
+  font-size: 14px;
+  line-height: 1.5;
+  display: none;
+}
+.feedback.on { display: block; }
+.feedback.ok { border-color: var(--accent); background: var(--accent-d); color: #1A1A1A; }
+.feedback.no { border-color: var(--wrong); background: var(--wrong-d); color: #1A1A1A; }
+.feedback b { color: #1A1A1A; }
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+.results {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--accent);
+  padding: 36px;
+  text-align: center;
+}
+.results .ring {
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+.results .ring.mid { border-color: #E0A800; }
+.results .ring.low { border-color: var(--wrong); }
+.results .ring .pct {
+  font-family: 'Nova Mono', cursive;
+  font-size: 42px;
+  color: #1A1A1A;
+  line-height: 1;
+}
+.results .ring .lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #888;
+  margin-top: 4px;
+}
+.results h2 {
+  font-size: 32px;
+  letter-spacing: -1px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.results .msg { color: #888; margin-bottom: 24px; font-size: 15px; }
+
+.rstats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+  margin-bottom: 24px;
+}
+.rstat { text-align: center; }
+.rstat .v { font-family: 'Nova Mono', cursive; font-size: 24px; color: #1A1A1A; }
+.rstat .l { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-top: 4px; }
+
+.review-q {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  border-left: 4px solid #1A1A1A;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.review-q.ok { border-left-color: var(--accent); }
+.review-q.no { border-left-color: var(--wrong); }
+.review-q .h {
+  font-family: 'Nova Mono', cursive;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #888;
+  margin-bottom: 6px;
+}
+.review-q .qq { font-weight: 600; color: #1A1A1A; margin-bottom: 6px; }
+.review-q .ua { font-size: 13px; color: #1A1A1A; }
+.review-q .ua b { font-family: 'Nova Mono', cursive; }
+.review-q .ex { font-size: 13px; color: #555; margin-top: 6px; font-style: italic; }
+
+/* GAME OVER */
+.gameover {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.gameover.on { display: flex; }
+.gameover .panel { max-width: 420px; text-align: center; }
+
+@keyframes pop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.shake { animation: shake 0.3s; }
+.pop { animation: pop 0.25s; }
+
+@media (max-width: 700px) {
+  .brand h1 { font-size: 36px; }
+  .panel { padding: 20px; }
+  .qcard { padding: 20px; }
+  .qcard .qtext { font-size: 16px; }
+  .modes { grid-template-columns: 1fr; }
+  .rstats { grid-template-columns: 1fr 1fr; }
+  #menu { font-size: 14px; padding-left: 12px; }
+  #menu a { padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<div id="menu">
+  <a href="#" class="on">econ12 / challenge</a>
+  <span class="spacer"></span>
+  <span class="who" id="who-tag"></span>
+</div>
+
+<div id="page">
+<div id="wrapper">
+
+<!-- ============== LOGIN ============== -->
+<div id="login-screen" class="screen on">
+  <div class="brand">
+    <h1>econ<span>12</span></h1>
+    <p>// sign in to begin</p>
+  </div>
+  <div class="panel">
+    <h2>Login</h2>
+    <label>Your Name</label>
+    <input type="text" id="login-name" placeholder="first last" autocomplete="off" />
+    <label>2-Digit PIN</label>
+    <input type="password" id="login-pin" placeholder="00-99" maxlength="2" inputmode="numeric" pattern="[0-9]*" />
+    <div class="error" id="login-error"></div>
+    <div style="margin-top:22px">
+      <button class="btn big" onclick="handleLogin()" id="login-btn">start session</button>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:18px;font-family:'Nova Mono',cursive;">
+      First time? Pick a PIN and you'll be registered automatically.
+    </p>
+  </div>
+</div>
+
+<!-- ============== START ============== -->
+<div id="start-screen" class="screen">
+  <div class="brand">
+    <h1>ready,<span> </span><span id="welcome-name" style="color:var(--accent)"></span></h1>
+    <p>// pick a mode. 30 questions per round.</p>
+  </div>
+  <div class="panel">
+    <h2>Select Mode</h2>
+    <div class="modes">
+      <div class="mode sel" data-mode="sprint" onclick="pickMode(this)">
+        <span class="ico">&#9889;</span>
+        <div class="nm">sprint</div>
+        <div class="ds">20s per question. streak bonuses.</div>
+      </div>
+      <div class="mode" data-mode="survival" onclick="pickMode(this)">
+        <span class="ico">&#10084;</span>
+        <div class="nm">survival</div>
+        <div class="ds">3 lives. no timer. how far can you go?</div>
+      </div>
+    </div>
+
+    <div class="scores-box" id="past-scores" style="display:none">
+      <h3>// your history</h3>
+      <div id="past-scores-body"></div>
+    </div>
+
+    <button class="btn big accent" onclick="startGame()">begin</button>
+    <button class="btn outline" style="margin-top:10px;width:100%;padding:12px" onclick="logout()">sign out</button>
+  </div>
+</div>
+
+<!-- ============== GAME ============== -->
+<div id="game-screen" class="screen">
+  <div class="hud">
+    <div class="score"><span id="hud-score">0</span><small>score</small></div>
+    <div class="streak zero" id="hud-streak">streak <span id="hud-streak-n">0</span></div>
+    <div class="progress">q <span id="hud-prog">1</span>/30</div>
+    <div class="lives" id="hud-lives" style="display:none">
+      <span class="heart on">&#10084;</span>
+      <span class="heart on">&#10084;</span>
+      <span class="heart on">&#10084;</span>
+    </div>
+  </div>
+  <div class="timer"><div class="timer-fill" id="timer-fill"></div></div>
+  <div class="qcard" id="qcard"></div>
+</div>
+
+<!-- ============== RESULTS ============== -->
+<div id="results-screen" class="screen">
+  <div class="results" id="results-card">
+    <div class="ring" id="ring"><div class="pct" id="r-pct">0%</div><div class="lbl" id="r-frac">0/30</div></div>
+    <h2 id="r-title">Done.</h2>
+    <p class="msg" id="r-msg"></p>
+    <div class="rstats">
+      <div class="rstat"><div class="v" id="r-score">0</div><div class="l">Score</div></div>
+      <div class="rstat"><div class="v" id="r-streak">0</div><div class="l">Best Streak</div></div>
+      <div class="rstat"><div class="v" id="r-acc">0%</div><div class="l">Accuracy</div></div>
+    </div>
+    <button class="btn accent" style="margin-right:8px" onclick="playAgain()">play again</button>
+    <button class="btn outline" onclick="showReview()">review answers</button>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="footer" style="text-align:center;padding:30px;color:#999;font-family:'Nova Mono',cursive;font-size:12px">
+  &copy; Mr. Waugh &middot; Econ 12
+</div>
+
+<!-- ============== GAME OVER ============== -->
+<div class="gameover" id="gameover">
+  <div class="panel">
+    <h2>Out of Lives</h2>
+    <p id="go-msg" style="color:#888;margin-bottom:18px"></p>
+    <div class="rstats" style="grid-template-columns:1fr 1fr">
+      <div class="rstat"><div class="v" id="go-score">0</div><div class="l">Score</div></div>
+      <div class="rstat"><div class="v" id="go-qs">0</div><div class="l">Questions</div></div>
+    </div>
+    <button class="btn accent big" style="margin-top:18px" onclick="location.reload()">try again</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbynnYb4y_1h5-yyRio-8bE-s35A758XwuJKLf8kMOfvWLb6CyA9jUZgyBd3bjo8CBVy/exec";
+const SPRINT_SECONDS = 20;
+const TOTAL_Q = 30;
+
+/* ============================================================
+   QUESTION BANK (MCQ only, short)
+   ============================================================ */
+const QB = [
+  // SUPPLY & DEMAND
+  {t:"supply-demand",l:"supply & demand", q:"The Law of Demand: consumers buy more when prices...", o:["rise","fall","stay the same","double"], c:1, e:"Lower prices = more quantity demanded."},
+  {t:"supply-demand",l:"supply & demand", q:"What is market equilibrium?", o:["Supply > demand","Demand > supply","Quantity demanded = quantity supplied","Highest possible price"], c:2, e:"Equilibrium: where supply and demand curves intersect."},
+  {t:"supply-demand",l:"supply & demand", q:"A government subsidy to producers will usually:", o:["decrease supply","increase supply","leave supply unchanged","decrease demand"], c:1, e:"Subsidies lower costs, encouraging more production."},
+  {t:"supply-demand",l:"supply & demand", q:"Printers and ink are an example of:", o:["substitute goods","complementary goods","inferior goods","luxury goods"], c:1, e:"Used together = complementary."},
+  {t:"supply-demand",l:"supply & demand", q:"If coffee prices rise, demand for tea will most likely:", o:["decrease","increase","stay the same","disappear"], c:1, e:"Tea is a substitute for coffee."},
+  {t:"supply-demand",l:"supply & demand", q:"Which is NOT a demand determinant?", o:["consumer income","tastes & preferences","cost of production","population"], c:2, e:"Cost of production is a supply determinant."},
+  {t:"supply-demand",l:"supply & demand", q:"For a 'want' to be economic demand, the consumer must:", o:["just want it","want + afford it","want + afford + willing to pay","have unlimited income"], c:2, e:"All three conditions: want, able, willing."},
+  {t:"supply-demand",l:"supply & demand", q:"A 5% oil cut causing 38% gas price spike shows:", o:["elastic demand","inelastic demand","perfect competition","a subsidy"], c:1, e:"Inelastic = small supply cut = huge price spike."},
+  {t:"supply-demand",l:"supply & demand", q:"A price ceiling on bread would most likely cause:", o:["surpluses","shortages","lower prices forever","more bakeries"], c:1, e:"Ceilings suppress price signals, causing shortages."},
+  {t:"supply-demand",l:"supply & demand", q:"When supply decreases, equilibrium price:", o:["falls","stays the same","rises","disappears"], c:2, e:"Less supply with steady demand = higher price."},
+  {t:"supply-demand",l:"supply & demand", q:"A 25% tariff on imported bananas mostly hurts:", o:["domestic producers","domestic consumers + foreign farmers","only the foreign gov","only the rich"], c:1, e:"Consumers pay more, foreign farmers lose access."},
+  {t:"supply-demand",l:"supply & demand", q:"Substitute goods: if price of A rises, demand for B...", o:["falls","rises","stays flat","halves"], c:1, e:"Consumers switch to the substitute."},
+  {t:"supply-demand",l:"supply & demand", q:"Complementary goods example?", o:["Coke and Pepsi","Cars and gasoline","Tea and coffee","iPhone and Samsung"], c:1, e:"Used together = complementary."},
+  {t:"supply-demand",l:"supply & demand", q:"Which is a supply determinant?", o:["consumer income","tastes","cost of raw materials","population"], c:2, e:"Production costs shift supply."},
+
+  // ADAM SMITH
+  {t:"adam-smith",l:"adam smith", q:"Smith's pin factory: 10 specialized workers could make:", o:["200 pins/day","2,000","48,000","100,000"], c:2, e:"10 workers = 48,000 pins/day vs. ~20 alone."},
+  {t:"adam-smith",l:"adam smith", q:"The 'Invisible Hand' means:", o:["gov should control markets","self-interest unintentionally benefits society","prices are set centrally","everyone earns equally"], c:1, e:"Self-interest guides markets to efficient outcomes."},
+  {t:"adam-smith",l:"adam smith", q:"Division of Labour =", o:["paying all workers the same","splitting production into specialized tasks","one worker does it all","rotating workers"], c:1, e:"Specialization = higher productivity."},
+  {t:"adam-smith",l:"adam smith", q:"Smith: the only way to raise a nation's living standard is:", o:["raising taxes","cutting population","raising productivity","printing money"], c:2, e:"Productivity growth = living standards."},
+  {t:"adam-smith",l:"adam smith", q:"A pizza shop owner chasing profit but feeding the community illustrates:", o:["tragedy of the commons","the invisible hand","diminishing utility","multiplier effect"], c:1, e:"Self-interest = social benefit."},
+  {t:"adam-smith",l:"adam smith", q:"Which is NOT one of Smith's 3 growth methods?", o:["grow the workforce","borrow to import","invest in capital & education","raise taxes on the rich"], c:3, e:"Taxes aren't a growth method."},
+  {t:"adam-smith",l:"adam smith", q:"Smith's preferred government role:", o:["Keynesian intervention","laissez-faire","centrally planned","wealth tax"], c:1, e:"Leave markets alone."},
+  {t:"adam-smith",l:"adam smith", q:"Productivity gains from specialization come from:", o:["lazier workers","faster repetition + skill","fewer workers","higher prices"], c:1, e:"Repetition builds skill & speed."},
+
+  // STOCK MARKET
+  {t:"stock-market",l:"stock market", q:"IPO stands for:", o:["internal profit option","initial public offering","investor portfolio org","instant price order"], c:1, e:"First time a private company sells shares publicly."},
+  {t:"stock-market",l:"stock market", q:"A bull market =", o:["falling prices, pessimism","rising prices, optimism","stable prices","high volatility only"], c:1, e:"Bull = optimism + rising prices."},
+  {t:"stock-market",l:"stock market", q:"A bear market drop is typically defined as:", o:["5%+","10%+","20%+","50%+"], c:2, e:"20%+ = bear market."},
+  {t:"stock-market",l:"stock market", q:"A Blue Chip stock is from a company that is:", o:["brand new and risky","large, established, reliable","a government bond","a penny stock"], c:1, e:"e.g. Apple, Coca-Cola."},
+  {t:"stock-market",l:"stock market", q:"An index fund tracks:", o:["a single hot stock","a basket of stocks (e.g. S&P 500)","only bonds","daily trades"], c:1, e:"Index funds mirror a market index."},
+  {t:"stock-market",l:"stock market", q:"Buy 50 shares at $10, sell at $12.20. Return?", o:["$50","$110","$220","$610"], c:1, e:"$2.20 x 50 = $110."},
+  {t:"stock-market",l:"stock market", q:"Volatility =", o:["company profit","how fast/often a price swings","shares traded","dividend yield"], c:1, e:"Volatility = price swing speed/frequency."},
+  {t:"stock-market",l:"stock market", q:"During an oil blockade, energy stocks typically:", o:["fall","rise","stay flat","disappear"], c:1, e:"Higher oil = higher energy profits."},
+  {t:"stock-market",l:"stock market", q:"Diversification means:", o:["all money in one stock","spreading across sectors/assets","only buying tech","selling during bear markets"], c:1, e:"Spread = reduce risk."},
+  {t:"stock-market",l:"stock market", q:"Two ways shareholders earn money:", o:["wages + tips","dividends + appreciation","rent + royalties","taxes + fees"], c:1, e:"Dividends (profit share) and capital gains."},
+  {t:"stock-market",l:"stock market", q:"The TSX is an example of a stock:", o:["mutual fund","exchange","bond","derivative"], c:1, e:"Toronto Stock Exchange."},
+  {t:"stock-market",l:"stock market", q:"Appreciation means:", o:["stock loses value","stock gains value above buy price","stock pays a dividend","stock splits"], c:1, e:"Selling higher than purchase."},
+
+  // ECONOMIC SYSTEMS
+  {t:"economic-systems",l:"economic systems", q:"Capitalism is based on:", o:["gov ownership","private ownership + market","equal wealth for all","no property"], c:1, e:"Private ownership + market competition."},
+  {t:"economic-systems",l:"economic systems", q:"Communism =", o:["private property encouraged","gov controls all production","markets set all prices","individuals own everything"], c:1, e:"No private property; state controls production."},
+  {t:"economic-systems",l:"economic systems", q:"Socialism differs from communism because:", o:["no private property allowed","some private property allowed","it is the same as capitalism","no government"], c:1, e:"Socialism allows some private property."},
+  {t:"economic-systems",l:"economic systems", q:"'Laissez-faire' =", o:["heavy regulation","gov stays out","gov owns all","free trade only"], c:1, e:"Let the market work."},
+  {t:"economic-systems",l:"economic systems", q:"Who developed the communist theory?", o:["Adam Smith","Keynes","Karl Marx","Milton Friedman"], c:2, e:"Karl Marx."},
+  {t:"economic-systems",l:"economic systems", q:"Under socialism, a small personal garden is:", o:["not allowed","usually still allowed","seized by the state","taxed heavily"], c:1, e:"Some private property is allowed."},
+  {t:"economic-systems",l:"economic systems", q:"Adam Smith is most associated with:", o:["communism","Keynesian","laissez-faire capitalism","mercantilism"], c:2, e:"Laissez-faire capitalism."},
+
+  // TRADE
+  {t:"trade",l:"trade", q:"A tariff is a:", o:["subsidy for exports","tax on imports","trade agreement","exchange rate"], c:1, e:"Tax on imports."},
+  {t:"trade",l:"trade", q:"Comparative advantage = specialize in goods with the:", o:["lowest cost","lowest opportunity cost","highest price","most demand"], c:1, e:"Lowest opportunity cost."},
+  {t:"trade",l:"trade", q:"Fair Trade guarantees:", o:["lowest possible prices","min prices + better conditions","free shipping","tax exemptions"], c:1, e:"Min prices + better conditions for producers."},
+  {t:"trade",l:"trade", q:"USMCA is an example of a:", o:["tariff","trading bloc","currency","monopoly"], c:1, e:"Trading bloc = group reducing trade barriers."},
+  {t:"trade",l:"trade", q:"Tariffs on necessities act as a ___ tax.", o:["progressive","regressive","proportional","flat"], c:1, e:"Regressive: hurts low-income more."},
+  {t:"trade",l:"trade", q:"'Anchoring' in retail =", o:["setting a default","using an expensive item as a reference","showing crowd choice","pre-checking a box"], c:1, e:"Expensive item makes others look reasonable."},
+  {t:"trade",l:"trade", q:"'Social proof' uses:", o:["high prices","what most people chose","pre-checked boxes","free samples"], c:1, e:"People follow the crowd."},
+  {t:"trade",l:"trade", q:"A trading bloc reduces ___ among members.", o:["tariffs","currency","language","population"], c:0, e:"Reduces tariffs/barriers."},
+
+  // CREDIT
+  {t:"credit",l:"credit & finance", q:"APR stands for:", o:["annual payment rate","annual percentage rate","average profit return","applied payment ratio"], c:1, e:"Yearly cost of borrowing."},
+  {t:"credit",l:"credit & finance", q:"Credit utilization =", o:["balance x limit","(balance / limit) x 100","limit - balance","balance + limit"], c:1, e:"% of credit limit used."},
+  {t:"credit",l:"credit & finance", q:"Michelle's $35 minimum on $1,162 at 19.99% keeps her in debt because:", o:["rate doubles","most payment covers interest","score drops","fees add"], c:1, e:"Interest eats most of the payment."},
+  {t:"credit",l:"credit & finance", q:"Credit utilization above 30% is bad because:", o:["bank closes account","it lowers credit score","tax audit","interest doubles"], c:1, e:"Signals high debt risk."},
+  {t:"credit",l:"credit & finance", q:"Limit $1,500. Target 30% utilization = balance of:", o:["$300","$450","$500","$750"], c:1, e:"1500 x 0.30 = $450."},
+  {t:"credit",l:"credit & finance", q:"NS's 1% HST cut saves a student $150 and a lawyer $2,000. As % of income?", o:["student 1% / lawyer 0.5%","both 1.0%","student 0.5% / lawyer 1%","student 2% / lawyer 1%"], c:1, e:"150/15000 = 2000/200000 = 1.0%."},
+  {t:"credit",l:"credit & finance", q:"A 0.99% balance transfer with $89 fee is:", o:["always a good idea","rearranging the debt problem","free money","illegal"], c:1, e:"New fees, original balance still owed."},
+  {t:"credit",l:"credit & finance", q:"Net pay =", o:["before deductions","after taxes, CPP, EI","the same as gross","just bonus"], c:1, e:"Take-home pay."},
+
+  // BANKING
+  {t:"banking",l:"banking", q:"Fractional reserve = banks:", o:["keep 100% of deposits","lend most, hold a fraction","lend nothing","only lend to rich"], c:1, e:"Most deposits get lent out."},
+  {t:"banking",l:"banking", q:"CDIC protects deposits up to:", o:["$10,000","$50,000","$100,000","$500,000"], c:2, e:"$100,000 per depositor per bank."},
+  {t:"banking",l:"banking", q:"A bank run happens when:", o:["bank opens a branch","all depositors withdraw at once","bank profits","rates rise"], c:1, e:"Mass simultaneous withdrawals."},
+  {t:"banking",l:"banking", q:"Which is NOT a Factor of Production?", o:["land","labor","money","entrepreneurship"], c:2, e:"Money isn't a factor."},
+  {t:"banking",l:"banking", q:"Opportunity cost =", o:["total purchase cost","value of next-best alternative","cost of production","price tag"], c:1, e:"What you gave up."},
+  {t:"banking",l:"banking", q:"Diminishing marginal utility =", o:["each unit = more satisfaction","each extra unit = less satisfaction","utility never changes","utility rises with price"], c:1, e:"Satisfaction drops with each extra unit."},
+  {t:"banking",l:"banking", q:"Scarcity forces us to:", o:":["make choices","ignore wants","stop producing","print money"], c:0, e:"Limited resources = must choose."},
+
+  // MACRO
+  {t:"macro",l:"macro", q:"When inflation > 3%, Bank of Canada usually:", o:["lowers rates","raises rates","prints money","increases spending"], c:1, e:"Higher rates cool spending."},
+  {t:"macro",l:"macro", q:"Keynesian economics says government should:", o:["never intervene","intervene / spend in recessions","control all prices","do nothing"], c:1, e:"Stimulus during downturns."},
+  {t:"macro",l:"macro", q:"Tragedy of the Commons =", o:["shared resource depleted by self-interest","gov over-regulation","a successful park","the invisible hand"], c:0, e:"Cod fishery / Dust Bowl examples."},
+  {t:"macro",l:"macro", q:"Multiplier effect =", o:["prices double","one person's spending becomes another's income","taxes multiply","stock splits"], c:1, e:"Chain reaction of spending."},
+  {t:"macro",l:"macro", q:"Bank of Canada targets inflation of:", o:["0%","2%","5%","10%"], c:1, e:"2% target."},
+  {t:"macro",l:"macro", q:"Raising rates is the:", o:["gas","brake","steering wheel","windshield"], c:1, e:"Higher rates = brake on the economy."},
+  {t:"macro",l:"macro", q:"Lowering rates is the:", o:["gas","brake","brake pedal","hazard light"], c:0, e:"Lower rates = gas pedal."},
+  {t:"macro",l:"macro", q:"Newfoundland cod collapse was caused by:", o:["climate change","overfishing (tragedy of the commons)","foreign navies","pollution"], c:1, e:"Tragedy of the Commons."},
+
+  // INEQUALITY
+  {t:"inequality",l:"inequality", q:"A sole proprietorship has:", o:["limited liability","unlimited liability","no liability","gov liability"], c:1, e:"Unlimited = personal assets at risk."},
+  {t:"inequality",l:"inequality", q:"A corporation provides:", o:["no protection","a corporate shield","gov insurance","unlimited risk"], c:1, e:"Liability limited to investment."},
+  {t:"inequality",l:"inequality", q:"Net pay is:", o:["before deductions","after taxes/deductions","the same as gross","bonuses only"], c:1, e:"Take-home."},
+  {t:"inequality",l:"inequality", q:"An oligopoly =", o:["one company","a few large firms","many small firms","the gov"], c:1, e:"Few firms dominate."},
+  {t:"inequality",l:"inequality", q:"REITs drive up housing costs by:", o:["building more","buying properties for yields","giving away housing","lowering taxes"], c:1, e:"Investor demand raises rents."},
+  {t:"inequality",l:"inequality", q:"North Preston child poverty (66.7%) vs Upper Tantallon (3.7%) illustrates:", o:["comparative advantage","the postal code lottery","progressive tax","supply and demand"], c:1, e:"Where you're born matters."},
+  {t:"inequality",l:"inequality", q:"'Greedflation' =", o:["gov-caused inflation","corp raises prices beyond costs using inflation as cover","natural price rises","deflation"], c:1, e:"Profit-hiding behind inflation."},
+  {t:"inequality",l:"inequality", q:"The gig economy transfers ___ to workers.", o:["benefits","risk","pensions","security"], c:1, e:"Risk shifts to workers."},
+  {t:"inequality",l:"inequality", q:"A child in North Preston is ___x more likely to grow up in poverty than in Upper Tantallon.", o:["2x","5x","18x","100x"], c:2, e:"66.7 / 3.7 \u2248 18x."},
+
+  // CALCULATIONS
+  {t:"calc",l:"quick math", q:"A $1,000 stock rises 5%. New value?", o:["$1,005","$1,050","$1,500","$5,000"], c:1, e:"1000 x 1.05 = $1,050."},
+  {t:"calc",l:"quick math", q:"Gas: $1.45 \u2192 $2.00. % increase?", o:["38%","55%","5%","27%"], c:0, e:"(2.00-1.45)/1.45 = 0.379 = 38%."},
+  {t:"calc",l:"quick math", q:"40 shares at $10 drops 15%. Loss?", o:["$15","$40","$60","$150"], c:2, e:"40 x $10 x 0.15 = $60."},
+  {t:"calc",l:"quick math", q:"$1,500 limit. 30% target = ?", o:["$300","$450","$500","$900"], c:1, e:"1500 x 0.30 = $450."},
+  {t:"calc",l:"quick math", q:"Stock: buy $10, sell $12.20, 50 shares. Profit?", o:["$50","$110","$220","$610"], c:1, e:"$2.20 x 50 = $110."},
+  {t:"calc",l:"quick math", q:"A $1,000 balance at 20% APR for 1 year. Interest?", o:["$20","$200","$1,200","$2,000"], c:1, e:"1000 x 0.20 = $200."},
+  {t:"calc",l:"quick math", q:"$150 savings on $15,000 income = ?% of income.", o:["0.1%","1.0%","1.5%","10%"], c:1, e:"150 / 15000 = 0.01 = 1%."},
+
+  // SHORT ANSWER (5 words or less, local match)
+  {t:"short",l:"one-word", type:"sa", q:"What economic system has NO private property?", accept:["communism","communistic"], e:"Communism: all property publicly owned."},
+  {t:"short",l:"one-word", type:"sa", q:"Name the father of modern economics.", accept:["adam smith","smith"], e:"Adam Smith (1776, Wealth of Nations)."},
+  {t:"short",l:"one-word", type:"sa", q:"Long period of rising stock prices is called a ___ market.", accept:["bull"], e:"Bull market = optimism + rising prices."},
+  {t:"short",l:"one-word", type:"sa", q:"Long period of falling stock prices (20%+) is a ___ market.", accept:["bear"], e:"Bear market = pessimism + falling prices."},
+  {t:"short",l:"one-word", type:"sa", q:"A tax on imports is called a ___", accept:["tariff","tariffs"], e:"Tariff = tax on imported goods."},
+  {t:"short",l:"one-word", type:"sa", q:"Government money to producers to lower costs is a ___", accept:["subsidy","subsidies"], e:"Subsidies cut production costs."},
+  {t:"short",l:"one-word", type:"sa", q:"The central bank of Canada.", accept:["bank of canada","boc"], e:"Bank of Canada."},
+  {t:"short",l:"one-word", type:"sa", q:"What is the opposite of elastic demand?", accept:["inelastic"], e:"Inelastic = small response to price change."},
+  {t:"short",l:"one-word", type:"sa", q:"Goods used together (e.g. printers & ink) are ___", accept:["complementary","complement"], e:"Complementary goods."},
+  {t:"short",l:"one-word", type:"sa", q:"A substitute for butter is ___", accept:["margarine"], e:"Margarine is a common butter substitute."},
+  {t:"short",l:"one-word", type:"sa", q:"What does IPO stand for? (3 words)", accept:["initial public offering","initial public offerings"], e:"Initial Public Offering."},
+  {t:"short",l:"one-word", type:"sa", q:"TSX stands for what stock ___", accept:["exchange"], e:"Toronto Stock Exchange."},
+  {t:"short",l:"one-word", type:"sa", q:"Smith's 'Invisible ___'", accept:["hand"], e:"Invisible Hand."},
+  {t:"short",l:"one-word", type:"sa", q:"Smith's pin factory illustrated this concept (2 words)", accept:["division of labour","division of labor","specialization","division of labour"], e:"Division of Labour."},
+  {t:"short",l:"one-word", type:"sa", q:"A market dominated by a few firms is an ___", accept:["oligopoly","oligopolies"], e:"Oligopoly = few large firms."},
+  {t:"short",l:"one-word", type:"sa", q:"What protects bank deposits up to $100,000?", accept:["cdic"], e:"Canada Deposit Insurance Corporation."},
+  {t:"short",l:"one-word", type:"sa", q:"Bank of Canada target inflation rate is ___%", accept:["2","2%","two","two percent"], e:"2% target."},
+  {t:"short",l:"one-word", type:"sa", q:"Earning interest on interest is called ___", accept:["compounding","compound interest","compounding"], e:"Compounding = interest on interest."},
+  {t:"short",l:"one-word", type:"sa", q:"The cost of a forgone alternative is called ___ cost", accept:["opportunity"], e:"Opportunity cost."},
+  {t:"short",l:"one-word", type:"sa", q:"Government spending to stimulate demand (1 name)", accept:["keynesian","keynes","keynesian economics"], e:"Keynesian economics."},
+  {t:"short",l:"one-word", type:"sa", q:"Spreading investments to reduce risk is ___", accept:["diversification","diversify","diversifying"], e:"Diversification."},
+  {t:"short",l:"one-word", type:"sa", q:"A share of company profits paid to shareholders is a ___", accept:["dividend","dividends"], e:"Dividend."},
+  {t:"short",l:"one-word", type:"sa", q:"An increase in stock value above the purchase price is ___", accept:["appreciation"], e:"Appreciation = capital gain."},
+  {t:"short",l:"one-word", type:"sa", q:"Stocks in large reliable companies like Apple are called ___", accept:["blue chip","blue-chip","blue chips"], e:"Blue chip stocks."},
+  {t:"short",l:"one-word", type:"sa", q:"A fund that tracks a basket of stocks (e.g. S&P 500) is an ___", accept:["index fund","index funds"], e:"Index fund."},
+  {t:"short",l:"one-word", type:"sa", q:"Laissez-faire means government should ___", accept:["stay out","leave it alone","not intervene","leave markets alone"], e:"Stay out of the market."},
+  {t:"short",l:"one-word", type:"sa", q:"A sole proprietorship has ___ liability", accept:["unlimited","unlimited liability"], e:"Unlimited personal liability."},
+  {t:"short",l:"one-word", type:"sa", q:"A corporation provides a 'corporate ___'", accept:["shield"], e:"Corporate shield = limited liability."},
+  {t:"short",l:"one-word", type:"sa", q:"Annual Percentage Rate is abbreviated as ___", accept:["apr"], e:"APR = Annual Percentage Rate."},
+  {t:"short",l:"one-word", type:"sa", q:"The 4 factors of production are: land, labor, capital, and ___", accept:["entrepreneurship","entrepreneur"], e:"Entrepreneurship."},
+  {t:"short",l:"one-word", type:"sa", q:"North Preston vs Upper Tantallon illustrates the Postal Code ___", accept:["lottery"], e:"The Postal Code Lottery."},
+  {t:"short",l:"one-word", type:"sa", q:"Corp raises prices beyond costs using inflation as cover = ___", accept:["greedflation"], e:"Greedflation."},
+  {t:"short",l:"one-word", type:"sa", q:"REIT stands for Real Estate ___ Trust", accept:["investment","investment"], e:"Real Estate Investment Trust."},
+  {t:"short",l:"one-word", type:"sa", q:"Inelastic demand: when prices rise, quantity demanded barely ___", accept:["changes","falls","drops","decreases"], e:"Quantity barely changes."},
+  {t:"short",l:"one-word", type:"sa", q:"The Newfoundland ___ collapsed from overfishing", accept:["cod","cod fishery","fishery"], e:"Cod fishery collapse (1992)."},
+  {t:"short",l:"one-word", type:"sa", q:"Using '9 out of 10 chose this' to influence buyers is ___ proof", accept:["social"], e:"Social proof."},
+  {t:"short",l:"one-word", type:"sa", q:"What you give up when you make a choice", accept:["opportunity cost","opportunity"], e:"Opportunity cost."},
+  {t:"short",l:"one-word", type:"sa", q:"The federal sales tax in Canada is the ___", accept:["hst","gst","hst/gst","gst/hst"], e:"GST/HST."},
+  {t:"short",l:"one-word", type:"sa", q:"Total earnings before deductions is ___ pay", accept:["gross"], e:"Gross pay."},
+  {t:"short",l:"one-word", type:"sa", q:"Take-home pay after deductions is ___ pay", accept:["net"], e:"Net pay."},
+  {t:"short",l:"one-word", type:"sa", q:"Adam Smith said self-interest guides markets like a(n) invisible ___", accept:["hand"], e:"Invisible Hand."},
+];
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+let student = null;
+let mode = "sprint";
+let session = null;
+
+let timerInt = null;
+let timeLeft = SPRINT_SECONDS;
+let qStartTime = 0;
+let savingScore = false;
+
+/* ============================================================
+   API
+   ============================================================ */
+async function api(action, payload) {
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  return await res.json();
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+async function handleLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const pin = document.getElementById('login-pin').value.trim();
+  const err = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (!name) { err.textContent = "Please enter your name."; err.classList.add('on'); return; }
+  if (!/^\d{2}$/.test(pin)) { err.textContent = "PIN must be exactly 2 digits."; err.classList.add('on'); return; }
+
+  err.classList.remove('on');
+  btn.disabled = true; btn.textContent = "connecting...";
+
+  try {
+    const r = await api('login', { name, password: pin });
+    student = { name: r.data.name, pin };
+    localStorage.setItem('econ12g_student', JSON.stringify(student));
+    goTo('start');
+    document.getElementById('welcome-name').textContent = student.name;
+    document.getElementById('who-tag').textContent = '> ' + student.name;
+    await loadPastScores();
+  } catch (e) {
+    err.textContent = e.message || "Login failed.";
+    err.classList.add('on');
+  } finally {
+    btn.disabled = false; btn.textContent = "start session";
+  }
+}
+
+function logout() {
+  localStorage.removeItem('econ12g_student');
+  student = null;
+  document.getElementById('who-tag').textContent = '';
+  goTo('login');
+  document.getElementById('login-name').value = '';
+  document.getElementById('login-pin').value = '';
+}
+
+async function loadPastScores() {
+  if (!student) return;
+  try {
+    const r = await api('getGameScores', { name: student.name, password: student.pin });
+    const scores = r.data || [];
+    const box = document.getElementById('past-scores');
+    const body = document.getElementById('past-scores-body');
+    if (scores.length === 0) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+
+    const last5 = scores.slice(-5).reverse();
+    body.innerHTML = `
+      <table>
+        <tr><th>date</th><th>mode</th><th>score</th><th>%</th></tr>
+        ${last5.map(s => `<tr>
+          <td>${new Date(s.date).toLocaleDateString()}</td>
+          <td>${s.mode}</td>
+          <td>${s.score}</td>
+          <td class="pct">${s.pct}%</td>
+        </tr>`).join('')}
+      </table>
+      <p style="font-size:11px;color:#888;margin-top:8px">avg: ${Math.round(scores.reduce((a,s)=>a+s.pct,0)/scores.length)}% across ${scores.length} game${scores.length===1?'':'s'}</p>
+    `;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(name + '-screen').classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+function pickMode(el) {
+  document.querySelectorAll('.mode').forEach(m => m.classList.remove('sel'));
+  el.classList.add('sel');
+  mode = el.dataset.mode;
+}
+
+/* ============================================================
+   GAME
+   ============================================================ */
+function shuffle(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+}
+
+function startGame() {
+  const mcqs = shuffle(QB.filter(q => q.type !== 'sa'));
+  const sas = shuffle(QB.filter(q => q.type === 'sa'));
+  const shortCount = Math.min(8, sas.length);
+  const mcqCount = TOTAL_Q - shortCount;
+  const picked = [...mcqs.slice(0, mcqCount), ...sas.slice(0, shortCount)];
+  const final = shuffle(picked);
+  session = {
+    qs: final,
+    i: 0,
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+    lives: 3,
+    correct: 0,
+    answers: []
+  };
+  goTo('game');
+  document.getElementById('hud-lives').style.display = mode === 'survival' ? 'block' : 'none';
+  updateHud();
+  renderQ();
+}
+
+function updateHud() {
+  document.getElementById('hud-score').textContent = session.score;
+  document.getElementById('hud-prog').textContent = session.i + 1;
+  const s = document.getElementById('hud-streak');
+  const sn = document.getElementById('hud-streak-n');
+  if (session.streak >= 2) { s.classList.remove('zero'); s.classList.remove('zen'); sn.textContent = session.streak; }
+  else if (session.streak === 1) { s.classList.remove('zero'); s.classList.add('zen'); sn.textContent = session.streak; }
+  else { s.classList.add('zero'); }
+  if (mode === 'survival') renderLives();
+}
+
+function renderLives() {
+  const el = document.getElementById('hud-lives');
+  el.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i < session.lives ? ' on' : '');
+    h.textContent = '\u2764';
+    el.appendChild(h);
+  }
+}
+
+function startTimer() {
+  if (mode !== 'sprint') return;
+  timeLeft = SPRINT_SECONDS;
+  const fill = document.getElementById('timer-fill');
+  fill.style.width = '100%';
+  fill.className = 'timer-fill';
+  clearInterval(timerInt);
+  timerInt = setInterval(() => {
+    timeLeft -= 0.25;
+    fill.style.width = (timeLeft / SPRINT_SECONDS * 100) + '%';
+    if (timeLeft < 5) fill.className = 'timer-fill danger';
+    else if (timeLeft < 10) fill.className = 'timer-fill warn';
+    if (timeLeft <= 0) { clearInterval(timerInt); timeUp(); }
+  }, 250);
+  qStartTime = Date.now();
+}
+function stopTimer() { clearInterval(timerInt); }
+
+function timeUp() {
+  const q = session.qs[session.i];
+  if (q.type === 'sa') {
+    const inp = document.getElementById('sa-input');
+    if (inp) inp.disabled = true;
+    saReveal('(time out)', false);
+  } else {
+    lockAndReveal(null, false, "Time's up!");
+  }
+}
+
+function renderQ() {
+  if (session.i >= session.qs.length) return endGame();
+  const q = session.qs[session.i];
+  const card = document.getElementById('qcard');
+  card.classList.remove('pop');
+  void card.offsetWidth;
+  card.classList.add('pop');
+
+  if (q.type === 'sa') {
+    card.innerHTML = `
+      <div class="topic">// ${q.l}</div>
+      <div class="qnum">question ${session.i + 1} of ${session.qs.length} &middot; type your answer</div>
+      <div class="qtext">${q.q}</div>
+      <input type="text" id="sa-input" autocomplete="off" placeholder="type here..." style="width:100%;padding:14px 16px;font-family:'Nova Mono',cursive;font-size:18px;color:var(--ink);background:#FAFAFA;border:2px solid var(--rule);outline:none;text-transform:lowercase" />
+      <div class="feedback" id="fb"></div>
+    `;
+    setTimeout(() => {
+      const inp = document.getElementById('sa-input');
+      inp.focus();
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitSA(); });
+    }, 50);
+  } else {
+    const letters = ['A','B','C','D'];
+    card.innerHTML = `
+      <div class="topic">// ${q.l}</div>
+      <div class="qnum">question ${session.i + 1} of ${session.qs.length}</div>
+      <div class="qtext">${q.q}</div>
+      <div class="opts" id="opts">
+        ${q.o.map((o,i) => `<button class="opt" onclick="pick(${i})"><span class="lt">${letters[i]}</span><span>${o}</span></button>`).join('')}
+      </div>
+      <div class="feedback" id="fb"></div>
+    `;
+  }
+  startTimer();
+}
+
+function submitSA() {
+  if (mode === 'sprint') stopTimer();
+  const inp = document.getElementById('sa-input');
+  const val = inp.value.trim().toLowerCase();
+  if (!val) return;
+  inp.disabled = true;
+  const q = session.qs[session.i];
+  const correct = q.accept.some(a => a.toLowerCase() === val);
+  saReveal(val, correct);
+}
+
+function saReveal(answer, correct) {
+  const q = session.qs[session.i];
+  const fb = document.getElementById('fb');
+  const elapsed = (Date.now() - qStartTime) / 1000;
+  let pts = 0;
+  if (correct) {
+    pts = 100;
+    if (mode === 'sprint' && timeLeft > SPRINT_SECONDS * 0.7) pts += 50;
+    session.streak++;
+    if (session.streak > session.bestStreak) session.bestStreak = session.streak;
+    session.correct++;
+  } else {
+    session.streak = 0;
+    if (mode === 'survival') {
+      session.lives--;
+      const card = document.getElementById('qcard');
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 300);
+    }
+  }
+  if (session.streak >= 2 && correct) pts += session.streak * 25;
+  session.score += pts;
+  session.answers.push({ q, userIdx: -1, userText: answer, correct, pts, elapsed });
+  updateHud();
+
+  fb.className = 'feedback on ' + (correct ? 'ok' : 'no');
+  fb.innerHTML = `<b>${correct ? 'Correct.' : 'Not quite.'}</b> ${correct ? '' : 'Answer: <b>' + q.accept[0] + '</b>. '}${q.e}<br><span style="color:#888;font-size:12px">+${pts} pts</span>`;
+
+  if (mode === 'survival' && session.lives <= 0) {
+    setTimeout(() => gameOver(), 1200);
+    return;
+  }
+  const btn = document.createElement('button');
+  btn.className = 'btn ' + (correct ? 'accent' : 'wrong');
+  btn.style.marginTop = '14px';
+  btn.textContent = session.i < session.qs.length - 1 ? 'next \u2192' : 'finish';
+  btn.onclick = nextQ;
+  fb.appendChild(btn);
+}
+
+function pick(idx) {
+  if (mode === 'sprint') stopTimer();
+  const q = session.qs[session.i];
+  const correct = idx === q.c;
+  lockAndReveal(idx, correct, q.e);
+}
+
+function lockAndReveal(idx, correct, explanation) {
+  const q = session.qs[session.i];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach((o, i) => {
+    o.classList.add('locked');
+    if (i === q.c) o.classList.add('correct');
+    if (i === idx && !correct) o.classList.add('wrong');
+  });
+
+  const elapsed = (Date.now() - qStartTime) / 1000;
+  let pts = 0;
+  if (correct) {
+    pts = 100;
+    if (mode === 'sprint' && timeLeft > SPRINT_SECONDS * 0.7) pts += 50;
+    session.streak++;
+    if (session.streak > session.bestStreak) session.bestStreak = session.streak;
+    session.correct++;
+  } else {
+    session.streak = 0;
+    if (mode === 'survival') {
+      session.lives--;
+      const card = document.getElementById('qcard');
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 300);
+    }
+  }
+  if (session.streak >= 2 && correct) pts += session.streak * 25;
+  session.score += pts;
+
+  session.answers.push({ q, userIdx: idx, correct, pts, elapsed });
+
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback on ' + (correct ? 'ok' : 'no');
+  fb.innerHTML = `<b>${correct ? 'Correct.' : 'Incorrect.'}</b> ${explanation || ''}<br><span style="color:#888;font-size:12px">+${pts} pts</span>`;
+  updateHud();
+
+  if (mode === 'survival' && session.lives <= 0) {
+    setTimeout(() => gameOver(), 1200);
+    return;
+  }
+
+  const btn = document.createElement('button');
+  btn.className = 'btn ' + (correct ? 'accent' : 'wrong');
+  btn.style.marginTop = '14px';
+  btn.textContent = session.i < session.qs.length - 1 ? 'next \u2192' : 'finish';
+  btn.onclick = nextQ;
+  fb.appendChild(btn);
+
+  updateHud();
+}
+
+function nextQ() {
+  session.i++;
+  updateHud();
+  renderQ();
+}
+
+function gameOver() {
+  document.getElementById('go-score').textContent = session.score;
+  document.getElementById('go-qs').textContent = session.i + 1;
+  document.getElementById('go-msg').textContent = `You answered ${session.correct} correctly before running out of lives.`;
+  document.getElementById('gameover').classList.add('on');
+  saveScore();
+}
+
+function endGame() {
+  goTo('results');
+  const total = session.qs.length;
+  const correct = session.correct;
+  const pct = Math.round(correct / total * 100);
+  const ring = document.getElementById('ring');
+  ring.className = 'ring ' + (pct >= 70 ? '' : pct >= 40 ? 'mid' : 'low');
+  document.getElementById('r-pct').textContent = pct + '%';
+  document.getElementById('r-frac').textContent = correct + '/' + total;
+  document.getElementById('r-score').textContent = session.score;
+  document.getElementById('r-streak').textContent = session.bestStreak;
+  document.getElementById('r-acc').textContent = pct + '%';
+
+  let title = 'Keep Studying';
+  let msg = '';
+  if (pct >= 90) { title = 'Exam Ready.'; msg = 'Outstanding work, ' + student.name + '.'; }
+  else if (pct >= 70) { title = 'Strong Run.'; msg = 'A few gaps -- review the misses.'; }
+  else if (pct >= 50) { title = 'Getting There.'; msg = 'Solid foundation. Keep pushing.'; }
+  else { title = 'Keep At It.'; msg = 'Use the study guide and try again.'; }
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-msg').textContent = msg;
+
+  saveScore();
+}
+
+async function saveScore() {
+  if (!student || savingScore) return;
+  savingScore = true;
+  const total = session.qs.length;
+  const correct = session.correct;
+  const pct = Math.round(correct / total * 100);
+  try {
+    await api('saveGameScore', {
+      name: student.name, password: student.pin,
+      scoreData: { score: session.score, correct, total, pct, bestStreak: session.bestStreak, mode }
+    });
+  } catch (e) { console.error('save failed', e); }
+  savingScore = false;
+}
+
+function playAgain() { startGame(); }
+
+function showReview() {
+  const card = document.getElementById('results-card');
+  const html = `
+    <h2 style="margin-bottom:20px">// review</h2>
+    <div style="text-align:left;max-height:60vh;overflow-y:auto;padding-right:8px">
+      ${session.answers.map((a, i) => {
+        const yourAns = a.q.type === 'sa' ? (a.userText || '(blank)') : (a.userIdx === null ? '(time out)' : a.q.o[a.userIdx]);
+        const correctAns = a.q.type === 'sa' ? a.q.accept[0] : a.q.o[a.q.c];
+        return `
+        <div class="review-q ${a.correct ? 'ok' : 'no'}">
+          <div class="h">Q${i+1} &middot; ${a.q.l} &middot; ${a.correct ? '\u2713 +' + a.pts : '\u2717'}</div>
+          <div class="qq">${a.q.q}</div>
+          <div class="ua">Your answer: <b>${yourAns}</b>${!a.correct ? ' &nbsp; correct: <b>' + correctAns + '</b>' : ''}</div>
+          <div class="ex">${a.q.e}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn accent" style="margin-top:18px" onclick="startGame()">play again</button>
+  `;
+  card.innerHTML = html;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('econ12g_student');
+  if (saved) {
+    try {
+      student = JSON.parse(saved);
+      document.getElementById('welcome-name').textContent = student.name;
+      document.getElementById('who-tag').textContent = '> ' + student.name;
+      goTo('start');
+      loadPastScores();
+    } catch (e) { goTo('login'); }
+  }
+});
+
+document.getElementById('login-pin').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 2);
+});
+document.getElementById('login-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('login-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('login-pin').focus();
+});
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('game-screen').classList.contains('on')) {
+    const map = { '1':0, '2':1, '3':2, '4':3 };
+    if (map[e.key] !== undefined) {
+      const opts = document.querySelectorAll('.opt:not(.locked)');
+      if (opts[map[e.key]]) opts[map[e.key]].click();
+    }
+  }
+});
+</script>
+</body>
+</html>

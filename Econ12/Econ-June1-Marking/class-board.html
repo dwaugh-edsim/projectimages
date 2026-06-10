@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Econ 12 — Assignment Board</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0b0c18;
+      --panel:    #13152a;
+      --border:   #1e2140;
+      --accent:   #4f46e5;
+      --red:      #dc2626;
+      --text:     #e8e9f3;
+      --muted:    #555878;
+      --green:    #10b981;
+      --amber:    #f59e0b;
+      --grey:     #2a2d4a;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;  /* fit to screen */
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 2px solid var(--border);
+      background: var(--panel);
+      height: 52px;
+      flex-shrink: 0;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+
+    .lostco-badge {
+      background: var(--red);
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 900;
+      font-size: 1.05rem;
+      font-style: italic;
+      padding: 3px 10px;
+      letter-spacing: -0.5px;
+      transform: rotate(-1deg);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .board-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .board-title strong { color: var(--text); }
+
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .stat-chip {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1.5px solid;
+      border-radius: 3px;
+    }
+    .stat-chip.green { background:rgba(16,185,129,.1); border-color:var(--green); color:var(--green); }
+    .stat-chip.amber { background:rgba(245,158,11,.1); border-color:var(--amber); color:var(--amber); }
+    .stat-chip.grey  { background:rgba(42,45,74,.4);   border-color:var(--grey);  color:var(--muted); }
+
+    .clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      min-width: 76px;
+      text-align: right;
+    }
+
+    /* ── COL-HEADER ROW ── */
+    .col-header-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 12px 4px;
+      background: var(--bg);
+    }
+
+    .col-header-panel {
+      display: grid;
+      grid-template-columns: 1fr 90px 90px;
+      gap: 4px;
+      padding: 0 8px;
+    }
+
+    .col-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+    .col-label.center { text-align: center; }
+
+    /* ── MAIN CONTENT: two-column grid of students ── */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 12px 10px;
+      height: calc(100vh - 52px - 42px); /* minus topbar, minus col-headers */
+      overflow: hidden;
+    }
+
+    .student-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    /* ── STUDENT ROW ── */
+    .s-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 90px;
+      gap: 4px;
+      height: calc((100vh - 52px - 42px - 10px - 15*3px) / 16);  /* auto-fit */
+      min-height: 28px;
+      max-height: 46px;
+    }
+
+    .s-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px 0 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .initials {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem;
+      font-weight: 900;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── STATUS PILL ── */
+    .s-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      position: relative;
+      overflow: hidden;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .s-status.submitted {
+      background: rgba(16,185,129,.08);
+      border-color: rgba(16,185,129,.35);
+      color: var(--green);
+    }
+    .s-status.submitted::before {
+      content: '';
+      position: absolute;
+      top:0; left:0; bottom:0;
+      width: 3px;
+      background: var(--green);
+    }
+
+    .s-status.draft {
+      background: rgba(245,158,11,.08);
+      border-color: rgba(245,158,11,.3);
+      color: var(--amber);
+    }
+    .s-status.draft::before {
+      content: '';
+      position: absolute;
+      top:0; left:0; bottom:0;
+      width: 3px;
+      background: var(--amber);
+    }
+
+    .s-status.missing {
+      background: rgba(11,12,24,.5);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .status-text {
+      font-size: 0.6rem;
+    }
+    .status-products {
+      font-size: 0.55rem;
+      opacity: 0.7;
+      font-weight: 400;
+      text-transform: none;
+    }
+
+    /* ── LEGEND BAR ── */
+    .legend {
+      display: flex;
+      gap: 18px;
+      padding: 5px 12px;
+      border-top: 1px solid var(--border);
+      align-items: center;
+      height: 28px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .legend-dot { width:8px; height:8px; border-radius:2px; }
+    .legend-dot.green  { background:var(--green); }
+    .legend-dot.amber  { background:var(--amber); }
+    .legend-dot.grey   { background:var(--grey); border:1px solid var(--border); }
+
+    .page-wrap {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="lostco-badge">LOSTCO</div>
+      <div class="board-title"><strong>Economics 12</strong> — Assignment Progress Board &nbsp;·&nbsp; June 2026</div>
+    </div>
+    <div class="topbar-right">
+      <div class="stat-chip green" id="stat-submitted"></div>
+      <div class="stat-chip amber" id="stat-draft"></div>
+      <div class="stat-chip grey"  id="stat-missing"></div>
+      <div class="clock" id="clock"></div>
+    </div>
+  </div>
+
+  <!-- COL HEADERS -->
+  <div class="col-header-row">
+    <div class="col-header-panel">
+      <div class="col-label">Student</div>
+      <div class="col-label center">🏬 LOSTCO Memo</div>
+      <div class="col-label center">🏢 Biz Structures</div>
+    </div>
+    <div class="col-header-panel">
+      <div class="col-label">Student</div>
+      <div class="col-label center">🏬 LOSTCO Memo</div>
+      <div class="col-label center">🏢 Biz Structures</div>
+    </div>
+  </div>
+
+  <!-- STUDENT GRID -->
+  <div class="main">
+    <div class="student-col" id="col-left"></div>
+    <div class="student-col" id="col-right"></div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot green"></div> Submitted</div>
+    <div class="legend-item"><div class="legend-dot amber"></div> Draft / In Progress</div>
+    <div class="legend-item"><div class="legend-dot grey"></div>  Not Yet Started</div>
+  </div>
+
+</div>
+
+<script>
+const students = [
+  { name: 'Adarsha H',          lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Albin',              lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Alex Graham',        lostco: 'missing',   products: '',                     bizstruct: 'submitted' },
+  { name: 'Ana',                lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Anderson Perry',     lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'submitted' },
+  { name: 'Angelique',          lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Anjolaoluwa',        lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'missing' },
+  { name: 'Anna',               lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Cameron',            lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Christian',          lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Daniil',             lostco: 'submitted', products: 'Coffee · Gold',         bizstruct: 'missing' },
+  { name: 'Dyson Cook',         lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'submitted' },
+  { name: 'Efe',                lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Ellee',              lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'missing' },
+  { name: 'Gabe',               lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'missing' },
+  { name: 'Jack',               lostco: 'draft',     products: 'Chocolate',            bizstruct: 'missing' },
+  { name: 'John',               lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Josh Gillego',       lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'missing' },
+  { name: 'Kendrake Gaamil',    lostco: 'submitted', products: 'Chocolate · Gold',     bizstruct: 'submitted' },
+  { name: 'Luca Pomaski',       lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'submitted' },
+  { name: 'Maggie',             lostco: 'submitted', products: 'Gold · Chocolate',     bizstruct: 'missing' },
+  { name: 'Marshall MacKinnon', lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'submitted' },
+  { name: 'Nahla',              lostco: 'submitted', products: 'Coffee · Chocolate',   bizstruct: 'missing' },
+  { name: 'Nick',               lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Nicholas',           lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Peyton Creelman',    lostco: 'missing',   products: '',                     bizstruct: 'submitted' },
+  { name: 'Reyha Khanna',       lostco: 'submitted', products: 'Fashion · Chocolate',  bizstruct: 'submitted' },
+  { name: 'Riley',              lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Seth Boutilier',     lostco: 'submitted', products: 'Chocolate · Diamonds', bizstruct: 'missing' },
+  { name: 'Sivakami',           lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+  { name: 'Yaroslav',           lostco: 'missing',   products: '',                     bizstruct: 'missing' },
+];
+
+const STATUS = {
+  submitted: { icon: '✓', label: 'Submitted', cls: 'submitted' },
+  draft:     { icon: '◐', label: 'In Progress', cls: 'draft' },
+  missing:   { icon: '–', label: 'Not Started', cls: 'missing' },
+};
+
+function initials(name) {
+  return name.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+}
+
+function statusCell(status, products) {
+  const cfg = STATUS[status] || STATUS.missing;
+  const prodLine = products ? `<span class="status-products">${products}</span>` : '';
+  return `<div class="s-status ${cfg.cls}">
+    <span class="status-text">${cfg.icon} ${cfg.label}</span>
+    ${prodLine}
+  </div>`;
+}
+
+function studentRow(s) {
+  return `<div class="s-row">
+    <div class="s-name">
+      <div class="initials">${initials(s.name)}</div>
+      ${s.name}
+    </div>
+    ${statusCell(s.lostco, s.products)}
+    ${statusCell(s.bizstruct, '')}
+  </div>`;
+}
+
+function render() {
+  const mid = Math.ceil(students.length / 2);
+  document.getElementById('col-left').innerHTML  = students.slice(0, mid).map(studentRow).join('');
+  document.getElementById('col-right').innerHTML = students.slice(mid).map(studentRow).join('');
+
+  const submitted = students.filter(s => s.lostco === 'submitted').length;
+  const drafts    = students.filter(s => s.lostco === 'draft').length;
+  const missing   = students.filter(s => s.lostco === 'missing').length;
+  document.getElementById('stat-submitted').textContent = `✓ LOSTCO: ${submitted} / ${students.length}`;
+  document.getElementById('stat-draft').textContent     = `◐ ${drafts} Draft`;
+  document.getElementById('stat-missing').textContent   = `– ${missing} Not Started`;
+}
+
+function tick() {
+  const n = new Date();
+  const pad = v => String(v).padStart(2,'0');
+  document.getElementById('clock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+}
+
+render();
+tick();
+setInterval(tick, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE APPREHENSION | SIXTIES SCOOP — DMYTRO</title>
+    <meta name="description" content="Спрощена версія завдання для Дмитра. Вивчення «Пограбування шістдесятих» через справу Майї Пол та її бабусі Анні Гугу.">
+    <!-- Same Google Script URL — data writes to the same sheet -->
+    <script>const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;700&family=Courier+Prime&family=Special+Elite&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --accent: #5DADE2;
+            --accent-dim: rgba(93, 173, 226, 0.1);
+            --accent-glow: rgba(93, 173, 226, 0.25);
+            --text: #d8dce6;
+            --card-bg: rgba(16, 18, 24, 0.95);
+            --font-h: 'Merriweather', serif;
+            --font-p: 'Roboto', sans-serif;
+            --font-mono: 'Roboto', sans-serif;
+            --font-elite: 'Special Elite', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            font-family: var(--font-p);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 260px;
+            background: #060608;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1a1d26;
+            z-index: 100;
+            height: 100vh;
+            position: fixed;
+        }
+
+        .logo-area {
+            font-family: var(--font-h);
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--accent-dim);
+            padding-bottom: 15px;
+        }
+
+        .logo-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .logo-sub {
+            font-size: 0.65rem;
+            color: #556;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .nav-item {
+            padding: 13px 16px;
+            margin-bottom: 8px;
+            background: #0d0e12;
+            border: 1px solid #222636;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #667;
+            position: relative;
+        }
+
+        .nav-item:hover { border-color: var(--accent); color: #fff; padding-left: 20px; }
+        .nav-item.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+        .nav-item.completed { border-color: #2ecc71; color: #2ecc71; }
+        .nav-item.completed::after { content: ' ✓'; }
+
+        /* ─── Main Content ─── */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: radial-gradient(circle at 50% 0%, #10121a 0%, #0a0a0c 100%);
+            padding: 50px 40px 80px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .content-card {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--card-bg);
+            border: 1px solid #1e2230;
+            border-radius: 4px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            position: relative;
+        }
+
+        .exhibit-info h1 {
+            font-family: var(--font-h);
+            font-size: 2rem;
+            margin-top: 0;
+            color: #fff;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .body-text {
+            line-height: 2;
+            font-size: 1rem;
+            color: #bcc3d4;
+        }
+
+        .body-text h2, .body-text h3 {
+            font-family: var(--font-elite);
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-top: 24px;
+            text-transform: uppercase;
+        }
+
+        .body-text p { margin-bottom: 16px; }
+
+        /* Ukrainian translation note styling */
+        .uk-note {
+            background: rgba(93, 173, 226, 0.07);
+            border-left: 4px solid var(--accent);
+            padding: 14px 18px;
+            margin: 14px 0;
+            border-radius: 2px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #c8d0e0;
+        }
+        .uk-note .uk-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .body-text blockquote {
+            border-left: 4px solid var(--accent);
+            margin: 24px 0;
+            padding: 16px 20px;
+            background: rgba(93, 173, 226, 0.04);
+            font-style: italic;
+            color: #9aa;
+            line-height: 1.8;
+        }
+
+        .exhibit-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .exhibit-image {
+            width: 100%;
+            border: 8px solid #151820;
+            border-radius: 2px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        .image-credit {
+            font-size: 0.72rem;
+            color: #556;
+            text-align: right;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+
+        /* ─── Interaction Panel ─── */
+        .interaction-panel {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(93, 173, 226, 0.03);
+            border: 1px solid #1e2230;
+            border-left: 5px solid var(--accent);
+        }
+
+        .prompt-en {
+            font-family: var(--font-elite);
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        .prompt-uk {
+            font-size: 1rem;
+            color: #d8dce6;
+            background: rgba(93,173,226,0.06);
+            border-radius: 3px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            border-left: 3px solid #5DADE2;
+        }
+
+        .field-label-uk {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        textarea {
+            width: 100%;
+            background: #050508;
+            border: 1px solid #222636;
+            color: #fff;
+            padding: 16px;
+            min-height: 110px;
+            font-family: var(--font-p);
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+            margin-bottom: 16px;
+            border-radius: 2px;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 15px var(--accent-dim);
+        }
+
+        .save-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 13px 30px;
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            font-family: var(--font-p);
+            font-size: 0.9rem;
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        .save-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+
+        /* ─── Welcome / Auto-login Splash ─── */
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(6,6,12,0.95), rgba(10,10,16,0.9));
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+        }
+
+        .welcome-card {
+            background: rgba(10, 12, 18, 0.97);
+            backdrop-filter: blur(20px);
+            padding: 60px 50px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 80px rgba(93, 173, 226, 0.18), 0 0 200px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 520px;
+            width: 92%;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .welcome-card h1 {
+            font-family: var(--font-elite);
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            letter-spacing: 4px;
+        }
+
+        .welcome-card .student-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 16px 0 6px;
+        }
+
+        .welcome-card .block-name {
+            font-size: 0.75rem;
+            color: #556;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+
+        .welcome-card .welcome-uk {
+            font-size: 1.05rem;
+            color: #bcc3d4;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .welcome-card .welcome-en {
+            font-size: 0.85rem;
+            color: #556;
+            line-height: 1.6;
+            margin-bottom: 28px;
+            font-style: italic;
+        }
+
+        .begin-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 16px 40px;
+            cursor: pointer;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            border-radius: 2px;
+            width: 100%;
+        }
+
+        .begin-btn:hover {
+            background: #fff;
+            letter-spacing: 5px;
+        }
+
+        /* ─── Briefing Overlay ─── */
+        #briefing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 6, 10, 0.93);
+            backdrop-filter: blur(12px);
+            z-index: 500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .briefing-card {
+            background: #0c0e14;
+            border: 1px solid var(--accent);
+            max-width: 720px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 44px;
+            box-shadow: 0 0 60px rgba(93, 173, 226, 0.12);
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .briefing-card h2 {
+            font-family: var(--font-elite);
+            color: var(--accent);
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-dim);
+            padding-bottom: 12px;
+        }
+
+        .letter-body {
+            font-family: var(--font-h);
+            font-size: 0.97rem;
+            line-height: 1.9;
+            color: #aab;
+            font-style: italic;
+        }
+
+        .letter-body p { margin-bottom: 15px; }
+
+        .letter-uk {
+            background: rgba(93,173,226,0.07);
+            border-left: 4px solid var(--accent);
+            padding: 12px 18px;
+            margin: 15px 0;
+            font-style: normal;
+            font-family: var(--font-p);
+            font-size: 0.95rem;
+            color: #d8dce6;
+            line-height: 1.75;
+            border-radius: 2px;
+        }
+        .letter-uk .uk-flag { margin-right: 6px; }
+
+        .letter-sign {
+            color: var(--accent);
+            font-family: var(--font-elite);
+            font-size: 1.05rem;
+            margin-top: 24px;
+            font-style: normal;
+        }
+
+        .briefing-dismiss {
+            display: block;
+            width: 100%;
+            margin-top: 28px;
+            padding: 15px;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .briefing-dismiss:hover { background: #fff; letter-spacing: 5px; }
+
+        /* ─── Status Bar ─── */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 260px;
+            background: #060608;
+            padding: 10px 30px;
+            border-top: 1px solid #1a1d26;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: #445;
+            z-index: 50;
+        }
+
+        .highlight { color: var(--accent); font-weight: 700; }
+
+        /* ─── Document Styles ─── */
+        .document-container {
+            background: #fdfaf2;
+            border: 1px solid #d3c4a9;
+            border-radius: 4px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 50px rgba(139,121,94,0.15);
+            color: #2b2b2b;
+            padding: 30px 25px;
+            font-family: 'Courier Prime', Courier, monospace;
+            position: relative;
+            min-height: 420px;
+            text-align: left;
+            border-top: 12px solid #c8b99d;
+        }
+
+        .document-header {
+            text-align: center;
+            border-bottom: 2px double #8b795e;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .document-stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border: 3px double #c0392b;
+            color: #c0392b;
+            padding: 6px 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Special Elite', monospace;
+            transform: rotate(8deg);
+            opacity: 0.85;
+            background: rgba(253, 250, 242, 0.9);
+            pointer-events: none;
+            letter-spacing: 2px;
+        }
+
+        .document-row {
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: baseline;
+            line-height: 1.5;
+        }
+
+        .document-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #555;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .document-value {
+            border-bottom: 1px dashed #a89f8e;
+            flex-grow: 1;
+            color: #111;
+            padding-bottom: 2px;
+        }
+
+        .document-notes {
+            margin-top: 20px;
+            border: 1px dashed #d3c4a9;
+            padding: 12px;
+            background: rgba(139,121,94,0.03);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .document-checkbox-group {
+            display: flex;
+            gap: 16px;
+            margin: 12px 0;
+            font-size: 0.82rem;
+        }
+
+        .document-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .document-checkbox input[type="checkbox"] {
+            accent-color: #c0392b;
+            pointer-events: none;
+        }
+
+        .handwritten-sig {
+            font-family: 'Special Elite', monospace;
+            font-style: italic;
+            font-size: 1rem;
+            color: #1b263b;
+            margin-left: 16px;
+            transform: rotate(-1deg);
+            display: inline-block;
+        }
+
+        /* ─── Family Tree ─── */
+        .tree-container {
+            background: rgba(16, 18, 24, 0.95);
+            border: 1px solid #1e2230;
+            padding: 20px;
+            min-height: 400px;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tree-title {
+            font-family: var(--font-h);
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .tree-svg-link { stroke: #34495e; stroke-width: 2px; fill: none; }
+        .tree-svg-node { cursor: pointer; transition: all 0.3s ease; }
+        .tree-svg-node rect { fill: #151820; stroke: #334; stroke-width: 1.5px; transition: all 0.3s ease; }
+        .tree-svg-node:hover rect { stroke: var(--accent); fill: rgba(93, 173, 226, 0.08); }
+        .tree-svg-node.active rect { stroke: var(--accent); fill: var(--accent-dim); stroke-width: 2px; }
+        .tree-svg-node text { fill: #aab; font-size: 9px; font-family: var(--font-p); text-anchor: middle; pointer-events: none; }
+        .tree-svg-node.active text { fill: #fff; font-weight: bold; }
+        .tree-svg-node.ancestor rect { stroke: #8e44ad; }
+        .tree-svg-node.status-loss rect { stroke: #f39c12; }
+        .tree-svg-node.apprehended rect { stroke: #d35400; }
+
+        .tree-node-details {
+            margin-top: 16px;
+            width: 100%;
+            background: rgba(93, 173, 226, 0.04);
+            border: 1px dashed var(--accent-dim);
+            padding: 12px;
+            font-size: 0.83rem;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+        .tree-node-details h4 { margin: 0 0 4px 0; color: var(--accent); font-family: var(--font-h); font-size: 0.9rem; text-transform: uppercase; }
+
+        /* ─── Box items (evidence) ─── */
+        .closet-box-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; width: 100%; }
+
+        .box-item-btn {
+            background: #11141a;
+            border: 1px solid #222636;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #aab;
+        }
+        .box-item-btn:hover { border-color: var(--accent); color: #fff; background: rgba(93, 173, 226, 0.05); }
+        .box-item-btn.active { border-color: var(--accent); color: #fff; background: var(--accent-dim); }
+        .box-item-btn span { font-size: 1.1rem; }
+
+        .box-item-content {
+            grid-column: 1 / span 2;
+            background: rgba(93, 173, 226, 0.03);
+            border: 1px dashed var(--accent-dim);
+            padding: 12px;
+            font-size: 0.83rem;
+            line-height: 1.6;
+            min-height: 70px;
+            color: #bcc3d4;
+            width: 100%;
+        }
+
+        /* ─── Highlight tool ─── */
+        .highlightable-text { line-height: 1.9; font-size: 0.88rem; color: #333; }
+        .highlight-word { cursor: pointer; padding: 2px 3px; border-radius: 2px; transition: background 0.2s; }
+        .highlight-word:hover { background: rgba(93, 173, 226, 0.2); }
+        .highlight-word.selected { background: #f1c40f; color: #000; font-weight: bold; }
+
+        /* ─── Comparison table ─── */
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        .comparison-table th, .comparison-table td { border: 1px solid #d3c4a9; padding: 10px; font-size: 0.78rem; text-align: left; }
+        .comparison-table th { background: #eae0ce; font-weight: bold; color: #1a1a1a; text-transform: uppercase; }
+        .comparison-table td textarea { width: 100%; min-height: 70px; margin-bottom: 0; background: #fff; color: #000; border: 1px solid #d3c4a9; padding: 8px; }
+        .comparison-table td textarea:focus { border-color: #c0392b; box-shadow: none; }
+
+        /* Multipart fields */
+        .multipart-prompt-container { display: flex; flex-direction: column; gap: 14px; }
+        .multipart-field { display: flex; flex-direction: column; gap: 6px; }
+        .multipart-label-en { font-family: var(--font-p); font-size: 0.8rem; color: #667; line-height: 1.4; font-style: italic; }
+        .multipart-label-uk { font-family: var(--font-p); font-size: 0.97rem; color: var(--accent); line-height: 1.5; font-weight: 700; }
+        .multipart-field textarea { margin-bottom: 0; min-height: 80px; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0c; }
+        ::-webkit-scrollbar-thumb { background: #222636; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* Highlight pill */
+        .hl-pill { background:#f1c40f; color:#000; padding:2px 7px; margin-right:4px; font-weight:bold; border-radius:2px; display:inline-block; margin-bottom:4px; }
+    </style>
+</head>
+
+<body>
+    <!-- ═══════ AUTO-LOGIN WELCOME SPLASH ═══════ -->
+    <div id="splash">
+        <div class="welcome-card">
+            <h1>THE APPREHENSION</h1>
+            <p style="color:#556; font-size:0.8rem; font-family:var(--font-mono); letter-spacing:1px;">SIXTIES SCOOP CASE FILE // MIKMAW11</p>
+            <div class="student-name">🇺🇦 DMYTRO</div>
+            <div class="block-name">A Block (Waugh) — Автоматичний вхід</div>
+            <div class="welcome-uk">
+                Привіт, Дмитро! Це твоє завдання для уроку Канадських досліджень.<br>
+                Тут є всі інструкції українською мовою. 🇺🇦
+            </div>
+            <div class="welcome-en">
+                Hi Dmytro! You are automatically logged in.<br>
+                Instructions are provided in Ukrainian below each English prompt.
+            </div>
+            <button class="begin-btn" onclick="startWelcome()">РОЗПОЧАТИ / BEGIN →</button>
+        </div>
+    </div>
+
+    <!-- ═══════ BRIEFING OVERLAY (Maya's Letter) ═══════ -->
+    <div id="briefing-overlay">
+        <div class="briefing-card">
+            <h2>📨 Лист від Майї Пол / Message from Maya Paul</h2>
+            <div class="letter-body">
+                <p><strong style="color: var(--accent); font-style: normal;">Kwe',</strong></p>
+                <p>My name is Maya Paul. My grandmother was taken from her family when she was 8 years old. The government gave her a new name and sent her away. I need your help to understand what happened.</p>
+                <div class="letter-uk">
+                    <span class="uk-flag">🇺🇦</span>
+                    <strong>Мене звати Майя Пол.</strong> Мою бабусю забрали від її родини, коли їй було 8 років. Уряд дав їй нове ім'я і відправив далеко від сім'ї. Мені потрібна твоя допомога, щоб зрозуміти, що сталося.
+                </div>
+                <p>Her name was <strong style="color: var(--accent); font-style: normal;">Annie Googoo</strong>. In the government file, she becomes <strong style="color: #e74c3c; font-style: normal;">Anne Peters</strong>. She was Indigenous — Mi'kmaw — from Nova Scotia, Canada.</p>
+                <div class="letter-uk">
+                    <span class="uk-flag">🇺🇦</span>
+                    Її звали <strong>Анні Гугу</strong>. В урядових документах вона стала <strong style="color:#e74c3c;">Енн Пітерс</strong>. Вона була корінною жителькою Канади — народу мі'кмак з провінції Нова Шотландія.
+                </div>
+                <p>As you go through each chapter, please help me answer: <em>Who gets to decide what counts as family?</em></p>
+                <div class="letter-uk">
+                    <span class="uk-flag">🇺🇦</span>
+                    Переглядаючи кожен розділ, допоможи мені відповісти на питання: <em>Хто вирішує, що таке сім'я?</em>
+                </div>
+            </div>
+            <div class="letter-sign">Wela'lin (Дякую),<br>Maya Paul</div>
+            <button class="briefing-dismiss" onclick="dismissBriefing()">РОЗПОЧАТИ РОЗСЛІДУВАННЯ / BEGIN INVESTIGATION →</button>
+        </div>
+    </div>
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-title">Apprehension</div>
+            <div class="logo-sub">Справа Анні Гугу / Case File</div>
+        </div>
+        <nav id="nav-list" class="nav-container">
+            <!-- Nav Items generated by JS -->
+        </nav>
+        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid #1a1d26;">
+            <div id="student-id-display" style="font-size: 0.68rem; color: #334; font-family: var(--font-mono);">AUTH: DMYTRO</div>
+        </div>
+    </aside>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main class="main">
+        <div id="sim-content" class="content-card" style="display: none;">
+            <div class="exhibit-info">
+                <div id="exhibit-id" style="font-family: var(--font-mono); color: var(--accent); font-size: 0.78rem; margin-bottom: 8px;">FILE_01</div>
+                <h1 id="exhibit-title">Завантаження...</h1>
+                <div id="body-content" class="body-text"></div>
+                <div class="interaction-panel" id="interaction-ui"></div>
+            </div>
+            <div class="exhibit-visual" id="visual-ui">
+                <div id="visual-container">
+                    <img id="exhibit-img" src="" class="exhibit-image">
+                    <div id="exhibit-custom-doc" style="display: none;"></div>
+                </div>
+                <div id="exhibit-credit" class="image-credit">SOURCE: CASE FILE</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════ STATUS BAR ═══════ -->
+    <footer class="status-bar">
+        <div>PROTOCOL: SIXTIES_SCOOP_11</div>
+        <div id="sync-status">SYNC: OFFLINE</div>
+        <div id="save-indicator" style="color: #334;">LOCAL_STORAGE: IDLE</div>
+        <div>HALIFAX WEST HIGH // MIKMAW11</div>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════
+        // AUTO-LOGIN: Dmytro (BIBA) — A Block (Waugh)
+        // ═══════════════════════════════════════════════════
+        const DMYTRO_STUDENT = {
+            "B": "A Block (Waugh)",
+            "S": "RG15dHJvIChCSUJBKQ=="  // decodes to: Dmytro (BIBA)
+        };
+
+        const SIMULATION_NAME = "Sixties Scoop — Maya Paul";
+
+        // ═══════════════════════════════════════════════════
+        // SLIDES — Simplified + Bilingual
+        // ═══════════════════════════════════════════════════
+        const MISSION_DATA = {
+            "slides": [
+                {
+                    "id": "slide_1",
+                    "shortTitle": "1. Скринька",
+                    "title": "The Box in the Closet / Скринька в шафі",
+                    "inputType": "multipart",
+                    "prompt_en": "Click each item in the box on the right. Then answer the questions.",
+                    "prompt_uk": "🇺🇦 Натисни на кожний предмет у скриньці праворуч. Потім відповідай на запитання.",
+                    "body": `<h3>РОЗДІЛ 01 / CHAPTER 01</h3>
+<p>Maya found a box in her grandmother's closet. Inside: a child's sweater, a photograph, a church card, a school record, and a government form.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Майя знайшла скриньку в шафі своєї бабусі. Всередині: дитячий светр, фотографія, церковна картка, шкільна відомість та урядовий бланк.</div>
+<p>The government form said <strong style="color:#e74c3c;">APPREHENDED</strong> — this means the child was <em>taken away</em> by the government.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>На урядовому бланку було написано <strong style="color:#e74c3c;">APPREHENDED</strong> — це означає, що дитину <em>забрали</em> від родини урядові чиновники.</div>
+<p>The child in the file was her grandmother <strong>Annie Googoo</strong>. But in the file, her name had been changed to <strong style="color:#e74c3c;">Anne Peters</strong>.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Дитиною у справі була її бабуся <strong>Анні Гугу</strong>. Але в документах її ім'я було змінено на <strong style="color:#e74c3c;">Енн Пітерс</strong>.</div>`,
+                    "credit": "Case File — Reconstructed Evidence",
+                    "customHtml": `
+<div class="document-container">
+    <div class="document-header">reconstructed evidence // case file scoop-63</div>
+    <div class="document-stamp">APPREHENDED</div>
+    <div class="document-row">
+        <span class="document-label">Subject:</span>
+        <span class="document-value">GOOGOO, Annie</span>
+    </div>
+    <div class="document-row">
+        <span class="document-label">New Name:</span>
+        <span class="document-value">PETERS, Anne</span>
+    </div>
+    <div style="margin-top:16px; font-weight:bold; text-transform:uppercase; color:#c0392b; font-size:0.75rem;">Натисни предмети / Click items:</div>
+    <div class="closet-box-container">
+        <button class="box-item-btn" onclick="selectBoxItem(0, this)"><span>👕</span> Светр / Sweater</button>
+        <button class="box-item-btn" onclick="selectBoxItem(1, this)"><span>📷</span> Фото / Photo</button>
+        <button class="box-item-btn" onclick="selectBoxItem(2, this)"><span>⛪</span> Картка / Church Card</button>
+        <button class="box-item-btn" onclick="selectBoxItem(3, this)"><span>📝</span> Відомість / Record</button>
+        <div id="box-item-desc" class="box-item-content">Натисни предмет, щоб прочитати... / Click an item above to read...</div>
+    </div>
+</div>`
+                },
+                {
+                    "id": "slide_2",
+                    "shortTitle": "2. До вилучення",
+                    "title": "Before the Taking / До вилучення",
+                    "inputType": "normal",
+                    "prompt_en": "Before she was taken, Annie had a happy life with her family. Describe ONE activity she enjoyed, and explain what the word 'kinship' means.",
+                    "prompt_uk": "🇺🇦 До того як її забрали, Анні мала щасливе життя з родиною. Опиши ОДНЕ заняття, яке вона любила, і поясни, що означає слово «споріднення» (kinship).",
+                    "body": `<h3>РОЗДІЛ 02 / CHAPTER 02</h3>
+<p>Before the government took Annie, she had a happy life. She ran along the Shubenacadie River, picked sweetgrass with her grandmother, and learned her culture.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>До того, як уряд забрав Анні, вона мала щасливе життя. Вона бігала вздовж річки Шубенакаді, збирала лепеху з бабусею та вивчала свою культуру.</div>
+<p>Her mother always said: <em>"Kinship is a circle that cannot be cut."</em> This means family and community connection is unbreakable.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Її мати завжди казала: <em>«Родинні зв'язки — це коло, яке не можна розрізати.»</em> Це означає, що зв'язок із родиною та спільнотою є нерозривним.</div>
+<p>The Mi'kmaq people (<strong>Mi'kma'ki</strong> = their homeland) had their own government, laws, chiefs, and a Grand Council. They were NOT a "wild" people — they were organized and self-governing.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Народ мі'кмак (<strong>Мі'кма'кі</strong> = їхня батьківщина) мав свій уряд, закони, вождів і Велику Раду. Вони НЕ були «дикими» людьми — вони були організованими та самоврядними.</div>
+<p>Maya understood: <em>Annie's story should start with belonging, not victimhood.</em></p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Майя зрозуміла: <em>Історія Анні повинна починатися з приналежності до спільноти, а не з жертовності.</em></div>`,
+                    "image": "ch2_before.png",
+                    "credit": "Mi'kma'ki — Community Reconstruction"
+                },
+                {
+                    "id": "slide_2_5",
+                    "shortTitle": "3. Родинне дерево",
+                    "title": "Family Tree / Родинне дерево",
+                    "inputType": "normal",
+                    "prompt_en": "Click two names in the family tree. Who are the grandparents at the top? Write ONE difference between what happened to Sarah's side of the family and what happened to Annie's side.",
+                    "prompt_uk": "🇺🇦 Натисни на два імені в родинному дереві. Хто є бабусями і дідусями зверху? Напиши ОДНУ відмінність між тим, що сталося з гілкою Сари і гілкою Анні.",
+                    "body": `<h3>РОЗДІЛ 03 / CHAPTER 03 — РОДИННЕ ДЕРЕВО</h3>
+<p>Maya connected her family to another student's case (Sarah Johnson). They are second cousins — same great-grandparents (Joseph & Lena Googoo).</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Майя пов'язала свою родину з іншою справою (Сара Джонсон). Вони є другими двоюрідними сестрами — спільні прабабуся й прадідусь (Джозеф і Лена Гугу).</div>
+<p><strong style="color:#f39c12;">Sarah's branch:</strong> Harmed by Indian Act status laws (identity erasure).<br>
+<strong style="color:#d35400;">Annie's branch:</strong> Harmed by child welfare removal (Sixties Scoop).</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span><strong style="color:#f39c12;">Гілка Сари:</strong> Постраждала від законів про статус за Законом про індіанців (знищення ідентичності).<br>
+<strong style="color:#d35400;">Гілка Анні:</strong> Постраждала від вилучення через службу опіки дітей («Пограбування шістдесятих»).</div>
+<p>Two different laws. Same colonial goal: <strong>break apart Indigenous families.</strong></p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Два різні закони. Одна колоніальна мета: <strong>розірвати корінні сім'ї.</strong></div>`,
+                    "credit": "Fictional Shared Family Line Reconstructed",
+                    "customHtml": `
+<div class="tree-container">
+    <div class="tree-title">🇺🇦 Натисни на ім'я / Click a name</div>
+    <svg width="100%" height="240" viewBox="0 0 400 240" style="background:#10121a; border: 1px solid #1e2230;">
+        <path d="M 200 55 L 200 70 L 100 70 L 100 90" class="tree-svg-link" />
+        <path d="M 200 70 L 300 70 L 300 90" class="tree-svg-link" />
+        <path d="M 100 130 L 100 160" class="tree-svg-link" />
+        <path d="M 100 190 L 100 210" class="tree-svg-link" />
+        <path d="M 300 130 L 300 160" class="tree-svg-link" />
+        <path d="M 300 190 L 300 210" class="tree-svg-link" />
+        <g class="tree-svg-node ancestor" onclick="showTreeNode('joseph_lena')">
+            <rect x="135" y="15" width="130" height="40" />
+            <text x="200" y="32">Joseph & Lena Googoo</text>
+            <text x="200" y="45" style="fill:#8e44ad; font-size:7px;">Mi'kmaw Parents (Sipeknekatik)</text>
+        </g>
+        <g class="tree-svg-node status-loss" onclick="showTreeNode('mary_francis')">
+            <rect x="35" y="90" width="130" height="40" />
+            <text x="100" y="107">Mary Googoo Johnson</text>
+            <text x="100" y="120" style="fill:#f39c12; font-size:7px;">Indian Act status line</text>
+        </g>
+        <g class="tree-svg-node apprehended" onclick="showTreeNode('annie_francis')">
+            <rect x="235" y="90" width="130" height="40" />
+            <text x="300" y="107">Annie Googoo</text>
+            <text x="300" y="120" style="fill:#d35400; font-size:7px;">Apprehended 1963</text>
+        </g>
+        <g class="tree-svg-node status-loss" onclick="showTreeNode('elaine_j')">
+            <rect x="35" y="160" width="130" height="30" />
+            <text x="100" y="178">Elaine Johnson</text>
+        </g>
+        <g class="tree-svg-node apprehended" onclick="showTreeNode('elaine_p')">
+            <rect x="235" y="160" width="130" height="30" />
+            <text x="300" y="178">Elaine Peters</text>
+        </g>
+        <g class="tree-svg-node status-loss" onclick="showTreeNode('sarah_johnson')">
+            <rect x="40" y="210" width="120" height="25" style="fill:var(--accent-dim); stroke:var(--accent);" />
+            <text x="100" y="226" style="fill:#fff;">Sarah Johnson</text>
+        </g>
+        <g class="tree-svg-node apprehended" onclick="showTreeNode('maya_paul')">
+            <rect x="240" y="210" width="120" height="25" style="fill:var(--accent-dim); stroke:var(--accent);" />
+            <text x="300" y="226" style="fill:#fff;">Maya Paul</text>
+        </g>
+    </svg>
+    <div id="tree-details-box" class="tree-node-details">
+        <h4>Родинне Дерево / Family Reconstruction</h4>
+        <p>Натисни на будь-яке ім'я вгорі, щоб отримати деталі. / Click any name to see details.</p>
+    </div>
+</div>`
+                },
+                {
+                    "id": "slide_3",
+                    "shortTitle": "4. «Нехтування»",
+                    "title": "Conditions Called 'Neglect' / Умови, названі «нехтуванням»",
+                    "inputType": "highlighter",
+                    "highlightText": "Subject child GOOGOO, Annie. Age 8. Home visited by inspector. Found family dwelling in conditions of severe overcrowding and material poverty. Lacks standard municipal infrastructure. Parents cooperative but demonstrate lack of resource management. Housing substandard. Recommended: immediate removal in best interests of child.",
+                    "prompt_en": "Read the government report on the right. Click ONE or TWO words that seem unfair. Then write: why was Annie's family poor? Was it their fault?",
+                    "prompt_uk": "🇺🇦 Прочитай урядовий звіт праворуч. Натисни на ОДНЕ або ДВА слова, які здаються несправедливими. Потім напиши: чому родина Анні була бідною? Чи це їхня вина?",
+                    "body": `<h3>РОЗДІЛ 04 / CHAPTER 04</h3>
+<p>The government file described Annie's home using cold, official language. It said "overcrowding" and "poverty" — but never explained <strong>why</strong> the family lived this way.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Урядова справа описувала домівку Анні холодною, офіційною мовою. Там було написано «перенаселеність» і «бідність» — але ніколи не пояснювалося <strong>чому</strong> сім'я жила в таких умовах.</div>
+<p>The truth: For decades, the Canadian government had forced Indigenous families onto small reserves with bad land, then cut off their rights to fish, hunt, and trade. This <strong>created</strong> poverty. Then they blamed the families for being poor.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Правда: Протягом десятиліть канадський уряд примусово переселяв корінні сім'ї на маленькі резервації з поганою землею, а потім позбавляв їх права на рибальство, полювання та торгівлю. Це <strong>і створило</strong> бідність. Потім вони звинувачували сім'ї у тому, що ті бідні.</div>
+<p>Residential schools had already broken language, family, and identity. Social workers saw the results — but blamed the parents instead of the system.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Школи-інтернати вже зруйнували мову, сім'ю та ідентичність. Соціальні працівники бачили результати — але звинувачували батьків, а не систему.</div>`,
+                    "credit": "Reserve Conditions — Child Welfare Record",
+                    "customHtml": `
+<div class="document-container">
+    <div class="document-header">province of nova scotia // child welfare department</div>
+    <div class="document-stamp">CASE NO. 481-B</div>
+    <div class="document-row">
+        <span class="document-label">Date:</span>
+        <span class="document-value">OCTOBER 14, 1963</span>
+    </div>
+    <div class="document-row">
+        <span class="document-label">Inspector:</span>
+        <span class="document-value">W. D. BENTLEY</span>
+    </div>
+    <div class="document-checkbox-group">
+        <div class="document-checkbox"><input type="checkbox" checked> Substandard Housing</div>
+        <div class="document-checkbox"><input type="checkbox" checked> Overcrowding</div>
+        <div class="document-checkbox"><input type="checkbox"> No Cooperation</div>
+    </div>
+    <div class="document-notes">
+        <div style="font-weight:bold; margin-bottom:4px; text-transform:uppercase; font-size:0.72rem; color:#555;">🇺🇦 Натисни на слова / Click words to highlight:</div>
+        <div class="highlightable-text" id="highlightable-doc-text"></div>
+    </div>
+    <div style="margin-top:16px; font-size:0.72rem; text-align:right;">
+        Signed: <span class="handwritten-sig">W.D. Bentley</span>
+    </div>
+</div>`
+                },
+                {
+                    "id": "slide_4",
+                    "shortTitle": "5. День вилучення",
+                    "title": "The Day They Came / День, коли вони прийшли",
+                    "inputType": "normal",
+                    "prompt_en": "Approximately how many Indigenous children were taken during the Sixties Scoop? In your own words, what does 'Sixties Scoop' mean?",
+                    "prompt_uk": "🇺🇦 Скільки приблизно корінних дітей було забрано під час «Пограбування шістдесятих»? Своїми словами: що означає «Пограбування шістдесятих»?",
+                    "body": `<h3>РОЗДІЛ 05 / CHAPTER 05</h3>
+<p>Annie never described the day in one complete story. Maya pieced it together from fragments: <em>A car. A clipboard. Her mother crying. A promise it was temporary. A hand pulling her toward the road.</em></p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Анні ніколи не розповідала про цей день повністю. Майя зібрала все з уривків: <em>Автомобіль. Кишеня з бланком. Мати плаче. Обіцянка, що це тимчасово. Рука тягне її до дороги.</em></div>
+<p>In <strong>1951</strong>, a new law gave Canadian provinces power over Indigenous child welfare. This opened the door for the <strong>Sixties Scoop</strong>: from the 1950s to the 1980s, approximately <strong>20,000 Indigenous children</strong> were taken from their homes.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>У <strong>1951</strong> році новий закон дав канадським провінціям владу над опікою корінних дітей. Це відкрило двері для <strong>«Пограбування шістдесятих»</strong>: з 1950-х по 1980-ті роки приблизно <strong>20 000 корінних дітей</strong> були забрані з їхніх домівок.</div>
+<p>Officials said they acted in the child's <em>"best interests."</em> But this phrase hid colonial values: that nuclear families are better than Indigenous kinship networks, that poverty = bad parenting, and that European culture was the correct one.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Чиновники казали, що діяли в «<em>найкращих інтересах дитини</em>». Але ця фраза приховувала колоніальні цінності: що нуклеарні сім'ї кращі за корінні родинні мережі, що бідність = погане батьківство, і що європейська культура є правильною.</div>`,
+                    "image": "ch4_taking.png",
+                    "credit": "Sixties Scoop — Historical Record"
+                },
+                {
+                    "id": "slide_5",
+                    "shortTitle": "6. Енн Пітерс",
+                    "title": "Anne Peters / Енн Пітерс",
+                    "inputType": "comparison",
+                    "prompt_en": "Look at the document on the right. Annie's name was crossed out and replaced. How do you think it would feel to have your name changed by the government?",
+                    "prompt_uk": "🇺🇦 Подивись на документ праворуч. Ім'я Анні було викреслено та замінено. Як ти думаєш, як би ти почувався, якби уряд змінив твоє ім'я?",
+                    "body": `<h3>РОЗДІЛ 06 / CHAPTER 06</h3>
+<p><strong>Annie Googoo</strong> disappeared from the file. <span style="color:#e74c3c; font-weight:bold;">Anne Peters</span> took her place. The new name sounded easier for others to say. Later records described her as "quiet, withdrawn, and difficult to place."</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span><strong>Анні Гугу</strong> зникла зі справи. <span style="color:#e74c3c; font-weight:bold;">Енн Пітерс</span> зайняла її місце. Нове ім'я звучало легше для інших. Пізніші записи описували її як «тиху, замкнену, яку важко влаштувати».</div>
+<p>Survivors of child welfare removal describe: loss of family, punishment for speaking their language, and deep <strong>intergenerational trauma</strong> — pain that passes from parents to children to grandchildren.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Ті, хто пережив вилучення зі служби опіки, описують: втрату сім'ї, покарання за розмову рідною мовою та глибоку <strong>міжпоколінну травму</strong> — біль, що передається від батьків до дітей і онуків. Це схоже на те, що пережила Україна під радянською владою.</div>`,
+                    "credit": "Department of Indian Affairs — Archive Card",
+                    "customHtml": `
+<div class="document-container">
+    <div class="document-header">department of indian affairs // education branch</div>
+    <div class="document-stamp" style="border-color:#2980b9; color:#2980b9; transform:rotate(-4deg); font-size:0.9rem;">REGISTERED</div>
+    <div class="document-row">
+        <span class="document-label">Original Name:</span>
+        <span class="document-value" style="text-decoration: line-through; color:#c0392b; font-weight:bold;">GOOGOO, Annie</span>
+    </div>
+    <div class="document-row">
+        <span class="document-label">Assigned Name:</span>
+        <span class="document-value" style="font-weight:bold; color:#1a1a1a;">PETERS, Anne</span>
+    </div>
+    <div class="document-row">
+        <span class="document-label">Status ID:</span>
+        <span class="document-value">Band No. 382, Sipeknekatik (Inactive)</span>
+    </div>
+    <div class="document-notes" style="margin-top:12px; font-size:0.78rem;">
+        <span style="font-weight:bold; text-transform:uppercase;">Placement record:</span> Ward is reported as exceptionally quiet, withdrawn, and difficult to place due to speech patterns. Instruction ordered to focus strictly on english integration.
+    </div>
+</div>`
+                },
+                {
+                    "id": "slide_6",
+                    "shortTitle": "7. Підсумок",
+                    "title": "Final Analysis / Підсумковий аналіз",
+                    "inputType": "normal",
+                    "prompt_en": "In a few sentences: what happened to Annie Googoo? Who took her, and why?",
+                    "prompt_uk": "🇺🇦 Кількома реченнями: що сталося з Анні Гугу? Хто її забрав і чому?",
+                    "body": `<h3>РОЗДІЛ 07 / CHAPTER 07 — ПІДСУМОК</h3>
+<p>Maya understood that Sarah's case and Annie's case are different but connected. In Sarah's branch: the state used <em>legal identity laws</em> to erase who you are on paper. In Annie's branch: the state used <em>child welfare</em> to physically remove children.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Майя зрозуміла, що справа Сари та справа Анні різні, але пов'язані. У гілці Сари: держава використовувала <em>закони про правову ідентичність</em>, щоб стерти, ким ти є на папері. У гілці Анні: держава використовувала <em>службу опіки дітей</em>, щоб фізично забирати дітей.</div>
+<p>Colonial policy worked through many systems at once: the Indian Act, reserve confinement, residential schools, and child welfare removal. The result in both cases was <strong>control</strong>.</p>
+<div class="uk-note"><span class="uk-label">🇺🇦 Українською</span>Колоніальна політика діяла через багато систем одночасно: Закон про індіанців, обмеження резервацій, школи-інтернати та вилучення дітей. Результат в обох випадках — <strong>контроль</strong>.</div>
+<blockquote>
+    <strong>🇺🇦 Запитання для роздумів / Question to consider:</strong><br>
+    <em>Хто вирішує, що таке турбота, приналежність та сім'я?<br>
+    Who gets to decide what counts as care, belonging, and family?</em>
+</blockquote>`,
+                    "image": "ch6_final.png",
+                    "credit": "Maya Paul — Personal Archive"
+                }
+            ]
+        };
+
+        // ═══════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════
+        let currentSlideIndex = 0;
+        const selectedStudent = DMYTRO_STUDENT;
+        let sessionData = { responses: {} };
+
+        let slideStartTime = Date.now();
+        let slideKeystrokeCount = 0;
+        let slidePasted = false;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target && e.target.tagName === 'TEXTAREA') slideKeystrokeCount++;
+        });
+        document.addEventListener('paste', (e) => {
+            if (e.target && e.target.tagName === 'TEXTAREA') slidePasted = true;
+        });
+
+        // ═══════════════════════════════════════════════════
+        // WELCOME & SESSION
+        // ═══════════════════════════════════════════════════
+        function startWelcome() {
+            gsap.to("#splash", { opacity: 0, duration: 0.8, onComplete: () => {
+                document.getElementById('splash').style.display = 'none';
+                showBriefing();
+            }});
+        }
+
+        function showBriefing() {
+            const overlay = document.getElementById('briefing-overlay');
+            overlay.style.display = 'flex';
+            gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.5 });
+            gsap.fromTo(".briefing-card", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, delay: 0.2 });
+        }
+
+        function dismissBriefing() {
+            gsap.to("#briefing-overlay", { opacity: 0, duration: 0.4, onComplete: () => {
+                document.getElementById('briefing-overlay').style.display = 'none';
+                startSession();
+            }});
+        }
+
+        function startSession() {
+            document.getElementById('sim-content').style.display = 'grid';
+            document.getElementById('student-id-display').innerText = 'AUTH: DMYTRO (BIBA)';
+
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.innerText = "SYNC: READY";
+            syncStatus.style.color = "var(--accent)";
+
+            const nav = document.getElementById('nav-list');
+            nav.innerHTML = '';
+            MISSION_DATA.slides.forEach((slide, index) => {
+                const btn = document.createElement('div');
+                btn.className = `nav-item ${index === 0 ? 'active' : ''}`;
+                btn.id = `nav-${index}`;
+                btn.innerText = slide.shortTitle;
+                btn.onclick = () => loadSlide(index);
+                nav.appendChild(btn);
+            });
+
+            loadFromLocal();
+            if (!sessionData.responses) sessionData.responses = {};
+            if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+            if (!sessionData.responses._timestamps.start) {
+                sessionData.responses._timestamps.start = new Date().toISOString();
+                saveToLocal();
+            }
+
+            loadSlide(0);
+            retrieveFromCloud();
+        }
+
+        // ═══════════════════════════════════════════════════
+        // SLIDE LOADING
+        // ═══════════════════════════════════════════════════
+        function loadSlide(index) {
+            slideStartTime = Date.now();
+            slideKeystrokeCount = 0;
+            slidePasted = false;
+
+            currentSlideIndex = index;
+            const slide = MISSION_DATA.slides[index];
+
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`nav-${index}`).classList.add('active');
+
+            document.getElementById('exhibit-id').innerText = `FILE_${String(index + 1).padStart(2, '0')}`;
+            document.getElementById('exhibit-title').innerText = slide.title;
+            document.getElementById('body-content').innerHTML = slide.body;
+
+            const visualUi = document.getElementById('visual-ui');
+            const simContent = document.getElementById('sim-content');
+            const imgElement = document.getElementById('exhibit-img');
+            const customDocElement = document.getElementById('exhibit-custom-doc');
+
+            if (slide.customHtml) {
+                visualUi.style.display = 'flex';
+                imgElement.style.display = 'none';
+                customDocElement.style.display = 'block';
+                customDocElement.innerHTML = slide.customHtml;
+                document.getElementById('exhibit-credit').innerText = `SOURCE: ${slide.credit}`;
+                simContent.style.gridTemplateColumns = '1.2fr 0.8fr';
+            } else if (slide.image) {
+                visualUi.style.display = 'flex';
+                imgElement.style.display = 'block';
+                imgElement.src = slide.image;
+                customDocElement.style.display = 'none';
+                document.getElementById('exhibit-credit').innerText = `SOURCE: ${slide.credit}`;
+                simContent.style.gridTemplateColumns = '1.2fr 0.8fr';
+            } else {
+                visualUi.style.display = 'none';
+                simContent.style.gridTemplateColumns = '1fr';
+            }
+
+            buildInteractionPanel(slide);
+            gsap.fromTo("#sim-content", { opacity: 0, x: 15 }, { opacity: 1, x: 0, duration: 0.4 });
+        }
+
+        function buildInteractionPanel(slide) {
+            const interactionUi = document.getElementById('interaction-ui');
+            interactionUi.innerHTML = '';
+
+            // English prompt
+            const promptEn = document.createElement('div');
+            promptEn.className = 'prompt-en';
+            promptEn.innerText = slide.prompt_en;
+            interactionUi.appendChild(promptEn);
+
+            // Ukrainian prompt
+            const promptUk = document.createElement('div');
+            promptUk.className = 'prompt-uk';
+            promptUk.innerText = slide.prompt_uk;
+            interactionUi.appendChild(promptUk);
+
+            if (slide.inputType === 'multipart') {
+                buildMultipart(slide, interactionUi);
+            } else if (slide.inputType === 'highlighter') {
+                buildHighlighter(slide, interactionUi);
+            } else if (slide.inputType === 'comparison') {
+                buildComparison(slide, interactionUi);
+            } else {
+                buildNormal(slide, interactionUi);
+            }
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-btn';
+            saveBtn.innerText = '💾 Зберегти / Save';
+            saveBtn.onclick = saveProgress;
+            interactionUi.appendChild(saveBtn);
+        }
+
+        function buildNormal(slide, container) {
+            const label = document.createElement('div');
+            label.className = 'field-label-uk';
+            label.innerText = '🇺🇦 Твоя відповідь / Your answer:';
+            container.appendChild(label);
+
+            const t = document.createElement('textarea');
+            t.id = 'student-rationale';
+            t.value = sessionData.responses[slide.id] || '';
+            t.placeholder = 'Пиши тут / Write here...';
+            if (slide.id === 'slide_6') {
+                t.style.minHeight = '150px';
+                t.placeholder = 'Пиши кілька речень / Write a few sentences...';
+            }
+            container.appendChild(t);
+        }
+
+        function buildMultipart(slide, container) {
+            let prompts_en = [];
+            let prompts_uk = [];
+
+            if (slide.id === 'slide_1') {
+                prompts_en = [
+                    "Look at the church card. What is Annie's last name (family name)?",
+                    "Look at the photograph. Who is with Annie in the picture?",
+                    "Look at the school record. What new name was given to Annie?"
+                ];
+                prompts_uk = [
+                    "Подивись на церковну картку. Яке прізвище (фамільне ім'я) Анні?",
+                    "Подивись на фотографію. Хто зображений разом з Анні на снімку?",
+                    "Подивись на шкільну відомість. Яке нове ім'я було дано Анні?"
+                ];
+            } else if (slide.id === 'slide_7') {
+                // slide_7 removed — kept for safety but won't render
+                prompts_en = [];
+                prompts_uk = [];
+            }
+
+            const mcContainer = document.createElement('div');
+            mcContainer.className = 'multipart-prompt-container';
+
+            let saved = {};
+            try {
+                saved = sessionData.responses[slide.id] ? JSON.parse(sessionData.responses[slide.id]) : {};
+            } catch(e) {
+                saved = { part_0: sessionData.responses[slide.id] || '' };
+            }
+
+            prompts_en.forEach((p_en, idx) => {
+                const field = document.createElement('div');
+                field.className = 'multipart-field';
+
+                const labelEn = document.createElement('div');
+                labelEn.className = 'multipart-label-en';
+                labelEn.innerText = `Part ${idx + 1}: ${p_en}`;
+                field.appendChild(labelEn);
+
+                const labelUk = document.createElement('div');
+                labelUk.className = 'multipart-label-uk';
+                labelUk.innerText = `🇺🇦 ${prompts_uk[idx]}`;
+                field.appendChild(labelUk);
+
+                const t = document.createElement('textarea');
+                t.id = `multipart-ans-${idx}`;
+                t.value = saved[`part_${idx}`] || '';
+                t.placeholder = 'Твоя відповідь / Your answer...';
+                field.appendChild(t);
+
+                mcContainer.appendChild(field);
+            });
+
+            container.appendChild(mcContainer);
+        }
+
+        function buildHighlighter(slide, container) {
+            const instrDiv = document.createElement('div');
+            instrDiv.style.cssText = 'font-size:0.85rem; margin-bottom:12px; color:#aab; padding: 8px 0;';
+            instrDiv.innerHTML = '<strong>🇺🇦 Натисни на слова у документі праворуч. Вибрані слова з\'являться тут:</strong><br><em style="font-size:0.8rem; color:#667;">(Click words in the document on the right. Selected words appear here:)</em>';
+            container.appendChild(instrDiv);
+
+            const listDiv = document.createElement('div');
+            listDiv.id = 'highlighted-list';
+            listDiv.style.cssText = 'background:#050508; border:1px solid #222636; padding:12px; min-height:50px; margin-bottom:14px; font-size:0.92rem; color:#fff; border-radius:2px;';
+            container.appendChild(listDiv);
+
+            const label = document.createElement('div');
+            label.className = 'field-label-uk';
+            label.innerText = '🇺🇦 Поясни своїй вибір / Explain your choices:';
+            container.appendChild(label);
+
+            const t = document.createElement('textarea');
+            t.id = 'student-rationale';
+            t.placeholder = '🇺🇦 Чому ці слова показують упередженість? / Why do these words show bias?';
+
+            let saved = { words: [], rationale: '' };
+            try {
+                saved = sessionData.responses[slide.id] ? JSON.parse(sessionData.responses[slide.id]) : { words: [], rationale: '' };
+            } catch(e) {
+                saved = { words: [], rationale: sessionData.responses[slide.id] || '' };
+            }
+
+            t.value = saved.rationale || '';
+            container.appendChild(t);
+
+            // Populate highlighter text in the custom doc
+            setTimeout(() => {
+                const text = slide.highlightText;
+                const textContainer = document.getElementById('highlightable-doc-text');
+                if (textContainer) {
+                    textContainer.innerHTML = '';
+                    const words = text.split(' ');
+                    const savedWords = saved.words || [];
+
+                    words.forEach((word) => {
+                        const span = document.createElement('span');
+                        span.className = 'highlight-word';
+                        const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim();
+                        let isSelected = false;
+                        for (let sw of savedWords) {
+                            if (sw.trim().toLowerCase() === cleanWord.toLowerCase()) { isSelected = true; break; }
+                        }
+                        if (isSelected) span.classList.add('selected');
+                        span.innerText = word;
+                        span.onclick = (e) => {
+                            e.target.classList.toggle('selected');
+                            const currentSelected = [];
+                            document.querySelectorAll('.highlight-word.selected').forEach(el => {
+                                currentSelected.push(el.innerText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim());
+                            });
+                            updateHighlightedListDisplay(currentSelected);
+                        };
+                        textContainer.appendChild(span);
+                        textContainer.appendChild(document.createTextNode(' '));
+                    });
+                    updateHighlightedListDisplay(savedWords);
+                }
+            }, 60);
+        }
+
+        function buildComparison(slide, container) {
+            const instrDiv = document.createElement('div');
+            instrDiv.style.cssText = 'font-size:0.85rem; color:#aab; margin-bottom:12px;';
+            instrDiv.innerHTML = '<strong>🇺🇦 Порівняй офіційну справу з реальністю / Compare the official file with reality:</strong>';
+            container.appendChild(instrDiv);
+
+            const tableHtml = document.createElement('div');
+            tableHtml.innerHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Офіційна справа каже / Official file says</th>
+                            <th>🇺🇦 Реальність / Mi'kmaw Reality</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color:#e74c3c; font-weight:bold; font-size:0.75rem;">"Annie Googoo disappeared... Anne Peters took her place."</td>
+                            <td><textarea id="comp-ans-0" placeholder="🇺🇦 Що ця зміна імені ігнорує про її ідентичність? / What does this name change ignore about her identity?"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td style="color:#e74c3c; font-weight:bold; font-size:0.75rem;">"Quiet, withdrawn, and difficult to place."</td>
+                            <td><textarea id="comp-ans-1" placeholder="🇺🇦 Чому дитина могла б поводитися так? Що вона втратила? / Why would a child behave this way? What did they lose?"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            container.appendChild(tableHtml);
+
+            let saved = {};
+            try {
+                saved = sessionData.responses[slide.id] ? JSON.parse(sessionData.responses[slide.id]) : {};
+            } catch(e) {
+                saved = {};
+            }
+            setTimeout(() => {
+                const a0 = document.getElementById('comp-ans-0');
+                const a1 = document.getElementById('comp-ans-1');
+                if (a0) a0.value = saved.ans_0 || '';
+                if (a1) a1.value = saved.ans_1 || '';
+            }, 50);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // SAVE / SYNC
+        // ═══════════════════════════════════════════════════
+        function saveProgress() {
+            const slide = MISSION_DATA.slides[currentSlideIndex];
+            let val = '';
+
+            if (slide.inputType === 'multipart') {
+                const ans = {};
+                let hasData = false;
+                let idx = 0;
+                while (true) {
+                    const el = document.getElementById(`multipart-ans-${idx}`);
+                    if (!el) break;
+                    const text = el.value.trim();
+                    ans[`part_${idx}`] = text;
+                    if (text) hasData = true;
+                    idx++;
+                }
+                if (!hasData) return;
+                val = JSON.stringify(ans);
+            } else if (slide.inputType === 'highlighter') {
+                const words = [];
+                document.querySelectorAll('.highlight-word.selected').forEach(el => {
+                    words.push(el.innerText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").trim());
+                });
+                const rationale = document.getElementById('student-rationale').value.trim();
+                if (words.length === 0 && !rationale) return;
+                val = JSON.stringify({ words, rationale });
+            } else if (slide.inputType === 'comparison') {
+                const ans = {
+                    ans_0: (document.getElementById('comp-ans-0') || {value: ''}).value.trim(),
+                    ans_1: (document.getElementById('comp-ans-1') || {value: ''}).value.trim()
+                };
+                if (!ans.ans_0 && !ans.ans_1) return;
+                val = JSON.stringify(ans);
+            } else {
+                val = document.getElementById('student-rationale').value.trim();
+                if (!val) return;
+            }
+
+            sessionData.responses[slide.id] = val;
+
+            // Telemetry
+            const elapsed = Math.round((Date.now() - slideStartTime) / 1000);
+            if (!sessionData.responses._telemetry) sessionData.responses._telemetry = {};
+            if (!sessionData.responses._telemetry[slide.id]) {
+                sessionData.responses._telemetry[slide.id] = { pasted: false, keystrokes: 0, duration_sec: 0 };
+            }
+            sessionData.responses._telemetry[slide.id].pasted = sessionData.responses._telemetry[slide.id].pasted || slidePasted;
+            sessionData.responses._telemetry[slide.id].keystrokes += slideKeystrokeCount;
+            sessionData.responses._telemetry[slide.id].duration_sec += elapsed;
+
+            slideStartTime = Date.now();
+            slideKeystrokeCount = 0;
+            slidePasted = false;
+
+            if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+            if (!sessionData.responses._timestamps.start) sessionData.responses._timestamps.start = new Date().toISOString();
+            if (!sessionData.responses._timestamps[slide.id]) sessionData.responses._timestamps[slide.id] = new Date().toISOString();
+
+            saveToLocal();
+
+            const navBtn = document.getElementById(`nav-${currentSlideIndex}`);
+            if (navBtn) navBtn.classList.add('completed');
+
+            submitToWebhook(false);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // INTERACTIVE HELPERS
+        // ═══════════════════════════════════════════════════
+        const BOX_ITEMS = [
+            {
+                title: "Светр / Child's Sweater",
+                notes_uk: "Маленький зелений вовняний светр, зв'язаний вручну. Він ще трохи пахне кедром і димом. Ярличок усередині читається: «Анні».",
+                notes_en: "A small hand-knit green wool sweater. It still smells faintly of cedar and woodsmoke. The faded nametag reads 'Annie'."
+            },
+            {
+                title: "Фотографія / Faded Photograph",
+                notes_uk: "Дві дівчинки стоять на дерев'яному ґанку, сміючись у літньому сонці. На звороті олівцем написано: «Анні і Мері, літо перед тим, як усе змінилося».",
+                notes_en: "Two young girls on a wooden porch, laughing in the summer sun. On the back: 'Annie & Mary, summer before everything changed.'",
+                image: "faded_photo.png"
+            },
+            {
+                title: "Церковна картка / Church Card",
+                notes_uk: "Метрика хрещення парафії Святої Анни, датована 1955 роком. Зазначено народження Анні Гугу у Джозефа та Лени Гугу з Першої Нації Сіпекнекатік.",
+                notes_en: "St. Anne's Parish baptismal certificate, dated 1955. Records the birth of Annie Googoo to Joseph and Lena Googoo of Sipeknekatik First Nation."
+            },
+            {
+                title: "Шкільна відомість / School Record",
+                notes_uk: "Шкільна картка 1964 року. Ім'я надруковано «Енн Пітерс» (з «Анні Гугу» закресленим червоним чорнилом). Нотатка вчителя: «Надзвичайно тиха, відмовляється говорити, мовний бар'єр».",
+                notes_en: "A 1964 report card. Student name typed is 'Anne Peters' ('Annie Googoo' crossed out in red ink). Teacher note: 'Exceptionally quiet, refuses to speak, language barrier.'"
+            }
+        ];
+
+        function selectBoxItem(index, btn) {
+            document.querySelectorAll('.box-item-btn').forEach(el => el.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const item = BOX_ITEMS[index];
+            const box = document.getElementById('box-item-desc');
+            if (item && box) {
+                let imgMarkup = "";
+                if (index === 1 && item.image) {
+                    imgMarkup = `<img src="${item.image}" style="display:block; width:100%; max-width:260px; margin: 12px auto 0; border: 1px solid #d3c4a9; border-radius: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); opacity: 0.9;" alt="Annie & Mary">`;
+                }
+                box.innerHTML = `
+                    <strong>${item.title}</strong><br>
+                    <span style="color:#5DADE2; font-size:0.8rem;">🇺🇦 Українською:</span> ${item.notes_uk}<br>
+                    <span style="color:#667; font-size:0.78rem; font-style:italic;">English: ${item.notes_en}</span>
+                    ${imgMarkup}
+                `;
+            }
+        }
+
+        const TREE_DATA = {
+            "joseph_lena": {
+                name: "Joseph & Lena Googoo",
+                relation_uk: "Прабабуся і прадідусь (мі'кмак)",
+                notes_uk: "Батьки мі'кмак із Першої Нації Сіпекнекатік. Вони виховували Анні і Мері в громаді, побудованій на родинних зв'язках, сезонних переміщеннях і керівництві Великої Ради.",
+                notes_en: "Mi'kmaw parents from Sipeknekatik First Nation. They raised Annie and Mary in a community built on kinship, seasonal movement, and Grand Council leadership."
+            },
+            "mary_francis": {
+                name: "Mary Googoo Johnson",
+                relation_uk: "Двоюрідна бабуся (мі'кмак)",
+                notes_uk: "Молодша сестра Анні. Її гілка була сформована правилами реєстрації Закону про індіанців і обмеженнями статусу. Вона є бабусею Сари Джонсон.",
+                notes_en: "Annie's younger sister. Shaped by Indian Act registration rules. She is Sarah Johnson's grandmother."
+            },
+            "annie_francis": {
+                name: "Annie Googoo (→ Anne Peters)",
+                relation_uk: "Бабуся Майї (мі'кмак)",
+                notes_uk: "Бабуся Майї. Соціальні працівники забрали її у 1963 році у 8-річному віці. Перейменована у «Енн Пітерс» урядом. Відокремлена від мови, імені та сім'ї.",
+                notes_en: "Maya's grandmother. Apprehended by social workers in 1963 at age 8. Renamed 'Anne Peters'. Separated from her language, name, and family."
+            },
+            "elaine_j": {
+                name: "Elaine Johnson",
+                relation_uk: "Мати Сари",
+                notes_uk: "Дочка Мері Гугу Джонсон. Виросла в Сіпекнекатіку, передала Сарі справи про статус.",
+                notes_en: "Daughter of Mary Googoo Johnson. Raised in Sipeknekatik, passed status law files to Sarah."
+            },
+            "elaine_p": {
+                name: "Elaine Peters",
+                relation_uk: "Мати Майї",
+                notes_uk: "Дочка Анні Гугу (Енн Пітерс). Виросла, відчуваючи мовчазну травму матері, що спонукало пошуки Майї.",
+                notes_en: "Daughter of Annie Googoo (Anne Peters). Grew up sensing her mother's silent trauma, prompting Maya's search."
+            },
+            "sarah_johnson": {
+                name: "Sarah Johnson",
+                relation_uk: "Двоюрідна сестра Майї",
+                notes_uk: "Клієнтка в першому розслідуванні. Її справа стосувалася юридичного знищення ідентичності за Законом про індіанців.",
+                notes_en: "Client in the first investigation. Her case focused on legal identity erasure under the Indian Act."
+            },
+            "maya_paul": {
+                name: "Maya Paul",
+                relation_uk: "Клієнтка (ти їй допомагаєш)",
+                notes_uk: "Ініціювала цю справу після того, як відкрила скриньку в шафі своєї бабусі, намагаючись з'єднати частини колоніальної політики.",
+                notes_en: "Initiated this case after opening the box in her grandmother's closet, wanting to connect colonial policy."
+            }
+        };
+
+        function showTreeNode(nodeId) {
+            document.querySelectorAll('.tree-svg-node').forEach(el => el.classList.remove('active'));
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
+            const info = TREE_DATA[nodeId];
+            const box = document.getElementById('tree-details-box');
+            if (info && box) {
+                box.innerHTML = `
+                    <h4>${info.name}</h4>
+                    <div style="font-weight:bold; font-size:0.72rem; color:#f39c12; margin-bottom:6px; text-transform:uppercase;">🇺🇦 ${info.relation_uk}</div>
+                    <p style="margin:0; font-size:0.82rem; color:#bcc3d4; line-height:1.5;"><span style="color:var(--accent);">🇺🇦</span> ${info.notes_uk}</p>
+                    <p style="margin:4px 0 0; font-size:0.75rem; color:#556; font-style:italic; line-height:1.4;">EN: ${info.notes_en}</p>
+                `;
+            }
+        }
+
+        function updateHighlightedListDisplay(words) {
+            const listDiv = document.getElementById('highlighted-list');
+            if (listDiv) {
+                if (words && words.length > 0) {
+                    listDiv.innerHTML = words.map(w => `<span class="hl-pill">"${w.trim()}"</span>`).join(' ');
+                } else {
+                    listDiv.innerHTML = '<span style="color:#556; font-style:italic;">🇺🇦 Поки нічого не вибрано. Натисни слова праворуч. / Nothing selected yet. Click words on the right.</span>';
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════
+        // CLOUD / LOCAL STORAGE — Same Google Sheet
+        // ═══════════════════════════════════════════════════
+        function markCloudSaveResult(isOffline) {
+            const indicator = document.getElementById('save-indicator');
+            if (isOffline) {
+                indicator.innerText = "CLOUD_SYNC: FAILED";
+                indicator.style.color = "#e74c3c";
+            } else {
+                indicator.innerText = "CLOUD_SYNC: SUCCESS ✓";
+                indicator.style.color = "var(--accent)";
+                setTimeout(() => {
+                    indicator.innerText = "CLOUD_SYNC: IDLE";
+                    indicator.style.color = "#334";
+                }, 2500);
+            }
+        }
+
+        function saveToLocal() {
+            const decodedS = atob(selectedStudent.S);
+            localStorage.setItem(`maya_data_${decodedS}`, JSON.stringify(sessionData));
+        }
+
+        function loadFromLocal() {
+            const decodedS = atob(selectedStudent.S);
+            const saved = localStorage.getItem(`maya_data_${decodedS}`);
+            if (saved) {
+                sessionData = JSON.parse(saved);
+            }
+        }
+
+        async function retrieveFromCloud() {
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.innerText = "SYNC: RETRIEVING...";
+            syncStatus.style.color = "orange";
+
+            try {
+                const decodedS = atob(selectedStudent.S);
+                const res = await fetch(`${API_URL}?student=${encodeURIComponent(decodedS)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+                const result = await res.json();
+
+                if (result.rationales) {
+                    const cloudResponses = JSON.parse(result.rationales);
+                    const localStart = (sessionData.responses && sessionData.responses._timestamps) ? sessionData.responses._timestamps.start : null;
+                    sessionData.responses = cloudResponses;
+                    if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+                    if (!sessionData.responses._timestamps.start && localStart) sessionData.responses._timestamps.start = localStart;
+                    syncStatus.innerText = "SYNC: CLOUD LOADED";
+                    syncStatus.style.color = "#2ecc71";
+                    saveToLocal();
+                    loadSlide(currentSlideIndex);
+                    MISSION_DATA.slides.forEach((slide, idx) => {
+                        if (sessionData.responses[slide.id]) {
+                            const navBtn = document.getElementById(`nav-${idx}`);
+                            if (navBtn) navBtn.classList.add('completed');
+                        }
+                    });
+                    setTimeout(() => {
+                        syncStatus.innerText = "SYNC: READY";
+                        syncStatus.style.color = "var(--accent)";
+                    }, 3000);
+                } else {
+                    syncStatus.innerText = "SYNC: READY";
+                    syncStatus.style.color = "var(--accent)";
+                }
+            } catch (e) {
+                console.error("Cloud retrieval failed:", e);
+                syncStatus.innerText = "SYNC: OFFLINE";
+                syncStatus.style.color = "#e74c3c";
+            }
+        }
+
+        async function submitToWebhook(isFinal = true) {
+            const syncStatus = document.getElementById('sync-status');
+            syncStatus.innerText = isFinal ? "SYNC: UPLOADING FINAL..." : "SYNC: SAVING...";
+            syncStatus.style.color = "orange";
+
+            const decodedS = atob(selectedStudent.S);
+            const payload = {
+                action: "save",
+                timestamp: new Date().toLocaleString(),
+                block: selectedStudent.B,
+                student: decodedS,
+                subject: "MIKMAW11",
+                simulation: SIMULATION_NAME,
+                status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                rationales: JSON.stringify(sessionData.responses)
+            };
+
+            try {
+                const params = new URLSearchParams();
+                for (const key in payload) params.append(key, payload[key]);
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: params,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    mode: 'no-cors'
+                });
+                console.log("CLOUD SAVE: success");
+                markCloudSaveResult(false);
+                syncStatus.innerText = "SYNC: READY";
+                syncStatus.style.color = "var(--accent)";
+            } catch (err) {
+                console.error("CLOUD SAVE: failed", err);
+                markCloudSaveResult(true);
+                syncStatus.innerText = "SYNC: OFFLINE";
+                syncStatus.style.color = "#e74c3c";
+            }
+        }
+    </script>
+</body>
+
+</html>

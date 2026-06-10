@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Econ 12 Advising Display - June 8, 2026</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --panel: rgba(255, 255, 255, 0.85);
+            --border: rgba(148, 163, 184, 0.2);
+            --border-hover: rgba(148, 163, 184, 0.4);
+            
+            /* Curated Bright HSL Accent Colors */
+            --primary: #4f46e5;
+            --primary-light: rgba(79, 70, 229, 0.08);
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            
+            --purple: #8b5cf6;
+            --purple-light: rgba(139, 92, 246, 0.08);
+            --purple-glow: rgba(139, 92, 246, 0.15);
+            
+            --cyan: #0891b2;
+            --cyan-light: rgba(8, 145, 178, 0.08);
+            --cyan-glow: rgba(8, 145, 178, 0.15);
+            
+            --amber: #d97706;
+            --amber-light: rgba(217, 119, 6, 0.08);
+            --amber-glow: rgba(217, 119, 6, 0.15);
+            
+            --rose: #e11d48;
+            --rose-light: rgba(225, 29, 72, 0.08);
+            --rose-glow: rgba(225, 29, 72, 0.15);
+            
+            --emerald: #059669;
+            
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            
+            --font-display: 'Outfit', sans-serif;
+            --font-sans: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 45%),
+                radial-gradient(at 100% 0%, rgba(8, 145, 178, 0.08) 0px, transparent 40%),
+                radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.04) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        /* Header Layout */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-left h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--primary) 20%, var(--purple) 60%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .header-left p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-left p .badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 0.2rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .hud-card {
+            background: var(--panel);
+            border: 1.5px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+
+        .clock-card {
+            border-color: rgba(8, 145, 178, 0.25);
+            text-align: right;
+        }
+
+        .hud-time {
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--cyan);
+            letter-spacing: 0.02em;
+        }
+
+        .hud-date {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.15rem;
+            font-weight: 600;
+        }
+
+        /* Dashboard Main Grid - Clean 3 columns for 3 notices */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            flex-grow: 1;
+            align-items: stretch;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel {
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+        }
+
+        .panel-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 1.6rem;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .panel-purple .panel-title::before { background: var(--purple); }
+        .panel-purple .panel-title { color: var(--purple); }
+        
+        .panel-rose .panel-title::before { background: var(--rose); }
+        .panel-rose .panel-title { color: var(--rose); }
+        
+        .panel-cyan .panel-title::before { background: var(--cyan); }
+        .panel-cyan .panel-title { color: var(--cyan); }
+
+        /* Last Test Panel Elements */
+        .test-banner {
+            background: linear-gradient(135deg, var(--purple-light) 0%, rgba(225, 29, 72, 0.03) 100%);
+            border: 1.5px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .test-banner-icon {
+            font-size: 2.2rem;
+            animation: pulse-rose 2s infinite ease-in-out;
+        }
+
+        .test-banner-details h3 {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: #5b21b6;
+            font-weight: 700;
+        }
+
+        .test-banner-details p {
+            font-size: 0.9rem;
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .outcome-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .outcome-item {
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .outcome-code {
+            font-family: var(--font-mono);
+            font-weight: 900;
+            font-size: 0.85rem;
+            background: rgba(139, 92, 246, 0.12);
+            color: #6d28d9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            flex-shrink: 0;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .outcome-desc {
+            font-size: 0.92rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+
+        .outcome-desc strong {
+            color: var(--text-main);
+        }
+
+        /* Check Marking / Assignment Checklist */
+        .check-notice-box {
+            background: linear-gradient(135deg, var(--rose-light) 0%, rgba(217, 119, 6, 0.03) 100%);
+            border: 1.5px dashed rgba(225, 29, 72, 0.25);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: #9f1239;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        .assignment-checklist-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .checklist-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--rose);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--rose);
+            font-size: 0.7rem;
+            font-weight: 900;
+            flex-shrink: 0;
+            background: white;
+        }
+
+        .checklist-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .checklist-subtext {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            font-family: var(--font-mono);
+            background: rgba(0, 0, 0, 0.03);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        /* Study Guide Accordion */
+        .accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .accordion-item {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+
+        .accordion-item.active {
+            border-color: rgba(8, 145, 178, 0.4);
+            box-shadow: 0 0 10px rgba(8, 145, 178, 0.05);
+        }
+
+        .accordion-header {
+            padding: 0.85rem 1.2rem;
+            background: rgba(0, 0, 0, 0.01);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 700;
+            font-size: 1.05rem;
+            font-family: var(--font-display);
+            color: var(--text-muted);
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background: rgba(0, 0, 0, 0.02);
+            color: var(--text-main);
+        }
+
+        .accordion-item.active .accordion-header {
+            background: var(--cyan-light);
+            color: var(--cyan);
+        }
+
+        .accordion-icon {
+            font-size: 0.75rem;
+            transition: transform 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+            color: var(--cyan);
+        }
+
+        .accordion-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+            border-top: 0px solid var(--border);
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 1rem 1.2rem;
+            max-height: 250px;
+            border-top: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .study-tag-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.6rem;
+        }
+
+        .study-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .study-tag.featured {
+            background: var(--cyan-light);
+            border-color: rgba(8, 145, 178, 0.2);
+            color: var(--cyan);
+        }
+
+        /* Widgets Bar (Timer & Tech Policy at Bottom) */
+        .bottom-widgets {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 1.5rem;
+            margin-top: auto;
+        }
+
+        /* Interactive Timer Panel */
+        .timer-hud-container {
+            background: var(--panel);
+            border: 2px solid rgba(8, 145, 178, 0.2);
+            border-radius: 18px;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+        }
+
+        .timer-labels {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timer-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .timer-digits {
+            font-family: var(--font-mono);
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--cyan);
+            line-height: 1;
+            margin-top: 0.25rem;
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 0.35rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .timer-btn {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .timer-btn:hover {
+            background: var(--cyan-light);
+            color: var(--cyan);
+            border-color: rgba(8, 145, 178, 0.3);
+        }
+
+        .timer-btn.active-play {
+            background: var(--cyan-light);
+            color: var(--cyan);
+            border-color: rgba(8, 145, 178, 0.4);
+        }
+
+        /* Rules / Policy Panel */
+        .policy-container {
+            background: var(--panel);
+            border: 1.5px solid rgba(225, 29, 72, 0.2);
+            border-radius: 18px;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+        }
+
+        .policy-icon {
+            font-size: 1.8rem;
+            color: var(--rose);
+        }
+
+        .policy-text h4 {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--rose);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        .policy-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Footer Layout */
+        footer {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        /* Animations */
+        @keyframes pulse-rose {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header bar -->
+    <header>
+        <div class="header-left">
+            <h1>Economics 12</h1>
+            <p><span class="badge">Advising session</span> <span>June 8, 2026</span></p>
+        </div>
+        <div class="header-right">
+            <!-- Clock -->
+            <div class="hud-card clock-card">
+                <div class="hud-time" id="clockTime">00:00:00 AM</div>
+                <div class="hud-date" id="clockDate">Monday, June 8, 2026</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- Panel 1: Last Test Details -->
+        <div class="panel panel-purple">
+            <h2 class="panel-title">📅 Last Test Thursday</h2>
+            
+            <div class="test-banner">
+                <span class="test-banner-icon">📝</span>
+                <div class="test-banner-details">
+                    <h3>Thursday, June 11</h3>
+                    <p>Class Test based on student briefings</p>
+                </div>
+            </div>
+
+            <div class="outcome-list">
+                <div class="outcome-item">
+                    <span class="outcome-code">SCO 4.1</span>
+                    <div class="outcome-desc">
+                        <strong>Global Trade & Concepts</strong>: Review tariffs, quotas, trade barriers, and NAFTA/USMCA agreements.
+                    </div>
+                </div>
+                <div class="outcome-item">
+                    <span class="outcome-code">SCO 2.6</span>
+                    <div class="outcome-desc">
+                        <strong>Ethics & Labor</strong>: Sourcing dynamics, labor conditions, and <em>Made in Bangladesh</em> core lessons.
+                    </div>
+                </div>
+                <div class="outcome-item">
+                    <span class="outcome-code">SCO 1.4</span>
+                    <div class="outcome-desc">
+                        <strong>Economic choices</strong>: Evaluating society solutions to scarcity (What/How/For whom to produce).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Check Marking -->
+        <div class="panel panel-rose">
+            <h2 class="panel-title">🔍 Check Marking</h2>
+            
+            <div class="check-notice-box">
+                Please log in to your student portal to verify grading. Contact Mr. Waugh before Thursday's test to resolve any missing work marks.
+            </div>
+
+            <div class="assignment-checklist-card">
+                <div class="checklist-item">
+                    <span class="checklist-checkbox">!</span>
+                    <span class="checklist-text">Perfect Competition Reflection</span>
+                    <span class="checklist-subtext">Reflection</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-checkbox">!</span>
+                    <span class="checklist-text">Fair Trade Scavenger Hunt</span>
+                    <span class="checklist-subtext">Scavenger</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-checkbox">!</span>
+                    <span class="checklist-text">LOSTCO Procurement Memo</span>
+                    <span class="checklist-subtext">Memo</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-checkbox">!</span>
+                    <span class="checklist-text">Michelle Credit Case Analysis</span>
+                    <span class="checklist-subtext">Credit Case</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-checkbox">!</span>
+                    <span class="checklist-text">Business Structures Plan</span>
+                    <span class="checklist-subtext">Structure</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Exam Study Guide -->
+        <div class="panel panel-cyan">
+            <h2 class="panel-title">📘 Exam Study Guide</h2>
+            <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: -0.5rem;">
+                Prepare for the upcoming final course exam. Click a unit to review focus items.
+            </p>
+
+            <div class="accordion">
+                <!-- Unit 1 -->
+                <div class="accordion-item active">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>Unit 1: The Market Spectrum</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        Compare market structures and outcomes. Pay attention to Perfect Competition, Monopolies, Oligopolies, and identifying Externalities (Market Failures).
+                        <div class="study-tag-grid">
+                            <span class="study-tag featured">Pit Market Sim</span>
+                            <span class="study-tag">Monopoly</span>
+                            <span class="study-tag">Externalities</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit 2 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>Unit 2: Global Trade Bridge</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        Understand trade balances, protectionism vs. globalization, trade blocs, and ethical supply chains.
+                        <div class="study-tag-grid">
+                            <span class="study-tag featured">Made in Bangladesh</span>
+                            <span class="study-tag">Free vs Fair Trade</span>
+                            <span class="study-tag">Tariffs / Quotas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit 3 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>Unit 3: Wealth & Personal Finance</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        Identify income inequality causes, budgeting variables, credit scoring, and debt mitigation strategies.
+                        <div class="study-tag-grid">
+                            <span class="study-tag featured">Spent Poverty Sim</span>
+                            <span class="study-tag">Credit Cases</span>
+                            <span class="study-tag">UBI Debate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit 4 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>Unit 4: Macroeconomic Outlook</span>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        Analyze CPI indicators, inflation drivers, carbon tax mechanics, and GDP growth parameters.
+                        <div class="study-tag-grid">
+                            <span class="study-tag featured">Inflation Review</span>
+                            <span class="study-tag">Carbon Tax</span>
+                            <span class="study-tag">Monetary Policy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Widgets Bar -->
+    <div class="bottom-widgets">
+        <!-- Live Timer Widget -->
+        <div class="timer-hud-container">
+            <div class="timer-labels">
+                <span class="timer-title" id="timerLabel">Advising Time Remaining</span>
+                <span class="timer-digits" id="timerDigits">15:00</span>
+            </div>
+            <div class="timer-controls">
+                <button class="timer-btn" onclick="adjustTimer(-60)" title="Subtract 1 Minute">-1m</button>
+                <button class="timer-btn" onclick="adjustTimer(-10)" title="Subtract 10 Seconds">-10s</button>
+                <button class="timer-btn" id="timerPlayBtn" onclick="toggleTimer()" title="Play/Pause">⏸</button>
+                <button class="timer-btn" onclick="resetTimer()" title="Reset Timer">↺</button>
+                <button class="timer-btn" onclick="adjustTimer(10)" title="Add 10 Seconds">+10s</button>
+                <button class="timer-btn" onclick="adjustTimer(60)" title="Add 1 Minute">+1m</button>
+            </div>
+        </div>
+
+        <!-- HWHS Policy Warning -->
+        <div class="policy-container">
+            <span class="policy-icon">🚫📱</span>
+            <div class="policy-text">
+                <h4>Classroom Tech Policy</h4>
+                <p>Keep cellphones stored in bags. Use Chromebooks for review work only.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div>Economics 12 &bull; Advising Projector Display &bull; June 8, 2026</div>
+        <div>Instructor: <strong>Mr. Waugh</strong></div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const hoursStr = String(hours).padStart(2, '0');
+            
+            document.getElementById('clockTime').textContent = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Timer State & Logic
+        let timerTime = 15 * 60; // 15 Minutes
+        let timerInterval = null;
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerTime / 60);
+            const secs = timerTime % 60;
+            document.getElementById('timerDigits').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            if (timerTime <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                document.getElementById('timerDigits').style.color = 'var(--rose)';
+                document.getElementById('timerPlayBtn').textContent = '▶';
+                document.getElementById('timerLabel').textContent = 'Advising Finished';
+            } else {
+                document.getElementById('timerDigits').style.color = 'var(--cyan)';
+                document.getElementById('timerLabel').textContent = 'Advising Time Remaining';
+            }
+        }
+
+        function toggleTimer() {
+            const playBtn = document.getElementById('timerPlayBtn');
+            if (timerInterval) {
+                // Pause
+                clearInterval(timerInterval);
+                timerInterval = null;
+                playBtn.textContent = '▶';
+                playBtn.classList.remove('active-play');
+            } else {
+                // Play
+                if (timerTime <= 0) timerTime = 15 * 60; // Reset if expired
+                timerInterval = setInterval(() => {
+                    timerTime--;
+                    updateTimerDisplay();
+                }, 1000);
+                playBtn.textContent = '⏸';
+                playBtn.classList.add('active-play');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerTime = 15 * 60;
+            document.getElementById('timerPlayBtn').textContent = '▶';
+            document.getElementById('timerPlayBtn').classList.remove('active-play');
+            updateTimerDisplay();
+        }
+
+        function adjustTimer(secs) {
+            timerTime += secs;
+            if (timerTime < 0) timerTime = 0;
+            updateTimerDisplay();
+        }
+
+        // Accordion Toggle
+        function toggleAccordion(header) {
+            const items = document.querySelectorAll('.accordion-item');
+            const targetItem = header.parentElement;
+            
+            items.forEach(item => {
+                if (item !== targetItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            targetItem.classList.toggle('active');
+        }
+
+        // Initialize display
+        setInterval(updateClock, 1000);
+        updateClock();
+        updateTimerDisplay();
+        
+        // Start timer by default
+        toggleTimer();
+    </script>
+</body>
+</html>
