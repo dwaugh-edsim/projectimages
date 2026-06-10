@@ -697,6 +697,11 @@ a:hover { color: var(--accent); }
       <div id="local-leaderboard-body"></div>
     </div>
 
+    <div class="scores-box" id="global-leaderboard" style="display:none">
+      <h3>// class leaderboard (top 10)</h3>
+      <div id="global-leaderboard-body"></div>
+    </div>
+
     <div class="scores-box" id="badges-box" style="display:none">
       <h3>// your achievements</h3>
       <div id="badges-list" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"></div>
@@ -1254,6 +1259,7 @@ async function handleLogin() {
     document.getElementById('who-tag').textContent = '> ' + student.name;
     await loadPastScores();
     loadLocalLeaderboard();
+    loadGlobalLeaderboard();
   } catch (e) {
     err.textContent = e.message || "Login failed.";
     err.classList.add('on');
@@ -1355,6 +1361,39 @@ function loadBadges() {
     const b = Badges.LIST[id];
     return b ? `<div class="badge-item" title="${b.desc}"><span style="font-size:16px">${b.icon}</span><span style="color:var(--ink);font-weight:600">${b.name}</span></div>` : '';
   }).join('');
+}
+
+async function loadGlobalLeaderboard() {
+  const box = document.getElementById('global-leaderboard');
+  const body = document.getElementById('global-leaderboard-body');
+  if (!student) return;
+  try {
+    body.innerHTML = '<div style="color:var(--ink-dim);font-family:\'Nova Mono\',cursive;font-size:12px;">loading class scores...</div>';
+    box.style.display = 'block';
+    
+    const r = await api('getLeaderboard', { name: student.name, password: student.pin });
+    const scores = r.data || [];
+    if (scores.length === 0) {
+      body.innerHTML = '<div style="color:var(--ink-dim);font-family:\'Nova Mono\',cursive;font-size:12px;">no entries yet. be the first!</div>';
+      return;
+    }
+    
+    body.innerHTML = `
+      <table>
+        <tr><th>rank</th><th>student</th><th>mode</th><th>score</th><th>%</th></tr>
+        ${scores.map((s, idx) => `<tr>
+          <td>#${idx + 1}</td>
+          <td style="color:var(--accent);font-weight:600;">${s.name}</td>
+          <td>${s.mode}</td>
+          <td>${s.score}</td>
+          <td class="pct">${s.pct}%</td>
+        </tr>`).join('')}
+      </table>
+    `;
+  } catch (e) {
+    console.error('Failed to load global leaderboard', e);
+    box.style.display = 'none';
+  }
 }
 
 /* ============================================================
@@ -1767,6 +1806,7 @@ async function saveScore() {
   
   saveLocalScore(scoreData);
   loadLocalLeaderboard();
+  loadGlobalLeaderboard();
   
   try {
     await api('saveGameScore', {
@@ -1903,6 +1943,7 @@ window.addEventListener('DOMContentLoaded', () => {
       goTo('start');
       loadPastScores();
       loadLocalLeaderboard();
+      loadGlobalLeaderboard();
     } catch (e) { goTo('login'); }
   }
 });

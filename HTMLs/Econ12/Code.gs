@@ -45,6 +45,11 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ success: true, data: scores }))
         .setMimeType(ContentService.MimeType.JSON);
     }
+    else if (action === "getLeaderboard") {
+      const leaderboard = getGlobalLeaderboard();
+      return ContentService.createTextOutput(JSON.stringify({ success: true, data: leaderboard }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     
     return ContentService.createTextOutput(JSON.stringify({ success: false, error: "Unknown action" }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -364,4 +369,40 @@ The Small Business Dilemma: A country is debating whether to adopt socialism or 
 - Scenario: A community is deciding how to manage its farmland.
   - Question: If they choose a Communist system, what happens to the individual farmer’s ability to decide what to plant on "their" land?
   - Question: Contrarily, if they choose a Socialist system, would a farmer still be able to own a small personal greenhouse for their own family?`;
+}
+
+function getGlobalLeaderboard() {
+  const sheet = getStudentSheet();
+  const data = sheet.getDataRange().getValues();
+  const allScores = [];
+  
+  // Skip header row
+  for (let i = 1; i < data.length; i++) {
+    const name = data[i][0];
+    const scoresJson = data[i][8];
+    if (scoresJson) {
+      try {
+        const scores = JSON.parse(scoresJson);
+        scores.forEach(s => {
+          allScores.push({
+            name: name,
+            score: s.score,
+            correct: s.correct,
+            total: s.total,
+            pct: s.pct,
+            mode: s.mode,
+            date: s.date
+          });
+        });
+      } catch (e) {
+        // Skip malformed rows
+      }
+    }
+  }
+  
+  // Sort descending by score, then percentage accuracy
+  allScores.sort((a, b) => b.score - a.score || b.pct - a.pct);
+  
+  // Return top 10 scores
+  return allScores.slice(0, 10);
 }
