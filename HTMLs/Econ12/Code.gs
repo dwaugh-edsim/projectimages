@@ -139,7 +139,7 @@ function getStudentData(name, password) {
   // Skip header
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === name) {
-      if (data[i][1] === password) {
+      if (String(data[i][1]).trim() === String(password).trim()) {
         return {
           name: data[i][0],
           strengths: data[i][2],
@@ -170,7 +170,7 @@ function saveStudentProgress(name, password, history, strengths, weaknesses, pro
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === name && data[i][1] === password) {
+    if (data[i][0] === name && String(data[i][1]).trim() === String(password).trim()) {
       sheet.getRange(i + 1, 3).setValue(strengths);
       sheet.getRange(i + 1, 4).setValue(weaknesses);
       sheet.getRange(i + 1, 5).setValue(JSON.stringify(history));
@@ -188,7 +188,7 @@ function saveQuizProgress(name, password, progress) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === name && data[i][1] === password) {
+    if (data[i][0] === name && String(data[i][1]).trim() === String(password).trim()) {
       sheet.getRange(i + 1, 7).setValue(JSON.stringify(progress));
       sheet.getRange(i + 1, 6).setValue(new Date());
       return { success: true };
@@ -201,7 +201,7 @@ function getQuizProgress(name, password) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === name && data[i][1] === password) {
+    if (data[i][0] === name && String(data[i][1]).trim() === String(password).trim()) {
       return data[i][6] ? JSON.parse(data[i][6]) : null;
     }
   }
@@ -225,7 +225,7 @@ function saveGameScore(name, password, scoreData) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === name && data[i][1] === password) {
+    if (data[i][0] === name && String(data[i][1]).trim() === String(password).trim()) {
       const existingScores = data[i][8] ? JSON.parse(data[i][8]) : [];
       existingScores.push({
         score: scoreData.score,
@@ -248,7 +248,7 @@ function getGameScores(name, password) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === name && data[i][1] === password) {
+    if (data[i][0] === name && String(data[i][1]).trim() === String(password).trim()) {
       return data[i][8] ? JSON.parse(data[i][8]) : [];
     }
   }
