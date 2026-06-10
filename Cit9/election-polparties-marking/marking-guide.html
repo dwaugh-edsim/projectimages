@@ -107,7 +107,7 @@
     <tr>
         <td><strong>Town Hall Questions</strong></td>
         <td class="path">Cit9/election-polparties-marking/Cit9 Politics.xlsx → TH_Questions sheet</td>
-        <td>42 questions submitted during Final Four debate. Columns: ID, Timestamp, SenderPin, SenderName, SenderParty, Text, Status (on_stage/pending/rejected).</td>
+        <td>59 questions submitted during Final Four debate. Columns: ID, Timestamp, SenderPin, SenderName, SenderParty, Text, Status (on_stage/pending/rejected).</td>
         <td>Individual — critical</td>
     </tr>
     <tr>
@@ -137,7 +137,7 @@
     <tr>
         <td><strong>Student Feedback HTML</strong></td>
         <td class="path">Cit9/election-polparties-marking/election-feedback.html</td>
-        <td>Personalized feedback page with login gate (name + PIN). Each student sees their grades and comments for all 3 outcomes.</td>
+        <td>PIN-gated feedback page built on the Dimension template. Student articles are empty shells — content is injected at runtime from a Google Apps Script backend via <code>fetch()</code>. Students enter name + PIN; the GAS endpoint validates the PIN and returns only that student's record. No PINs or personalized content are embedded in the HTML. Hash-based navigation: <code>#s-madhavan</code>, <code>#s-joshua</code>, etc.</td>
         <td>Output</td>
     </tr>
     <tr>
@@ -239,13 +239,20 @@
 
 <div class="card">
     <h3>Town Hall Questions as Hidden Evidence</h3>
-    <p>The 42 questions in the TH_Questions sheet provide objective evidence of individual engagement during the Final Four debate. This data was initially overlooked but proved critical for several students:</p>
+    <p>The 59 questions in the TH_Questions sheet provide objective evidence of individual engagement during the Final Four debate. This data was initially overlooked but proved critical for several students:</p>
     <ul>
         <li><strong>Ali</strong> — 8 questions (most in class), upgraded 5.3 from 2+ to 3 despite no reflection</li>
         <li><strong>Leo</strong> — 6 questions (2 on_stage), upgraded 5.1 to 3 and 5.3 to 3, notably more effort than peers</li>
         <li><strong>Lachlan Mac</strong> — 6 questions, upgraded 5.3 from 3+ to 4</li>
         <li><strong>Yunho</strong> — 2 questions (1 on_stage), upgraded 5.3 from 3 to 3+</li>
         <li><strong>Remy</strong> — 1 on_stage question, upgraded 5.3 from 2+ to 3</li>
+        <li><strong>Clark</strong> — 3 questions (2 on_stage), reinforcing 5.1 and 5.2 reflection-based grades</li>
+        <li><strong>Jessa</strong> — 3 questions (1 on_stage), reinforcing her 5.3 = 4 engagement</li>
+        <li><strong>Laila</strong> — 4 questions (1 on_stage), reinforcing her 3+ across outcomes</li>
+        <li><strong>Sarah</strong> — 4 questions (0 on_stage), reinforcing her 5.3 = 3+</li>
+        <li><strong>Alia</strong> — 2 questions, supporting her behind-the-scenes 5.3 = 3</li>
+        <li><strong>Farhan</strong> — 2 questions, supporting his 5.3 = 3+</li>
+        <li><strong>Josie</strong> — 1 question, consistent with her 3 across outcomes</li>
     </ul>
 </div>
 
@@ -307,7 +314,32 @@
     <p>Niche Haligonians won by <strong>1 vote</strong>. This margin is the context for the reflection questions.</p>
 </div>
 
-<h2>10. How to Use This Guide</h2>
+<h2>10. Feedback Architecture</h2>
+<div class="card">
+    <h3>GAS Backend Architecture</h3>
+    <p>The student feedback system uses a Google Apps Script (GAS) backend to deliver personalized content on demand. This prevents students from viewing each other's grades via View Source.</p>
+    <table>
+        <tr><th>Component</th><th>Location</th><th>Role</th></tr>
+        <tr><td>GAS Web App</td><td class="path">HTMLs/political-spectrum/Code.gs</td><td>Bound to the election spreadsheet. Exposes <code>doGet?type=fb_get&amp;pin=XXXX</code> endpoint. Validates PIN against <code>FB_Feedback</code> sheet. Rate-limited (10 req/60s per browser hint). Teacher PIN rejected.</td></tr>
+        <tr><td>Feedback Sheet</td><td class="path">FB_Feedback (sheet tab)</td><td>19 columns: Name, Party, Role, PIN, G51/T51/X51/Q51, G52/T52/X52/Q52, G53/T53/X53/Q53, Closing, Provisional, Updated. Populated by <code>populateFeedbackFromMatrix()</code>.</td></tr>
+        <tr><td>Student HTML</td><td class="path">Cit9/election-polparties-marking/election-feedback.html</td><td>Dimension template with PIN gate overlay. Articles are empty shells. On login, <code>fetch()</code> calls GAS, response is rendered into the matching article via <code>fillArticle()</code>. Session restore uses <code>sessionStorage</code> (per-tab, clears on close — safe for shared Chromebooks).</td></tr>
+    </table>
+    <div class="note">
+        <p><strong>Deployment:</strong> The GAS endpoint URL in the HTML must be updated after deploying Code.gs as a Web App. Set "Who has access" to "Anyone" (anonymous) since validation is PIN-based. Replace <code>REPLACE_WITH_YOUR_DEPLOYMENT_ID</code> in the HTML.</p>
+    </div>
+    <h3>Security Model</h3>
+    <ul>
+        <li><strong>No PINs in HTML</strong> — only a name-to-article-ID slug map (no authentication value)</li>
+        <li><strong>No personalized content in HTML</strong> — all articles are empty shells until GAS response fills them</li>
+        <li><strong>Server-side PIN validation</strong> — GAS checks PIN against sheet, rejects teacher PIN</li>
+        <li><strong>Rate limiting</strong> — 10 requests per 60 seconds per browser hint via <code>CacheService</code></li>
+        <li><strong>Constant-ish delay on miss</strong> — 250ms sleep to discourage PIN enumeration</li>
+        <li><strong>Name defense-in-depth</strong> — client checks entered name matches the PIN's record</li>
+        <li><strong>Session restore</strong> — <code>sessionStorage</code> stores PIN + name for page refresh (per-tab, clears on close)</li>
+    </ul>
+</div>
+
+<h2>11. How to Use This Guide</h2>
 <div class="card">
     <h3>For an LLM reviewing the grades</h3>
     <ol>

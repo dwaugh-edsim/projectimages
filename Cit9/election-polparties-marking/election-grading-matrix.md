@@ -55,7 +55,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 4 | Strong platform issues — healthcare wait times, 50k doctors, sin tax on harmful products. The Healthier Future's issue selection was specific and well-justified. Joshua's reflection shows he understood that "policy was overall more effective due to the great ideas people said and the way they presented." Major contributor confirmed by teacher. |
-| 5.2 Government Structure | 3+ | Platform funding mechanism (sin tax) reflects understanding of government revenue tools. Q4 shows understanding that policy should outweigh likability. Major contributor confirmed by teacher. |
+| 5.2 Government Structure | 3+ | Platform uses a sin tax (taxing harmful products to fund healthcare) — a real government revenue tool. The 3+ rather than 4 is because the sin tax is one revenue stream; a 4 would have meant pairing it with another mechanism (federal transfers, efficiency cuts, reallocation) so the plan doesn't collapse if the sin tax underperforms. You had the right idea, you just didn't build the redundancy. Q4 shows understanding that policy should outweigh likability. Major contributor confirmed by teacher. |
 | 5.3 Democratic Engagement | 4 | Full commitment as a 2-person group leader. "I made the entire project, script, roles and slideshow." Honest about weaknesses — "My communication however lost many votes meaning I should work on my control of fumbling the script." This self-awareness and commitment in a small group is exactly what 5.3 rewards. |
 
 **Reflection Notes:** Joshua's reflection reveals someone who carried the entire weight of a 2-person party. He's honest about both his contributions and his shortcomings. The fact that he made "the entire project, script, roles and slideshow" shows genuine commitment. His Q4 answer — "Likability made a good part in this election but policy was overall more effective" — shows he was paying attention to what actually happened on election day.
@@ -96,7 +96,7 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 3+ | Strong platform issues. Q4 is one of the best in the class — "in this election, it basically isn't a real election, we're also still in only grade 9... But in real life it is the opposite... there's also strategies where people can fake their goodness just to get trust and popular, but when they actually get elected they can change and reveal who they really are." This shows genuine critical thinking about how issues and candidates are evaluated. |
+| 5.1 Issue Valuation | 3+ | Clark was a supporting member of a two-person party, so individual issue-selection credit is limited — the platform (50k doctors, sin tax, e-prescriptions) was primarily Joshua's build. The 3+ rests on Clark's Q4 reflection, which is one of the most analytically strong in the class: he draws a clear line between classroom popularity voting and real-world policy-based elections, and he identifies how candidates can manipulate perception. That's genuine critical thinking about how issues are evaluated, even though he wasn't the one picking them. The 3+ rather than 3 reflects the depth of his reflection, not separate platform authorship. |
 | 5.2 Government Structure | 3+ | The Q4 answer demonstrates understanding of the gap between classroom and real elections. He understands that real elections have real consequences and that politicians can be deceptive. This is structural understanding applied to democratic reality. |
 | 5.3 Democratic Engagement | 3 | Supported the leader effectively in a 2-person group. Q3's civic action plan is detailed — "group together as an organization by putting signs outside... host meetings, discuss or negotiate about vote a specific party, then we can also go ask the party leader to maybe change some of their policies." This is specific, actionable civic thinking. |
 
@@ -111,7 +111,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 4 | The Party De Solution's platform was creative and specific — Subway partnership for school funding, seatbelts on buses, specialized nurse offices. Madhavan refined raw ideas into political messaging. Q3 — "I can help parties work together by giving them a common enemy to fight against, or even getting them to slightly move their policies to match the other's so that they have something in common to fight for" — shows strategic coalition thinking. |
-| 5.2 Government Structure | 3+ | Platform funding mechanism (corporate partnerships, influencer events) is creative if unconventional. Q4 connects to real-world politics: "likability and buying votes absolutely mattered in a vote that consisted of 17 people... this absolutely matters in real life, letting people vote based on who they like more rather than their policies, at least some of the time, wink wink nudge nudge trump voters." Understands democratic dynamics with humor. |
+| 5.2 Government Structure | 3+ | Platform funding ideas (corporate partnerships, influencer events, 1.5% corporate tax, federal procurement cuts) are creative but mostly unconventional — Subway discounts and influencer concerts aren't standard government revenue. The 3+ reflects strong political instincts and a real connection to real-world politics, but a 4 would require a more complete map of how government revenue actually works in Canada (federal/provincial transfers, established tax tiers). Q4 connects to real-world politics with sophisticated humor. |
 | 5.3 Democratic Engagement | 4 | Led the party, refined the platform, delivered the speech. "My strategy definitely won a few in the sense that i was going for the happiness and the involvement of the population in my promises and even in my funding." Honest about communication weaknesses. Took raw team drafts and turned them into political messaging. Full commitment. |
 
 **Reflection Notes:** Madhavan's reflection reveals a leader who understood his role as the refiner, not the sole creator. He took his teammates' ideas and made them politically viable. His Q3 coalition strategy and Q4 real-world political commentary show genuine civic thinking. The "wink wink nudge nudge trump voters" aside shows he's connecting classroom learning to the real world with humor and awareness.
@@ -152,8 +152,8 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 4 | Equitable Rights platform is the most sophisticated in the class — hospital ER divisions, expanded public healthcare (dental, vision, mental health, pharma care), moderate wage growth aligned with inflation. Rifa drove this. Q3 shows deep civic engagement — "actively engage ourselves in issues regarding parties like raising awareness of the issue via social media or protests, advocating and joining local community groups that actively work to improve issues in the community." |
-| 5.2 Government Structure | 3+ | Platform funding mechanisms (sin taxes, luxury goods taxes, corporate tax rates, cutting wasteful spending) show sophisticated understanding of government revenue tools. Q3's advocacy strategy shows understanding of how citizens interact with government structures. |
+| 5.1 Issue Valuation | 4 | Rifa drove the Equitable Rights platform, which is the most policy-sophisticated in the class — hospital ER divisions, expanded public healthcare (dental, vision, mental health, pharma care), wage growth tied to inflation. As a two-person party leader, the issue selection and detail are her work. Q3 ("actively engage ourselves in issues regarding parties like raising awareness of the issue via social media or protests, advocating and joining local community groups") extends the 5.1 work into how issues gain civic traction beyond her own platform. |
+| 5.2 Government Structure | 4 | Platform uses a four-piece revenue plan (sin taxes, luxury goods taxes, corporate tax rates, cutting wasteful spending) — that is budget-level thinking, not a single mechanism. Rifa architected this as a two-person party leader. Q3's advocacy strategy shows understanding of how citizens interact with government structures. |
 | 5.3 Democratic Engagement | 4 | As a 2-person party, Rifa did everything — strategist, financial plan, speech, slides, press conference. "I was pranked by my partner so we had a short time period to finish the speech and I think the effort was worth it as it still ended up gaining us voters that liked how I had presented that speech." Adapted under pressure. Q1 reflection is the most nuanced in the class — "I find it amusing that a single vote can change the whole government... there is a little pressure that comes with this powerful choice... If the group of people that I chose end up creating a bad government then I may have a little bit of guilt in my heart." Full commitment. |
 
 **Reflection Notes:** Rifa's reflection is the most thoughtful in the class. She describes doing everything for a 2-person party while being pranked by her partner, and she still produced voters. Her Q1 answer about the emotional weight of the deciding vote — pride mixed with potential guilt — shows genuine civic maturity. Her Q3 answer about social media advocacy and community groups is the most actionable civic strategy anyone described. The Equitable Rights platform is the most policy-detailed in the class, and Rifa drove it.
@@ -167,7 +167,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 4 | Environmentalists at Work platform is the most issue-dense in the class — clean tech, coastal protection, offshore energy, the Coastal Protection Act history. Natalia led this. Q3 — "staying informed and supporting ideas that benefit everyone, not just one party. I can listen to different opinions, stay respectful, and encourage compromise instead of conflict" — mature civic approach. |
-| 5.2 Government Structure | 3+ | Platform references specific government legislation (2019 Coastal Protection Act, 2024 replacement strategy) and funding mechanisms (carbon tax revenue, federal climate grants). This shows understanding of how government policy actually works. |
+| 5.2 Government Structure | 4 | Platform references specific government legislation (2019 Coastal Protection Act, 2024 replacement strategy) and multiple funding mechanisms (carbon tax revenue, federal climate grants). This shows understanding of how government policy actually works — not just that a problem exists, but the legal and fiscal machinery behind a response. Q4 reflection on how policy and likability interact at different election scales adds the structural-theory layer. |
 | 5.3 Democratic Engagement | 4 | Created the speech, financial plan, and slideshow. "I focused on making our message clear and connecting with people emotionally. I think my communication style helped win over voters because I tried to be confident and relatable." Intentional about communication strategy. "Since we only lost by one vote, it shows our strategy was effective." Full commitment across multiple deliverables. |
 
 **Reflection Notes:** Natalia's reflection reveals a leader who drove multiple deliverables with intentionality. She thought about emotional connection, confidence, and relatability as communication strategies. Her Q4 answer — "both matter, people want leaders with good ideas, but also someone they trust and relate to" — is the most balanced in the class. The Environmentalists' platform was the most policy-detailed, and Natalia was at the center of it.
@@ -181,7 +181,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 4 | Niche Haligonians won the election on healthcare, education, and housing. Q3 shows the most sophisticated compromise thinking in the class — "The Niche Haligonians funding plan has been heavily attacked, as many see it as selfish and not giving funds to those who need it. I believe I have a fix for their funding plan that will satify the complaints of others, I think we could bring in the 'Secret menu' funding idea that another campaign had." He's not just defending his position — he's actively looking for ways to bridge the gap. |
-| 5.2 Government Structure | 3+ | Platform funding mechanism (redirecting military scholarship money) shows understanding of government budgeting. Q4 response demonstrates understanding that likability and policy interact differently depending on election scale. |
+| 5.2 Government Structure | 3+ | Platform funding mechanism (redirecting military scholarship money) is a real policy argument about where public money should go. The 3+ rather than 4 is because it's a single creative funding source with no backup mechanism. His post-win Secret Menu compromise shows he understood budgeting is about choices, but the plan itself would be vulnerable if the military reallocation got blocked. Q4 demonstrates understanding that likability and policy interact differently depending on election scale. |
 | 5.3 Democratic Engagement | 4 | "I did everything in the war room and in the campaign." Won the election. Led a 3-person team. Wrote and delivered the speech. Delegated the financial plan to Nolan. His Q3 response about the "Secret menu" compromise shows he was thinking beyond winning — he was thinking about governing. That's the highest level of democratic engagement. |
 
 **Reflection Notes:** Lachlan's reflection reveals a leader who did everything and then thought about what comes after winning. His Q3 response about finding compromises to satisfy opposition voters is governance-level thinking. His Q4 response about Sara and Rifa's challenging questions shows he valued policy debate over popularity. He led the party to victory and then immediately thought about how to govern in a minority.
@@ -250,8 +250,8 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 3+ | Strong platform with specific numbers (20% tuition cut, 10 clinics by 2030, 5000 housing units). Laila led the policy development. Q4 — "some people including myself voted on what I thought was the best/most reasonable. So I feel like that one vote win could have been from likability or popularity but also was supported by their actual promises" — balanced view. |
-| 5.2 Government Structure | 3 | Platform funding (federal transfers, efficiency cuts, luxury goods taxes) shows understanding of government revenue. Q4 shows she considered both likability and policy as factors. |
+| 5.1 Issue Valuation | 4 | Laila led a platform with specific measurable goals (20% tuition cut, 10 clinics by 2030, 5000 housing units) and a timeline — those are accountable promises, not vague wishes. Q4 — "some people including myself voted on what I thought was the best/most reasonable. So I feel like that one vote win could have been from likability or popularity but also was supported by their actual promises" — shows a balanced view. |
+| 5.2 Government Structure | 3+ | Platform funding named four sources: federal transfers, efficiency cuts, luxury goods taxes, AND taxes on empty homes kept as investments. The 3+ rather than 4 is because the mechanisms are listed but not defended against trade-offs in the platform text itself — a 4 would have shown what happens if any one of those streams underperforms. Q4 shows she considered both likability and policy as factors. |
 | 5.3 Democratic Engagement | 3+ | Led the party, delivered the speech, developed policies with team. "I feel that my speech and what i decided to say would have probably helped us to get votes." Q3 — "helping the parties comprimise and agree on goals, speaking up and asking questions respectfully and calmly to avoid lots of fighting" — emphasizes respectful engagement. |
 
 **Reflection Notes:** Laila's reflection reveals a leader who was confident in her speech and thoughtful about civic engagement. Her emphasis on respectful, calm engagement in Q3 is mature. Her Q4 answer shows she voted based on policy, not just friendship. The Team tomorrow platform was well-structured with specific, measurable goals.
@@ -264,7 +264,7 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 3 | Strong platform. Q3 — "The Niche Haligonians can do something like changing their funding plan to something less argumentative to help settle with other groups and compromise with other groups when it cones to their plan" — practical compromise thinking. |
+| 5.1 Issue Valuation | 3 | The Niche Haligonians platform is strong and complete, and Lachlan Mac contributed as a member. The 3 (rather than 3+) is the issue-side ceiling for a member role: he supported the issue selection but did not drive it. His Q3 shows practical compromise thinking — "The Niche Haligonians can do something like changing their funding plan to something less argumentative to help settle with other groups." His 6 Town Hall questions, including challenges on offshore energy and climate laws vs housing, show he was also interrogating other parties' issue claims in real time. |
 | 5.2 Government Structure | 3 | Q4 — "Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote therefore varying based on factors like stakes of the election and what its for" — nuanced understanding of how stakes affect democratic dynamics. |
 | 5.3 Democratic Engagement | 4 | Multiple specific contributions — slideshow, debate questions, real-time information feeding during the AI interview. And 6 Town Hall questions submitted (1 on_stage, 5 pending), the third-highest in the class. His questions challenged the Environmentalists on offshore energy, climate laws vs housing, and financial sustainability. "(he was kind of a work hog)" — honest and humorous about the leader dynamics. Active and engaged throughout the entire process. |
 
@@ -279,7 +279,7 @@
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
 | 5.1 Issue Valuation | 4 | Drove the intellectual direction of the party. "Created the ideas we could use, such as helping Natalia with her speech, giving her touching sentences to use, making our party name, listing our SDG goals, proviving what our political spectrum would be and much more." Connected the party to SDGs and political spectrum positioning. Q3 — "I could negotiate, by saying if I helped and supported them, I would ask for something in return which could be something I want. A specific exsample would how I wanted something helping the enviorment, I'd ask that some money would get used to give cleaner water or clean-ups for cleaner land." Specific negotiation strategy with a concrete example. |
-| 5.2 Government Structure | 3+ | Platform shows understanding of government environmental policy. Q3 negotiation strategy shows understanding of how minority governments actually function — through transactional cooperation. |
+| 5.2 Government Structure | 3+ | Q3 negotiation strategy shows sophisticated understanding of how minority governments actually function — through transactional cooperation. The 3+ rather than 4 is because the negotiation thinking is strong but the budget/legislation piece is thinner for Jessa specifically: as a member, she brought the governance-theory layer, while Natalia brought the legislation layer (Coastal Protection Act, federal grants). Together that's a 4; Jessa's individual contribution is a clear 3+. |
 | 5.3 Democratic Engagement | 4 | Director of Communications who established the party's entire intellectual direction. "I provided what my party memebers COULD write and find real problems we need to fix. My ideas did acctually win over voters." Drove the party's success through ideas and strategy. "Voters saw what problems we saw in the world and how we were going to fix it." Full commitment across 3 weeks. |
 
 **Reflection Notes:** Jessa's reflection is the most detailed account of individual contribution in the class. She describes 3 weeks of work — establishing goals, creating the party name, listing SDG goals, providing political spectrum positioning, writing touching sentences for Natalia's speech, researching real problems. Her Q3 negotiation strategy with a concrete environmental example shows she was thinking about actual governance. Her ideas won over voters. This is the fullest form of democratic engagement.
@@ -292,9 +292,9 @@
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 3+ | Islamic Associations platform is broad and ambitious — humanitarianism, anti-corruption, social welfare, pluralism, environmental responsibility, healthcare. The 13% tax budget breakdown shows detailed planning. Q1 — "promoting saving lives and better pension is much healthy for the economy" — connects social welfare to economic health. |
-| 5.2 Government Structure | 3 | Platform's 13% tax budget breakdown (Marine/livestock 1.5%, Court and law 2%, forest/eco-society 3.5%, housing 1.3%, humanitarian 5.7%) shows understanding of government allocation. Q4 — "Democracy feels like 'promote me on the stage, I promote your business'" — cynical but sophisticated understanding of democratic transactions. |
-| 5.3 Democratic Engagement | 3+ | Led the party and created a detailed platform. The reflection reads more like a party manifesto than a personal reflection, but the platform itself is evidence of deep engagement. Teacher confirms he was a major participant. |
+| 5.1 Issue Valuation | 3+ | Islamic Associations platform is broad and ambitious — humanitarianism, anti-corruption, social welfare, pluralism, environmental responsibility, healthcare. The 13% tax budget breakdown shows detailed planning. The 3+ rather than 4 is because the issues are expansive but the *justification* layer is thinner: the reflection reads as values declaration rather than issue analysis (why these issues? why this prioritization? what's the civic traction path?). A 4 would have meant specific justification of issue selection, not just a list of values. Q1 — "promoting saving lives and better pension is much healthy for the economy" — connects social welfare to economic health. |
+| 5.2 Government Structure | 3+ | Platform's 13% tax budget breakdown (Marine/livestock 1.5%, Court and law 2%, forest/eco-society 3.5%, housing 1.3%, humanitarian 5.7%) shows understanding of how a government actually allocates money across competing priorities — and the prioritization of humanitarian (5.7%) is a values choice, not just arithmetic. The 3+ rather than 4 is because the platform lists allocations but doesn't show what gets cut to make room. Q4 about democracy being transactional is one of the most sophisticated in the class. |
+| 5.3 Democratic Engagement | 3+ | Led the party and created a detailed platform. The 3+ rather than 4 is because the reflection reads more like a party manifesto than a personal reflection — it's hard to assess Farhan's individual role when the writing blurs the line between "I" and "we." The platform itself is evidence of deep engagement, and teacher confirms he was a major participant. A 4 would have meant reflection that distinguishes his personal contribution from the party's voice. |
 
 **Reflection Notes:** Farhan's reflection reads more like a party manifesto than a personal reflection. He's clearly passionate about the platform's values — humanitarianism, pluralism, anti-corruption — but doesn't describe his specific role in creating it. His Q4 answer about democracy being transactional is one of the most sophisticated in the class. He led a party with a detailed platform and was a major participant throughout.
 
@@ -368,11 +368,11 @@ These students appear in the roster but submitted no reflection. Grades are base
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 4 | Environmentalists at Work platform is the most issue-dense in the class (coastal protection act history, clean tech, offshore energy). Delisha was a major participant in building this. Led the Final 4 debate on these issues. |
-| 5.2 Government Structure | 3+ | Led the Town Hall debate, which required responding to policy challenges in real time. Platform references specific government legislation (2019 Coastal Protection Act). |
-| 5.3 Democratic Engagement | 4 | Major participant who stepped up to lead when Natalia was absent. Created presentation slides (credited in Final4 assets). Debated in the Final 4. The absence during the reflection process was scheduling, not disengagement. Full commitment to every other part of the unit. |
+| 5.1 Issue Valuation | 4 | Environmentalists at Work platform is the most issue-dense in the class (coastal protection act history, clean tech, offshore energy). Delisha was a major participant in building this — teacher confirms her as one of the biggest contributors throughout the unit. She led the Final 4 debate on these issues, stepping up after Natalia's absence. |
+| 5.2 Government Structure | 4 | Led the Final 4 Town Hall debate, which required responding to challenges about the platform's 2019 Coastal Protection Act, federal climate grants, carbon tax revenue, and offshore energy trade-offs — live, in front of the class, with no script. You can't fake your way through a question about a real Act. Teacher observation confirms this is full structural engagement, with the legislation-heavy platform as foundation. |
+| 5.3 Democratic Engagement | 4 | Major participant who stepped up to lead when Natalia was absent. Credited as a party member on the Final 4 title slide and contributed to the slide deck. Led the Final 4 Town Hall debate for her party. The absence during the reflection process was scheduling, not disengagement. Full commitment to every other part of the unit. |
 
-**Reflection Notes:** No reflection submitted — Delisha was missing during the reflection process. But teacher knowledge confirms she was one of the biggest participants in the unit. She created presentation slides (credited by name in the Final4 image assets), was a major contributor to the Environmentalists' platform, and stepped up to lead the Final 4 Town Hall. The lack of reflection is a scheduling gap, not an engagement gap.
+**Reflection Notes:** No reflection submitted — Delisha was missing during the reflection process. But teacher observation confirms she was one of the biggest participants in the unit. She is credited as a party member on the Final 4 title slide, was a major contributor to the Environmentalists' platform throughout, and stepped up to lead the Final 4 Town Hall. The lack of reflection is a scheduling gap, not an engagement gap.
 
 ---
 
@@ -396,7 +396,7 @@ These students appear in the roster but submitted no reflection. Grades are base
 
 | Outcome | Grade | Justification |
 |---------|-------|---------------|
-| 5.1 Issue Valuation | 2+ | Climate Protection platform (1M trees, renewable energy, plastic ban) has real issues. Ali led the party. |
+| 5.1 Issue Valuation | 3 | As party leader, Ali set the issue direction for Climate Protection (1M trees, renewable energy by 2035, plastic ban by 2028). His 8 Town Hall questions — the most in the class — actively interrogated other parties' issue choices on ER staffing, transit overcrowding, coastline funding, and the Kazakhstan comparison. That's issue engagement, even without a reflection to confirm it in writing. Teacher observation confirms his leadership role. |
 | 5.2 Government Structure | 2+ | Cannot assess from reflection. His Town Hall questions showed understanding of policy trade-offs — asking about ER staffing, transit overcrowding, coastline funding costs, and economic stability. |
 | 5.3 Democratic Engagement | 3 | 8 Town Hall questions — the most of anyone in the class. 3 were selected for the stage. He asked challenging, specific policy questions to multiple parties: "How will your plan actually increase the number of doctors and nurses instead of just promising faster service?" (Unity), "If buses become free for everyone, how will you prevent overcrowding?" (Unity), "You compared us to Kazakhstan... Why is that a fair comparison?" (Niche). This is active, engaged democratic participation. The lack of reflection is a gap, but the Town Hall data shows someone who was deeply engaged in the process. |
 
@@ -406,14 +406,14 @@ These students appear in the roster but submitted no reflection. Grades are base
 
 ## Roster-Only Students (Not in Reflection File)
 
-These students appear only in the Code.gs roster. No grading possible.
+These students appear only in the Code.gs roster. No individual reflection or work-submission evidence. Huda, Fatima, and Jana appear in the HTML feedback with provisional 3 / 2+ / 2+ grades based on roster membership only, and the feedback is explicit that these grades do not reflect confirmed individual work. Brody received 1+ / 1+ / 1 (largely absent).
 
 | Student | Party | Notes |
 |---------|-------|-------|
-| Brody | CPOH | Largely absent |
-| Fatima | Unity Party | No data |
-| Jana | Equity Party | No data |
-| Huda | Team tomorrow | No data |
+| Brody | CPOH | Largely absent — 1+ / 1+ / 1 in HTML |
+| Fatima | Unity Party | No individual evidence — provisional 3 / 2+ / 2+ in HTML |
+| Jana | Equity Party | No individual evidence — provisional 3 / 2+ / 2+ in HTML |
+| Huda | Team tomorrow | No individual evidence — provisional 3 / 2+ / 2+ in HTML |
 
 ---
 
@@ -429,21 +429,21 @@ These students appear only in the Code.gs roster. No grading possible.
 | 6 | Madhavan Karia | Party De Solution | 4 | 3+ | 4 | Leader, refiner, strategist |
 | 7 | Elizabeth Sanyaolu | Unity Party | 3 | 3 | 3+ | Won primary, confident speaker, major participant |
 | 8 | Nolan Hamilton | Niche Haligonians | 3 | 3 | 3+ | Co-wrote financial plan, 4 Town Hall questions |
-| 9 | Rifa Shahul Mydeen Ali | Equitable Rights | 4 | 3+ | 4 | Most thoughtful reflection, 7 Town Hall questions |
-| 10 | Natalia Filipovic | Env. at Work | 4 | 3+ | 4 | Speech, finance, slideshow — full drive |
-| 11 | Lachlan McMahon | Niche Haligonians | 4 | 3+ | 4 | Won election, governance-level thinking |
+| 9 | Rifa Shahul Mydeen Ali | Equitable Rights | 4 | 4 | 4 | Most thoughtful reflection, 7 Town Hall questions, multi-tool revenue plan |
+| 10 | Natalia Filipovic | Env. at Work | 4 | 4 | 4 | Speech, finance, slideshow — full drive, referenced real legislation |
+| 11 | Lachlan McMahon | Niche Haligonians | 4 | 3+ | 4 | Won election, governance-level thinking, one funding source |
 | 12 | Josie Sullivan | Team tomorrow | 3 | 2+ | 3 | Contributed to goals and slides |
 | 13 | Zankia van der Walt | Env. at Work | 3+ | 3 | 3+ | All slides, war room help, 3 Town Hall questions |
 | 14 | Kendra Bell | Env. at Work | 3+ | 3 | 3+ | Structured civic strategy, 3 Town Hall questions |
 | 15 | Alia Doaia | Unity Party | 3 | 2+ | 3 | Debate points, confidence builder |
-| 16 | Laila Awad | Team tomorrow | 3+ | 3 | 3+ | Leader, speech, 4 Town Hall questions |
+| 16 | Laila Awad | Team tomorrow | 4 | 3+ | 3+ | Leader, specific measurable goals, four funding streams |
 | 17 | Lachlan MacKay | Niche Haligonians | 3 | 3 | 4 | Slideshow, 6 Town Hall questions, real-time support |
-| 18 | Jessa Salasalan | Env. at Work | 4 | 3+ | 4 | Director of Comms, drove intellectual direction |
-| 19 | MD Farhan Rahman | Islamic Associations | 3+ | 3 | 3+ | Detailed platform, major participant |
+| 18 | Jessa Salasalan | Env. at Work | 4 | 3+ | 4 | Director of Comms, drove intellectual direction, governance-theory layer |
+| 19 | MD Farhan Rahman | Islamic Associations | 3+ | 3+ | 3+ | Detailed platform, 13% budget allocation, major participant |
 | 20 | Abdul Aboukoura | Islamic Associations | 2+ | 2+ | 2+ | Tried, ideas weren't used, brief reflection |
 | 21 | Sarah Tiga | Equitable Rights | 3 | 3+ | 3+ | Comms + finance, poetic Q1, 4 Town Hall questions |
 | 22 | Remy Perks | Party De Solution | 3 | 2+ | 3 | No reflection but 1 on_stage Town Hall question |
 | 23 | Evie | Equity Party | 3 | 2+ | 3 | No reflection — led party with clear direction |
-| 24 | Delisha Devabattula | Env. at Work | 4 | 3+ | 4 | No reflection but major participant, led Final 4 |
-| 25 | Isaac | CPOH | 2+ | 2+ | 2+ | No reflection, incomplete party |
-| 26 | Ali Abdelfattah | Climate Protection | 2+ | 2+ | 3 | No reflection but 8 Town Hall questions — most in class |
+| 24 | Delisha Devabattula | Env. at Work | 4 | 4 | 4 | No reflection but major participant, defended legislation-heavy platform live |
+| 25 | Isaac | CPOH | 2+ | 2+ | 2+ | No reflection, incomplete party (HTML corrected to match) |
+| 26 | Ali Abdelfattah | Climate Protection | 3 | 2+ | 3 | No reflection but 8 Town Hall questions — most in class, led party |

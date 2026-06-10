@@ -1,589 +1,544 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Election Unit — Your Feedback</title>
-    <style>
-        :root {
-            --bg: #0a0e17;
-            --card: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.06);
-            --accent: #10b981;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 10vh auto;
-            padding: 2.5rem;
-            background: var(--card);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            backdrop-filter: blur(12px);
-        }
-        .login-container h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-        .login-container p {
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.4rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        .btn-login {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 0.5px;
-        }
-        .btn-login:hover { opacity: 0.9; }
-        .error-msg {
-            color: #ef4444;
-            font-size: 0.85rem;
-            margin-top: 0.75rem;
-            display: none;
-        }
+<!DOCTYPE HTML>
+<!--
+	Election Feedback â€” built on Dimension by HTML5 UP
+	html5up.net | @ajlkn
+-->
+<html>
+	<head>
+		<title>Your Election Feedback â€” Halifax West 2026</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>
+			/* PIN gate */
+			#pin-gate {
+				position: fixed; inset: 0; z-index: 9999;
+				display: flex; align-items: center; justify-content: center;
+				background: #1b1f22;
+				font-family: 'Source Sans Pro', sans-serif;
+			}
+			#pin-gate .gate-card {
+				background: rgba(255,255,255,0.04);
+				border: 1px solid rgba(255,255,255,0.12);
+				border-radius: 6px;
+				padding: 2.5rem 2.75rem;
+				width: 90%; max-width: 420px;
+				text-align: center;
+				color: rgba(255,255,255,0.85);
+			}
+			#pin-gate .gate-card h1 {
+				font-size: 1.6rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.3px;
+			}
+			#pin-gate .gate-card p {
+				color: rgba(255,255,255,0.55); font-size: 0.9rem; margin-bottom: 1.75rem;
+			}
+			#pin-gate .gate-card label {
+				display: block; text-align: left;
+				font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em;
+				color: rgba(255,255,255,0.5); margin: 0 0 0.4rem 0; font-weight: 600;
+			}
+			#pin-gate .gate-card input {
+				width: 100%; padding: 0.75rem 0.9rem; margin-bottom: 1rem;
+				background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+				border-radius: 4px; color: #fff; font-size: 1rem; font-family: inherit;
+				text-align: center; letter-spacing: 0.1em;
+			}
+			#pin-gate .gate-card input:focus { outline: none; border-color: rgba(255,255,255,0.4); }
+			#pin-gate .gate-card button {
+				width: 100%; padding: 0.85rem 1rem; margin-top: 0.5rem;
+				background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+				border-radius: 4px; color: #fff; font-size: 0.95rem; font-weight: 600;
+				text-transform: uppercase; letter-spacing: 0.12em; cursor: pointer;
+				font-family: inherit; transition: background 0.15s;
+			}
+			#pin-gate .gate-card button:hover { background: rgba(255,255,255,0.14); }
+			#pin-gate .gate-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+			#pin-gate .gate-error {
+				color: #ff9b9b; font-size: 0.85rem; margin-top: 0.85rem; min-height: 1.1em;
+			}
+			#pin-gate .gate-hint {
+				color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 1.5rem;
+			}
+			#pin-gate .gate-icon { font-size: 2.5rem; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
+			body.gated #wrapper { display: none; }
+			body.gated { overflow: hidden; }
 
-        /* Feedback Page */
-        .feedback-page { display: none; max-width: 820px; width: 100%; padding: 2rem; }
-        .feedback-header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        .feedback-header h1 {
-            font-size: 2.2rem;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
-        }
-        .feedback-header .party-tag {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .feedback-header .role-tag {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #818cf8;
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-        .outcome-card {
-            background: var(--card);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            backdrop-filter: blur(12px);
-        }
-        .outcome-card h2 {
-            font-size: 1.3rem;
-            margin-bottom: 0.3rem;
-            letter-spacing: -0.3px;
-        }
-        .outcome-card .outcome-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent);
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        .outcome-card .grade-badge {
-            float: right;
-            padding: 0.5rem 1.2rem;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--accent);
-        }
-        .outcome-card p {
-            color: var(--text-muted);
-            line-height: 1.7;
-            font-size: 0.95rem;
-        }
-        .outcome-card .quote {
-            margin-top: 1rem;
-            padding: 1rem 1.25rem;
-            background: rgba(255,255,255,0.03);
-            border-left: 3px solid var(--accent);
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .closing-card {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(99, 102, 241, 0.08));
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2.5rem;
-            margin-top: 2rem;
-            text-align: center;
-        }
-        .closing-card p {
-            color: var(--text-muted);
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-        footer {
-            margin-top: 3rem;
-            padding: 2rem;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            border-top: 1px solid var(--glass-border);
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
+			/* Custom additions for election feedback */
+			.grade-pill {
+				display: inline-block;
+				padding: 0.15em 0.7em;
+				border: 1px solid rgba(255,255,255,0.35);
+				border-radius: 2em;
+				font-weight: 600;
+				font-size: 0.95em;
+				letter-spacing: 0.05em;
+			}
+			.grade-4 { color: #a8e6a3; border-color: #a8e6a3; }
+			.grade-3p, .grade-3plus { color: #9fd8ff; border-color: #9fd8ff; }
+			.grade-3 { color: #ffe28a; border-color: #ffe28a; }
+			.grade-2p, .grade-2plus { color: #ffb48a; border-color: #ffb48a; }
+			.grade-2 { color: #ffb48a; border-color: #ffb48a; }
+			.grade-1p, .grade-1plus { color: #ff9b9b; border-color: #ff9b9b; }
+			.grade-1 { color: #ff9b9b; border-color: #ff9b9b; }
 
-    <!-- LOGIN -->
-    <div class="login-container" id="login-screen">
-        <h1>Your Election Feedback</h1>
-        <p>Enter your first name and your party PIN to see your feedback from the Halifax West 2026 Election Simulation.</p>
-        <div class="form-group">
-            <label>First Name</label>
-            <input type="text" id="login-name" placeholder="e.g. Madhavan" autocomplete="off">
-        </div>
-        <div class="form-group">
-            <label>Your PIN</label>
-            <input type="text" id="login-pin" placeholder="e.g. R4MT" maxlength="5" style="text-transform: uppercase;" autocomplete="off">
-        </div>
-        <button class="btn-login" onclick="login()">View My Feedback</button>
-        <div class="error-msg" id="login-error">Name or PIN not recognized. Check your spelling and try again.</div>
-    </div>
+			.outcome-label {
+				display: inline-block;
+				font-size: 0.65em;
+				font-weight: 700;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				color: rgba(255,255,255,0.55);
+				margin-bottom: 0.4em;
+			}
+			.outcome-block { margin-bottom: 2.5em; }
+			.outcome-block h2 { margin-bottom: 0.2em; }
+			.outcome-block p { margin-bottom: 0.7em; }
+			.student-quote {
+				margin-top: 0.6em;
+				padding: 0.8em 1.2em;
+				border-left: 2px solid rgba(255,255,255,0.3);
+				font-style: italic;
+				color: rgba(255,255,255,0.7);
+				font-size: 0.95em;
+			}
+			.student-meta { margin-bottom: 2em; }
+			.student-meta .meta-line { display: block; font-size: 0.85em; color: rgba(255,255,255,0.6); }
+			.student-meta .meta-line strong { color: rgba(255,255,255,0.85); }
+			.roster-table { width: 100%; }
+			.roster-table th, .roster-table td {
+				padding: 0.6em 0.8em;
+				text-align: left;
+				border-bottom: 1px solid rgba(255,255,255,0.08);
+				font-size: 0.95em;
+			}
+			.roster-table th {
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				font-size: 0.75em;
+				color: rgba(255,255,255,0.55);
+				border-bottom: 1px solid rgba(255,255,255,0.2);
+			}
+			.roster-table a { color: #9fd8ff; text-decoration: none; border-bottom: 1px dotted rgba(159,216,255,0.4); }
+			.roster-table a:hover { color: #fff; border-bottom-color: #fff; }
+			.provisional-note {
+				background: rgba(255,180,138,0.08);
+				border-left: 2px solid #ffb48a;
+				padding: 0.8em 1.2em;
+				margin: 1em 0 2em 0;
+				font-size: 0.9em;
+				color: rgba(255,255,255,0.75);
+			}
+			.outcome-divider { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 1.5em 0; }
+		</style>
+	</head>
+	<body class="is-preload gated">
 
-    <!-- FEEDBACK (hidden until login) -->
-    <div class="feedback-page" id="feedback-page">
-        <div class="feedback-header">
-            <h1 id="fb-name"></h1>
-            <div>
-                <span class="party-tag" id="fb-party"></span>
-                <span class="role-tag" id="fb-role"></span>
-            </div>
-        </div>
+		<!-- PIN Gate -->
+		<div id="pin-gate">
+			<div class="gate-card">
+				<div class="gate-icon"><span class="icon fa-lock"></span></div>
+				<h1>Your Election Feedback</h1>
+				<p>Halifax West Citizenship 9 â€” 2026 Election Simulation</p>
+				<form id="gate-form" autocomplete="off" onsubmit="return false;">
+					<label for="gate-name">First Name</label>
+					<input type="text" id="gate-name" placeholder="e.g. Madhavan" autocapitalize="words" />
+					<label for="gate-pin">Your PIN</label>
+					<input type="text" id="gate-pin" placeholder="e.g. R4MT" maxlength="5" style="text-transform: uppercase;" />
+					<button type="submit" id="gate-submit">View My Feedback</button>
+				</form>
+				<div class="gate-error" id="gate-error"></div>
+				<div class="gate-hint">Enter your first name and the 4â€“5 character PIN from your party registration.</div>
+			</div>
+		</div>
 
-        <div id="fb-outcomes"></div>
+		<!-- Wrapper -->
+			<div id="wrapper">
 
-        <div class="closing-card">
-            <p id="fb-closing"></p>
-        </div>
-    </div>
+				<!-- Header -->
+					<header id="header">
+						<div class="logo">
+							<span class="icon fa-vote-yea"></span>
+						</div>
+						<div class="content">
+							<div class="inner">
+								<h1>Your Election Feedback</h1>
+								<p>Halifax West Citizenship 9 â€” 2026 Election Simulation<br />
+								Outcomes 5.1, 5.2, and 5.3 from Unit 5: Governance</p>
+							</div>
+						</div>
+						<nav>
+							<ul>
+								<li><a href="#intro">About</a></li>
+								<li><a href="#howto">How to Read</a></li>
+								<li class="is-middle"><a href="#roster">Find Your Name</a></li>
+								<li><a href="#grading">Grading Scale</a></li>
+								<li><a href="#signoff">Sign Off</a></li>
+							</ul>
+						</nav>
+					</header>
 
-    <footer>
-        Halifax West Citizenship 9 — Election Simulation 2026
-    </footer>
+				<!-- Main -->
+					<div id="main">
 
-<script>
-const roster = [
-    {name:'Farhan',      pin:'HRNH', party:'Islamic Associations of Halifax', role:'Leader'},
-    {name:'Abdul',       pin:'ALZZ', party:'Islamic Associations of Halifax', role:'Member'},
-    {name:'Joshua',      pin:'RUXG', party:'The Healthier Future', role:'Leader'},
-    {name:'Clark',       pin:'9F3K', party:'The Healthier Future', role:'Member'},
-    {name:'Madhavan',    pin:'R4MT', party:'The Party De Solution', role:'Leader'},
-    {name:'Remy',        pin:'YMRP', party:'The Party De Solution', role:'Member'},
-    {name:'Yunho',       pin:'T4N5', party:'The Party De Solution', role:'Member'},
-    {name:'Lachlan',     pin:'FFAN', party:'The Niche Haligonians', role:'Leader'},
-    {name:'Lachlan Mac', pin:'25VT', party:'The Niche Haligonians', role:'Member'},
-    {name:'Nolan',       pin:'KFK6', party:'The Niche Haligonians', role:'Member'},
-    {name:'Laila',       pin:'V4BC', party:'Team Tomorrow', role:'Leader'},
-    {name:'Josie',       pin:'MVQW', party:'Team Tomorrow', role:'Member'},
-    {name:'Brody',       pin:'JY2P', party:'Communist Party of Halifax', role:'Member'},
-    {name:'Leo',         pin:'RKKJ', party:'Communist Party of Halifax', role:'Member'},
-    {name:'Elizabeth',   pin:'FNG3', party:'The Unity Party', role:'Leader'},
-    {name:'Fatima',      pin:'T6U2', party:'The Unity Party', role:'Member'},
-    {name:'Alia',        pin:'LJFM', party:'The Unity Party', role:'Member'},
-    {name:'Rifa',        pin:'57G5', party:'Equitable Rights Party', role:'Leader'},
-    {name:'Sarah',       pin:'96EU', party:'Equitable Rights Party', role:'Member'},
-    {name:'Jessa',       pin:'HSZU', party:'Environmentalists at Work', role:'Member'},
-    {name:'Delisha',     pin:'Q2YA', party:'Environmentalists at Work', role:'Leader'},
-    {name:'Kendra',      pin:'MTGG', party:'Environmentalists at Work', role:'Member'},
-    {name:'Zankia',      pin:'CA3J', party:'Environmentalists at Work', role:'Member'},
-    {name:'Evie',        pin:'R7SX', party:'The Equity Party', role:'Leader'},
-    {name:'Jana',        pin:'TT8D', party:'The Equity Party', role:'Member'},
-    {name:'Ali',         pin:'D2ZD', party:'Halifax Climate Protection Party', role:'Member'},
-    {name:'Kai',         pin:'VFW8', party:'Halifax Climate Protection Party', role:'Member'},
-    {name:'Isaac',       pin:'ISAC', party:'Communist Party of Halifax', role:'Member'},
-    {name:'Huda',        pin:'6SUB', party:'Team Tomorrow', role:'Member'},
-    {name:'Natalia',     pin:'ABCDE', party:'Environmentalists at Work', role:'Leader'}
-];
+						<!-- Intro -->
+							<article id="intro">
+								<h2 class="major">About This Feedback</h2>
+								<p>These are your outcome grades for the Halifax West 2026 Election Simulation. The unit ran for three weeks in April and May 2026, and covered three outcomes from Unit 5: Governance.</p>
+								<p>Your grades are based on the evidence hierarchy below. Teacher observation is the primary artifact â€” who showed up, who drove the work, who was present and engaged day after day. The Town Hall questions, your reflection responses, and your party's platform provided additional evidence.</p>
+								<p>Vote counts were <strong>not</strong> used as a grading factor. Many students noted that junior-high social dynamics, not just platform quality, affected vote outcomes.</p>
+								<p>Click <strong>Find Your Name</strong> in the navigation, then click your name to see your personalized feedback.</p>
+							</article>
 
-const feedback = {
+						<!-- How To -->
+							<article id="howto">
+								<h2 class="major">How to Read This</h2>
+								<p>Each student has three outcomes, graded 1 to 4 with plus signs in between (so the scale is 1, 1+, 2+, 3, 3+, 4):</p>
+								<p><span class="outcome-label">Outcome 5.1</span> <strong>Issue Valuation</strong> â€” how issues become valued in government and society. Did you choose meaningful issues? Can you explain why they matter?</p>
+								<p><span class="outcome-label">Outcome 5.2</span> <strong>Government Structure</strong> â€” the structure, operation, and selection of government in Canada. Does your work reflect realistic understanding of how government works?</p>
+								<p><span class="outcome-label">Outcome 5.3</span> <strong>Democratic Engagement</strong> â€” strategies to meaningfully engage in a democratic process. Did you take a meaningful role? Can you describe specific contributions?</p>
+								<p>Each outcome shows a short title that captures the headline of your work, a longer comment that explains the grade, and (where available) a direct quote from your own reflection or Town Hall question. The closing paragraph at the bottom of each feedback page is a personalized summary.</p>
+							</article>
 
-"Madhavan": {
-    closing: "Madhavan, you led a party that came up with one of the most creative campaign ideas in the class. The Subway partnership wasn't just a gimmick -- it showed you were thinking about how to actually fund promises in a way people would get behind. Your ability to take your teammates' raw ideas and turn them into real political messaging was the skill that held the Party De Solution together. You thought about what makes voters tick, and you were honest about where you could improve. That kind of self-awareness will serve you well.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You picked issues people actually cared about.", grade:"4", text:"Your platform hit three things that matter to students and families: better schools, safer buses, and actual healthcare in schools instead of just an ice pack. But what set you apart was the funding idea -- partnering with Subway so people get something back while supporting schools. You weren't just listing promises. You were thinking about why people would buy in.", quote:"\"I was going for the happiness and the involvement of the population in my promises and even in my funding.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how politics actually works.", grade:"3+", text:"Your reflection showed you get something a lot of adults don't fully grasp: that likability and policy are always tangled together, and that in a small election like ours, personal connections can swing everything. You connected this to real-world politics, which shows you were thinking beyond the classroom.", quote:"\"Likability and buying votes absolutely mattered in a vote that consisted of 17 people... this absolutely matters in real life.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You were the engine of your party.", grade:"4", text:"You took raw drafts from your teammates and turned them into political language. You wrote the strategy. You led the speech. You thought about coalition-building after the election was over. That's not just participation -- that's leadership with depth.", quote:"\"I can help parties work together by giving them a common enemy to fight against, or even getting them to slightly move their policies to match the other's so that they have something in common to fight for.\""}
-    ]
-},
+						<!-- Roster -->
+							<article id="roster">
+								<h2 class="major">Find Your Name</h2>
+								<p>Click your name to see your feedback.</p>
+								<div class="table-wrapper">
+									<table class="roster-table">
+										<thead>
+											<tr>
+												<th>Name</th>
+												<th>Party</th>
+												<th>Role</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr><td><a href="#s-madhavan">Madhavan</a></td><td>The Party De Solution</td><td>Leader</td></tr>
+											<tr><td><a href="#s-remy">Remy</a></td><td>The Party De Solution</td><td>Member</td></tr>
+											<tr><td><a href="#s-yunho">Yunho</a></td><td>The Party De Solution</td><td>Member</td></tr>
+											<tr><td><a href="#s-joshua">Joshua</a></td><td>The Healthier Future</td><td>Leader</td></tr>
+											<tr><td><a href="#s-clark">Clark</a></td><td>The Healthier Future</td><td>Member</td></tr>
+											<tr><td><a href="#s-lachlan">Lachlan</a></td><td>The Niche Haligonians</td><td>Leader</td></tr>
+											<tr><td><a href="#s-lachlanmac">Lachlan Mac</a></td><td>The Niche Haligonians</td><td>Member</td></tr>
+											<tr><td><a href="#s-nolan">Nolan</a></td><td>The Niche Haligonians</td><td>Member</td></tr>
+											<tr><td><a href="#s-laila">Laila</a></td><td>Team Tomorrow</td><td>Leader</td></tr>
+											<tr><td><a href="#s-josie">Josie</a></td><td>Team Tomorrow</td><td>Member</td></tr>
+											<tr><td><a href="#s-huda">Huda</a></td><td>Team Tomorrow</td><td>Member</td></tr>
+											<tr><td><a href="#s-elizabeth">Elizabeth</a></td><td>The Unity Party</td><td>Leader</td></tr>
+											<tr><td><a href="#s-fatima">Fatima</a></td><td>The Unity Party</td><td>Member</td></tr>
+											<tr><td><a href="#s-alia">Alia</a></td><td>The Unity Party</td><td>Member</td></tr>
+											<tr><td><a href="#s-rifa">Rifa</a></td><td>Equitable Rights Party</td><td>Leader</td></tr>
+											<tr><td><a href="#s-sarah">Sarah</a></td><td>Equitable Rights Party</td><td>Member</td></tr>
+											<tr><td><a href="#s-natalia">Natalia</a></td><td>Environmentalists at Work</td><td>Leader</td></tr>
+											<tr><td><a href="#s-delisha">Delisha</a></td><td>Environmentalists at Work</td><td>Leader (Final 4)</td></tr>
+											<tr><td><a href="#s-jessa">Jessa</a></td><td>Environmentalists at Work</td><td>Member</td></tr>
+											<tr><td><a href="#s-kendra">Kendra</a></td><td>Environmentalists at Work</td><td>Member</td></tr>
+											<tr><td><a href="#s-zankia">Zankia</a></td><td>Environmentalists at Work</td><td>Member</td></tr>
+											<tr><td><a href="#s-farhan">Farhan</a></td><td>Islamic Associations of Halifax</td><td>Leader</td></tr>
+											<tr><td><a href="#s-abdul">Abdul</a></td><td>Islamic Associations of Halifax</td><td>Member</td></tr>
+											<tr><td><a href="#s-ali">Ali</a></td><td>Halifax Climate Protection Party</td><td>Leader</td></tr>
+											<tr><td><a href="#s-kai">Kai</a></td><td>Halifax Climate Protection Party</td><td>Member</td></tr>
+											<tr><td><a href="#s-evie">Evie</a></td><td>The Equity Party</td><td>Leader</td></tr>
+											<tr><td><a href="#s-jana">Jana</a></td><td>The Equity Party</td><td>Member</td></tr>
+											<tr><td><a href="#s-leo">Leo</a></td><td>Communist Party of Halifax</td><td>Member</td></tr>
+											<tr><td><a href="#s-isaac">Isaac</a></td><td>Communist Party of Halifax</td><td>Member</td></tr>
+											<tr><td><a href="#s-brody">Brody</a></td><td>Communist Party of Halifax</td><td>Member</td></tr>
+										</tbody>
+									</table>
+								</div>
+							</article>
 
-"Joshua": {
-    closing: "Joshua, you carried a two-person party on your shoulders and you did it without excuses. You made the project, the script, the roles, and the slideshow -- all of it. And when your speech didn't land the way you wanted, you didn't blame anyone. You said you needed to work on your delivery. That kind of honesty and ownership is rare, and it's the reason your party had a real platform that voters took seriously. The Healthier Future existed because you made it exist.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your issues were specific and real.", grade:"4", text:"You didn't just say 'fix healthcare.' You talked about 50,000 new doctors, cutting medical school from 10 years to 5, a sin tax on harmful products, and e-prescriptions to speed up diagnosis. That level of detail shows you were thinking about who gets hurt by the current system and how to actually fix it.", quote:"\"Policy was overall more effective due to the great ideas people said and the way they presented.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how governments pay for things.", grade:"3+", text:"Your platform used a sin tax -- taxing harmful products to fund healthcare. That's a real government revenue tool that exists in countries around the world. You didn't invent it, but you understood why it works and how to pitch it. That shows you were paying attention to how government actually funds services.", quote:"\"Likability made a good part in this election but policy was overall more effective.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You did everything, and you owned it.", grade:"4", text:"In a two-person group, there's nowhere to hide. You made the entire project, script, roles, and slideshow. Your speech didn't win as many votes as you hoped, and you were honest about that: 'My communication however lost many votes meaning I should work on my control of fumbling the script.' That self-awareness is what separates someone who just shows up from someone who's actually learning.", quote:"\"I made the entire project, script, roles and slideshow so I contributed the most in my group.\""}
-    ]
-},
+						<!-- Grading Scale -->
+							<article id="grading">
+								<h2 class="major">Grading Scale</h2>
+								<div class="table-wrapper">
+									<table class="roster-table">
+										<thead>
+											<tr><th>Grade</th><th>Meaning</th></tr>
+										</thead>
+										<tbody>
+											<tr><td><span class="grade-pill grade-4">4</span></td><td>Fully committed. Completed role, contributed meaningfully, thoughtful reflection.</td></tr>
+											<tr><td><span class="grade-pill grade-3p">3+</span></td><td>Strong engagement with standout moments.</td></tr>
+											<tr><td><span class="grade-pill grade-3">3</span></td><td>Some meaningful engagement, decent understanding.</td></tr>
+											<tr><td><span class="grade-pill grade-2p">2+</span></td><td>Emerging engagement, limited depth (minimum floor for participation).</td></tr>
+											<tr><td><span class="grade-pill grade-2">2</span></td><td>Very little done, shallow or perfunctory.</td></tr>
+											<tr><td><span class="grade-pill grade-1p">1+</span></td><td>Marginal presence.</td></tr>
+											<tr><td><span class="grade-pill grade-1">1</span></td><td>Essentially absent.</td></tr>
+										</tbody>
+									</table>
+								</div>
+								<hr class="outcome-divider" />
+								<p><strong>Evidence hierarchy:</strong> (1) Teacher observation, (2) Work submissions, (3) Town Hall question data, (4) Reflection responses, (5) Party platform quality, (6) Voting data (engagement only â€” not a grading factor).</p>
+							</article>
 
-"Lachlan": {
-    closing: "Lachlan, you won the election and then immediately started thinking about how to govern. That's not normal for a Grade 9 project. Your idea to bring in the 'Secret Menu' funding plan from another party wasn't just clever -- it was the kind of compromise thinking that actual premiers have to do every day. You led a three-person team, wrote the speech, handled the AI journalist, and still had the presence of mind to think about what came next. The Niche Haligonians won because you put in the work, and you kept putting in the work even after you won.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You picked fights worth having.", grade:"4", text:"Healthcare, education, and housing. These are the issues that actually affect families in Halifax. But what made your platform stand out was the funding source: redirecting military scholarship money into walk-in clinics and smaller classrooms. You knew that would be controversial, and you leaned into it. That's how real political debates work -- you pick the hard fights and defend them.", quote:"\"The Niche Haligonians funding plan has been heavily attacked, as many see it as selfish and not giving funds to those who need it. I believe I have a fix for their funding plan that will satify the complaints of others.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how budgets work.", grade:"3+", text:"Your funding plan -- redirecting military college tuition -- was a real policy argument about where public money should go. You understood that every dollar spent on one thing is a dollar not spent on something else. That's the core tension of government budgeting, and you navigated it.", quote:"\"They are willing to compremise if thats what the people want, and I believe we should all try to work together.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You did everything, then thought about what comes next.", grade:"4", text:"You wrote the speech. You handled the AI journalist. You delegated the financial plan to Nolan and made sure it got done. And then, after winning, you immediately started thinking about how to satisfy the opposition. That's governance-level thinking. Most people stop at winning. You kept going.", quote:"\"I did everything in the war room and in the campaign... I did the speech on my own, facts etc.\""}
-    ]
-},
+						<!-- ===== STUDENT ARTICLES (shells — content injected by GAS) ===== -->
 
-"Rifa": {
-    closing: "Rifa, your reflection was the most thoughtful in the class. You didn't just describe what you did -- you thought about what it meant. The pride and potential guilt of having the deciding vote, the idea that citizens can push parties together through public pressure, the way you built an entire platform with Sarah in a two-person party and still found time to create the speech and slides. You were pranked by your partner and still produced voters. That tells me everything about your commitment.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform was the most detailed in the class.", grade:"4", text:"The Equitable Rights Party didn't just say 'fix healthcare.' You proposed specialized hospital departments, expanded public healthcare to include dental and vision, and tied wage growth to inflation. That's not a wish list -- that's a policy platform. You were thinking about how systems actually work and who they leave behind.", quote:"\"My biggest contribution would be creating the 2 minute speech and creating the slides for the speech. I was pranked by my partner so we had a short time period to finish the speech and I think the effort was worth it.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood government revenue tools.", grade:"3+", text:"Your funding plan used sin taxes, luxury goods taxes, and corporate tax tiers. These are real mechanisms that governments use every day. You also talked about cutting wasteful spending, which is the other side of the budget equation. You were thinking like someone who actually has to balance a budget.", quote:"\"As a citizen, actively engaging yourself with your own country can help you understand the issue and your support along with others can help party's realize the severity of the issue.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You did everything in a two-person party, under pressure.", grade:"4", text:"You were the strategist, the financial planner, the speechwriter, and the slide creator. You worked the press conference. You were pranked by your partner and still delivered. And your reflection shows you were thinking not just about winning, but about what it means to have power as a citizen. That's the deepest form of democratic engagement.", quote:"\"I find it amusing that a single vote can change the whole government from a possible zero to hero... there is a little pressure that comes with this powerful choice.\""}
-    ]
-},
+						<article id="s-madhavan"><h2 class="major">Madhavan</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Natalia": {
-    closing: "Natalia, you led the Environmentalists at Work from start to finish. You wrote the speech, built the financial plan, and made the slideshow. Your platform was the most policy-detailed in the class, and you were intentional about how you communicated it -- confident, relatable, emotional. You thought about what makes voters connect with a message, not just what the message says. That's sophisticated thinking, and it's why your party came within one vote of winning.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform had the most substance.", grade:"4", text:"Clean technology, coastal protection, offshore energy regulation -- and you backed it all up with specific policy history, like the 2019 Coastal Protection Act and the federal climate grants your party planned to apply for. You weren't just listing issues. You were showing that you understood the policy landscape.", quote:"\"I focused on making our message clear and connecting with people emotionally. I think my communication style helped win over voters because I tried to be confident and relatable.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You referenced real legislation.", grade:"3+", text:"Your platform mentioned the 2019 Coastal Protection Act, its replacement in 2024, and specific funding mechanisms like carbon tax revenue and federal climate grants. That's not something you guess at -- that's research. You understood how government actually creates and funds environmental policy.", quote:"\"In real life, both matter, people want leaders with good ideas, but also someone they trust and relate to.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You drove every deliverable.", grade:"4", text:"Speech, financial plan, slideshow. You did all three. And you were intentional about your communication style -- you thought about confidence and relatability as tools, not just personality traits. That's strategic democratic engagement.", quote:"\"Since we only lost by one vote, it shows our strategy was effective.\""}
-    ]
-},
+						<article id="s-joshua"><h2 class="major">Joshua</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Jessa": {
-    closing: "Jessa, you were the intellectual engine of the Environmentalists. You established the party's goals, created the name, listed the SDG connections, defined the political spectrum positioning, and wrote touching sentences for Natalia's speech. That's three weeks of sustained, focused work. And your reflection showed you were thinking about actual governance -- how you'd negotiate with the winning party to get environmental protections in exchange for your support. You weren't just playing a game. You were thinking about how democracy actually works.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You built the intellectual foundation.", grade:"4", text:"You didn't just pick issues -- you connected them to the UN Sustainable Development Goals, defined the political spectrum positioning, and found real problems that needed fixing. 'Voters saw what problems we saw in the world and how we were going to fix it.' That's the difference between listing promises and building a movement.", quote:"\"My biggest contribution in these whole 3 weeks of brainstorming would be created the ideas we could use, such as helping Natalia with her speech, giving her touching sentences to use, making our party name, listing our SDG goals.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how minority governments work.", grade:"3+", text:"Your reflection showed you understood something specific about minority governments: they work through negotiation and exchange. You described exactly how you'd do it -- offer support in exchange for environmental protections. That's transactional governance, and it's how minority parliaments actually function.", quote:"\"I could negotiate, by saying if I helped and supported them, I would ask for something in return which could be something I want.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You were the ideas person, and your ideas won votes.", grade:"4", text:"You established the party's entire direction. Goals, name, SDG connections, spectrum positioning, speech content. Your ideas won over voters. And you were engaged for three full weeks, not just the day of the presentation. That sustained commitment is what real democratic participation looks like.", quote:"\"I provided what my party members COULD write and find real problems we need to fix. My ideas did actually win over voters.\""}
-    ]
-},
+						<article id="s-lachlan"><h2 class="major">Lachlan</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Delisha": {
-    closing: "Delisha, you stepped up when your party needed you most. When Natalia was absent, you took over as leader and debated in the Final Four Town Hall. That takes guts. You were a major participant throughout the entire unit, and the slides you created are proof of your commitment. You didn't submit a reflection, but your actions throughout the unit speak louder than any form response ever could. You showed up, you contributed, and when the pressure was on, you led.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You carried the environmental platform into the Final Four.", grade:"4", text:"The Environmentalists at Work had the most detailed platform in the class, and you were a major part of building it. When it came time to defend it in the Town Hall, you were the one at the front of the room. That's not just understanding issues -- that's owning them.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You debated policy in real time.", grade:"3+", text:"The Town Hall required you to respond to challenges about your platform's funding, feasibility, and priorities -- live, in front of the class. You had to know your platform inside and out, and you had to think on your feet. That's a real test of understanding how government policy works.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You led when it mattered most.", grade:"4", text:"Major participant throughout. Created presentation slides (credited by name in the Final Four assets). Stepped into the leader role for the Town Hall when Natalia was absent. Debated in front of the class. Your commitment to the process was clear from start to finish.", quote:""}
-    ]
-},
+						<article id="s-rifa"><h2 class="major">Rifa</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Sarah": {
-    closing: "Sarah, your reflection had one of the most memorable lines in the class: 'no vote is ever just one vote, because of that one vote the government is what it is today.' That's not just a good sentence -- it shows you actually felt the weight of democratic participation. You worked on both the communications message and the financial plan for the Equitable Rights Party, which means you were involved in two of the three war room deliverables. Your party's platform was one of the most detailed, and you were part of building it.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You helped build a serious platform.", grade:"3", text:"The Equitable Rights Party's platform -- hospital ER divisions, expanded healthcare including dental and vision, wage growth tied to inflation -- was one of the most detailed in the class. You worked on the communications message and the financial plan, which means you were thinking about both what to say and how to pay for it.", quote:"\"My biggest contributions in my team was working on the communications message and working on the financial plan with our team leader.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood the representative system.", grade:"3+", text:"When you talked about contacting your representatives to encourage compromise, you showed that you understand how citizens are supposed to interact with government. That's not just textbook knowledge -- it's a plan for how you'd actually participate in democracy.", quote:"\"As a citizen, I can contact my representatives to encourage compromise and model respectful dialogue in my own conversation to show that cooperation matters more than conflict.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You contributed to the work that mattered.", grade:"3+", text:"Two of three war room deliverables -- communications and finance. That's significant involvement. And your reflection shows you took the process seriously. The line about 'one vote' isn't just clever writing. It's the voice of someone who felt what it means to participate.", quote:"\"Knowing that my vote makes this much of a difference is both mesmerizing and overwhelming because it serves as a reminder that no vote is ever just 'one vote'.\""}
-    ]
-},
+						<article id="s-natalia"><h2 class="major">Natalia</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Elizabeth": {
-    closing: "Elizabeth, you won the primary. That's not nothing. You stood up in front of the class, delivered your speech with confidence, and used a comparative strategy that brought in voters. Your party didn't lock in their platform, but your speech was strong enough to win the first round anyway. That tells me you understand something important: how you say something matters as much as what you say. Your observation about party egos was one of the most mature reflections in the class.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You made your issues heard.", grade:"3", text:"The Unity Party addressed transit, internships, and healthcare. Your platform existed, and you communicated it well enough to win the primary. Your reflection shows you understood that presentation is part of how issues gain traction -- comparing your party's plans to others and pointing out what you'd do better.", quote:"\"A communication style I used was comparing myself to other groups and pointing out the thing my party would do better and I believe that brought in voters.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You saw both sides of what wins elections.", grade:"3", text:"Your Q4 answer recognized that likability and presentation both matter in elections. You noticed that some people voted for friends while others voted based on speeches and answers. That balanced view shows you were paying attention to the dynamics of the election, not just your own party.", quote:"\"Likability absolutely mattered in this election seeing as the winning party's friends voted that party but I know several people who voted a party because of how good they spoke and how they answered question.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You led with confidence.", grade:"3+", text:"You got up and spoke. You used comparative strategy. You won the primary. And your reflection about party egos -- 'if we show that we only like one party it would probably make their ego go higher and not want to work with the other party' -- shows you were thinking about democratic dynamics beyond just winning.", quote:"\"I was the leader of the Unity Party and my biggest contribution was getting up there and saying my speech with confidence giving us the first win.\""}
-    ]
-},
+						<article id="s-jessa"><h2 class="major">Jessa</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Nolan": {
-    closing: "Nolan, you were part of the winning team, and you did more than just follow directions. You helped write the financial plan -- Lachlan came up with the ideas and you put them into words. That's real contribution. Your reflection showed genuine civic thinking: solar panels on grocery store roofs, electric buses, citizen groups pushing government to cooperate. You thought about what you'd actually do as a citizen, not just what happened in class.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your civic ideas were specific and creative.", grade:"3", text:"Your Q3 answer wasn't just 'people should work together.' You talked about putting solar panels on grocery store roofs, replacing diesel buses with electric ones, and forming citizen groups to push government cooperation. Those are real, actionable ideas.", quote:"\"Something I could do as a citizen is try to make a little group up and maybe try to push the government in power to talk with the other parties... Like we could try and make it so grocery stores put up solar panels on all there roofs.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You helped write the winning financial plan.", grade:"3", text:"Lachlan came up with the general ideas for the Niche Haligonians' funding plan, and you put them into words. That required understanding how government funding actually works -- what's realistic, what's controversial, and how to explain it.", quote:"\"When it came to the financial part in the war room I came up with the general ideas and Nolan put them into words to form our funding plan.\" (Lachlan McM on Nolan)"},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You supported the leader and contributed to the win.", grade:"3+", text:"You took the leader's ideas and made them into a real funding plan. You helped with the war room. And your Q1 answer shows you felt the weight of participation: 'It's like holding the future in your own hands, and you basically control what the future could be.' That's genuine civic agency.", quote:"\"It feels powerful to have the choice of who's going to be the next government leader, especially if it's by a 1-vote difference. It's like holding the future in your own hands.\""}
-    ]
-},
+						<article id="s-delisha"><h2 class="major">Delisha</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Zankia": {
-    closing: "Zankia, you did all the slides for your party, helped with the war room, and sent in questions during the debate. That's concrete, visible work. And your reflection was honest in a way that matters: you felt guilty about switching your vote at the last minute, and you thought carefully about why. You also made a sharp observation about real elections: 'it doesn't matter how popular you are if your promises are unrealistic you won't get any of the votes.' You and Kendra produced excellent work, and the vote count doesn't change that.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party addressed real problems.", grade:"3+", text:"The Environmentalists' platform covered clean technology, coastal protection, and offshore energy regulation. Your original party (Yellow Progression) also addressed healthcare, environment, and cost of living. You were thinking about issues that actually affect people.", quote:"\"The parties would perhaps have to make compromises like changing their funding strategy to the same as the other parties so that they will be open to working with them.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You distinguished classroom from reality.", grade:"3", text:"You understood that our classroom election was driven by friendships, but that real elections are different: 'it doesn't matter how popular you are if your promises are unrealistic you won't get any of the votes.' That distinction shows you were thinking about how democracy actually works outside of school.", quote:"\"I think it is more about politics in real life because it doesn't matter how popular you are if your promises are unrealistic you won't get any of the votes.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You did the work that kept your party running.", grade:"3+", text:"All the slides. War room help. Questions during the debate. That's three different kinds of contribution. And you took the vote seriously -- you felt guilty about switching your vote, which tells me you understood that your choice had real consequences for the simulation.", quote:"\"I did all the slides and I helped with the war room and the three squares we had to fill. I also sent in a few questions.\""}
-    ]
-},
+						<article id="s-kendra"><h2 class="major">Kendra</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Kendra": {
-    closing: "Kendra, you were new to the class and you still produced some of the best work in the unit. Your civic strategy was the most structured anyone described: compromise, focus on local problems, correct information, pressure leaders, vote wisely, and if that fails, trigger a new election. That's not just a list -- that's a full democratic cycle. You supported Delisha during the Town Hall, feeding her answers so she wouldn't have to stumble. That's the kind of behind-the-scenes work that makes a party function.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your civic strategy covered the whole cycle.", grade:"3+", text:"Your Q3 answer wasn't just 'compromise.' You described a full process: compromise on issues, focus on local problems, share correct information, pressure leaders to cooperate, vote wisely, and if none of that works, trigger a new election. That's thinking about democracy as a system, not just a moment.", quote:"\"By all the parties compromising a bit and getting some things from each party and focusing on local problems, similarities between wants, correct information, pressure leaders and vote wisely. And if not the other parties 'pulling the plug' and starting another vote.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You put policy before personality.", grade:"3", text:"You recognized that likability matters but shouldn't be the deciding factor. 'I do think it matters, but only to a certain extent.' That's a balanced position that shows you were thinking about what elections are supposed to be about.", quote:"\"I do think that many people are looking at the leaders as a person rather than the actual policies. I do think it matters, but only to a certain extent.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You supported your team where it counted.", grade:"3+", text:"During the Town Hall, you fed Delisha answers and gave her short topics to build on. That's real-time strategic support. Not everyone has to be the person at the podium -- some of the most important democratic work happens behind the scenes, and you did it.", quote:"\"I answered a lot of questions and gave more short topics for her to go on with. Yes, it helped Delisha not stumble for an answer.\""}
-    ]
-},
+						<article id="s-zankia"><h2 class="major">Zankia</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Clark": {
-    closing: "Clark, your Q4 answer was one of the best in the class. You drew a clear line between our classroom election and real elections, and you thought about how politicians can fake their image to win trust. That's critical thinking that goes beyond the assignment. You were the second member of a two-person party, and you supported Joshua effectively. Your civic action plan -- grassroots organizing, meetings, negotiating with party leaders -- was the most specific anyone described.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You thought about how issues are evaluated.", grade:"3+", text:"The Healthier Future's platform was strong, and you were part of building it. But what really stood out was your thinking about how people evaluate candidates and issues -- and how that changes between a classroom and the real world.", quote:"\"There's also strategies where people can fake their goodness just to get trust and popular, but when they actually get elected they can change and reveal who they really are.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood the gap between classroom and reality.", grade:"3+", text:"Your Q4 answer was exceptional. You recognized that in a Grade 9 election, popularity drives votes, but in real elections, policy should matter more -- and that politicians can be deceptive. That's a level of political awareness that goes beyond the assignment.", quote:"\"In this election, it basically isn't a real election, we're also still in only grade 9, which means a lot of people who vote right now actually doesn't quit know about who to vote.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Your civic action plan was the most detailed.", grade:"3", text:"You described a full process: put up signs, form a group, host meetings, discuss and negotiate, and approach party leaders about changing policies. That's not theoretical -- that's a playbook for actual civic engagement.", quote:"\"We can group together as an organization by putting signs outside that says 'anyone who oppose the Niche party contact us' on it, then once we're grouped we can host meetings, discuss or negotiate about vote a specific party.\""}
-    ]
-},
+						<article id="s-laila"><h2 class="major">Laila</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Yunho": {
-    closing: "Yunho, your honesty was one of the strengths of your reflection. You admitted you voted for your friends, and you connected that to how social media influences real elections. That self-awareness is valuable. You were an active member of the Party De Solution under Madhavan's direction, and you contributed to one of the strongest platforms in the class. And during the Town Hall, you challenged the Environmentalists on their coastal protection plans — asking them to explain exactly how they'd do it. That's opposition research in action.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had strong issues.", grade:"3", text:"The Party De Solution's platform -- school funding, bus safety, nurse offices -- was creative and well-structured. You were part of building it. Your observation about social media influence on voting shows you were thinking about how people actually make decisions.", quote:"\"Some people are not really interested on government thing and they commonly vote for the people who they saw in a good way on YouTube or Instagram.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You were honest about how voting works in practice.", grade:"2+", text:"Your reflection didn't demonstrate deep structural knowledge of government, but your honesty about social voting -- 'I even voted for the party that members are my friend' -- shows you were paying attention to the dynamics of the election.", quote:"\"Likability will matter more than policy in this election because some people are not really interested on government thing.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You followed the leader and challenged the opposition.", grade:"3+", text:"You participated actively under Madhavan's direction. And during the Town Hall, you asked 2 questions — including a specific challenge to the Environmentalists: 'your slides state that you are going to protect the coastlines in Nova Scotia, but there is no information on how, why is that?' That's not just following directions — that's engaging with the opposition.", quote:"\"Your slides state that you are going to protect the coastlines in Nova Scotia, but there is no information on how, why is that?\" (Town Hall question)"}
-    ]
-},
+						<article id="s-elizabeth"><h2 class="major">Elizabeth</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Laila": {
-    closing: "Laila, you led Team Tomorrow with a clear voice and a focus on respectful engagement. Your platform had specific numbers -- 20% tuition cut, 10 new clinics by 2030, 5,000 affordable housing units -- and you delivered the speech that sold it. Your emphasis on calm, respectful communication as a civic tool was mature beyond your years. You voted based on policy, not friendship, and you said so. That takes integrity.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform had real numbers.", grade:"3+", text:"20% tuition cut. 10 new clinics by 2030. 5,000 affordable housing units. Those aren't vague promises -- they're measurable goals. You were thinking about what voters could actually hold a government accountable for.", quote:"\"I feel that my speech and what I decided to say would have probably helped us to get votes and obviously what we chose for our promises.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how government funds services.", grade:"3", text:"Your platform's funding plan -- federal transfers, efficiency cuts, luxury goods taxes -- showed you understood that government services cost money and that there are different ways to raise it.", quote:"\"I feel that likability did matter for this election... but some people including myself voted on what I thought was the best/most reasonable.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You led with respect and clarity.", grade:"3+", text:"You developed policies with your team, delivered the speech, and emphasized respectful engagement as a civic strategy. 'Helping the parties compromise and agree on goals, speaking up and asking questions respectfully and calmly to avoid lots of fighting.' That's leadership with character.", quote:"\"As a citizen I can help by helping the parties compromise and agree on goals, speaking up and asking questions respectfully and calmly to avoid lots of fighting.\""}
-    ]
-},
+						<article id="s-farhan"><h2 class="major">Farhan</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Lachlan Mac": {
-    closing: "Lachlan, you were the person behind the scenes who made the Niche Haligonians run. You made the slideshow, asked debate questions, fed real-time information to Lachlan McM during the AI journalist interview, and tracked other parties' responses. And during the Town Hall, you submitted 6 questions — the third-highest in the class — challenging the Environmentalists on offshore energy, climate laws vs housing, and financial sustainability. Your '(he was kind of a work hog)' comment tells me you were paying attention to group dynamics the whole time. Not every contribution happens at the podium. Some of the most important work happens in the background, and you did it consistently.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You understood the need for compromise.", grade:"3", text:"Your suggestion about changing the Niche Haligonians' funding plan to something less argumentative shows you were thinking about how to make your party's issues acceptable to a broader audience. That's practical political thinking.", quote:"\"The Niche Haligonians can do something like changing their funding plan to something less argumentative to help settle with other groups and compromise with other groups.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood how stakes affect elections.", grade:"3", text:"Your Q4 answer was one of the more nuanced in the class: 'Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote.' You understood that the higher the stakes, the more policy matters relative to personality.", quote:"\"Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote therefore varying based on factors like stakes of the election.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You were everywhere — and the Town Hall data proves it.", grade:"4", text:"Slideshow. Debate questions. Real-time information feeding during the AI interview. Tracking other parties' responses. And 6 Town Hall questions submitted (1 on_stage, 5 pending) — the third-highest in the class. You challenged the Environmentalists on offshore energy, climate laws, and financial sustainability. That's consistent, sustained democratic engagement across the entire unit.", quote:"\"My biggest contribution was making the slideshow and through asking questions during the debate through the niche website and feeding him information of other parties and responses throughout his speech. (he was kind of a work hog).\""}
-    ]
-},
+						<article id="s-sarah"><h2 class="major">Sarah</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Farhan": {
-    closing: "Farhan, you built a platform that was bigger than any other party's. Humanitarianism, anti-corruption, social welfare, pluralism, environmental responsibility, healthcare -- and you backed it all up with a detailed tax budget breakdown. Your reflection reads like a manifesto because you genuinely believe in these values. That passion came through in your platform and in the way you led your party. You were one of the biggest contributors in the class.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform was the broadest and most ambitious.", grade:"3+", text:"You didn't pick one or two issues. You picked a worldview: humanitarianism, pluralism, anti-corruption, environmental responsibility, healthcare. And you backed it up with a 13% tax budget broken down by sector. That's not a platform -- that's a governing philosophy.", quote:"\"Promoting humanitarianism, pluralism, also known as respecting other grounds, and responsibility for the environment. This style of protecting life also increases trust, increases a stable economy.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You broke down a real budget.", grade:"3", text:"Marine/livestock 1.5%, Court and law 2%, forest/eco-society 3.5%, housing 1.3%, humanitarian 5.7%. That level of detail shows you were thinking about how a government actually allocates money across competing priorities. Not many students went that deep.", quote:"\"Democracy feels like 'promote me on the stage, I promote your business'... the margin of the vote may be persuasive, but promoting your investment is what determines a person's choice.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You led with conviction.", grade:"3+", text:"You created one of the most detailed platforms in the class. Your reflection reads like a manifesto because you care about these issues. You were one of the biggest contributors in the unit, and your party's platform was a direct reflection of your values.", quote:"\"Working together to create a better, more efficient nation, economy, and honest administration. Faster, much easier to crack the problems and create solutions to people's needs. No debates, work and pluralism.\""}
-    ]
-},
+						<article id="s-clark"><h2 class="major">Clark</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Alia": {
-    closing: "Alia, you did something in this project that doesn't show up in platform documents: you built your leader's confidence. You practiced with Elizabeth over and over until she felt comfortable getting up and speaking. That's a form of democratic engagement that matters just as much as writing a policy. You also made debate points and helped with the speech. Behind-the-scenes work is still work, and yours helped the Unity Party win the primary.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You helped shape the party's message.", grade:"3", text:"The Unity Party addressed transit, internships, and healthcare. You made the debate points and helped with the speech, which means you were part of deciding how to communicate those issues to voters.", quote:"\"I think my biggest contribution in this project was making up the debate points and helping out on the speech and making the leader gain their confidence.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You understood social dynamics in elections.", grade:"2+", text:"Your reflection focused more on social dynamics than government structure, but your observation that 'connections is key when it comes to electing' shows you were paying attention to how votes actually get decided.", quote:"\"Way more people than you think vote for the person that they are mutual with.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You built the leader's confidence.", grade:"3", text:"Practicing the speech with Elizabeth until she felt comfortable is a real contribution. Not everyone has to be the one at the podium. You made sure the person who was at the podium was ready.", quote:"\"Making the leader gain their confidence by practicing over and over again until they felt comfortable.\""}
-    ]
-},
+						<article id="s-yunho"><h2 class="major">Yunho</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Leo": {
-    closing: "Leo, your reflection was brief, but your actions during the Town Hall speak volumes. You submitted 6 questions during the Final Four debate — the second-highest in the class. You challenged parties on sponsorship risks, renewable energy specifics, and teacher funding. Two of your questions were selected for the stage. When your party's platform didn't get locked in, you didn't check out — you leaned into the Town Hall and participated more actively than almost anyone else. That tells me you were paying attention the whole time, and you cared about the process even when your own party wasn't on stage.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"You challenged other parties on their issues.", grade:"3", text:"Your party's platform didn't get locked in, but you didn't stop engaging. During the Town Hall, you asked about renewable energy sources, sponsorship backup plans, and teacher funding. You were interrogating other parties' issue claims — which is its own form of issue engagement. You were thinking critically about whether their promises were realistic.", quote:"\"What if the company gets exposed for something bad?\" (Town Hall question to Party De Solution)"},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You thought about policy feasibility.", grade:"2+", text:"Your Town Hall questions showed you were thinking about how policies actually work — renewable energy specifics, sponsorship risks, teacher salary costs. That's the kind of thinking that shows up when you understand that government decisions have real consequences and trade-offs.", quote:"\"How will you pay these new teachers if you want smaller classrooms — more teachers means more money you have to pay out.\" (Town Hall question)"},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You were one of the most active participants in the Town Hall.", grade:"3", text:"6 questions submitted — the second-highest in the class. Two selected for the stage. You challenged multiple parties with specific, thoughtful questions. Among students whose parties didn't complete their platforms, you stand out for how much effort you put into the process. You showed up for the Town Hall in a way that mattered.", quote:"\"If this sponsor thing goes wrong and they don't ever want to sponsor you, do you have a backup?\" (Town Hall question)"}
-    ]
-},
+						<article id="s-lachlanmac"><h2 class="major">Lachlan Mac</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Abdul": {
-    closing: "Abdul, I can see from your reflection that you tried to contribute. You made slides, you gave ideas, and you wrote talking points for Farhan. The frustration in your reflection is real -- 'he did not add any of it he added some but not most.' That's a hard situation when you're putting in work and it doesn't get used. The Islamic Associations had a strong platform, and you were part of building it, even if your individual contributions didn't always make it to the final version.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had strong issues.", grade:"2+", text:"The Islamic Associations' platform was ambitious and detailed. You were part of the party, and the platform's focus on humanitarianism and social welfare was meaningful.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"Your reflection was brief.", grade:"2+", text:"Your Q4 answer didn't engage deeply with the question, but you were part of a party that created a detailed tax budget breakdown. That counts for something.", quote:"\"It will not be in the real life election will have about 3 m people.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You tried to contribute, and that matters.", grade:"2+", text:"You made slides and gave ideas. The fact that your leader didn't use most of them is a group dynamics issue, not a reflection of your effort. You were there, you participated, and you tried to make the party better.", quote:"\"I made the slide I gave him ideas for what to add on it and he did not add any of it he added some but not most.\""}
-    ]
-},
+						<article id="s-nolan"><h2 class="major">Nolan</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Kai": {
-    closing: "Kai, your team didn't get to present, and that's frustrating. But you showed up, you helped with research and typing, and you made sure the content made sense. Your reflection was honest about what happened: 'Too bad we didn't present because we had a fair shot at winning the vote.' That tells me you believed in your party's platform. Sometimes the work doesn't get the audience it deserves, but the effort still counts.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had real environmental issues.", grade:"2+", text:"Climate Protection's platform -- 1 million trees, renewable energy by 2035, banning single-use plastics -- was substantive. You helped with the research. But without presenting, the issues didn't get the scrutiny they deserved.", quote:"\"In the process of making the script I helped with the research and typing it and making it look good. Too bad we didn't present because we had a fair shot at winning the vote.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"Your reflection was honest but brief.", grade:"2+", text:"You showed understanding of the election dynamics -- one vote, the power of personality -- and your Q4 insight about likability shows you were paying attention to how votes get decided.", quote:"\"Civilians are not going to vote for a personality they don't like, if a candidate is not likeable or they don't match the right energy the voter will lose interest.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You contributed, but the group couldn't follow through.", grade:"2+", text:"You did research, typing, and made sure the content was clear. That's real work. But the team didn't present, which limits the evidence of full engagement. Your Q3 idea about asking 'neutral questions' to bridge parties is a solid civic strategy.", quote:"\"I made sure everything made sense so nobody got confused and bored of my presentation, when someone gets even just a little bored they will not choose you for their vote.\""}
-    ]
-},
+						<article id="s-leo"><h2 class="major">Leo</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Josie": {
-    closing: "Josie, you contributed to Team Tomorrow's goals and helped with the background slide. You voted thoughtfully -- for the party you thought had the best ideas, not just your friends. Your honesty about social voting ('I even voted for the party that members are my friend') and your concern about what happens when people elect friends over policy shows you were thinking about the consequences of democratic choices.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had specific, measurable goals.", grade:"3", text:"Team Tomorrow's platform -- 20% tuition cut, 10 new clinics by 2030, 5,000 housing units -- was one of the most specific in the class. You contributed to the goals.", quote:"\"I contributed into writing the different goals and ideas our party has.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You were honest about social voting.", grade:"2+", text:"Your Q4 answer acknowledged that people voted for friends, and you recognized that this could lead to bad outcomes 'because their ideas might not be as good.' That's a practical understanding of a real democratic problem.", quote:"\"If a lot of people elect people they want to just because they are 'Friends' and this might end bad because their ideas might not be as good.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You contributed to goals and slides.", grade:"3", text:"You wrote goals, helped with the background slide, and voted based on policy. That's solid engagement. Your Q3 focus on common goals -- 'improving schools, healthcare, or safety, instead of only party differences' -- is a good civic instinct.", quote:"\"As a citizen, I can help the parties understand each others ideas and make sure they can focusing on understanding the common goals.\""}
-    ]
-},
+						<article id="s-alia"><h2 class="major">Alia</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Remy": {
-    closing: "Remy, you were part of the Party De Solution, which had one of the strongest platforms in the class. Without a reflection, I don't know the details of what you contributed in the war room. But during the Town Hall, you asked a detailed question about the Coastal Protection Act — pushing the Environmentalists to explain exactly what the act would do and whether it would actually stop erosion. That's the kind of critical thinking that makes a democracy work.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had strong issues.", grade:"3", text:"The Party De Solution's platform -- Subway partnership, school bus seatbelts, nurse offices -- was creative and specific. You were part of the party that built it.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No reflection submitted.", grade:"2+", text:"Without a reflection, I can't assess your understanding of government structure. Your party's platform showed understanding, but I don't know your individual contribution to that understanding.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You challenged the opposition with a specific policy question.", grade:"3", text:"Your Town Hall question was substantive: 'What exactly does the coastal protection act you want to bring back entail? What will happen if you implement it? Will the coastlines stop being eroded by not building near them?' That's not a throwaway question — it's a detailed policy challenge that shows you were reading the opposition research and thinking critically about it.", quote:"\"What exactly does the coastal protection act you want to bring back entail? What will happen if you implement it?\" (Town Hall question)"}
-    ]
-},
+						<article id="s-josie"><h2 class="major">Josie</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Evie": {
-    closing: "Evie, you led the Equity Party with a clear philosophical direction: equity over equality, accessibility for all, and programs for people with disabilities. That's a distinct and meaningful platform. Without a reflection, I don't have your side of the story, but the platform you built tells me you were thinking about who gets left behind by systems that treat everyone the same.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform had a clear philosophy.", grade:"3", text:"The Equity Party's focus on equity over equality, accessibility, disability programs, and the carbon tax rebate showed a distinct and thoughtful approach to issues. You led the party that built it.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No reflection submitted.", grade:"2+", text:"Without a reflection, I can't assess your understanding of government structure. Your party's platform showed some understanding of government funding, but I don't know your individual perspective.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Led a party with a clear direction.", grade:"3", text:"You led the Equity Party, which had a distinct philosophical identity. The platform exists in the opposition research hub. But without a reflection, I can't confirm the details of your individual contribution.", quote:""}
-    ]
-},
+						<article id="s-remy"><h2 class="major">Remy</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Isaac": {
-    closing: "Isaac, there's not much evidence to work with here. You didn't submit a reflection, and your party (CPOH) didn't complete their platform. If there were circumstances that affected your participation, I'd want to know about them. The door is open to do more.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Limited evidence.", grade:"2", text:"CPOH had some platform ideas (transit, housing, cost of living) but didn't lock them in. Without a reflection, I can't assess your individual engagement with the issues.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No evidence.", grade:"1+", text:"Without a reflection or completed platform, there's very little evidence of engagement with government structure.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Very limited evidence.", grade:"1+", text:"No reflection, incomplete party. There's very little evidence of engagement in the election unit. If there were circumstances affecting your participation, that context matters.", quote:""}
-    ]
-},
+						<article id="s-evie"><h2 class="major">Evie</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Ali": {
-    closing: "Ali, you didn't submit a reflection, and your party's platform didn't get locked in. But the Town Hall data tells a different story: you submitted 8 questions during the Final Four debate — the most of anyone in the class. Three were selected for the stage. You asked about ER staffing, transit overcrowding, coastline funding, happiness metrics, Kazakhstan comparisons, and economic trade-offs. You were clearly paying attention and thinking critically about every party's platform. The Climate Protection Party had real ideas, and you were engaged in the democratic process even if the formal reflection didn't capture it.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had real environmental issues.", grade:"2+", text:"1 million trees, renewable energy by 2035, banning single-use plastics by 2028. These are substantive environmental goals. You led the party that proposed them.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"Your Town Hall questions showed policy understanding.", grade:"2+", text:"You asked about ER staffing shortages, transit overcrowding, coastline funding costs, and economic stability. Those questions show you were thinking about how government policies actually work and what trade-offs they require.", quote:"\"How will your plan actually increase the number of doctors and nurses instead of just promising faster service?\" (Town Hall question to Unity Party)"},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You were the most active questioner in the Town Hall.", grade:"3", text:"8 questions submitted — the most of anyone in the class. 3 were selected for the stage. You challenged the Unity Party on ER staffing and transit overcrowding, the Niche Haligonians on their Kazakhstan comparison and happiness metrics, and the Environmentalists on coastline funding. That level of engagement with the democratic process is significant. You were thinking critically about every party's platform, not just your own.", quote:"\"You compared us to Kazakhstan, but they have very different culture and systems. Why is that a fair comparison for our country?\" (Town Hall question to Niche Haligonians)"}
-    ]
-},
+						<article id="s-ali"><h2 class="major">Ali</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Huda": {
-    closing: "Huda, I don't have much to work with. You were listed as a member of Team Tomorrow, which had a strong platform, but there's no reflection or other individual evidence to assess your contribution. If there were circumstances that affected your participation, that context matters.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had strong issues.", grade:"3", text:"Team Tomorrow's platform was specific and well-structured. You were listed as a member.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No evidence.", grade:"2+", text:"Without a reflection, I can't assess your understanding of government structure.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"No individual evidence.", grade:"2+", text:"Listed as a member of Team Tomorrow. No reflection or other individual evidence of contribution.", quote:""}
-    ]
-},
+						<article id="s-kai"><h2 class="major">Kai</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Fatima": {
-    closing: "Fatima, you were part of the Unity Party, which won the primary round. Without a reflection, I don't know your individual contribution, but your party's platform addressed transit, internships, and healthcare. If you had the chance to tell your story, I'd want to hear it.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party addressed real issues.", grade:"3", text:"The Unity Party's platform covered transit, internships, and healthcare. You were listed as a member.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No evidence.", grade:"2+", text:"Without a reflection, I can't assess your understanding of government structure.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Party member, but role unclear.", grade:"2+", text:"Listed as a member of the Unity Party, which won the primary. No reflection to confirm individual contribution.", quote:""}
-    ]
-},
+						<article id="s-abdul"><h2 class="major">Abdul</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Jana": {
-    closing: "Jana, you were part of the Equity Party, which had a clear philosophical direction. Without a reflection, I don't know your individual contribution, but the platform your party built was distinct and meaningful. If you had the chance to share your experience, I'd want to hear it.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your party had a distinct platform.", grade:"3", text:"The Equity Party focused on equity over equality, accessibility, and disability programs. You were listed as a member.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No evidence.", grade:"2+", text:"Without a reflection, I can't assess your understanding of government structure.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Party member, but role unclear.", grade:"2+", text:"Listed as a member of the Equity Party. No reflection to confirm individual contribution.", quote:""}
-    ]
-},
+						<article id="s-isaac"><h2 class="major">Isaac</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Brody": {
-    closing: "Brody, you were largely absent during this unit. Without consistent participation, there's limited evidence to assess. If there were circumstances that affected your attendance, that context matters.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Limited evidence.", grade:"1+", text:"Largely absent during the unit. CPOH's platform existed but wasn't completed. Without a reflection or consistent presence, there's very little evidence of engagement with issues.", quote:""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"No evidence.", grade:"1+", text:"Without consistent participation, there's no evidence of engagement with government structure.", quote:""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"Largely absent.", grade:"1", text:"Largely absent during the unit. No reflection. The CPOH party didn't complete their platform. Very limited evidence of any engagement.", quote:""}
-    ]
-},
+						<article id="s-brody"><h2 class="major">Brody</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-"Natalia": {
-    closing: "Natalia, you led the Environmentalists at Work for most of the unit. You wrote the speech, built the financial plan, and made the slideshow. You were absent for the Final Four, but the platform and work you produced before that point were among the strongest in the class. Your reflection was thoughtful and showed real understanding of why every vote matters.",
-    outcomes: [
-        {label:"OUTCOME 5.1 — Issue Valuation", title:"Your platform was the most policy-detailed.", grade:"4", text:"Clean technology, coastal protection, offshore energy, the Coastal Protection Act history. You led the party that built the most detailed platform in the class.", quote:"\"I focused on making our message clear and connecting with people emotionally.\""},
-        {label:"OUTCOME 5.2 — Government Structure", title:"You referenced real legislation.", grade:"3+", text:"Your platform mentioned specific government actions -- the 2019 Coastal Protection Act, federal climate grants, carbon tax revenue. That shows research and understanding of how government policy works.", quote:"\"In real life, both matter, people want leaders with good ideas, but also someone they trust and relate to.\""},
-        {label:"OUTCOME 5.3 — Democratic Engagement", title:"You drove every deliverable.", grade:"4", text:"Speech, financial plan, slideshow. You were intentional about your communication strategy and you led the party through most of the unit.", quote:"\"Since we only lost by one vote, it shows our strategy was effective.\""}
-    ]
-}
+						<article id="s-huda"><h2 class="major">Huda</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-};
+						<article id="s-fatima"><h2 class="major">Fatima</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-function login() {
-    var nameInput = document.getElementById('login-name').value.trim();
-    var pinInput = document.getElementById('login-pin').value.trim().toUpperCase();
-    var errorEl = document.getElementById('login-error');
+						<article id="s-jana"><h2 class="major">Jana</h2><p class="fb-loading">Enter your PIN to view your feedback.</p></article>
 
-    if (!nameInput || !pinInput) { errorEl.style.display = 'block'; errorEl.textContent = 'Please enter both your name and PIN.'; return; }
+						<!-- Sign Off -->
+							<article id="signoff">
+								<h2 class="major">One Last Thing</h2>
+								<p>This feedback reflects what you did, what you wrote, and what you asked during the election unit. If something here doesn't match what you remember, or if there's context I missed, talk to me. I'm happy to walk through your grade with you one-on-one.</p>
+								<p>Three takeaways from the whole class:</p>
+								<p><strong>1. Showing up matters more than winning.</strong> The election was decided by one vote, and several strong platforms lost while weaker ones won. Your grade is based on the work you did, not on the vote count.</p>
+								<p><strong>2. Reflection is where most of the learning showed up.</strong> The students who took 10 minutes to think about what they did, why they did it, and what they'd do differently next time wrote the most insightful feedback. The reflection is the single biggest factor in 5.1 and 5.2.</p>
+								<p><strong>3. Democracy is a skill, not a personality trait.</strong> Asking questions, defending your platform, compromising with opponents, building coalitions â€” these are learned behaviours. The students who practised them in this unit, regardless of party success, are ahead of the students who didn't.</p>
+								<p>Thanks for taking the simulation seriously. The work you produced was, in many cases, better than what first-year university students do in similar exercises. You should be proud of that.</p>
+								<p>â€” Mr. Waugh</p>
+							</article>
 
-    var student = roster.find(function(s) {
-        return s.name.toLowerCase() === nameInput.toLowerCase() && s.pin === pinInput;
-    });
+					</div>
 
-    if (!student) { errorEl.style.display = 'block'; errorEl.textContent = 'Name or PIN not recognized. Check your spelling and try again.'; return; }
+				<!-- Footer -->
+					<footer id="footer">
+						<p class="copyright">Halifax West Citizenship 9 â€” Election Simulation 2026. Built on <a href="https://html5up.net/dimension">Dimension</a> by HTML5 UP.</p>
+					</footer>
 
-    var fb = feedback[student.name];
-    if (!fb) { errorEl.style.display = 'block'; errorEl.textContent = 'Feedback not found for this student. Contact Mr. Waugh.'; return; }
+			</div>
 
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('feedback-page').style.display = 'block';
+		<!-- BG -->
+			<div id="bg"></div>
 
-    document.getElementById('fb-name').textContent = student.name;
-    document.getElementById('fb-party').textContent = student.party;
-    document.getElementById('fb-role').textContent = student.role;
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
 
-    var outHtml = '';
-    fb.outcomes.forEach(function(o) {
-        var quoteHtml = o.quote ? '<div class="quote">' + o.quote + '</div>' : '';
-        outHtml += '<div class="outcome-card">' +
-            '<div class="outcome-label">' + o.label + '</div>' +
-            '<div class="grade-badge">' + o.grade + '</div>' +
-            '<h2>' + o.title + '</h2>' +
-            '<p>' + o.text + '</p>' +
-            quoteHtml +
-            '</div>';
-    });
-    document.getElementById('fb-outcomes').innerHTML = outHtml;
-    document.getElementById('fb-closing').textContent = fb.closing;
-}
-</script>
+		<!-- PIN Gate Logic (PINs and personalized content fetched from GAS, never embedded) -->
+		<script>
+		(function() {
+			// GAS endpoint. Replace with the deployed Web App URL after publishing Code.gs.
+			// Set "Who has access" to "Anyone" (anonymous) since validation is PIN-based.
+			var GAS_ENDPOINT = 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_DEPLOYMENT_ID/exec';
 
-</body>
+			// Slug map (no PINs). Used to route the response to the right article.
+			// Server response is authoritative â€” this is just for the article target.
+			var SLUGS = {
+				'madhavan':'s-madhavan','remy':'s-remy','yunho':'s-yunho',
+				'joshua':'s-joshua','clark':'s-clark',
+				'lachlan':'s-lachlan','lachlan mac':'s-lachlanmac','nolan':'s-nolan',
+				'laila':'s-laila','josie':'s-josie','huda':'s-huda',
+				'elizabeth':'s-elizabeth','fatima':'s-fatima','alia':'s-alia',
+				'rifa':'s-rifa','sarah':'s-sarah',
+				'natalia':'s-natalia','delisha':'s-delisha','jessa':'s-jessa',
+				'kendra':'s-kendra','zankia':'s-zankia',
+				'farhan':'s-farhan','abdul':'s-abdul',
+				'ali':'s-ali','kai':'s-kai',
+				'evie':'s-evie','jana':'s-jana',
+				'leo':'s-leo','isaac':'s-isaac','brody':'s-brody'
+			};
+
+			var form = document.getElementById('gate-form');
+			var nameInput = document.getElementById('gate-name');
+			var pinInput = document.getElementById('gate-pin');
+			var errorEl = document.getElementById('gate-error');
+			var submitBtn = document.getElementById('gate-submit');
+
+			function showError(msg) {
+				errorEl.textContent = msg;
+				pinInput.select();
+			}
+
+			function setLoading(on) {
+				submitBtn.disabled = on;
+				submitBtn.textContent = on ? 'Looking up your feedback...' : 'View My Feedback';
+			}
+
+			function escapeHtml(s) {
+				return String(s == null ? '' : s)
+					.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+					.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+			}
+
+			function fillArticle(record) {
+				var slug = record.slug || SLUGS[(record.name || '').toLowerCase()];
+				if (!slug) return;
+				var article = document.getElementById(slug);
+				if (!article) return;
+
+				// Replace the static content with server-rendered content
+				article.innerHTML =
+					'<h2 class="major">' + escapeHtml(record.name) + '</h2>' +
+					'<div class="student-meta">' +
+						'<span class="meta-line"><strong>Party:</strong> ' + escapeHtml(record.party) + '</span>' +
+						'<span class="meta-line"><strong>Role:</strong> ' + escapeHtml(record.role) + '</span>' +
+					'</div>' +
+					(record.provisional ? '<div class="provisional-note"><strong>Provisional grades.</strong> No individual reflection or work-submission evidence was submitted. The grades below are based on roster membership only and do not reflect confirmed individual work.</div>' : '') +
+					renderOutcome('Outcome 5.1 â€” Issue Valuation', record.g51, record.t51, record.x51, record.q51) +
+					renderOutcome('Outcome 5.2 â€” Government Structure', record.g52, record.t52, record.x52, record.q52) +
+					renderOutcome('Outcome 5.3 â€” Democratic Engagement', record.g53, record.t53, record.x53, record.q53) +
+					'<hr class="outcome-divider" />' +
+					'<p>' + escapeHtml(record.closing) + '</p>';
+			}
+
+			function renderOutcome(label, grade, title, text, quote) {
+				if (!grade && !title && !text) return '';
+				var q = quote ? '<div class="student-quote">' + escapeHtml(quote) + '</div>' : '';
+				return '<div class="outcome-block">' +
+					'<span class="outcome-label">' + escapeHtml(label) + '</span>' +
+					'<h2>' + escapeHtml(title) + ' <span class="grade-pill grade-' + gradeToClass(grade) + '">' + escapeHtml(grade) + '</span></h2>' +
+					'<p>' + escapeHtml(text) + '</p>' +
+					q +
+					'</div>';
+			}
+
+			function gradeToClass(g) {
+				if (g === '4') return '4';
+				if (g === '3+' || g === '3plus') return '3p';
+				if (g === '3') return '3';
+				if (g === '2+' || g === '2plus') return '2p';
+				if (g === '2') return '2';
+				if (g === '1+' || g === '1plus') return '1p';
+				if (g === '1') return '1';
+				return '3';
+			}
+
+			function unlock(slug) {
+				document.body.classList.remove('gated');
+				if (slug) {
+					setTimeout(function() { window.location.hash = '#' + slug; }, 50);
+				}
+				setTimeout(function() {
+					var firstNav = document.querySelector('#header nav a');
+					if (firstNav) firstNav.focus();
+				}, 100);
+			}
+
+			function tryLogin() {
+				var name = (nameInput.value || '').trim();
+				var pin  = (pinInput.value || '').trim();
+				if (!name || !pin) {
+					showError('Please enter both your first name and your PIN.');
+					return;
+				}
+
+				setLoading(true);
+				errorEl.textContent = '';
+
+				// Best-effort rate-limit key (random per browser; not security, just throttling)
+				var rlKey = (function() {
+					try {
+						var k = sessionStorage.getItem('cit9_rl_key');
+						if (!k) { k = Math.random().toString(36).slice(2); sessionStorage.setItem('cit9_rl_key', k); }
+						return k;
+					} catch (e) { return ''; }
+				})();
+
+				var url = GAS_ENDPOINT + '?type=fb_get&pin=' + encodeURIComponent(pin) + '&k=' + encodeURIComponent(rlKey);
+
+				fetch(url, { method: 'GET', redirect: 'follow' })
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						setLoading(false);
+						if (!data || data.status !== 'success' || !data.record) {
+							showError((data && data.message) || 'Name or PIN not recognized.');
+							return;
+						}
+						// Defense in depth: confirm the name matches the PIN's record
+						var recName = (data.record.name || '').trim().toLowerCase();
+						var enteredName = name.toLowerCase();
+						if (recName !== enteredName && !(recName.indexOf(enteredName) === 0 || enteredName.indexOf(recName) === 0)) {
+							showError('Name does not match this PIN.');
+							return;
+						}
+						// Add slug from local map (server doesn't return it)
+						data.record.slug = SLUGS[recName] || '';
+						fillArticle(data.record);
+						try {
+							sessionStorage.setItem('cit9_feedback_pin', pin);
+							sessionStorage.setItem('cit9_feedback_name', name);
+							sessionStorage.setItem('cit9_feedback_unlocked', data.record.slug);
+						} catch (e) {}
+						unlock(data.record.slug);
+					})
+					.catch(function(err) {
+						setLoading(false);
+						showError('Could not reach the feedback service. Try again, or see Mr. Waugh.');
+						console.error('fb fetch error', err);
+					});
+			}
+
+			form.addEventListener('submit', function(e) { e.preventDefault(); tryLogin(); });
+			[nameInput, pinInput].forEach(function(el) {
+				el.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); tryLogin(); } });
+			});
+			pinInput.addEventListener('input', function() { pinInput.value = pinInput.value.toUpperCase(); });
+			nameInput.focus();
+
+			// If already unlocked this session, retry the server with the cached PIN
+			try {
+				var prevPin = sessionStorage.getItem('cit9_feedback_pin');
+				var prevName = sessionStorage.getItem('cit9_feedback_name');
+				if (prevPin) {
+					pinInput.value = prevPin;
+					if (prevName) nameInput.value = prevName;
+					tryLogin();
+				}
+			} catch (e) {}
+		})();
+		</script>
+
+	</body>
 </html>

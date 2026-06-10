@@ -220,6 +220,8 @@ function doGet(e) {
     return pollStudent(pin, since);
   }
 
+  if (type === 'fb_get') return fbGet(e);
+
   // Legacy: dashboard data
   return handleResponse({
     parties:  fetchData('Parties'),
@@ -605,6 +607,506 @@ function pollTeacher(sinceMs) {
   });
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEEDBACK ENDPOINT (v1)
+// ═══════════════════════════════════════════════════════════════════════════════
+// GET ?type=fb_get&pin=XXXX
+// Returns the feedback record for the student whose PIN matches.
+// Rate-limited per IP via CacheService. Teacher PIN is rejected.
+// All feedback data lives in a sheet (FB_Feedback) so it can be edited
+// without redeploying Code.gs.
+
+// Header row for FB_Feedback sheet
+var FB_HEADERS = [
+  'Name', 'Party', 'Role', 'PIN',
+  'G51', 'T51', 'X51', 'Q51',
+  'G52', 'T52', 'X52', 'Q52',
+  'G53', 'T53', 'X53', 'Q53',
+  'Closing', 'Provisional', 'Updated'
+];
+
+function fbLookup(pin) {
+  var p = (pin || '').toUpperCase().trim();
+  if (!/^[A-Z0-9]{4,5}$/.test(p)) return null;
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('FB_Feedback');
+  if (!sheet || sheet.getLastRow() < 2) return null;
+
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][3]).toUpperCase().trim() === p) {
+      return {
+        name:        String(data[i][0] || ''),
+        party:       String(data[i][1] || ''),
+        role:        String(data[i][2] || ''),
+        pin:         p,
+        g51:         String(data[i][4] || ''),
+        t51:         String(data[i][5] || ''),
+        x51:         String(data[i][6] || ''),
+        q51:         String(data[i][7] || ''),
+        g52:         String(data[i][8] || ''),
+        t52:         String(data[i][9] || ''),
+        x52:         String(data[i][10] || ''),
+        q52:         String(data[i][11] || ''),
+        g53:         String(data[i][12] || ''),
+        t53:         String(data[i][13] || ''),
+        x53:         String(data[i][14] || ''),
+        q53:         String(data[i][15] || ''),
+        closing:     String(data[i][16] || ''),
+        provisional: data[i][17] === true || String(data[i][17]).toUpperCase() === 'TRUE'
+      };
+    }
+  }
+  return null;
+}
+
+// Per-IP rate limit. 10 requests / 60 seconds. Returns true if allowed.
+function fbRateLimitOk(ipKey) {
+  if (!ipKey) return true; // no IP available, skip limiting
+  var cache = CacheService.getScriptCache();
+  var key = 'fb_rl_' + ipKey;
+  var current = cache.get(key);
+  if (current && parseInt(current, 10) >= 10) return false;
+  cache.put(key, String((parseInt(current, 10) || 0) + 1), 60);
+  return true;
+}
+
+function fbGet(e) {
+  // Pull PIN from query string
+  var pin = (e.parameter && e.parameter.pin) || '';
+
+  // Reject empty / teacher PIN
+  if (!pin) return handleResponse({ status: 'error', code: 'NO_PIN', message: 'Missing PIN.' });
+  if (isTeacherPin(pin)) {
+    return handleResponse({ status: 'error', code: 'TEACHER_PIN', message: 'Teacher PIN not permitted.' });
+  }
+
+  // Rate limit by a best-effort IP key (X-Forwarded-For is not directly accessible in
+  // ContentService responses, so we use a hashed browser hint instead if provided).
+  var ipKey = (e.parameter && e.parameter.k) || '';
+  if (!fbRateLimitOk(ipKey)) {
+    return handleResponse({ status: 'error', code: 'RATE_LIMIT', message: 'Too many requests. Wait a minute and try again.' });
+  }
+
+  var record = fbLookup(pin);
+  if (!record) {
+    // Constant-ish delay to discourage PIN enumeration
+    Utilities.sleep(250);
+    return handleResponse({ status: 'error', code: 'NOT_FOUND', message: 'PIN not recognized.' });
+  }
+  return handleResponse({ status: 'success', record: record });
+}
+
+/**
+ * ONE-TIME SETUP: Run this from the script editor to create the FB_Feedback
+ * sheet with the correct headers. Then paste student rows in via the Apps
+ * Script editor or import the matrix.
+ */
+function initFeedbackSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('FB_Feedback');
+  if (sheet) {
+    Logger.log('FB_Feedback already exists. Clearing contents.');
+    sheet.clearContents();
+  } else {
+    sheet = ss.insertSheet('FB_Feedback');
+  }
+  sheet.appendRow(FB_HEADERS);
+  Logger.log('FB_Feedback sheet created with headers. Ready for student rows.');
+}
+
+/**
+ * BULK IMPORT: Run this once after initFeedbackSheet() to populate the
+ * FB_Feedback sheet with the 30 student records that match the moderated
+ * grading matrix. Each record maps the matrix fields to the sheet columns.
+ *
+ * Columns written: Name, Party, Role, PIN, G51, T51, X51, Q51, ... , Closing, Provisional, Updated
+ *
+ * If a record already exists for a PIN, it is overwritten.
+ */
+function populateFeedbackFromMatrix() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('FB_Feedback');
+  if (!sheet) {
+    Logger.log('FB_Feedback sheet not found. Run initFeedbackSheet() first.');
+    return;
+  }
+
+  // Each record: [Name, Party, Role, PIN, G51, T51, X51, Q51, G52, T52, X52, Q52, G53, T53, X53, Q53, Closing, Provisional]
+  // Quotes (Q*) are passed as empty strings and edited in the sheet after import if needed.
+  var rows = [
+var rows = [
+    ['Madhavan', 'The Party De Solution', 'Leader', 'R4MT',
+      '4', 'You picked issues people actually cared about.',
+        'Your platform hit three things that matter to students and families: better schools, safer buses, and actual healthcare in schools instead of just an ice pack. But what set you apart was the funding idea -- partnering with Subway so people get something back while supporting schools. You weren\'t just listing promises. You were thinking about why people would buy in.',
+        'I was going for the happiness and the involvement of the population in my promises and even in my funding.',
+      '3+', 'You understood how politics actually works.',
+        'Your reflection showed you get something a lot of adults don\'t fully grasp: that likability and policy are always tangled together. The 3+ (not 4) reflects that your funding ideas -- Subway partnership, influencer events, 1.5% corporate tax -- are creative but mostly unconventional. A 4 here would mean a more complete map of how government revenue actually works in Canada.',
+        'Likability and buying votes absolutely mattered in a vote that consisted of 17 people... this absolutely matters in real life.',
+      '4', 'You were the engine of your party.',
+        'You took raw drafts from your teammates and turned them into political language. You wrote the strategy. You led the speech. You thought about coalition-building after the election was over. That\'s not just participation -- that\'s leadership with depth.',
+        'I can help parties work together by giving them a common enemy to fight against, or even getting them to slightly move their policies to match the other\'s so that they have something in common to fight for.',
+      'Madhavan, you led a party that came up with one of the most creative campaign ideas in the class. The Subway partnership wasn\'t just a gimmick -- it showed you were thinking about how to actually fund promises in a way people would get behind.', false],
+
+    ['Joshua', 'The Healthier Future', 'Leader', 'RUXG',
+      '4', 'Your issues were specific and real.',
+        'You didn\'t just say \'fix healthcare.\' You talked about 50,000 new doctors, cutting medical school from 10 years to 5, a sin tax on harmful products, and e-prescriptions to speed up diagnosis.',
+        'Policy was overall more effective due to the great ideas people said and the way they presented.',
+      '3+', 'You understood how governments pay for things.',
+        'Your platform used a sin tax -- a real government revenue tool. The 3+ (not 4) is because the sin tax is one revenue stream -- a 4 would have meant pairing it with another mechanism so the plan doesn\'t collapse if the sin tax underperforms.',
+        'Likability made a good part in this election but policy was overall more effective.',
+      '4', 'You did everything, and you owned it.',
+        'In a two-person group, there\'s nowhere to hide. You made the entire project, script, roles, and slideshow. Your speech didn\'t win as many votes as you hoped, and you were honest about that.',
+        'I made the entire project, script, roles and slideshow so I contributed the most in my group.',
+      'Joshua, you carried a two-person party on your shoulders and you did it without excuses. You made the project, the script, the roles, and the slideshow -- all of it.', false],
+
+    ['Lachlan', 'The Niche Haligonians', 'Leader', 'FFAN',
+      '4', 'You picked fights worth having.',
+        'Healthcare, education, and housing. But what made your platform stand out was the funding source: redirecting military scholarship money into walk-in clinics and smaller classrooms. You knew that would be controversial, and you leaned into it.',
+        'The Niche Haligonians funding plan has been heavily attacked, as many see it as selfish and not giving funds to those who need it. I believe I have a fix for their funding plan that will satify the complaints of others.',
+      '3+', 'You understood how budgets work.',
+        'Your funding plan was a real policy argument about where public money should go. The 3+ (not 4) is because you had one funding source plus a compromise idea. A 4 would have meant a second mechanism in case the military reallocation got blocked.',
+        'They are willing to compremise if thats what the people want, and I believe we should all try to work together.',
+      '4', 'You did everything, then thought about what comes next.',
+        'You wrote the speech. You handled the AI journalist. You delegated the financial plan to Nolan. And then, after winning, you immediately started thinking about how to satisfy the opposition. That\'s governance-level thinking.',
+        'I did everything in the war room and in the campaign... I did the speech on my own, facts etc.',
+      'Lachlan, you won the election and then immediately started thinking about how to govern. That\'s not normal for a Grade 9 project.', false],
+
+    ['Rifa', 'Equitable Rights Party', 'Leader', '57G5',
+      '4', 'Your platform was the most detailed in the class.',
+        'The Equitable Rights Party didn\'t just say \'fix healthcare.\' You proposed specialized hospital departments, expanded public healthcare to include dental and vision, and tied wage growth to inflation. That\'s a policy platform.',
+        'My biggest contribution would be creating the 2 minute speech and creating the slides for the speech. I was pranked by my partner so we had a short time period to finish the speech and I think the effort was worth it.',
+      '4', 'You used a real multi-tool revenue plan.',
+        'Your funding plan used sin taxes, luxury goods taxes, corporate tax tiers, AND cutting wasteful spending. That\'s a four-piece revenue strategy, which is what a real balanced budget looks like.',
+        'As a citizen, actively engaging yourself with your own country can help you understand the issue and your support along with others can help party\'s realize the severity of the issue.',
+      '4', 'You did everything in a two-person party, under pressure.',
+        'You were the strategist, the financial planner, the speechwriter, and the slide creator. You worked the press conference. You were pranked by your partner and still delivered.',
+        'I find it amusing that a single vote can change the whole government from a possible zero to hero... there is a little pressure that comes with this powerful choice.',
+      'Rifa, your reflection was the most thoughtful in the class. You didn\'t just describe what you did -- you thought about what it meant.', false],
+
+    ['Natalia', 'Environmentalists at Work', 'Leader', 'ABCDE',
+      '4', 'Your platform had the most substance.',
+        'Clean technology, coastal protection, offshore energy regulation -- and you backed it all up with specific policy history, like the 2019 Coastal Protection Act and the federal climate grants your party planned to apply for.',
+        'I focused on making our message clear and connecting with people emotionally. I think my communication style helped win over voters because I tried to be confident and relatable.',
+      '4', 'You referenced real legislation and named the funding streams behind it.',
+        'Your platform named the 2019 Coastal Protection Act, its 2024 replacement, carbon tax revenue, and federal climate grants. That\'s the difference between knowing a problem exists and understanding how government actually creates and pays for the response.',
+        'In real life, both matter, people want leaders with good ideas, but also someone they trust and relate to.',
+      '4', 'You drove every deliverable.',
+        'Speech, financial plan, slideshow. You did all three. And you were intentional about your communication style -- you thought about confidence and relatability as tools, not just personality traits.',
+        'Since we only lost by one vote, it shows our strategy was effective.',
+      'Natalia, you led the Environmentalists at Work from start to finish. You wrote the speech, built the financial plan, and made the slideshow.', false],
+
+    ['Yunho', 'The Party De Solution', 'Member', 'T4N5',
+      '3', 'Your party had strong issues.',
+        'The Party De Solution\'s platform -- school funding, bus safety, nurse offices -- was creative and well-structured. You were part of building it. Your observation about social media influence on voting shows you were thinking about how people actually make decisions.',
+        'Some people are not really interested on government thing and they commonly vote for the people who they saw in a good way on YouTube or Instagram.',
+      '2+', 'You were honest about how voting works in practice.',
+        'Your reflection didn\'t demonstrate deep structural knowledge of government, but your honesty about social voting -- \'I even voted for the party that members are my friend\' -- shows you were paying attention to the dynamics of the election.',
+        'Likability will matter more than policy in this election because some people are not really interested on government thing.',
+      '3+', 'You followed the leader and challenged the opposition.',
+        'You participated actively under Madhavan\'s direction. And during the Town Hall, you asked 2 questions -- including a specific challenge to the Environmentalists: \'your slides state that you are going to protect the coastlines in Nova Scotia, but there is no information on how, why is that?\' That\'s not just following directions -- that\'s engaging with the opposition.',
+        'Your slides state that you are going to protect the coastlines in Nova Scotia, but there is no information on how, why is that? (Town Hall question)',
+      'Yunho, your honesty was one of the strengths of your reflection. You admitted you voted for your friends, and you connected that to how social media influences real elections. That self-awareness is valuable. You were an active member of the Party De Solution under Madhavan\'s direction, and you contributed to one of the strongest platforms in the class. And during the Town Hall, you challenged the Environmentalists on their coastal protection plans -- asking them to explain exactly how they\'d do it. That\'s opposition research in action.', false],
+
+    ['Clark', 'The Healthier Future', 'Member', '9F3K',
+      '3+', 'You thought about how issues are evaluated.',
+        'Clark was a supporting member of a two-person party, so individual issue-selection credit is limited -- the platform (50k doctors, sin tax, e-prescriptions) was primarily Joshua\'s build. The 3+ rests on your Q4 reflection, which is one of the most analytically strong in the class: you draw a clear line between classroom popularity voting and real-world policy-based elections, and you identify how candidates can manipulate perception. That\'s genuine critical thinking about how issues are evaluated, even though you weren\'t the one picking them. The 3+ rather than 3 reflects the depth of your reflection, not separate platform authorship.',
+        'There\'s also strategies where people can fake their goodness just to get trust and popular, but when they actually get elected they can change and reveal who they really are.',
+      '3+', 'You understood the gap between classroom and reality.',
+        'Your Q4 answer was exceptional. You recognized that in a Grade 9 election, popularity drives votes, but in real elections, policy should matter more -- and that politicians can be deceptive. That\'s a level of political awareness that goes beyond the assignment. The 3+ (not 4) is that this is real-world political awareness rather than a specific demonstration of how Canadian government structure works (federal/provincial/municipal layers, revenue tools, jurisdictional scope). You were the strongest reader of the room; that\'s different from being the strongest explainer of the machinery.',
+        'In this election, it basically isn\'t a real election, we\'re also still in only grade 9, which means a lot of people who vote right now actually doesn\'t quit know about who to vote.',
+      '3', 'Your civic action plan was the most detailed.',
+        'You described a full process: put up signs, form a group, host meetings, discuss and negotiate, and approach party leaders about changing policies. That\'s not theoretical -- that\'s a playbook for actual civic engagement.',
+        'We can group together as an organization by putting signs outside that says \'anyone who oppose the Niche party contact us\' on it, then once we\'re grouped we can host meetings, discuss or negotiate about vote a specific party.',
+      'Clark, your Q4 answer was one of the best in the class. You drew a clear line between our classroom election and real elections, and you thought about how politicians can fake their image to win trust. That\'s critical thinking that goes beyond the assignment. You were the second member of a two-person party, and you supported Joshua effectively. Your civic action plan -- grassroots organizing, meetings, negotiating with party leaders -- was the most specific anyone described.', false],
+
+    ['Lachlan Mac', 'The Niche Haligonians', 'Member', '25VT',
+      '3', 'You understood the need for compromise.',
+        'The Niche Haligonians platform is strong and complete, and you contributed as a member. The 3 (rather than 3+) is the issue-side ceiling for a member role: you supported the issue selection but did not drive it. Your Q3 shows practical compromise thinking. Your 6 Town Hall questions, including challenges on offshore energy and climate laws vs housing, show you were also interrogating other parties\' issue claims in real time.',
+        'The Niche Haligonians can do something like changing their funding plan to something less argumentative to help settle with other groups and compromise with other groups.',
+      '3', 'You understood how stakes affect elections.',
+        'Your Q4 answer was one of the more nuanced in the class: \'Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote.\' You understood that the higher the stakes, the more policy matters relative to personality. The 3 (not 3+) is because as a member rather than the platform architect, your contribution was the slideshow, debate questions, and information feeding -- the strategic engagement side. The structural decisions (military scholarship reallocation, smaller classrooms) were Lachlan\'s. A 3+ would have meant pairing this insight with structural authorship.',
+        'Likability also matters in the real world elections but just a lot less, it definitely depends of the stakes of the vote therefore varying based on factors like stakes of the election.',
+      '4', 'You were everywhere -- and the Town Hall data proves it.',
+        'Slideshow. Debate questions. Real-time information feeding during the AI interview. Tracking other parties\' responses. And 6 Town Hall questions submitted (1 on_stage, 5 pending) -- the third-highest in the class. You challenged the Environmentalists on offshore energy, climate laws, and financial sustainability. That\'s consistent, sustained democratic engagement across the entire unit.',
+        'My biggest contribution was making the slideshow and through asking questions during the debate through the niche website and feeding him information of other parties and responses throughout his speech. (he was kind of a work hog).',
+      'Lachlan, you were the person behind the scenes who made the Niche Haligonians run. You made the slideshow, asked debate questions, fed real-time information to Lachlan McM during the AI journalist interview, and tracked other parties\' responses. And during the Town Hall, you submitted 6 questions -- the third-highest in the class -- challenging the Environmentalists on offshore energy, climate laws vs housing, and financial sustainability. Your \'(he was kind of a work hog)\' comment tells me you were paying attention to group dynamics the whole time. Not every contribution happens at the podium. Some of the most important work happens in the background, and you did it consistently.', false],
+
+    ['Nolan', 'The Niche Haligonians', 'Member', 'KFK6',
+      '3', 'Your civic ideas were specific and creative.',
+        'Your Q3 answer wasn\'t just \'people should work together.\' You talked about putting solar panels on grocery store roofs, replacing diesel buses with electric ones, and forming citizen groups to push government cooperation. Those are real, actionable ideas.',
+        'Something I could do as a citizen is try to make a little group up and maybe try to push the government in power to talk with the other parties... Like we could try and make it so grocery stores put up solar panels on all there roofs.',
+      '3', 'You helped write the winning financial plan.',
+        'Lachlan came up with the general ideas for the Niche Haligonians\' funding plan, and you put them into words. That required understanding how government funding actually works -- what\'s realistic, what\'s controversial, and how to explain it. The 3 (not 3+) is because you were the writer rather than the architect: you translated Lachlan\'s ideas into the war room text, which is real work, but the structural decisions (which funding source, why military scholarships) were his. Your reflection\'s Q4 about likability/stakes is good political reading but it\'s not a government-structure insight.',
+        'When it came to the financial part in the war room I came up with the general ideas and Nolan put them into words to form our funding plan. (Lachlan McM on Nolan)',
+      '3+', 'You supported the leader and contributed to the win.',
+        'You took the leader\'s ideas and made them into a real funding plan. You helped with the war room. And your Q1 answer shows you felt the weight of participation: \'It\'s like holding the future in your own hands, and you basically control what the future could be.\' That\'s genuine civic agency.',
+        'It feels powerful to have the choice of who\'s going to be the next government leader, especially if it\'s by a 1-vote difference. It\'s like holding the future in your own hands.',
+      'Nolan, you were part of the winning team, and you did more than just follow directions. You helped write the financial plan -- Lachlan came up with the ideas and you put them into words. That\'s real contribution. Your reflection showed genuine civic thinking: solar panels on grocery store roofs, electric buses, citizen groups pushing government to cooperate. You thought about what you\'d actually do as a citizen, not just what happened in class.', false],
+
+    ['Leo', 'Communist Party of Halifax', 'Member', 'RKKJ',
+      '3', 'You challenged other parties on their issues.',
+        'Your party\'s platform didn\'t get locked in, but you didn\'t stop engaging. During the Town Hall, you asked about renewable energy sources, sponsorship backup plans, and teacher funding. You were interrogating other parties\' issue claims -- which is its own form of issue engagement. You were thinking critically about whether their promises were realistic.',
+        'What if the company gets exposed for something bad? (Town Hall question to Party De Solution)',
+      '2+', 'You thought about policy feasibility.',
+        'Your Town Hall questions showed you were thinking about how policies actually work -- renewable energy specifics, sponsorship risks, teacher salary costs. That\'s the kind of thinking that shows up when you understand that government decisions have real consequences and trade-offs.',
+        'How will you pay these new teachers if you want smaller classrooms -- more teachers means more money you have to pay out. (Town Hall question)',
+      '3', 'You were one of the most active participants in the Town Hall.',
+        '6 questions submitted -- the second-highest in the class. Two selected for the stage. You challenged multiple parties with specific, thoughtful questions. Among students whose parties didn\'t complete their platforms, you stand out for how much effort you put into the process. You showed up for the Town Hall in a way that mattered.',
+        'If this sponsor thing goes wrong and they don\'t ever want to sponsor you, do you have a backup? (Town Hall question)',
+      'Leo, your reflection was brief, but your actions during the Town Hall speak volumes. You submitted 6 questions during the Final Four debate -- the second-highest in the class. You challenged parties on sponsorship risks, renewable energy specifics, and teacher funding. Two of your questions were selected for the stage. When your party\'s platform didn\'t get locked in, you didn\'t check out -- you leaned into the Town Hall and participated more actively than almost anyone else. That tells me you were paying attention the whole time, and you cared about the process even when your own party wasn\'t on stage.', false],
+
+    ['Alia', 'The Unity Party', 'Member', 'LJFM',
+      '3', 'You helped shape the party\'s message.',
+        'The Unity Party addressed transit, internships, and healthcare. You made the debate points and helped with the speech, which means you were part of deciding how to communicate those issues to voters.',
+        'I think my biggest contribution in this project was making up the debate points and helping out on the speech and making the leader gain their confidence.',
+      '2+', 'You understood social dynamics in elections.',
+        'Your reflection focused more on social dynamics than government structure, but your observation that \'connections is key when it comes to electing\' shows you were paying attention to how votes actually get decided.',
+        'Way more people than you think vote for the person that they are mutual with.',
+      '3', 'You built the leader\'s confidence.',
+        'Practicing the speech with Elizabeth until she felt comfortable is a real contribution. Not everyone has to be the one at the podium. You made sure the person who was at the podium was ready.',
+        'Making the leader gain their confidence by practicing over and over again until they felt comfortable.',
+      'Alia, you did something in this project that doesn\'t show up in platform documents: you built your leader\'s confidence. You practiced with Elizabeth over and over until she felt comfortable getting up and speaking. That\'s a form of democratic engagement that matters just as much as writing a policy. You also made debate points and helped with the speech. Behind-the-scenes work is still work, and yours helped the Unity Party win the primary.', false],
+
+    ['Josie', 'Team Tomorrow', 'Member', 'MVQW',
+      '3', 'Your party had specific, measurable goals.',
+        'Team Tomorrow\'s platform -- 20% tuition cut, 10 new clinics by 2030, 5,000 housing units -- was one of the most specific in the class. You contributed to the goals.',
+        'I contributed into writing the different goals and ideas our party has.',
+      '2+', 'You were honest about social voting.',
+        'Your Q4 answer acknowledged that people voted for friends, and you recognized that this could lead to bad outcomes \'because their ideas might not be as good.\' That\'s a practical understanding of a real democratic problem.',
+        'If a lot of people elect people they want to just because they are \'Friends\' and this might end bad because their ideas might not be as good.',
+      '3', 'You contributed to goals and slides.',
+        'You wrote goals, helped with the background slide, and voted based on policy. That\'s solid engagement. Your Q3 focus on common goals -- \'improving schools, healthcare, or safety, instead of only party differences\' -- is a good civic instinct.',
+        'As a citizen, I can help the parties understand each others ideas and make sure they can focusing on understanding the common goals.',
+      'Josie, you contributed to Team Tomorrow\'s goals and helped with the background slide. You voted thoughtfully -- for the party you thought had the best ideas, not just your friends. Your honesty about social voting (\'I even voted for the party that members are my friend\') and your concern about what happens when people elect friends over policy shows you were thinking about the consequences of democratic choices.', false],
+
+    ['Elizabeth', 'The Unity Party', 'Leader', 'FNG3',
+      '3', 'You made your issues heard.',
+        'The Unity Party addressed transit, internships, and healthcare. Your platform existed, and you communicated it well enough to win the primary. Your reflection shows you understood that presentation is part of how issues gain traction -- comparing your party\'s plans to others and pointing out what you\'d do better.',
+        'A communication style I used was comparng myself to other groups and pointing out the thing my party would do better and I believe that brought in voters.',
+      '3', 'You saw both sides of what wins elections.',
+        'Your Q4 answer recognized that likability and presentation both matter in elections. You noticed that some people voted for friends while others voted based on speeches and answers. That balanced view shows you were paying attention to the dynamics of the election. The 3 (not 3+) is because the insight is about voter behaviour rather than government structure itself -- how elections are won is related to structure, but the platform text (transit, internships, healthcare) doesn\'t show deep engagement with revenue tools or jurisdictional scope. Your Q3 answer about managing party egos is mature but it\'s democratic dynamics, not government machinery.',
+        'Likability absolutely mattered in this election seeing as the winning party\'s friends voted that party but I know several people who voted a party because of how good they spoke and how they answered question.',
+      '3+', 'You led with confidence.',
+        'You got up and spoke. You used comparative strategy. You won the primary. And your reflection about party egos -- \'if we show that we only like one party it would probably make their ego go higher and not want to work with the other party\' -- shows you were thinking about democratic dynamics beyond just winning.',
+        'I was the leader of the Unity Party and my biggest contribution was getting up there and saying my speech with confidence giving us the first win.',
+      'Elizabeth, you won the primary. That\'s not nothing. You stood up in front of the class, delivered your speech with confidence, and used a comparative strategy that brought in voters. Your party didn\'t lock in their platform, but your speech was strong enough to win the first round anyway. That tells me you understand something important: how you say something matters as much as what you say. Your observation about party egos was one of the most mature reflections in the class.', false],
+
+    ['Sarah', 'Equitable Rights Party', 'Member', '96EU',
+      '3', 'You helped build a serious platform.',
+        'The Equitable Rights Party\'s platform -- hospital ER divisions, expanded healthcare including dental and vision, wage growth tied to inflation -- was one of the most detailed in the class. You worked on the communications message and the financial plan, which means you were thinking about both what to say and how to pay for it.',
+        'My biggest contributions in my team was working on the communications message and working on the financial plan with our team leader.',
+      '3+', 'You understood the representative system.',
+        'When you talked about contacting your representatives to encourage compromise, you showed that you understand how citizens are supposed to interact with government. That\'s not just textbook knowledge -- it\'s a plan for how you\'d actually participate in democracy. The 3+ (not 4) is because you co-wrote the financial plan with Rifa rather than architecting it; the budget structure was her work, and you brought the citizen-engagement layer. That\'s the right division of labor and the 3+ reflects your contribution accurately.',
+        'As a citizen, I can contact my representatives to encourage compromise and model respectful dialogue in my own conversation to show that cooperation matters more than conflict.',
+      '3+', 'You contributed to the work that mattered.',
+        'Two of three war room deliverables -- communications and finance. That\'s significant involvement. And your reflection shows you took the process seriously. The line about \'one vote\' isn\'t just clever writing. It\'s the voice of someone who felt what it means to participate.',
+        'Knowing that my vote makes this much of a difference is both mesmerizing and overwhelming because it serves as a reminder that no vote is ever just \'one vote\'.',
+      'Sarah, your reflection had one of the most memorable lines in the class: \'no vote is ever just one vote, because of that one vote the government is what it is today.\' That\'s not just a good sentence -- it shows you actually felt the weight of democratic participation. You worked on both the communications message and the financial plan for the Equitable Rights Party, which means you were involved in two of the three war room deliverables. Your party\'s platform was one of the most detailed, and you were part of building it.', false],
+
+    ['Kendra', 'Environmentalists at Work', 'Member', 'MTGG',
+      '3+', 'Your civic strategy covered the whole cycle.',
+        'Your Q3 answer wasn\'t just \'compromise.\' You described a full process: compromise on issues, focus on local problems, share correct information, pressure leaders to cooperate, vote wisely, and if none of that works, trigger a new election. That\'s thinking about democracy as a system, not just a moment.',
+        'By all the parties compromising a bit and getting some things from each party and focusing on local problems, similarities between wants, correct information, pressure leaders and vote wisely. And if not the other parties \'pulling the plug\' and starting another vote.',
+      '3', 'You put policy before personality.',
+        'You recognized that likability matters but shouldn\'t be the deciding factor. \'I do think it matters, but only to a certain extent.\' That\'s a balanced position that shows you were thinking about what elections are supposed to be about.',
+        'I do think that many people are looking at the leaders as a person rather than the actual policies. I do think it matters, but only to a certain extent.',
+      '3+', 'You supported your team where it counted.',
+        'During the Town Hall, you fed Delisha answers and gave her short topics to build on. That\'s real-time strategic support. Not everyone has to be the person at the podium -- some of the most important democratic work happens behind the scenes, and you did it.',
+        'I answered a lot of questions and gave more short topics for her to go on with. Yes, it helped Delisha not stumble for an answer.',
+      'Kendra, you were new to the class and you still produced some of the best work in the unit. Your civic strategy was the most structured anyone described: compromise, focus on local problems, correct information, pressure leaders, vote wisely, and if that fails, trigger a new election. That\'s not just a list -- that\'s a full democratic cycle. You supported Delisha during the Town Hall, feeding her answers so she wouldn\'t have to stumble. That\'s the kind of behind-the-scenes work that makes a party function.', false],
+
+    ['Zankia', 'Environmentalists at Work', 'Member', 'CA3J',
+      '3+', 'Your party addressed real problems.',
+        'The Environmentalists\' platform covered clean technology, coastal protection, and offshore energy regulation. Your original party (Yellow Progression) also addressed healthcare, environment, and cost of living. You were thinking about issues that actually affect people.',
+        'The parties would perhaps have to make compromises like changing their funding strategy to the same as the other parties so that they will be open to working with them.',
+      '3', 'You distinguished classroom from reality.',
+        'You understood that our classroom election was driven by friendships, but that real elections are different: \'it doesn\'t matter how popular you are if your promises are unrealistic you won\'t get any of the votes.\' That distinction shows you were thinking about how democracy actually works outside of school.',
+        'I think it is more about politics in real life because it doesn\'t matter how popular you are if your promises are unrealistic you wont get any of the votes.',
+      '3+', 'You did the work that kept your party running.',
+        'All the slides. War room help. Questions during the debate. That\'s three different kinds of contribution. And you took the vote seriously -- you felt guilty about switching your vote, which tells me you understood that your choice had real consequences for the simulation.',
+        'I did all the slides and I helped with the war room and the three squares we had to fill. I also sent in a few questions.',
+      'Zankia, you did all the slides for your party, helped with the war room, and sent in questions during the debate. That\'s concrete, visible work. And your reflection was honest in a way that matters: you felt guilty about switching your vote, and you thought carefully about why. You also made a sharp observation about real elections: \'it doesn\'t matter how popular you are if your promises are unrealistic you won\'t get any of the votes.\' You and Kendra produced excellent work, and the vote count doesn\'t change that.', false],
+
+    ['Laila', 'Team Tomorrow', 'Leader', 'V4BC',
+      '4', 'Your platform had real numbers.',
+        '20% tuition cut. 10 new clinics by 2030. 5,000 affordable housing units. Those aren\'t vague promises -- they\'re measurable goals with a timeline, and as party leader you set them with your team. You were thinking about what voters could actually hold a government accountable for. That\'s the difference between a wish list and a platform.',
+        'I feel that my speech and what i decided to say would have probably helped us to get votes and obviously what we chose for our promises.',
+      '3+', 'You named four funding streams, not one.',
+        'Your platform\'s funding plan -- federal transfers, efficiency cuts, luxury goods taxes, AND taxes on empty homes kept as investments -- showed you understood that government services cost money and that there are several different ways to raise it. A single funding source is fragile; layering four mechanisms is a real budget. The 3+ (not 4) is because the mechanisms are listed but not defended against trade-offs in the platform text itself. You had the revenue toolkit; a 4 would have shown what happens if any one of those streams underperforms.',
+        'I feel that likability did matter for this election... but some people including myself voted on what I thought was the best/most reasonable.',
+      '3+', 'You led with respect and clarity.',
+        'You developed policies with your team, delivered the speech, and emphasized respectful engagement as a civic strategy. \'Helping the parties compromise and agree on goals, speaking up and asking questions respectfully and calmly to avoid lots of fighting.\' That\'s leadership with character.',
+        'As a citizen I can help by helping the parties compromise and agree on goals, speaking up and asking questions respectfully and calmly to avoid lots of fighting.',
+      'Laila, you led Team Tomorrow with a clear voice and a focus on respectful engagement. Your platform had specific numbers -- 20% tuition cut, 10 new clinics by 2030, 5,000 affordable housing units -- and you delivered the speech that sold it. Your emphasis on calm, respectful communication as a civic tool was mature beyond your years. You voted based on policy, not friendship, and you said so. That takes integrity.', false],
+
+    ['Jessa', 'Environmentalists at Work', 'Member', 'HSZU',
+      '4', 'You built the intellectual foundation.',
+        'You didn\'t just pick issues -- you connected them to the UN Sustainable Development Goals, defined the political spectrum positioning, and found real problems that needed fixing. \'Voters saw what problems we saw in the world and how we were going to fix it.\' That\'s the difference between listing promises and building a movement.',
+        'My biggest contribution in these whole 3 weeks of brainstorming would be created the ideas we could use, such as helping Natalia with her speech, giving her touching sentences to use, making our party name, listing our SDG goals.',
+      '3+', 'You understood how minority governments work.',
+        'Your reflection showed you understood something specific about minority governments: they work through negotiation and exchange. You described exactly how you\'d do it -- offer support in exchange for environmental protections. That\'s transactional governance, and it\'s how minority parliaments actually function. The 3+ (not 4) is because the negotiation thinking is strong but the budget/legislation piece is thinner -- you were a member, not the platform architect, so the structural detail (Coastal Protection Act, federal grants) is Natalia\'s contribution. You brought the governance-theory layer; she brought the legislation layer. Together that\'s a 4; separately you\'re a clear 3+.',
+        'I could negotiate, by saying if I helped and supported them, I would ask for something in return which could be something I want.',
+      '4', 'You were the ideas person, and your ideas won votes.',
+        'You established the party\'s entire direction. Goals, name, SDG connections, spectrum positioning, speech content. Your ideas won over voters. And you were engaged for three full weeks, not just the day of the presentation. That sustained commitment is what real democratic participation looks like.',
+        'I provided what my party members COULD write and find real problems we need to fix. My ideas did actually win over voters.',
+      'Jessa, you were the intellectual engine of the Environmentalists. You established the party\'s goals, created the name, listed the SDG connections, defined the political spectrum positioning, and wrote touching sentences for Natalia\'s speech. That\'s three weeks of sustained, focused work. And your reflection showed you were thinking about actual governance -- how you\'d negotiate with the winning party to get environmental protections in exchange for your support. You weren\'t just playing a game. You were thinking about how democracy actually works.', false],
+
+    ['Delisha', 'Environmentalists at Work', 'Leader (Final Four)', 'Q2YA',
+      '4', 'You carried the environmental platform into the Final Four.',
+        'The Environmentalists at Work had the most detailed platform in the class, and you were a major part of building it. When it came time to defend it in the Town Hall, you were the one at the front of the room. That\'s not just understanding issues -- that\'s owning them.',
+        '',
+      '4', 'You defended a legislation-heavy platform in real time.',
+        'Leading the Final 4 Town Hall meant responding to challenges about the 2019 Coastal Protection Act, federal climate grants, carbon tax revenue, and the offshore energy trade-offs -- live, in front of the class, with no script. You had to defend specific government actions, not just opinions. That\'s the hardest version of this outcome: you can\'t fake your way through a question about a real Act. You did it. Teacher observation confirms this is full structural engagement.',
+        '',
+      '4', 'You led when it mattered most.',
+        'Major participant throughout. Credited as a party member on the Final 4 title slide and contributed to the slide deck. Stepped into the leader role for the Town Hall when Natalia was absent. Debated in front of the class. Your commitment to the process was clear from start to finish.',
+        '',
+      'Delisha, you stepped up when your party needed you most. When Natalia was absent, you took over as leader and debated in the Final Four Town Hall. That takes guts. You were a major participant throughout the entire unit, and your contributions to the slide deck and platform are proof of your commitment. You didn\'t submit a reflection, but your actions throughout the unit speak louder than any form response ever could. You showed up, you contributed, and when the pressure was on, you led.', false],
+
+    ['Farhan', 'Islamic Associations of Halifax', 'Leader', 'HRNH',
+      '3+', 'Your platform was the broadest and most ambitious.',
+        'You didn\'t pick one or two issues. You picked a worldview: humanitarianism, pluralism, anti-corruption, environmental responsibility, healthcare. And you backed it up with a 13% tax budget broken down by sector. That\'s not a platform -- that\'s a governing philosophy. The 3+ rather than 4 is because the issues are expansive but the justification layer is thinner: the reflection reads as values declaration rather than issue analysis (why these issues? why this prioritization? what\'s the civic traction path?). A 4 would have meant specific justification of issue selection, not just a list of values.',
+        'Promoting humanitarianism, pluralism, also known as respecting other grounds, and responsibility for the environment. This style of protecting life also increases trust, increases a stable economy.',
+      '3+', 'You broke down a real budget.',
+        'Marine/livestock 1.5%, Court and law 2%, forest/eco-society 3.5%, housing 1.3%, humanitarian 5.7%. That level of detail shows you were thinking about how a government actually allocates money across competing priorities -- and you prioritized humanitarian (5.7%) over court and forest, which is a values choice, not just arithmetic. Not many students went that deep. The 3+ (not 4) is because the platform lists allocations but doesn\'t show what gets cut to make room for them, which is the harder question.',
+        'Democracy feels like \'promote me on the stage, I promote your business\'... the margin of the vote may be persuasive, but promoting your investment is what determines a person\'s choice.',
+      '3+', 'You led with conviction.',
+        'You created one of the most detailed platforms in the class. Your reflection reads like a manifesto because you care about these issues. You were one of the biggest contributors in the unit, and your party\'s platform was a direct reflection of your values. The 3+ rather than 4 is because the reflection reads more like a party manifesto than a personal reflection -- it\'s hard to assess Farhan\'s individual role when the writing blurs the line between "I" and "we." The platform itself is evidence of deep engagement, and teacher confirms he was a major participant.',
+        'Working together to create a better, more efficient nation, economy, and honest administration. Faster, much easier to crack the problems and create solutions to people\'s needs. No debates, work and pluralism.',
+      'Farhan, you built a platform that was bigger than any other party\'s. Humanitarianism, anti-corruption, social welfare, pluralism, environmental responsibility, healthcare -- and you backed it all up with a detailed tax budget breakdown. Your reflection reads like a manifesto because you genuinely believe in these values. That passion came through in your platform and in the way you led your party. You were one of the biggest contributors in the class.', false],
+
+    ['Abdul', 'Islamic Associations of Halifax', 'Member', 'ALZZ',
+      '2+', 'Your party had strong issues.',
+        'The Islamic Associations\' platform was ambitious and detailed. You were part of the party, and the platform\'s focus on humanitarianism and social welfare was meaningful.',
+        '',
+      '2+', 'Your reflection was brief.',
+        'Your Q4 answer didn\'t engage deeply with the question, but you were part of a party that created a detailed tax budget breakdown. That counts for something.',
+        'It will not be in the real life election will have about 3 m people.',
+      '2+', 'You tried to contribute, and that matters.',
+        'You made slides and gave ideas. The fact that your leader didn\'t use most of them is a group dynamics issue, not a reflection of your effort. You were there, you participated, and you tried to make the party better.',
+        'I made the slide I gave him ideas for what to add on it and he did not add any of it he added some but not most.',
+      'Abdul, I can see from your reflection that you tried to contribute. You made slides, you gave ideas, and you wrote talking points for Farhan. The frustration in your reflection is real -- \'he did not add any of it he added some but not most.\' That\'s a hard situation when you\'re putting in work and it doesn\'t get used. The Islamic Associations had a strong platform, and you were part of building it, even if your individual contributions didn\'t always make it to the final version.', false],
+
+    ['Ali', 'Halifax Climate Protection Party', 'Leader', 'D2ZD',
+      '3', 'You set the issues for your party and challenged the others.',
+        'As party leader, you chose the issues Climate Protection ran on -- 1 million trees, renewable energy by 2035, banning single-use plastics by 2028. Those are substantive goals. And during the Town Hall, your 8 questions actively interrogated other parties\' issue choices on ER staffing, transit overcrowding, coastline funding, and the Kazakhstan comparison. That\'s issue engagement, even without a written reflection.',
+        '',
+      '2+', 'Your Town Hall questions showed policy understanding.',
+        'You asked about ER staffing shortages, transit overcrowding, coastline funding costs, and economic stability. Those questions show you were thinking about how government policies actually work and what trade-offs they require.',
+        'How will your plan actually increase the number of doctors and nurses instead of just promising faster service? (Town Hall question to Unity Party)',
+      '3', 'You were the most active questioner in the Town Hall.',
+        '8 questions submitted -- the most of anyone in the class. 3 were selected for the stage. You challenged the Unity Party on ER staffing and transit overcrowding, the Niche Haligonians on their Kazakhstan comparison and happiness metrics, and the Environmentalists on coastline funding. That level of engagement with the democratic process is significant. You were thinking critically about every party\'s platform, not just your own.',
+        'You compared us to Kazakhstan, but they have very different culture and systems. Why is that a fair comparison for our country? (Town Hall question to Niche Haligonians)',
+      'Ali, you didn\'t submit a reflection, and your party\'s platform didn\'t get locked in. But the Town Hall data tells a different story: you submitted 8 questions during the Final Four debate -- the most of anyone in the class. Three were selected for the stage. You asked about ER staffing, transit overcrowding, coastline funding, happiness metrics, Kazakhstan comparisons, and economic trade-offs. You were clearly paying attention and thinking critically about every party\'s platform. The Climate Protection Party had real ideas, and you were engaged in the democratic process even if the formal reflection didn\'t capture it.', false],
+
+    ['Kai', 'Halifax Climate Protection Party', 'Member', 'VFW8',
+      '2+', 'Your party had real environmental issues.',
+        'Climate Protection\'s platform -- 1 million trees, renewable energy by 2035, banning single-use plastics -- was substantive. You helped with the research. But without presenting, the issues didn\'t get the scrutiny they deserved.',
+        'In the process of making the script I helped with the research and typing it and making it look good. Too bad we didnt present because we had a fair shot at winning the vote.',
+      '2+', 'Your reflection was honest but brief.',
+        'You showed understanding of the election dynamics -- one vote, the power of personality -- and your Q4 insight about likability shows you were paying attention to how votes get decided.',
+        'Civilians are not going to vote for a personality they don\'t like, if a canidate is not likeable or they don\'t match the right energy the voter will lose interest.',
+      '2+', 'You contributed, but the group couldn\'t follow through.',
+        'You did research, typing, and made sure the content was clear. That\'s real work. But the team didn\'t present, which limits the evidence of full engagement. Your Q3 idea about asking \'neutral questions\' to bridge parties is a solid civic strategy.',
+        'I made sure everything made sense so nobody got confused and bored of my presentation, when someone gets even just a little bored they will not choose you for their vote.',
+      'Kai, your team didn\'t get to present, and that\'s frustrating. But you showed up, you helped with research and typing, and you made sure the content made sense. Your reflection was honest about what happened: \'Too bad we didn\'t present because we had a fair shot at winning the vote.\' That tells me you believed in your party\'s platform. Sometimes the work doesn\'t get the audience it deserves, but the effort still counts.', false],
+
+    ['Evie', 'The Equity Party', 'Leader', 'R7SX',
+      '3', 'Your platform had a clear philosophy.',
+        'The Equity Party\'s focus on equity over equality, accessibility, disability programs, and the carbon tax rebate showed a distinct and thoughtful approach to issues. You led the party that built it.',
+        '',
+      '2+', 'No reflection submitted.',
+        'Without a reflection, I can\'t assess your understanding of government structure. Your party\'s platform showed some understanding of government funding, but I don\'t know your individual perspective.',
+        '',
+      '3', 'Led a party with a clear direction.',
+        'You led the Equity Party, which had a distinct philosophical identity. The platform exists in the opposition research hub. But without a reflection, I can\'t confirm the details of your individual contribution.',
+        '',
+      'Evie, you led the Equity Party with a clear philosophical direction: equity over equality, accessibility for all, and programs for people with disabilities. That\'s a distinct and meaningful platform. Without a reflection, I don\'t have your side of the story, but the platform you built tells me you were thinking about who gets left behind by systems that treat everyone the same.', false],
+
+    ['Isaac', 'Communist Party of Halifax', 'Member', 'ISAC',
+      '2+', 'Limited evidence.',
+        'CPOH had some platform ideas (transit, housing, cost of living) but didn\'t lock them in. Without a reflection, I can\'t assess your individual engagement with the issues, so this sits at the participation floor.',
+        '',
+      '2+', 'No reflection submitted.',
+        'Without a reflection or completed platform, I can\'t assess your understanding of government structure. This is the participation floor, not a judgment on what you might know.',
+        '',
+      '2+', 'Limited evidence.',
+        'No reflection, incomplete party. There\'s very little individual evidence of engagement, but you were part of the simulation and the floor for any participant is 2+.',
+        '',
+      'Isaac, there\'s not much individual evidence to work with here. You didn\'t submit a reflection, and your party (CPOH) didn\'t complete their platform. You were on the roster and that counts as participation, but I\'d want to see more next time. If there were circumstances that affected your participation, I\'d want to know about them. The door is open to do more.', false],
+
+    ['Brody', 'Communist Party of Halifax', 'Member', 'JY2P',
+      '1+', 'Limited evidence.',
+        'Largely absent during the unit. CPOH\'s platform existed but wasn\'t completed. Without a reflection or consistent presence, there\'s very little evidence of engagement with issues.',
+        '',
+      '1+', 'No evidence.',
+        'Without consistent participation, there\'s no evidence of engagement with government structure.',
+        '',
+      '1', 'Largely absent.',
+        'Largely absent during the unit. No reflection. The CPOH party didn\'t complete their platform. Very limited evidence of any engagement.',
+        '',
+      'Brody, you were largely absent during this unit. Without consistent participation, there\'s limited evidence to assess. If there were circumstances that affected your attendance, that context matters.', false],
+
+    ['Remy', 'The Party De Solution', 'Member', 'YMRP',
+      '3', 'Your party had strong issues.',
+        'The Party De Solution\'s platform -- Subway partnership, school bus seatbelts, nurse offices -- was creative and specific. You were part of the party that built it. The 3 reflects party membership with one strong evidence point, not confirmed individual issue analysis -- without a reflection, your personal engagement with the issue selection cannot be directly verified.',
+        '',
+      '2+', 'No reflection submitted.',
+        'Without a reflection, I can\'t assess your understanding of government structure. Your party\'s platform showed understanding, but I don\'t know your individual contribution to that understanding.',
+        '',
+      '3', 'You challenged the opposition with a specific policy question.',
+        'Your Town Hall question was substantive: \'What exactly does the coastal protection act you want to bring back entail? What will happen if you implement it? Will the coastlines stop being eroded by not building near them?\' That\'s not a throwaway question -- it\'s a detailed policy challenge that shows you were reading the opposition research and thinking critically about it.',
+        'What exactly does the coastal protection act you want to bring back entail? What will happen if you implement it? (Town Hall question)',
+      'Remy, you were part of the Party De Solution, which had one of the strongest platforms in the class. Without a reflection, I don\'t know the details of what you contributed in the war room. But during the Town Hall, you asked a detailed question about the Coastal Protection Act -- pushing the Environmentalists to explain exactly what the act would do and whether it would actually stop erosion. That\'s the kind of critical thinking that makes a democracy work.', false],
+
+    ['Huda', 'Team Tomorrow', 'Member', '6SUB',
+      '3', 'Your party had strong issues.',
+        'Team Tomorrow\'s platform was specific and well-structured. You were listed as a member.',
+        '',
+      '2+', 'No evidence.',
+        'Without a reflection, I can\'t assess your understanding of government structure.',
+        '',
+      '2+', 'No individual evidence.',
+        'Listed as a member of Team Tomorrow. No reflection or other individual evidence of contribution.',
+        '',
+      'Huda, I don\'t have much to work with. You were listed as a member of Team Tomorrow, which had a strong platform, but there\'s no reflection or other individual evidence to assess your contribution. The grades above are provisional and based on roster membership only -- they do not reflect confirmed individual work. If you were present and engaged, that context is missing from the record. If there were circumstances that affected your participation, that context matters.', true],
+
+    ['Fatima', 'The Unity Party', 'Member', 'T6U2',
+      '3', 'Your party addressed real issues.',
+        'The Unity Party\'s platform covered transit, internships, and healthcare. You were listed as a member.',
+        '',
+      '2+', 'No evidence.',
+        'Without a reflection, I can\'t assess your understanding of government structure.',
+        '',
+      '2+', 'Party member, but role unclear.',
+        'Listed as a member of the Unity Party, which won the primary. No reflection to confirm individual contribution.',
+        '',
+      'Fatima, you were part of the Unity Party, which won the primary round. Without a reflection, I don\'t know your individual contribution, but your party\'s platform addressed transit, internships, and healthcare. The grades above are provisional and based on roster membership only -- they do not reflect confirmed individual work. If you had the chance to tell your story, I\'d want to hear it.', true],
+
+    ['Jana', 'The Equity Party', 'Member', 'TT8D',
+      '3', 'Your party had a distinct platform.',
+        'The Equity Party focused on equity over equality, accessibility, and disability programs. You were listed as a member.',
+        '',
+      '2+', 'No evidence.',
+        'Without a reflection, I can\'t assess your understanding of government structure.',
+        '',
+      '2+', 'Party member, but role unclear.',
+        'Listed as a member of the Equity Party. No reflection to confirm individual contribution.',
+        '',
+      'Jana, you were part of the Equity Party, which had a clear philosophical direction. Without a reflection, I don\'t know your individual contribution, but the platform your party built was distinct and meaningful. The grades above are provisional and based on roster membership only -- they do not reflect confirmed individual work. If you had the chance to share your experience, I\'d want to hear it.', true]
+  ];
+];
+
+  // Write rows starting at row 2 (after header)
+  var startRow = sheet.getLastRow() + 1;
+  if (startRow < 2) startRow = 2;
+  sheet.getRange(startRow, 1, rows.length, FB_HEADERS.length - 1).setValues(rows);
+  SpreadsheetApp.flush();
+  Logger.log('Wrote ' + rows.length + ' rows starting at row ' + startRow + '. Add remaining 25 students via the sheet.');
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ORIGINAL FUNCTIONS (unchanged from v3)
