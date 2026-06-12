@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Статус Корінних Народів / Indigenous Status — Dmytro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Unbounded:wght@700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── RESET & VARIABLES ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --card:     #1c2333;
+      --border:   #30363d;
+      --accent1:  #58a6ff;   /* blue  */
+      --accent2:  #3fb950;   /* green */
+      --accent3:  #f78166;   /* red   */
+      --gold:     #d29922;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --radius:   12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, #0d1117 0%, #1a2540 60%, #0d1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(88,166,255,.12) 0%, transparent 70%);
+    }
+    .flag-stripe {
+      display: flex; height: 6px; width: 100%; margin-bottom: 28px;
+    }
+    .flag-stripe div { flex: 1; }
+    .flag-stripe .ua-blue  { background: #005BBB; }
+    .flag-stripe .ua-yellow { background: #FFD500; }
+    .flag-stripe .ca-red1  { background: #FF0000; }
+    .flag-stripe .ca-white { background: #fff; flex: 2; }
+    .flag-stripe .ca-red2  { background: #FF0000; }
+
+    .hero-eyebrow {
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent1); margin-bottom: 16px; font-weight: 600;
+    }
+    .hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.6rem);
+      line-height: 1.2; color: #fff; margin-bottom: 12px;
+    }
+    .hero h1 span { color: var(--accent1); }
+    .hero-sub {
+      font-size: 1rem; color: var(--muted); max-width: 540px; margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+
+    /* ─── NAV PILLS ─── */
+    .nav-pills {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      padding: 0 24px 40px;
+    }
+    .nav-pill {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 50px; padding: 10px 22px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; color: var(--muted);
+      transition: all .2s; white-space: nowrap;
+    }
+    .nav-pill:hover, .nav-pill.active {
+      background: var(--accent1); border-color: var(--accent1);
+      color: #000;
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    .main { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+
+    /* ─── SECTION ─── */
+    .section { display: none; animation: fadeUp .4s ease; }
+    .section.active { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── BILINGUAL CARD ─── */
+    .bi-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 20px;
+    }
+    .bi-header {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .bi-lang {
+      padding: 12px 20px; font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+    .bi-lang.uk { background: rgba(0,91,187,.25); color: #7eb3ff; border-right: 1px solid var(--border); }
+    .bi-lang.en { background: rgba(255,0,0,.12); color: #ff8080; }
+    .bi-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .bi-col {
+      padding: 18px 20px; font-size: 0.93rem; line-height: 1.7;
+    }
+    .bi-col.uk { border-right: 1px solid var(--border); }
+    .bi-col p + p { margin-top: 10px; }
+
+    /* ─── SECTION TITLE ─── */
+    .section-title {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px; margin-top: 8px;
+    }
+    .section-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 1.3rem; font-weight: 700; color: #fff; }
+    .section-title small { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    /* ─── HIGHLIGHT BOX ─── */
+    .highlight {
+      background: rgba(88,166,255,.08); border-left: 4px solid var(--accent1);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 16px 20px; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.7;
+    }
+    .highlight.green { background: rgba(63,185,80,.08); border-left-color: var(--accent2); }
+    .highlight.red   { background: rgba(247,129,102,.08); border-left-color: var(--accent3); }
+    .highlight.gold  { background: rgba(210,153,34,.1); border-left-color: var(--gold); }
+
+    /* ─── KEY TERM ─── */
+    .term { color: var(--accent1); font-weight: 700; }
+
+    /* ─── COMPARISON GRID ─── */
+    .compare-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;
+    }
+    .compare-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; font-size: 0.9rem; line-height: 1.6;
+    }
+    .compare-card h3 { font-size: 0.95rem; margin-bottom: 10px; }
+    .compare-card.bad  { border-top: 4px solid var(--accent3); }
+    .compare-card.bad h3  { color: var(--accent3); }
+    .compare-card.good { border-top: 4px solid var(--accent2); }
+    .compare-card.good h3 { color: var(--accent2); }
+    .compare-card.neutral { border-top: 4px solid var(--gold); }
+    .compare-card.neutral h3 { color: var(--gold); }
+
+    /* ─── BENEFIT GRID ─── */
+    .benefit-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; margin-bottom: 20px;
+    }
+    .benefit-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; text-align: center;
+      font-size: 0.85rem; line-height: 1.5;
+    }
+    .benefit-item .icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+    .benefit-item strong { display: block; margin-bottom: 6px; color: var(--accent2); }
+
+    /* ─── STATUS CALCULATOR ─── */
+    .calc-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+    }
+    .calc-box h3 { font-size: 1rem; margin-bottom: 20px; color: var(--accent1); }
+    .calc-row {
+      display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .calc-row label { font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 6px; }
+    .calc-select {
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+    }
+    .calc-plus { font-size: 1.5rem; color: var(--muted); padding-top: 20px; }
+    .calc-btn {
+      background: var(--accent1); color: #000; border: none;
+      padding: 12px 28px; border-radius: 8px; font-weight: 700;
+      font-size: 0.9rem; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: filter .2s; margin-top: 4px;
+    }
+    .calc-btn:hover { filter: brightness(1.15); }
+    .calc-result {
+      background: var(--card); border-radius: 8px; padding: 16px 20px;
+      font-weight: 700; font-size: 1rem; min-height: 52px;
+      border: 1px solid var(--border); transition: all .3s;
+    }
+    .result-green { color: var(--accent2); border-color: var(--accent2); }
+    .result-orange { color: var(--gold); border-color: var(--gold); }
+    .result-red   { color: var(--accent3); border-color: var(--accent3); }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 28px; margin-bottom: 20px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 6px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .tl-item {
+      position: relative; margin-bottom: 28px;
+    }
+    .tl-item::before {
+      content: ''; position: absolute; left: -26px; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent1); border: 2px solid var(--bg);
+    }
+    .tl-year {
+      font-family: 'Unbounded', sans-serif; font-size: 0.85rem;
+      color: var(--accent1); margin-bottom: 6px;
+    }
+    .tl-content {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      font-size: 0.9rem; line-height: 1.6;
+    }
+    .tl-content strong { color: var(--text); }
+    .tl-uk { color: var(--muted); font-size: 0.85rem; margin-top: 8px; }
+
+    /* ─── BATTERY VISUAL ─── */
+    .battery-row {
+      display: flex; gap: 20px; align-items: center;
+      justify-content: center; margin: 16px 0; flex-wrap: wrap;
+    }
+    .battery-block { text-align: center; }
+    .battery {
+      width: 64px; height: 28px; border: 2px solid var(--text);
+      border-radius: 4px; position: relative; display: inline-block; margin-bottom: 6px;
+    }
+    .battery::after {
+      content: ''; position: absolute; right: -7px; top: 7px;
+      width: 4px; height: 14px; background: var(--text); border-radius: 0 2px 2px 0;
+    }
+    .bat-fill { height: 100%; border-radius: 2px; }
+    .bat-full  { width: 100%; background: var(--accent2); }
+    .bat-half  { width: 50%; background: var(--gold); }
+    .bat-empty { width: 2px; background: var(--accent3); }
+    .battery-block small { font-size: 0.75rem; color: var(--muted); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+    @media (max-width: 600px) {
+      .bi-header, .bi-body { grid-template-columns: 1fr; }
+      .bi-col.uk { border-right: none; border-bottom: 1px solid var(--border); }
+      .bi-lang.uk { border-right: none; border-bottom: 1px solid var(--border); }
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="flag-stripe">
+    <div class="ua-blue"></div>
+    <div class="ua-yellow"></div>
+    <div class="ca-red1"></div>
+    <div class="ca-white"></div>
+    <div class="ca-red2"></div>
+  </div>
+  <div class="hero-eyebrow">Мі'кмавські Студії 11 · Mi'kmaw Studies 11</div>
+  <h1>Статус за <span>Законом про індіанців</span><br>Indian Act Status</h1>
+  <p class="hero-sub">
+    Справа Сари — хто має офіційний статус і чому?<br>
+    <em>Sarah's Case — who has official status and why?</em>
+  </p>
+</div>
+
+<!-- ─── NAV ─── -->
+<div class="nav-pills">
+  <div class="nav-pill active" onclick="showSection('s1', this)">📜 Закон / The Law</div>
+  <div class="nav-pill" onclick="showSection('s2', this)">⚖️ До 1985 / Pre-1985</div>
+  <div class="nav-pill" onclick="showSection('s3', this)">🔄 Законопроект C-31</div>
+  <div class="nav-pill" onclick="showSection('s4', this)">🧮 Калькулятор / Calculator</div>
+  <div class="nav-pill" onclick="showSection('s5', this)">💼 Пільги / Benefits</div>
+  <div class="nav-pill" onclick="showSection('s6', this)">🗞️ 2026 — Білль S-2</div>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 1 — What is the Indian Act?  -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s1" class="section active">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(88,166,255,.15);">📜</div>
+      <div>
+        <h2>Що таке «Закон про індіанців»?</h2>
+        <small>What is the Indian Act?</small>
+      </div>
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Українська</div>
+        <div class="bi-lang en">🇨🇦 English</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p><span class="term">Закон про індіанців</span> — це федеральний закон Канади 1876 року. Він визначає, хто є «статусним індіанцем» і контролює землі резервацій, місцеве самоврядування та ідентичність.</p>
+          <p>Цей закон дуже суперечливий, бо він не давав корінним народам права самим вирішувати, хто вони є.</p>
+        </div>
+        <div class="bi-col en">
+          <p>The <span class="term">Indian Act</span> is a Canadian federal law from 1876. It defines who is a "Status Indian" and controls reserve lands, local governance, and identity.</p>
+          <p>The law is very controversial because it took away Indigenous peoples' right to define their own identity.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight gold">
+      <strong>⚠️ Ключова ідея / Key Idea:</strong><br>
+      🇺🇦 «Статус» — це офіційне визнання урядом Канади. Він відкриває доступ до пільг, але також визначає, чи можеш ти жити у своїй громаді.<br>
+      🇨🇦 "Status" is official recognition by the Canadian government. It unlocks benefits, but also determines whether you can live in your own community.
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">
+      <div class="section-icon" style="background:rgba(63,185,80,.15);">👤</div>
+      <div>
+        <h2>Хто така Сара? / Who is Sarah?</h2>
+        <small>The case study</small>
+      </div>
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Українська</div>
+        <div class="bi-lang en">🇨🇦 English</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>Сара — молода жінка Мі'кмав. Її бабуся <strong>Мері</strong> втратила свій статус, коли вийшла заміж за чоловіка без статусу. Потім вона отримала статус назад у 1985 році.</p>
+          <p>Але батько Сари отримав «слабший» статус 6(2). Коли він одружився з жінкою без статусу, дія правила «другого покоління» означала, що <strong>Сара не отримала статусу взагалі</strong>.</p>
+        </div>
+        <div class="bi-col en">
+          <p>Sarah is a young Mi'kmaw woman. Her grandmother <strong>Mary</strong> lost her status when she married a non-Status man. Mary got her status back in 1985.</p>
+          <p>But Sarah's father received a "weaker" 6(2) status. When he married a non-Status woman, the "second-generation cut-off" rule meant <strong>Sarah received no status at all</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /s1 -->
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 2 — Pre-1985                 -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s2" class="section">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(247,129,102,.15);">⚖️</div>
+      <div>
+        <h2>До 1985 року: Дискримінація</h2>
+        <small>Pre-1985: Gender Discrimination</small>
+      </div>
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Українська</div>
+        <div class="bi-lang en">🇨🇦 English</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>До 1985 року закон по-різному ставився до чоловіків і жінок. Стаття 12(1)(б) говорила:</p>
+          <p>Якщо жінка зі статусом виходила заміж за чоловіка <strong>без статусу</strong> — вона <em>втрачала</em> свій статус. Її дітям теж не давали статус.</p>
+          <p>Якщо чоловік зі статусом одружувався з жінкою <strong>без статусу</strong> — вона <em>автоматично отримувала</em> статус.</p>
+        </div>
+        <div class="bi-col en">
+          <p>Before 1985, the law treated men and women differently. Section 12(1)(b) stated:</p>
+          <p>If a woman with Status married a man <strong>without Status</strong> — she <em>lost</em> her Status. Her children also lost Status.</p>
+          <p>If a man with Status married a woman <strong>without Status</strong> — she <em>automatically gained</em> Status.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card bad">
+        <h3>❌ "Marry-Out" (Жінка / Woman)</h3>
+        <p>🇺🇦 Жінка зі статусом + чоловік без статусу = <strong>Жінка втрачає статус</strong>. Вона не може повернутися в резервацію.</p>
+        <br>
+        <p>🇨🇦 Woman with Status + man without Status = <strong>Woman loses Status</strong>. She cannot return to her reserve.</p>
+      </div>
+      <div class="compare-card good">
+        <h3>✅ "Marry-In" (Чоловік / Man)</h3>
+        <p>🇺🇦 Чоловік зі статусом + жінка без статусу = Жінка <strong>отримує статус</strong>. Все добре для нього.</p>
+        <br>
+        <p>🇨🇦 Man with Status + woman without Status = Woman <strong>gains Status</strong>. No problem for him.</p>
+      </div>
+    </div>
+
+    <div class="highlight red">
+      <strong>🇺🇦 Це несправедливо!</strong> Одне й те саме рішення — одружитися з людиною без статусу — карало жінок, але нагороджувало чоловіків. Це і є <em>дискримінація за статтю</em>.<br><br>
+      <strong>🇨🇦 This is unfair!</strong> The same decision — marrying a non-Status person — punished women but rewarded men. This is <em>sex discrimination</em>.
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">
+      <div class="section-icon" style="background:rgba(88,166,255,.15);">🌍</div>
+      <div>
+        <h2>Тиск на зміни / Pressure to Change</h2>
+        <small>How the law was finally challenged</small>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">1967</div>
+        <div class="tl-content">
+          <strong>Indian Rights for Indian Women (IRIW)</strong> — Організація «Права корінних жінок для корінних жінок».
+          <div class="tl-uk">🇺🇦 Жінки Мі'кмав та інші корінні жінки об'єдналися і почали боротьбу проти закону.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">1981</div>
+        <div class="tl-content">
+          <strong>Sandra Lovelace v. Canada (UN)</strong>
+          <div class="tl-uk">🇺🇦 Сандра Лавлейс, жінка Малісіт, звернулася до Організації Об'єднаних Націй. ООН вирішила, що Канада <em>порушила права людини</em>. Це було великим соромом для Канади.</div>
+          <br>
+          🇨🇦 Sandra Lovelace, a Maliseet woman, took her case to the United Nations. The UN ruled Canada had <em>violated human rights</em>. This was a major embarrassment for Canada.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">1982</div>
+        <div class="tl-content">
+          <strong>Канадська Хартія прав і свобод / Canadian Charter of Rights and Freedoms</strong>
+          <div class="tl-uk">🇺🇦 Стаття 15 Хартії гарантує рівність незалежно від статі. Уряд отримав 3 роки, щоб змінити закон.</div>
+          <br>
+          🇨🇦 Section 15 of the Charter guarantees equality regardless of sex. The government had 3 years to change the law.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /s2 -->
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 3 — Bill C-31               -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s3" class="section">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(210,153,34,.15);">🔄</div>
+      <div>
+        <h2>Законопроект C-31 (1985)</h2>
+        <small>Bill C-31 — The "Compromise"</small>
+      </div>
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Українська</div>
+        <div class="bi-lang en">🇨🇦 English</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>У 1985 році уряд Канади прийняв <span class="term">Законопроект C-31</span>. Він скасував правило «marry-out».</p>
+          <p>Жінки, які втратили статус, отримали його назад. Це була <strong>хороша новина</strong>.</p>
+          <p>Але уряд також створив нову проблему: <strong>дворівневу систему статусу</strong>, щоб обмежити кількість людей, які могли передати статус у майбутньому.</p>
+        </div>
+        <div class="bi-col en">
+          <p>In 1985, the Canadian government passed <span class="term">Bill C-31</span>. It abolished the "marry-out" rule.</p>
+          <p>Women who had lost their status got it back. This was <strong>good news</strong>.</p>
+          <p>But the government also created a new problem: a <strong>two-tier status system</strong> to limit how many people could pass Status in the future.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card good">
+        <h3>✅ 6(1) — Повний Статус / Full Status</h3>
+        <p>🇺🇦 Обидва батьки мають статус. Ти можеш передати статус своїм дітям <strong>незалежно</strong> від того, на кому одружишся.</p>
+        <br>
+        <p>🇨🇦 Both parents have Status. You can pass Status to your children <strong>no matter</strong> who you marry. Like a full battery.</p>
+      </div>
+      <div class="compare-card neutral">
+        <h3>⚠️ 6(2) — Частковий Статус / Partial Status</h3>
+        <p>🇺🇦 Тільки один батько має статус. У тебе є статус для себе, але ти <strong>не можеш</strong> передати його самостійно — лише якщо твій партнер теж має статус.</p>
+        <br>
+        <p>🇨🇦 Only one parent has Status. You have Status for yourself, but <strong>cannot</strong> pass it alone — only if your partner also has Status. Like a half-charged battery.</p>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:32px;">
+      <div class="section-icon" style="background:rgba(247,129,102,.15);">✂️</div>
+      <div>
+        <h2>Правило Другого Покоління</h2>
+        <small>The "Second-Generation Cut-Off"</small>
+      </div>
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Українська</div>
+        <div class="bi-lang en">🇨🇦 English</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>Це правило каже: якщо батько 6(2) одружується з людиною <strong>без статусу</strong>, їхня дитина <strong>взагалі не має статусу</strong>.</p>
+          <p>Статус «закінчується» після двох поколінь. Це схоже на розряджену батарейку.</p>
+        </div>
+        <div class="bi-col en">
+          <p>This rule states: if a 6(2) parent marries someone <strong>without Status</strong>, their child has <strong>no Status at all</strong>.</p>
+          <p>Status "runs out" after two generations. Think of it like a dead battery.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="battery-row">
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-full"></div></div>
+        <small>6(1) Parent<br>🇺🇦 Батько/мати 6(1)</small>
+      </div>
+      <div style="font-size:1.5rem; color:var(--muted);">+</div>
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-half"></div></div>
+        <small>6(2) Parent<br>🇺🇦 Батько/мати 6(2)</small>
+      </div>
+      <div style="font-size:1.5rem; color:var(--muted);">=</div>
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-full"></div></div>
+        <small>Child: 6(1) ✅<br>🇺🇦 Дитина: 6(1)</small>
+      </div>
+    </div>
+
+    <div class="battery-row">
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-half"></div></div>
+        <small>6(2) Parent</small>
+      </div>
+      <div style="font-size:1.5rem; color:var(--muted);">+</div>
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-empty"></div></div>
+        <small>Non-Status<br>🇺🇦 Без статусу</small>
+      </div>
+      <div style="font-size:1.5rem; color:var(--muted);">=</div>
+      <div class="battery-block">
+        <div class="battery"><div class="bat-fill bat-empty"></div></div>
+        <small style="color:var(--accent3);">❌ CUT-OFF!<br>🇺🇦 Статус відсутній!</small>
+      </div>
+    </div>
+
+    <div class="highlight red">
+      <strong>🇺🇦 Справа Сари:</strong> Бабуся Мері отримала статус 6(1)(c). Але батько Сари отримав лише 6(2). Батько одружився з жінкою без статусу → правило другого покоління спрацювало → Сара отримала нуль.<br><br>
+      <strong>🇨🇦 Sarah's case:</strong> Grandma Mary got 6(1)(c) status back. But Sarah's dad only received 6(2). Dad married a non-Status woman → cut-off triggered → Sarah gets nothing.
+    </div>
+
+    <div class="highlight">
+      <strong>🇺🇦 Чому уряд це зробив?</strong><br>
+      1. <strong>Гроші:</strong> Більше людей зі статусом = більше витрат на охорону здоров'я, освіту, житло.<br>
+      2. <strong>Асиміляція:</strong> Мета — щоб статус «зникнув» через покоління, зливши корінні народи в загальне суспільство.<br><br>
+      <strong>🇨🇦 Why did the government do this?</strong><br>
+      1. <strong>Money:</strong> More Status people = more spending on health, education, housing.<br>
+      2. <strong>Assimilation:</strong> The goal — make Status "disappear" over generations by merging Indigenous people into mainstream society.
+    </div>
+
+  </div><!-- /s3 -->
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 4 — Calculator               -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s4" class="section">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(88,166,255,.15);">🧮</div>
+      <div>
+        <h2>Калькулятор статусу / Status Calculator</h2>
+        <small>Try it yourself!</small>
+      </div>
+    </div>
+
+    <div class="bi-card" style="margin-bottom:24px;">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Інструкція</div>
+        <div class="bi-lang en">🇨🇦 Instructions</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>Вибери статус обох батьків і натисни кнопку. Система покаже, який статус матиме їхня дитина.</p>
+        </div>
+        <div class="bi-col en">
+          <p>Select the status of both parents and press the button. The system will show what status their child will have.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-box">
+      <h3>🧬 Калькулятор / Status Calculator</h3>
+      <div class="calc-row">
+        <div>
+          <label>🇺🇦 Батько/мати 1 · Parent 1</label>
+          <select id="p1" class="calc-select">
+            <option value="61">6(1) — Повний / Full</option>
+            <option value="62">6(2) — Частковий / Partial</option>
+            <option value="none">Без статусу / Non-Status</option>
+          </select>
+        </div>
+        <div class="calc-plus">+</div>
+        <div>
+          <label>🇺🇦 Батько/мати 2 · Parent 2</label>
+          <select id="p2" class="calc-select">
+            <option value="none">Без статусу / Non-Status</option>
+            <option value="61">6(1) — Повний / Full</option>
+            <option value="62">6(2) — Частковий / Partial</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calcStatus()">Розрахувати / Calculate →</button>
+      </div>
+      <div id="calcResult" class="calc-result">
+        🇺🇦 Вибери батьків і натисни кнопку.<br>
+        🇨🇦 Select parents and press the button.
+      </div>
+    </div>
+
+    <div class="highlight">
+      <strong>🇺🇦 Аналогія:</strong> Уявіть батарейку. 6(1) — батарея заряджена на 100%. 6(2) — на 50%. Якщо 50% + 0% = батарея повністю розряджена. Статус закінчився.<br><br>
+      <strong>🇨🇦 Analogy:</strong> Think of a battery. 6(1) = 100% charged. 6(2) = 50% charged. 50% + 0% = dead battery. Status runs out.
+    </div>
+
+  </div><!-- /s4 -->
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 5 — Benefits                 -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s5" class="section">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(63,185,80,.15);">💼</div>
+      <div>
+        <h2>Пільги Статусу / Benefits of Status</h2>
+        <small>What Status provides access to</small>
+      </div>
+    </div>
+
+    <div class="bi-card" style="margin-bottom:24px;">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Пояснення</div>
+        <div class="bi-lang en">🇨🇦 Explanation</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>«Статус» — це не просто слово. Він дає реальні права і доступ до програм. Ось чому його важливість така висока, і чому правило «відрізання» є несправедливим.</p>
+        </div>
+        <div class="bi-col en">
+          <p>"Status" is not just a word. It provides real rights and access to programs. This is why it matters so much, and why the cut-off rule is seen as unjust.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="benefit-grid">
+      <div class="benefit-item">
+        <span class="icon">🏥</span>
+        <strong>Охорона здоров'я / Health</strong>
+        Ліки, стоматологія, зір, медичний транспорт.<br>
+        <em>Prescription drugs, dental, vision, transport.</em>
+      </div>
+      <div class="benefit-item">
+        <span class="icon">🎓</span>
+        <strong>Освіта / Education</strong>
+        Фінансування університету і коледжу.<br>
+        <em>Funding for university and college.</em>
+      </div>
+      <div class="benefit-item">
+        <span class="icon">🏠</span>
+        <strong>Житло / Housing</strong>
+        Допомога в будівництві та ремонті житла в резервації.<br>
+        <em>Support for building/renovating housing on reserve.</em>
+      </div>
+      <div class="benefit-item">
+        <span class="icon">🎣</span>
+        <strong>Полювання та рибалка / Hunt & Fish</strong>
+        Права на рибалку і полювання без ліцензії на землях Корони.<br>
+        <em>Rights to fish/hunt without a licence on Crown lands.</em>
+      </div>
+      <div class="benefit-item">
+        <span class="icon">💰</span>
+        <strong>Податкові пільги / Tax Exemption</strong>
+        Звільнення від деяких податків на товари, куплені в резервації.<br>
+        <em>Exemption from certain taxes on goods bought on reserve.</em>
+      </div>
+      <div class="benefit-item">
+        <span class="icon">🏘️</span>
+        <strong>Членство в громаді / Community</strong>
+        Право жити у своїй спільноті, доступ до послуг і культури.<br>
+        <em>Right to live in your community, access services and culture.</em>
+      </div>
+    </div>
+
+    <div class="highlight red">
+      <strong>🇺🇦 Чому це важливо для справи Сари?</strong><br>
+      Якби Сара мала статус, вона могла б отримати медичну допомогу, фінансування на навчання і право жити в своїй резервації. Без статусу — вона позбавлена всього цього.<br><br>
+      <strong>🇨🇦 Why does this matter for Sarah's case?</strong><br>
+      If Sarah had Status, she could access healthcare, educational funding, and the right to live in her community. Without Status — she is denied all of this.
+    </div>
+
+  </div><!-- /s5 -->
+
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- SECTION 6 — Bill S-2 / 2026          -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="s6" class="section">
+
+    <div class="section-title">
+      <div class="section-icon" style="background:rgba(88,166,255,.15);">🗞️</div>
+      <div>
+        <h2>Новини 2026 — Законопроект S-2</h2>
+        <small>Breaking 2026 news — Bill S-2</small>
+      </div>
+    </div>
+
+    <div class="highlight green">
+      <strong>🗳️ Сенат Канади: 63–0</strong><br>
+      🇺🇦 У 2026 році Сенат Канади одноголосно проголосував за Законопроект S-2, який міг би скасувати «правило другого покоління».<br>
+      🇨🇦 In 2026, the Canadian Senate voted unanimously (63–0) to pass Bill S-2, which could eliminate the "second-generation cut-off" rule.
+    </div>
+
+    <div class="bi-card">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Що змінюється?</div>
+        <div class="bi-lang en">🇨🇦 What changes?</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>Законопроект S-2 означає, що діти від батьків 6(2) і без статусу <strong>більше не будуть позбавлені статусу автоматично</strong>.</p>
+          <p>Сенатор <strong>Пол Проспер</strong> (Мі'кмав, Нова Шотландія) пояснив, що стара система змушувала людей «одружуватися між собою», щоб зберегти статус — це несправедливо.</p>
+          <p>Орієнтовно <strong>300 000 людей</strong> зможуть отримати або відновити статус протягом наступних 40 років.</p>
+        </div>
+        <div class="bi-col en">
+          <p>Bill S-2 means children of 6(2) parents and non-Status partners would <strong>no longer automatically lose Status</strong>.</p>
+          <p>Senator <strong>Paul Prosper</strong> (Mi'kmaw, Nova Scotia) explained that the old system forced people to "marry among ourselves" to preserve Status — this is unfair.</p>
+          <p>An estimated <strong>300,000 people</strong> could gain or regain Status over the next 40 years.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-card bad">
+        <h3>❌ До S-2 / Before S-2</h3>
+        <p>🇺🇦 6(2) + Без статусу = ВІДМОВА. Статус «вмирає» через два покоління.</p>
+        <br>
+        <p>🇨🇦 6(2) + Non-Status = CUT-OFF. Status "dies" in two generations.</p>
+      </div>
+      <div class="compare-card good">
+        <h3>✅ Після S-2 / After S-2 (якщо стане законом)</h3>
+        <p>🇺🇦 6(2) + Без статусу = Дитина може отримати статус. Ланцюг не переривається.</p>
+        <br>
+        <p>🇨🇦 6(2) + Non-Status = Child may still receive Status. The chain is not broken.</p>
+      </div>
+    </div>
+
+    <div class="highlight gold">
+      <strong>⚠️ Законопроект S-2 ще не є законом! / Bill S-2 is not yet law!</strong><br>
+      🇺🇦 Сенат проголосував «так». Тепер законопроект переходить до <strong>Палати громад</strong>. Обрані депутати мають проголосувати. Якщо вони погодяться — правило «другого покоління» стане <em>історією</em>.<br><br>
+      🇨🇦 The Senate voted yes. Now the bill moves to the <strong>House of Commons</strong>. Elected MPs must vote. If they agree — the "second-generation cut-off" becomes <em>history</em>.
+    </div>
+
+    <div class="bi-card" style="margin-top:24px;">
+      <div class="bi-header">
+        <div class="bi-lang uk">🇺🇦 Що це означає для Сари?</div>
+        <div class="bi-lang en">🇨🇦 What does this mean for Sarah?</div>
+      </div>
+      <div class="bi-body">
+        <div class="bi-col uk">
+          <p>Якщо Законопроект S-2 стане законом, люди в ситуації Сари зможуть претендувати на отримання статусу. Дискримінація, яка позбавила Сару її коренів, могла б бути виправлена.</p>
+        </div>
+        <div class="bi-col en">
+          <p>If Bill S-2 becomes law, people in Sarah's situation could claim Status. The discrimination that denied Sarah her roots could finally be corrected.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /s6 -->
+
+</div><!-- /main -->
+
+<script>
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function calcStatus() {
+    const p1 = document.getElementById('p1').value;
+    const p2 = document.getElementById('p2').value;
+    const box = document.getElementById('calcResult');
+    box.className = 'calc-result';
+
+    let msg = '';
+    let cls = '';
+
+    if (p1 === 'none' && p2 === 'none') {
+      msg = '❌ Без статусу / Non-Status\n🇺🇦 Обидва батьки без статусу — дитина не має статусу.\n🇨🇦 Both parents non-Status — child has no Status.';
+      cls = 'result-red';
+    } else if ((p1 === '62' && p2 === 'none') || (p1 === 'none' && p2 === '62')) {
+      msg = '✂️ ВІДРІЗАННЯ! / CUT-OFF!\n🇺🇦 6(2) + Без статусу = Дитина не має статусу. Правило другого покоління!\n🇨🇦 6(2) + Non-Status = Child has NO Status. Second-generation cut-off applied!';
+      cls = 'result-red';
+    } else if ((p1 === '61' && p2 === 'none') || (p1 === 'none' && p2 === '61')) {
+      msg = '⚠️ Статус 6(2) — Частковий / Partial\n🇺🇦 6(1) + Без статусу = Дитина отримує 6(2). Має статус, але не може передати самостійно.\n🇨🇦 6(1) + Non-Status = Child gets 6(2). Has Status but cannot pass it alone.';
+      cls = 'result-orange';
+    } else if (p1 === '62' && p2 === '62') {
+      msg = '✅ Статус 6(1) — Повний / Full!\n🇺🇦 6(2) + 6(2) = Дитина отримує 6(1) — повний статус!\n🇨🇦 6(2) + 6(2) = Child gets 6(1) — full Status!';
+      cls = 'result-green';
+    } else {
+      msg = '✅ Статус 6(1) — Повний / Full!\n🇺🇦 Принаймні один батько має 6(1) — дитина отримує повний статус 6(1).\n🇨🇦 At least one parent has 6(1) — child receives full 6(1) Status.';
+      cls = 'result-green';
+    }
+
+    box.innerText = msg;
+    box.classList.add(cls);
+  }
+</script>
+
+</body>
+</html>
