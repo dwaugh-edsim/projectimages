@@ -381,26 +381,29 @@
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
-        const MISSION_TITLE = 'CIT 9: Service Learning V2';
+        const MISSION_TITLE = 'CIT9_RESEARCH_INTEL';
         const syncStatus = document.getElementById('syncStatus');
         const syncDot = document.getElementById('syncDot');
 
         const STUDENTS = [
-            {name:'Farhan'}, {name:'Abdul'},
-            {name:'Joshua A'}, {name:'Clark'},
-            {name:'Madhavan'}, {name:'Remy'},
-            {name:'Yunho'}, {name:'Lachlan McM'},
-            {name:'Lachlan Mac'}, {name:'Nolan'},
-            {name:'Laila'}, {name:'Josie'},
-            {name:'Huda'}, {name:'Brody'},
-            {name:'Leo'}, {name:'Elizabeth'},
-            {name:'Fatima'}, {name:'Alia'},
-            {name:'Rifa'}, {name:'Sarah'},
-            {name:'Jessa'}, {name:'Delisha'},
-            {name:'Kendra'}, {name:'Zankia'},
-            {name:'Evie'}, {name:'Jana'},
-            {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}
+            {name:'Farhan'}, {name:'Abdul'}, {name:'Joshua A'}, {name:'Clark'},
+            {name:'Madhavan'}, {name:'Remy'}, {name:'Yunho'}, {name:'Lachlan McM'},
+            {name:'Lachlan Mac'}, {name:'Nolan'}, {name:'Laila'}, {name:'Josie'},
+            {name:'Huda'}, {name:'Brody'}, {name:'Leo'}, {name:'Elizabeth'},
+            {name:'Fatima'}, {name:'Alia'}, {name:'Rifa'}, {name:'Sarah'},
+            {name:'Jessa'}, {name:'Delisha'}, {name:'Kendra'}, {name:'Zankia'},
+            {name:'Evie'}, {name:'Jana'}, {name:'Ali'}, {name:'Kai'}, {name:'Natalia'}, {name:'Isaac'}, {name:'Dave'}
         ];
+
+        const PIN_LIST = {
+            'Farhan': 'HRNH', 'Abdul': 'ALZZ', 'Joshua A': 'RUXG', 'Clark': '9F3K',
+            'Madhavan': 'R4MT', 'Remy': 'YMRP', 'Yunho': 'T4N5', 'Lachlan McM': 'FFAN',
+            'Lachlan Mac': '25VT', 'Nolan': 'KFK6', 'Laila': 'V4BC', 'Josie': 'MVQW',
+            'Huda': '6SUB', 'Brody': 'JY2P', 'Leo': 'RKKJ', 'Elizabeth': 'FNG3',
+            'Fatima': 'T6U2', 'Alia': 'LJFM', 'Rifa': '57G5', 'Sarah': '96EU',
+            'Jessa': 'HSZU', 'Delisha': 'Q2YA', 'Kendra': 'MTGG', 'Zankia': 'CA3J',
+            'Evie': 'R7SX', 'Jana': 'TT8D', 'Ali': 'D2ZD', 'Kai': 'VFW8', 'Natalia': 'RING', 'Isaac': 'CASK', 'Dave': 'TCHR'
+        };
         
         let timeout = null;
 
@@ -522,7 +525,7 @@
         const fields = ['studentName', 'missionSelect', 'selectionWhy', 'personalRole', 'busyWorkCritique', 'deliverableMod', 'betterIdea'];
         
         function autoSave() {
-            const user = localStorage.getItem('sl_v2_loggedInUser') || 'ANON';
+            const user = localStorage.getItem('sl_friday_user') || 'ANON';
             fields.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) localStorage.setItem(`sl_v2_${user}_${id}`, el.value);
@@ -571,7 +574,7 @@
         }
 
         async function retrieveFromCloud() {
-            const name = localStorage.getItem('sl_v2_loggedInUser');
+            const name = localStorage.getItem('sl_friday_user');
             if (!name) return;
 
             syncStatus.innerText = '🛰️ Retrieving from Cloud...';
@@ -618,7 +621,7 @@
         }
 
         function loadSaved() {
-            const user = localStorage.getItem('sl_v2_loggedInUser') || 'ANON';
+            const user = localStorage.getItem('sl_friday_user') || 'ANON';
             fields.forEach(id => {
                 const val = localStorage.getItem(`sl_v2_${user}_${id}`);
                 const el = document.getElementById(id);
@@ -698,13 +701,34 @@
             btn.innerText = 'AUTHORIZING...';
             btn.disabled = true;
 
+            const verifyLocally = () => {
+                const correctPin = PIN_LIST[name];
+                if (correctPin && correctPin === pin) {
+                    localStorage.setItem('sl_friday_user', name);
+                    document.getElementById('studentName').value = name;
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.body.classList.remove('logged-out');
+                    retrieveFromCloud();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = 'Authorize Access';
+                    btn.disabled = false;
+                }
+            };
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
             try {
                 // Perform server-side PIN validation
-                const response = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`);
+                const response = await fetch(`${WEBHOOK_URL}?action=LOGIN&studentId=${encodeURIComponent(name)}&pin=${encodeURIComponent(pin)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 const result = await response.json();
 
                 if (result.success) {
-                    localStorage.setItem('sl_v2_loggedInUser', name);
+                    localStorage.setItem('sl_friday_user', name);
                     document.getElementById('studentName').value = name;
                     document.getElementById('loginOverlay').style.display = 'none';
                     document.body.classList.remove('logged-out');
@@ -715,17 +739,14 @@
                     btn.disabled = false;
                 }
             } catch (e) {
-                console.error(e);
-                // Fallback for offline/no-cors mode if necessary, but LOGIN needs a response
-                document.getElementById('loginError').innerText = 'CONNECTION ERROR: TRY AGAIN';
-                document.getElementById('loginError').style.display = 'block';
-                btn.innerText = 'Authorize Access';
-                btn.disabled = false;
+                clearTimeout(timeoutId);
+                console.warn("Cloud login failed, using local PIN fallback.", e);
+                verifyLocally();
             }
         }
 
         function handleLogout() {
-            localStorage.removeItem('sl_v2_loggedInUser');
+            localStorage.removeItem('sl_friday_user');
             location.reload();
         }
 
@@ -738,7 +759,7 @@
                 select.appendChild(opt);
             });
 
-            const savedUser = localStorage.getItem('sl_v2_loggedInUser');
+            const savedUser = localStorage.getItem('sl_friday_user');
             if (savedUser) {
                 document.getElementById('studentName').value = savedUser;
                 document.getElementById('loginOverlay').style.display = 'none';
@@ -751,7 +772,7 @@
         document.addEventListener('input', autoSave);
         window.onload = () => {
             initLogin();
-            if (localStorage.getItem('sl_v2_loggedInUser')) {
+            if (localStorage.getItem('sl_friday_user')) {
                 retrieveFromCloud();
             }
         };
