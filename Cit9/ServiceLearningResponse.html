@@ -555,6 +555,9 @@
                 if (el) data['q_' + i] = el.value;
             }
 
+            // Keep keys compatible with File.html
+            data.topic = data.missionSelect;
+
             syncStatus.innerText = '🛰️ Syncing to Cloud...';
             syncDot.className = 'indicator-dot active';
 
@@ -579,33 +582,96 @@
 
             syncStatus.innerText = '🛰️ Retrieving from Cloud...';
             clearForm(); // Clean slate for new user
+
+            let localData = null;
+            try {
+                const localStr = localStorage.getItem(`sl_local_${name}`);
+                if (localStr) localData = JSON.parse(localStr);
+            } catch(err) {
+                console.warn("Could not read local backup", err);
+            }
             
             try {
-                const response = await fetch(`${WEBHOOK_URL}?studentId=${encodeURIComponent(name)}&missionTitle=${encodeURIComponent(MISSION_TITLE)}`);
-                const result = await response.json();
-                
-                if (result.content) {
-                    const data = JSON.parse(result.content);
-                    fields.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el && data[id]) {
-                            el.value = data[id];
-                            if (id === 'missionSelect') updateMissions();
+                const response = await fetch(`${WEBHOOK_URL}?action=GET_ALL_PROGRESS`);
+                const allLogs = await response.json();
+
+                if (!Array.isArray(allLogs)) {
+                    throw new Error("Invalid response format: Expected log array");
+                }
+
+                // Filter by active student name
+                const studentLogs = allLogs.filter(log => 
+                    log.StudentId && log.StudentId.toLowerCase() === name.toLowerCase()
+                );
+
+                // Sort chronologically ascending
+                studentLogs.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+
+                let mergedState = {
+                    studentName: name,
+                    missionSelect: '',
+                    selectionWhy: '',
+                    personalRole: '',
+                    busyWorkCritique: '',
+                    deliverableMod: '',
+                    betterIdea: '',
+                    q_1: '',
+                    q_2: '',
+                    q_3: '',
+                    q_4: ''
+                };
+
+                studentLogs.forEach(log => {
+                    const parsed = typeof log.ReflectionJSON === 'string' ? JSON.parse(log.ReflectionJSON) : log.ReflectionJSON;
+                    if (parsed) {
+                        const topicVal = parsed.topic || parsed.missionSelect || '';
+                        if (topicVal) mergedState.missionSelect = topicVal;
+
+                        const keys = ['selectionWhy', 'personalRole', 'busyWorkCritique', 'deliverableMod', 'betterIdea', 'q_1', 'q_2', 'q_3', 'q_4'];
+                        keys.forEach(k => {
+                            if (parsed[k] !== undefined && parsed[k] !== null && String(parsed[k]).trim() !== '') {
+                                mergedState[k] = parsed[k];
+                            }
+                        });
+                    }
+                });
+
+                // Merge local backup copy on top of database logs
+                if (localData) {
+                    const topicVal = localData.topic || localData.missionSelect || '';
+                    if (topicVal) mergedState.missionSelect = topicVal;
+                    const keys = ['selectionWhy', 'personalRole', 'busyWorkCritique', 'deliverableMod', 'betterIdea', 'q_1', 'q_2', 'q_3', 'q_4'];
+                    keys.forEach(k => {
+                        if (localData[k] !== undefined && localData[k] !== null && String(localData[k]).trim() !== '') {
+                            mergedState[k] = localData[k];
                         }
                     });
-                    // Re-sync dynamic fields after mission update
-                    setTimeout(() => {
-                        for(let i=1; i<=4; i++) {
-                            const el = document.getElementById('q_' + i);
-                            if (el && data['q_' + i]) el.value = data['q_' + i];
-                        }
-                    }, 500);
-                    syncStatus.innerText = '✅ Dossier Retrieved';
-                } else {
-                    loadSaved();
-                    syncStatus.innerText = 'New Dossier Initialized';
                 }
+
+                // Populate UI
+                document.getElementById('studentName').value = mergedState.studentName;
+                if (mergedState.missionSelect) {
+                    document.getElementById('missionSelect').value = mergedState.missionSelect;
+                    updateMissions();
+                }
+                
+                // Wait briefly for updateMissions to render the dynamic textareas
+                setTimeout(() => {
+                    fields.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && id !== 'studentName' && id !== 'missionSelect') {
+                            el.value = mergedState[id] || '';
+                        }
+                    });
+                    for(let i=1; i<=4; i++) {
+                        const el = document.getElementById('q_' + i);
+                        if (el) el.value = mergedState['q_' + i] || '';
+                    }
+                }, 150);
+
+                syncStatus.innerText = '✅ Dossier Retrieved';
             } catch (e) {
+                console.warn("Could not retrieve cloud data. Using local fallback.", e);
                 loadSaved();
                 syncStatus.innerText = 'Ready (Offline Mode)';
             }
