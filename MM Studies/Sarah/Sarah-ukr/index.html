@@ -263,9 +263,128 @@
       .bi-lang.uk { border-right: none; border-bottom: 1px solid var(--border); }
       .compare-grid { grid-template-columns: 1fr; }
     }
+
+    /* ─── INTERACTION PANEL (Assignment / Response) ─── */
+    .interaction-panel {
+      margin-top: 30px;
+      padding: 25px;
+      background: rgba(88, 166, 255, 0.03);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent1);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .prompt-en {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent1);
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .prompt-uk {
+      font-size: 1rem;
+      color: var(--text);
+      background: rgba(88, 166, 255, 0.06);
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      line-height: 1.7;
+      border-left: 3px solid var(--accent1);
+    }
+    .field-label-uk {
+      font-size: 0.9rem;
+      color: var(--accent1);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .interaction-panel textarea {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 14px;
+      min-height: 110px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      transition: border-color 0.3s;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+    .interaction-panel textarea:focus {
+      border-color: var(--accent1);
+      outline: none;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.15);
+    }
+    .save-btn {
+      background: var(--accent1);
+      color: #000;
+      border: none;
+      padding: 12px 28px;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 0.85rem;
+      border-radius: 30px;
+      margin-top: 8px;
+    }
+    .save-btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    .nav-pill.completed {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+    .nav-pill.completed::after {
+      content: ' ✓';
+    }
+
+    /* ─── STATUS BAR ─── */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      background: #0d1117;
+      padding: 10px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+      z-index: 500;
+      font-family: monospace;
+    }
+    .status-bar .highlight-status {
+      color: var(--accent1);
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ═══════ AUTO-LOGIN WELCOME SPLASH ═══════ -->
+  <div id="splash" style="position: fixed; inset: 0; background: rgba(13,17,23,0.98); z-index: 1000; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease;">
+    <div style="background: var(--card); border: 2px solid var(--accent1); padding: 40px; border-radius: var(--radius); text-align: center; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+      <h1 style="color: #fff; font-size: 1.8rem; margin-bottom: 15px;">Статус Корінних Народів</h1>
+      <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">Indian Act Status // Sarah's Case</p>
+      <div style="font-size: 1.4rem; font-weight: bold; color: #fff; margin-bottom: 8px;">🇺🇦 Дмитро / Dmytro</div>
+      <div style="font-size: 0.85rem; color: var(--muted); margin-bottom: 25px; text-transform: uppercase;">A Block (Waugh) — Автоматичний вхід</div>
+      <div style="font-size: 1.05rem; color: var(--text); line-height: 1.6; margin-bottom: 15px;">
+        Привіт, Дмитро! Це твоє завдання про Закон про індіанців та справу Сари.<br>
+        Тут є всі інструкції українською мовою. 🇺🇦
+      </div>
+      <div style="font-size: 0.85rem; color: var(--muted); line-height: 1.5; margin-bottom: 30px; font-style: italic;">
+        Hi Dmytro! You are automatically logged in.<br>
+        Bilingual English/Ukrainian questions are at the bottom of each tab.
+      </div>
+      <button onclick="startWelcome()" style="background: var(--accent1); color: #000; border: none; padding: 15px 30px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; border-radius: 30px; cursor: pointer; width: 100%; transition: opacity 0.2s;">РОЗПОЧАТИ / BEGIN →</button>
+    </div>
+  </div>
 
 <!-- ─── HERO ─── -->
 <div class="hero">
@@ -357,6 +476,15 @@
       </div>
     </div>
 
+    <!-- SECTION 1 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">What is the Indian Act? Why is it controversial?</div>
+      <div class="prompt-uk">🇺🇦 Що таке Закон про індіанців? Чому він є суперечливим?</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s1" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s1')">💾 Зберегти / Save</button>
+    </div>
+
   </div><!-- /s1 -->
 
 
@@ -446,6 +574,13 @@
           🇨🇦 Section 15 of the Charter guarantees equality regardless of sex. The government had 3 years to change the law.
         </div>
       </div>
+    <!-- SECTION 2 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">How did the pre-1985 law treat women differently from men if they married a non-Status person?</div>
+      <div class="prompt-uk">🇺🇦 Як закон до 1985 року ставився до жінок інакше, ніж до чоловіків, якщо вони одружувалися з особою без статусу?</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s2" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s2')">💾 Зберегти / Save</button>
     </div>
 
   </div><!-- /s2 -->
@@ -569,6 +704,13 @@
       <strong>🇨🇦 Why did the government do this?</strong><br>
       1. <strong>Money:</strong> More Status people = more spending on health, education, housing.<br>
       2. <strong>Assimilation:</strong> The goal — make Status "disappear" over generations by merging Indigenous people into mainstream society.
+    <!-- SECTION 3 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">What was the main compromise of Bill C-31 (1985)?</div>
+      <div class="prompt-uk">🇺🇦 Яким був головний компроміс Законопроекту C-31 (1985)?</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s3" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s3')">💾 Зберегти / Save</button>
     </div>
 
   </div><!-- /s3 -->
@@ -633,6 +775,13 @@
     <div class="highlight">
       <strong>🇺🇦 Аналогія:</strong> Уявіть батарейку. 6(1) — батарея заряджена на 100%. 6(2) — на 50%. Якщо 50% + 0% = батарея повністю розряджена. Статус закінчився.<br><br>
       <strong>🇨🇦 Analogy:</strong> Think of a battery. 6(1) = 100% charged. 6(2) = 50% charged. 50% + 0% = dead battery. Status runs out.
+    <!-- SECTION 4 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">Use the calculator. What happens if a person with 6(2) status marries a non-Status person?</div>
+      <div class="prompt-uk">🇺🇦 Скористайся калькулятором. Що відбувається, якщо особа зі статусом 6(2) одружується з особою без статусу?</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s4" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s4')">💾 Зберегти / Save</button>
     </div>
 
   </div><!-- /s4 -->
@@ -710,6 +859,13 @@
       Якби Сара мала статус, вона могла б отримати медичну допомогу, фінансування на навчання і право жити в своїй резервації. Без статусу — вона позбавлена всього цього.<br><br>
       <strong>🇨🇦 Why does this matter for Sarah's case?</strong><br>
       If Sarah had Status, she could access healthcare, educational funding, and the right to live in her community. Without Status — she is denied all of this.
+    <!-- SECTION 5 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">Pick one benefit (e.g., Education or Health) and explain why it is important for Status Indians.</div>
+      <div class="prompt-uk">🇺🇦 Вибери одну пільгу (наприклад, освіту чи охорону здоров'я) і поясни, чому вона важлива для статусних індіанців.</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s5" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s5')">💾 Зберегти / Save</button>
     </div>
 
   </div><!-- /s5 -->
@@ -787,6 +943,13 @@
           <p>If Bill S-2 becomes law, people in Sarah's situation could claim Status. The discrimination that denied Sarah her roots could finally be corrected.</p>
         </div>
       </div>
+    <!-- SECTION 6 QUESTION -->
+    <div class="interaction-panel">
+      <div class="prompt-en">What is the main goal of Bill S-2?</div>
+      <div class="prompt-uk">🇺🇦 Яка головна мета законопроекту S-2?</div>
+      <div class="field-label-uk">🇺🇦 Твоя відповідь / Your answer:</div>
+      <textarea id="ans-s6" placeholder="Пиши тут / Write here..."></textarea>
+      <button class="save-btn" onclick="saveSectionAnswer('s6')">💾 Зберегти / Save</button>
     </div>
 
   </div><!-- /s6 -->
@@ -794,6 +957,201 @@
 </div><!-- /main -->
 
 <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+  const SIMULATION_NAME = "Sarah — Indian Act Status";
+  
+  const DMYTRO_STUDENT = {
+    "B": "A Block (Waugh)",
+    "S": "RG15dHJvIChCSUJBKQ=="  // decodes to: Dmytro (BIBA)
+  };
+
+  let sessionData = { responses: {} };
+
+  function startWelcome() {
+    const splash = document.getElementById('splash');
+    splash.style.opacity = 0;
+    setTimeout(() => {
+      splash.style.display = 'none';
+      startSession();
+    }, 800);
+  }
+
+  function startSession() {
+    loadFromLocal();
+    if (!sessionData.responses) sessionData.responses = {};
+    if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+    if (!sessionData.responses._timestamps.start) {
+      sessionData.responses._timestamps.start = new Date().toISOString();
+      saveToLocal();
+    }
+    
+    // Put responses into inputs
+    for (let i = 1; i <= 6; i++) {
+      const field = document.getElementById(`ans-s${i}`);
+      if (field && sessionData.responses[`s${i}`]) {
+        field.value = sessionData.responses[`s${i}`];
+      }
+    }
+
+    retrieveFromCloud();
+  }
+
+  function saveSectionAnswer(sectionId) {
+    const textarea = document.getElementById(`ans-${sectionId}`);
+    if (!textarea) return;
+
+    const val = textarea.value.trim();
+    sessionData.responses[sectionId] = val;
+
+    if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+    sessionData.responses._timestamps[sectionId] = new Date().toISOString();
+
+    saveToLocal();
+    updatePillsStatus();
+    submitToWebhook(false);
+  }
+
+  function updatePillsStatus() {
+    for (let i = 1; i <= 6; i++) {
+      const pill = document.querySelector(`.nav-pill[onclick*="'s${i}'"]`);
+      if (pill) {
+        if (sessionData.responses[`s${i}`] && sessionData.responses[`s${i}`].trim().length > 0) {
+          pill.classList.add('completed');
+        } else {
+          pill.classList.remove('completed');
+        }
+      }
+    }
+  }
+
+  function saveToLocal() {
+    const decodedS = atob(DMYTRO_STUDENT.S);
+    localStorage.setItem(`sarah_data_${decodedS}`, JSON.stringify(sessionData));
+  }
+
+  function loadFromLocal() {
+    const decodedS = atob(DMYTRO_STUDENT.S);
+    const saved = localStorage.getItem(`sarah_data_${decodedS}`);
+    if (saved) {
+      sessionData = JSON.parse(saved);
+    }
+  }
+
+  function markCloudSaveResult(isOffline) {
+    const indicator = document.getElementById('save-indicator');
+    if (!indicator) return;
+    if (isOffline) {
+      indicator.innerText = "CLOUD_SYNC: FAILED";
+      indicator.style.color = "#f78166";
+    } else {
+      indicator.innerText = "CLOUD_SYNC: SUCCESS ✓";
+      indicator.style.color = "var(--accent2)";
+      setTimeout(() => {
+        indicator.innerText = "CLOUD_SYNC: IDLE";
+        indicator.style.color = "var(--muted)";
+      }, 2500);
+    }
+  }
+
+  async function retrieveFromCloud() {
+    const syncStatus = document.getElementById('sync-status');
+    if (syncStatus) {
+      syncStatus.innerText = "SYNC: RETRIEVING...";
+      syncStatus.style.color = "var(--gold)";
+    }
+
+    try {
+      const decodedS = atob(DMYTRO_STUDENT.S);
+      const res = await fetch(`${API_URL}?student=${encodeURIComponent(decodedS)}&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+      const result = await res.json();
+
+      if (result.rationales) {
+        const cloudResponses = JSON.parse(result.rationales);
+        const localStart = (sessionData.responses && sessionData.responses._timestamps) ? sessionData.responses._timestamps.start : null;
+        sessionData.responses = cloudResponses;
+        if (!sessionData.responses._timestamps) sessionData.responses._timestamps = {};
+        if (!sessionData.responses._timestamps.start && localStart) sessionData.responses._timestamps.start = localStart;
+        
+        if (syncStatus) {
+          syncStatus.innerText = "SYNC: CLOUD LOADED";
+          syncStatus.style.color = "var(--accent2)";
+        }
+        saveToLocal();
+
+        // Update inputs
+        for (let i = 1; i <= 6; i++) {
+          const field = document.getElementById(`ans-s${i}`);
+          if (field) {
+            field.value = sessionData.responses[`s${i}`] || '';
+          }
+        }
+        updatePillsStatus();
+
+        setTimeout(() => {
+          if (syncStatus) {
+            syncStatus.innerText = "SYNC: READY";
+            syncStatus.style.color = "var(--accent1)";
+          }
+        }, 3000);
+      } else {
+        if (syncStatus) {
+          syncStatus.innerText = "SYNC: READY";
+          syncStatus.style.color = "var(--accent1)";
+        }
+      }
+    } catch (e) {
+      console.error("Cloud retrieval failed:", e);
+      if (syncStatus) {
+        syncStatus.innerText = "SYNC: OFFLINE";
+        syncStatus.style.color = "#f78166";
+      }
+    }
+  }
+
+  async function submitToWebhook(isFinal = false) {
+    const syncStatus = document.getElementById('sync-status');
+    if (syncStatus) {
+      syncStatus.innerText = isFinal ? "SYNC: UPLOADING FINAL..." : "SYNC: SAVING...";
+      syncStatus.style.color = "var(--gold)";
+    }
+
+    const decodedS = atob(DMYTRO_STUDENT.S);
+    const payload = {
+      action: "save",
+      timestamp: new Date().toLocaleString(),
+      block: DMYTRO_STUDENT.B,
+      student: decodedS,
+      subject: "MIKMAW11",
+      simulation: SIMULATION_NAME,
+      status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+      rationales: JSON.stringify(sessionData.responses)
+    };
+
+    try {
+      const params = new URLSearchParams();
+      for (const key in payload) params.append(key, payload[key]);
+      await fetch(API_URL, {
+        method: 'POST',
+        body: params,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        mode: 'no-cors'
+      });
+      console.log("CLOUD SAVE: success");
+      markCloudSaveResult(false);
+      if (syncStatus) {
+        syncStatus.innerText = "SYNC: READY";
+        syncStatus.style.color = "var(--accent1)";
+      }
+    } catch (err) {
+      console.error("CLOUD SAVE: failed", err);
+      markCloudSaveResult(true);
+      if (syncStatus) {
+        syncStatus.innerText = "SYNC: OFFLINE";
+        syncStatus.style.color = "#f78166";
+      }
+    }
+  }
+
   function showSection(id, el) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
@@ -832,6 +1190,13 @@
     box.classList.add(cls);
   }
 </script>
+
+<footer class="status-bar">
+  <div>STUDENT: <span class="highlight-status">DMYTRO (BIBA)</span></div>
+  <div id="sync-status">SYNC: READY</div>
+  <div id="save-indicator">LOCAL_STORAGE: IDLE</div>
+  <div>HALIFAX WEST HIGH // MIKMAW11</div>
+</footer>
 
 </body>
 </html>
