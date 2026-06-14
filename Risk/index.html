@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk — Single Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="tooltip" class="tooltip" style="display:none"></div>
+
+  <div id="app" class="app">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="title">RISK</h1>
+        <span class="subtitle">Single-Player Edition</span>
+      </div>
+      <div class="topbar-center">
+        <div id="turn-indicator" class="turn-indicator">
+          <span class="turn-label">Turn</span>
+          <span id="turn-number" class="turn-number">1</span>
+          <span class="turn-sep">·</span>
+          <span id="current-player-name" class="current-player-name">—</span>
+        </div>
+        <div id="phase-dots" class="phase-dots">
+          <span class="dot" data-phase="claim">Claim</span>
+          <span class="dot" data-phase="placeInitial">Place</span>
+          <span class="dot" data-phase="reinforce">Reinforce</span>
+          <span class="dot" data-phase="attack">Attack</span>
+          <span class="dot" data-phase="fortify">Fortify</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span id="save-status" class="save-status">—</span>
+        <button id="btn-save" class="btn btn-ghost" title="Save game">💾</button>
+        <button id="btn-quit" class="btn btn-ghost" title="Save & quit">↩</button>
+      </div>
+    </header>
+
+    <!-- Main layout -->
+    <main class="layout">
+      <!-- Side panel -->
+      <aside class="sidepanel">
+        <section class="panel scoreboard-panel">
+          <h2 class="panel-title">Players</h2>
+          <div id="scoreboard" class="scoreboard"></div>
+        </section>
+        <section class="panel cards-panel">
+          <h2 class="panel-title">Cards</h2>
+          <div id="card-hand" class="card-hand"></div>
+          <div class="card-actions">
+            <button id="btn-trade-cards" class="btn btn-secondary" disabled>Trade Set</button>
+            <span id="card-count" class="muted">0 cards</span>
+          </div>
+        </section>
+        <section class="panel log-panel">
+          <h2 class="panel-title">Log</h2>
+          <div id="game-log" class="game-log"></div>
+        </section>
+      </aside>
+
+      <!-- Map -->
+      <section class="map-area">
+        <div id="map-container" class="map-container"></div>
+        <div id="thinking-overlay" class="thinking-overlay" style="display:none">
+          <div class="thinking-spinner"></div>
+          <div id="thinking-text" class="thinking-text">AI is thinking…</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom action bar -->
+    <footer class="actionbar">
+      <div class="action-info">
+        <span id="action-hint" class="action-hint">Click a territory to begin.</span>
+      </div>
+      <div class="action-buttons">
+        <button id="btn-end-reinforce" class="btn btn-primary" style="display:none">End Reinforce</button>
+        <button id="btn-end-attack" class="btn btn-primary" style="display:none">End Attack</button>
+        <button id="btn-end-fortify" class="btn btn-primary" style="display:none">End Fortify</button>
+        <button id="btn-end-turn" class="btn btn-primary" style="display:none">End Turn</button>
+        <button id="btn-skip-claim" class="btn btn-ghost" style="display:none">Skip (debug)</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Welcome / Login modal -->
+  <div id="welcome-modal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <h2 class="modal-title">Welcome to Risk</h2>
+      <div class="modal-body">
+        <div class="tabs">
+          <button class="tab active" data-tab="login">Sign In</button>
+          <button class="tab" data-tab="signup">Create Account</button>
+          <button class="tab" data-tab="guest">Play as Guest</button>
+        </div>
+        <div id="tab-login" class="tab-pane">
+          <label>Username <input id="login-username" type="text" autocomplete="username"></label>
+          <label>Password <input id="login-password" type="password" autocomplete="current-password"></label>
+          <button id="btn-login" class="btn btn-primary">Sign In</button>
+        </div>
+        <div id="tab-signup" class="tab-pane" style="display:none">
+          <label>Username (3–24 chars) <input id="signup-username" type="text" autocomplete="username"></label>
+          <label>Password (8+ chars) <input id="signup-password" type="password" autocomplete="new-password"></label>
+          <button id="btn-signup" class="btn btn-primary">Create Account</button>
+        </div>
+        <div id="tab-guest" class="tab-pane" style="display:none">
+          <p class="muted">A guest account will be created so you can save and resume games. Choose a display name:</p>
+          <label>Display Name <input id="guest-name" type="text" placeholder="Commander"></label>
+          <button id="btn-guest" class="btn btn-primary">Play as Guest</button>
+        </div>
+        <div class="backend-row">
+          <label>Backend URL (GAS Web App) <input id="backend-url" type="url" placeholder="https://script.google.com/macros/s/.../exec"></label>
+          <p class="muted small">Saves and LLM calls go through this URL. Set it once; stored in your browser only.</p>
+        </div>
+        <div id="welcome-error" class="error-msg" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Game Setup modal -->
+  <div id="setup-modal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <h2 class="modal-title">New Game</h2>
+      <div class="modal-body">
+        <label>Your name <input id="setup-player-name" type="text" value="Commander"></label>
+        <label>Your color
+          <select id="setup-player-color"></select>
+        </label>
+        <label>Number of AI opponents (2–5)
+          <input id="setup-opponents" type="number" min="2" max="5" value="3">
+        </label>
+        <label>AI Model
+          <select id="setup-model"></select>
+        </label>
+        <fieldset class="personality-mix">
+          <legend>AI Personalities</legend>
+          <label><input type="checkbox" value="aggressive" checked> Aggressive</label>
+          <label><input type="checkbox" value="defensive" checked> Defensive</label>
+          <label><input type="checkbox" value="opportunistic" checked> Opportunistic</label>
+          <label><input type="checkbox" value="chaotic" checked> Chaotic</label>
+        </fieldset>
+        <div class="modal-actions">
+          <button id="btn-load-games" class="btn btn-ghost">Load Saved Game</button>
+          <button id="btn-start-game" class="btn btn-primary">Start</button>
+        </div>
+        <div id="setup-error" class="error-msg" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Game modal -->
+  <div id="load-modal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <h2 class="modal-title">Saved Games</h2>
+      <div class="modal-body">
+        <div id="saved-games-list" class="saved-games-list"></div>
+        <div class="modal-actions">
+          <button id="btn-load-cancel" class="btn btn-ghost">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dice modal -->
+  <div id="dice-modal" class="modal-backdrop" style="display:none">
+    <div class="modal dice-modal">
+      <h2 class="modal-title" id="dice-title">Battle</h2>
+      <div class="modal-body">
+        <div class="dice-battle">
+          <div class="dice-side">
+            <h3>Attacker</h3>
+            <div id="attacker-dice" class="dice-tray"></div>
+          </div>
+          <div class="dice-side">
+            <h3>Defender</h3>
+            <div id="defender-dice" class="dice-tray"></div>
+          </div>
+        </div>
+        <div id="dice-result" class="dice-result"></div>
+        <div class="modal-actions">
+          <button id="btn-dice-roll" class="btn btn-primary">Roll</button>
+          <button id="btn-dice-retreat" class="btn btn-ghost">Retreat</button>
+          <button id="btn-dice-continue" class="btn btn-primary" style="display:none">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Army slider modal -->
+  <div id="army-modal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <h2 class="modal-title" id="army-modal-title">Move Armies</h2>
+      <div class="modal-body">
+        <p id="army-modal-desc" class="muted"></p>
+        <label>Armies: <span id="army-count-label">0</span>
+          <input id="army-slider" type="range" min="1" max="1" value="1">
+        </label>
+        <div class="modal-actions">
+          <button id="btn-army-confirm" class="btn btn-primary">Confirm</button>
+          <button id="btn-army-cancel" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Victory modal -->
+  <div id="victory-modal" class="modal-backdrop" style="display:none">
+    <div class="modal victory-modal">
+      <h2 class="modal-title" id="victory-title">Victory!</h2>
+      <div class="modal-body">
+        <p id="victory-message" class="victory-message"></p>
+        <div id="victory-stats" class="victory-stats"></div>
+        <div class="modal-actions">
+          <button id="btn-victory-new" class="btn btn-primary">New Game</button>
+          <button id="btn-victory-menu" class="btn btn-ghost">Main Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast / error region -->
+  <div id="toast-region" class="toast-region"></div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/dice.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/gameState.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/gasApi.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
