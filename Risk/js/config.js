@@ -14,12 +14,12 @@ window.RISK_CONFIG = (function () {
 
   // Continent definitions (id, name, bonus, territory list)
   const CONTINENTS = {
-    northAmerica: { id: 'northAmerica', name: 'North America', bonus: 5, color: '#fbbf24' },
-    southAmerica: { id: 'southAmerica', name: 'South America', bonus: 2, color: '#ef4444' },
-    europe:       { id: 'europe',       name: 'Europe',        bonus: 5, color: '#3b82f6' },
-    africa:       { id: 'africa',       name: 'Africa',        bonus: 3, color: '#a16207' },
-    asia:         { id: 'asia',         name: 'Asia',          bonus: 7, color: '#22c55e' },
-    australia:    { id: 'australia',    name: 'Australia',     bonus: 2, color: '#a855f7' },
+    northAmerica: { id: 'northAmerica', name: 'North America', bonus: 5, color: '#e5c185' }, // desaturated gold
+    southAmerica: { id: 'southAmerica', name: 'South America', bonus: 2, color: '#d98282' }, // soft terracotta
+    europe:       { id: 'europe',       name: 'Europe',        bonus: 5, color: '#8ca6c2' }, // slate blue
+    africa:       { id: 'africa',       name: 'Africa',        bonus: 3, color: '#bda280' }, // ochre sand
+    asia:         { id: 'asia',         name: 'Asia',          bonus: 7, color: '#9bbfa1' }, // sage green
+    australia:    { id: 'australia',    name: 'Australia',     bonus: 2, color: '#c9afc9' }, // dusty lavender
   };
 
   // 42 territories. Adjacency lists reference territory ids.

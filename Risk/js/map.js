@@ -18,9 +18,11 @@ window.RISK_MAP = (function () {
       .then(svg => {
         container.innerHTML = svg;
         svgEl = container.querySelector('svg');
-        badgeLayer = document.createElement('div');
-        badgeLayer.className = 'badge-layer';
-        container.appendChild(badgeLayer);
+        // Create badgeLayer as an SVG group element
+        badgeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        badgeLayer.setAttribute('id', 'svg-badge-layer');
+        badgeLayer.style.pointerEvents = 'none';
+        svgEl.appendChild(badgeLayer);
         attachHandlers();
         render();
         S.on('territory', renderTerritory);
@@ -106,19 +108,34 @@ window.RISK_MAP = (function () {
     if (existing) existing.remove();
     if (t.armies <= 0) return;
     const owner = t.owner >= 0 ? state.players[t.owner] : null;
-    const badge = document.createElement('div');
-    badge.className = 'army-badge';
-    badge.dataset.badge = id;
-    if (owner) {
-      badge.style.background = owner.colorHex;
-      badge.style.color = '#fff';
-      badge.style.boxShadow = `0 0 0 2px ${owner.colorHex}, 0 0 0 4px rgba(0,0,0,0.4)`;
-    }
-    badge.textContent = t.armies;
-    // Position badge at the territory's center (relative to svg container)
-    badge.style.left = meta.cx + 'px';
-    badge.style.top = meta.cy + 'px';
-    badgeLayer.appendChild(badge);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-badge', id);
+    g.setAttribute('class', 'svg-army-badge');
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', meta.cx);
+    circle.setAttribute('cy', meta.cy);
+    circle.setAttribute('r', 13);
+    circle.setAttribute('fill', owner ? owner.colorHex : '#9ca3af');
+    circle.setAttribute('stroke', '#ffffff');
+    circle.setAttribute('stroke-width', '1.5');
+    // Using simple drop-shadow or styling via class
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', meta.cx);
+    text.setAttribute('y', meta.cy + 1);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', '#ffffff');
+    text.setAttribute('font-family', 'Inter, system-ui, sans-serif');
+    text.setAttribute('font-size', '11px');
+    text.setAttribute('font-weight', 'bold');
+    text.textContent = t.armies;
+
+    g.appendChild(circle);
+    g.appendChild(text);
+    badgeLayer.appendChild(g);
   }
 
   function applyHighlights() {

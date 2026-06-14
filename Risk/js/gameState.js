@@ -81,6 +81,17 @@ window.RISK_STATE = (function () {
   function snapshot() { return U.deepClone(state); }
   function hydrate(s) {
     state = s;
+    if (state && state.territories) {
+      for (const id in state.territories) {
+        const meta = C.TERRITORIES[id];
+        if (meta) {
+          state.territories[id].id = id;
+          state.territories[id].name = meta.name;
+          state.territories[id].continent = meta.continent;
+          state.territories[id].adjacency = [...meta.adjacency];
+        }
+      }
+    }
     emit('init', state);
     emit('phase', state.phase);
     emit('player', state.currentPlayer);
@@ -230,6 +241,11 @@ window.RISK_STATE = (function () {
       log(`${p.name} reinforces ${C.TERRITORIES[territoryId].name} (${t.armies} armies, ${p.pendingReinforcements} left).`, 'reinforce');
       emit('territory', territoryId);
       emit('reinforcements', p.pendingReinforcements);
+      
+      // Auto-advance if human has placed all reinforcements
+      if (p.isHuman && p.pendingReinforcements === 0) {
+        endReinforce();
+      }
     } else if (state.phase === C.PHASES.PLACE_INITIAL) {
       placeInitialArmy(territoryId);
     } else {
