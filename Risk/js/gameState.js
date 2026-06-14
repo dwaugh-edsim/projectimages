@@ -37,7 +37,14 @@ window.RISK_STATE = (function () {
     // Initialize all territories to neutral
     const territories = {};
     for (const t of C.territoryList()) {
-      territories[t.id] = { owner: -1, armies: 0 };
+      territories[t.id] = {
+        id: t.id,
+        owner: -1,
+        armies: 0,
+        adjacency: [...t.adjacency],
+        continent: t.continent,
+        name: t.name
+      };
     }
 
     state = {
@@ -160,6 +167,9 @@ window.RISK_STATE = (function () {
     log(`${player.name} places 1 army in ${C.TERRITORIES[territoryId].name} (${state.placeInitialRemaining[player.id]} left).`, 'place');
     emit('territory', territoryId);
     if (Object.values(state.placeInitialRemaining).every(v => v === 0)) {
+      state.turnNumber = 1;
+      state.currentPlayer = state.turnOrder[0];
+      log('--- Turn 1 ---', 'turn');
       enterReinforce();
       return;
     }
@@ -185,18 +195,15 @@ window.RISK_STATE = (function () {
   // ============================================================
   function enterReinforce() {
     state.phase = C.PHASES.REINFORCE;
-    state.turnNumber++;
     state.turnConquered = false;
-    state.currentPlayer = state.turnOrder[0];
     state.reinforcementsThisTurn = 0;
-    log('--- Turn ' + state.turnNumber + ' ---', 'turn');
     // Compute and store each player's current reinforcement
     for (const p of state.players) {
       if (p.eliminated) continue;
       const r = R.calculateReinforcements(p, state.territories);
       p.pendingReinforcements = r.territoryBonus + r.continentBonus;
     }
-    // Recompute for first player
+    // Recompute for current player
     computeAndSetCurrentReinforcements();
     log(`Reinforcements for ${state.players[state.currentPlayer].name}: ${state.players[state.currentPlayer].pendingReinforcements}`, 'phase');
     emit('phase', state.phase);
@@ -368,7 +375,12 @@ window.RISK_STATE = (function () {
     const order = activePlayerOrder();
     if (order.length === 0) return;
     const idx = order.indexOf(state.currentPlayer);
-    state.currentPlayer = order[(idx + 1) % order.length];
+    const nextPlayer = order[(idx + 1) % order.length];
+    if (nextPlayer === state.turnOrder[0]) {
+      state.turnNumber++;
+      log('--- Turn ' + state.turnNumber + ' ---', 'turn');
+    }
+    state.currentPlayer = nextPlayer;
     enterReinforce();
   }
 

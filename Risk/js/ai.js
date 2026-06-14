@@ -110,7 +110,7 @@ Return JSON of the form:
 Your territories with >=2 armies and their adjacent enemies:
 ${JSON.stringify(board.territories.filter(t => t.armies >= 2).map(t => ({
   id: t.id, name: t.name, armies: t.armies,
-  enemies: t.adj.filter(a => a.owner !== ${player.id}).map(a => ({ id: a.id, armies: a.armies }))
+  enemies: t.adj.filter(a => a.owner !== player.id).map(a => ({ id: a.id, armies: a.armies }))
 })))}
 Return JSON:
 { "action": "attack" | "stop", "from": "territoryId", "to": "territoryId", "dice": 1|2|3 }

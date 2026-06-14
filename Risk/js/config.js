@@ -143,6 +143,17 @@ window.RISK_CONFIG = (function () {
     TERRITORIES[id].adjacency = ADJ[id] || [];
   }
 
+  // Populate territoryList for each continent
+  for (const contId in CONTINENTS) {
+    CONTINENTS[contId].territoryList = [];
+  }
+  for (const terrId in TERRITORIES) {
+    const terr = TERRITORIES[terrId];
+    if (CONTINENTS[terr.continent]) {
+      CONTINENTS[terr.continent].territoryList.push(terrId);
+    }
+  }
+
   // Starting armies per player count
   const STARTING_ARMIES = { 2: 40, 3: 35, 4: 30, 5: 25, 6: 20 };
 

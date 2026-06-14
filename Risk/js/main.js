@@ -34,7 +34,10 @@
   function wireAutoSave() {
     const trigger = () => autoSave();
     S.on('territory', trigger);
-    S.on('player', trigger);
+    S.on('player', () => {
+      trigger();
+      runLoop();
+    });
     S.on('phase', trigger);
     S.on('cards', trigger);
     S.on('reinforcements', trigger);
@@ -201,7 +204,7 @@
         UI.hideModal && document.getElementById('dice-modal'); // keep modal
         // We close the dice modal and prompt
         document.getElementById('dice-modal').style.display = 'none';
-        const sliderMax = newFrom.armies;
+        const sliderMax = newFrom.armies + newTo.armies - 1;
         const sliderMin = Math.max(1, dice);
         // Use UI internal helper
         const moveArmies = await new Promise(resolve => {
