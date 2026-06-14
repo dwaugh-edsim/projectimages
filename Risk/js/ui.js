@@ -25,6 +25,8 @@ window.RISK_UI = (function () {
     onSaveQuit: null,
     onNewGame: null,
     onMainMenu: null,
+    onSettingsChange: null,   // ({ model, allowedPersonalities, opponentPersonalities: {id, personality}[] })
+    getCurrentSettings: null, // () => { model, allowedPersonalities, players }
   };
   function setHook(name, fn) { hooks[name] = fn; }
 
@@ -155,6 +157,61 @@ window.RISK_UI = (function () {
     document.getElementById('btn-load-games').onclick = async () => {
       hideModal('setup-modal');
       await showLoadGames();
+    };
+  }
+
+  // ===== In-game Settings =====
+  async function showSettings() {
+    // Populate model select
+    const modelSel = document.getElementById('settings-model');
+    modelSel.innerHTML = '';
+    const current = hooks.getCurrentSettings ? hooks.getCurrentSettings() : null;
+    C.MODEL_OPTIONS.forEach((m) => {
+      const o = document.createElement('option');
+      o.value = m.id; o.textContent = m.label;
+      if (current && current.model === m.id) o.selected = true;
+      modelSel.appendChild(o);
+    });
+
+    // Set personality checkboxes from current allowed list
+    const allowed = (current && current.allowedPersonalities) || C.PERSONALITIES;
+    document.querySelectorAll('#settings-modal .personality-mix input[type="checkbox"]').forEach(cb => {
+      cb.checked = allowed.includes(cb.value);
+    });
+
+    // Opponent overrides
+    const list = document.getElementById('settings-opponents');
+    list.innerHTML = '';
+    if (current && current.players) {
+      for (const p of current.players) {
+        if (p.isHuman) continue;
+        const row = document.createElement('div');
+        row.className = 'opponent-row';
+        row.innerHTML = `
+          <span class="opponent-name" style="color:${(C.PLAYER_COLORS[p.color] || C.PLAYER_COLORS[0]).hex}">${p.name}</span>
+          <select data-player-id="${p.id}">
+            ${C.PERSONALITIES.map(pp => `<option value="${pp}" ${pp === p.personality ? 'selected' : ''}>${pp[0].toUpperCase() + pp.slice(1)}</option>`).join('')}
+          </select>
+        `;
+        list.appendChild(row);
+      }
+    } else {
+      list.innerHTML = '<p class="muted small">No active game. Start a new game to configure opponents.</p>';
+    }
+
+    showModal('settings-modal');
+    document.getElementById('btn-settings-cancel').onclick = () => hideModal('settings-modal');
+    document.getElementById('btn-settings-apply').onclick = () => {
+      const model = modelSel.value;
+      const allowedPersonalities = Array.from(
+        document.querySelectorAll('#settings-modal .personality-mix input[type="checkbox"]:checked')
+      ).map(cb => cb.value);
+      const opponentPersonalities = Array.from(
+        document.querySelectorAll('#settings-opponents select')
+      ).map(sel => ({ id: parseInt(sel.dataset.playerId, 10), personality: sel.value }));
+      hideModal('settings-modal');
+      if (hooks.onSettingsChange) hooks.onSettingsChange({ model, allowedPersonalities, opponentPersonalities });
+      toast('Settings applied', 'success');
     };
   }
 
@@ -608,6 +665,7 @@ window.RISK_UI = (function () {
     document.getElementById('btn-quit').onclick = () => {
       if (hooks.onSaveQuit) hooks.onSaveQuit();
     };
+    document.getElementById('btn-settings').onclick = () => showSettings();
     // Action bar buttons
     document.getElementById('btn-end-reinforce').onclick = () => {
       if (hooks.onEndReinforce) hooks.onEndReinforce();
@@ -648,7 +706,7 @@ window.RISK_UI = (function () {
   }
 
   return {
-    init, setHook, showWelcome, showSetup, showVictory, toast, showError, showSuccess,
+    init, setHook, showWelcome, showSetup, showSettings, showVictory, toast, showError, showSuccess,
     renderAll, applyPhaseHighlights, setSaveStatus,
   };
 })();

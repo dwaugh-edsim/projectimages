@@ -287,7 +287,7 @@ window.RISK_STATE = (function () {
     const useAttDice = Math.min(attackerDice, aD);
 
     const aRolls = R.rollDice(useAttDice);
-    const dRolls = R.rollDice(dDiceAvail);
+    const dRolls = R.rollDice(defDiceAvail);
     const result = R.resolveCombat(aRolls, dRolls);
     from.armies -= result.attackerLosses;
     to.armies -= result.defenderLosses;

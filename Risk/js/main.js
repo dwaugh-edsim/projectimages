@@ -10,7 +10,7 @@
   const UI = window.RISK_UI;
 
   // Active game settings
-  const gameSettings = { model: 'openrouter/free' };
+  const gameSettings = { model: 'openrouter/free', allowedPersonalities: C.PERSONALITIES.slice() };
   let busy = false;
   let lastSaveSnapshot = null;
 
@@ -63,6 +63,7 @@
       players.push({ name: pName, color, isHuman: false, personality: p, userId: null });
     }
     gameSettings.model = opts.model;
+    gameSettings.allowedPersonalities = (opts.personalities && opts.personalities.length) ? opts.personalities.slice() : C.PERSONALITIES.slice();
     S.init({
       players,
       gameId: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -159,6 +160,27 @@
     UI.setHook('onSaveQuit', saveAndQuit);
     UI.setHook('onNewGame', () => { location.reload(); });
     UI.setHook('onMainMenu', () => { location.reload(); });
+    UI.setHook('getCurrentSettings', () => {
+      const state = S.get();
+      return {
+        model: gameSettings.model,
+        allowedPersonalities: gameSettings.allowedPersonalities,
+        players: state ? state.players : [],
+      };
+    });
+    UI.setHook('onSettingsChange', (changes) => {
+      if (changes.model) gameSettings.model = changes.model;
+      if (changes.allowedPersonalities) gameSettings.allowedPersonalities = changes.allowedPersonalities;
+      if (changes.opponentPersonalities && changes.opponentPersonalities.length) {
+        const state = S.get();
+        if (state) {
+          for (const ov of changes.opponentPersonalities) {
+            const p = state.players[ov.id];
+            if (p && !p.isHuman) p.personality = ov.personality;
+          }
+        }
+      }
+    });
     UI.setHook('onEndReinforce', () => { S.endReinforce(); runLoop(); });
     UI.setHook('onEndAttack', () => { S.endAttack(); runLoop(); });
     UI.setHook('onEndFortify', () => { S.endFortify(); runLoop(); });

@@ -162,8 +162,9 @@ Set from/to to null to skip. Otherwise move count armies along a friendly-connec
     // Score each territory
     const score = {};
     for (const [id, t] of owned) {
-      const isBorder = t.adjacency.some(a => state.territories[a].owner !== player.id);
-      const enemies = t.adjacency.filter(a => state.territories[a].owner !== player.id).map(a => state.territories[a].armies);
+      const adj = C.TERRITORIES[id].adjacency || [];
+      const isBorder = adj.some(a => state.territories[a].owner !== player.id);
+      const enemies = adj.filter(a => state.territories[a].owner !== player.id).map(a => state.territories[a].armies);
       const maxEnemy = Math.max(0, ...enemies);
       const threat = isBorder ? maxEnemy - t.armies : 0;
       // Continent completion
