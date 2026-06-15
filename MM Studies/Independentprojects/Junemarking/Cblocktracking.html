@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Independent Project Tracking - Block C">
+    <title>Independent Project Tracking — Block C</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0b10;
+            --bg-card: #121420;
+            --bg-hover: #1b1e32;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #5DADE2;
+            --accent-blue-glow: rgba(93, 173, 226, 0.25);
+            --text-main: #f0f3f8;
+            --text-muted: #8fa0b5;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-base); color: var(--text-main); line-height: 1.6; padding: 40px 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: 3px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .title-section h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; color: #fff; font-weight: 700; }
+        .title-section p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+        
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 35px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+        .stat-card .number { font-size: 2.2rem; font-weight: bold; font-family: 'Outfit', sans-serif; color: var(--accent-blue); text-shadow: 0 0 10px var(--accent-blue-glow); }
+        .stat-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; font-weight: 600; }
+        
+        .controls-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; }
+        .search-box { flex-grow: 1; padding: 12px 18px; border: 1px solid var(--border-color); background: var(--bg-base); color: #fff; border-radius: 8px; font-size: 0.95rem; outline: none; }
+        .search-box:focus { border-color: var(--accent-blue); }
+        
+        .table-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: rgba(255, 255, 255, 0.02); padding: 16px 20px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; vertical-align: middle; }
+        tr.student-row:hover { background: rgba(255, 255, 255, 0.01); }
+        
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-align: center; letter-spacing: 0.5px; }
+        .badge-yes { background: rgba(46, 213, 115, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .badge-no { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        
+        tr.no-submission {
+            background-color: rgba(255, 71, 87, 0.08) !important;
+        }
+        tr.no-submission:hover {
+            background-color: rgba(255, 71, 87, 0.12) !important;
+        }
+        .alert-tag {
+            background: rgba(255, 71, 87, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .file-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+        .file-item { font-size: 0.78rem; color: var(--text-muted); background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 4px; display: inline-block; }
+        
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">TRACKING</div>
+        <div class="title-section">
+            <h1>Block C Project Tracker</h1>
+            <p class="subtitle">Mi'kmaw Studies 11 · Independent Projects Submission Status</p>
+        </div>
+    </div>
+
+    <div class="summary-cards">
+        <div class="stat-card">
+            <div class="number">31</div>
+            <div class="label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">18</div>
+            <div class="label">Descriptions (250w)</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">14</div>
+            <div class="label">Classroom Uploads</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">45.2%</div>
+            <div class="label">Classroom Completion</div>
+        </div>
+    </div>
+
+    <div class="controls-bar">
+        <input class="search-box" type="text" id="searchBox" placeholder="Search student name..." oninput="filterTable()">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Student</th>
+                    <th style="width: 35%;">Project Topic / Proposal Type</th>
+                    <th style="width: 15%; text-align: center;">250w Description</th>
+                    <th style="width: 25%;">Google Classroom Docs</th>
+                </tr>
+            </thead>
+            <tbody id="trackingTableBody">
+                
+        <tr class="student-row" data-name="abdel abdel wahid">
+            <td>
+                <strong>Abdel Abdel Wahid</strong>
+                <br>
+                <small class="text-muted">Abdel Wahid, Abdel</small>
+            </td>
+            <td><strong>i am going to make a wampum belt based on using traditional patterns and meanings follwoing steps from the wampum belt weaving video made by savannah geisler.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Abdel Aziz Abdel Wahid - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="myles aitken">
+            <td>
+                <strong>Myles Aitken</strong>
+                <br>
+                <small class="text-muted">Aitken, Myles</small>
+            </td>
+            <td><strong>baking mik maq desserts after europian contact using modern cooking equipment to make an amazing mik maq dessert.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="zaid al-hamzi">
+            <td>
+                <strong>Zaid Al-Hamzi</strong>
+                <br>
+                <small class="text-muted">Al-Hamzi, Zaid</small>
+            </td>
+            <td><strong>Im going to make a Dream Catcher</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="raida al-khalaileh">
+            <td>
+                <strong>Raida Al-Khalaileh</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Al-Khalaileh, Raida</small>
+            </td>
+            <td><strong>No proposal record found.</strong><br><small class='text-muted'>Unknown</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="isabella beck">
+            <td>
+                <strong>Isabella Beck</strong>
+                <br>
+                <small class="text-muted">Beck, Isabella</small>
+            </td>
+            <td><strong>The Mi’kmaq Language. I am going to make a book for kids that will teach them about mi’kmaq words and about the culture and traditions. Each page will have a big mi’kmaq word with the English word ...</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Isabella - Mi’Kmaq independent project.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="jaiveer bhullar">
+            <td>
+                <strong>Jaiveer Bhullar</strong>
+                <br>
+                <small class="text-muted">Bhullar, Jaiveer</small>
+            </td>
+            <td><strong>Create a tangible Medicine Wheel model representing land, community, language, and culture, showing damage and healing through broken and repaired sections with materials such as cardboard, paint, ...</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Jaiveer Bhullar - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="anthony chalhoub">
+            <td>
+                <strong>Anthony Chalhoub</strong>
+                <br>
+                <small class="text-muted">Chalhoub, Anthony</small>
+            </td>
+            <td><strong>Glooscap getting  struck by lightning</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Anthony Chalhoub - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="caleb chandler">
+            <td>
+                <strong>Caleb Chandler</strong>
+                <br>
+                <small class="text-muted">Chandler, Caleb</small>
+            </td>
+            <td><strong>A painting with a few paragraphs explaining what the painting is showing.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Caleb Chandler - Independent Project Upload Space.docx</div><div class='file-item'>📄 Caleb Chandler - Independent Project_ Draft Submission + 250 Word Description Submission.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="zayden cooper">
+            <td>
+                <strong>Zayden Cooper</strong>
+                <br>
+                <small class="text-muted">Cooper, Zayden</small>
+            </td>
+            <td><strong>Medicine wheel</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Zayden Cooper - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="kaden crooks">
+            <td>
+                <strong>Kaden Crooks</strong>
+                <br>
+                <small class="text-muted">Crooks, Kaden</small>
+            </td>
+            <td><strong>I will paint/draw an artwork of an animal closely looking a reindeer in a beautiful background with 7 trees, rocks and clouds</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Kaden Crooks - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="kulay cruz">
+            <td>
+                <strong>Kulay Cruz</strong>
+                <br>
+                <small class="text-muted">Cruz, Kulay</small>
+            </td>
+            <td><strong>Traditional Fish net</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Kulay Cruz - Independent Project Proposal - Research Paper.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="harjas dhaliwal">
+            <td>
+                <strong>Harjas Dhaliwal</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Dhaliwal, Harjas</small>
+            </td>
+            <td><strong>basket weaving</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="bashiq elbatie">
+            <td>
+                <strong>Bashiq Elbatie</strong>
+                <br>
+                <small class="text-muted">Elbatie, Bashiq</small>
+            </td>
+            <td><strong>indigenous rights to fish in peace</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="abigail gaudet">
+            <td>
+                <strong>Abigail Gaudet</strong>
+                <br>
+                <small class="text-muted">Gaudet, Abigail</small>
+            </td>
+            <td><strong>porcupine earrings - represent medicen and protect the wearer because porcupines are gentile but have sheild protection.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="clara jones">
+            <td>
+                <strong>Clara Jones</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Jones, Clara</small>
+            </td>
+            <td><strong>Mikmaq music/dance</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="julian keddy">
+            <td>
+                <strong>Julian Keddy</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Keddy, Julian</small>
+            </td>
+            <td><strong>making a clovis point</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="caitlyn kelly">
+            <td>
+                <strong>Caitlyn Kelly</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Kelly, Caitlyn</small>
+            </td>
+            <td><strong>51. Medicine wheel</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="reiley locke">
+            <td>
+                <strong>Reiley Locke</strong>
+                <br>
+                <small class="text-muted">Locke, Reiley</small>
+            </td>
+            <td><strong>When I was younger, I used to watch a workshop by Todd Labrador at Kejimkujik national park, where he built a birch bark canoe. I think it would be really cool to make a clay model recreation of th...</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Reiley Independent Project Upload Space (Jun 11, 2026 at 3_52 PM)(1).jpg</div><div class='file-item'>📄 Reiley Independent Project Upload Space (Jun 11, 2026 at 3_52 PM)(2).jpg</div><div class='file-item'>📄 Reiley Independent Project Upload Space (Jun 11, 2026 at 3_52 PM).jpg</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="koen macneil">
+            <td>
+                <strong>Koen MacNeil</strong>
+                <br>
+                <small class="text-muted">MacNeil, Koen</small>
+            </td>
+            <td><strong>I want to draw a depiction of the chaos that happend during the sixites scoop and how this event has tormented Mi&#x27;kmaq for gennerations.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Koen Independent Project Upload Space (Jun 14, 2026 at 1_02 AM).jpg</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="sam matheson">
+            <td>
+                <strong>Sam Matheson</strong>
+                <br>
+                <small class="text-muted">Matheson, Sam</small>
+            </td>
+            <td><strong>A canoe that the Mi&#x27;kmaw used to get around in the water. Materials: birchbark and pieces of small wood.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="aiden merlin">
+            <td>
+                <strong>Aiden Merlin</strong>
+                <br>
+                <small class="text-muted">Merlin, Aiden</small>
+            </td>
+            <td><strong>painting a picture of an alantic salmon and explaining on the back how they are important to the mikmaw people and their culture and facts about them.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Christopher Merlin - Independent Project Upload Space.docx</div><div class='file-item'>📄 Aiden - Independent Project Upload Space (Jun 12, 2026 at 9_09 AM).jpg</div><div class='file-item'>📄 Aiden Merlin - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="christopher merlin">
+            <td>
+                <strong>Christopher Merlin</strong>
+                <br>
+                <small class="text-muted">Merlin, Christopher</small>
+            </td>
+            <td><strong>Drawing of a Speckled trout (Brook trout) and how they are a piece of indigenous culture, and some facts about them.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 Christopher Merlin - Independent Project Upload Space.docx</div><div class='file-item'>📄 Aiden Merlin - Independent Project Upload Space.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="madina mirza">
+            <td>
+                <strong>Madina Mirza</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Mirza, Madina</small>
+            </td>
+            <td><strong>Mi’kmaq Craftwork (handmade objects)</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="kyra panopalis">
+            <td>
+                <strong>Kyra Panopalis</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Panopalis, Kyra</small>
+            </td>
+            <td><strong>Symbols and beliefs of traditional
+Mi’kmaq spirituality</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="kyle parsons">
+            <td>
+                <strong>Kyle Parsons</strong>
+                <br>
+                <small class="text-muted">Parsons, Kyle</small>
+            </td>
+            <td><strong>Peace and friendship treaties</strong><br><small class='text-muted'>C. (Minimum 24 Slide) Presentation</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="nya patterson">
+            <td>
+                <strong>Nya Patterson</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Patterson, Nya</small>
+            </td>
+            <td><strong>No proposal record found.</strong><br><small class='text-muted'>Unknown</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="noah pinter">
+            <td>
+                <strong>Noah Pinter</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Pinter, Noah</small>
+            </td>
+            <td><strong>A miniature model of a log house, or The Centralization Policy of 1942 and Reserves</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row no-submission" data-name="soulin shehab">
+            <td>
+                <strong>Soulin Shehab</strong>
+                <span class="alert-tag">⚠️ No Submission</span><br>
+                <small class="text-muted">Shehab, Soulin</small>
+            </td>
+            <td><strong>My project will explore the Restigouche Incident and how it shows the struggle of Mi&#x27;kmaw people to protect their fishing rights. I will try to do a 3D model.</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="sukhbir singh">
+            <td>
+                <strong>Sukhbir Singh</strong>
+                <br>
+                <small class="text-muted">Singh, Sukhbir</small>
+            </td>
+            <td><strong>No proposal record found.</strong><br><small class='text-muted'>Unknown</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-no">NO</span>
+                    <span class='text-muted'>—</span>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="isaac thomas">
+            <td>
+                <strong>Isaac Thomas</strong>
+                <br>
+                <small class="text-muted">Thomas, Isaac</small>
+            </td>
+            <td><strong>No proposal record found.</strong><br><small class='text-muted'>Unknown</small></td>
+            <td class="text-center"><span class="badge badge-no">NO</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 River Thomas - Independent Project Research Doc.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+        <tr class="student-row" data-name="river thomas">
+            <td>
+                <strong>River Thomas</strong>
+                <br>
+                <small class="text-muted">Thomas, River</small>
+            </td>
+            <td><strong>a diorama of a sweat lodge ceremony</strong><br><small class='text-muted'>B. Creative Art Piece</small></td>
+            <td class="text-center"><span class="badge badge-yes">YES</span></td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    <span class="badge badge-yes">YES</span>
+                    <div class='file-list'><div class='file-item'>📄 River Thomas - Independent Project Research Doc.docx</div></div>
+                </div>
+            </td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    document.querySelectorAll('.student-row').forEach(row => {
+        const name = row.dataset.name;
+        if (name.includes(q)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+</body>
+</html>
