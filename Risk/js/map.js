@@ -21,7 +21,6 @@ window.RISK_MAP = (function () {
         // Create badgeLayer as an SVG group element
         badgeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         badgeLayer.setAttribute('id', 'svg-badge-layer');
-        badgeLayer.style.pointerEvents = 'none';
         svgEl.appendChild(badgeLayer);
         attachHandlers();
         render();
@@ -39,29 +38,35 @@ window.RISK_MAP = (function () {
 
   function attachHandlers() {
     if (!svgEl) return;
+    // Click on army badges (data-badge) or territory polygons (data-territory)
     svgEl.addEventListener('click', (e) => {
       let el = e.target;
-      while (el && el !== svgEl && !el.dataset?.territory) el = el.parentElement;
-      if (el && el.dataset.territory) {
-        if (clickHandler) clickHandler(el.dataset.territory);
+      while (el && el !== svgEl && !el.dataset?.badge && !el.dataset?.territory) el = el.parentElement;
+      if (el) {
+        const id = el.dataset.badge || el.dataset.territory;
+        if (id && clickHandler) clickHandler(id);
       }
     });
+    // Tooltip on badge or territory hover
     svgEl.addEventListener('mousemove', (e) => {
       let el = e.target;
-      while (el && el !== svgEl && !el.dataset?.territory) el = el.parentElement;
+      while (el && el !== svgEl && !el.dataset?.badge && !el.dataset?.territory) el = el.parentElement;
       const tip = document.getElementById('tooltip');
-      if (el && el.dataset.territory) {
-        const t = C.TERRITORIES[el.dataset.territory];
-        const state = S.get();
-        const ts = state.territories[t.id];
-        const owner = ts.owner >= 0 ? state.players[ts.owner].name : 'Unclaimed';
-        tip.style.display = 'block';
-        tip.style.left = (e.pageX + 14) + 'px';
-        tip.style.top = (e.pageY + 14) + 'px';
-        tip.innerHTML = `<strong>${t.name}</strong><br>Owner: ${owner}<br>Armies: ${ts.armies}`;
-      } else {
-        tip.style.display = 'none';
+      if (el) {
+        const id = el.dataset.badge || el.dataset.territory;
+        if (id) {
+          const t = C.TERRITORIES[id];
+          const state = S.get();
+          const ts = state.territories[t.id];
+          const owner = ts.owner >= 0 ? state.players[ts.owner].name : 'Unclaimed';
+          tip.style.display = 'block';
+          tip.style.left = (e.pageX + 14) + 'px';
+          tip.style.top = (e.pageY + 14) + 'px';
+          tip.innerHTML = `<strong>${t.name}</strong><br>Owner: ${owner}<br>Armies: ${ts.armies}`;
+          return;
+        }
       }
+      tip.style.display = 'none';
     });
     svgEl.addEventListener('mouseleave', () => {
       const tip = document.getElementById('tooltip');
@@ -116,11 +121,10 @@ window.RISK_MAP = (function () {
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     circle.setAttribute('cx', meta.cx);
     circle.setAttribute('cy', meta.cy);
-    circle.setAttribute('r', 13);
+    circle.setAttribute('r', 9);
     circle.setAttribute('fill', owner ? owner.colorHex : '#9ca3af');
     circle.setAttribute('stroke', '#ffffff');
-    circle.setAttribute('stroke-width', '1.5');
-    // Using simple drop-shadow or styling via class
+    circle.setAttribute('stroke-width', '1');
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('x', meta.cx);
@@ -129,7 +133,7 @@ window.RISK_MAP = (function () {
     text.setAttribute('dominant-baseline', 'middle');
     text.setAttribute('fill', '#ffffff');
     text.setAttribute('font-family', 'Inter, system-ui, sans-serif');
-    text.setAttribute('font-size', '11px');
+    text.setAttribute('font-size', '8px');
     text.setAttribute('font-weight', 'bold');
     text.textContent = t.armies;
 
@@ -138,29 +142,40 @@ window.RISK_MAP = (function () {
     badgeLayer.appendChild(g);
   }
 
+  function getBadgeEl(id) {
+    return badgeLayer?.querySelector(`[data-badge="${id}"]`);
+  }
+
+  let highlightMap = new Map(); // id -> kind
+
   function applyHighlights() {
-    if (!svgEl) return;
-    svgEl.querySelectorAll('[data-territory]').forEach(el => {
-      el.classList.remove('hl-valid', 'hl-target', 'hl-selected', 'hl-source', 'hl-blocked');
+    if (!badgeLayer) return;
+    badgeLayer.querySelectorAll('[data-badge]').forEach(el => {
+      el.classList.remove('hl-valid', 'hl-target', 'hl-selected', 'hl-source', 'hl-connected', 'hl-blocked');
     });
-    for (const id of highlightSet) {
-      const el = getTerritoryEl(id);
-      if (el) el.classList.add('hl-valid');
+    for (const [id, kind] of highlightMap.entries()) {
+      const el = getBadgeEl(id);
+      if (el) el.classList.add('hl-' + kind);
     }
   }
 
-  function setHighlights(ids, kind = 'valid') {
-    highlightSet = new Set(ids);
+  function setHighlights(ids, kind = 'valid', clearExisting = true) {
+    if (clearExisting) {
+      highlightMap.clear();
+    }
+    for (const id of ids) {
+      highlightMap.set(id, kind);
+    }
     applyHighlights();
   }
 
   function clearHighlights() {
-    highlightSet = new Set();
+    highlightMap.clear();
     applyHighlights();
   }
 
   function flashTerritory(id, kind) {
-    const el = getTerritoryEl(id);
+    const el = getBadgeEl(id);
     if (!el) return;
     el.classList.add('flash-' + kind);
     setTimeout(() => el.classList.remove('flash-' + kind), 800);

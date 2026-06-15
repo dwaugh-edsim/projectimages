@@ -315,8 +315,6 @@ window.RISK_STATE = (function () {
       emit('conquest', { fromId, toId, movedArmies });
       emit('territory', toId);
       emit('territory', fromId);
-      // Award a card
-      awardCardTo(p);
       // Check elimination
       const conqueredPlayer = state.players[conqueredOwner];
       const stillHas = Object.values(state.territories).some(t => t.owner === conqueredOwner);
@@ -333,7 +331,7 @@ window.RISK_STATE = (function () {
         enterGameOver(p);
       }
     }
-    return { aRolls, dRolls, result, conquered: to.armies <= 0 };
+    return { aRolls, dRolls, result, conquered: to.owner === from.owner };
   }
 
   function awardCardTo(player) {
@@ -388,6 +386,12 @@ window.RISK_STATE = (function () {
   // Turn cycling
   // ============================================================
   function endTurn() {
+    const p = state.players[state.currentPlayer];
+    if (state.turnConquered && p) {
+      awardCardTo(p);
+    }
+    state.turnConquered = false;
+
     const order = activePlayerOrder();
     if (order.length === 0) return;
     const idx = order.indexOf(state.currentPlayer);

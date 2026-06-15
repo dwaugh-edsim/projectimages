@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Risk Map Calibration Tool</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #eee; font-family: monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+  h1 { margin-bottom: 10px; color: #d4a843; }
+  p { margin-bottom: 10px; color: #aaa; font-size: 14px; }
+  #container { position: relative; width: 1000px; height: 700px; border: 2px solid #d4a843; cursor: crosshair; }
+  #container img { width: 100%; height: 100%; display: block; }
+  #crosshair-h, #crosshair-v { position: absolute; background: rgba(255,0,0,0.5); pointer-events: none; }
+  #crosshair-h { height: 1px; width: 100%; left: 0; }
+  #crosshair-v { width: 1px; height: 100%; top: 0; }
+  #coords { position: absolute; background: rgba(0,0,0,0.85); color: #0f0; padding: 4px 8px; font-size: 14px; pointer-events: none; border: 1px solid #0f0; }
+  .dot { position: absolute; width: 8px; height: 8px; background: red; border-radius: 50%; border: 1px solid white; transform: translate(-4px, -4px); pointer-events: none; }
+  .dot-label { position: absolute; color: #ff0; font-size: 10px; background: rgba(0,0,0,0.8); padding: 1px 3px; pointer-events: none; white-space: nowrap; transform: translate(6px, -6px); }
+  #output { width: 1000px; margin-top: 20px; }
+  #output textarea { width: 100%; height: 300px; background: #111; color: #0f0; border: 1px solid #333; padding: 10px; font-family: monospace; font-size: 12px; }
+  #territories-list { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+  #territories-list button { background: #333; color: #eee; border: 1px solid #555; padding: 4px 8px; font-size: 11px; cursor: pointer; font-family: monospace; }
+  #territories-list button.done { background: #2a5a2a; border-color: #4a4; }
+  #territories-list button.active { background: #5a2a2a; border-color: #a44; color: #ff0; }
+  #current { color: #ff0; font-size: 18px; margin: 5px 0; }
+  #controls { display: flex; gap: 10px; margin: 10px 0; }
+  #controls button { background: #d4a843; color: #000; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Risk Map Calibration Tool</h1>
+<p>Click the <strong>center</strong> of each territory on the map. The coordinates will be captured for config.js.</p>
+<div id="current">Click a territory button below, then click its center on the map</div>
+
+<div id="territories-list"></div>
+
+<div id="controls">
+  <button onclick="copyOutput()">📋 Copy Config Output</button>
+  <button onclick="resetAll()">🔄 Reset All</button>
+  <button onclick="undoLast()">↩ Undo Last</button>
+</div>
+
+<div id="container">
+  <img src="images/riskmap-1.png" draggable="false"/>
+  <div id="crosshair-h"></div>
+  <div id="crosshair-v"></div>
+  <div id="coords"></div>
+</div>
+
+<div id="output">
+  <textarea id="config-output" readonly></textarea>
+</div>
+
+<script>
+const TERRITORY_ORDER = [
+  // North America
+  'alaska', 'northwest', 'greenland', 'alberta', 'ontario', 'quebec',
+  'western_us', 'eastern_us', 'central_america',
+  // South America
+  'venezuela', 'brazil', 'peru', 'argentina',
+  // Europe
+  'iceland', 'scandinavia', 'ukraine', 'great_britain', 'northern_europe',
+  'western_europe', 'southern_europe',
+  // Africa
+  'north_africa', 'egypt', 'east_africa', 'congo', 'south_africa', 'madagascar',
+  // Asia
+  'ural', 'siberia', 'yakutsk', 'kamchatka', 'irkutsk', 'afghanistan',
+  'middle_east', 'india', 'siam', 'china', 'mongolia', 'japan',
+  // Australia
+  'indonesia', 'new_guinea', 'western_australia', 'eastern_australia'
+];
+
+const captured = {};
+let currentTerritory = null;
+
+// Build territory buttons
+const listEl = document.getElementById('territories-list');
+TERRITORY_ORDER.forEach(t => {
+  const btn = document.createElement('button');
+  btn.textContent = t;
+  btn.id = 'btn-' + t;
+  btn.onclick = () => selectTerritory(t);
+  listEl.appendChild(btn);
+});
+
+function selectTerritory(t) {
+  currentTerritory = t;
+  document.querySelectorAll('#territories-list button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + t).classList.add('active');
+  document.getElementById('current').textContent = `Now click the center of: ${t}`;
+}
+
+// Auto-select first uncaptured
+selectTerritory(TERRITORY_ORDER[0]);
+
+const container = document.getElementById('container');
+const crossH = document.getElementById('crosshair-h');
+const crossV = document.getElementById('crosshair-v');
+const coordsEl = document.getElementById('coords');
+
+container.addEventListener('mousemove', e => {
+  const rect = container.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+  // Map to 1000x700
+  const x = Math.round(px * 1000 / rect.width);
+  const y = Math.round(py * 700 / rect.height);
+  crossH.style.top = py + 'px';
+  crossV.style.left = px + 'px';
+  coordsEl.style.left = (px + 15) + 'px';
+  coordsEl.style.top = (py - 25) + 'px';
+  coordsEl.textContent = `${x}, ${y}`;
+});
+
+container.addEventListener('click', e => {
+  if (!currentTerritory) return;
+  const rect = container.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+  const x = Math.round(px * 1000 / rect.width);
+  const y = Math.round(py * 700 / rect.height);
+
+  captured[currentTerritory] = { x, y };
+
+  // Mark done
+  document.getElementById('btn-' + currentTerritory).classList.add('done');
+  document.getElementById('btn-' + currentTerritory).classList.remove('active');
+
+  // Place dot
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.id = 'dot-' + currentTerritory;
+  dot.style.left = px + 'px';
+  dot.style.top = py + 'px';
+  container.appendChild(dot);
+
+  const label = document.createElement('div');
+  label.className = 'dot-label';
+  label.id = 'label-' + currentTerritory;
+  label.textContent = currentTerritory;
+  label.style.left = px + 'px';
+  label.style.top = py + 'px';
+  container.appendChild(label);
+
+  // Auto-advance
+  const idx = TERRITORY_ORDER.indexOf(currentTerritory);
+  const next = TERRITORY_ORDER.find((t, i) => i > idx && !captured[t]);
+  if (next) {
+    selectTerritory(next);
+  } else {
+    document.getElementById('current').textContent = 'All territories captured! Copy the output below.';
+    currentTerritory = null;
+  }
+
+  updateOutput();
+});
+
+function updateOutput() {
+  const lines = TERRITORY_ORDER.map(t => {
+    if (!captured[t]) return `    // ${t}: NOT YET CAPTURED`;
+    const c = captured[t];
+    const pad = ' '.repeat(Math.max(0, 18 - t.length));
+    return `    ${t}:${pad} cx:${c.x}, cy:${c.y},`;
+  });
+  document.getElementById('config-output').value = lines.join('\n');
+}
+
+function copyOutput() {
+  const ta = document.getElementById('config-output');
+  ta.select();
+  document.execCommand('copy');
+  alert('Copied to clipboard!');
+}
+
+function resetAll() {
+  Object.keys(captured).forEach(t => delete captured[t]);
+  document.querySelectorAll('.dot, .dot-label').forEach(el => el.remove());
+  document.querySelectorAll('#territories-list button').forEach(b => b.classList.remove('done'));
+  selectTerritory(TERRITORY_ORDER[0]);
+  updateOutput();
+}
+
+function undoLast() {
+  const doneKeys = TERRITORY_ORDER.filter(t => captured[t]);
+  if (doneKeys.length === 0) return;
+  const last = doneKeys[doneKeys.length - 1];
+  delete captured[last];
+  const dot = document.getElementById('dot-' + last);
+  const label = document.getElementById('label-' + last);
+  if (dot) dot.remove();
+  if (label) label.remove();
+  document.getElementById('btn-' + last).classList.remove('done');
+  selectTerritory(last);
+  updateOutput();
+}
+
+updateOutput();
+</script>
+</body>
+</html>

@@ -4,139 +4,139 @@
 window.RISK_CONFIG = (function () {
   // 6 player colors (curated, distinct on parchment + dark themes)
   const PLAYER_COLORS = [
-    { name: 'Crimson',  hex: '#dc2626' },
-    { name: 'Royal',    hex: '#2563eb' },
-    { name: 'Emerald',  hex: '#059669' },
-    { name: 'Amber',    hex: '#d97706' },
-    { name: 'Violet',   hex: '#7c3aed' },
-    { name: 'Teal',     hex: '#0891b2' },
+    { name: 'Crimson', hex: '#dc2626' },
+    { name: 'Royal', hex: '#2563eb' },
+    { name: 'Emerald', hex: '#059669' },
+    { name: 'Amber', hex: '#d97706' },
+    { name: 'Violet', hex: '#7c3aed' },
+    { name: 'Teal', hex: '#0891b2' },
   ];
 
   // Continent definitions (id, name, bonus, territory list)
   const CONTINENTS = {
     northAmerica: { id: 'northAmerica', name: 'North America', bonus: 5, color: '#e5c185' }, // desaturated gold
     southAmerica: { id: 'southAmerica', name: 'South America', bonus: 2, color: '#d98282' }, // soft terracotta
-    europe:       { id: 'europe',       name: 'Europe',        bonus: 5, color: '#8ca6c2' }, // slate blue
-    africa:       { id: 'africa',       name: 'Africa',        bonus: 3, color: '#bda280' }, // ochre sand
-    asia:         { id: 'asia',         name: 'Asia',          bonus: 7, color: '#9bbfa1' }, // sage green
-    australia:    { id: 'australia',    name: 'Australia',     bonus: 2, color: '#c9afc9' }, // dusty lavender
+    europe: { id: 'europe', name: 'Europe', bonus: 5, color: '#8ca6c2' }, // slate blue
+    africa: { id: 'africa', name: 'Africa', bonus: 3, color: '#bda280' }, // ochre sand
+    asia: { id: 'asia', name: 'Asia', bonus: 7, color: '#9bbfa1' }, // sage green
+    australia: { id: 'australia', name: 'Australia', bonus: 2, color: '#c9afc9' }, // dusty lavender
   };
 
   // 42 territories. Adjacency lists reference territory ids.
   // cx/cy are SVG coordinates (1000x700 viewBox) where the army badge centers.
   const TERRITORIES = {
     // ===== North America (9) =====
-    // cx/cy = centroid of territory polygon in map.svg (viewBox 0 0 1000 700)
-    alaska:        { id:'alaska',        name:'Alaska',        continent:'northAmerica', cx:92,  cy:152, cardType:'infantry' },
-    northwest:     { id:'northwest',     name:'Northwest Terr.', continent:'northAmerica', cx:228, cy:135, cardType:'cavalry' },
-    greenland:     { id:'greenland',     name:'Greenland',     continent:'northAmerica', cx:412, cy:92,  cardType:'artillery' },
-    alberta:       { id:'alberta',       name:'Alberta',       continent:'northAmerica', cx:197, cy:228, cardType:'cavalry' },
-    ontario:       { id:'ontario',       name:'Ontario',       continent:'northAmerica', cx:292, cy:228, cardType:'artillery' },
-    quebec:        { id:'quebec',        name:'Quebec',        continent:'northAmerica', cx:377, cy:202, cardType:'infantry' },
-    western_us:    { id:'western_us',    name:'Western US',    continent:'northAmerica', cx:200, cy:322, cardType:'infantry' },
-    eastern_us:    { id:'eastern_us',    name:'Eastern US',    continent:'northAmerica', cx:318, cy:328, cardType:'cavalry' },
-    central_america: { id:'central_america', name:'Central America', continent:'northAmerica', cx:238, cy:405, cardType:'artillery' },
+    // cx/cy = calibrated from riskmap-1.png (viewBox 0 0 1000 700)
+    alaska:        { id:'alaska',        name:'Alaska',        continent:'northAmerica', cx:97,  cy:148,  cardType:'infantry' },
+    northwest:     { id:'northwest',     name:'Northwest Terr.', continent:'northAmerica', cx:187, cy:153,  cardType:'cavalry' },
+    greenland:     { id:'greenland',     name:'Greenland',     continent:'northAmerica', cx:399, cy:105,  cardType:'artillery' },
+    alberta:       { id:'alberta',       name:'Alberta',       continent:'northAmerica', cx:176, cy:204,  cardType:'cavalry' },
+    ontario:       { id:'ontario',       name:'Ontario',       continent:'northAmerica', cx:258, cy:214,  cardType:'artillery' },
+    quebec:        { id:'quebec',        name:'Quebec',        continent:'northAmerica', cx:333, cy:216,  cardType:'infantry' },
+    western_us:    { id:'western_us',    name:'Western US',    continent:'northAmerica', cx:186, cy:260,  cardType:'infantry' },
+    eastern_us:    { id:'eastern_us',    name:'Eastern US',    continent:'northAmerica', cx:257, cy:290,  cardType:'cavalry' },
+    central_america: { id:'central_america', name:'Central America', continent:'northAmerica', cx:201, cy:328, cardType:'artillery' },
 
     // ===== South America (4) =====
-    venezuela:     { id:'venezuela',     name:'Venezuela',     continent:'southAmerica', cx:322, cy:459, cardType:'infantry' },
-    brazil:        { id:'brazil',        name:'Brazil',        continent:'southAmerica', cx:390, cy:535, cardType:'cavalry' },
-    peru:          { id:'peru',          name:'Peru',          continent:'southAmerica', cx:292, cy:538, cardType:'artillery' },
-    argentina:     { id:'argentina',     name:'Argentina',     continent:'southAmerica', cx:305, cy:642, cardType:'infantry' },
+    venezuela:     { id:'venezuela',     name:'Venezuela',     continent:'southAmerica', cx:260, cy:389,  cardType:'infantry' },
+    brazil:        { id:'brazil',        name:'Brazil',        continent:'southAmerica', cx:335, cy:441,  cardType:'cavalry' },
+    peru:          { id:'peru',          name:'Peru',          continent:'southAmerica', cx:278, cy:466,  cardType:'artillery' },
+    argentina:     { id:'argentina',     name:'Argentina',     continent:'southAmerica', cx:295, cy:537,  cardType:'infantry' },
 
     // ===== Europe (7) =====
-    iceland:       { id:'iceland',       name:'Iceland',       continent:'europe', cx:508, cy:125, cardType:'cavalry' },
-    scandinavia:   { id:'scandinavia',   name:'Scandinavia',   continent:'europe', cx:582, cy:133, cardType:'infantry' },
-    ukraine:       { id:'ukraine',       name:'Ukraine',       continent:'europe', cx:680, cy:153, cardType:'artillery' },
-    great_britain: { id:'great_britain', name:'Great Britain', continent:'europe', cx:518, cy:195, cardType:'cavalry' },
-    northern_europe: { id:'northern_europe', name:'Northern Europe', continent:'europe', cx:582, cy:205, cardType:'infantry' },
-    western_europe: { id:'western_europe', name:'Western Europe', continent:'europe', cx:530, cy:272, cardType:'artillery' },
-    southern_europe: { id:'southern_europe', name:'Southern Europe', continent:'europe', cx:620, cy:272, cardType:'cavalry' },
+    iceland:       { id:'iceland',       name:'Iceland',       continent:'europe', cx:428, cy:175,  cardType:'cavalry' },
+    scandinavia:   { id:'scandinavia',   name:'Scandinavia',   continent:'europe', cx:520, cy:164,  cardType:'infantry' },
+    ukraine:       { id:'ukraine',       name:'Ukraine',       continent:'europe', cx:573, cy:230,  cardType:'artillery' },
+    great_britain: { id:'great_britain', name:'Great Britain', continent:'europe', cx:442, cy:238,  cardType:'cavalry' },
+    northern_europe: { id:'northern_europe', name:'Northern Europe', continent:'europe', cx:498, cy:249,  cardType:'infantry' },
+    western_europe: { id:'western_europe', name:'Western Europe', continent:'europe', cx:450, cy:298,  cardType:'artillery' },
+    southern_europe: { id:'southern_europe', name:'Southern Europe', continent:'europe', cx:530, cy:281,  cardType:'cavalry' },
 
     // ===== Africa (6) =====
-    north_africa:  { id:'north_africa',  name:'North Africa',  continent:'africa', cx:562, cy:360, cardType:'infantry' },
-    egypt:         { id:'egypt',         name:'Egypt',         continent:'africa', cx:675, cy:358, cardType:'cavalry' },
-    east_africa:   { id:'east_africa',   name:'East Africa',   continent:'africa', cx:700, cy:445, cardType:'artillery' },
-    congo:         { id:'congo',         name:'Congo',         continent:'africa', cx:598, cy:445, cardType:'infantry' },
-    south_africa:  { id:'south_africa',  name:'South Africa',  continent:'africa', cx:608, cy:530, cardType:'cavalry' },
-    madagascar:    { id:'madagascar',    name:'Madagascar',    continent:'africa', cx:755, cy:535, cardType:'artillery' },
+    north_africa:  { id:'north_africa',  name:'North Africa',  continent:'africa', cx:450, cy:411,  cardType:'infantry' },
+    egypt:         { id:'egypt',         name:'Egypt',         continent:'africa', cx:529, cy:358,  cardType:'cavalry' },
+    east_africa:   { id:'east_africa',   name:'East Africa',   continent:'africa', cx:573, cy:430,  cardType:'artillery' },
+    congo:         { id:'congo',         name:'Congo',         continent:'africa', cx:527, cy:480,  cardType:'infantry' },
+    south_africa:  { id:'south_africa',  name:'South Africa',  continent:'africa', cx:531, cy:573,  cardType:'cavalry' },
+    madagascar:    { id:'madagascar',    name:'Madagascar',    continent:'africa', cx:602, cy:557,  cardType:'artillery' },
 
     // ===== Asia (12) =====
-    ural:          { id:'ural',          name:'Ural',          continent:'asia', cx:780, cy:152, cardType:'infantry' },
-    siberia:       { id:'siberia',       name:'Siberia',       continent:'asia', cx:875, cy:122, cardType:'cavalry' },
-    yakutsk:       { id:'yakutsk',       name:'Yakutsk',       continent:'asia', cx:938, cy:100, cardType:'artillery' },
-    kamchatka:     { id:'kamchatka',     name:'Kamchatka',     continent:'asia', cx:970, cy:128, cardType:'infantry' },
-    irkutsk:       { id:'irkutsk',       name:'Irkutsk',       continent:'asia', cx:878, cy:210, cardType:'cavalry' },
-    afghanistan:   { id:'afghanistan',   name:'Afghanistan',   continent:'asia', cx:778, cy:238, cardType:'artillery' },
-    middle_east:   { id:'middle_east',   name:'Middle East',   continent:'asia', cx:710, cy:330, cardType:'infantry' },
-    india:         { id:'india',         name:'India',         continent:'asia', cx:795, cy:328, cardType:'cavalry' },
-    siam:          { id:'siam',          name:'Siam',          continent:'asia', cx:875, cy:355, cardType:'artillery' },
-    china:         { id:'china',         name:'China',         continent:'asia', cx:878, cy:255, cardType:'infantry' },
-    mongolia:      { id:'mongolia',      name:'Mongolia',      continent:'asia', cx:918, cy:192, cardType:'cavalry' },
-    japan:         { id:'japan',         name:'Japan',         continent:'asia', cx:972, cy:212, cardType:'artillery' },
+    ural:          { id:'ural',          name:'Ural',          continent:'asia', cx:665, cy:191,  cardType:'infantry' },
+    siberia:       { id:'siberia',       name:'Siberia',       continent:'asia', cx:722, cy:160,  cardType:'cavalry' },
+    yakutsk:       { id:'yakutsk',       name:'Yakutsk',       continent:'asia', cx:807, cy:150,  cardType:'artillery' },
+    kamchatka:     { id:'kamchatka',     name:'Kamchatka',     continent:'asia', cx:901, cy:152,  cardType:'infantry' },
+    irkutsk:       { id:'irkutsk',       name:'Irkutsk',       continent:'asia', cx:787, cy:216,  cardType:'cavalry' },
+    afghanistan:   { id:'afghanistan',   name:'Afghanistan',   continent:'asia', cx:640, cy:273,  cardType:'artillery' },
+    middle_east:   { id:'middle_east',   name:'Middle East',   continent:'asia', cx:607, cy:337,  cardType:'infantry' },
+    india:         { id:'india',         name:'India',         continent:'asia', cx:702, cy:369,  cardType:'cavalry' },
+    siam:          { id:'siam',          name:'Siam',          continent:'asia', cx:784, cy:401,  cardType:'artillery' },
+    china:         { id:'china',         name:'China',         continent:'asia', cx:768, cy:315,  cardType:'infantry' },
+    mongolia:      { id:'mongolia',      name:'Mongolia',      continent:'asia', cx:794, cy:260,  cardType:'cavalry' },
+    japan:         { id:'japan',         name:'Japan',         continent:'asia', cx:884, cy:290,  cardType:'artillery' },
 
     // ===== Australia (4) =====
-    indonesia:     { id:'indonesia',     name:'Indonesia',     continent:'australia', cx:885, cy:432, cardType:'infantry' },
-    new_guinea:    { id:'new_guinea',    name:'New Guinea',    continent:'australia', cx:948, cy:412, cardType:'cavalry' },
-    western_australia: { id:'western_australia', name:'Western Australia', continent:'australia', cx:882, cy:518, cardType:'artillery' },
-    eastern_australia: { id:'eastern_australia', name:'Eastern Australia', continent:'australia', cx:962, cy:508, cardType:'infantry' },
+    indonesia:     { id:'indonesia',     name:'Indonesia',     continent:'australia', cx:822, cy:464,  cardType:'infantry' },
+    new_guinea:    { id:'new_guinea',    name:'New Guinea',    continent:'australia', cx:910, cy:483,  cardType:'cavalry' },
+    western_australia: { id:'western_australia', name:'Western Australia', continent:'australia', cx:838, cy:578,  cardType:'artillery' },
+    eastern_australia: { id:'eastern_australia', name:'Eastern Australia', continent:'australia', cx:899, cy:556,  cardType:'infantry' },
   };
 
   // Adjacency graph. Each territory lists neighbors.
   // Includes all standard Risk bridges (Alaska<->Kamchatka, etc.)
   const ADJ = {
     // North America
-    alaska:          ['northwest','alberta','kamchatka'],
-    northwest:       ['alaska','alberta','ontario','greenland'],
-    greenland:       ['northwest','ontario','quebec','iceland'],
-    alberta:         ['alaska','northwest','ontario','western_us'],
-    ontario:         ['alberta','northwest','greenland','quebec','eastern_us','western_us'],
-    quebec:          ['ontario','greenland','eastern_us'],
-    western_us:      ['alberta','ontario','eastern_us','central_america'],
-    eastern_us:      ['ontario','quebec','western_us','central_america'],
-    central_america: ['western_us','eastern_us','venezuela'],
+    alaska: ['northwest', 'alberta', 'kamchatka'],
+    northwest: ['alaska', 'alberta', 'ontario', 'greenland'],
+    greenland: ['northwest', 'ontario', 'quebec', 'iceland'],
+    alberta: ['alaska', 'northwest', 'ontario', 'western_us'],
+    ontario: ['alberta', 'northwest', 'greenland', 'quebec', 'eastern_us', 'western_us'],
+    quebec: ['ontario', 'greenland', 'eastern_us'],
+    western_us: ['alberta', 'ontario', 'eastern_us', 'central_america'],
+    eastern_us: ['ontario', 'quebec', 'western_us', 'central_america'],
+    central_america: ['western_us', 'eastern_us', 'venezuela'],
 
     // South America
-    venezuela:       ['central_america','brazil','peru'],
-    brazil:          ['venezuela','peru','argentina','north_africa'],
-    peru:            ['venezuela','brazil','argentina'],
-    argentina:       ['peru','brazil'],
+    venezuela: ['central_america', 'brazil', 'peru'],
+    brazil: ['venezuela', 'peru', 'argentina', 'north_africa'],
+    peru: ['venezuela', 'brazil', 'argentina'],
+    argentina: ['peru', 'brazil'],
 
     // Europe
-    iceland:         ['greenland','great_britain','scandinavia'],
-    scandinavia:     ['iceland','ukraine','northern_europe','great_britain'],
-    ukraine:         ['scandinavia','northern_europe','southern_europe','ural','afghanistan','middle_east'],
-    great_britain:   ['iceland','scandinavia','northern_europe','western_europe'],
-    northern_europe: ['great_britain','scandinavia','ukraine','southern_europe','western_europe'],
-    western_europe:  ['great_britain','northern_europe','southern_europe','north_africa'],
-    southern_europe: ['western_europe','northern_europe','ukraine','middle_east','egypt','north_africa'],
+    iceland: ['greenland', 'great_britain', 'scandinavia'],
+    scandinavia: ['iceland', 'ukraine', 'northern_europe', 'great_britain'],
+    ukraine: ['scandinavia', 'northern_europe', 'southern_europe', 'ural', 'afghanistan', 'middle_east'],
+    great_britain: ['iceland', 'scandinavia', 'northern_europe', 'western_europe'],
+    northern_europe: ['great_britain', 'scandinavia', 'ukraine', 'southern_europe', 'western_europe'],
+    western_europe: ['great_britain', 'northern_europe', 'southern_europe', 'north_africa'],
+    southern_europe: ['western_europe', 'northern_europe', 'ukraine', 'middle_east', 'egypt', 'north_africa'],
 
     // Africa
-    north_africa:    ['brazil','western_europe','southern_europe','egypt','congo','east_africa'],
-    egypt:           ['southern_europe','north_africa','east_africa','middle_east'],
-    east_africa:     ['egypt','north_africa','congo','south_africa','madagascar','middle_east'],
-    congo:           ['north_africa','east_africa','south_africa'],
-    south_africa:    ['congo','east_africa','madagascar'],
-    madagascar:      ['east_africa','south_africa'],
+    north_africa: ['brazil', 'western_europe', 'southern_europe', 'egypt', 'congo', 'east_africa'],
+    egypt: ['southern_europe', 'north_africa', 'east_africa', 'middle_east'],
+    east_africa: ['egypt', 'north_africa', 'congo', 'south_africa', 'madagascar', 'middle_east'],
+    congo: ['north_africa', 'east_africa', 'south_africa'],
+    south_africa: ['congo', 'east_africa', 'madagascar'],
+    madagascar: ['east_africa', 'south_africa'],
 
     // Asia
-    ural:            ['ukraine','afghanistan','siberia','china'],
-    siberia:         ['ural','yakutsk','irkutsk','mongolia','china'],
-    yakutsk:         ['siberia','kamchatka','irkutsk'],
-    kamchatka:       ['yakutsk','irkutsk','alaska','japan','mongolia'],
-    irkutsk:         ['siberia','yakutsk','kamchatka','mongolia','china'],
-    afghanistan:     ['ukraine','ural','middle_east','india','china'],
-    middle_east:     ['ukraine','southern_europe','egypt','east_africa','afghanistan','india'],
-    india:           ['middle_east','afghanistan','china','siam'],
-    siam:            ['india','china','indonesia'],
-    china:           ['ural','siberia','mongolia','afghanistan','india','siam','irkutsk'],
-    mongolia:        ['siberia','irkutsk','kamchatka','china','japan'],
-    japan:           ['kamchatka','mongolia'],
+    ural: ['ukraine', 'afghanistan', 'siberia', 'china'],
+    siberia: ['ural', 'yakutsk', 'irkutsk', 'mongolia', 'china'],
+    yakutsk: ['siberia', 'kamchatka', 'irkutsk'],
+    kamchatka: ['yakutsk', 'irkutsk', 'alaska', 'japan', 'mongolia'],
+    irkutsk: ['siberia', 'yakutsk', 'kamchatka', 'mongolia', 'china'],
+    afghanistan: ['ukraine', 'ural', 'middle_east', 'india', 'china'],
+    middle_east: ['ukraine', 'southern_europe', 'egypt', 'east_africa', 'afghanistan', 'india'],
+    india: ['middle_east', 'afghanistan', 'china', 'siam'],
+    siam: ['india', 'china', 'indonesia'],
+    china: ['ural', 'siberia', 'mongolia', 'afghanistan', 'india', 'siam', 'irkutsk'],
+    mongolia: ['siberia', 'irkutsk', 'kamchatka', 'china', 'japan'],
+    japan: ['kamchatka', 'mongolia'],
 
     // Australia
-    indonesia:       ['siam','new_guinea','western_australia'],
-    new_guinea:      ['indonesia','eastern_australia','western_australia'],
-    western_australia: ['indonesia','new_guinea','eastern_australia'],
-    eastern_australia: ['new_guinea','western_australia'],
+    indonesia: ['siam', 'new_guinea', 'western_australia'],
+    new_guinea: ['indonesia', 'eastern_australia', 'western_australia'],
+    western_australia: ['indonesia', 'new_guinea', 'eastern_australia'],
+    eastern_australia: ['new_guinea', 'western_australia'],
   };
 
   // Assign adjacency back into territory objects.
@@ -185,9 +185,9 @@ window.RISK_CONFIG = (function () {
 
   // Model options for the setup dropdown
   const MODEL_OPTIONS = [
-    { id: 'openrouter/free',                  label: 'openrouter/free (auto-routed free model)' },
-    { id: 'inclusionai/ling-2.6-flash',       label: 'inclusionai/ling-2.6-flash' },
-    { id: 'deepseek/deepseek-v4-flash',       label: 'deepseek/deepseek-v4-flash' },
+    { id: 'openrouter/free', label: 'openrouter/free (auto-routed free model)' },
+    { id: 'inclusionai/ling-2.6-flash', label: 'inclusionai/ling-2.6-flash' },
+    { id: 'deepseek/deepseek-v4-flash', label: 'deepseek/deepseek-v4-flash' },
   ];
 
   // Phases

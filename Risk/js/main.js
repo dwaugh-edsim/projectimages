@@ -210,9 +210,10 @@
       // Closed in dice modal: close it after attack
       const state = S.get();
       const beforeToOwner = state.territories[toId].owner;
+      let attackResult = null;
       try {
-        S.attack(fromId, toId, dice);
-      } catch (e) { UI.showError(e.message); }
+        attackResult = S.attack(fromId, toId, dice);
+      } catch (e) { UI.showError(e.message); return null; }
       // Update dice result text
       const newState = S.get();
       const newTo = newState.territories[toId];
@@ -262,7 +263,7 @@
           }
         } catch (e) { UI.showError(e.message); }
       }
-      return true;
+      return attackResult;
     });
   }
 

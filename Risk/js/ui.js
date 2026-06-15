@@ -432,11 +432,7 @@ window.RISK_UI = (function () {
       // Highlight valid targets
       const targets = R.getAttackableTargets(territoryId, state.territories);
       M.setHighlights([territoryId], 'source');
-      // Manually add target class
-      targets.forEach(tid => {
-        const el = document.querySelector(`[data-territory="${tid}"]`);
-        if (el) el.classList.add('hl-target');
-      });
+      M.setHighlights(targets, 'target', false);
     } else {
       if (territoryId === attackSource) {
         // cancel
@@ -454,12 +450,8 @@ window.RISK_UI = (function () {
       if (t.owner === state.currentPlayer) {
         // change source
         attackSource = territoryId;
-        M.clearHighlights();
-        const targets = R.getAttackableTargets(territoryId, state.territories);
-        targets.forEach(tid => {
-          const el = document.querySelector(`[data-territory="${tid}"]`);
-          if (el) el.classList.add('hl-target');
-        });
+        M.setHighlights([territoryId], 'source');
+        M.setHighlights(targets, 'target', false);
         return;
       }
       // Open dice modal
@@ -481,11 +473,8 @@ window.RISK_UI = (function () {
       }
       fortifySource = territoryId;
       const connected = R.getConnectedFriendly(territoryId, state.currentPlayer, state.territories);
-      M.clearHighlights();
-      connected.forEach(tid => {
-        const el = document.querySelector(`[data-territory="${tid}"]`);
-        if (el) el.classList.add('hl-connected');
-      });
+      M.setHighlights([territoryId], 'source');
+      M.setHighlights(connected, 'connected', false);
     } else {
       if (territoryId === fortifySource) {
         fortifySource = null;
@@ -528,17 +517,39 @@ window.RISK_UI = (function () {
       const state = S.get();
       const from = state.territories[fromId];
       const to = state.territories[toId];
-      const { attackerDice, defenderDice } = R.pickDiceCounts(from.armies, to.armies);
+      const { attackerDice } = R.pickDiceCounts(from.armies, to.armies);
       const attColor = state.players[state.currentPlayer].colorHex;
       const defColor = '#9ca3af';
-      await DICE.animateRoll(document.getElementById('attacker-dice'), R.rollDice(attackerDice), { color: attColor });
-      await DICE.animateRoll(document.getElementById('defender-dice'), R.rollDice(defenderDice), { color: defColor });
-      // Resolve
+
+      // Roll dice ONCE via the game state (which does the actual combat)
+      let attackResult = null;
       if (hooks.onAttack) {
-        await hooks.onAttack(fromId, toId, attackerDice);
+        attackResult = await hooks.onAttack(fromId, toId, attackerDice);
       }
-      // After attack, check if either side can attack again
+
       const newState = S.get();
+      let aRolls = [], dRolls = [];
+      if (attackResult && attackResult.aRolls && attackResult.dRolls) {
+        aRolls = attackResult.aRolls;
+        dRolls = attackResult.dRolls;
+      } else {
+        // Fallback: Read the last combat entry from the log to get the actual rolls
+        const lastCombat = [...newState.log].reverse().find(e => e.kind === 'combat');
+        if (lastCombat) {
+          // Parse rolls from log: "A[6,3,1] vs D[5,2]"
+          const match = lastCombat.msg.match(/A\[([^\]]+)\] vs D\[([^\]]+)\]/);
+          if (match) {
+            aRolls = match[1].split(',').map(Number);
+            dRolls = match[2].split(',').map(Number);
+          }
+        }
+      }
+
+      // Animate the ACTUAL dice values
+      await DICE.animateRoll(document.getElementById('attacker-dice'), aRolls, { color: attColor });
+      await DICE.animateRoll(document.getElementById('defender-dice'), dRolls, { color: defColor });
+
+      // Update status
       const newFrom = newState.territories[fromId];
       const newTo = newState.territories[toId];
       const conquered = newTo.owner === newState.currentPlayer;
