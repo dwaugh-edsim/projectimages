@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquiry Telemetry Dashboard</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #09090e;
+            --card-bg: #111116;
+            --border: #1f2029;
+            --text: #eaeaea;
+            --text-dim: #7f818c;
+            --accent: #e5a93b;
+            --accent-glow: rgba(229, 169, 59, 0.25);
+            --success: #00e676;
+            --success-glow: rgba(0, 230, 118, 0.25);
+            --inactive: #2c2d3a;
+            --mono-font: 'Share Tech Tech', 'Share Tech Mono', monospace;
+            --cyber-font: 'Orbitron', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Instructions Bar */
+        .top-announcement-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 40px;
+            background: #000000;
+            border-bottom: 3px solid var(--accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .announcement-tag {
+            font-family: var(--cyber-font);
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #000000;
+            background: var(--accent);
+            padding: 5px 14px;
+            border-radius: 3px;
+            letter-spacing: 1.5px;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px var(--accent-glow);
+            text-transform: uppercase;
+        }
+
+        .announcement-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: var(--cyber-font);
+            cursor: pointer;
+            text-shadow: 0 0 8px rgba(229, 169, 59, 0.2);
+            flex-grow: 1;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .announcement-edit {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-family: var(--mono-font);
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid var(--accent);
+            padding: 4px 12px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
+            transition: all 0.3s;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .announcement-edit:hover {
+            color: #ffffff;
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Header HUD */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: #0d0d13;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .hud-title-area {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hud-system-status {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
+            animation: pulse-indicator 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-indicator {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .hud-title {
+            font-family: var(--cyber-font);
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+
+        .hud-stats-control {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .clock-display {
+            font-family: var(--mono-font);
+            font-size: 1.3rem;
+            color: #ffffff;
+            background: rgba(255,255,255,0.02);
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Reload Progress Ring */
+        .reload-timer-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .progress-ring {
+            width: 24px;
+            height: 24px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__bg {
+            fill: transparent;
+            stroke: rgba(255,255,255,0.05);
+            stroke-width: 2.5;
+        }
+
+        .progress-ring__circle {
+            fill: transparent;
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-dasharray: 62.83; /* 2 * PI * r */
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        /* Statistics KPI Bar */
+        .stats-bar {
+            background: #0c0d12;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 40px;
+            flex-shrink: 0;
+        }
+
+        .stats-left, .stats-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .stats-mid {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-family: var(--mono-font);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: var(--cyber-font);
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        /* Class Progress Track */
+        .progress-item {
+            min-width: 160px;
+        }
+
+        .mini-progress-track {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            box-shadow: 0 0 8px var(--success-glow);
+            transition: width 0.5s ease;
+        }
+
+        /* Buttons */
+        .btn-selector {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: var(--cyber-font);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-selector.active, .btn-selector:hover {
+            color: #ffffff;
+            border-color: var(--accent);
+            background: rgba(229, 169, 59, 0.04);
+            box-shadow: 0 0 10px rgba(229, 169, 59, 0.05);
+        }
+
+        .sync-btn {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .sync-btn:hover {
+            border-color: #ffffff;
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Main Section layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Student telemetry grid */
+        .student-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            padding: 24px;
+            align-content: start;
+            overflow-y: auto;
+        }
+
+        /* Student Grid Cards */
+        .student-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--inactive);
+            border-radius: 4px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .student-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(229, 169, 59, 0.03);
+            transform: translateY(-1px);
+        }
+
+        .student-card.active-student {
+            border-left-color: var(--accent);
+        }
+
+        .student-card.completed {
+            border-left-color: var(--success);
+            background: rgba(0, 230, 118, 0.01);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .time-elapsed {
+            font-family: var(--mono-font);
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        .question-count {
+            font-family: var(--mono-font);
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Progress segments */
+        .segments-container {
+            display: flex;
+            gap: 2px;
+            width: 100%;
+        }
+
+        .segment {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            position: relative;
+            cursor: help;
+            transition: all 0.3s ease;
+        }
+
+        .segment.completed {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 6px var(--success-glow);
+        }
+
+        /* Speed warnings (Anti-Cheating / Copy-Paste indicators) */
+        .segment.completed.fast-warning {
+            background: #ffa726;
+            border-color: #ffa726;
+            box-shadow: 0 0 6px rgba(255, 167, 38, 0.4);
+        }
+
+        .segment.completed.fast-critical {
+            background: #ef5350;
+            border-color: #ef5350;
+            box-shadow: 0 0 6px rgba(239, 83, 80, 0.4);
+        }
+
+        /* Tooltip style */
+        .segment .tooltip {
+            visibility: hidden;
+            background-color: #121217;
+            color: #fff;
+            text-align: center;
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            position: absolute;
+            z-index: 100;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.6rem;
+            white-space: nowrap;
+            font-family: var(--mono-font);
+        }
+
+        .segment:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Live event Feed Panel */
+        .activity-panel {
+            width: 320px;
+            background: #0b0c11;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .activity-header {
+            font-family: var(--cyber-font);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .feed-item {
+            font-family: var(--mono-font);
+            font-size: 0.7rem;
+            line-height: 1.4;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 2px solid var(--border);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .feed-item.save {
+            border-left-color: var(--accent);
+        }
+
+        .feed-item.complete {
+            border-left-color: var(--success);
+            background: rgba(0, 230, 118, 0.02);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(15px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .feed-time {
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            margin-top: 3px;
+            display: block;
+        }
+
+        .feed-highlight {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        #hud-sync-alert {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: #ff1744;
+            display: none;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(255, 23, 68, 0.4);
+            animation: alert-pulse 1s infinite alternate;
+        }
+
+        @keyframes alert-pulse {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Instructions banner -->
+    <div class="top-announcement-bar">
+        <span class="announcement-tag">Today's Task</span>
+        <span class="announcement-text" id="daily-instructions-text" onclick="editInstructions()">
+            Complete the Discovery and Synthesis prompts in the Guided Inquiry document. Remember to save draft and final submissions.
+        </span>
+        <span class="announcement-edit" onclick="editInstructions()">Edit</span>
+    </div>
+
+    <!-- Telemetry HUD Header -->
+    <header>
+        <div class="hud-title-area">
+            <div class="hud-system-status">
+                <span class="pulse-dot"></span>
+                Inquest Feed Active
+                <span id="hud-sync-alert" style="margin-left: 10px;">// OFFLINE</span>
+            </div>
+            <div class="hud-title">CLASSROOM LOGS // LIVE TELEMETRY</div>
+        </div>
+        <div class="hud-stats-control">
+            <div class="clock-display" id="hud-clock">00:00:00 AM</div>
+            <div class="reload-timer-container">
+                <span>SYNC</span>
+                <svg class="progress-ring">
+                    <circle class="progress-ring__bg" cx="12" cy="12" r="10"></circle>
+                    <circle class="progress-ring__circle" id="reload-ring" cx="12" cy="12" r="10"></circle>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation / KPI bar -->
+    <section class="stats-bar">
+        <div class="stats-left">
+            <button class="btn-selector active" onclick="switchBlock('Block A')">BLOCK A</button>
+            <button class="btn-selector" onclick="switchBlock('Block B')">BLOCK B</button>
+        </div>
+        
+        <div class="stats-mid">
+            <div class="stat-item">
+                <span class="stat-label">ACTIVE BLOCK:</span>
+                <span class="stat-value" id="kpi-block-name">BLOCK A</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">LOGGED IN:</span>
+                <span class="stat-value" id="kpi-active-count">0 / 2</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">SUBMITTED:</span>
+                <span class="stat-value" id="kpi-completed-count" style="color: var(--success);">0</span>
+            </div>
+            <div class="stat-item progress-item">
+                <span class="stat-label">CLASS PROGRESS:</span>
+                <div class="mini-progress-track">
+                    <div class="mini-progress-fill" id="class-progress-bar"></div>
+                </div>
+                <span class="stat-value" id="kpi-completion-percent" style="color: var(--accent);">0%</span>
+            </div>
+        </div>
+        
+        <div class="stats-right">
+            <button class="sync-btn" id="demo-btn" onclick="toggleDemoMode()" style="border-color: #ffa726; color: #ffa726; margin-right: 10px;">
+                Demo Mode
+            </button>
+            <button class="sync-btn" onclick="fetchTelemetry()">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                </svg>
+                Sync
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Views -->
+    <main class="main-container">
+        <section class="student-grid" id="student-grid-container"></section>
+
+        <!-- Sidebar Event Feed -->
+        <aside class="activity-panel">
+            <div class="activity-header">
+                <span>Real-Time Feed</span>
+                <span style="font-family: var(--mono-font); font-size: 0.6rem; color: var(--text-dim);">LIVE STREAM</span>
+            </div>
+            <div class="feed-container" id="live-feed-container">
+                <div class="feed-item">
+                    Awaiting cloud connection streams...
+                    <span class="feed-time">System ready</span>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // ═══════════════════════════════════════════════════
+        // CONFIGURATION & SETUP
+        // ═══════════════════════════════════════════════════
+        const API_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+        const SIMULATION_NAME = "generic-inquiry-1";
+
+        // Must match the roster defined in student_assignment.html
+        const STUDENTS = [
+          {"B":"Block A","S":"U3R1ZGVudCBPbmUgKEFBQUEp"},
+          {"B":"Block A","S":"U3R1ZGVudCBUd28gKEJCQkIp"},
+          {"B":"Block B","S":"U3R1ZGVudCBUaHJlZSAoQ0NDQyk="},
+          {"B":"Block B","S":"U3R1ZGVudCBGb3VyIChEREREKQ=="}
+        ];
+
+        // Unique IDs of questions in student_assignment.html
+        const QUESTIONS = {
+            keys: [
+                "ans-q1-discovery",
+                "ans-q2-inquest",
+                "ans-q3-synthesis"
+            ],
+            names: {
+                "ans-q1-discovery": "Q1: Discovery",
+                "ans-q2-inquest": "Q2: Inquest",
+                "ans-q3-synthesis": "Q3: Synthesis"
+            }
+        };
+
+        let activeBlock = "Block A";
+        let telemetryData = {};
+        let refreshSeconds = 15;
+        let countdownTimer = refreshSeconds;
+        let clockInterval, countdownInterval;
+        let seenTimestamps = new Set();
+        let demoModeActive = false;
+        let demoTimer = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            startClock();
+            startCountdown();
+            switchBlock(activeBlock);
+            fetchTelemetry();
+            loadInstructions();
+        });
+
+        function loadInstructions() {
+            const saved = localStorage.getItem('generic_dashboard_instructions');
+            if (saved) {
+                document.getElementById('daily-instructions-text').innerText = saved;
+            }
+        }
+
+        function editInstructions() {
+            const current = document.getElementById('daily-instructions-text').innerText;
+            const newInstructions = prompt("Edit Telemetry Instructions:", current);
+            if (newInstructions !== null && newInstructions.trim() !== "") {
+                document.getElementById('daily-instructions-text').innerText = newInstructions.trim();
+                localStorage.setItem('generic_dashboard_instructions', newInstructions.trim());
+            }
+        }
+
+        function startClock() {
+            const updateClock = () => {
+                const now = new Date();
+                let hrs = now.getHours();
+                let mins = now.getMinutes();
+                let secs = now.getSeconds();
+                let ampm = hrs >= 12 ? 'PM' : 'AM';
+                hrs = hrs % 12;
+                hrs = hrs ? hrs : 12;
+                mins = mins < 10 ? '0' + mins : mins;
+                secs = secs < 10 ? '0' + secs : secs;
+                document.getElementById('hud-clock').innerText = `${hrs}:${mins}:${secs} ${ampm}`;
+            };
+            updateClock();
+            clockInterval = setInterval(updateClock, 1000);
+        }
+
+        function startCountdown() {
+            const ring = document.getElementById('reload-ring');
+            const circumference = 2 * Math.PI * 10;
+            ring.style.strokeDasharray = circumference;
+            
+            const tick = () => {
+                if (demoModeActive) return;
+                countdownTimer -= 1;
+                const percentLeft = countdownTimer / refreshSeconds;
+                const offset = circumference * (1 - percentLeft);
+                ring.style.strokeDashoffset = offset;
+
+                if (countdownTimer <= 0) {
+                    countdownTimer = refreshSeconds;
+                    fetchTelemetry();
+                }
+            };
+            
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+        function switchBlock(block) {
+            activeBlock = block;
+            document.getElementById('kpi-block-name').innerText = block.toUpperCase();
+            
+            const btns = document.querySelectorAll('.stats-left .btn-selector');
+            btns.forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(block.split(' ')[1].toLowerCase())) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderDashboard();
+        }
+
+        // ═══════════════════════════════════════════════════
+        // TELEMETRY HUD DATA RETRIEVAL
+        // ═══════════════════════════════════════════════════
+        async function fetchTelemetry() {
+            if (demoModeActive || API_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) return;
+            const alertHud = document.getElementById('hud-sync-alert');
+            try {
+                const res = await fetch(`${API_URL}?action=progress&simulation=${encodeURIComponent(SIMULATION_NAME)}`);
+                const data = await res.json();
+                
+                if (data.progress) {
+                    telemetryData = data.progress;
+                    alertHud.style.display = 'none';
+                    document.querySelector('.hud-system-status').style.color = 'var(--accent)';
+                    processLiveEvents();
+                    renderDashboard();
+                } else {
+                    throw new Error("Invalid schema");
+                }
+            } catch (e) {
+                console.error("Telemetry failed to retrieve:", e);
+                alertHud.style.display = 'inline-flex';
+                document.querySelector('.hud-system-status').style.color = '#ff1744';
+            }
+        }
+
+        function processLiveEvents() {
+            const container = document.getElementById('live-feed-container');
+            const events = [];
+
+            Object.keys(telemetryData).forEach(studentKey => {
+                const rawData = telemetryData[studentKey];
+                const timestampStr = rawData.timestamp;
+                const sig = `${studentKey}_${timestampStr}`;
+
+                if (timestampStr && !seenTimestamps.has(sig)) {
+                    seenTimestamps.add(sig);
+
+                    let questionsDone = 0;
+                    let lastQuestion = "";
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        QUESTIONS.keys.forEach(key => {
+                            if (responses[key] && responses[key].trim().length > 0) {
+                                questionsDone++;
+                                lastQuestion = QUESTIONS.names[key];
+                            }
+                        });
+                    } catch (e) {}
+
+                    const displayName = studentKey.replace(/\s*\(([^)]+)\)\s*$/, "");
+                    let logText = "";
+                    let logClass = "save";
+
+                    if (rawData.status === "FINAL_SUBMISSION" && questionsDone === QUESTIONS.keys.length) {
+                        logText = `<span class="feed-highlight">${displayName}</span> completed the docket! <span style="color: var(--success);">[FINAL SUBMISSION]</span>`;
+                        logClass = "complete";
+                    } else if (lastQuestion) {
+                        logText = `<span class="feed-highlight">${displayName}</span> saved <span style="color: var(--accent);">${lastQuestion}</span> (${questionsDone}/${QUESTIONS.keys.length} done).`;
+                    } else {
+                        logText = `<span class="feed-highlight">${displayName}</span> initiated docket login.`;
+                    }
+
+                    const timeLabel = new Date(timestampStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    events.push({ text: logText, time: timeLabel, className: logClass, dateObj: new Date(timestampStr) });
+                }
+            });
+
+            events.sort((a, b) => a.dateObj - b.dateObj);
+
+            if (events.length > 0) {
+                if (container.innerText.includes("Awaiting cloud connection")) {
+                    container.innerHTML = "";
+                }
+
+                events.forEach(ev => {
+                    const item = document.createElement('div');
+                    item.className = `feed-item ${ev.className}`;
+                    item.innerHTML = `${ev.text} <span class="feed-time">${ev.time}</span>`;
+                    container.insertBefore(item, container.firstChild);
+                });
+
+                while (container.childNodes.length > 25) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+        }
+
+        function renderDashboard() {
+            const grid = document.getElementById('student-grid-container');
+            grid.innerHTML = "";
+
+            const activeStudents = STUDENTS.filter(s => s.B === activeBlock);
+            
+            let totalStudents = activeStudents.length;
+            let loggedInCount = 0;
+            let fullyCompletedCount = 0;
+            let totalQuestionsCompleted = 0;
+
+            activeStudents.forEach(student => {
+                const decodedS = atob(student.S);
+                const sheetKey = decodedS;
+                const displayName = decodedS.replace(/\s*\(([^)]+)\)\s*$/, "");
+                
+                const rawData = telemetryData[sheetKey];
+                let questions = {};
+                let questionsDone = 0;
+                let lastActiveTime = "Never";
+                let statusClass = "";
+                
+                let qTimestamps = {};
+                let qSpeedStatus = {};
+
+                if (rawData) {
+                    loggedInCount++;
+                    lastActiveTime = formatRelativeTime(rawData.timestamp);
+                    
+                    try {
+                        const responses = JSON.parse(rawData.rationales);
+                        if (responses && responses._timestamps) {
+                            qTimestamps = { ...responses._timestamps };
+                        }
+                        
+                        QUESTIONS.keys.forEach(key => {
+                            const val = responses[key];
+                            if (val && typeof val === 'string' && val.trim().length > 0) {
+                                questions[key] = "completed";
+                                questionsDone++;
+                            } else {
+                                questions[key] = "pending";
+                            }
+                        });
+                    } catch(e) {}
+
+                    if (rawData.slideTimestamps) {
+                        qTimestamps = { ...qTimestamps, ...rawData.slideTimestamps };
+                    }
+
+                    // Anti-Cheating Speed Metric (Check duration between saves)
+                    const completedQs = [];
+                    QUESTIONS.keys.forEach((key, index) => {
+                        if (questions[key] === "completed" && qTimestamps[key]) {
+                            const dateObj = new Date(qTimestamps[key]);
+                            if (!isNaN(dateObj.getTime())) {
+                                completedQs.push({ key, index, time: dateObj.getTime() });
+                            }
+                        }
+                    });
+                    
+                    completedQs.sort((a, b) => a.time - b.time);
+                    
+                    let prevTime = null;
+                    if (qTimestamps.start) {
+                        const startT = new Date(qTimestamps.start);
+                        if (!isNaN(startT.getTime())) prevTime = startT.getTime();
+                    }
+                    
+                    completedQs.forEach((item, idx) => {
+                        if (prevTime !== null) {
+                            const diff = item.time - prevTime;
+                            // Critical: under 1.5 minutes, Warning: under 3 minutes
+                            if (diff < 90000) {
+                                qSpeedStatus[item.key] = "critical";
+                            } else if (diff < 180000) {
+                                qSpeedStatus[item.key] = "warning";
+                            } else {
+                                qSpeedStatus[item.key] = "normal";
+                            }
+                        } else {
+                            if (idx > 0) {
+                                const diff = item.time - completedQs[idx - 1].time;
+                                if (diff < 90000) {
+                                    qSpeedStatus[item.key] = "critical";
+                                } else if (diff < 180000) {
+                                    qSpeedStatus[item.key] = "warning";
+                                } else {
+                                    qSpeedStatus[item.key] = "normal";
+                                }
+                            } else {
+                                qSpeedStatus[item.key] = "normal";
+                            }
+                        }
+                        prevTime = item.time;
+                    });
+
+                    totalQuestionsCompleted += questionsDone;
+
+                    if (questionsDone === QUESTIONS.keys.length) {
+                        statusClass = "completed";
+                        fullyCompletedCount++;
+                    } else {
+                        statusClass = "active-student";
+                    }
+                } else {
+                    QUESTIONS.keys.forEach(key => {
+                        questions[key] = "pending";
+                    });
+                }
+
+                // Render Card
+                const card = document.createElement('div');
+                card.className = `student-card ${statusClass}`;
+                
+                let segmentsHtml = "";
+                QUESTIONS.keys.forEach((key, index) => {
+                    let stepClass = "";
+                    let speedClass = "";
+                    let tooltipSuffix = "";
+                    
+                    if (questions[key] === "completed") {
+                        stepClass = "completed";
+                        if (qSpeedStatus[key] === "critical") {
+                            speedClass = "fast-critical";
+                            tooltipSuffix = " [WARNING: FAST SUBMISSION]";
+                        } else if (qSpeedStatus[key] === "warning") {
+                            speedClass = "fast-warning";
+                            tooltipSuffix = " [ALERT: FAST SUBMISSION]";
+                        }
+                    }
+                    
+                    segmentsHtml += `
+                        <div class="segment ${stepClass} ${speedClass}">
+                            <div class="tooltip">${QUESTIONS.names[key]}${tooltipSuffix}</div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="student-name">${displayName}</span>
+                        <span class="question-count">${questionsDone}/${QUESTIONS.keys.length}</span>
+                    </div>
+                    <div class="segments-container">
+                        ${segmentsHtml}
+                    </div>
+                    <div class="time-elapsed">
+                        Active: ${lastActiveTime}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update KPIs
+            document.getElementById('kpi-active-count').innerText = `${loggedInCount} / ${totalStudents}`;
+            document.getElementById('kpi-completed-count').innerText = fullyCompletedCount;
+            
+            const totalQuestionsMax = totalStudents * QUESTIONS.keys.length;
+            const completionPercent = totalQuestionsMax > 0 ? Math.round((totalQuestionsCompleted / totalQuestionsMax) * 100) : 0;
+            document.getElementById('kpi-completion-percent').innerText = `${completionPercent}%`;
+            document.getElementById('class-progress-bar').style.width = `${completionPercent}%`;
+        }
+
+        function formatRelativeTime(timestampStr) {
+            if (!timestampStr) return "Never";
+            const date = new Date(timestampStr);
+            if (isNaN(date.getTime())) return "Unknown";
+            
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 5) return "Just now";
+            if (seconds < 60) return `${seconds}s ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        }
+
+        // ═══════════════════════════════════════════════════
+        // HUD INTERACTIVE DEMO MODE
+        // ═══════════════════════════════════════════════════
+        function toggleDemoMode() {
+            const demoBtn = document.getElementById('demo-btn');
+            demoModeActive = !demoModeActive;
+            
+            if (demoModeActive) {
+                demoBtn.innerText = "Disable Demo";
+                demoBtn.style.borderColor = "#2ecc71";
+                demoBtn.style.color = "#2ecc71";
+                startDemoSimulation();
+            } else {
+                demoBtn.innerText = "Demo Mode";
+                demoBtn.style.borderColor = "#ffa726";
+                demoBtn.style.color = "#ffa726";
+                clearInterval(demoTimer);
+                telemetryData = {};
+                seenTimestamps.clear();
+                document.getElementById('live-feed-container').innerHTML = `<div class="feed-item">Demo reset. Awaiting stream...<span class="feed-time">HUD Online</span></div>`;
+                renderDashboard();
+            }
+        }
+
+        function startDemoSimulation() {
+            const demoStudents = [
+                "Student One (AAAA)",
+                "Student Two (BBBB)",
+                "Student Three (CCCC)",
+                "Student Four (DDDD)"
+            ];
+
+            telemetryData = {};
+            seenTimestamps.clear();
+            document.getElementById('live-feed-container').innerHTML = "";
+
+            let tick = 0;
+            demoTimer = setInterval(() => {
+                tick++;
+                
+                // Demo Step events
+                if (tick === 1) {
+                    simulateStudentState(demoStudents[0], ["ans-q1-discovery"], "normal", false);
+                } else if (tick === 2) {
+                    simulateStudentState(demoStudents[1], [], "normal", false);
+                } else if (tick === 3) {
+                    simulateStudentState(demoStudents[0], ["ans-q1-discovery", "ans-q2-inquest"], "normal", false);
+                } else if (tick === 4) {
+                    simulateStudentState(demoStudents[2], ["ans-q1-discovery"], "critical", false); // Trigger copy-paste alert
+                } else if (tick === 5) {
+                    simulateStudentState(demoStudents[0], ["ans-q1-discovery", "ans-q2-inquest", "ans-q3-synthesis"], "normal", true); // Submitted!
+                }
+                
+                processLiveEvents();
+                renderDashboard();
+
+                if (tick >= 6) tick = 0;
+            }, 3000);
+        }
+
+        function simulateStudentState(studentKey, completedKeys, speedStatus, isFinal) {
+            const timestamp = new Date().toISOString();
+            const rationales = {};
+            completedKeys.forEach(k => {
+                rationales[k] = "Simulated answer content";
+            });
+
+            // Simulate anti-cheating speed timestamps
+            const timestamps = { start: new Date(Date.now() - 300000).toISOString() };
+            completedKeys.forEach((k, idx) => {
+                const interval = speedStatus === "critical" ? 30000 : (speedStatus === "warning" ? 100000 : 200000);
+                timestamps[k] = new Date(Date.now() - (completedKeys.length - idx) * interval).toISOString();
+            });
+            rationales._timestamps = timestamps;
+
+            telemetryData[studentKey] = {
+                timestamp: timestamp,
+                status: isFinal ? "FINAL_SUBMISSION" : "INCREMENTAL_SAVE",
+                rationales: JSON.stringify(rationales)
+            };
+        }
+    </script>
+</body>
+</html>

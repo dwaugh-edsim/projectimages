@@ -5,7 +5,7 @@ function doGet(e) {
     // DEBUG: Call with ?action=debug to inspect the sheet structure
     if (action === 'debug') {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
       const rows = sheet.getDataRange().getValues();
       const allStudents = rows.slice(1).map(r => r[2]); // All values in student col
       return ContentService.createTextOutput(JSON.stringify({ 
@@ -18,7 +18,7 @@ function doGet(e) {
     // PROGRESS: Fetch progress for all students
     if (action === 'progress') {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
       const rows = sheet.getDataRange().getValues();
       
       if (rows.length <= 1) {
@@ -59,7 +59,7 @@ function doGet(e) {
     // SAVE via GET (reliable cross-origin from Chromebooks)
     if (action === 'save') {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
       if (sheet.getLastRow() === 0) {
         sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
       }
@@ -89,7 +89,7 @@ function doGet(e) {
     }
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+    const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
     const rows = sheet.getDataRange().getValues();
 
     if (rows.length <= 1) {
@@ -135,7 +135,7 @@ function doGet(e) {
 function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+    const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
 
     // Add headers if sheet is empty
     if (sheet.getLastRow() === 0) {

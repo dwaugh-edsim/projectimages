@@ -1,30 +1,25 @@
 /**
- * Maya Paul — Sixties Scoop Case File
- * Apps Script for Google Sheets webhook
- *
- * This is functionally identical to irssa_code.gs.
- * It uses the SAME Sheet1 tab — the "simulation" column differentiates
- * IRSSA data from Maya Paul data:
- *   - IRSSA:      simulation = "IRSSA Settlement Dossier"
- *   - Maya Paul:  simulation = "Sixties Scoop — Maya Paul"
- *
- * DEPLOYMENT: You do NOT need a separate deployment.
- * The existing web app URL works for both assignments.
- * Just make sure the Apps Script code below is deployed
- * (or that your current irssa_code.gs is already deployed —
- *  it already handles arbitrary simulation names).
- *
- * This file is provided as documentation / a backup copy.
+ * GENERIC WEBHOOK BACKEND (v1.0)
+ * Google Apps Script for Spreadsheet Data Persistence
+ * 
+ * Instructions:
+ * 1. Open your Google Spreadsheet.
+ * 2. Click "Extensions" > "Apps Script".
+ * 3. Paste this code into the editor.
+ * 4. Rename the default sheet tab to "Submissions" (or it will auto-create/fallback to Sheet1/active tab).
+ * 5. Click "Deploy" > "New deployment" > Select type "Web app".
+ * 6. Set Access to "Anyone" and Execute as "Me (your account)".
+ * 7. Deploy and copy the Web App URL. Paste it as `API_URL` in your HTML files.
  */
 
 function doGet(e) {
   try {
     const action = e.parameter.action;
 
-    // DEBUG: Call with ?action=debug to inspect the sheet structure
+    // 1. DEBUG: Call with ?action=debug to inspect sheet structures
     if (action === 'debug') {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const sheet = ss.getSheetByName("Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
       const rows = sheet.getDataRange().getValues();
       const allStudents = rows.slice(1).map(r => r[2]);
       return ContentService.createTextOutput(JSON.stringify({ 
@@ -35,10 +30,10 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // PROGRESS: Fetch progress for all students
+    // 2. PROGRESS: Fetch progress for all students for the dashboard
     if (action === 'progress') {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+      const sheet = ss.getSheetByName("Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
       const rows = sheet.getDataRange().getValues();
       
       if (rows.length <= 1) {
@@ -53,10 +48,10 @@ function doGet(e) {
       const timestampColIdx = headers.indexOf("timestamp") > -1 ? headers.indexOf("timestamp") : 0;
       const statusColIdx = headers.indexOf("status") > -1 ? headers.indexOf("status") : 5;
       
-      // Defaults to Maya Paul simulation if not specified
-      const simulation = e.parameter.simulation || "Sixties Scoop — Maya Paul";
+      const simulation = e.parameter.simulation || "generic-simulation";
       const studentProgressMap = {};
       
+      // Reconstruct student states chronologically
       for (let i = 1; i < rows.length; i++) {
         const rowStudent = String(rows[i][studentColIdx]).trim();
         const rowSim = String(rows[i][simColIdx]).trim();
@@ -75,14 +70,13 @@ function doGet(e) {
             studentProgressMap[rowStudent].rationales = rows[i][rationalesColIdx];
           }
           
-          // Reconstruct slide completion times from historical rows
+          // Reconstruct individual slide timestamps for telemetry progress indicators
           try {
             const rationalesStr = rows[i][rationalesColIdx];
             if (rationalesStr) {
               const responses = JSON.parse(rationalesStr);
               for (const key in responses) {
                 if (key === "_timestamps") {
-                  // Merge client-side recorded timestamps
                   const clientTimestamps = responses[key];
                   for (const cKey in clientTimestamps) {
                     if (!studentProgressMap[rowStudent].slideTimestamps[cKey]) {
@@ -94,12 +88,8 @@ function doGet(e) {
                 
                 const val = responses[key];
                 let isCompleted = false;
-                if (val) {
-                  if (typeof val === 'string' && val.trim().length > 0) {
-                    isCompleted = true;
-                  } else if (typeof val === 'object') {
-                    isCompleted = true;
-                  }
+                if (val && typeof val === 'string' && val.trim().length > 0) {
+                  isCompleted = true;
                 }
                 
                 if (isCompleted && !studentProgressMap[rowStudent].slideTimestamps[key]) {
@@ -107,7 +97,7 @@ function doGet(e) {
                 }
               }
             }
-          } catch(e) {}
+          } catch(err) {}
         }
       }
       
@@ -115,30 +105,7 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // SAVE via GET (reliable cross-origin from Chromebooks)
-    if (action === 'save') {
-      const ss = SpreadsheetApp.getActiveSpreadsheet();
-      const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
-      if (sheet.getLastRow() === 0) {
-        sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
-      }
-      const newRow = sheet.getLastRow() + 1;
-      const rowData = [
-        e.parameter.timestamp,
-        e.parameter.block,
-        e.parameter.student,
-        e.parameter.subject,
-        e.parameter.simulation,
-        e.parameter.status,
-        e.parameter.rationales
-      ];
-      sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
-      // Force rationales column (col 7) to plain text to preserve JSON quotes
-      sheet.getRange(newRow, 7).setNumberFormat('@STRING@');
-      return ContentService.createTextOutput(JSON.stringify({ success: true }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
+    // 3. RETRIEVAL: Load single student draft
     const student = e.parameter.student;
     const simulation = e.parameter.simulation;
 
@@ -148,7 +115,7 @@ function doGet(e) {
     }
 
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+    const sheet = ss.getSheetByName("Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
     const rows = sheet.getDataRange().getValues();
 
     if (rows.length <= 1) {
@@ -157,30 +124,24 @@ function doGet(e) {
     }
 
     const headers = rows[0].map(h => String(h).toLowerCase().trim());
-    const sCol = headers.indexOf("student");
-    const mCol = headers.indexOf("simulation");
-    const rCol = headers.indexOf("rationales");
-
-    const studentColIdx = sCol > -1 ? sCol : 2;
-    const simColIdx = mCol > -1 ? mCol : 4;
-    const rationalesColIdx = rCol > -1 ? rCol : 6;
+    const studentColIdx = headers.indexOf("student") > -1 ? headers.indexOf("student") : 2;
+    const simColIdx = headers.indexOf("simulation") > -1 ? headers.indexOf("simulation") : 4;
+    const rationalesColIdx = headers.indexOf("rationales") > -1 ? headers.indexOf("rationales") : 6;
 
     let latestRationales = null;
-    let debugInfo = { headers: rows[0], studentColIdx, simColIdx, rationalesColIdx, searchingFor: student, searchingSim: simulation, rowsChecked: 0 };
 
+    // Scan backwards to find the latest save
     for (let i = rows.length - 1; i >= 1; i--) {
       const rowStudent = String(rows[i][studentColIdx]).trim();
       const rowSim = String(rows[i][simColIdx]).trim();
-      debugInfo.rowsChecked++;
 
       if (rowStudent === student.trim() && rowSim === simulation.trim()) {
         latestRationales = rows[i][rationalesColIdx];
-        debugInfo.foundAtRow = i;
         break;
       }
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ rationales: latestRationales, debug: debugInfo }))
+    return ContentService.createTextOutput(JSON.stringify({ rationales: latestRationales }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
@@ -192,8 +153,9 @@ function doGet(e) {
 function doPost(e) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName("IRSSA_Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+    const sheet = ss.getSheetByName("Submissions") || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
 
+    // Init sheet headers if completely empty
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(["timestamp", "block", "student", "subject", "simulation", "status", "rationales"]);
     }
@@ -208,7 +170,9 @@ function doPost(e) {
       e.parameter.status,
       e.parameter.rationales
     ];
+    
     sheet.getRange(newRow, 1, 1, rowData.length).setValues([rowData]);
+    // Force plain text formatting on rationales to keep JSON quotes intact
     sheet.getRange(newRow, 7).setNumberFormat('@STRING@');
 
     return ContentService.createTextOutput(JSON.stringify({ success: true }))
