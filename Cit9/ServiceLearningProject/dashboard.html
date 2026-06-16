@@ -373,21 +373,27 @@
                 syncEl.style.color = 'var(--emerald-500)';
             } catch(e) {
                 console.error("Dashboard cloud sync failed, reading local json", e);
-                try {
-                    const localRes = await fetch('live_student_data.json');
-                    const localData = await localRes.json();
-                    localData.forEach(item => {
-                        const sid = item.studentId;
-                        if (studentData[sid]) {
-                            studentData[sid].mission = item.mission || "";
-                            studentData[sid].data = item.data || {};
-                        }
-                    });
-                    syncEl.textContent = 'Cached JSON';
-                    syncEl.style.color = 'var(--indigo-500)';
-                } catch(err) {
-                    syncEl.textContent = 'Offline (Upload File Below)';
+                if (window.location.protocol === 'file:') {
+                    syncEl.textContent = 'Offline (Load File Below)';
                     syncEl.style.color = 'var(--rose-500)';
+                    console.log("Local fetch skipped on file:// protocol due to browser security policies. Please use the Load Offline button.");
+                } else {
+                    try {
+                        const localRes = await fetch('live_student_data.json');
+                        const localData = await localRes.json();
+                        localData.forEach(item => {
+                            const sid = item.studentId;
+                            if (studentData[sid]) {
+                                studentData[sid].mission = item.mission || "";
+                                studentData[sid].data = item.data || {};
+                            }
+                        });
+                        syncEl.textContent = 'Cached JSON';
+                        syncEl.style.color = 'var(--indigo-500)';
+                    } catch(err) {
+                        syncEl.textContent = 'Offline (Upload File Below)';
+                        syncEl.style.color = 'var(--rose-500)';
+                    }
                 }
             }
 

@@ -713,21 +713,29 @@
                 document.getElementById('sourceBadge').textContent = 'Live Webhook';
             } catch(e) {
                 console.error("Webhook read failed, trying local fallback", e);
-                // 2. Try to fetch local live_student_data.json
-                try {
-                    const localRes = await fetch('live_student_data.json');
-                    const localData = await localRes.json();
-                    localData.forEach(item => {
-                        const sid = item.studentId;
-                        if (activeRosterData[sid]) {
-                            activeRosterData[sid].mission = item.mission || "";
-                            activeRosterData[sid].data = item.data || {};
-                            activeRosterData[sid].rating = item.data?.teacherQuality || "Adequate";
-                        }
-                    });
-                    document.getElementById('sourceBadge').textContent = 'Local File';
-                } catch(err) {
-                    document.getElementById('sourceBadge').textContent = 'Empty Shell';
+                // 2. Check if running on file:// protocol (CORS blocks local fetches)
+                if (window.location.protocol === 'file:') {
+                    document.getElementById('sourceBadge').textContent = 'Use Import Button';
+                    document.getElementById('sourceBadge').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('sourceBadge').style.color = '#f87171';
+                    console.log("Local fetch skipped on file:// protocol due to browser security policies. Please use the Import button.");
+                } else {
+                    // Try to fetch local live_student_data.json if running on a local server
+                    try {
+                        const localRes = await fetch('live_student_data.json');
+                        const localData = await localRes.json();
+                        localData.forEach(item => {
+                            const sid = item.studentId;
+                            if (activeRosterData[sid]) {
+                                activeRosterData[sid].mission = item.mission || "";
+                                activeRosterData[sid].data = item.data || {};
+                                activeRosterData[sid].rating = item.data?.teacherQuality || "Adequate";
+                            }
+                        });
+                        document.getElementById('sourceBadge').textContent = 'Local File';
+                    } catch(err) {
+                        document.getElementById('sourceBadge').textContent = 'Empty Shell';
+                    }
                 }
             }
 
