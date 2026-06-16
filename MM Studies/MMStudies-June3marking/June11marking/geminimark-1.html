@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mi'kmaw Studies 11 - June 11 Evaluation Report">
+    <title>June 11 Marking — Gemini First Pass</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f111a;
+            --bg-card: #151926;
+            --bg-hover: #1e2438;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-blue: #5DADE2;
+            --accent-blue-glow: rgba(93, 173, 226, 0.25);
+            --text-main: #f0f3f8;
+            --text-muted: #8fa0b5;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-base); color: var(--text-main); line-height: 1.6; padding: 40px 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: 3px; background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .title-section h1 { font-family: 'Outfit', sans-serif; font-size: 1.8rem; color: #fff; font-weight: 700; }
+        .title-section p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
+        .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 35px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+        .stat-card .number { font-size: 2.2rem; font-weight: bold; font-family: 'Outfit', sans-serif; color: var(--accent-blue); text-shadow: 0 0 10px var(--accent-blue-glow); }
+        .stat-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; font-weight: 600; }
+        
+        .controls-bar { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .search-box { flex-grow: 1; min-width: 250px; padding: 12px 18px; border: 1px solid var(--border-color); background: var(--bg-base); color: #fff; border-radius: 8px; font-size: 0.95rem; outline: none; }
+        .search-box:focus { border-color: var(--accent-blue); }
+        .select-filter { padding: 12px 18px; border: 1px solid var(--border-color); background: var(--bg-base); color: #fff; border-radius: 8px; font-size: 0.95rem; outline: none; cursor: pointer; }
+        .select-filter:focus { border-color: var(--accent-blue); }
+        
+        .table-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: rgba(255, 255, 255, 0.02); padding: 16px 20px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; vertical-align: top; }
+        tr.grading-row:hover { background: rgba(255, 255, 255, 0.01); }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+        .badge-block { background: rgba(93, 173, 226, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .badge-q { background: rgba(46, 213, 115, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .badge-q28 { background: rgba(255, 165, 2, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+        
+        .response-cell { max-width: 400px; }
+        .response-text { font-size: 0.85rem; color: #cbd5e1; white-space: pre-wrap; word-break: break-word; max-height: 120px; overflow-y: auto; padding-right: 5px; }
+        
+        .comment-cell { color: #e2e8f0; font-size: 0.85rem; line-height: 1.5; max-width: 350px; }
+        
+        .grade-container { display: flex; align-items: baseline; font-family: 'Outfit', sans-serif; }
+        .grade-number { font-size: 1.3rem; font-weight: 700; color: #fff; }
+        .grade-total { font-size: 0.9rem; color: var(--text-muted); }
+        
+        .text-muted { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">GEMINI EVAL</div>
+        <div class="title-section">
+            <h1>June 11 Marking — First Pass Report</h1>
+            <p class="subtitle">Mi'kmaw Studies 11 · Q27 & Q28 Assessment Table</p>
+        </div>
+    </div>
+
+    <div class="summary-cards">
+        <div class="stat-card">
+            <div class="number">46</div>
+            <div class="label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">4.65 <span style="font-size:1.2rem; color:var(--text-muted)">/ 5</span></div>
+            <div class="label">Q27 Average Grade</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">9.0 <span style="font-size:1.2rem; color:var(--text-muted)">/ 10</span></div>
+            <div class="label">Q28 Average Grade</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">91.0%</div>
+            <div class="label">Combined Average</div>
+        </div>
+    </div>
+
+    <div class="controls-bar">
+        <input class="search-box" type="text" id="searchBox" placeholder="Search student name or email..." oninput="filterTable()">
+        
+        <select class="select-filter" id="blockFilter" onchange="filterTable()">
+            <option value="all">All Blocks</option>
+            <option value="Block A">Block A</option>
+            <option value="Block C">Block C</option>
+        </select>
+        
+        <select class="select-filter" id="questionFilter" onchange="filterTable()">
+            <option value="all">All Questions</option>
+            <option value="Q27">Q27 Only</option>
+            <option value="Q28">Q28 Only</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Student</th>
+                    <th style="width: 10%;">Block</th>
+                    <th style="width: 8%;">Q</th>
+                    <th style="width: 32%;">Student Response</th>
+                    <th style="width: 8%;">Grade</th>
+                    <th style="width: 27%;">Comments / Justification</th>
+                </tr>
+            </thead>
+            <tbody id="gradingTableBody">
+                
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="koen">
+        <td><strong>koen</strong><br><small class="text-muted">mkd077231@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principal wants to use suspention as a form of punishment towards the offender while the support works moves to allowing others to understand why the kid did what he did and what he can do to make up for it.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent conceptual understanding of the contrast between traditional punishment (suspension) and restorative healing circles (restitution/understanding).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="koen">
+        <td><strong>koen</strong><br><small class="text-muted">mkd077231@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination means a lot of different things in many other contexts but in the context of the indigenous peoples of Canada it means their rights to govern themselfs and to create their own laws, rights and freedoms without being overshadowed by the government. My first example of where this term has caused clashs between the government and indigenous people would be when the Nova Scotian government went onto indigenous reserves and seized weed from multiple weed shops because the government could claim that the Mi&#x27;kmaq had no rights to sell weed and that the weed was causing a public health risk. This is an example becuase the Mi&#x27;kmaq had been self governing this weed for a long time and now the government is stepping in because it wants to profit from the stores this shows how the Mi;kmaqs right to self-government is being taken away. my second example of this is the OKA crisist, in this time period the town of OKA wanted to build a expantion to a golf course in their town but this expantion would be going into native land which would cause the natives to become unhappy and violent because the government had not consulted with the native leaders and had just gone into the reserve without consent for expantion, this example shows how the native peoples don&#x27;t have the rights to their own land and how they still do not get to govern their own land. These two examples show how the government will still claim that they have the rights of all of the lands of the reserves, yet this land had been given to the natives for them to control and govern themselfs.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clearly defines self-determination and provides two excellent examples (Nova Scotia reserve cannabis seizures, Oka Crisis) explaining the decision-making conflict. No deductions for minor spelling/grammar.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="kulay">
+        <td><strong>Kulay</strong><br><small class="text-muted">ck522319@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The primary focus of the Vice principal is to show and give an example and to discourage follwoing attempts of graffiti or vandalism of school property thorugh a consequence of Liam&#x27;s actions
+
+The healing circle method that the Indigenous student support worker suggested is a cummulative process with individuals namely the victim and perpetrator. They discuss why Liam came to that conclusion, and when Liam is done, the vice principal and other school leaders can find a solution that helps fix the need to vandalize school property.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent explanation of both methods: VP&#x27;s focus on consequences/deterrence vs the support worker&#x27;s focus on finding collaborative solutions.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="kulay">
+        <td><strong>Kulay</strong><br><small class="text-muted">ck522319@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-Determination is the legal right and treaty that the british crown signed to let the Indegous people to let them rule themselves. In this context the battle against the Indigenous self-determination and the Provincial governments right to govern what happens inside of Indigenous communities and land.
+
+A couple specific examples of this is, in one of the assignments. Liam&#x27;s trading post, where Liam is allowed to own a business on his community land and the self-ruling government has already approved of Liam&#x27;s right to own the business, but the government lead a police enforment on Liam&#x27;s trading post while having the Self-ruling governemnt already approved of Liam&#x27;s right to put up his trading post.
+Another Example is Centralization and keeping the Indigenous community members inside of the reserve. The Canadian government had to have the Indigenous peoples to ask for permission to leave their land while it is the Indigenous peoples land. The government is stepping inot the business of the self--ruling government.
+
+These conflicts show that the Canadian government/provincial government has been continually trying to undermine the authority that the self-ruling government has over it&#x27;s own land by interrupting businesses and distruping them or stepping into processes that the self ruling government can do on their own. By doing this the provincial government is reducing the amount of control that the indigenous self-ruling government has thus oppressing and helping destroy Indigenous and Mi&#x27;kmaq culture to be able to make use of the only land the the people in reserves can use.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Defines self-determination clearly. Provides two distinct examples (Liam&#x27;s trading post/weed shop enforcement, Centralization/Pass System) explaining the decision-making conflict. No deductions for minor typos/grammar.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="river">
+        <td><strong>River</strong><br><small class="text-muted">tre956005@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">using comparisons to the modern justice system regarding indigenous peoples and specifically Gladue rights the vice principal is acting on crown ideas of justice based around punishment, while the gladue rights allow for indigenous restorative justice ideals where instead of outright punishing the offender they attempt to make up for what they did by conversing with officials and all others inolved in the offense, in this way the ideals between the vice principal and cleaner can be seen as a direct reflection of the corwn and Gladue sysem in the real justice system in their methods and forms of judgement and punishment</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Highly creative and insightful comparison comparing the VP&#x27;s approach to conventional Crown punitive justice and Gladue rights to restorative ideals.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="river">
+        <td><strong>River</strong><br><small class="text-muted">tre956005@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">In the context of territories, resources, and communities the government and indigenous population of canada have been in conflict many times. For example probably the most serious and well known event regarding conflict between the crown and indigenous self governance was the Oka Crisis, this was a historic event in which the town of Oka was pushing for a new golf course to be expanded into local Mohawk territory, incredibly important territory,
+the land that the town was trying to expand on was a native burial site for the mohawk people, soon as tensions grew and the mohawk people were ignored in attempts to legally stop the expansion, eventually this led to a large hostile protest where a massive group of indigneous people began to work together to make blockades on major roads and most importantly a very high use highway, the government responded and eventually the conflict led to become increasingly violent as many people were injured and some deaths occured as well, it got to a point where the national guard was sent to deal with the issue.
+once the conflict was passified the crisis became a very important piece of indigenous protest as the event was known and recognised by the whole country and invigorated more active and serious protest all over pushing organizations and reparations to push for change harder than ever before.
+another example of a similar kind of conflict was a large pipeline dispute where the government attempted to construct a large possibly harmful pipeline system, very quickly a large amount of the local indigenous population began to protest and attempt to fight to stop the progression of the pipeline plan, this was another quite serious event though not to the level of the Oka crisis it was another impactful push that supported further protest for indigenous right and self determination.
+these protests and the effects they&#x27;ve had on the canadian legal and governmental system are very important to help the fight to give the deserved rights as well as freedoms to the indigenous peoples of Canada.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clearly demonstrates conceptual understanding of self-governance and provides two examples (Oka Crisis and pipeline protests) explaining the territorial jurisdiction clash.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="reiley locke">
+        <td><strong>Reiley Locke</strong><br><small class="text-muted">lrg896201@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The VP&#x27;s method is punishment, vs the workers suggestion is restorative justice. The VP is focused on &quot;what rule is broken, and how can we punish according to the procedure (code of conduct in this case)&quot;. The worker thought is &quot;how can we all work together as equals, to find a fair solution to fix the issue,  while still teaching a lesson and focusing on movingg forward&quot;. This is the difference between the traditional judicial system, and the restorative justice system.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Superb contrast between the VP&#x27;s focus on rule-breaking procedure and the support worker&#x27;s focus on equality, healing, and moving forward.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="reiley locke">
+        <td><strong>Reiley Locke</strong><br><small class="text-muted">lrg896201@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination is the right to govern ones self on ones own land. One example of a government-indigenous self determination clash is the Oka Crisis. In the Oka Crisis, the  Mohawk people argued that the governemnt had no right to  allow a golf course to be written on their sacred burialground, however the governemnt kept fighting to allowthe golf course to be expanded. Another sccenario is Leo&#x27;s cannibis shop. The government used outdated thoughts and language to argue that Leo cannot ssell cannibis because it didn&#x27;t exist when the treaty was made, arguing a &quot;frozen right&quot; perspective. Leo argued that a treaty  is like a &quot;living tree&quot; constantly changing with society. Thhis shows the government trying to control cannibis sales that are being made to make a living, wanting to control cannibis sales in canada.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Provides a solid definition and two clear examples (Oka Crisis and Leo&#x27;s cannabis shop) showing conflict over decision-making on territory. No deductions for minor typos.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="sam">
+        <td><strong>Sam</strong><br><small class="text-muted">msa080789@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principle went right to the worst punshinment instead of thniking of something else to know what he had did wrong and how to fix it, and then know what to not do because he would now know what he had did wrong. and he will be connected with his culture and his way of cleaning his mess he had made.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">4</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good conceptual understanding of the distinction between immediate punishment and learning/reconnecting to culture to repair the mess. Upgraded from 3 to 4 as spelling/structure is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="sam">
+        <td><strong>Sam</strong><br><small class="text-muted">msa080789@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means when someone really wants to get something or do it by youself and you want no help and really want to get it done.
+
+1) They wanted to take the bones from a very old indegous person that had been under the ground and the community had wanted the bones placed back under ground and put back to his peace.
+
+2) When the government had wanted to build a big highway right through the mikmaw peoples land that would have destroyed where they have had lived for many many years, making a huge change in their life.
+
+They should both have a choice in what happens to the land because it has been the mikmaw peoples land for so long and the govenment trying to make more ways to live and travel around faster through the country.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">7</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good effort on the examples (repatriating ancestral remains, highway placement conflicts). Deducted 3 points as the definition of self-determination is simplified/colloquial (&#x27;want no help... get it done&#x27;).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="clara jones">
+        <td><strong>Clara Jones</strong><br><small class="text-muted">jcj129073@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principal wants Sam to face the consequences of his actions and not go over why what he did was wrong and what he can do better. The healing circle aims to show Liam what he did was wrong and the poeple it affected and the school leaders who have just had their school vandalizes. This will show Liam that his actions had an effect on his peers and he is likely to feel more empathetic and learn from is actions rather than being punished.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Clear understanding of the contrast, noting the restorative value of empathy and Peer impact. Upgraded to 5 as the minor student name slip is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="clara jones">
+        <td><strong>Clara Jones</strong><br><small class="text-muted">jcj129073@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means whether you have control over your own life, can yiu have your own government, rights, etc. The mikmaq community has been controlled by the Canadian governmnet for centuries and they are an example of a group without self determination. For example, there are rights for the indigenous community to have tobacco stores on their own reserves. Those tobacco shops continue to get shut down by the government leaving the mikmaq powerless. In 1920 the Canadian government made it manditiory for the Mikmaq children to be sent away to residential schools, the mikmaq families had to choice but to listen because in this case they could get introuble for speaking out. The children were forced to assimilate, they got their culture stripped from them and were no longer able to speak their own language. The mikmaq is a example for self determination because they havent gotten a say in their own rights for a long time. This conflict makes the cheifs ( the men who are supposed to have power) powerless because they are constantly being played with by the canadian government</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Good definition and two examples (reserve tobacco shop raids and mandatory residential schools) explaining the lack of self-determination and clash over authority.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="noah pinter">
+        <td><strong>Noah Pinter</strong><br><small class="text-muted">pn837767@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principals apporach is to punish the student, where as the support worker gives an alternative for the student to speak with the custodian and be able to find out why it is wrong to spray paint, why it is against school rules, and how it impacts other people and doesn&#x27;t simply break a rule. The vice principals approach is more to punish and not explain or show why the action is wrong, simply that doing it will warrant a punishment. Where as the support works approach is to show the student his wrong doing and explain why it is wrong, how it affects the custodian and allows them to speak with another and understand the reason why the student did it, and how the custodian would feel about it.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent detailed contrast highlighting the dialogue with the custodian and understanding the impact of actions beyond rule-breaking.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="noah pinter">
+        <td><strong>Noah Pinter</strong><br><small class="text-muted">pn837767@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination is being able to determine what to do with yourself, in this context it is Indigenous people being able to determine what to do with their land, etc... Two examples are the Oka crisis, and Residential schools. The Oka crisis happened due to a golf course wanting to be put over Indigenous land, without any consent from the Indigenous people, as such a conflict began due to this. This shows the conflict over who has the right to make descisions on territory, because the government wanted to use the land for their own use, and not letting the Indigenous people determine what to do with it, instead the government taking the inniative for themseves. Residential schools show this as well by showing how the treaty rights of Indiengous people were violated, with children being taken from their homes and made to forget and remove their origins and culture, and replace it with somehting the government found suitable. They were not able to determine who they would be and instead the government attempted to force upon them who they should be. Please give me a good grade Mr Waugh.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Provides a conceptual definition of self-determination and explains the Oka Crisis and residential school clashes over rights/control. No deductions for length or minor details.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="kaden crooks">
+        <td><strong>Kaden Crooks</strong><br><small class="text-muted">ckg016007@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice principals method approachs a more feel the consequence manor because the principal wants to just give out the punishment so he can learn from his mistakes, The student support worker wants to help growth the students from their mistakes by putting them in a healing circle to help support them rather then just punishing them.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good understanding of the contrast between consequence-based punishment and healing circles for growth. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="kaden crooks">
+        <td><strong>Kaden Crooks</strong><br><small class="text-muted">ckg016007@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">The tension between the government and the mi&#x27;kmaq communites are quiet speical because on one hand the government wants to control them but also kinda help them, and the indigenous communities want nothing to do with it. As a example the oka crisis the oka mi&#x27;kmaq people wanted their grounds from a golf course which was greedly expanding but they did it very hostile and the government did not like that one bit. And on the other case the 60s scoup when a bunch of child protective services agents went in and stole a bunch of indigenous kids from their familys made a terrible scene for both sides of that making their relationship worse but overall the people who have the right to make decisions on their territory should be both, the mi&#x27;kmaq control their areas like independent governments while the regular government supports/watches over them helping whenever they can that system would be perfect, But realisticly the mi&#x27;kmaq should have full control its their land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good understanding of self-rule and clashes. Mentions Oka Crisis and the Sixties Scoop. Deducted 1 point as the explanation of decision-making conflict is slightly contradictory.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="caitlyn">
+        <td><strong>caitlyn</strong><br><small class="text-muted">kcm947897@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">the vice principals approach is focused on punishment, while the support  worker focuses on &quot;healing&quot; liam and making him know that he is forgiven.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Accurately identifies the primary difference (punishment vs. healing/forgiveness). Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="caitlyn">
+        <td><strong>caitlyn</strong><br><small class="text-muted">kcm947897@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">self determination for indigenous people refers to there inherent right to govern themselves, make there own decisions about there lands, resources, culture and futures to maintain there distinct identities. the oka crisis in 1990. this conflict arose over a land dispute concerning the expansion of a golf course onto mohawk  burrial grounds. the mohawk people asserted there treaty rights and ancestral claims to the land. the federal and provincial government permited the expansion, which led to a standoff.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">8</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent definition of self-determination. Deducted 2 points solely for omitting the second specific example (only discusses the Oka Crisis).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="jaiveer bhullar">
+        <td><strong>Jaiveer Bhullar</strong><br><small class="text-muted">bjs959322@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Principal&#x27;s approach differs from the support worker&#x27;s suggestion because the support worker suggests a way in healing and restorative justice by reflecting on what could have been done better, and the high school student can learn from his mistakes through a journey of healing in this way. Meanwhile, the Vice Principal suggests that the high school student should be going through a punishment, as it more focuses on &quot;who did the crime&quot; and &quot;what law did they break.&quot;</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Outstanding contrast, using precise terminology (&#x27;restorative justice&#x27;, &#x27;who did the crime&#x27;, &#x27;what law did they break&#x27;).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="jaiveer bhullar">
+        <td><strong>Jaiveer Bhullar</strong><br><small class="text-muted">bjs959322@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination (self-rule) means that the Indigenous peoples have the right to govern themselves, that includes governing over their land and their people to make their own decisions independently. This, is also the Indigenous peoples self-determination governing without the influence of the Canadian federal governments.
+
+The Oka Crisis is an example where government authorities clcashed with Indigenous treaty rights and land/resource use because the government wanted to construct a golf course expansion in the 1990s, but the golf course was being expanded over sacred Indigenous burial grounds. This was a big deal between the Indigenous people and the Canadian federal government since there was no discussion with the Indigenous people to have their permission to pursue this expansion. This violated the rights that the Indigenous people had over their land as well as their treaty rights. Another example is the Centralizatoin Policy. This policy took Indigenous people off their homes and land to put them in Centralized reserves: Eskasoni (Cape Breton) and Shubenacadie (East Hants). At these Centralized Reserves there were very poor conditions, bad housing, and overcrowded areas which violated the rights of the Indigenous people with their land/resource use and Indigenous treaty rights.
+
+These examples show the conflict by showing the violation of Indigenous treaty rights, and the land/resource use that they are obligated to have. Also, it is shown that the Canadian federal or provincial government did most of these violations without consulting with the Indigenous peoples and having more power than them, even though it is Indigenous land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Excellent definition, two very strong examples (Oka Crisis, Centralization Policy), and a clear, detailed explanation of the decision-making conflict.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="julian keddy">
+        <td><strong>Julian Keddy</strong><br><small class="text-muted">kje857542@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Principal was following guidlines set by higher ups that are strict like the legal system that move solely to punishment. while the indigenous student worker suggests a more forgiving route that will have lessons and have an impact on the liam where he can face the people he wronged instad of only facing the consequences.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of strict guidelines (punishment) and facing the people wronged (restorative). Upgraded to 5 as run-on sentences/grammar are not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="julian keddy">
+        <td><strong>Julian Keddy</strong><br><small class="text-muted">kje857542@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">The goverment and indigenous people have had a never ending battle for land, respect and culture. The Okra crisis was a battle between the goverment and the mohawk people, the goverment wanted to expand a golf course onto land but it was a sacred burying gorund for the mohawk people; With this they clashed since the indigenous people had been promised that land in treatys and it was avoided as the goverment wanted more land and had a power trip thinking they were above the people. The goverment always demands power and wants to be head of everything to fully control what the mohawk people have.
+
+The residental school system stole children, arrested people who did nothing wrong, ripped the culture out of the minds and hands of the indigenous childern. They voided all rights, found work arounds in treatys and when the mi&#x27;kmaw tried to fight back they were met with a force they could not fight. Supported by the goverment, churches, the people; a false image set that this was the dream school until they seen how it truly was and when the childern came back with stories that no human must withstand. The goverment stole the land, raped, assulted, beat, moleste, forced, murdered, disrespected, neglected and destoryed the familes of indigenous people. in this they clashed over the treaty as the indigenous lost their freedom as they lost thier childern and any resilantance would be met with punshiment that could not be fought back. The goverment wanted control and gained it through fear and power as they destoryed everything in their path that defied their word.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent, highly detailed explanation of the Oka Crisis and residential schools. Deducted 1 point due to the lack of an explicit definition of self-determination.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="myles">
+        <td><strong>myles</strong><br><small class="text-muted">amb948259@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">the vice principles approach differs from the support works suggestion by removing the kid from the school so he can face the consequences for his action. while the healing circle would help the kid reflect on his actions and talk about the consequences with people.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good general contrast between removal/consequences and reflection/discussion. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="myles">
+        <td><strong>myles</strong><br><small class="text-muted">amb948259@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">one of the examples would be when leo had his canabis shop up and the government tried to close down his shop. this shows the conflict of how leo and the indigenous people should be able to have the right to make the decision on the territory but the government had made a bunch of decisions for them.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">6</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Deducted 4 points: 2 points for missing the definition of self-determination, and 2 points for only providing one brief example (Leo&#x27;s cannabis shop).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="christopher merlin">
+        <td><strong>Christopher Merlin</strong><br><small class="text-muted">mcj116997@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principles aprroach differs from the indigenous student support worker&#x27;s as the vice principal dosent hesitate to think, and wants to suspend liam immediatly. Her method dosent change the way Liam will act as a suspension does not make you want to change, rather it being a temporary stop to trouble. The indgenous student support workers method is a way for Liam, the custodian, and the school leaders to come together and reflect on what has happend, and what should be done to change. The primary focus in this method is too Make liam really reflect on what hes done, and want to make a change. The healing circle is a way for him to feel comforted, and express his reasoning why he did such thing.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Very thorough answer. Excellent contrast of immediate suspension (temporary stop) vs the healing circle (bringing student, custodian, and leaders together for reflection and comfort).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="christopher merlin">
+        <td><strong>Christopher Merlin</strong><br><small class="text-muted">mcj116997@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination in this context means that the indigenous people want to have full control over their land, rights, what they sell, and their culture. The the federal or provincial governenment thinks they should be able to control what goes on like normal, and decide what they sell on their land, and their rights.
+
+1: Where the government thinks they should be able to control what the mikmaw sell in their truckhouses. They think that since the mi&#x27;kmaw are having their product introduced to teens, that they should be able to break treaty rights and intervene to stop this, even though they have no rights to do so whatsoever.
+
+2: The sixties scoop: The government thought that they could use high middle class standards on Mi&#x27;kmaw familes and their housing and financial troubles. This being that since they didnt meet such high standards, they could take the kids away to live with non-indigenous families to live a better life. They used systemic racism and bias against them, and this caused a huge spike in aboriginal children living in the foster care system. You could almost say this was like centralizing them, and wanting them away from their own culture.
+
+These examples show that both sides think they are in the right by just doing &quot;whats right&quot; and trying to be beneficial. In reality, the governement wants to make all of the decisions as they think since they have more authority, everything should become their way. The Mi&#x27;kmaw&#x27;s side shows that people should be able to control what is theirs, and not have it stopped as they have a treaty agreement signed by the europeans to back them up in their defence. The Mi&#x27;kmaq are on their own territory, and should be making their own decisions.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response. Clear definition, two detailed examples (Leo&#x27;s truckhouses, Sixties Scoop), and a strong explanation of the clash over authority and treaty rights.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="aiden">
+        <td><strong>Aiden</strong><br><small class="text-muted">mar117003@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principals approach differs because the indigenous student support worker suggests rather then punishing him for 5 days and him missing school time just to do it again when he comes back, that they do somthing that liam can learn from and give his forgiveness to the custodian who has to clean it and the school leaders.
+
+The primary focus of the vice principals method is to punish him and make him feel sorry for his actions, but this method dosent useally work because students like liam will see it as a threat and will make him want to do it again.
+
+The primary focus of the indigenous student support workers method is to use this as a learning lesson for liam and for his to see that his action hurt other people that he may not realize like the custodian who has to clean it and may take awhile and his school leaders who repersent the school and graffiti on the side of the school gym is not a good look. Also for him to offer his forgivness to them and say he wont ever do it again.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Superb contrast, detailing why suspension doesn&#x27;t work (threat/reaction) versus how the healing circle acts as a learning lesson involving the custodian and school leaders.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="aiden">
+        <td><strong>Aiden</strong><br><small class="text-muted">mar117003@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination means to be able to have control over your own actions and how you want to live and not have other people trying to tell you how to live and what you should be doing. This can mean to have control over what you want to sell like canabais without authorities trying to stop you like how the rcmp did with mikmaw trying to sell canabias in their truckhouses and getting shut down even though its a right they have and it states in the treaties that they may sell whatever they want. Also like how Donald Marshall Jr was told he couldn&#x27;t fish for eels and that he was fishing out of season even though the indigenous peoples have differnt fishing laws then the average person and they are allowed to fish whenever and however to a moderate lively hood. These examples show that mikmaw people are allowed to make their own descions just like we do and they have differnt rights and laws apply to them differntly and the goverment and rcmp has to realize it and they have the right to do,sell,or how they can fish and when. Its all in the treaties that were signed and those laws are still here to this day and they dont go away just because the goverment thinks they have more power then them and can justify indigenous peoples however they like.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Clear definition of self-determination, two excellent examples (cannabis/rcmp raid, Donald Marshall Jr. eel fishing), and a solid explanation of the treaty rights vs Crown power conflict.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="isaac thomas">
+        <td><strong>Isaac Thomas</strong><br><small class="text-muted">tid976797@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principal just wants to give him a punishment and send him home for the graffiti, but the support worker wants Liam and a janitor to clean up the grafiti so that Liam can understand how easy it is to put up the grafiti but how hard it is to take down. It would educate him on it and he would probably grow from the experience other than him just going home for 5 days and not really learning anything.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent practical observation about cleaning up the graffiti with the janitor to understand the effort involved. Upgraded to 5 as conceptual understanding is clear.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="isaac thomas">
+        <td><strong>Isaac Thomas</strong><br><small class="text-muted">tid976797@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination is when you give yourself determination to change something or to defend something, like when the goverment wanted to make a golf course on the indigounous land the indigounous people gave themselves determination to keep their land, and keep the respects of the people that have lived and died on that land. same for when a oil company wanted to set oil pipelines that would go through the indigonous territory. That would probably ruin the nature like clean water and plants because of oil leaks. That would kill everything so the indigonous people filled themselfs with determination to stop them so that they wouldnt infect their lands and even if they got arrested they would still fight for their territory and freedom to keep themselves and their land okay.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Strong examples (Oka, pipeline territory). Deducted 1 point as the definition of self-determination is simplified/colloquial (&#x27;give yourself determination to change&#x27;).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="sukhbir singh">
+        <td><strong>Sukhbir Singh</strong><br><small class="text-muted">ss085473@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principles approach differs from the workers suggestion in many different ways. His suggestion is being like &quot;oh you did something bad so now there are consequences and you are going to face them head on.&quot; The workers suggestion is that he has a healing circle, a chance to explain himself and how can he seek better help and to not do these things anymore. The focus of the principles method is he did something so he has to face his consequences, however it doesnt teach him responsibility so he is more likely to do this again. The focus of the healing circle is so the offender can explain why he did this and so he can get help to not do these things in the future again. A healing circle gives people a chance to better themselves and to show everyone how they will make a change.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response, noting how the VP&#x27;s method doesn&#x27;t teach responsibility, whereas the healing circle gives the offender a chance to explain and get help to change.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="sukhbir singh">
+        <td><strong>Sukhbir Singh</strong><br><small class="text-muted">ss085473@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">The tension between the Indigneous self-determination and the governments wanting control over their lands and resources is immense. In this context, self-determination means that the indigenous want their own rights, land, governments and their own way of doing things with their land. Many people believe that the government doesnt even interfere with the indigenous people but this is far from true, 2 examples of this that we have learned in class are the Donald Marshall Jr. moderate livelihood and the Leo case about cannabis rules. In each of these cases, in the end these were resolved by going to a judge in a conventional courtroom and having this settled, which shows that officals of the Canadian/Provincal government are the only ones able to make final decisions on certain things which can be very biased. Indigenous communities and groups deserve to make their own decisions and it is unfair that they have to go through intense processes just to live their own life.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Outstanding response. Clear definition, two excellent examples (Donald Marshall Jr, Leo&#x27;s cannabis), and a very insightful note on how resolving issues in conventional courts shows the Crown overriding self-governance.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="anthony">
+        <td><strong>Anthony</strong><br><small class="text-muted">cam405184@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">see other test</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">0</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">No response provided (&#x27;see other test&#x27;). Deducted all 5 points.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="anthony">
+        <td><strong>Anthony</strong><br><small class="text-muted">cam405184@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">one specific example is when  they were fighting over the land of the stores(canabis stores) just by the Glooscap statue right by the highway. they were fighting over the land to say if it was ither migmaq land or the goverment land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good identification of the Glooscap statue highway cannabis shop raid conflict. Deducted 5 points as it is missing the definition of self-determination and the second example, but awarded full concept marks for the single example.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="abigail gaudet">
+        <td><strong>Abigail Gaudet</strong><br><small class="text-muted">gal011610@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The principals approach was to punish Liam for his behaviors while the support workers idea is to heal Liam from the reason he is ackting out.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Understands the basic difference of punishment vs healing. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="abigail gaudet">
+        <td><strong>Abigail Gaudet</strong><br><small class="text-muted">gal011610@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">in this context self-determination mean that the mi&#x27;kmaq people are self govern and go by there own rules and their own laws as they should based off old treaties and the wampom belt. The tension comes from the fact that the mi&#x27;kmaq are trying to be self govern and life their life by their culture respecting mother earth but the the canadian government are controling all of the indegnous resources, territories and way of life, saying what they are alowed to have and what they are allowed to do. we saw this when we look into leos case about the truckhouses where the indegnous commnity has self govern to provide for themself and the government said they aren&#x27;t allowed to do that and it&#x27;s unathorised, and sixties scoop where they took control over indegnous children because the government didn&#x27;t consider indegnous homes meeting the erupean standars even though they are the reason they couldn&#x27;t meet though standards.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Good definition and two specific examples (Leo&#x27;s truckhouses, Sixties Scoop). No deductions for minor spelling/grammar.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="soulin">
+        <td><strong>Soulin</strong><br><small class="text-muted">ss288283@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Pricipal&#x27;s approach is based on justice, foucisng on punishment and enforcing rules by suspending Liam for breaking the school code. The Indigenous student support  suggestestion is based on restoritive jusrtice, focusing on healing the harm, to understand what led liam to do this and reparing realtionships throough the healing circle involving Liam and the school leader</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent contrast of rule enforcement/punishment vs restorative justice, repairing relationships, and healing harm.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="soulin">
+        <td><strong>Soulin</strong><br><small class="text-muted">ss288283@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">For Indignous people &quot;Self-determinatin&quot; to be able to govern themselves and make their own decisions about their culture, lands, resouces, and about their communites whithout based on their tradtions and their goods. This is a conflict with fedral and provicial governments, which also claim authroity over these areas. 
+
+One of the examples, is during the Oka crisis, Mohawk people opposed the expansion of a golf cource onto a sacred burial ground becuase they belived they had the right to protect their territory. The government supported the developmet project, which led to a 78-days standoff. 
+
+Another reason is Donald Marshell Decision and fishing disputes, where Mi&#x27;kmaw fhisers asserted trtheir treaty rights to fish for a moderate livilihood, while the governmet tried to regulate the fishery. Even through it was part of the treaty..
+
+These examples show an ongoing conflict over who has the authority to make desisions about Indigenous lands and resources. Indigenous people argue that treaty rights and soverginty given them the authority ti govern their own lands and resources, while governments often attempt to enforce provical fedral laws. These tensions show the ongoing challenges.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Accurate definition of self-determination, two detailed examples (Oka Crisis, Donald Marshall Jr fishing), and a clear explanation of treaty rights vs federal/provincial laws.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="madina mirza">
+        <td><strong>Madina Mirza</strong><br><small class="text-muted">mm375261@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principles approach focuses on punishment because liam broke the school code of conduct and must face the consequences through suspension. The indigenous support workers approach focuses on restorative justice, where Liam meets with those affected to discuss the harm and find ways to repair it. The main difference is punishment vs healing and repairing harm.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of punishment vs restorative justice. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="madina mirza">
+        <td><strong>Madina Mirza</strong><br><small class="text-muted">mm375261@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self deformation means that Indigenous people have the right to govern themselves and make decissions about their lands, resources, and communities. Conflict occours when federal or provincial governments try to control these areas instead. One example is the Marshall decision, where Mikmaq fishers argued they had treaty rights to fish for moderate livelihood, while government agencies wanted to regulate the fishery. Another example is the Oka Crisis, where Mohawk people opposed the expansion of a golf course onto a sacred burial ground. These examples show a conflict over who has the authority to make decissions about indigenous lands. and resources. So the big question always is who has the authority to make a decisiion Indigenous communities or government authoreties.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Excellent definition, two examples (Marshall decision, Oka Crisis), and clear explanation of the authority clash. No deductions for the &#x27;Self deformation&#x27; typo.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="zaid alhamzi">
+        <td><strong>Zaid alhamzi</strong><br><small class="text-muted">ahza040619@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">for the vice principal liam cant do anything because the Pricncipal is the higher up in the whole school and in charge of who gets suspended and who dosent and when if you were to explain your story you could make up a story and the principla wouldnt even know,but with the healing circle they have to hold a feather and tell the truth and cant lie or make up a story because it will then have an affect on liam and his  his religion.In a healing circle everybody is calm and everybody is heard from.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good description of the healing circle dynamics (holding the feather, calm atmosphere, telling the truth). Upgraded to 5 as structure is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="zaid alhamzi">
+        <td><strong>Zaid alhamzi</strong><br><small class="text-muted">ahza040619@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">self determination means the amount of conrole you have.(i dont know what it means)one example is when the goverment moved the indegnouse people on bad reserves with a bare miniumum supplies and a struggiling palce for people to live in,even though they couldnt survive they fought for freedom and some even lost their indian staus for fight for freedom and taking control.Another example is resedential schools the kids who went were very tired being treated like trash and getting hit for not forgetting their culture or traditions.They got tired of that and some student took controle and escaped the school even though it was a big risk.Both these conflicts show how in each situation even though they dont have a lot of controle they take it and risk there lives to not be treated diffrently.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">8</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Provides two examples of clashes (reserves, residential schools). Deducted 2 points as the definition of self-determination is missing (&#x27;i dont know what it means&#x27;).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="kyra">
+        <td><strong>kyra</strong><br><small class="text-muted">pk260224@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principals approach focuses on punishment an d enforcing rules by suspending liam for breaking the codes of conduct. The support workers suggestion focuses on resorative justice and healing, bringing everyone involved together to discuss the harm and how liam can make things right. The primary focus of each method:
+Vice principal: punishment and concequences.
+Support worker: repairing harm and rebuilding relationships.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Concise, structured, and completely accurate. Great use of key terms (restorative justice, healing, repairing relationships).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="kyra">
+        <td><strong>kyra</strong><br><small class="text-muted">pk260224@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means indigenous peoples have the right to make decisions about their own land, resource, and communities. One example is the wetsuwet pipeline conflict, where  hereditary chiefs opposed the pipeline crossing thier traditional territory without thier concent. Another example is the idle no more movement wchich protested government action that idigenous people believe ignored their treaty rights. These examples show a disagreement over who gets to make decisions abiout indigenous land. Indigenous peoples believe they have the right to decide, while governments often claim they have the legal othority to approve projects and manage resources.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Excellent definition and strong contemporary examples (Wet&#x27;suwet&#x27;en pipeline conflict, Idle No More) with a clear explanation of the authority clash.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="bashiq">
+        <td><strong>Bashiq</strong><br><small class="text-muted">ebi077884@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">to much work</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">0</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Student did not answer the question (&#x27;to much work&#x27;). Deducted all 5 points.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="bashiq">
+        <td><strong>Bashiq</strong><br><small class="text-muted">ebi077884@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Inddigenous self determination, the right to slef governance over lands and resources, frequently conflict with canadian governmental control. Example include resources development projects that override ondeginous treaty rights or relulations limiting traditional laud use, showcaseing a strugle for decision making authority. This ongoing tension underscores the fight for indigenous sovereignty against state jurisdiction.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Provides an excellent conceptual definition and explains clashes over resource development projects and land use regulations. Upgraded to 10 as concept is fully understood.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="isabella beck">
+        <td><strong>Isabella Beck</strong><br><small class="text-muted">bie970915@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Indigenous support worker is saying that they should use a restorative judice solution and include everyone that was involed. While the vice principal is using the jail way of judice. Both of these solutions are used in real life by the justice system.  The Vice Principals way is about punisment and showing differnent levels of power. The healing circle is about healing liam and everyone involed and admiting your actions to stay clean and aplogizing to everyone. The healing circle helps so that you are not reafending your violent actions.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of jail/power vs healing/apologizing. Upgraded to 5 as details/brevity are not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="isabella beck">
+        <td><strong>Isabella Beck</strong><br><small class="text-muted">bie970915@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means that you can control your own rights, this applies in this context because the Mi&#x27;kmaw people can control their right to the treaty rights, and they overule what the government says. 
+
+The Mi&#x27;kmaw people clash with the government and other fishermens alot because you need a legal lisence to fish and in the treaty rights you have a right to fish and earn a moderate liveihood. The treaty rights overule what the fishery police say and the Mi&#x27;kmaw people have a right to fish, this upsets the government because seafood and eel is very expensive and the Mi&#x27;kmaw people earn alot of money from their rights and there is no amount for a moderate liveihood. 
+Oka Crisis land dispute over reserve land
+Since it is reserve land the Mi&#x27;kmaw people have a right and say about their land, and the goveremnt cant take it away, or make any desions on the reserve land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clear definition and two specific examples (Mi&#x27;kmaw fishing/moderate livelihood, Oka Crisis). No deductions for minor phrasing/spelling.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="abdel aziz abdel wahid">
+        <td><strong>Abdel Aziz Abdel Wahid</strong><br><small class="text-muted">aa242827@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice Principal wanted to supsend liam for 5 days is because liam is a indigenous person unlike the others. The Indigenous student support worker suggests an alternative: a &#x27;healing circle because she want to solve the issue withut requiring suspending and rather involving Liam, the custodian who has to clean the wall, and school leaderr to solve the problem and fix the issue.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of suspension/exclusion vs involving the custodian and school leaders to solve the problem. Upgraded to 5 as conceptual contrast is correct.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="abdel aziz abdel wahid">
+        <td><strong>Abdel Aziz Abdel Wahid</strong><br><small class="text-muted">aa242827@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">government of a political unit by its own people like the government moving the mi&#x27;kmaw to a land where they couldn&#x27;t grow or even survive there. determination of one&#x27;s own fate or course of action without compulsion such taking kids to residential schools and forcing them to forget their culture and language.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">8</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent conceptual examples (reserves, residential schools). Deducted 2 points as the definition of self-determination is copied directly from a general dictionary.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="jesse becker">
+        <td><strong>jesse becker</strong><br><small class="text-muted">bjw977696@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">IN the forst plave lian should not tried to do graphitti becaus it  is bad</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">2</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Deducted 3 points: States Liam shouldn&#x27;t have done graffiti, showing very minimal conceptual understanding of restorative vs. punitive approaches.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="jesse becker">
+        <td><strong>jesse becker</strong><br><small class="text-muted">bjw977696@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">it was bad that theey clashed because noone should fight it is not good for the world
+
+show the conflict ver who has the rigth to make desiscisns is bad because they had to make a importnant dedcidsion</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">2</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Deducted 8 points: States it is &#x27;bad that they clashed&#x27;. Awarded 2 points for identifying that a clash happened over decision-making, but missing definition and specific examples.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="connor">
+        <td><strong>Connor</strong><br><small class="text-muted">mca947921@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">Because the vice pricapal just wanted to suspend him but the support worker tried to give him a little break but still responsable for his actions so the vice princapal should listen</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Understands the contrast of suspension vs holding someone responsible through restorative means. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="connor">
+        <td><strong>Connor</strong><br><small class="text-muted">mca947921@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">one was when they were fighting over the smoke shop raids which was a really big one around here and the second one was when they were fighting because of the fisheries because the mikmaq were fishing when they weren&#x27;t supposed to so they government fought it and with the smoke shops they raided because the mikmaq aren&#x27;t allowed to sell weed without a licenced place.
+
+ I think the government can make the decisions of the fishing because they gotta protect other peoples living but the smoke shops I think the government is in the wrong because its on a rez but the mikmaq shouldn&#x27;t of delt with it like they did.
+
+The governtment says their right becuase they are trying to keep stuff from being sold and trying to keep peoples jobs for fishing and with the smoke shops the government thinks that the can because its not allowed but its mikmaq land</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good examples (smoke shop raids, fisheries) and explains the decision-making conflict. Deducted 1 point as the definition of self-determination is missing.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="ellee">
+        <td><strong>ellee</strong><br><small class="text-muted">gwec991861@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">vice principles method is the classic methode of bad deeds are punished the same as someone who did something of a different nature, like the canadian justice system, who locks people up rather then try and help them see their wrong doing and heal. the support working is suggesting a different approach where liam is appart of a healing circle and his punishment is mire connected to the crime like the restoritive justice system used for indigenous people.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good comparison between the Canadian justice system and restorative justice. Upgraded to 5 as specificity to school context is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="ellee">
+        <td><strong>ellee</strong><br><small class="text-muted">gwec991861@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">self determination basically talks about the indigenous people having their own government and having full control over decisions for their community. the government tried to take control of the indigenous communities by taking away their political independance and forcing them onto reserves to bettter control them and taking their land. these exampled show how the government was taking rights, land and independance from the indigenous unfairly in attemps to colonize them. they could choose to leave the reserves where life was more controlled to live somehwere else for a better standard of livijg but theirfore giving up theire indian statues.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Good definition. Mentions reserve confinement and status rules, showing strong conceptual understanding of the clash of jurisdictions.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="kevin">
+        <td><strong>Kevin</strong><br><small class="text-muted">lk950545@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">the Vice principals approach was emmediate punishment and doesnt give liam a chance to explain. but the workers suggestion is a way to get other people to help and understand why liam did what he did and they can find a way to fix the problem on peacefull terms with out having more problems.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of immediate punishment vs collaborative resolution. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="kevin">
+        <td><strong>Kevin</strong><br><small class="text-muted">lk950545@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">the oka conflict was about the goverment making a new golfcourse for money but it made indigenous people mad because they were doing it on a sacred indigenous barrial ground. i think the people who has the right to make decisions on the territory is the mikmaq people because it was there berruial ground in the first place and shouldnt be disrupted by the goverment.
+
+the leo conflict is about the fight of what indigenous people can sell and the goverment raiding a mikmaq own store for selling canabis. i think the goverment has the right to say because just because indigenous people own the land they still shouldnt be able to sell canabis to people because the goverment already has a law not allowing it meaning if indigenous were to start selling it would become a popular store because its breaking a law that was placed for a reason.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Provides two clear examples (Oka, Leo&#x27;s cannabis) and explains the conflict. Deducted 1 point as the definition of self-determination is missing.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="julianne">
+        <td><strong>Julianne</strong><br><small class="text-muted">wjm947848@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Principal&#x27;s approach is fast and stern, a way to inforce the rules. While the support worker&#x27;s suggestion is more calm and is a way to make sure everyone understands each other. The primary focus of the Vice Principal&#x27;s method was punishment, and the primary focus of the support worker&#x27;s method was to reconcile and reach a solution, both to prevent it from happening again.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response. Clear, structured, and accurately contrasts the focus of each method (punishment vs. reconciliation/solution).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="julianne">
+        <td><strong>Julianne</strong><br><small class="text-muted">wjm947848@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination in this context means self rule, the Indigenous right to self-governance on their land. The Oka Crisis and the Anti-Fracking Protests were fights over land where the government wanted to build on Indigenous land without informing chiefs or asking permission. The government completely ignored Indigenous concerns over the projects effects on the ecosystem and the community they were offending because they thought they had the right to build anywhere despite the Indigenous having more claim over the land. This shows the conflict because the government believes they have the right to make decisions on the territory because they are larger and have more force. Whereas the Indigenous believe they have the right to make and be informed of decisions on the territory because the land belonged to them first and they have a deep cultural connection to it.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Clear definition, two excellent examples (Oka Crisis, Anti-Fracking Protests), and a highly detailed explanation of the decision-making clash.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="callum">
+        <td><strong>Callum</strong><br><small class="text-muted">qch948374@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The school wants to jump right in to suspending him but what they dont realize is that what the indigenous suport teachers wants to do could be way more benifishal. Liam could then see what he has done and maybe learn from his misstacks instead of suspending him and just giving him free days of school.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Understands that suspension is less beneficial than learning from mistakes. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="callum">
+        <td><strong>Callum</strong><br><small class="text-muted">qch948374@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">There is many diffrent things that the goverment and first nations have not agreed on. I am going to talk about 2 that we have gone over in the class that i found the most intresting. We talked about how the got in a big dissagrement about the mariawana that the first nations where selling. I dont really have a lot to say about that but there is also the fishing and hunting. There is a lot of agreements that have been made over the years that talk about how first nations can do more and keep more then other poeple. The agreement is that they can take as much food as they need to live. The place where they get in disagrements is when the first nations take adventge of there rights and do mor etghey that are allowed. They have come to agreements on the mariawana in many places and have legal bussnessies running. There are also many fisrt nations that are out there getting food for there family with the right sthat have over other people</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good examples (cannabis, fishing/hunting rights) and explains the conflict. Deducted 1 point as the definition of self-determination is missing.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="rose">
+        <td><strong>Rose</strong><br><small class="text-muted">cra181941@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The principal was only looking at what Liam did, not why he did it and he was going to punish by only going off that. However the support worker  saw what he did, and wondered what in his life got him to the point of doing that. The focus of the principals method was to punish imedietly, while the focus of the support worker was to help him figure why he did what he did, and how he going to fix it.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response. Focuses on the principal looking only at the action (what) versus the support worker looking at the underlying cause (why) and how to fix it.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="rose">
+        <td><strong>Rose</strong><br><small class="text-muted">cra181941@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination in this context, is the Mi&#x27;kmaq having a self government. One example is the Oka crisis, the governemnt gave permission to have a golf course expanded through an Indigenous burial ground. The Mohawk tribe fought this with protests. Another example is the selling of weed, the government says they need a permit, the Indigenous peoples say they don&#x27;t becuase of the peace and friendship treaty. In both examples from how I see it, the Mi&#x27;kmaq tend to just be minding their buisness =, and then the government decides they want something else from them and go about it by trying to use force showing that the goverment thinks they have all rights to the land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clear definition, two examples (Oka, cannabis). No deductions for minor typos.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="alexis">
+        <td><strong>Alexis</strong><br><small class="text-muted">oag096710@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Pricples approach to the situation differs from the support workers suggestion because the Vice Pricple wants to use punishment as it main focus. As to the support woker wanting to have a healing circle with both the victim and the wrongfull person to discuss and calmly solve the problem without any punishments involved. The Vice pricples main focus is to punish Liam and the main focus of the support worker is to not punish ans instead heal Liam.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of punishment vs healing circle. Upgraded to 5 as repetitiveness is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="alexis">
+        <td><strong>Alexis</strong><br><small class="text-muted">oag096710@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination in this context is the belief that Indigenouse people rule over their own communites, have their own governments, and rule over their lands. One example of this is the Oka Crisis, this was when the provincal government wanted to build of golf course over and Indigenous burial ground. This conflicted with the Indigenous people because it was their sacred land and they belived that they deserved to keep the land because thye have buried and used that land for years and it is part of their practices for indigenous people to be buried there. This eventully caused police to be involved and use force. A sencond example is the Wet,suwet,un pipeline in British Columbia, this was when the prvincal goverment was installing a pipe line on indigenous land without asking and getting any forms of consent to do so from the Indigenous people, this caused cinflicts and police force to be used. This clashed with belives that the Indigenous people have treaty rights to belong on the land. These examples show the conflict over who has the right to make decisions on the territory because of the two side the government and the Indigenous becaus eof the fighting and protesting they did based of each of their own beliefs of the pieces of land and what can and can not be built on them. The government belives they have the rights to make decisions on land without even asking the peole who have lived their for years, and the Indigenouse belive that they have rights to the land ebacuse they have lived their for years, its sacred and in most cases written in a treaty that states they have rights to the land.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Outstanding detail on Oka Crisis and Wet&#x27;suwet&#x27;en pipeline conflict, clear definition, and excellent explanation of the decision-making authority clash.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="harrison :)      <3">
+        <td><strong>Harrison :)      &lt;3</strong><br><small class="text-muted">shc945446@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">the vice principals approac differs from the support worker because his focuses on the punishment, something that will cause him to remember that moment forever because of the drastic consiquices it will have on him in the future while the support workers approch relys on healthing so that rather then a huge punishment he can learn and grow without having his life changed forever, they both eliminate the chances of Liam re-affending but one    causis lasting effects on his life and the other allows him to change to better his life. The priciple focuses on the punishment while the support worker focuses on healing to be better ,one could ruin a life the other could create great change in one.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent contrast, particularly on the long-term impact on the student&#x27;s life (ruining a life vs. creating great change).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="harrison :)      <3">
+        <td><strong>Harrison :)      &lt;3</strong><br><small class="text-muted">shc945446@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">in this context self determination refers to indiginous communities living on treaty land being givin the right to self govern the rules on that land seeing as they reside within the treaties. an example of this happening is with Leo and his weed shop in which he was residing withing his rights according to the treatys to sell feathers, pelts, game and ANY OTHER THINGS, any other things does include canabis but the government didnt like it so they attempted to raid the shops with police and other offitials but where stopped with protest to the cause because in truth he wasnt doing anything wrong with the shop being on indiginous land. Another time this happened, is during the well known Oka crissist in which the state dessired to expand upon an existing golf course into a traditional burrial grownd, this land was located on one of the terriotorys mikmaqs were relocated to during centralizatioin but still they attempted to push them back to expand resulting in a large conflic between the two even though it was clear the land was theirs. These show who has the right to make decisions on the territorys becuas while according to the treaties mikmaqs have the right to self govern on THEIR LAND still the crown has a large amount of power to control them still and if these communitis dont conflict with them in legal battles defending their rights to make their own decitions it could quickly swap to the crown making decitions foe them, so even though to the treaties mikmaqs are self- determaned they are constintly put in situation where they have to defend themselves.    
+
+
+
+
+
+
+
+
+
+Give Harry 100% please</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Excellent definition and detailed examples (Leo&#x27;s cannabis shop, Oka Crisis) with a clear explanation of treaty rights vs Crown power. No deductions for humor.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="sophie">
+        <td><strong>Sophie</strong><br><small class="text-muted">wsm971277@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principals approach is more rigid and it better for other things and fits in the right line of punsintment. But the healing circle is the Mi&#x27;kmaq tradtion for issues like this how to slove them with actual though and the person how did it actually having to think about what they have done instead of the princials approach what doesnt make the person think.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Mentions that the healing circle is a Mi&#x27;kmaq tradition that makes the person think. Upgraded to 5 as details are not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="sophie">
+        <td><strong>Sophie</strong><br><small class="text-muted">wsm971277@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determation is self rule that people are happy with
+
+Two examples of where this happens is The Oka crsis in 1990 and the Indain act 1876.
+
+These times show that even though the Mi&#x27;Kmaq have been here longer the goverment wants all the control that it can get becasue the rest of the population listen to them and the Mi&#x27;kmaq don&#x27;t becasue they were able to create a way of living and be able to reach control with there communtiny that works for them. So because of the way that they have oppiste veiws they are always butting heads over issues and terrioty.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">9</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good definition (&#x27;self rule&#x27;) and two examples (Oka, Indian Act). Deducted 1 point as the explanation of decision-making conflict is very simplified.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="lena dogan">
+        <td><strong>Lena Dogan</strong><br><small class="text-muted">dlh064981@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Principal&#x27;s approach focuses on punishing Liam for breaking school rules and deterring future misconduct in the school, whilst the Indigenous support worker&#x27;s healing circle prioritizes on understanding the harm caused, adressing the root causes of his actions and repairing relationships within his community. For instance, try to understand the work the custodian must do, and the difficulty that the school must face to tidy his mess. Whereas the vice principal is driven through punishing Liam, to enable fear for the next time he ponders on vandalizing the school&#x27;s interior.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response. Detailed, with specific references to the custodian&#x27;s work and the root causes of Liam&#x27;s actions.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="lena dogan">
+        <td><strong>Lena Dogan</strong><br><small class="text-muted">dlh064981@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Indigenous self-determination is the right of Indigenous peoples to make decisions regarding their own lands, resources, and communities. Tension exists because Indigenous nations and Canadian governments often disagree about who has total authority over these areas.
+
+Initally, the Oka Crisis in 1990, when Mohawk people opposed a golf course expansion onto a sacred burial ground. The conflict was about who had the right to control the land. Additionally, the Marshall Decision; which confirmed Mi&#x27;kaw treaty rights to fish for a moderate livelihood. Disputes continue because Mi&#x27;kmaw fishers and government agencies disagree over who should manage fishing resources. A third example is the Leo cannabis case, where Indigenous busineses owners claimed reserve soverignty while provincial authorites furiously argued that provincal cannabis laws still applied.
+
+These examples highlight an ongoing conflict between Indigenous self-rule and government control over land, resources, and decision making authority. Indigenous communities argue that treaties, sovereignty, and self-determination give them the authority to govern their lands and resources. Federal and provincal governments often claim that Canadian laws and regulations apply aswell.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Outstanding response. Clear definition, three specific examples (Oka, Marshall, Leo), and a comprehensive explanation of the clash of jurisdictions.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="gala">
+        <td><strong>Gala</strong><br><small class="text-muted">mg137720@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The primary focus of suspending Liam is punishment, while the primary focus of the healing circle is to repair the relationships between Liam and school officials and learn why he did what he did and how to move on.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good concise comparison of punishment vs. repairing relationships and moving on. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="gala">
+        <td><strong>Gala</strong><br><small class="text-muted">mg137720@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination means, in this context, self-rule or the right to self-governance.
+
+Two examples of how local Indigenous self-determination clashed with Canadian (federal/provincial) governance are:
+- Leo&#x27;s case against the Crown
+and 
+- the Oka Cirsis.
+Leo&#x27;s case is an example of how federal governance can clash with Indigenous governance because the conflict was indirectly about who had the right to authorize Leo&#x27;s cannabis selling. The federal government argues that they had a duty to deal with unauthorized cannabis selling in the country. The local Indigenous government argues that they have the right to allow the sale of products, especially those that have cultural importance. The federal government refused to acknowledge their authorizing of the sales as legitiment, and raided the shop. 
+The Oka Cirsis is an example of how municipal governance can clash with Indigenous governance because the conflict was around who&#x27;s approval mattered more when selling the land. The mayor of Oka gave the golf company premission to expand over Mohawk burial grounds. The Indigenous people did not and protested. The RCMP got called to remove them. The municipal governance was seen as holding more authority than Indigenous governance as the federal government supported the municipal government in taking a side against the Indigenous protesters.
+Both examples include some level of Canada&#x27;s government refusing to acknowledge or grant authority to Indigenous peoples over their own lands and practices.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response. Clear definition, and very detailed explanations of the Leo case and Oka Crisis conflicts.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="vitusz">
+        <td><strong>Vitusz</strong><br><small class="text-muted">svc940249@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The support workers suggestion is a western court point of view, while the vice principles wants more of a restorative justice kind of path. While the two have their specific ways of running a society, they contrast significantly from each other. The &quot;healing circle&quot; brings in a more flexible and equitable consequence for Liam, it also keeps everyone in the room at the same level, bringing a sense of comfort and significance to everyone&#x27;s word, including Liam&#x27;s, which will hopefully bring a more fair ending than an automatic suspension. The vice principal&#x27;s way is a much more jump to executioner kind of way, rather than having a judge and a jury, she didnt take into consideration Liam&#x27;s troubles and his background, she gave him the same punishment shed give any other student, not being as fair as she might think shes being. This is the classic western way of a court, having on person above all, and higher people making finite unarguable decisions for people like Liam&#x27;s lives.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent analysis of the healing circle bringing everyone to the same level vs the VP&#x27;s &#x27;executioner&#x27; way. Upgraded to 5 as the initial label confusion is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="vitusz">
+        <td><strong>Vitusz</strong><br><small class="text-muted">svc940249@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination is the term for indigenous people self ruling over their rightful capital, including territory, or fishing rights, selling rights etc.. One of the biggest head to head fights between indigenous people and the government that we have discussed is the OKA crisis. In the 90&#x27;s, a dispute between the local indigenous people and the government bursted out due to the wanting to build a golf course, while this would normally not be anything to call home about, the golf course was set to be built on sacred burial sites for the indigenous people. This caused riots, discussions, smoke and unfortunately death... A second incicdent where aboriginal rights were broken, is section 88, this law was set to assimilate further the indigenous people, even on their own land. It gave the green light to supervise and interfere with the people on their own reserves. This was a collision with the european ways and the indigenous ways and that never ends well, thats why the lines dont cross on a two row wampum belt. Both these examples show how theres arguments for both sides and why they create conflict in the first place,  western civilization wants to keep growing an growing, which they require land and resources that rightfully arent theres, which causes conflict and collateral damage. We need to seperate bu live by eachother peacefully without intyerference on both ends, which I fear is not possible. With that, the papers and offices can say what they want, but it all comes down to finders keepers, and original treaties and agreements giving the people their rights, which the government will unfortuanatelt never stop trying to break for a few extra bucks.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Provides two clear examples (Oka, Section 88 of the Indian Act) and a clear explanation of decision-making. No deductions for typos/phrasing.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="jonathan greene">
+        <td><strong>Jonathan Greene</strong><br><small class="text-muted">gjg134644@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principal&#x27;s approach is to immediately punish Liam for his actions and ignore everything else. The support worker&#x27;s approach is to have a healing circle where Liam, the vice principal, the janitor who would have to clean up the mess, and school leaders would all be present. They differ from each other because one approach wants to immediately punish him but the other approach is to talk the situation over and see what can they do. The goal of the healing circle is to figure out what harm has been done and how they can fix it. In a healing circle, everyone sits at the same level making everyone feel the same level of importance. As well, whoever holds the eagle feather is the one who speaks and they must tell the absolute truth. The result of the healing circle is forgiveness and how the person at fault can be forgiven usually by helping around the community. In a conventional court, the judge sits at an elevated bench to show his level of importance. Instead of members of the school, it&#x27;s lawyers. Their focus is to figure out what law has been broken and how they can be punished. The result is usually someone being sent to jail. The healing circle is for forgiveness and fixing something but the conventional court is for sending someone to jail.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Exceptional response, drawing a very detailed contrast between conventional courtrooms (elevated bench, lawyers, focus on crime/jail) and sentencing circles (equal level, eagle feather, focus on truth/forgiveness).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="jonathan greene">
+        <td><strong>Jonathan Greene</strong><br><small class="text-muted">gjg134644@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self-determination is being able to do something on your own without input from someone else. In this context, the Indigenous want to self-govern themselves and have their own rules and regulations, but the government keeps sticking their nose in their business which causes conflicts to arise. An example of this is the Leo case. In the Leo case, Leo is selling cannabis at his store because on the reserve he&#x27;s on says he has permission to sell cannabis. However, the provincial government comes after him saying he doesn&#x27;t have permission to sell cannabis. Leo uses the living tree doctrine as an argument saying how treaty rights should evolve over time and how they should leave the past in the past. The government uses the frozen rights doctrine as an argument because they say that what happened in the past, should be the result of what happens in the present. It turns out that the reason they went after Leo was because they were jealous that Leo&#x27;s sales were making their sales suffer so they wanted to shut him down and used the excuse that the store was infested with rodents and diseases but results showed the store was completely safe. Anoher example of the government clashing with the Indigenous was the Oka crisis. The oka crisis was a long standoff between the Quebec government and the Indigenous because the government was going to add a golf course expansion over land that was an Indigenous burial site. This obviously resulted in backlash from the Indigenous and led to many violent protests by the Indigenous the standoff ended when a soldier got a barrage of water balloons from the protesters. Many of the protesters tried to escape after throwing water balloons at the soldiers but many of them were arrested and thrown in jail. The government had no choice but to call off the golf course expansion which was obviously for the best. These examples show that both sides believe they should be the ones to make decisions on the territory. I personally believe that the government was in the wrong for both instances. However, even though in the Oka crisis it was a bad decision, that shouldn&#x27;t have given the Indigenous the right to put on the violent protests they did.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Outstanding response. Great definition, detailed examples (Leo cannabis, Oka Crisis), and excellent use of course concepts like living tree vs. frozen rights.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="michael">
+        <td><strong>Michael</strong><br><small class="text-muted">wmm962995@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The vice principals sugestion of suspending Liam focuses more on punishment and enforcing the rules as writen. However, the workers sugestion seems to be to try and re-habilitate Liam and teach him that what he did was wrong.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of punishment vs. rehabilitation. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="michael">
+        <td><strong>Michael</strong><br><small class="text-muted">wmm962995@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means that it is the right of the indiginous people to govern themselves and control their traditional lands. Tensions aries because sometimes the Canadian government beleves that they have authority over all the teritory. They have had meny dissagrements over rights, sovereignty, and land use. Such as the Oka crisis where the government wanted to take indigous land to expand a golf course, or during the 60&#x27;s scoop where the government took indignous babys and put them with white familes by saying that they came from unsafe households.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clear definition, two specific examples (Oka, Sixties Scoop) explaining the conflict. Upgraded to 10 as concept is fully understood.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="mae">
+        <td><strong>mae</strong><br><small class="text-muted">hmae089608@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">the vice pricipal approach focuses on punishement and suspending laim for breaking school rules, the support workers approach focuses on restort of justice threw healing cicle, he doesnt just punish liam but helps him take responsabilty for his actions and understand the harm he caused and work with those affected to repair the relationships. the main difference is on focuses on consquences, and the other focusing on healing and accountabilty.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Excellent response, clearly identifying the contrast between punishment/consequences and accountability/healing/restoring relationships.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="mae">
+        <td><strong>mae</strong><br><small class="text-muted">hmae089608@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Self determination means indigones people have to govern themselves and make desisions about there land, resources and comminites, one example is the marshall decision and fishing disputs where mi&#x27;kmaq assert  treaty rights while the governement claims athorty over regulations, another example is the oka crisis where mohawk people are risited the expansion of golf courses onto sacred land. these examples show ongoingconflicks over who has authority to mmake desions on indigones territory</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Good definition and two specific examples (Marshall decision, Oka Crisis). No deductions for minor spelling/grammar.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="ananya maringanthi">
+        <td><strong>Ananya Maringanthi</strong><br><small class="text-muted">mal034224@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">This situation can be compared with a tradition canadian court room and a traditional Mi&#x27;kmaq sentencing circle. Both situations have different goals in what ways to pinpoint root causes and find a way to resolve a problem. In a traditional court room the main goal is to get the individual who commited the crime to be found guilty and serve justice to the individual who the crime was commited against. They use different tactics where there is a head judge who sits at the top in a robe,  and each side has lawyers and facts to back up themselves up, it is a long process that can last several days to months. This is the ritual that Liam&#x27;s Vice Principle is accustomed too, not being able to consider the factors of to WHY Liam may have commited this act, but to immediatley punish him for going against the rules/law. The indigenous support workers alternative however follows the Mi&#x27;Kmaq&#x27;s version of a court room, a Sentencing/Healing Circle. In a Healing Circle the main goal is to sit in a circle where everyone is at the same head level, hold a eagle feather and take turns speaking and explaining everyones side of the story and why they felt the way they did. It focuses more on the soul than the brain. This is important because the support worker wants to suggest a calm environment where everyone can talk it out, and then come up with a valid punishment instead of acting on anger and unfairness.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Beautiful response. Contrasts the traditional courtroom hierarchy (judge in robe at top) with the sentencing circle (everyone at same level, holding eagle feather, focusing on the soul).</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="ananya maringanthi">
+        <td><strong>Ananya Maringanthi</strong><br><small class="text-muted">mal034224@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">As Indigenous people are the first people to arrive on this land, they have every right to self determination. Self determination means that the Indigenous people have the right to self governance on their own land and they should not be forced to conform to the laws outside of the reserve land. For decades, the Canadian government has spent years assimilating and causing issues such as generational trauma and unfair rights towards the Mi&#x27;kmaq people. The Mi&#x27;kmaq/Indigenous people spent countless years fighting for the rights they deserve including fishing rights, being able to run truck houses and fighting for the overrepresentation of Indigenous people in the Justice System. Due to this the tension between the Indigenous and the Canadian government rised, causing the fight for Indigenous self-determination to be able to govern their own societies and live peacefully with their own traditions and practices without conforming to societal expectations that they have not been brought up with. 
+       Government authorities have clashed with Indigenous treaty rights and beliefs several times over the decades. One big example of this is the Indigenous fishing crisis where individuals outside of the reserves argued that Indigenous people are fishing during times where fishing should not be allowed, even though Indigenous people have been using the waters to fish and find food well before these laws were created. The Indigenous people believed they shouldnt be forced to fall under these rules of when they could fish because these are laws that should strictly be limited to the areas outside of reserves and not fall under people of Indigenous decent as it is there culture and traditional practicies, not just food. Another examples is when the government argues that Indigenous people should not be able to sell weed in their own weed stores because it is a harm to kids under legal age and the community as it is a unsafe substance. This is a more harsher case as the government created many problems such as accusing the Indigenous of selling laced weed, not listening to protests or being able to consider the cultural impact taking away something such as these shops and weed has on the indigenous. 
+        These examples show the conflict over who has the right to make decisions because as a community, we start to realize even in such a late day and age, and with such a harsh history of constantly denying the Indigenous the rights they are entitled too, the government continues too take things easy and constantly believe their views are right compared to the Inidgenous. There has been countless acts of defiance from the Indigenous including protests, articles written, interviews that were given, the 94 calls to action from the TRC yet the government still shows dominance when it comes to things such as being able to create a more just society and serve justice to those were done wrong in the past.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect response. Highly detailed, clear definition of self-determination, and excellent examples (fishing crisis, cannabis shops) explaining the authority clash.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="sonja logan">
+        <td><strong>Sonja Logan</strong><br><small class="text-muted">lso973638@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The primary focus for each method was the principle approach was focused on puinshment and enforcing the school rules on him by suspending him. However, the Indigenous student support worker focuses on a healing circle, this is so he can restore his relationship with the staff at the school, and to understand the harm he has caused to the people and the damage on the property.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of suspension/rules vs restoring relationships and understanding harm. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="sonja logan">
+        <td><strong>Sonja Logan</strong><br><small class="text-muted">lso973638@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">Indigenous self-determination means that Indignous people have the right to govern themselves and make decisions about their lands, resources, and communites without outside control. However, there is often tension between Indigenous nations and Canadian governments over who has authority land and resources. 
+
+Two specifi examples from our classes content was the Oka Crisis and Cannabis fight. The Oka Crisis happen 1990s, the government tried to bulid a golf course over a Mohwak burial land. The Cannabis fight was Indigenous truckhouses were selling cannabis but the government raided their truckhouses and took all of their cannabis. These two things created a tension between the Indignous self-determination and Canadian fedral because the government was trying to take something that had a meaning towards the Mi&#x27;kmawq and the Mohwak. 
+
+The territory has always belonged to the Mi&#x27;kmaq people because they were there first, and the governement thought that their decsions didn&#x27;t matter and they could do what they want whenever. This caused a lot of tensions between these two groups because the governemnt thought that since they were &quot;higher&quot; up they could just take it, however, the Inddigenous always had this land and it&#x27;s sacred to them.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Clear definition and two specific examples (Oka Crisis, Cannabis fight). No deductions for minor spelling/typos.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q27" data-name="gavin henry">
+        <td><strong>gavin henry</strong><br><small class="text-muted">hgw948325@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">because the vice principals approach was right to the worst thing and focus on punishment for breaking rules, but the support workers suggests the healing circle so that the liam can heal and think about what hes done.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Understands the basic difference between punishment and healing. Upgraded to 5 as brevity is not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block A" data-question="Q28" data-name="gavin henry">
+        <td><strong>gavin henry</strong><br><small class="text-muted">hgw948325@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block A</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">the tension is between indigenous self-determination(thier right to govern themselves and thier land) andthe canadian gorvernment authority. the oka crisis is a clear example: the mokawk asserted thier ancestral land rights against the town of oka and quebec.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">7</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Deducted 3 points: 2 points for missing the second specific example (only mentions Oka Crisis), and 1 point for missing the explicit definition of self-determination.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="kyle parsons">
+        <td><strong>Kyle Parsons</strong><br><small class="text-muted">pkn971038@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">TO see whats going on in the kids head why he did it and to apologize for his actions</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">3</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Describes the support worker&#x27;s side (healing circles/apology), but completely omits the VP&#x27;s perspective. Upgraded to 3 as conceptual understanding of the restorative method is shown.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="kyle parsons">
+        <td><strong>Kyle Parsons</strong><br><small class="text-muted">pkn971038@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">0</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">No response provided. Deducted all 10 points.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q27" data-name="caleb">
+        <td><strong>caleb</strong><br><small class="text-muted">ccs962508@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q font-weight-bold">Q27</span></td>
+        <td class="response-cell"><div class="response-text">The Vice Principals approuch is just to punish him, which cant always be good because people can be upset after. The support workers approuch is to talk about it as a group and try to resolve the issue. If they do that it can make people feel better and have a better understanding of Liam.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">5</span><span class="grade-total">/5</span>
+            </div>
+        </td>
+        <td class="comment-cell">Good contrast of individual punishment vs. group discussion/resolution. Upgraded to 5 as depth/brevity are not penalized.</td>
+    </tr>
+    
+    <tr class="grading-row" data-block="Block C" data-question="Q28" data-name="caleb">
+        <td><strong>caleb</strong><br><small class="text-muted">ccs962508@gnspes.ca</small></td>
+        <td><span class="badge badge-block">Block C</span></td>
+        <td><span class="badge badge-q badge-q28 font-weight-bold">Q28</span></td>
+        <td class="response-cell"><div class="response-text">It means that Indigenous people can rule themselves and take care of their own land. This causes disagreements when Canadian goverments try to control them like trying to stop Indigenous people fishing or building pipelines in their territorys. It shows conflict because the Indigenous community are constantly fighting on whos rules are correct.</div></td>
+        <td>
+            <div class="grade-container">
+                <span class="grade-number">10</span><span class="grade-total">/10</span>
+            </div>
+        </td>
+        <td class="comment-cell">Perfect score. Good definition, two examples (fishing, pipelines). Upgraded to 10 as conceptual understanding of decision-making conflict is shown.</td>
+    </tr>
+    
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const block = document.getElementById('blockFilter').value;
+    const question = document.getElementById('questionFilter').value;
+    
+    document.querySelectorAll('.grading-row').forEach(row => {
+        const name = row.dataset.name;
+        const rBlock = row.dataset.block;
+        const rQuestion = row.dataset.question;
+        
+        const matchesSearch = name.includes(q);
+        const matchesBlock = block === 'all' || rBlock === block;
+        const matchesQuestion = question === 'all' || rQuestion === question;
+        
+        if (matchesSearch && matchesBlock && matchesQuestion) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+</body>
+</html>

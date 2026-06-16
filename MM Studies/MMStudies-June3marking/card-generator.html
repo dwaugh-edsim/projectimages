@@ -339,6 +339,31 @@ function setMode(mode){
     document.body.classList.add('preview-two');
     document.body.classList.add('print-two');
   }
+  adjustFontSizes();
+  setTimeout(adjustFontSizes, 50);
+}
+
+function adjustFontSizes() {
+  const descriptions = document.querySelectorAll('.card .description');
+  descriptions.forEach(el => {
+    // Reset to default CSS font size
+    el.style.fontSize = '';
+    
+    // Only adjust if the container is currently visible/rendered
+    if (el.clientWidth === 0) return;
+
+    let fontSize = parseFloat(window.getComputedStyle(el).fontSize);
+    const minFontSize = 7; // minimum readable size in px
+    let attempts = 0;
+    
+    // In multi-column layout with fixed height, overflow wraps into extra horizontal columns,
+    // making scrollWidth > clientWidth. We reduce the font size until it fits.
+    while (el.scrollWidth > el.clientWidth && fontSize > minFontSize && attempts < 50) {
+      fontSize -= 0.2;
+      el.style.fontSize = fontSize + 'px';
+      attempts++;
+    }
+  });
 }
 
 function renderCards(){
@@ -366,6 +391,8 @@ function renderCards(){
       </article>`;
   });
   container.innerHTML = html;
+  adjustFontSizes();
+  setTimeout(adjustFontSizes, 50);
 }
 
 // Load from localStorage on page load
@@ -391,6 +418,11 @@ removeCard = function(index){
   originalRemove(index);
   localStorage.setItem('independentCards', JSON.stringify(cards));
 };
+
+// Handle resize and print events to ensure layout recalculates
+window.addEventListener('resize', adjustFontSizes);
+window.addEventListener('beforeprint', adjustFontSizes);
+window.addEventListener('afterprint', adjustFontSizes);
 </script>
 </body>
 </html>
