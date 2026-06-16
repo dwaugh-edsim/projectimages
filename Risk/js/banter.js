@@ -57,6 +57,10 @@ window.RISK_BANTER = (function () {
         "Alliance? Screw off, I work alone. You're all getting rolled anyway.",
         "Nah, I'd rather conquer you first, then deal with that."
       ],
+      saltyElimination: [
+        "Unbelievable. [Conqueror] is a total asswipe who ruined my game. Everyone gang up on [Conqueror] right now!",
+        "Are you fucking kidding me, [Conqueror]? You absolute backstabbing fuckwit. Go get them, guys, they are running away with the board!"
+      ],
       replies: [
         "Talk all you want, you're still getting wiped next turn.",
         "Shut up and roll the dice, mouth breather.",
@@ -110,6 +114,10 @@ window.RISK_BANTER = (function () {
       allianceDecline: [
         "I'm not getting involved in your alliance. I'll just secure my own borders.",
         "No alliances for me. I'm staying neutral and safe."
+      ],
+      saltyElimination: [
+        "My fortress is gone. Thanks, [Conqueror], you absolute jerk. Someone please break their front line.",
+        "Well, I'm dead. [Conqueror] completely steamrolled me. Please don't let them win this, guys."
       ],
       replies: [
         "I'm just minding my own business. Leave me out of your dramas.",
@@ -165,6 +173,10 @@ window.RISK_BANTER = (function () {
         "No thanks, I don't see a favorable cost-benefit ratio in this alliance.",
         "I'll wait and see. Maybe I'll let you two exhaust each other first."
       ],
+      saltyElimination: [
+        "Tactically, that was a highly vindictive move by [Conqueror]. I highly recommend everyone target their borders immediately.",
+        "I'm out. [Conqueror] played dirty. The optimal strategy now is for the rest of you to wipe them out."
+      ],
       replies: [
         "I only attack when it's logical. Right now, talking to you is illogical.",
         "Don't cry to me about strategy. It's just numbers, friend.",
@@ -218,6 +230,10 @@ window.RISK_BANTER = (function () {
       allianceDecline: [
         "Alliances are boring! I think I'll just attack everyone equally!",
         "Nope! I'd rather roll dice randomly than join your little club."
+      ],
+      saltyElimination: [
+        "NOOO! My beautiful chaos has ended! [Conqueror], you party pooper! Everyone, gank [Conqueror] and burn their house down!",
+        "Haha, I got deleted! But seriously, [Conqueror] is way too strong now, go stomp them!"
       ],
       replies: [
         "Are we playing Risk or typing class? Let's just roll the damn dice!",
@@ -314,8 +330,25 @@ window.RISK_BANTER = (function () {
       const state = S.get();
       if (!state || !info) return;
       const conqueror = state.players[state.currentPlayer];
+      const eliminatedPlayer = state.players[info.playerId];
+      
       if (conqueror && !conqueror.isHuman) {
         triggerAIBanter(conqueror, 'elimination', 1200);
+      }
+      
+      if (eliminatedPlayer && !eliminatedPlayer.isHuman) {
+        setTimeout(() => {
+          const personality = eliminatedPlayer.personality || 'aggressive';
+          const list = BANTER_TEMPLATES[personality].saltyElimination;
+          if (!list || !list.length) return;
+          let text = U.pickRandom(list).replace(/\[Conqueror\]/g, conqueror ? conqueror.name : 'them');
+          
+          const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
+          if (ginLemon) {
+            text = slurText(text);
+          }
+          postMessage(eliminatedPlayer.name, eliminatedPlayer.colorHex, text, false);
+        }, 2200 + Math.random() * 500);
       }
     });
   }
@@ -449,7 +482,7 @@ window.RISK_BANTER = (function () {
     const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
     const aiTerritoriesCount = aiTerritoriesList.length;
     const aiArmiesCount = aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0);
-    const isLosing = (aiTerritoriesCount <= 3 || aiArmiesCount < 8);
+    const isLosing = !ai.eliminated && (aiTerritoriesCount <= 3 || aiArmiesCount < 8);
     
     const aiTerritories = aiTerritoriesList
       .map(t => `${t.name} (${t.armies} armies)`)
@@ -463,6 +496,11 @@ window.RISK_BANTER = (function () {
     let losingPrompt = '';
     if (isLosing) {
       losingPrompt = `NOTICE: You are losing badly (only ${aiTerritoriesCount} territories and ${aiArmiesCount} armies left). You are frustrated, salty, complaining about your situation, and teasing others with desperation or mock anger.`;
+    }
+
+    let eliminatedPrompt = '';
+    if (ai.eliminated) {
+      eliminatedPrompt = `NOTICE: You have been ELIMINATED from the game! You are dead/spectating. You are extremely salty, angry, and bitter about it. You constantly encourage others to gang up on the person who eliminated you (or the runaway leader) and call them names like asswipe or fuckwit.`;
     }
 
     // Alliance prompt injection
@@ -480,13 +518,14 @@ window.RISK_BANTER = (function () {
       
     const system = `You are playing Risk, a strategic board game.
 You are playing as the AI player "${ai.name}" who has the personality: "${ai.personality || 'aggressive'}".
+${eliminatedPrompt}
 ${losingPrompt}
 ${drunkPrompt}
 ${alliancePrompt}
 You and the other players are old friends who know each other well. You tease each other, make witty/sarcastic comments, and swear sometimes (e.g. use words like damn, hell, crap, bullshit, dickhead, bastard, dumbass, garbage, idiot, asswipe, fuckwit).
 Keep your response extremely short (1 to 2 sentences max) and in character. Do not include any JSON, prefixes, markdown, quote marks, or meta-commentary—just your direct reply in the chat.
 Current board context:
-- Your territories: ${aiTerritories || 'none'}
+- Your territories: ${aiTerritories || 'none (eliminated)'}
 - Active opponents: ${state.players.filter(p => !p.eliminated && p.id !== ai.id).map(p => p.name).join(', ')}
 `;
     const user = `${humanPlayer.name} just said to you: "${playerMessage}"`;
@@ -516,8 +555,8 @@ Current board context:
 
     // AI replies after a short delay
     setTimeout(() => {
-      // Pick a random active non-human player
-      const activeAIs = state.players.filter(p => !p.isHuman && !p.eliminated);
+      // Pick a random non-human player (even if eliminated!)
+      const activeAIs = state.players.filter(p => !p.isHuman);
       if (activeAIs.length === 0) return;
       
       const ai = U.pickRandom(activeAIs);
@@ -548,22 +587,39 @@ Current board context:
     if (!reply) {
       const personality = ai.personality || 'aggressive';
       
-      const proposedTarget = checkAllianceProposal(playerMessage, state);
-      if (proposedTarget) {
-        const runaway = getRunawayRival(state, ai.id);
-        const isRunaway = runaway && runaway.id === proposedTarget.id;
-        const list = isRunaway 
-          ? BANTER_TEMPLATES[personality].allianceAgree 
-          : BANTER_TEMPLATES[personality].allianceDecline;
-        reply = U.pickRandom(list).replace(/\[Rival\]/g, proposedTarget.name);
+      if (ai.eliminated) {
+        // Use salty elimination replies
+        const list = BANTER_TEMPLATES[personality].saltyElimination;
+        // Find leader to target
+        let leaderName = 'the leader';
+        let maxT = -1;
+        for (const p of state.players) {
+          if (p.eliminated) continue;
+          const tc = Object.values(state.territories).filter(t => t.owner === p.id).length;
+          if (tc > maxT) {
+            maxT = tc;
+            leaderName = p.name;
+          }
+        }
+        reply = U.pickRandom(list).replace(/\[Conqueror\]/g, leaderName);
       } else {
-        const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
-        const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
-        
-        const list = (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7)
-          ? BANTER_TEMPLATES[personality].losing
-          : BANTER_TEMPLATES[personality].replies;
-        reply = U.pickRandom(list);
+        const proposedTarget = checkAllianceProposal(playerMessage, state);
+        if (proposedTarget) {
+          const runaway = getRunawayRival(state, ai.id);
+          const isRunaway = runaway && runaway.id === proposedTarget.id;
+          const list = isRunaway 
+            ? BANTER_TEMPLATES[personality].allianceAgree 
+            : BANTER_TEMPLATES[personality].allianceDecline;
+          reply = U.pickRandom(list).replace(/\[Rival\]/g, proposedTarget.name);
+        } else {
+          const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
+          const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
+          
+          const list = (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7)
+            ? BANTER_TEMPLATES[personality].losing
+            : BANTER_TEMPLATES[personality].replies;
+          reply = U.pickRandom(list);
+        }
       }
       
       const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
@@ -577,7 +633,7 @@ Current board context:
   }
 
   function triggerAIBanter(ai, category, delayMs = 500) {
-    if (!chatMessagesEl || ai.isHuman || ai.eliminated) return;
+    if (!chatMessagesEl || ai.isHuman || (ai.eliminated && category !== 'elimination')) return;
     
     setTimeout(() => {
       // Random chance to banter to avoid spamming too much
