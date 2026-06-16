@@ -39,7 +39,12 @@ def read_csv_data(filepath):
     
     try:
         with open(filepath, mode='r', encoding='utf-8-sig') as f:
-            reader = csv.DictReader(f)
+            first_line = f.readline()
+            f.seek(0)
+            if "StudentId" in first_line or "Timestamp" in first_line:
+                reader = csv.DictReader(f)
+            else:
+                reader = csv.DictReader(f, fieldnames=["StudentId", "MissionTitle", "ReflectionJSON", "Timestamp"])
             for row in reader:
                 records.append({
                     "StudentId": row.get("StudentId", "").strip(),
