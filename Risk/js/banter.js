@@ -38,6 +38,13 @@ window.RISK_BANTER = (function () {
         "Rest in pieces, you absolute loser. Your cards are mine now.",
         "Cleaned you off the board! Don't let the door hit you on the way out."
       ],
+      losing: [
+        "Are you guys fucking teaming up on me or what? Absolute bullshit.",
+        "I'm getting targeted. This is completely ridiculous.",
+        "Down to my last territories and you guys keep hitting me? Assholes.",
+        "My dice are rigged. I swear to god this is rigged.",
+        "Enjoy your temporary victory, but I'm taking as many of you down with me as I can."
+      ],
       replies: [
         "Talk all you want, you're still getting wiped next turn.",
         "Shut up and roll the dice, mouth breather.",
@@ -72,6 +79,13 @@ window.RISK_BANTER = (function () {
       elimination: [
         "I told you not to mess with my fortress. Bye buddy.",
         "Sad to see you go, but you played way too reckless."
+      ],
+      losing: [
+        "Why does everyone attack my fortress? There are other players on this board!",
+        "Please stop hitting me, I have literally nothing left.",
+        "I'm just trying to survive here. Have some mercy, dude.",
+        "Come on, I'm practically harmless now. Go fight someone else.",
+        "My defenses are completely ruined. I'm officially cooked."
       ],
       replies: [
         "I'm just minding my own business. Leave me out of your dramas.",
@@ -108,6 +122,13 @@ window.RISK_BANTER = (function () {
         "Thanks for the cards! Easiest cleanup job ever.",
         "You were the weakest link. Goodbye!"
       ],
+      losing: [
+        "Statistically, this is an absolute nightmare.",
+        "Well, my calculations did not account for getting completely destroyed like this.",
+        "I need to pivot my strategy... like, how to not die next turn.",
+        "Alright, who wants to sign a non-aggression pact? I'm desperate.",
+        "My empire is officially bankrupt. Send reinforcements or a drink."
+      ],
       replies: [
         "I only attack when it's logical. Right now, talking to you is illogical.",
         "Don't cry to me about strategy. It's just numbers, friend.",
@@ -142,6 +163,13 @@ window.RISK_BANTER = (function () {
       elimination: [
         "Boom! You got deleted! Want some ice for that burn?",
         "And another one bites the dust! Chaos claims another soul!"
+      ],
+      losing: [
+        "Everything is on fire and I love/hate it!",
+        "Well, this is going spectacularly badly! Hahaha!",
+        "Time for a suicide charge! Who wants to get exploded with me?",
+        "I'm circling the drain! WOOOO! Going down in flames!",
+        "If I'm going down, I'm doing it in the most annoying way possible!"
       ],
       replies: [
         "Are we playing Risk or typing class? Let's just roll the damn dice!",
@@ -319,8 +347,12 @@ window.RISK_BANTER = (function () {
     const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
     const state = S.get();
     
-    const aiTerritories = Object.values(state.territories)
-      .filter(t => t.owner === ai.id)
+    const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
+    const aiTerritoriesCount = aiTerritoriesList.length;
+    const aiArmiesCount = aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0);
+    const isLosing = (aiTerritoriesCount <= 3 || aiArmiesCount < 8);
+    
+    const aiTerritories = aiTerritoriesList
       .map(t => `${t.name} (${t.armies} armies)`)
       .join(', ');
       
@@ -328,9 +360,15 @@ window.RISK_BANTER = (function () {
     if (ginLemon) {
       drunkPrompt = `You have had 3 gin & lemons and are slightly drunk. Slur your words slightly, write with minor typos, and act extra loud, silly, affectionate, or randomly confrontational.`;
     }
+    
+    let losingPrompt = '';
+    if (isLosing) {
+      losingPrompt = `NOTICE: You are losing badly (only ${aiTerritoriesCount} territories and ${aiArmiesCount} armies left). You are frustrated, salty, complaining about your situation, and teasing others with desperation or mock anger.`;
+    }
       
     const system = `You are playing Risk, a strategic board game.
 You are playing as the AI player "${ai.name}" who has the personality: "${ai.personality || 'aggressive'}".
+${losingPrompt}
 ${drunkPrompt}
 You and the other players are old friends who know each other well. You tease each other, make witty/sarcastic comments, and swear sometimes (e.g. use words like damn, hell, crap, bullshit, dickhead, bastard, dumbass, garbage, idiot).
 Keep your response extremely short (1 to 2 sentences max) and in character. Do not include any JSON, prefixes, markdown, quote marks, or meta-commentary—just your direct reply in the chat.
@@ -396,7 +434,12 @@ Current board context:
     // Fallback if LLM failed or not logged in
     if (!reply) {
       const personality = ai.personality || 'aggressive';
-      const list = BANTER_TEMPLATES[personality].replies;
+      const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
+      const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
+      
+      const list = (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7)
+        ? BANTER_TEMPLATES[personality].losing
+        : BANTER_TEMPLATES[personality].replies;
       reply = U.pickRandom(list);
       
       const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
@@ -417,8 +460,16 @@ Current board context:
       const chance = (category === 'turnStart' || category === 'elimination') ? 0.7 : 0.45;
       if (Math.random() > chance) return;
 
+      const state = S.get();
       const personality = ai.personality || 'aggressive';
-      const list = BANTER_TEMPLATES[personality][category];
+      const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
+      const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
+
+      let list = BANTER_TEMPLATES[personality][category];
+      if (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7) {
+        list = BANTER_TEMPLATES[personality].losing;
+      }
+      
       if (!list || !list.length) return;
       let text = U.pickRandom(list);
       
