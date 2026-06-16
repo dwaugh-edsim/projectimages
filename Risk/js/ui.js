@@ -199,10 +199,13 @@ window.RISK_UI = (function () {
       list.innerHTML = '<p class="muted small">No active game. Start a new game to configure opponents.</p>';
     }
 
+    document.getElementById('settings-gin-lemon').checked = !!(current && current.ginLemon);
+
     showModal('settings-modal');
     document.getElementById('btn-settings-cancel').onclick = () => hideModal('settings-modal');
     document.getElementById('btn-settings-apply').onclick = () => {
       const model = modelSel.value;
+      const ginLemon = document.getElementById('settings-gin-lemon').checked;
       const allowedPersonalities = Array.from(
         document.querySelectorAll('#settings-modal .personality-mix input[type="checkbox"]:checked')
       ).map(cb => cb.value);
@@ -210,7 +213,7 @@ window.RISK_UI = (function () {
         document.querySelectorAll('#settings-opponents select')
       ).map(sel => ({ id: parseInt(sel.dataset.playerId, 10), personality: sel.value }));
       hideModal('settings-modal');
-      if (hooks.onSettingsChange) hooks.onSettingsChange({ model, allowedPersonalities, opponentPersonalities });
+      if (hooks.onSettingsChange) hooks.onSettingsChange({ model, allowedPersonalities, opponentPersonalities, ginLemon });
       toast('Settings applied', 'success');
     };
   }

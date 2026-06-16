@@ -10,7 +10,7 @@
   const UI = window.RISK_UI;
 
   // Active game settings
-  const gameSettings = { model: 'openrouter/free', allowedPersonalities: C.PERSONALITIES.slice() };
+  const gameSettings = { model: 'openrouter/free', allowedPersonalities: C.PERSONALITIES.slice(), ginLemon: false };
   let busy = false;
   let lastSaveSnapshot = null;
 
@@ -47,16 +47,46 @@
   }
 
   // ---- Game start ----
+  const PERSONALITY_NAMES = {
+    aggressive: [
+      'Savage Sam', 'Ruthless Rex', 'Hank the Hammer', 'Aggro Andy', 'Bloody Bobby',
+      'Viktor the Vicious', 'Mad Mike', 'Iron Igor', 'Berserker Bill', 'Killer Kyle', 'Raging Ryan',
+      'Savage Sarah', 'Vicious Val', 'Ruthless Roxy', 'Bloody Beatrice'
+    ],
+    defensive: [
+      'Turtle Terry', 'Fortress Frank', 'Ironclad Ian', 'Bunker Ben', 'Warden Wes',
+      'Bastion Barry', 'Guarded Greg', 'Safehouse Seth', 'Sentinel Stan', 'Blockade Bob', 'Shielded Sheldon',
+      'Fortress Fiona', 'Guarded Gwen', 'Shielded Sharon', 'Defensive Debbie'
+    ],
+    opportunistic: [
+      'Sly Cooper', 'Calculated Carl', 'Scavenger Sam', 'Sneaky Pete', 'Vulture Victor',
+      'Scheming Sean', 'Greedy Gary', 'Predator Phil', 'Cunning Chris', 'Tactical Ted', 'Shifty Shane',
+      'Vulture Vicky', 'Foxy Fiona', 'Sneaky Sally', 'Tactical Tina'
+    ],
+    chaotic: [
+      'Wild Willy', 'Mad Max', 'Trigger Tom', 'Loco Leo', 'Chaos Clint',
+      'Joker Jack', 'Rowdy Ron', 'Anarchy Artie', 'Psycho Paul', 'Gonzo Gabe', 'Unstable Uri', 'Wacky Wally',
+      'Psycho Sally', 'Chaotic Chloe', 'Wild Wendy'
+    ]
+  };
+
   function startGame(opts) {
     const numAI = opts.opponents;
     const personalities = opts.personalities;
     const players = [
       { name: opts.playerName, color: opts.playerColor, isHuman: true, personality: null, userId: G.getSession()?.userId || null },
     ];
-    const usedP = new Set();
+    const usedNames = new Set(players.map(x => x.name));
     for (let i = 0; i < numAI; i++) {
       const p = personalities[i % personalities.length];
-      const pName = p[0].toUpperCase() + p.slice(1) + ' Bot ' + (i + 1);
+      const pool = PERSONALITY_NAMES[p] || ['AI Bot'];
+      let pName = pool[i % pool.length];
+      let offset = 1;
+      while (usedNames.has(pName)) {
+        pName = pool[(i + offset) % pool.length];
+        offset++;
+      }
+      usedNames.add(pName);
       const usedColors = new Set(players.map(x => x.color));
       let color = (i + 1) % C.PLAYER_COLORS.length;
       while (usedColors.has(color)) color = (color + 1) % C.PLAYER_COLORS.length;
@@ -166,11 +196,13 @@
         model: gameSettings.model,
         allowedPersonalities: gameSettings.allowedPersonalities,
         players: state ? state.players : [],
+        ginLemon: gameSettings.ginLemon,
       };
     });
     UI.setHook('onSettingsChange', (changes) => {
       if (changes.model) gameSettings.model = changes.model;
       if (changes.allowedPersonalities) gameSettings.allowedPersonalities = changes.allowedPersonalities;
+      if (changes.ginLemon !== undefined) gameSettings.ginLemon = changes.ginLemon;
       if (changes.opponentPersonalities && changes.opponentPersonalities.length) {
         const state = S.get();
         if (state) {

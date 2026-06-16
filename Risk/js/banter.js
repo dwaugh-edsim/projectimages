@@ -273,18 +273,65 @@ window.RISK_BANTER = (function () {
 
   const G = window.RISK_GAS;
 
+  function slurText(text) {
+    let slurred = text;
+    // Slur common letter combinations
+    slurred = slurred.replace(/s/gi, 'sh');
+    slurred = slurred.replace(/th/gi, 'f');
+    slurred = slurred.replace(/ing\b/gi, 'in\'');
+    slurred = slurred.replace(/you/gi, 'ya');
+    slurred = slurred.replace(/are/gi, 'r');
+    
+    // Add typos
+    const words = slurred.split(' ');
+    const typoed = words.map(w => {
+      if (w.length > 4 && Math.random() < 0.25) {
+        const idx = Math.floor(Math.random() * (w.length - 2)) + 1;
+        return w.substring(0, idx) + w[idx+1] + w[idx] + w.substring(idx+2);
+      }
+      return w;
+    });
+    slurred = typoed.join(' ');
+
+    const fillers = [
+      "... *hic*",
+      " I swear to god I'm sober.",
+      " ...dude.",
+      " *burp*",
+      " ...ya know?",
+      " ...ish what it ish.",
+      " ...trust me on this."
+    ];
+    if (Math.random() < 0.6) {
+      slurred += fillers[Math.floor(Math.random() * fillers.length)];
+    }
+    
+    if (Math.random() < 0.3) {
+      slurred = slurred.toUpperCase() + "!!!";
+    } else {
+      slurred += "!!";
+    }
+    return slurred;
+  }
+
   async function getLLMBanterReply(ai, humanPlayer, playerMessage) {
     const model = document.getElementById('settings-model')?.value || 'openrouter/free';
+    const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
     const state = S.get();
     
-    // Construct player & territory details to feed context
     const aiTerritories = Object.values(state.territories)
       .filter(t => t.owner === ai.id)
       .map(t => `${t.name} (${t.armies} armies)`)
       .join(', ');
       
+    let drunkPrompt = '';
+    if (ginLemon) {
+      drunkPrompt = `You have had 3 gin & lemons and are slightly drunk. Slur your words slightly, write with minor typos, and act extra loud, silly, affectionate, or randomly confrontational.`;
+    }
+      
     const system = `You are playing Risk, a strategic board game.
 You are playing as the AI player "${ai.name}" who has the personality: "${ai.personality || 'aggressive'}".
+${drunkPrompt}
 You and the other players are old friends who know each other well. You tease each other, make witty/sarcastic comments, and swear sometimes (e.g. use words like damn, hell, crap, bullshit, dickhead, bastard, dumbass, garbage, idiot).
 Keep your response extremely short (1 to 2 sentences max) and in character. Do not include any JSON, prefixes, markdown, quote marks, or meta-commentary—just your direct reply in the chat.
 Current board context:
@@ -296,7 +343,7 @@ Current board context:
     try {
       const res = await G.llmChat({ model, system, user, maxTokens: 80, temperature: 0.8 });
       if (res && res.text) {
-        return res.text.trim().replace(/^"|"$/g, ''); // strip wrapping quotes
+        return res.text.trim().replace(/^"|"$/g, '');
       }
       throw new Error('Empty response');
     } catch (e) {
@@ -351,6 +398,11 @@ Current board context:
       const personality = ai.personality || 'aggressive';
       const list = BANTER_TEMPLATES[personality].replies;
       reply = U.pickRandom(list);
+      
+      const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
+      if (ginLemon) {
+        reply = slurText(reply);
+      }
     }
 
     indicator.remove();
@@ -368,7 +420,12 @@ Current board context:
       const personality = ai.personality || 'aggressive';
       const list = BANTER_TEMPLATES[personality][category];
       if (!list || !list.length) return;
-      const text = U.pickRandom(list);
+      let text = U.pickRandom(list);
+      
+      const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
+      if (ginLemon) {
+        text = slurText(text);
+      }
       postMessage(ai.name, ai.colorHex, text, false);
     }, delayMs + Math.random() * 500);
   }
