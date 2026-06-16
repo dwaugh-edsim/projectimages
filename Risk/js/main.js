@@ -207,63 +207,49 @@
       } catch (e) { UI.showError(e.message); }
     });
     UI.setHook('onAttack', async (fromId, toId, dice) => {
-      // Closed in dice modal: close it after attack
-      const state = S.get();
-      const beforeToOwner = state.territories[toId].owner;
-      let attackResult = null;
       try {
-        attackResult = S.attack(fromId, toId, dice);
+        return S.attack(fromId, toId, dice);
       } catch (e) { UI.showError(e.message); return null; }
-      // Update dice result text
-      const newState = S.get();
-      const newTo = newState.territories[toId];
-      const newFrom = newState.territories[fromId];
-      const conquered = newTo.owner === state.currentPlayer;
-      document.getElementById('dice-result').textContent = `Attacker: ${newFrom.armies} armies · Defender: ${newTo.armies} armies${conquered ? ' (conquered!)' : ''}`;
-      if (conquered) {
-        await U.delay(500);
-        // Open army move modal
-        const max = newFrom.armies;
-        UI.hideModal && document.getElementById('dice-modal'); // keep modal
-        // We close the dice modal and prompt
-        document.getElementById('dice-modal').style.display = 'none';
-        const sliderMax = newFrom.armies + newTo.armies - 1;
-        const sliderMin = Math.max(1, dice);
-        // Use UI internal helper
-        const moveArmies = await new Promise(resolve => {
-          // Build a simple modal prompt
-          const wrap = document.createElement('div');
-          wrap.className = 'modal-backdrop';
-          wrap.innerHTML = `<div class="modal"><h2 class="modal-title">Conquered ${C.TERRITORIES[toId].name}!</h2>
-            <div class="modal-body">
-              <p class="muted">Move at least ${sliderMin} armies (your dice count) into the new territory.</p>
-              <label>Armies: <span id="cnt">${sliderMax}</span>
-                <input id="sld" type="range" min="${sliderMin}" max="${sliderMax}" value="${sliderMax}">
-              </label>
-              <div class="modal-actions">
-                <button id="cfm" class="btn btn-primary">Confirm</button>
-              </div>
-            </div></div>`;
-          document.body.appendChild(wrap);
-          const sld = wrap.querySelector('#sld');
-          const cnt = wrap.querySelector('#cnt');
-          sld.oninput = () => cnt.textContent = sld.value;
-          wrap.querySelector('#cfm').onclick = () => { resolve(parseInt(sld.value, 10)); wrap.remove(); };
-        });
-        try {
-          // Manually adjust post-conquest move (rules already moved minimum; we move additional)
-          const cur = newState.territories[toId].armies;
-          const extra = moveArmies - cur;
-          if (extra > 0) {
-            S.get().territories[fromId].armies -= extra;
-            S.get().territories[toId].armies += extra;
-            S.emit('territory', fromId);
-            S.emit('territory', toId);
-            S.log(`${S.get().players[state.currentPlayer].name} moves ${extra} more armies into ${C.TERRITORIES[toId].name}.`, 'fortify');
-          }
-        } catch (e) { UI.showError(e.message); }
-      }
-      return attackResult;
+    });
+
+    UI.setHook('onConquest', async (fromId, toId, dice) => {
+      const state = S.get();
+      const from = state.territories[fromId];
+      const to = state.territories[toId];
+      const sliderMax = from.armies + to.armies - 1;
+      const sliderMin = Math.max(1, dice);
+      
+      const moveArmies = await new Promise(resolve => {
+        const wrap = document.createElement('div');
+        wrap.className = 'modal-backdrop';
+        wrap.innerHTML = `<div class="modal"><h2 class="modal-title">Conquered ${C.TERRITORIES[toId].name}!</h2>
+          <div class="modal-body">
+            <p class="muted">Move at least ${sliderMin} armies (your dice count) into the new territory.</p>
+            <label>Armies: <span id="cnt">${sliderMax}</span>
+              <input id="sld" type="range" min="${sliderMin}" max="${sliderMax}" value="${sliderMax}">
+            </label>
+            <div class="modal-actions">
+              <button id="cfm" class="btn btn-primary">Confirm</button>
+            </div>
+          </div></div>`;
+        document.body.appendChild(wrap);
+        const sld = wrap.querySelector('#sld');
+        const cnt = wrap.querySelector('#cnt');
+        sld.oninput = () => cnt.textContent = sld.value;
+        wrap.querySelector('#cfm').onclick = () => { resolve(parseInt(sld.value, 10)); wrap.remove(); };
+      });
+
+      try {
+        const cur = to.armies;
+        const extra = moveArmies - cur;
+        if (extra > 0) {
+          state.territories[fromId].armies -= extra;
+          state.territories[toId].armies += extra;
+          S.emit('territory', fromId);
+          S.emit('territory', toId);
+          S.log(`${state.players[state.currentPlayer].name} moves ${extra} more armies into ${C.TERRITORIES[toId].name}.`, 'fortify');
+        }
+      } catch (e) { UI.showError(e.message); }
     });
   }
 
@@ -280,6 +266,7 @@
   // ---- Boot ----
   async function boot() {
     UI.init();
+    if (window.RISK_BANTER) window.RISK_BANTER.init();
     wireUIHooks();
     wireAutoSave();
     await M.init(document.getElementById('map-container'));

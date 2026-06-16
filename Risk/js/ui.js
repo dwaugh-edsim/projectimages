@@ -448,10 +448,25 @@ window.RISK_UI = (function () {
         return;
       }
       if (t.owner === state.currentPlayer) {
-        // change source
-        attackSource = territoryId;
-        M.setHighlights([territoryId], 'source');
-        M.setHighlights(targets, 'target', false);
+        if (confirm("You clicked your own territory. You cannot attack your own territory.\n\nDo you want to end your Attack phase and proceed to Fortify?")) {
+          attackSource = null;
+          M.clearHighlights();
+          if (hooks.onEndAttack) {
+            hooks.onEndAttack();
+          }
+          return;
+        }
+
+        // Change source if it has >= 2 armies
+        if (t.armies >= 2) {
+          attackSource = territoryId;
+          const targets = R.getAttackableTargets(territoryId, state.territories);
+          M.setHighlights([territoryId], 'source');
+          M.setHighlights(targets, 'target', false);
+        } else {
+          attackSource = null;
+          M.clearHighlights();
+        }
         return;
       }
       // Open dice modal
@@ -556,10 +571,22 @@ window.RISK_UI = (function () {
       const canContinue = !conquered && newFrom.armies >= 2 && newTo.armies >= 1;
       document.getElementById('btn-dice-roll').style.display = canContinue ? '' : 'none';
       document.getElementById('btn-dice-retreat').style.display = canContinue ? '' : 'none';
-      document.getElementById('btn-dice-continue').style.display = 'none';
+      document.getElementById('btn-dice-continue').style.display = (canContinue || conquered) ? 'none' : '';
       document.getElementById('dice-result').textContent = `Attacker: ${newFrom.armies} armies · Defender: ${newTo.armies} armies${conquered ? ' (conquered!)' : ''}`;
+
+      if (conquered) {
+        await U.delay(800);
+        hideModal('dice-modal');
+        if (hooks.onConquest) {
+          await hooks.onConquest(fromId, toId, attackerDice);
+        }
+      }
     };
     document.getElementById('btn-dice-retreat').onclick = () => {
+      diceContext = null;
+      hideModal('dice-modal');
+    };
+    document.getElementById('btn-dice-continue').onclick = () => {
       diceContext = null;
       hideModal('dice-modal');
     };

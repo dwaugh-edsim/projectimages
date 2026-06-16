@@ -232,6 +232,7 @@ window.RISK_STATE = (function () {
   function placeArmy(territoryId) {
     const p = state.players[state.currentPlayer];
     if (state.phase === C.PHASES.REINFORCE) {
+      if (R.mustTradeCards(p.cards)) throw new Error('You have 5 or more cards and must trade a set first.');
       if ((p.pendingReinforcements || 0) <= 0) throw new Error('No reinforcements left');
       const t = state.territories[territoryId];
       if (!t || t.owner !== p.id) throw new Error('Not your territory');
@@ -255,6 +256,8 @@ window.RISK_STATE = (function () {
 
   function endReinforce() {
     if (state.phase !== C.PHASES.REINFORCE) return;
+    const p = state.players[state.currentPlayer];
+    if (R.mustTradeCards(p.cards)) throw new Error('You have 5 or more cards and must trade a set first.');
     enterAttack();
   }
 
@@ -305,8 +308,7 @@ window.RISK_STATE = (function () {
         // Edge case: not enough armies to occupy after losses.
         // In Risk, the territory is captured with whatever is left.
       }
-      const move = Math.max(minMove, Math.min(maxMove, from.armies - 1));
-      const movedArmies = Math.max(1, Math.min(move, from.armies - 1));
+      const movedArmies = Math.max(1, Math.min(minMove, from.armies - 1));
       to.owner = from.owner;
       to.armies = movedArmies;
       from.armies -= movedArmies;
@@ -325,6 +327,7 @@ window.RISK_STATE = (function () {
         p.cards.push(...transferred);
         log(`${conqueredPlayer.name} is eliminated. ${transferred.length} cards transferred to ${p.name}.`, 'elim');
         emit('elimination', { playerId: conqueredOwner });
+        emit('cards', p.id);
       }
       // Check victory
       if (R.countTerritories(p.id, state.territories) === C.territoryCount()) {
@@ -425,22 +428,34 @@ window.RISK_STATE = (function () {
     }
     // Compute value
     const base = R.tradeSetValue(state.setsTraded);
-    const territoryBonus = R.getCardTerritoryBonus(cardIds, hand, state.territories, p.id);
-    const total = base + territoryBonus;
-    // Remove cards from hand and add to discard
+    
+    // Find any cards in the set that correspond to owned territories
+    let extraLog = '';
     const set = hand.filter(c => cardIds.includes(c.id));
+    for (const c of set) {
+      if (c.territoryId) {
+        const t = state.territories[c.territoryId];
+        if (t && t.owner === p.id) {
+          t.armies += 2;
+          emit('territory', c.territoryId);
+          extraLog += ` [+2 on ${C.TERRITORIES[c.territoryId].name}]`;
+        }
+      }
+    }
+
+    // Remove cards from hand and add to discard
     for (const c of set) {
       const i = p.cards.indexOf(c);
       p.cards.splice(i, 1);
       state.discardPile.push(c);
     }
     state.setsTraded++;
-    p.pendingReinforcements += total;
+    p.pendingReinforcements += base;
     state.reinforcementsThisTurn = p.pendingReinforcements;
-    log(`${p.name} trades ${cardIds.length} cards for +${total} armies (${base}+${territoryBonus} territory).`, 'trade');
+    log(`${p.name} trades ${cardIds.length} cards for +${base} armies${extraLog}.`, 'trade');
     emit('cards', p.id);
     emit('reinforcements', p.pendingReinforcements);
-    return total;
+    return base;
   }
 
   return {
