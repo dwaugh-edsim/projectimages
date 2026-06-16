@@ -45,6 +45,18 @@ window.RISK_BANTER = (function () {
         "My dice are rigged. I swear to god this is rigged.",
         "Enjoy your temporary victory, but I'm taking as many of you down with me as I can."
       ],
+      allianceInitiate: [
+        "Look at [Rival] running away with the map. We need to wipe their borders right now. Who's with me?",
+        "We need to gang up on [Rival] immediately or they win. Let's break their continents!"
+      ],
+      allianceAgree: [
+        "Hell yeah, I'm already building forces near [Rival]'s border. Let's smash them.",
+        "Agreed. Let's wipe [Rival] off the face of the earth together."
+      ],
+      allianceDecline: [
+        "Alliance? Screw off, I work alone. You're all getting rolled anyway.",
+        "Nah, I'd rather conquer you first, then deal with that."
+      ],
       replies: [
         "Talk all you want, you're still getting wiped next turn.",
         "Shut up and roll the dice, mouth breather.",
@@ -86,6 +98,18 @@ window.RISK_BANTER = (function () {
         "I'm just trying to survive here. Have some mercy, dude.",
         "Come on, I'm practically harmless now. Go fight someone else.",
         "My defenses are completely ruined. I'm officially cooked."
+      ],
+      allianceInitiate: [
+        "If we don't stop [Rival] immediately, we're all cooked. Can we agree to focus on them?",
+        "[Rival] is getting too powerful. I'll defend our flank if you guys attack them."
+      ],
+      allianceAgree: [
+        "Agreed. I'll hold my side of the line, you guys hit [Rival] from the other side.",
+        "Good idea. I'll reinforce my borders against [Rival] to box them in."
+      ],
+      allianceDecline: [
+        "I'm not getting involved in your alliance. I'll just secure my own borders.",
+        "No alliances for me. I'm staying neutral and safe."
       ],
       replies: [
         "I'm just minding my own business. Leave me out of your dramas.",
@@ -129,6 +153,18 @@ window.RISK_BANTER = (function () {
         "Alright, who wants to sign a non-aggression pact? I'm desperate.",
         "My empire is officially bankrupt. Send reinforcements or a drink."
       ],
+      allianceInitiate: [
+        "According to my calculations, [Rival] has a 90% chance of winning unless we team up. Let's block them.",
+        "It is mathematically optimal for us to target [Rival] right now. Who's in?"
+      ],
+      allianceAgree: [
+        "That makes tactical sense. I will attack [Rival]'s weakest borders this turn.",
+        "Agreed. Teaming up against [Rival] is the highest-value move right now."
+      ],
+      allianceDecline: [
+        "No thanks, I don't see a favorable cost-benefit ratio in this alliance.",
+        "I'll wait and see. Maybe I'll let you two exhaust each other first."
+      ],
       replies: [
         "I only attack when it's logical. Right now, talking to you is illogical.",
         "Don't cry to me about strategy. It's just numbers, friend.",
@@ -170,6 +206,18 @@ window.RISK_BANTER = (function () {
         "Time for a suicide charge! Who wants to get exploded with me?",
         "I'm circling the drain! WOOOO! Going down in flames!",
         "If I'm going down, I'm doing it in the most annoying way possible!"
+      ],
+      allianceInitiate: [
+        "Oh look, a giant! Let's all gank [Rival] and steal their toys!",
+        "Hey everyone, let's form an angry mob and burn down [Rival]'s empire!"
+      ],
+      allianceAgree: [
+        "Temporary alliance! Yes! I'll attack [Rival] with whatever random units I have!",
+        "Yay, teamwork! I promise to help you beat [Rival]... until I change my mind!"
+      ],
+      allianceDecline: [
+        "Alliances are boring! I think I'll just attack everyone equally!",
+        "Nope! I'd rather roll dice randomly than join your little club."
       ],
       replies: [
         "Are we playing Risk or typing class? Let's just roll the damn dice!",
@@ -232,7 +280,12 @@ window.RISK_BANTER = (function () {
 
       // Only talk smack at the start of REINFORCE (start of turn)
       if (phase === C.PHASES.REINFORCE) {
-        triggerAIBanter(p, 'turnStart');
+        const runaway = getRunawayRival(state, p.id);
+        if (runaway && Math.random() < 0.5) {
+          triggerAllianceProposal(p, runaway);
+        } else {
+          triggerAIBanter(p, 'turnStart');
+        }
       }
     });
 
@@ -342,6 +395,52 @@ window.RISK_BANTER = (function () {
     return slurred;
   }
 
+  function getRunawayRival(state, currentId) {
+    const totalArmies = Object.values(state.territories).reduce((sum, t) => sum + t.armies, 0);
+    for (const p of state.players) {
+      if (p.eliminated || p.id === currentId) continue;
+      const territoriesList = Object.values(state.territories).filter(t => t.owner === p.id);
+      const armiesCount = territoriesList.reduce((sum, t) => sum + t.armies, 0);
+      if (territoriesList.length >= 16 || (totalArmies > 0 && armiesCount / totalArmies >= 0.40)) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  function checkAllianceProposal(playerMessage, state) {
+    const msg = playerMessage.toLowerCase();
+    const keywords = ['team', 'ally', 'alliance', 'gang up', 'together', 'target', 'focus', 'attack', 'kill', 'stop', 'help'];
+    const hasKeyword = keywords.some(kw => msg.includes(kw));
+    if (!hasKeyword) return null;
+    
+    // Check if any active player name is mentioned
+    for (const p of state.players) {
+      if (p.eliminated) continue;
+      if (msg.includes(p.name.toLowerCase())) {
+        return p;
+      }
+    }
+    // Default to runaway rival if any
+    return getRunawayRival(state, -1);
+  }
+
+  function triggerAllianceProposal(ai, runaway) {
+    if (!chatMessagesEl || ai.isHuman || ai.eliminated) return;
+    setTimeout(() => {
+      const personality = ai.personality || 'aggressive';
+      const list = BANTER_TEMPLATES[personality].allianceInitiate;
+      if (!list || !list.length) return;
+      let text = U.pickRandom(list).replace(/\[Rival\]/g, runaway.name);
+      
+      const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
+      if (ginLemon) {
+        text = slurText(text);
+      }
+      postMessage(ai.name, ai.colorHex, text, false);
+    }, 800 + Math.random() * 500);
+  }
+
   async function getLLMBanterReply(ai, humanPlayer, playerMessage) {
     const model = document.getElementById('settings-model')?.value || 'openrouter/free';
     const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
@@ -365,12 +464,26 @@ window.RISK_BANTER = (function () {
     if (isLosing) {
       losingPrompt = `NOTICE: You are losing badly (only ${aiTerritoriesCount} territories and ${aiArmiesCount} armies left). You are frustrated, salty, complaining about your situation, and teasing others with desperation or mock anger.`;
     }
+
+    // Alliance prompt injection
+    let alliancePrompt = '';
+    const proposedTarget = checkAllianceProposal(playerMessage, state);
+    if (proposedTarget) {
+      const runaway = getRunawayRival(state, ai.id);
+      const isRunaway = runaway && runaway.id === proposedTarget.id;
+      if (isRunaway) {
+        alliancePrompt = `NOTICE: ${humanPlayer.name} is proposing to team up against ${proposedTarget.name}. Since ${proposedTarget.name} is running away with the game, you should enthusiastically agree to team up against them.`;
+      } else {
+        alliancePrompt = `NOTICE: ${humanPlayer.name} is proposing to team up against ${proposedTarget.name}. Since ${proposedTarget.name} is not running away with the game, you should decline or redirect.`;
+      }
+    }
       
     const system = `You are playing Risk, a strategic board game.
 You are playing as the AI player "${ai.name}" who has the personality: "${ai.personality || 'aggressive'}".
 ${losingPrompt}
 ${drunkPrompt}
-You and the other players are old friends who know each other well. You tease each other, make witty/sarcastic comments, and swear sometimes (e.g. use words like damn, hell, crap, bullshit, dickhead, bastard, dumbass, garbage, idiot).
+${alliancePrompt}
+You and the other players are old friends who know each other well. You tease each other, make witty/sarcastic comments, and swear sometimes (e.g. use words like damn, hell, crap, bullshit, dickhead, bastard, dumbass, garbage, idiot, asswipe, fuckwit).
 Keep your response extremely short (1 to 2 sentences max) and in character. Do not include any JSON, prefixes, markdown, quote marks, or meta-commentary—just your direct reply in the chat.
 Current board context:
 - Your territories: ${aiTerritories || 'none'}
@@ -434,13 +547,24 @@ Current board context:
     // Fallback if LLM failed or not logged in
     if (!reply) {
       const personality = ai.personality || 'aggressive';
-      const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
-      const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
       
-      const list = (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7)
-        ? BANTER_TEMPLATES[personality].losing
-        : BANTER_TEMPLATES[personality].replies;
-      reply = U.pickRandom(list);
+      const proposedTarget = checkAllianceProposal(playerMessage, state);
+      if (proposedTarget) {
+        const runaway = getRunawayRival(state, ai.id);
+        const isRunaway = runaway && runaway.id === proposedTarget.id;
+        const list = isRunaway 
+          ? BANTER_TEMPLATES[personality].allianceAgree 
+          : BANTER_TEMPLATES[personality].allianceDecline;
+        reply = U.pickRandom(list).replace(/\[Rival\]/g, proposedTarget.name);
+      } else {
+        const aiTerritoriesList = Object.values(state.territories).filter(t => t.owner === ai.id);
+        const isLosing = (aiTerritoriesList.length <= 3 || aiTerritoriesList.reduce((sum, t) => sum + t.armies, 0) < 8);
+        
+        const list = (isLosing && BANTER_TEMPLATES[personality].losing && Math.random() < 0.7)
+          ? BANTER_TEMPLATES[personality].losing
+          : BANTER_TEMPLATES[personality].replies;
+        reply = U.pickRandom(list);
+      }
       
       const ginLemon = document.getElementById('settings-gin-lemon')?.checked;
       if (ginLemon) {
