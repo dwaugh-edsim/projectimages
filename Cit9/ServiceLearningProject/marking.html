@@ -569,6 +569,12 @@
                     <div class="grading-panel">
                         <h3>Assessment & Feedback</h3>
                         
+                        <!-- Dynamic Student Cheat Sheet -->
+                        <div id="cheatSheetBox" style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px; font-size:0.82rem; color:#166534; margin-bottom:15px;">
+                            <strong style="display:block; margin-bottom:4px; font-family:var(--font-mono); text-transform:uppercase; color:#065f46;">📋 Auditing Cheat Sheet</strong>
+                            <p id="cheatSheetText" style="white-space:pre-wrap; line-height:1.45;"></p>
+                        </div>
+                        
                         <div>
                             <label style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase;">Curriculum Rating</label>
                             <div class="grade-button-group">
@@ -605,6 +611,38 @@
             'Fatima', 'Alia', 'Rifa', 'Sarah', 'Jessa', 'Delisha', 'Kendra', 'Zankia',
             'Evie', 'Jana', 'Ali', 'Kai', 'Natalia', 'Isaac'
         ];
+
+        const STUDENT_CHEAT_SHEETS = {
+            'Alia': "• Status: COMPLETE (5/5)\n• Issues: None detected.\n• Interview Suggestion:\n  Ask: 'Walk me through your 14-day tap audit. What was the most surprising water usage you recorded?'",
+            'Elizabeth': "• Status: COMPLETE (5/5)\n• Issues: None. Highly reflective log entries.\n• Interview Suggestion:\n  Ask: 'Your reflection on water privilege was very strong. How did your daily shower reduction from 54L to 27L affect your routine?'",
+            'Farhan': "• Status: COMPLETE (5/5)\n• Issues: None.\n• Interview Suggestion:\n  Ask: 'You worked on the Battery Scavenger mission. How does battery recycling connect to human rights abuses in DRC cobalt mines?'",
+            'Kai': "• Status: COMPLETE (5/5)\n• Issues: None.\n• Interview Suggestion:\n  Ask: 'You reduced daily shower use by 37%. How did you get your household to buy into the water audit?'",
+            'Laila': "• Status: COMPLETE (5/5)\n• Issues: None.\n• Interview Suggestion:\n  Ask: 'Why do boil-water advisories persist in Indigenous reserves despite systemic funding attempts? What did you discover?'",
+            'Madhavan': "• Status: COMPLETE (5/5)\n• Issues: Cited 'math by gemini' for calculations (Teacher is OK with this).\n• Interview Suggestion:\n  Ask: 'Walk me through the phantom load calculations. How did you compute the $80 annual savings for your household?'",
+            'Nolan': "• Status: COMPLETE (5/5)\n• Issues: None.\n• Interview Suggestion:\n  Ask: 'You tracked phantom loads. What are some standby devices you found in your house, and how did you manage them?'",
+            'Jessa': "• Status: IDLE (0% saved in DB)\n• Issues: No data synced. Likely due to the webhook outage.\n• Interview Suggestion:\n  Ask: 'Let's check your local browser screen (File.html) or handwritten files. Have you completed the stages locally?'",
+            'Abdul': "• Status: IN PROGRESS (Step 4 empty, Step 5 is keyboard mashed)\n• Issues: Step 5 is gibberish ('lkfi3hfiphq...'). Cited 'gemini' and 'chatgpt' as research sources.\n• Interview Suggestion:\n  Ask: 'I noticed some placeholder letters in your reflection. Can you explain in your own words what you learned? Let's rewrite Step 5 today.'",
+            'Joshua A': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Citations include 'none other used' and 'gemini'.\n• Interview Suggestion:\n  Ask: 'You set up a plan for the data diet. What did your data show for Step 4? Where did you research shadow profiles?'",
+            'Josie': "• Status: IN PROGRESS (Step 5 empty)\n• Issues: Missing reflection.\n• Interview Suggestion:\n  Ask: 'Your water audit metrics look good. What is your takeaway regarding water privatization and clean water as a human right?'",
+            'Delisha': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Missing measurements and reflection.\n• Interview Suggestion:\n  Ask: 'Your battery scavenger parent pitch was excellent. How many batteries did you end up collecting for Step 4?'",
+            'Lachlan Mac': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Missing measurements and reflection.\n• Interview Suggestion:\n  Ask: 'You lived with 10 clothing items. What was the hardest part of repeating outfits? Let's write down your Step 5 reflection.'",
+            'Lachlan McM': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Missing measurements and reflection.\n• Interview Suggestion:\n  Ask: 'You Audit-tested fast fashion. What did you discover about vietnam and cambodia clothing factory wages? What did your metrics show?'",
+            'Natalia': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Missing measurements and reflection.\n• Interview Suggestion:\n  Ask: 'You chose the battery scavenger mission. Let's look at your local browser screen to see if you have logged battery counts.'",
+            'Rifa': "• Status: IN PROGRESS (Step 4 & 5 empty)\n• Issues: Missing measurements and reflection.\n• Interview Suggestion:\n  Ask: 'Let's review your battery diversion records. What was the most common type of battery you collected?'",
+            'Yunho': "• Status: IN PROGRESS (Step 3, 4, 5 empty)\n• Issues: Plan and Research are complete, but no logs or measurements.\n• Interview Suggestion:\n  Ask: 'Your research on NS Power coal generation was solid. Do you have your 14-day logs saved locally on your screen?'",
+            'Kendra': "• Status: IN PROGRESS (Step 3, 4, 5 empty)\n• Issues: Plan is partial.\n• Interview Suggestion:\n  Ask: 'You worked on the Ink Trap mission. What did you discover about smart chip lockouts in HP printers?'",
+            'Remy': "• Status: IN PROGRESS (Step 3, 4, 5 empty)\n• Issues: Plan is partial.\n• Interview Suggestion:\n  Ask: 'Let's audit your Tap Audit progress. Did you complete the 14-day log offline?'",
+            'Ali': "• Status: IN PROGRESS (Step 2 partial, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You answered Q1 about Rana Plaza but nothing else. What other questions do you need help researching for Step 2?'",
+            'Huda': "• Status: IN PROGRESS (Step 2 partial, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You started Step 2 research. Let's look at your screen and find resources for battery thermal runaway.'",
+            'Leo': "• Status: IN PROGRESS (Step 2 partial, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You answered Q1. What sources are you using to research battery recycling regulations?'",
+            'Clark': "• Status: IN PROGRESS (Step 2 empty, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You set up a plan for the Data Diet. Have you started researching shadow profiles and digital privacy?'",
+            'Isaac': "• Status: IN PROGRESS (Step 2 empty, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You chose the Phantom Load mission. Let's find some standby devices in the school to research.'",
+            'Zankia': "• Status: IN PROGRESS (Step 2 empty, rest empty)\n• Issues: Stuck on Step 2.\n• Interview Suggestion:\n  Ask: 'You chose the Battery Scavenger mission. Let's find the safety rules for taping battery terminals.'",
+            'Evie': "• Status: IN PROGRESS (Step 1 partial, rest empty)\n• Issues: Stuck on Step 1.\n• Interview Suggestion:\n  Ask: 'You haven't selected a mission topic yet. Which of the 7 community missions looks most interesting to you?'",
+            'Sarah': "• Status: IN PROGRESS (Step 1 partial, rest empty)\n• Issues: Stuck on Step 1.\n• Interview Suggestion:\n  Ask: 'Let's choose a mission together and start Step 1 so you can unlock Step 2.'",
+            'Fatima': "• Status: IDLE (0% progress)\n• Issues: Completely empty. Likely offline or did not start.\n• Interview Suggestion:\n  Ask: 'Did you manage to complete any parts of this project locally or in a doc? Let's check your screen.'",
+            'Jana': "• Status: IDLE (0% progress)\n• Issues: Completely empty. Likely offline or did not start.\n• Interview Suggestion:\n  Ask: 'Did you manage to complete any parts of this project locally or in a doc? Let's check your screen.'"
+        };
 
         const clueQuestions = {
             "CIT-001": [
@@ -832,6 +870,10 @@
 
             // Feedback
             document.getElementById('feedbackComment').value = data.teacherFeedback || "";
+            
+            // Cheat Sheet
+            const cheatSheet = STUDENT_CHEAT_SHEETS[sid] || "• No audit data available for this student.";
+            document.getElementById('cheatSheetText').textContent = cheatSheet;
             
             // Rating
             setRating(data.teacherQuality || "Adequate", false);
