@@ -126,9 +126,16 @@ window.RISK_UTILS = (function () {
     return bytesToHex(bytes);
   }
 
+  // Escape a string for safe insertion into HTML text content / attributes.
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
   return {
     shuffle, randomInt, delay, deepClone, bfs, debounce, groupBy, pickRandom,
     mix, hexToRgb, rgbToHex,
-    sha256Hex, pbkdf2Hex, randomHex,
+    sha256Hex, pbkdf2Hex, randomHex, escapeHtml,
   };
 })();

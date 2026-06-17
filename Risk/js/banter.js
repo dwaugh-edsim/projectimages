@@ -357,7 +357,7 @@ window.RISK_BANTER = (function () {
     if (!chatMessagesEl) return;
     const msg = document.createElement('div');
     msg.className = 'chat-msg system';
-    msg.innerHTML = `<span class="chat-msg-text">${text}</span>`;
+    msg.innerHTML = `<span class="chat-msg-text">${U.escapeHtml(text)}</span>`;
     chatMessagesEl.appendChild(msg);
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
   }
@@ -372,17 +372,11 @@ window.RISK_BANTER = (function () {
     }
 
     msg.innerHTML = `
-      <span class="chat-msg-sender" style="color: ${isSelf ? 'var(--accent-gold)' : senderColorHex}">${senderName}</span>
-      <span class="chat-msg-text">${escapeHtml(text)}</span>
+      <span class="chat-msg-sender" style="color: ${isSelf ? 'var(--accent-gold)' : senderColorHex}">${U.escapeHtml(senderName)}</span>
+      <span class="chat-msg-text">${U.escapeHtml(text)}</span>
     `;
     chatMessagesEl.appendChild(msg);
     chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
   }
 
   const G = window.RISK_GAS;

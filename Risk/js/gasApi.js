@@ -5,8 +5,10 @@ window.RISK_GAS = (function () {
 
   const STORAGE_KEY = 'risk_backend_url';
   const SESSION_KEY = 'risk_session';
-  // Default GAS Web App URL. Saved to localStorage on first run; users can override.
-  const DEFAULT_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbw9wwhrzlutvVMuUNJBG2QL4hYlVDkg67gtPudE2TfJWEfafTfcfTy4cLeSArJfmieTqQ/exec';
+  // Backend URL is NOT hard-coded here. Each deploy must supply its own Google Apps
+  // Script Web App URL via the Welcome screen's "Backend URL" field (stored locally).
+  // Never commit a live /exec URL — it invites abuse of the OpenRouter quota.
+  const DEFAULT_BACKEND_URL = '';
 
   function getUrl() {
     return localStorage.getItem(STORAGE_KEY) || DEFAULT_BACKEND_URL;

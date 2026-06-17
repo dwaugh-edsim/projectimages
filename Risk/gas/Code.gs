@@ -9,6 +9,30 @@ function _props() { return PropertiesService.getScriptProperties(); }
 function _now() { return Date.now(); }
 function _token() { return Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, ''); }
 
+// Simple per-key rate limit using CacheService.
+// bucket: namespace, key: identifier (username / session / ip), limit: max calls,
+// windowMs: rolling window. Returns true if allowed (and increments), false if exceeded.
+function _rateAllow(bucket, key, limit, windowMs) {
+  if (!key) key = 'anon';
+  const cache = CacheService.getScriptCache();
+  const ck = 'rl:' + bucket + ':' + key;
+  let entry;
+  try { entry = JSON.parse(cache.get(ck) || 'null'); } catch (e) { entry = null; }
+  const now = _now();
+  if (!entry) entry = { count: 0, reset: now + windowMs };
+  if (now > entry.reset) { entry.count = 0; entry.reset = now + windowMs; }
+  entry.count++;
+  // Cache TTL slightly longer than the window so the entry survives until reset.
+  cache.put(ck, JSON.stringify(entry), Math.ceil(windowMs / 1000) + 5);
+  return entry.count <= limit;
+}
+
+// GAS Web Apps do not expose the client IP in doPost(e). Return a constant so
+// IP-bucketed limits act as a coarse global throttle; per-username / per-session
+// buckets are the primary abuse protection.
+function _clientIp() { return 'gas'; }
+
+
 function _getUser(username) {
   const raw = _props().getProperty('user:' + username);
   if (!raw) return null;
@@ -56,6 +80,12 @@ function getSalt(payload) {
 
 function signup(payload) {
   const username = ((payload && payload.username) || '').toLowerCase();
+  if (!_rateAllow('signup', username, 5, 60 * 60 * 1000)) {
+    throw new Error('Too many signup attempts. Try again later.');
+  }
+  if (!_rateAllow('signupIp', _clientIp(), 10, 60 * 60 * 1000)) {
+    throw new Error('Too many signups from this address. Try again later.');
+  }
   const passwordHash = payload && payload.passwordHash;
   const salt = payload && payload.salt;
   const displayName = (payload && payload.displayName) || username;
@@ -72,6 +102,12 @@ function signup(payload) {
 
 function login(payload) {
   const username = ((payload && payload.username) || '').toLowerCase();
+  if (!_rateAllow('login', username, 15, 15 * 60 * 1000)) {
+    throw new Error('Too many login attempts. Try again later.');
+  }
+  if (!_rateAllow('loginIp', _clientIp(), 30, 15 * 60 * 1000)) {
+    throw new Error('Too many login attempts from this address. Try again later.');
+  }
   const passwordHash = payload && payload.passwordHash;
   const u = _getUser(username);
   if (!u) throw new Error('Invalid credentials');
@@ -141,6 +177,10 @@ function deleteGame(session, payload) {
 }
 
 function openRouterChat(session, payload) {
+  // Per-session LLM call limit (protects the OpenRouter quota from abuse).
+  if (!_rateAllow('llm', session ? session.userId : _clientIp(), 120, 60 * 60 * 1000)) {
+    throw new Error('LLM call limit reached for this session. Try again later.');
+  }
   const key = _props().getProperty('OPENROUTER_KEY');
   if (!key) throw new Error('OPENROUTER_KEY not configured on the server');
   const model = (payload && payload.model) || 'openrouter/free';

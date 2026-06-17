@@ -62,7 +62,7 @@ window.RISK_MAP = (function () {
           tip.style.display = 'block';
           tip.style.left = (e.pageX + 14) + 'px';
           tip.style.top = (e.pageY + 14) + 'px';
-          tip.innerHTML = `<strong>${t.name}</strong><br>Owner: ${owner}<br>Armies: ${ts.armies}`;
+          tip.innerHTML = `<strong>${U.escapeHtml(t.name)}</strong><br>Owner: ${U.escapeHtml(owner)}<br>Armies: ${ts.armies}`;
           return;
         }
       }

@@ -10,6 +10,9 @@ window.RISK_UI = (function () {
   const U = window.RISK_UTILS;
 
   // Public event hooks for the game loop to set
+  // Debug tools (e.g. the "Skip (debug)" claim button) are only enabled when the
+  // page is loaded with ?debug=1, so they never ship to end users.
+  const isDebug = new URLSearchParams(window.location.search).has('debug');
   const hooks = {
     onStartGame: null,
     onEndReinforce: null,
@@ -45,6 +48,30 @@ window.RISK_UI = (function () {
   // ===== Modal helpers =====
   function showModal(id) { document.getElementById(id).style.display = 'flex'; }
   function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+  // Async-style confirm dialog (replaces blocking native confirm()).
+  // Usage: confirmModal({ title, message, confirmText, cancelText }).then(ok => ...)
+  let _confirmResolver = null;
+  function confirmModal({ title = 'Confirm', message = '', confirmText = 'Confirm', cancelText = 'Cancel' } = {}) {
+    return new Promise(resolve => {
+      _confirmResolver = resolve;
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      document.getElementById('btn-confirm-yes').textContent = confirmText;
+      document.getElementById('btn-confirm-no').textContent = cancelText;
+      showModal('confirm-modal');
+    });
+  }
+  function wireConfirmModal() {
+    document.getElementById('btn-confirm-yes').onclick = () => {
+      hideModal('confirm-modal');
+      if (_confirmResolver) { const r = _confirmResolver; _confirmResolver = null; r(true); }
+    };
+    document.getElementById('btn-confirm-no').onclick = () => {
+      hideModal('confirm-modal');
+      if (_confirmResolver) { const r = _confirmResolver; _confirmResolver = null; r(false); }
+    };
+  }
 
   // ===== Welcome / Login =====
   function showWelcome() {
@@ -188,7 +215,7 @@ window.RISK_UI = (function () {
         const row = document.createElement('div');
         row.className = 'opponent-row';
         row.innerHTML = `
-          <span class="opponent-name" style="color:${(C.PLAYER_COLORS[p.color] || C.PLAYER_COLORS[0]).hex}">${p.name}</span>
+          <span class="opponent-name" style="color:${(C.PLAYER_COLORS[p.color] || C.PLAYER_COLORS[0]).hex}">${escapeHtml(p.name)}</span>
           <select data-player-id="${p.id}">
             ${C.PERSONALITIES.map(pp => `<option value="${pp}" ${pp === p.personality ? 'selected' : ''}>${pp[0].toUpperCase() + pp.slice(1)}</option>`).join('')}
           </select>
@@ -238,10 +265,10 @@ window.RISK_UI = (function () {
         const row = document.createElement('div');
         row.className = 'saved-game';
         const dt = new Date(g.lastSavedAt || g.createdAt).toLocaleString();
-        const players = g.players.filter(p => !p.eliminated).map(p => p.name).join(', ') || '—';
+        const players = g.players.filter(p => !p.eliminated).map(p => p.name).map(escapeHtml).join(', ') || '—';
         row.innerHTML = `
           <div class="sg-info">
-            <div class="sg-title">Turn ${g.turnNumber} · ${g.status}</div>
+            <div class="sg-title">Turn ${g.turnNumber} · ${escapeHtml(g.status)}</div>
             <div class="sg-meta">${players}</div>
             <div class="sg-meta">Saved ${dt}</div>
           </div>
@@ -251,7 +278,13 @@ window.RISK_UI = (function () {
         del.textContent = 'Delete';
         del.onclick = async (e) => {
           e.stopPropagation();
-          if (confirm('Delete this saved game?')) {
+          const ok = await confirmModal({
+            title: 'Delete saved game?',
+            message: 'This saved game will be permanently deleted. This cannot be undone.',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+          });
+          if (ok) {
             await G.deleteGame(g.gameId);
             row.remove();
           }
@@ -374,7 +407,7 @@ window.RISK_UI = (function () {
     document.getElementById('btn-end-attack').style.display = (isHumanTurn && phase === C.PHASES.ATTACK) ? '' : 'none';
     document.getElementById('btn-end-fortify').style.display = (isHumanTurn && phase === C.PHASES.FORTIFY) ? '' : 'none';
     document.getElementById('btn-end-turn').style.display = (isHumanTurn && phase === C.PHASES.FORTIFY) ? '' : 'none';
-    document.getElementById('btn-skip-claim').style.display = (isHumanTurn && phase === C.PHASES.CLAIM) ? '' : 'none';
+    document.getElementById('btn-skip-claim').style.display = (isDebug && isHumanTurn && phase === C.PHASES.CLAIM) ? '' : 'none';
     // action hint
     let hint = '';
     if (phase === C.PHASES.CLAIM) hint = isHumanTurn ? 'Claim an unclaimed territory.' : `${p.name} is claiming…`;
@@ -411,7 +444,7 @@ window.RISK_UI = (function () {
         S.placeArmy(territoryId);
       } else if (phase === C.PHASES.ATTACK) {
         // Two-click: source then target
-        handleAttackClick(territoryId);
+        handleAttackClick(territoryId).catch(e => showError(e.message));
       } else if (phase === C.PHASES.FORTIFY) {
         handleFortifyClick(territoryId);
       }
@@ -419,7 +452,7 @@ window.RISK_UI = (function () {
   }
 
   let attackSource = null;
-  function handleAttackClick(territoryId) {
+  async function handleAttackClick(territoryId) {
     const state = S.get();
     const t = state.territories[territoryId];
     if (attackSource == null) {
@@ -451,7 +484,13 @@ window.RISK_UI = (function () {
         return;
       }
       if (t.owner === state.currentPlayer) {
-        if (confirm("You clicked your own territory. You cannot attack your own territory.\n\nDo you want to end your Attack phase and proceed to Fortify?")) {
+        const ok = await confirmModal({
+          title: 'End Attack phase?',
+          message: 'You clicked your own territory, which cannot be attacked. End your Attack phase and proceed to Fortify?',
+          confirmText: 'End Attack',
+          cancelText: 'Keep Attacking',
+        });
+        if (ok) {
           attackSource = null;
           M.clearHighlights();
           if (hooks.onEndAttack) {
@@ -670,7 +709,7 @@ window.RISK_UI = (function () {
     const phase = state.phase;
     if (phase === C.PHASES.CLAIM) {
       // highlight all unclaimed
-      const ids = Object.values(state.territories).filter(t => t.owner === -1).map(t => Object.keys(state.territories).find(k => state.territories[k] === t));
+      const ids = Object.entries(state.territories).filter(([, t]) => t.owner === -1).map(([id]) => id);
       M.setHighlights(ids, 'valid');
     } else if (phase === C.PHASES.PLACE_INITIAL || phase === C.PHASES.REINFORCE) {
       const ids = Object.entries(state.territories).filter(([id, t]) => t.owner === state.currentPlayer).map(([id]) => id);
@@ -721,6 +760,7 @@ window.RISK_UI = (function () {
       if (hooks.onEndTurn) hooks.onEndTurn();
     };
     document.getElementById('btn-skip-claim').onclick = () => {
+      if (!isDebug) return; // debug-only; never active in production
       // debug skip
       const state = S.get();
       const unowned = Object.values(state.territories).find(t => t.owner === -1);
@@ -734,6 +774,7 @@ window.RISK_UI = (function () {
     };
     wireDiceModal();
     wireArmyModal();
+    wireConfirmModal();
 
     // State subscriptions
     S.on('init', () => { renderAll(); applyPhaseHighlights(); });

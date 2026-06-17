@@ -214,8 +214,5 @@ window.RISK_CONFIG = (function () {
     buildCardDeck,
     territoryList: () => Object.values(TERRITORIES),
     territoryCount: () => Object.keys(TERRITORIES).length,
-    getTerritory: (id) => TERRITORY_LOOKUP[id] || null,
   };
-
-  const TERRITORY_LOOKUP = TERRITORIES;
 })();
