@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKS-11 Interview Tracking Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8a3023; /* Deep Crimson/Terracotta */
+            --primary-light: #ab4739;
+            --accent: #b58353; /* Sand/Gold */
+            --bg: #fcfbf9; /* Warm White/Alabaster */
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: rgba(0, 0, 0, 0.08);
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(138, 48, 35, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(212, 163, 115, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            padding: 3rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2.5rem;
+            background: linear-gradient(135deg, rgba(138, 48, 35, 0.06) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* Overview Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            transition: var(--transition);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(138, 48, 35, 0.05);
+        }
+
+        .stats-info h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Progress Circle/Gauges */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Search & Filters */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #ffffff;
+            color: var(--text-main);
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(138, 48, 35, 0.08);
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: var(--text-muted);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(138, 48, 35, 0.2);
+        }
+
+        /* Student Grid List */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .student-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+            user-select: none;
+        }
+
+        .student-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+        }
+
+        .student-card.checked {
+            background: var(--success-bg);
+            border-color: var(--success);
+        }
+
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .student-card.checked .checkbox-custom {
+            border-color: var(--success);
+            background: var(--success);
+        }
+
+        .checkbox-custom::after {
+            content: '✓';
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .student-card.checked .checkbox-custom::after {
+            display: block;
+        }
+
+        .student-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        .student-card.checked .student-name {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .nav-back-container {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer status bar */
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-back-container">
+            <a href="./MM_Studies_Highlights.html" class="nav-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Highlights Dashboard
+            </a>
+        </div>
+
+        <header>
+            <h1>Interview Progress Tracker</h1>
+            <p>MKS-11 Student Evaluation Dashboard</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-info" style="width: 100%;">
+                    <h3>A Block Progress</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <span class="stats-value" id="stats-a">0 / 0</span>
+                        <span style="font-weight: 600; color: var(--primary);" id="percent-a">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progress-bar-a" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-info" style="width: 100%;">
+                    <h3>C Block Progress</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <span class="stats-value" id="stats-c">0 / 0</span>
+                        <span style="font-weight: 600; color: var(--primary);" id="percent-c">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progress-bar-c" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search student name..." oninput="filterGrid()">
+            <button class="tab-btn active" id="tabA" onclick="switchBlock('A')">Block A</button>
+            <button class="tab-btn" id="tabC" onclick="switchBlock('C')">Block C</button>
+        </div>
+
+        <!-- Student List -->
+        <div class="student-grid" id="studentGrid">
+            <!-- Dynamically populated -->
+        </div>
+
+        <footer>
+            <p>MIKMAW STUDIES 11 // HALIFAX WEST HIGH // INTERVIEW DASHBOARD</p>
+            <p style="margin-top: 5px; font-size: 0.75rem;">Changes are saved locally to your browser cache.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Default evaluation progress dataset (based on your list)
+        const initialStatus = {
+            "A Block (Waugh)": {
+                "Alexis": true,
+                "Ananya M.": true,
+                "Callum": true,
+                "Connor": true,
+                "Cova": false,
+                "Dave": false,
+                "Dmytro": false,
+                "Ellee": true,
+                "Gala": true,
+                "Gavin": false,
+                "Harrison": true,
+                "Jesse": true,
+                "Jon (Johnny)": true,
+                "Julianne": true,
+                "Kevin": true,
+                "Lena": false,
+                "Mae": false,
+                "Mateo": false,
+                "Michael": true,
+                "rose": false,
+                "Ruby": false,
+                "Sonja": true,
+                "Sophie": true,
+                "Vitusz": false
+            },
+            "C Block (Waugh)": {
+                "Abdel": false,
+                "Abigail": false,
+                "Aiden": true,
+                "Anthony": false,
+                "Baashiq": false,
+                "Caitlyn": false,
+                "Caleb": false,
+                "Christopher": false,
+                "Clara Jones": true,
+                "Dave": false,
+                "Harjas": false,
+                "Isaac": false,
+                "Isabella Beck (Bella)": true,
+                "Jaiveer": false,
+                "Kaden": false,
+                "Koen": false,
+                "Kulay cruz": false,
+                "Kyle Parsons": true,
+                "Kyra": true,
+                "Madina Mirza": false,
+                "myles": false,
+                "Noah Pinter": true,
+                "Raida": false,
+                "Reiley": true,
+                "River Thomas": false,
+                "Sam": true,
+                "Soulin Shehab": true,
+                "Sukhbir": true,
+                "Zaid": false,
+                "Zayden": true
+            }
+        };
+
+        let currentBlock = 'A';
+        let trackerData = JSON.parse(localStorage.getItem('mks_interview_tracker')) || initialStatus;
+
+        function saveToLocal() {
+            localStorage.setItem('mks_interview_tracker', JSON.stringify(trackerData));
+        }
+
+        function calculateStats() {
+            const blocks = ['A Block (Waugh)', 'C Block (Waugh)'];
+            blocks.forEach((blockName, idx) => {
+                const blockKey = idx === 0 ? 'a' : 'c';
+                const students = trackerData[blockName];
+                const total = Object.keys(students).length;
+                const completed = Object.values(students).filter(v => v).length;
+                const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                document.getElementById(`stats-${blockKey}`).textContent = `${completed} / ${total}`;
+                document.getElementById(`percent-${blockKey}`).textContent = `${percent}%`;
+                document.getElementById(`progress-bar-${blockKey}`).style.width = `${percent}%`;
+            });
+        }
+
+        function switchBlock(block) {
+            currentBlock = block;
+            document.getElementById('tabA').classList.toggle('active', block === 'A');
+            document.getElementById('tabC').classList.toggle('active', block === 'C');
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('studentGrid');
+            grid.innerHTML = '';
+
+            const blockName = currentBlock === 'A' ? 'A Block (Waugh)' : 'C Block (Waugh)';
+            const students = trackerData[blockName];
+            const search = document.getElementById('searchBar').value.toLowerCase().trim();
+
+            Object.keys(students).sort().forEach(name => {
+                if (search && !name.toLowerCase().includes(search)) return;
+
+                const isDone = students[name];
+                const card = document.createElement('div');
+                card.className = `student-card ${isDone ? 'checked' : ''}`;
+                card.innerHTML = `
+                    <div class="checkbox-custom"></div>
+                    <span class="student-name">${name}</span>
+                `;
+                card.onclick = () => toggleStatus(blockName, name);
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleStatus(blockName, name) {
+            trackerData[blockName][name] = !trackerData[blockName][name];
+            saveToLocal();
+            calculateStats();
+            renderGrid();
+        }
+
+        function filterGrid() {
+            renderGrid();
+        }
+
+        // Init
+        calculateStats();
+        renderGrid();
+    </script>
+</body>
+</html>
