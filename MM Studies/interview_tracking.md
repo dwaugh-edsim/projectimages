@@ -6,7 +6,6 @@
 *   [x] Callum
 *   [x] Connor
 *   [ ] Cova
-*   [ ] Dave
 *   [ ] Dmytro
 *   [x] Ellee
 *   [x] Gala
@@ -38,7 +37,6 @@
 *   [ ] Caleb
 *   [ ] Christopher
 *   [x] Clara Jones
-*   [ ] Dave
 *   [ ] Harjas
 *   [ ] Isaac
 *   [x] Isabella Beck (Bella)
