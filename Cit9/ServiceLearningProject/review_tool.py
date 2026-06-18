@@ -83,7 +83,7 @@ def main():
     student_latest = {}
     for r in records:
         student_id = r.get("StudentId")
-        if not student_id or student_id == "MKS-11-STUDENT":
+        if not student_id or student_id.strip() in ["MKS-11-STUDENT", "StudentId", "Dave", "studentId"]:
             continue
         ts = r.get("Timestamp", "")
         # Compare timestamps to keep the latest one
