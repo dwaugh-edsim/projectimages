@@ -356,9 +356,24 @@
                 <li><strong>Reflect genuinely:</strong> Ensure Step 5 is fully complete and written in your own words.</li>
             </ul>
         </div>
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; padding: 12px 16px; background: white; border: 1px solid var(--border-light); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-            <div style="font-size: 0.7rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; margin-bottom: 4px;">Instructor Terminal</div>
-            <div style="font-size: 0.75rem; color: var(--text-primary); text-align: right; font-weight: 500; line-height: 1.35;">Check in with the teacher when your group is called. You've got this! 🚀</div>
+        <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; padding: 12px 16px; background: white; border: 1px solid var(--border-light); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); min-height: 110px;">
+            <div style="font-size: 0.72rem; color: var(--indigo-600); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid var(--indigo-50); padding-bottom: 4px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                🚦 Interview Queue (Next Up)
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; flex: 1; justify-content: center;">
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #e0e7ff; color: #3730a3; padding: 5px 8px; border-radius: 4px; font-weight: 800; font-size: 0.85rem;">
+                    <span>1st Next:</span>
+                    <span id="dashQName1" style="text-transform: uppercase; font-family: var(--font-sans);">--</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">
+                    <span>2nd Next:</span>
+                    <span id="dashQName2" style="font-family: var(--font-sans);">--</span>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; color: #64748b; padding: 3px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem;">
+                    <span>3rd Next:</span>
+                    <span id="dashQName3" style="font-family: var(--font-sans);">--</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -385,6 +400,41 @@
 
         let studentData = {};
 
+        // DMV Queue dynamic updates
+        function updateDashboardQueue() {
+            // 1. LocalStorage fallback
+            const qStr = localStorage.getItem('interview_queue');
+            if (qStr) {
+                try {
+                    const q = JSON.parse(qStr);
+                    setDashboardQueueNames(q);
+                } catch(e){}
+            }
+            
+            // 2. Fetch from Webhook
+            fetchQueueFromWebhook();
+        }
+
+        async function fetchQueueFromWebhook() {
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?action=GET_QUEUE`);
+                const data = await res.json();
+                if (data && data.queue !== undefined) {
+                    const q = data.queue ? data.queue.split(',') : ["", "", ""];
+                    setDashboardQueueNames(q);
+                    localStorage.setItem('interview_queue', JSON.stringify(q));
+                }
+            } catch(e) {
+                console.log("No queue data from webhook or offline.");
+            }
+        }
+
+        function setDashboardQueueNames(q) {
+            document.getElementById('dashQName1').textContent = q[0] || '--';
+            document.getElementById('dashQName2').textContent = q[1] || '--';
+            document.getElementById('dashQName3').textContent = q[2] || '--';
+        }
+
         function initDashboard() {
             ROSTER.forEach(s => {
                 studentData[s] = {
@@ -395,6 +445,8 @@
             });
 
             fetchData();
+            updateDashboardQueue();
+            setInterval(updateDashboardQueue, 5000);
         }
 
         async function fetchData() {

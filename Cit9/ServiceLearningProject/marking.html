@@ -518,7 +518,10 @@
             <div id="workspaceContent" style="display:none; height:100%; flex-direction:column; overflow:hidden;">
                 <div class="workspace-header">
                     <div>
-                        <div class="active-student-name" id="studentNameText">Elizabeth</div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="active-student-name" id="studentNameText">Elizabeth</div>
+                            <button class="save-local-btn" onclick="openRawJSON()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px;">🔍 View Raw JSON</button>
+                        </div>
                         <div class="active-student-mission" id="studentMissionText">CIT-002: THE TAP AUDIT</div>
                     </div>
                     <div class="sync-badge" id="syncStatusBadge">Ready</div>
@@ -569,6 +572,22 @@
                     <div class="grading-panel">
                         <h3>Assessment & Feedback</h3>
                         
+                        <!-- DMV Queue Manager Widget -->
+                        <div style="background: #eef2f6; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #334155; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                            <strong style="display:block; margin-bottom:6px; font-family:var(--font-mono); text-transform:uppercase; color:var(--indigo-600);">🚦 Next Up (DMV Queue)</strong>
+                            <div style="display: flex; gap: 4px; flex-direction: column; margin-bottom: 8px;">
+                                <div id="queue1" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">1. --</div>
+                                <div id="queue2" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">2. --</div>
+                                <div id="queue3" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">3. --</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                                <button onclick="assignQueue(1)" style="font-size:0.68rem; padding:6px 4px; cursor:pointer; background:#e0e7ff; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#3730a3;">Set 1st</button>
+                                <button onclick="assignQueue(2)" style="font-size:0.68rem; padding:6px 4px; cursor:pointer; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#475569;">Set 2nd</button>
+                                <button onclick="assignQueue(3)" style="font-size:0.68rem; padding:6px 4px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#64748b;">Set 3rd</button>
+                            </div>
+                            <button onclick="clearQueue()" style="width:100%; margin-top:6px; font-size:0.68rem; padding:2px; background:none; border:none; color:var(--rose-500); cursor:pointer; text-decoration:underline;">Clear Queue</button>
+                        </div>
+
                         <!-- Dynamic Student Cheat Sheet -->
                         <div id="cheatSheetBox" style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px; font-size:0.82rem; color:#166534; margin-bottom:15px;">
                             <strong style="display:block; margin-bottom:4px; font-family:var(--font-mono); text-transform:uppercase; color:#065f46;">📋 Auditing Cheat Sheet</strong>
@@ -843,8 +862,8 @@
             document.getElementById('studentMissionText').textContent = s.mission || "NO MISSION SELECT";
             
             // Step 1
-            document.getElementById('viewPlanCommitment').textContent = data.selectionWhy ? `Rationale:\n${data.selectionWhy}` : "Plan Rationale: Empty";
-            document.getElementById('viewPlanRole').textContent = data.personalRole ? `Personal Role:\n${data.personalRole}` : "Role Justification: Empty";
+            document.getElementById('viewPlanCommitment').innerHTML = data.selectionWhy ? `<strong style="display:block; margin-bottom:4px; font-size:0.75rem; color:var(--slate-600); text-transform:uppercase; font-family:var(--font-mono);">Rationale Quote:</strong><blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.selectionWhy}"</blockquote>` : "Plan Rationale: Empty";
+            document.getElementById('viewPlanRole').innerHTML = data.personalRole ? `<strong style="display:block; margin-bottom:4px; font-size:0.75rem; color:var(--slate-600); text-transform:uppercase; font-family:var(--font-mono);">Role Quote:</strong><blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.personalRole}"</blockquote>` : "Role Justification: Empty";
 
             // Step 2 Clues
             const mId = s.mission || data.topic || "";
@@ -856,7 +875,9 @@
                 researchHtml += `
                     <div class="research-question-box">
                         <div class="q-title">${i}. ${clues[i-1]}</div>
-                        <div class="evidence-content ${answer ? '' : 'empty-text'}">${answer || 'Unanswered'}</div>
+                        <div class="evidence-content ${answer ? '' : 'empty-text'}">
+                            ${answer ? `<blockquote style="border-left: 3px solid var(--slate-400); padding-left: 8px; font-style: italic; color: var(--slate-700); margin: 4px 0; line-height: 1.5;">"${answer}"</blockquote>` : 'Unanswered'}
+                        </div>
                     </div>
                 `;
             }
@@ -864,26 +885,28 @@
             document.getElementById('viewResearchSources').textContent = (data.source1 || data.source2) ? `${data.source1 || ''} | ${data.source2 || ''}` : 'No sources provided';
 
             // Step 3
-            document.getElementById('viewActionLog').textContent = data.recordLog || "No action logs entries.";
+            document.getElementById('viewActionLog').innerHTML = data.recordLog ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.recordLog}"</blockquote>` : "No action logs entries.";
             document.getElementById('viewActionLog').className = data.recordLog ? "evidence-content" : "evidence-content empty-text";
 
             // Step 4
-            document.getElementById('viewMeasurements').textContent = data.measureData || "No metric records provided.";
+            document.getElementById('viewMeasurements').innerHTML = data.measureData ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.measureData}"</blockquote>` : "No metric records provided.";
             document.getElementById('viewMeasurements').className = data.measureData ? "evidence-content" : "evidence-content empty-text";
 
             // Step 5
-            document.getElementById('viewReflection').textContent = data.reflectionText || "No reflection text provided.";
+            document.getElementById('viewReflection').innerHTML = data.reflectionText ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.reflectionText}"</blockquote>` : "No reflection text provided.";
             document.getElementById('viewReflection').className = data.reflectionText ? "evidence-content" : "evidence-content empty-text";
 
-            // Feedback
-            document.getElementById('feedbackComment').value = data.teacherFeedback || "";
+            // Feedback (with LocalStorage restore check)
+            const localComment = localStorage.getItem(`comment_${sid}`);
+            document.getElementById('feedbackComment').value = localComment !== null ? localComment : (data.teacherFeedback || "");
             
             // Cheat Sheet
             const cheatSheet = STUDENT_CHEAT_SHEETS[sid] || "• No audit data available for this student.";
             document.getElementById('cheatSheetText').textContent = cheatSheet;
             
-            // Rating
-            setRating(data.teacherQuality || "Adequate", false);
+            // Rating (with LocalStorage restore check)
+            const localRating = localStorage.getItem(`rating_${sid}`);
+            setRating(localRating !== null ? localRating : (data.teacherQuality || "Adequate"), false);
         }
 
         function setRating(rating, uiOnly = false) {
@@ -895,6 +918,7 @@
 
             if (!uiOnly && selectedStudent) {
                 activeRosterData[selectedStudent].rating = rating;
+                localStorage.setItem(`rating_${selectedStudent}`, rating);
             }
         }
 
@@ -984,6 +1008,84 @@
             downloadAnchor.click();
             downloadAnchor.remove();
         }
+
+        // DMV Queue State Management
+        let interviewQueue = ["", "", ""];
+
+        function loadQueue() {
+            const q = localStorage.getItem('interview_queue');
+            if (q) {
+                try {
+                    interviewQueue = JSON.parse(q);
+                } catch(e) {}
+            }
+            updateQueueUI();
+        }
+
+        function updateQueueUI() {
+            for (let i = 1; i <= 3; i++) {
+                const name = interviewQueue[i-1];
+                const el = document.getElementById(`queue${i}`);
+                if (el) {
+                    el.innerHTML = name 
+                        ? `<span>${i}. <strong>${name}</strong></span> <button onclick="removeFromQueue(${i-1})" style="background:none; border:none; color:var(--rose-500); cursor:pointer; font-size:0.65rem;">✕</button>` 
+                        : `<span>${i}. <em>Empty</em></span>`;
+                }
+            }
+        }
+
+        function assignQueue(spot) {
+            if (!selectedStudent) return;
+            // Remove student from any other spot if already in queue
+            interviewQueue = interviewQueue.map(n => n === selectedStudent ? "" : n);
+            interviewQueue[spot-1] = selectedStudent;
+            saveQueue();
+        }
+
+        function removeFromQueue(index) {
+            interviewQueue[index] = "";
+            saveQueue();
+        }
+
+        function clearQueue() {
+            interviewQueue = ["", "", ""];
+            saveQueue();
+        }
+
+        async function saveQueue() {
+            localStorage.setItem('interview_queue', JSON.stringify(interviewQueue));
+            updateQueueUI();
+            
+            // Sync to GAS webhook
+            try {
+                const queueStr = interviewQueue.join(',');
+                await fetch(`${WEBHOOK_URL}?action=SET_QUEUE&queue=${encodeURIComponent(queueStr)}`);
+            } catch(e) {
+                console.error("Failed to post queue to Google Sheets:", e);
+            }
+        }
+
+        // Open raw JSON data window
+        function openRawJSON() {
+            if (!selectedStudent) return;
+            const s = activeRosterData[selectedStudent];
+            const jsonStr = JSON.stringify(s.data, null, 2);
+            const blob = new Blob([jsonStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        // Initialize queue and comment autosave listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQueue();
+            
+            // Auto-save comments keyup listener
+            document.getElementById('feedbackComment').addEventListener('input', (e) => {
+                if (selectedStudent) {
+                    localStorage.setItem(`comment_${selectedStudent}`, e.target.value);
+                }
+            });
+        });
     </script>
 </body>
 </html>

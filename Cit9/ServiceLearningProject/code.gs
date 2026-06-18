@@ -51,6 +51,21 @@ function doGet(e) {
       return createJsonResponse({ success: isSuccess });
     }
 
+    if (action === 'SET_QUEUE') {
+      const queue = e.parameter.queue || '';
+      CacheService.getScriptCache().put('interview_queue', queue, 21600);
+      PropertiesService.getScriptProperties().setProperty('interview_queue', queue);
+      return createJsonResponse({ success: true });
+    }
+
+    if (action === 'GET_QUEUE') {
+      let queue = CacheService.getScriptCache().get('interview_queue');
+      if (!queue) {
+        queue = PropertiesService.getScriptProperties().getProperty('interview_queue') || '';
+      }
+      return createJsonResponse({ queue: queue });
+    }
+
     if (action === 'GET_ALL_PROGRESS') {
       const sheet = getSheet();
       const rows = sheet.getDataRange().getValues();
