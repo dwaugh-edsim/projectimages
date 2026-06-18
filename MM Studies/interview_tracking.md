@@ -28,32 +28,33 @@
 ---
 
 ## C Block (Waugh)
-*   [ ] Abdel
-*   [ ] Abigail
+*   [x] Abdel
+*   [x] Abigail
 *   [x] Aiden
-*   [ ] Anthony
+*   [x] Anthony
 *   [ ] Baashiq
 *   [ ] Caitlyn
-*   [ ] Caleb
-*   [ ] Christopher
+*   [x] Caleb
+*   [x] Christopher
 *   [x] Clara Jones
 *   [ ] Harjas
 *   [ ] Isaac
 *   [x] Isabella Beck (Bella)
-*   [ ] Jaiveer
+*   [x] Jaiveer
 *   [ ] Kaden
-*   [ ] Koen
-*   [ ] Kulay cruz
+*   [x] Koen
+*   [x] Kulay cruz
 *   [x] Kyle Parsons
 *   [x] Kyra
-*   [ ] Madina Mirza
+*   [x] Madina Mirza
 *   [ ] myles
 *   [x] Noah Pinter
 *   [ ] Raida
 *   [x] Reiley
-*   [ ] River Thomas
+*   [x] River Thomas
 *   [x] Sam
 *   [x] Soulin Shehab
 *   [x] Sukhbir
-*   [ ] Zaid
+*   [x] Zaid
 *   [x] Zayden
+
