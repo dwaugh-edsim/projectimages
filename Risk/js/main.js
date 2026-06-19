@@ -296,10 +296,15 @@
     wireAutoSave();
     await M.init(document.getElementById('map-container'));
 
-    // Check if we should auto-reconnect
+    // Check if we should auto-reconnect or join via link
     let reconnecting = false;
-    if (window.RISK_MULTIPLAYER && window.RISK_MULTIPLAYER.checkReconnect) {
-      reconnecting = window.RISK_MULTIPLAYER.checkReconnect();
+    if (window.RISK_MULTIPLAYER) {
+      if (window.RISK_MULTIPLAYER.checkReconnect) {
+        reconnecting = window.RISK_MULTIPLAYER.checkReconnect();
+      }
+      if (!reconnecting && window.RISK_MULTIPLAYER.checkJoinLink) {
+        reconnecting = window.RISK_MULTIPLAYER.checkJoinLink();
+      }
     }
 
     // Multiplayer entry point (bypasses GAS login).

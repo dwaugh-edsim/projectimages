@@ -38,7 +38,7 @@ window.RISK_MULTIPLAYER = (function () {
     if (!lobbyEls) lobbyEls = buildLobbyDom();
     lobbyEls.url.value = defaultWsUrl();
     lobbyEls.name.value = localStorage.getItem('risk_mp_name') || '';
-    lobbyEls.codeRow.style.display = 'none';
+    lobbyEls.joinRow.style.display = 'none';
     lobbyEls.createRow.style.display = '';
     showLobby();
     setLobbyStatus('');
@@ -248,7 +248,16 @@ window.RISK_MULTIPLAYER = (function () {
 
   function renderLobby(msg) {
     lobbyEls.lobbyList.style.display = '';
-    lobbyEls.showCode.textContent = msg.code;
+    lobbyEls.showCode.innerHTML = `${msg.code} <button id="mp-copy-link" class="btn btn-ghost" style="font-size:11px; padding:2px 6px; margin-left:8px;" title="Copy join link">📋 Copy Link</button>`;
+    const shareUrl = `${location.protocol}//${location.host}${location.pathname}?join=${msg.code}`;
+    const copyBtn = lobbyEls.showCode.querySelector('#mp-copy-link');
+    if (copyBtn) {
+      copyBtn.onclick = (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(shareUrl);
+        UI.toast('Join link copied to clipboard!', 'success');
+      };
+    }
     gameCode = msg.code;
     // Build roster rows
     const total = msg.humans;
@@ -385,5 +394,39 @@ window.RISK_MULTIPLAYER = (function () {
     return false;
   }
 
-  return { openLobby, send, checkReconnect, clearCredentials };
+  function checkJoinLink() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('join') || params.get('room') || params.get('code');
+    if (code && code.length === 4) {
+      const gameCode = code.toUpperCase();
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      let name = localStorage.getItem('risk_mp_name') || '';
+      if (!name) {
+        name = prompt('Enter your name to join game ' + gameCode + ':', 'Player');
+        if (!name) return false;
+        localStorage.setItem('risk_mp_name', name);
+      }
+
+      myName = name;
+      serverUrl = defaultWsUrl();
+
+      if (!lobbyEls) lobbyEls = buildLobbyDom();
+      lobbyEls.url.value = serverUrl;
+      showLobby();
+      setLobbyStatus('Joining room ' + gameCode + '…');
+      lobbyEls.createRow.style.display = 'none';
+      lobbyEls.joinRow.style.display = 'none';
+      lobbyEls.go.style.display = 'none';
+      lobbyEls.cancel.style.display = '';
+
+      connect(serverUrl, () => {
+        send({ t: 'join', code: gameCode, name: myName });
+      });
+      return true;
+    }
+    return false;
+  }
+
+  return { openLobby, send, checkReconnect, checkJoinLink, clearCredentials };
 })();
