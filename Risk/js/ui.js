@@ -317,9 +317,10 @@ window.RISK_UI = (function () {
       if (p.eliminated) row.classList.add('eliminated');
       const terrCount = R.countTerritories(p.id, state.territories);
       const armyCount = R.countArmies(p.id, state.territories);
+      const isYou = window.RISK_YOU === p.id || (!window.RISK_MULTIPLAYER_ACTIVE && p.isHuman);
       row.innerHTML = `
         <div class="swatch" style="background:${p.colorHex}"></div>
-        <div class="pname">${escapeHtml(p.name)}${p.isHuman ? ' (you)' : ''}</div>
+        <div class="pname">${escapeHtml(p.name)}${isYou ? ' (you)' : ''}</div>
         <div class="terr-count" title="Territories">🗺 ${terrCount}</div>
         <div class="army-count" title="Armies">⚔ ${armyCount}</div>
         <div class="card-count" title="Cards">🃏 ${p.cards.length}</div>
@@ -435,13 +436,15 @@ window.RISK_UI = (function () {
     const p = state.players[state.currentPlayer];
     if (!p || !p.isHuman) return;
     const phase = state.phase;
+    // In multiplayer, mutations are sent to the server; local state is a mirror.
+    const NET = window.RISK_MULTIPLAYER_ACTIVE ? window.RISK_NET : null;
     try {
       if (phase === C.PHASES.CLAIM) {
-        S.claimTerritory(territoryId);
+        if (NET) NET.claim(territoryId); else S.claimTerritory(territoryId);
       } else if (phase === C.PHASES.PLACE_INITIAL) {
-        S.placeArmy(territoryId);
+        if (NET) NET.placeArmy(territoryId); else S.placeArmy(territoryId);
       } else if (phase === C.PHASES.REINFORCE) {
-        S.placeArmy(territoryId);
+        if (NET) NET.placeArmy(territoryId); else S.placeArmy(territoryId);
       } else if (phase === C.PHASES.ATTACK) {
         // Two-click: source then target
         handleAttackClick(territoryId).catch(e => showError(e.message));
@@ -671,8 +674,9 @@ window.RISK_UI = (function () {
       desc: `Move armies from ${C.TERRITORIES[fromId].name} to ${C.TERRITORIES[toId].name}. Max: ${from.armies - 1}.`,
       max: from.armies - 1,
       onConfirm: (count) => {
+        const NET = window.RISK_MULTIPLAYER_ACTIVE ? window.RISK_NET : null;
         try {
-          S.fortify(fromId, toId, count);
+          if (NET) NET.fortify(fromId, toId, count); else S.fortify(fromId, toId, count);
         } catch (e) { showError(e.message); }
       },
     });

@@ -206,7 +206,8 @@ Set from/to to null to skip. Otherwise move count armies along a friendly-connec
 
     // Score each owned territory
     const score = {};
-    for (const [id, t] of owned) {
+    for (const t of owned) {
+      const id = t.id;
       const adj = C.TERRITORIES[id].adjacency || [];
       const enemyNeighbors = adj.filter(a => state.territories[a].owner !== player.id).map(a => state.territories[a]);
       const isBorder = enemyNeighbors.length > 0;

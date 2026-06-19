@@ -94,6 +94,7 @@
     }
     gameSettings.model = opts.model;
     gameSettings.allowedPersonalities = (opts.personalities && opts.personalities.length) ? opts.personalities.slice() : C.PERSONALITIES.slice();
+    if (window.RISK_BANTER && !window.RISK_MULTIPLAYER_ACTIVE) window.RISK_BANTER.init();
     S.init({
       players,
       gameId: 'g_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -133,6 +134,7 @@
 
   // ---- Main game loop ----
   async function runLoop() {
+    if (window.RISK_MULTIPLAYER_ACTIVE) return; // server drives turns in multiplayer
     if (busy) return;
     busy = true;
     try {
@@ -298,10 +300,14 @@
   // ---- Boot ----
   async function boot() {
     UI.init();
-    if (window.RISK_BANTER) window.RISK_BANTER.init();
     wireUIHooks();
     wireAutoSave();
     await M.init(document.getElementById('map-container'));
+    // Multiplayer entry point (bypasses GAS login).
+    const mpBtn = document.getElementById('btn-multiplayer');
+    if (mpBtn && window.RISK_MULTIPLAYER) {
+      mpBtn.onclick = () => { document.getElementById('welcome-modal').style.display = 'none'; window.RISK_MULTIPLAYER.openLobby(); };
+    }
     UI.showWelcome();
   }
 
