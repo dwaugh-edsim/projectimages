@@ -6,7 +6,7 @@ import sys
 
 # Define base paths
 BASE_DIR = r"E:\Antigravity\simroom\Github Repos\projectimages\Cit9\Country-Profile-Project"
-STUDENT_DIR = os.path.join(BASE_DIR, "Student-work-June18version")
+STUDENT_DIR = os.path.join(BASE_DIR, "Student work June 19 version")
 OUTPUT_DIR = os.path.join(STUDENT_DIR, "converted")
 
 # Ensure output directory exists

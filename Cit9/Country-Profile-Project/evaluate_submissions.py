@@ -4,7 +4,7 @@ import json
 
 # Define base paths
 BASE_DIR = r"E:\Antigravity\simroom\Github Repos\projectimages\Cit9\Country-Profile-Project"
-CONVERTED_DIR = os.path.join(BASE_DIR, "Student-work-June18version", "converted")
+CONVERTED_DIR = os.path.join(BASE_DIR, "Student work June 19 version", "converted")
 DATA_FILE = os.path.join(CONVERTED_DIR, "extracted_data.js")
 OUTPUT_FILE = os.path.join(CONVERTED_DIR, "prefilled_evaluations.js")
 
