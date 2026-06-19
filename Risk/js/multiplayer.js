@@ -7,7 +7,9 @@
 // Smack-talk / banter is intentionally NOT loaded in multiplayer.
 
 window.RISK_MULTIPLAYER = (function () {
-  const UI = window.RISK_UI;
+  const UI = new Proxy({}, {
+    get: (target, prop) => window.RISK_UI ? window.RISK_UI[prop] : undefined
+  });
   const S = window.RISK_STATE;
   const C = window.RISK_CONFIG;
   const M = window.RISK_MAP;
