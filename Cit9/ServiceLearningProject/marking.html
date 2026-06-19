@@ -521,6 +521,7 @@
                             <div class="active-student-name" id="studentNameText">Elizabeth</div>
                             <button class="save-local-btn" onclick="openRawJSON()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px;">🔍 View Raw JSON</button>
                             <button class="save-local-btn" id="partnerToggleBtn" onclick="toggleToPartner()" style="display: none; padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px; background: var(--indigo-600); color: white; border-color: var(--indigo-600);">👥 Switch to Partner</button>
+                            <button class="save-local-btn" onclick="deferCurrentStudent()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px; background: var(--rose-500); color: white; border-color: var(--rose-500);">⏳ Defer Partner/Solo</button>
                         </div>
                         <div class="active-student-mission" id="studentMissionText">CIT-002: THE TAP AUDIT</div>
                     </div>
@@ -644,8 +645,25 @@
                 selectStudent(STUDENT_PARTNERS[selectedStudent]);
             }
         }
+
+        function deferCurrentStudent() {
+            if (!selectedStudent) return;
+            
+            const partner = STUDENT_PARTNERS[selectedStudent];
+            const toMove = partner ? [selectedStudent, partner] : [selectedStudent];
+            
+            // Remove from active roster sequence and append to bottom
+            ROSTER_LIST = ROSTER_LIST.filter(name => !toMove.includes(name));
+            ROSTER_LIST.push(...toMove);
+            
+            // Save state to persist order across reloads
+            localStorage.setItem('roster_list_order', JSON.stringify(ROSTER_LIST));
+            
+            renderRosterList();
+            alert(`Moved ${toMove.join(' & ')} to the bottom of the roster sequence.`);
+        }
         
-        const ROSTER_LIST = [
+        let ROSTER_LIST = [
             'Lachlan Mac', 'Lachlan McM',
             'Kendra', 'Zankia',
             'Evie',
@@ -760,6 +778,14 @@
         }
 
         async function initApp() {
+            // Load saved custom roster order if exists
+            const savedOrder = localStorage.getItem('roster_list_order');
+            if (savedOrder) {
+                try {
+                    ROSTER_LIST = JSON.parse(savedOrder);
+                } catch(e) {}
+            }
+
             // Load roster empty shells
             ROSTER_LIST.forEach(s => {
                 activeRosterData[s] = {
