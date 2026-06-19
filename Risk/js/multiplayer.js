@@ -219,6 +219,9 @@ window.RISK_MULTIPLAYER = (function () {
           localStorage.setItem('risk_mp_player_id', myPlayerId);
           localStorage.setItem('risk_mp_server_url', serverUrl);
         }
+        if (msg.started) {
+          enterGame();
+        }
         break;
       case 'lobby':
         renderLobby(msg);

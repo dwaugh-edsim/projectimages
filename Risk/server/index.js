@@ -136,7 +136,7 @@ function handle(ws, msg) {
       socketGame.set(ws, game);
 
       // Confirm reconnection and send state
-      send(ws, { t: 'joined', code, playerId });
+      send(ws, { t: 'joined', code, playerId, started: true });
       game.broadcastState();
       game.tick();
       break;
