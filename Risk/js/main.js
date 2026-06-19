@@ -274,15 +274,7 @@
       });
 
       try {
-        const cur = to.armies;
-        const extra = moveArmies - cur;
-        if (extra > 0) {
-          state.territories[fromId].armies -= extra;
-          state.territories[toId].armies += extra;
-          S.emit('territory', fromId);
-          S.emit('territory', toId);
-          S.log(`${state.players[state.currentPlayer].name} moves ${extra} more armies into ${C.TERRITORIES[toId].name}.`, 'fortify');
-        }
+        S.conquestMove(fromId, toId, moveArmies);
       } catch (e) { UI.showError(e.message); }
     });
   }
@@ -303,12 +295,21 @@
     wireUIHooks();
     wireAutoSave();
     await M.init(document.getElementById('map-container'));
+
+    // Check if we should auto-reconnect
+    let reconnecting = false;
+    if (window.RISK_MULTIPLAYER && window.RISK_MULTIPLAYER.checkReconnect) {
+      reconnecting = window.RISK_MULTIPLAYER.checkReconnect();
+    }
+
     // Multiplayer entry point (bypasses GAS login).
     const mpBtn = document.getElementById('btn-multiplayer');
     if (mpBtn && window.RISK_MULTIPLAYER) {
       mpBtn.onclick = () => { document.getElementById('welcome-modal').style.display = 'none'; window.RISK_MULTIPLAYER.openLobby(); };
     }
-    UI.showWelcome();
+    if (!reconnecting) {
+      UI.showWelcome();
+    }
   }
 
   function updateTradeButton() {

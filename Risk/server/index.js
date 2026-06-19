@@ -86,6 +86,22 @@ wss.on('connection', (ws, req) => {
       game.removePlayer(ws);
       if (!game.started) game.broadcast({ t: 'lobby', code: game.code, roster: game.humanRoster(), humans: game.humans, ai: game.ai });
       socketGame.delete(ws);
+
+      // Memory cleanup:
+      if (game.isEmpty()) {
+        if (!game.started) {
+          games.delete(game.code);
+          console.log(`[${game.code}] Empty lobby cleaned up.`);
+        } else {
+          if (!game.cleanupTimer) {
+            console.log(`[${game.code}] All humans disconnected. Starting 60s cleanup timer.`);
+            game.cleanupTimer = setTimeout(() => {
+              games.delete(game.code);
+              console.log(`[${game.code}] Game destroyed due to inactivity.`);
+            }, 60000);
+          }
+        }
+      }
     }
   });
 });
@@ -96,25 +112,54 @@ function send(ws, obj) {
 
 function handle(ws, msg) {
   switch (msg.t) {
+    case 'reconnect': {
+      const code = (msg.code || '').toUpperCase();
+      const game = games.get(code);
+      if (!game) throw new Error('Game session not found');
+      if (!game.started) throw new Error('Game not started yet');
+      const playerId = parseInt(msg.playerId, 10);
+      const expectedToken = game.reconnectTokens[playerId];
+      if (!expectedToken || expectedToken !== msg.token) {
+        throw new Error('Invalid reconnection token');
+      }
+
+      // Cancel any pending cleanup timer
+      if (game.cleanupTimer) {
+        clearTimeout(game.cleanupTimer);
+        game.cleanupTimer = null;
+        console.log(`[${code}] Reconnect detected. Cleanup timer cancelled.`);
+      }
+
+      // Associate socket
+      game.playerSocket[playerId] = ws;
+      game.socketPlayer[ws.__pid || (ws.__pid = Math.random().toString(36).slice(2))] = playerId;
+      socketGame.set(ws, game);
+
+      // Confirm reconnection and send state
+      send(ws, { t: 'joined', code, playerId });
+      game.broadcastState();
+      game.tick();
+      break;
+    }
     case 'create': {
       const humans = clamp(msg.humans || 3, 2, 6);
       const total = clamp(humans + (msg.ai || 0), 2, 6);
       const ai = total - humans;
       const code = makeCode();
       const game = new GameSession({ code, humans, ai, personalities: msg.personalities });
-      const slot = game.addPlayer(msg.name || 'Host', ws);
+      const { slot, token } = game.addPlayer(msg.name || 'Host', ws);
       games.set(code, game);
       socketGame.set(ws, game);
-      send(ws, { t: 'joined', code, playerId: slot });
+      send(ws, { t: 'joined', code, playerId: slot, reconnectToken: token });
       send(ws, { t: 'lobby', code, roster: game.humanRoster(), humans: game.humans, ai: game.ai });
       break;
     }
     case 'join': {
       const game = games.get((msg.code || '').toUpperCase());
       if (!game) throw new Error('Game not found');
-      const slot = game.addPlayer(msg.name || 'Player', ws);
+      const { slot, token } = game.addPlayer(msg.name || 'Player', ws);
       socketGame.set(ws, game);
-      send(ws, { t: 'joined', code: game.code, playerId: slot });
+      send(ws, { t: 'joined', code: game.code, playerId: slot, reconnectToken: token });
       game.broadcast({ t: 'lobby', code: game.code, roster: game.humanRoster(), humans: game.humans, ai: game.ai });
       break;
     }

@@ -353,6 +353,22 @@ window.RISK_STATE = (function () {
     enterFortify();
   }
 
+  function conquestMove(fromId, toId, totalArmies) {
+    if (state.phase !== C.PHASES.ATTACK) throw new Error('Not in attack phase');
+    const from = state.territories[fromId];
+    const to = state.territories[toId];
+    if (!from || !to) throw new Error('Bad territory');
+    if (from.owner !== state.currentPlayer || to.owner !== state.currentPlayer) throw new Error('Not your territory');
+    const extra = totalArmies - to.armies;
+    if (extra <= 0) return; // already moved that many or more
+    if (from.armies <= extra) throw new Error('Must leave at least 1 army');
+    from.armies -= extra;
+    to.armies += extra;
+    log(`${state.players[state.currentPlayer].name} moves ${extra} more armies into ${C.TERRITORIES[toId].name}.`, 'fortify');
+    emit('territory', fromId);
+    emit('territory', toId);
+  }
+
   // ============================================================
   // Phase: FORTIFY
   // Move armies from one owned territory to another connected owned territory.
@@ -464,7 +480,7 @@ window.RISK_STATE = (function () {
     log,
     claimTerritory, autoClaimForCurrentAI,
     placeArmy, endReinforce, autoPlaceInitialForCurrentAI,
-    attack, endAttack,
+    attack, endAttack, conquestMove,
     fortify, endFortify,
     endTurn,
     tradeCards,

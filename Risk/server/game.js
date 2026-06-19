@@ -39,6 +39,7 @@ class GameSession {
     this.started = false;
     this.playerSocket = {};   // playerId -> ws  (humans only)
     this.socketPlayer = {};   // ws -> playerId
+    this.reconnectTokens = {}; // slot -> token (for rejoining)
     this.turnTimer = null;
     this.tickScheduled = false;
   }
@@ -60,7 +61,9 @@ class GameSession {
     if (slot === -1) throw new Error('Game is full');
     this.humanSlots[slot] = { name: name || `Player ${slot + 1}`, socket, ready: false };
     this.socketPlayer[socketId(socket)] = slot;
-    return slot;
+    const token = Math.random().toString(36).slice(2);
+    this.reconnectTokens[slot] = token;
+    return { slot, token };
   }
 
   removePlayer(socket) {
@@ -70,11 +73,19 @@ class GameSession {
     delete this.socketPlayer[sid];
     if (!this.started) {
       this.humanSlots[slot] = null;
+      delete this.reconnectTokens[slot];
     } else {
       // Mid-game disconnect: leave the seat empty. Turn timer will auto-advance.
       const ws = this.playerSocket[slot];
       if (ws === socket) this.playerSocket[slot] = null;
     }
+  }
+
+  isEmpty() {
+    if (!this.started) {
+      return this.humanSlots.every(s => s === null);
+    }
+    return Object.values(this.playerSocket).every(ws => !ws || ws.readyState !== 1);
   }
 
   setReady(socket, ready) {
@@ -323,6 +334,9 @@ class GameSession {
           break;
         case 'endFortify':
           this.S.endFortify();
+          break;
+        case 'conquestMove':
+          if (msg.from && msg.to && msg.count > 0) this.S.conquestMove(msg.from, msg.to, msg.count);
           break;
         case 'endTurn':
           this.S.endTurn();

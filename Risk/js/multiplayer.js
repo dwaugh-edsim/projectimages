@@ -143,7 +143,7 @@ window.RISK_MULTIPLAYER = (function () {
       };
     });
 
-    els.cancel.onclick = () => { hideLobby(); if (ws) { try { ws.close(); } catch {} ws = null; } };
+    els.cancel.onclick = () => { hideLobby(); clearCredentials(); if (ws) { try { ws.close(); } catch {} ws = null; } location.reload(); };
     els.go.onclick = () => onGo(mode, els);
     els.ready.onclick = () => { send({ t: 'ready', ready: true }); };
     els.start.onclick = () => { send({ t: 'start' }); };
@@ -213,6 +213,12 @@ window.RISK_MULTIPLAYER = (function () {
         myPlayerId = msg.playerId;
         gameCode = msg.code;
         window.RISK_YOU = myPlayerId;
+        if (msg.reconnectToken) {
+          localStorage.setItem('risk_mp_token', msg.reconnectToken);
+          localStorage.setItem('risk_mp_code', gameCode);
+          localStorage.setItem('risk_mp_player_id', myPlayerId);
+          localStorage.setItem('risk_mp_server_url', serverUrl);
+        }
         break;
       case 'lobby':
         renderLobby(msg);
@@ -229,6 +235,10 @@ window.RISK_MULTIPLAYER = (function () {
       case 'error':
         UI.showError(msg.message);
         setLobbyStatus(msg.message, true);
+        if (localStorage.getItem('risk_mp_token')) {
+          clearCredentials();
+          setTimeout(() => { location.reload(); }, 2000);
+        }
         break;
     }
   }
@@ -281,15 +291,43 @@ window.RISK_MULTIPLAYER = (function () {
       send({ t: 'attack', from: fromId, to: toId, dice });
       return new Promise(resolve => { attackResolver = resolve; });
     });
-    UI.setHook('onConquest', null); // no extra-move slider in MVP; auto-move stands
+    UI.setHook('onConquest', async (fromId, toId, dice) => {
+      const state = S.get();
+      const from = state.territories[fromId];
+      const to = state.territories[toId];
+      const sliderMax = from.armies + to.armies - 1;
+      const sliderMin = Math.max(1, dice);
+
+      const moveArmies = await new Promise(resolve => {
+        const wrap = document.createElement('div');
+        wrap.className = 'modal-backdrop';
+        wrap.innerHTML = `<div class="modal"><h2 class="modal-title">Conquered ${C.TERRITORIES[toId].name}!</h2>
+          <div class="modal-body">
+            <p class="muted">Move at least ${sliderMin} armies (your dice count) into the new territory.</p>
+            <label>Armies: <span id="cnt">${sliderMax}</span>
+              <input id="sld" type="range" min="${sliderMin}" max="${sliderMax}" value="${sliderMax}">
+            </label>
+            <div class="modal-actions">
+              <button id="cfm" class="btn btn-primary">Confirm</button>
+            </div>
+          </div></div>`;
+        document.body.appendChild(wrap);
+        const sld = wrap.querySelector('#sld');
+        const cnt = wrap.querySelector('#cnt');
+        sld.oninput = () => cnt.textContent = sld.value;
+        wrap.querySelector('#cfm').onclick = () => { resolve(parseInt(sld.value, 10)); wrap.remove(); };
+      });
+
+      send({ t: 'conquestMove', from: fromId, to: toId, count: moveArmies });
+    });
     UI.setHook('onEndReinforce', () => send({ t: 'endReinforce' }));
     UI.setHook('onEndAttack', () => send({ t: 'endAttack' }));
     UI.setHook('onEndFortify', () => send({ t: 'endFortify' }));
     UI.setHook('onEndTurn', () => send({ t: 'endTurn' }));
     UI.setHook('onTradeCards', (cardIds) => send({ t: 'tradeCards', cardIds }));
-    UI.setHook('onNewGame', () => location.reload());
-    UI.setHook('onMainMenu', () => location.reload());
-    UI.setHook('onSaveQuit', () => { if (confirm('Leave this multiplayer game?')) location.reload(); });
+    UI.setHook('onNewGame', () => { clearCredentials(); location.reload(); });
+    UI.setHook('onMainMenu', () => { clearCredentials(); location.reload(); });
+    UI.setHook('onSaveQuit', () => { if (confirm('Leave this multiplayer game?')) { clearCredentials(); location.reload(); } });
 
     // Hide GAS/LLM-only controls that don't apply to multiplayer.
     ['btn-save', 'btn-settings'].forEach(id => { const b = document.getElementById(id); if (b) b.style.display = 'none'; });
@@ -310,5 +348,39 @@ window.RISK_MULTIPLAYER = (function () {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  return { openLobby, send };
+  function clearCredentials() {
+    localStorage.removeItem('risk_mp_token');
+    localStorage.removeItem('risk_mp_code');
+    localStorage.removeItem('risk_mp_player_id');
+  }
+
+  function checkReconnect() {
+    const token = localStorage.getItem('risk_mp_token');
+    const code = localStorage.getItem('risk_mp_code');
+    const playerId = localStorage.getItem('risk_mp_player_id');
+    const url = localStorage.getItem('risk_mp_server_url') || defaultWsUrl();
+    if (token && code && playerId) {
+      if (!lobbyEls) lobbyEls = buildLobbyDom();
+      lobbyEls.url.value = url;
+      showLobby();
+      setLobbyStatus('Reconnecting to room ' + code + '…');
+      lobbyEls.createRow.style.display = 'none';
+      lobbyEls.joinRow.style.display = 'none';
+      lobbyEls.go.style.display = 'none';
+      lobbyEls.cancel.style.display = '';
+
+      connect(url, () => {
+        send({
+          t: 'reconnect',
+          code: code,
+          playerId: parseInt(playerId, 10),
+          token: token
+        });
+      });
+      return true;
+    }
+    return false;
+  }
+
+  return { openLobby, send, checkReconnect, clearCredentials };
 })();
