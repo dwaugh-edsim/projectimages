@@ -1055,6 +1055,14 @@
                 try {
                     interviewQueue = JSON.parse(q);
                 } catch(e) {}
+            } else {
+                // Initial pre-population of first three sessions
+                interviewQueue = [
+                    "Lachlan Mac & Lachlan McM",
+                    "Kendra & Zankia",
+                    "Evie"
+                ];
+                saveQueue();
             }
             updateQueueUI();
         }
@@ -1073,9 +1081,21 @@
 
         function assignQueue(spot) {
             if (!selectedStudent) return;
-            // Remove student from any other spot if already in queue
-            interviewQueue = interviewQueue.map(n => n === selectedStudent ? "" : n);
-            interviewQueue[spot-1] = selectedStudent;
+            
+            const partner = STUDENT_PARTNERS[selectedStudent];
+            const queueValue = partner ? `${selectedStudent} & ${partner}` : selectedStudent;
+            
+            // Remove student, partner, or combined pair from any other spot if already in queue
+            interviewQueue = interviewQueue.map(n => {
+                if (!n) return "";
+                if (n === queueValue || n === selectedStudent || n === partner || 
+                    n.includes(selectedStudent) || (partner && n.includes(partner))) {
+                    return "";
+                }
+                return n;
+            });
+            
+            interviewQueue[spot-1] = queueValue;
             saveQueue();
         }
 
