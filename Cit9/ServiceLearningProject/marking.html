@@ -517,9 +517,10 @@
             <div id="workspaceContent" style="display:none; height:100%; flex-direction:column; overflow:hidden;">
                 <div class="workspace-header">
                     <div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                             <div class="active-student-name" id="studentNameText">Elizabeth</div>
                             <button class="save-local-btn" onclick="openRawJSON()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px;">🔍 View Raw JSON</button>
+                            <button class="save-local-btn" id="partnerToggleBtn" onclick="toggleToPartner()" style="display: none; padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px; background: var(--indigo-600); color: white; border-color: var(--indigo-600);">👥 Switch to Partner</button>
                         </div>
                         <div class="active-student-mission" id="studentMissionText">CIT-002: THE TAP AUDIT</div>
                     </div>
@@ -622,6 +623,27 @@
 
     <script>
         const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        
+        const STUDENT_PARTNERS = {
+            'Lachlan Mac': 'Lachlan McM', 'Lachlan McM': 'Lachlan Mac',
+            'Kendra': 'Zankia', 'Zankia': 'Kendra',
+            'Jessa': 'Delisha', 'Delisha': 'Jessa',
+            'Natalia': 'Rifa', 'Rifa': 'Natalia',
+            'Josie': 'Laila', 'Laila': 'Josie',
+            'Joshua A': 'Nolan', 'Nolan': 'Joshua A',
+            'Madhavan': 'Remy', 'Remy': 'Madhavan',
+            'Elizabeth': 'Alia', 'Alia': 'Elizabeth',
+            'Sarah': 'Yunho', 'Yunho': 'Sarah',
+            'Abdul': 'Farhan', 'Farhan': 'Abdul',
+            'Kai': 'Ali', 'Ali': 'Kai',
+            'Clark': 'Leo', 'Leo': 'Clark'
+        };
+
+        function toggleToPartner() {
+            if (selectedStudent && STUDENT_PARTNERS[selectedStudent]) {
+                selectStudent(STUDENT_PARTNERS[selectedStudent]);
+            }
+        }
         
         const ROSTER_LIST = [
             'Lachlan Mac', 'Lachlan McM',
@@ -912,6 +934,16 @@
             // Rating (with LocalStorage restore check)
             const localRating = localStorage.getItem(`rating_${sid}`);
             setRating(localRating !== null ? localRating : (data.teacherQuality || "Adequate"), false);
+
+            // Update partner button visibility
+            const partnerBtn = document.getElementById('partnerToggleBtn');
+            const partner = STUDENT_PARTNERS[sid];
+            if (partner) {
+                partnerBtn.textContent = `👥 Switch to ${partner}`;
+                partnerBtn.style.display = 'inline-block';
+            } else {
+                partnerBtn.style.display = 'none';
+            }
         }
 
         function setRating(rating, uiOnly = false) {
