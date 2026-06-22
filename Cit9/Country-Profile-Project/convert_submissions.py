@@ -185,8 +185,8 @@ def main():
                 # Open presentation headlessly (WithWindow = False)
                 pres = ppt_app.Presentations.Open(os.path.abspath(file_path), True, False, False)
                 
-                # Export slides as PNG
-                pres.SaveAs(os.path.abspath(student_folder_abs), 18) # 18 = ppSaveAsPNG
+                # Export slides as JPG
+                pres.SaveAs(os.path.abspath(student_folder_abs), 17) # 17 = ppSaveAsJPG
                 
                 # Extract slide text
                 for slide in pres.Slides:
@@ -208,15 +208,15 @@ def main():
                         
                     raw_text_corpus += " " + slide_title + " " + " ".join(slide_text)
                     
-                    # File path check: PowerPoint saves files as Slide1.PNG, Slide2.PNG etc.
-                    image_filename = f"Slide{slide_index}.PNG"
-                    # Check case sensitivity (it might save as PNG or png)
+                    # File path check: PowerPoint saves files as Slide1.JPG, Slide2.JPG etc.
+                    image_filename = f"Slide{slide_index}.JPG"
+                    # Check case sensitivity (it might save as JPG or jpg)
                     if not os.path.exists(os.path.join(student_folder_abs, image_filename)):
-                        image_filename = f"slide{slide_index}.png"
+                        image_filename = f"slide{slide_index}.jpg"
                         if not os.path.exists(os.path.join(student_folder_abs, image_filename)):
                             # Check all files in folder to match
                             for f_in_folder in os.listdir(student_folder_abs):
-                                if f_in_folder.lower() == f"slide{slide_index}.png":
+                                if f_in_folder.lower() == f"slide{slide_index}.jpg":
                                     image_filename = f_in_folder
                                     break
                                     

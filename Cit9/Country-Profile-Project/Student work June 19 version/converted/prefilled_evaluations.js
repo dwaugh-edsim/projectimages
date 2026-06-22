@@ -1,18 +1,5 @@
 // Automatically pre-filled evaluations
 const prefilledEvaluations = {
-    "Abdul Rahman Aboukoura - Global Issue Project.docx": {
-        "scores": {
-            "intro": 1,
-            "actions": 1,
-            "consequences": 1,
-            "canada": 1,
-            "reflection": 1
-        },
-        "checkCitations": false,
-        "checkVisuals": false,
-        "praise": "<strong>What's looking great:</strong><br>\n\u2022 The slide layout is initialized and ready for your content.",
-        "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>Replace template placeholders:</strong> This file currently contains empty template instructions. Replace all text and shapes with your own research.</li>\n  <li><strong>Add content:</strong> Research your country and selected global issue to complete slides 2-6.</li>\n</ul>"
-    },
     "afghanistan.pptx": {
         "scores": {
             "intro": 4,
@@ -38,19 +25,6 @@ const prefilledEvaluations = {
         "checkVisuals": true,
         "praise": "<strong>What's looking great:</strong><br>\n\u2022 Excellent work setting up your country background for Egypt. The introduction to Water Security and the Nile River Dispute clearly establishes the global context.\n\u2022 Your analysis of the government's response or lack of response is clear and supported by specific policies.\n\u2022 You did a solid job identifying intended and unintended consequences, along with short and long-term impacts.\n\u2022 The comparison to Canada's actions is well-integrated and draws clear similarities or differences.\n\u2022 Your reflection slide is thoughtful and provides a clear argument on why Canadians should care.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
         "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>APA Citations:</strong> Add at least 2 credible sources formatted in proper APA style at the bottom of each slide.</li>\n</ul>"
-    },
-    "amazon deforestation cit9 presentation.pptx": {
-        "scores": {
-            "intro": 3,
-            "actions": 4,
-            "consequences": 3,
-            "canada": 2,
-            "reflection": 1
-        },
-        "checkCitations": false,
-        "checkVisuals": true,
-        "praise": "<strong>What's looking great:</strong><br>\n\u2022 Excellent work setting up your country background for Brazil. The introduction to Deforestation in the Amazon Rainforest clearly establishes the global context.\n\u2022 Your analysis of the government's response or lack of response is clear and supported by specific policies.\n\u2022 You did a solid job identifying intended and unintended consequences, along with short and long-term impacts.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
-        "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>Add Canada comparison:</strong> Dedicate slides to compare how Canada is handling this same global issue relative to your selected country.</li>\n  <li><strong>Develop your reflection:</strong> Make sure you clearly explain why everyday Canadians should care about this global issue (shared climate, moral duty, trade connections).</li>\n  <li><strong>APA Citations:</strong> Add at least 2 credible sources formatted in proper APA style at the bottom of each slide.</li>\n</ul>"
     },
     "Global Issue Project by Delisha - Citizenship 9.pptx": {
         "scores": {
@@ -246,5 +220,44 @@ const prefilledEvaluations = {
         "checkVisuals": true,
         "praise": "<strong>What's looking great:</strong><br>\n\u2022 Excellent work setting up your country background for Turkey. The introduction to Earthquake Preparedness & Disaster Response clearly establishes the global context.\n\u2022 Your analysis of the government's response or lack of response is clear and supported by specific policies.\n\u2022 You did a solid job identifying intended and unintended consequences, along with short and long-term impacts.\n\u2022 The comparison to Canada's actions is well-integrated and draws clear similarities or differences.\n\u2022 Your reflection slide is thoughtful and provides a clear argument on why Canadians should care.\n\u2022 Sources are cited correctly and credibility is high.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
         "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n\n</ul>"
+    },
+    "Abdul Rahman Aboukoura - Global Issue Project.pptx": {
+        "scores": {
+            "intro": 2,
+            "actions": 2,
+            "consequences": 2,
+            "canada": 1,
+            "reflection": 1
+        },
+        "checkCitations": true,
+        "checkVisuals": true,
+        "praise": "<strong>What's looking great:</strong><br>\n\u2022 Sources are cited correctly and credibility is high.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
+        "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>Flesh out your country introduction:</strong> Introduce basic facts about Somalia (location, language, culture) and define Food Security & Drought clearly on slide 2.</li>\n  <li><strong>Detail government actions:</strong> Research exactly what policies, laws, or programs the government has implemented to respond to the issue.</li>\n  <li><strong>Analyze consequences:</strong> Clearly separate intended results from unintended side-effects. Who suffers or benefits from these choices?</li>\n  <li><strong>Add Canada comparison:</strong> Dedicate slides to compare how Canada is handling this same global issue relative to your selected country.</li>\n  <li><strong>Develop your reflection:</strong> Make sure you clearly explain why everyday Canadians should care about this global issue (shared climate, moral duty, trade connections).</li>\n</ul>"
+    },
+    "Ali Kai amazon deforestation cit9 presentation.pptx": {
+        "scores": {
+            "intro": 3,
+            "actions": 4,
+            "consequences": 3,
+            "canada": 2,
+            "reflection": 1
+        },
+        "checkCitations": false,
+        "checkVisuals": true,
+        "praise": "<strong>What's looking great:</strong><br>\n\u2022 Excellent work setting up your country background for Egypt. The introduction to Water Security and the Nile River Dispute clearly establishes the global context.\n\u2022 Your analysis of the government's response or lack of response is clear and supported by specific policies.\n\u2022 You did a solid job identifying intended and unintended consequences, along with short and long-term impacts.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
+        "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>Add Canada comparison:</strong> Dedicate slides to compare how Canada is handling this same global issue relative to your selected country.</li>\n  <li><strong>Develop your reflection:</strong> Make sure you clearly explain why everyday Canadians should care about this global issue (shared climate, moral duty, trade connections).</li>\n  <li><strong>APA Citations:</strong> Add at least 2 credible sources formatted in proper APA style at the bottom of each slide.</li>\n</ul>"
+    },
+    "evie - amazon deforestation cit9 presentation.pptx": {
+        "scores": {
+            "intro": 3,
+            "actions": 4,
+            "consequences": 3,
+            "canada": 2,
+            "reflection": 1
+        },
+        "checkCitations": false,
+        "checkVisuals": true,
+        "praise": "<strong>What's looking great:</strong><br>\n\u2022 Excellent work setting up your country background for Brazil. The introduction to Deforestation in the Amazon Rainforest clearly establishes the global context.\n\u2022 Your analysis of the government's response or lack of response is clear and supported by specific policies.\n\u2022 You did a solid job identifying intended and unintended consequences, along with short and long-term impacts.\n\u2022 Slides are formatted cleanly with concise bullet points and good visual organization.",
+        "nextSteps": "<strong>Next steps to focus on:</strong>\n<ul>\n  <li><strong>Add Canada comparison:</strong> Dedicate slides to compare how Canada is handling this same global issue relative to your selected country.</li>\n  <li><strong>Develop your reflection:</strong> Make sure you clearly explain why everyday Canadians should care about this global issue (shared climate, moral duty, trade connections).</li>\n  <li><strong>APA Citations:</strong> Add at least 2 credible sources formatted in proper APA style at the bottom of each slide.</li>\n</ul>"
     }
 };
