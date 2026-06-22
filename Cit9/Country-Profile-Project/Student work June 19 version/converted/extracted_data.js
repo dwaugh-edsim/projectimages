@@ -1678,11 +1678,11 @@ const studentSubmissions = [
     {
         "filename": "Ali Kai amazon deforestation cit9 presentation.pptx",
         "fileSize": 14823457,
-        "studentNames": "Ali & Kai",
-        "topicId": 26,
-        "country": "Egypt",
-        "issue": "Water Security and the Nile River Dispute",
-        "questions": "Who controls the Nile? What is the Ethiopia dispute? How does this affect Egypt?",
+        "studentNames": "Evie",
+        "topicId": 2,
+        "country": "Brazil",
+        "issue": "Deforestation in the Amazon Rainforest",
+        "questions": "What laws exist against deforestation? How are they enforced? Who profits from deforestation?",
         "type": "pptx",
         "convertedFolder": "converted/Ali_Kai_amazon_deforestation_cit9_presentation",
         "slides": [

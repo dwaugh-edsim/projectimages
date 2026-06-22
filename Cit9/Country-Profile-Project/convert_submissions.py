@@ -83,19 +83,7 @@ def find_matching_topic(filename, text_content, topics_list, claimed_topics):
         if country_lower in filename_lower:
             return topic
             
-    # 2. Match by student names in the filename
-    for topic_id, students in claimed_topics.items():
-        individual_names = re.split(r'\s+&\s+|\s+and\s+|,', students.lower())
-        for name in individual_names:
-            name = name.strip()
-            if len(name) >= 3:
-                pattern = r'\b' + re.escape(name) + r'\b'
-                if re.search(pattern, filename_lower):
-                    for topic in topics_list:
-                        if topic["id"] == topic_id:
-                            return topic
-                        
-    # 3. Match keywords in the filename
+    # 2. Match keywords in the filename
     keyword_map = {
         "amazon": "Brazil",
         "deforestation": "Brazil",
@@ -119,6 +107,18 @@ def find_matching_topic(filename, text_content, topics_list, claimed_topics):
             for topic in topics_list:
                 if topic["country"].lower() == country.lower():
                     return topic
+                    
+    # 3. Match by student names in the filename
+    for topic_id, students in claimed_topics.items():
+        individual_names = re.split(r'\s+&\s+|\s+and\s+|,', students.lower())
+        for name in individual_names:
+            name = name.strip()
+            if len(name) >= 3:
+                pattern = r'\b' + re.escape(name) + r'\b'
+                if re.search(pattern, filename_lower):
+                    for topic in topics_list:
+                        if topic["id"] == topic_id:
+                            return topic
                     
     # 4. Fallback search (using extracted text)
     if text_content:
