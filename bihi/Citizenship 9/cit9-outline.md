@@ -1,4 +1,4 @@
-﻿# Citizenship 9 — Master Course Plan (90 Classes)
+# Citizenship 9 — Master Course Plan (90 Classes)
 
 > **Status:** Rewrite — adds unit tests throughout, restructures Unit 2 and 5 with MM Studies content, keeps Service Learning Project structure. Aligned to `cit9-assessment-plan.md`, `cit9-outcomes-enhanced.md`, `cit9-simulation-concepts.md`, and `cit9-study-content.md`. MM Studies 11 Units 10–14 recycled into Units 2 and 5 at Grade 9 level. All class titles, activities, and resources below trace back to those source documents.
 
@@ -103,10 +103,11 @@ Outcomes are ordered to build civic identity from "I" → "we" → "the system" 
 
 **Class 1 — "Citizens, Begin." (Cycle 1, ~Sept 3)**
 
-- **Activity:** Course opener. Students receive the year-at-a-glance (the calendar spine table above) and the unit map. Set up the personal reflection log (Google Doc or paper-based exit slips). Introduce the **Service Learning Project** as the course's spine: by year-end, every student will have planned and contributed to a real project addressing a real community need. Class norms established (mutual respect, "step out / step up" language, anonymous option for sensitive contributions, no personal-attack norms). Warm-up: **4-corners on "What does a citizen do?"** — surfaces prior knowledge and frames the year.
-- **Materials:** Calendar spine (one-page handout), Service Learning Project overview (one-page from `ServiceLearningIntro.html`), reflection log template, norms anchor chart.
+- **Activity:** Course opener. First 15 min: **"A Citizen I'd Like to Meet" (Head-to-Toe)** — using the body-outline template (`resources/Unit_01_Engaged_Citizenship/1. Citizenship Head-to-toe_.docx`), students brainstorm the qualities of an "engaged citizen" and illustrate/label them on the template (e.g., a citizen who "sees others' points of view" might draw a large eye). Gallery walk of drawings — what qualities appeared most? Least? Which do you already have? Bring the drawings back in Class 90 as a bookend: "Would you change anything now?"
+Remaining class time: Students receive the year-at-a-glance (the calendar spine table above) and the unit map. Set up the personal reflection log (Google Doc or paper-based exit slips). Introduce the **Service Learning Project** as the course's spine: by year-end, every student will have planned and contributed to a real project addressing a real community need. Class norms established (mutual respect, "step out / step up" language, anonymous option for sensitive contributions, no personal-attack norms).
+- **Materials:** Body-outline template (`resources/Unit_01_Engaged_Citizenship/1. Citizenship Head-to-toe_.docx`), coloured pencils/markers, calendar spine (one-page handout), Service Learning Project overview (one-page from `ServiceLearningIntro.html`), reflection log template, norms anchor chart. **Keep drawings — return them in Class 90.**
 - **Homework/Extension:** Pre-read `ServiceLearningIntro.html` (10 min). Reflection #1: "What's one thing I already do that counts as citizenship?" (private, teacher feedback only).
-- **Assessment:** Norms co-created (formative participation); reflection #1 (formative).
+- **Assessment:** Norms co-created (formative participation); Head-to-Toe drawing (formative, kept for Class 90 comparison); reflection #1 (formative).
 
 **Class 2 — "The Need Hunt Begins" (Cycle 1, ~Sept 3)**
 
@@ -202,19 +203,19 @@ Outcomes are ordered to build civic identity from "I" → "we" → "the system" 
 - **Homework/Extension:** Identify 1 unused skill you'd like to deploy this term (could be in your project or another context).
 - **Assessment:** Wheel mapping (formative, collected).
 
-**Class 13 — "Predicting My Future Citizen Self" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 13 — "Living Timeline — Canadian Citizenship & Enfranchisement" (Cycle 3, ~Sept 29 – Oct 10)**
 
-- **Activity:** **Citizenship Role Timeline Prediction.** In pairs, students choose a fictional or real character and write a 1-page prediction: "How will their role as a citizen change at ages 18, 30, 65?" Then they self-predict the same. Discussion: which rights/responsibilities are *chosen* and which are *automatic*? Bridge: when you're 18, will you vote? Why or why not? (Anti-preface to Unit 5 Mock Election.) Connection to worldview work — your future citizen self inherits from your present worldview.
-- **Materials:** Prediction template, discussion prompts.
-- **Homework/Extension:** Self-prediction paragraph (reflection log).
-- **Assessment:** Pair predictions (formative, collected); self-prediction (reflection log).
+- **Activity:** **Living Timeline of Canadian Citizenship** (full lesson from `resources/Unit_02_Who_Am_I_as_a_Citizen/Living Timeline_Canadian Citizenhip_ Lesson_.docx`). Class forms ~13 pairs/trios; each group receives a **blank timeline card** (`Timeline Cards_Blank_.docx`) with an assigned date/event (e.g., 1867 Confederation, 1885 Chinese Immigration Act, 1918 women's federal vote, 1960 First Nations voting rights, 1982 Charter, 2015 Indigenous peoples vote in full for first time since 1876). Groups research their event, write concise facts on the card, and design an illustrative symbol. Groups physically stand on a rope timeline scaled to the room (teacher sets scale ahead of time — e.g., 50 cm per decade). **Sticky note wrap-up:** each student writes (1) the most significant event and why on one colour sticky note, (2) a predicted future citizenship change on another colour — placed on the timeline in the correct position including the future.
+- **Materials:** Blank timeline cards (`resources/Unit_02_Who_Am_I_as_a_Citizen/Timeline Cards_Blank_.docx`), teacher reference deck (`Timeline of Canadian Citizenship and Franchisement_Teacher resource.docx`), string/yarn or craft paper for the timeline, markers, sticky notes (2 colours), plain paper for symbols, classroom devices for research.
+- **Homework/Extension:** Pick one timeline event and write a 1-paragraph "why this still matters" reflection before Class 14.
+- **Assessment:** Timeline card (formative, collected); sticky-note evidence of comprehension and critical thinking (formative, teacher reviews for "most significant" reasoning quality).
 
-**Class 14 — "Citizenship Role Timeline Prediction (Socratic Seminar)" (Cycle 3, ~Sept 29 – Oct 10)**
+**Class 14 — "Living Timeline Debrief + Four Corners on Enfranchisement" (Cycle 3, ~Sept 29 – Oct 10)**
 
-- **Activity:** **Socratic seminar** on the predictions from Class 13. Teacher-prepared opening question (e.g., "What civic responsibilities should be automatic and which should be chosen?"); students respond using their own and their partner's predictions as evidence. Teacher holds the circle, tracks who speaks, pulls in quieter voices. Last 10 min: connect to Unit 1 Service Learning — your citizen-self is already active in your project. Bridge to 2B: now that we have the conceptual toolkit, we'll examine whose citizenship has been systematically denied or constrained, beginning with residential schools.
-- **Materials:** Seminar circle setup, sentence-stems poster ("I agree with X because…", "X's point about Y challenges my assumption that…"), observation checklist.
+- **Activity:** Start with the physical timeline still up. Whole-class discussion using the teacher guide questions (from `Living Timeline_Canadian Citizenhip_ Lesson_.docx`): *What surprised you? Which changes were hardest won? Are all changes progressive? What's missing?* (Surface omissions — e.g., Trans rights, disability rights, Bill C-31 Indigenous women reinstated.) Then **four-corners debate** using 4–5 of the sticky-note predictions from Class 13 as the motion statements ("Permanent residents should be able to vote in municipal elections," "Dual citizens should be able to hold any elected office," etc.). Students move to their corner (Strongly Agree / Agree / Disagree / Strongly Disagree) and defend their position. Debrief: what does this tell us about *who decides* who is a citizen? Bridge: we've seen how citizenship has changed over time for different groups — now we go deeper on the group whose citizenship was most systematically denied. Residential schools unit begins next class.
+- **Materials:** Timeline still displayed, four-corners signs, sentence-stems poster, sticky-note predictions from Class 13.
 - **Homework/Extension:** Read Treaty Education primer (provided) for next class.
-- **Assessment:** Participation in seminar (formative, observation checklist).
+- **Assessment:** Four-corners participation (formative, observation checklist); quality of reasoning in corner defence.
 
 **Class 15 — 🌱 SERVICE LEARNING CHECK-IN #1 + Rights Timeline Presentations (Cycle 3, ~Sept 29 – Oct 10)**
 
@@ -546,12 +547,13 @@ Outcomes are ordered to build civic identity from "I" → "we" → "the system" 
 - **Homework/Extension:** Bring 1 quote from a family member about "Canadian values."
 - **Assessment:** Survey responses (formative); critical analysis (collected).
 
-**Class 55 — "Political Spectrum Self-Location + Party Platform Intro" (Cycle 11, ~Feb 2)**
+**Class 55 — "How Does a Group Decide? + Political Spectrum Self-Location" (Cycle 11, ~Feb 2)**
 
-- **Activity:** Using `political-spectrum/` resources, students explore the political spectrum (left/right, but also authoritarian/libertarian, progressive/traditional, federalist/sovereigntist). Self-locate on a class-generated political spectrum (built from real current issues, not abstract labels). Discussion: do my views fit one party? Do I have views that span parties? What's my "fit" — and what does that mean for civic engagement? Use **IsideWith**, Vote Compass, or similar tools as data sources (not as definitive labels). Bridge to Mock Election.
-- **Materials:** Political spectrum resources (`political-spectrum/`), self-location worksheet, current issues list.
+- **Activity:** First 25 min: **Tower Building Simulation** (`resources/Unit_01_Engaged_Citizenship/2. Citizenship  Communitites Intro Activity_.docx`) — class splits into A groups (teacher-assigned authoritarian leader, no dissent allowed), B groups (elected leader, questions OK, no objections once decided), C groups (full collaborative consensus, any structure). Build the tallest free-standing tower from craft materials in 20 minutes. **Debrief:** which group "won"? How did decision-making work? Who was heard? What happens when citizens disagree? Pulls the governance thread that runs through the year into focus just before the Mock Election.
+Remaining class: Using `political-spectrum/` resources, students explore the political spectrum (left/right, also authoritarian/libertarian). Self-locate on a class-generated spectrum built from real current issues. Discussion: do my views fit one party? Use **IsideWith** or Vote Compass as data sources (not as definitive labels). Bridge to Mock Election.
+- **Materials:** Craft materials (straws, pipe-cleaners, cups, tape, clay — enough for each team), timer, political spectrum resources (`political-spectrum/`), self-location worksheet, current issues list.
 - **Homework/Extension:** Take Vote Compass for fun — bring your result next class.
-- **Assessment:** Self-location worksheet (formative, private).
+- **Assessment:** Tower debrief participation (formative); self-location worksheet (formative, private).
 
 **Class 56 — "Mock NS Election — Parties Form" (Cycle 12, ~Feb 16)**
 
@@ -581,12 +583,13 @@ Outcomes are ordered to build civic identity from "I" → "we" → "the system" 
 - **Homework/Extension:** Exit slip: "What did running a democracy teach me that I didn't know about democracy?"
 - **Assessment:** **Summative 5A — Vote Justification + Reflection (4%)** (rubric: reasoning, evidence, engagement with simulation limits).
 
-**Class 60 — "Idle No More Case Study" (Cycle 12, ~Feb 16)**
+**Class 60 — "Sounds of Social Studies + Idle No More Case Study" (Cycle 12, ~Feb 16)**
 
-- **Activity:** **Idle No More** case study — the 2012–13 Indigenous-led protest movement that began in Canada (partly with NS/Atlantic Canada roots) and spread across Turtle Island. Anchor in MM Studies Unit 12 content. Students investigate: (1) what was the spark (Bill C-45, omnibus legislation that weakened environmental protections on reserve lands); (2) what tactics were used (round dances, flash mobs, blockades, social media); (3) what were the legal outcomes (Attawapiskat Chief Theresa Spence's hunger strike, INM Day of Action Jan 11 2013); (4) what was the lasting impact (continuing movement, Idle No More + Land Back). Discussion: what was the protest trying to achieve? What does it reveal about the limits of formal political channels?
-- **Materials:** MM Studies Unit 12 Idle No More materials, video clips (round dance footage — verify), INM Day of Action timeline, discussion prompts.
+- **Activity:** First 20 min: **Sounds of Social Studies — Protest Music** (`resources/Unit_05_Governance/Sounds of Social Studies lesson idea.docx`). Teacher prepares a short playlist of 3–4 protest/advocacy songs with Indigenous or social justice themes (e.g., *Buffy Sainte-Marie — "Now That the Buffalo's Gone"*, *A Tribe Called Red — "Stadium Pow Wow"*, *Gord Downie — "The Stranger"* from Secret Path, *Lido Pimienta — "Nada"*). Students read lyrics first, predict style and issue, listen to 90-second clip, then complete the Song Analysis sheet (`resources/Unit_05_Governance/Song Analysis_ Sounds of Social Studies_.docx`): What's the message? Who is the audience? Is the song effective as civic action? Mini-share-out.
+Remaining class: **Idle No More** case study — the 2012–13 Indigenous-led protest movement (MM Studies Unit 12). Students investigate: (1) the spark (Bill C-45, omnibus legislation weakening environmental protections on reserve lands); (2) tactics (round dances, flash mobs, blockades, social media); (3) outcomes (Theresa Spence hunger strike, INM Day of Action Jan 11 2013); (4) lasting impact (Land Back movement). Discussion: how does protest music connect to protest movements? What does it reveal about the limits of formal political channels?
+- **Materials:** Song playlist (teacher-prepared; use clean versions), Song Analysis sheets (`resources/Unit_05_Governance/Song Analysis_ Sounds of Social Studies_.docx`), MM Studies Unit 12 Idle No More materials, video clips (round dance footage — verify), INM Day of Action timeline.
 - **Homework/Extension:** Pre-read Sipekne'katik 2020 lobster dispute case for Class 61.
-- **Assessment:** Case study analysis worksheet (formative, collected).
+- **Assessment:** Song Analysis sheet (formative, collected); case study analysis worksheet (formative, collected).
 
 **Class 61 — "Sipekne'katik 2020 — Mi'kmaw Treaty Right vs. Commercial Fishery" (Cycle 13, ~Mar 9)**
 
