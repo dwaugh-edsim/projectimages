@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Dossier: Quote Investigation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
+        body { font-family: 'Courier Prime', monospace; background: #f4f4f4; padding: 40px; line-height: 1.4; color: #000; transition: background 0.3s; }
+        .dossier { max-width: 950px; margin: 0 auto; background: #fff; border: 2px solid #000; padding: 50px; position: relative; box-shadow: 20px 20px 0 rgba(0,0,0,0.05); }
+        .header { border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        h1 { font-family: 'Special Elite', cursive; font-size: 28px; margin: 0; text-transform: uppercase; }
+        
+        .literal-tips { background: #fffde7; border: 1px solid #ffe57f; padding: 15px; margin-bottom: 25px; font-size: 0.85rem; }
+        .literal-tips strong { color: #c0392b; }
+
+        .section-title { background: #000; color: #fff; padding: 5px 15px; font-weight: bold; display: inline-block; margin: 25px 0 10px 0; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #000; padding: 12px; text-align: left; vertical-align: top; }
+        th { background: #eee; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+        
+        textarea, .display-text { width: 100%; border: none; background: transparent; font-family: 'Courier Prime', monospace; font-size: 14px; resize: none; min-height: 80px; outline: none; padding: 0; white-space: pre-wrap; }
+        textarea:focus { background: #fffde7; }
+        .display-text { display: none; color: #1a1a1a; font-weight: bold; }
+        
+        .toolbar { position: sticky; top: 0; background: rgba(255,255,255,0.9); padding: 10px; border-bottom: 2px solid #000; z-index: 100; margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
+        .btn { background: #000; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-family: 'Special Elite', cursive; text-transform: uppercase; }
+        .btn-finalize { background: #c0392b; }
+
+        body.final-mode { background: #2c3e50; padding: 20px; }
+        body.final-mode .toolbar, body.final-mode textarea, body.final-mode .literal-tips { display: none; }
+        body.final-mode .display-text { display: block; }
+        body.final-mode .dossier { border-width: 10px; border-color: #000; }
+        #exitFinal { display: none; position: fixed; top: 10px; right: 10px; z-index: 1000; }
+        body.final-mode #exitFinal { display: block; }
+
+        @media print { .toolbar, #exitFinal, .literal-tips { display: none; } body { padding: 0; background: white; } .dossier { box-shadow: none; border: 1px solid #000; width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <button id="exitFinal" class="btn" onclick="toggleFinalMode(false)">Back to Editing</button>
+
+    <div class="toolbar">
+        <button class="btn btn-finalize" onclick="toggleFinalMode(true)">Finalize for Screenshot</button>
+        <button class="btn" onclick="exportToClassroom()">Copy Text</button>
+        <span id="saveStatus" style="margin-left: 10px; font-size: 12px; font-weight: bold; align-self: center;"></span>
+    </div>
+
+    <div class="dossier">
+        <div class="header">
+            <div>
+                <h1>Subject: Quote Investigation</h1>
+                <p>Digital Investigation Report</p>
+            </div>
+            <div class="case-num">CASE: OC-10-QUOTE</div>
+        </div>
+
+        <div class="literal-tips">
+            <strong>HOW TO SOLVE THIS:</strong> 
+            1. Look for the <strong>Gold Quote</strong> on the classroom screen. <br>
+            2. Find that exact same sentence or phrase on your paper.<br>
+            3. Explain the <strong>History</strong> of that quote using the legend on the screen.
+        </div>
+
+        <p><strong>Agent Name:</strong> <input type="text" id="agentName" style="border:none; border-bottom:1px solid #ccc; font-family: inherit; width: 200px;" placeholder="ENTER NAME..."></p>
+
+        <div class="section-title">Mission 01: The Quote Investigator</div>
+        <table>
+            <tr>
+                <th width="35%">Find this Quote on Page 10</th>
+                <th width="65%">Historical Significance (Why does it matter?)</th>
+            </tr>
+            <tr>
+                <td><strong>1. "Director of Child Welfare"</strong></td>
+                <td><textarea id="q1" placeholder="Type the historical connection here..."></textarea><div class="display-text" id="q1Display"></div></td>
+            </tr>
+            <tr>
+                <td><strong>2. "Child Welfare Act"</strong></td>
+                <td><textarea id="q2" placeholder="Type the historical connection here..."></textarea><div class="display-text" id="q2Display"></div></td>
+            </tr>
+            <tr>
+                <td><strong>3. "Historical Trauma"</strong></td>
+                <td><textarea id="q3" placeholder="Type the historical connection here..."></textarea><div class="display-text" id="q3Display"></div></td>
+            </tr>
+            <tr>
+                <td><strong>4. "Give me the pen."</strong></td>
+                <td><textarea id="q4" placeholder="Type the historical connection here..."></textarea><div class="display-text" id="q4Display"></div></td>
+            </tr>
+        </table>
+
+        <div class="section-title">Mission 02: Final Verdict</div>
+        <p>Based on your analysis of these 4 quotes, is Joey's removal a "Personal Failure" or a "Systemic Outcome" of history?</p>
+        <textarea id="verdict" style="min-height: 150px; border: 1px solid #eee; padding: 15px;"></textarea>
+        <div class="display-text" id="verdictDisplay" style="min-height: 150px; padding: 20px; background: #fafafa;"></div>
+
+        <footer style="margin-top: 30px; font-size: 10px; text-align: center; border-top: 1px solid #000; padding-top: 15px; opacity: 0.5;">
+            DIGITAL SUBMISSION PORTAL - MI'KMAW STUDIES 11
+        </footer>
+    </div>
+
+    <script>
+        const fields = ['agentName', 'q1', 'q2', 'q3', 'q4', 'verdict'];
+
+        function toggleFinalMode(isFinal) {
+            if (isFinal) {
+                fields.forEach(f => {
+                    const val = document.getElementById(f).value;
+                    const display = document.getElementById(f + 'Display');
+                    if (display) display.textContent = val || "NOT COMPLETED";
+                    if (f === 'agentName') document.getElementById('agentName').style.display = 'none';
+                });
+                document.body.classList.add('final-mode');
+            } else {
+                document.body.classList.remove('final-mode');
+                document.getElementById('agentName').style.display = 'inline-block';
+            }
+        }
+
+        function saveDossier() {
+            fields.forEach(f => localStorage.setItem('dossier_quote_' + f, document.getElementById(f).value));
+            document.getElementById('saveStatus').textContent = 'AUTO-SAVED: ' + new Date().toLocaleTimeString();
+        }
+
+        window.onload = () => {
+            fields.forEach(f => {
+                const saved = localStorage.getItem('dossier_quote_' + f);
+                if (saved) document.getElementById(f).value = saved;
+            });
+            setInterval(saveDossier, 10000);
+        };
+
+        function exportToClassroom() {
+            let report = "--- CASE REPORT: QUOTE INVESTIGATION ---\n";
+            fields.forEach(f => report += f.toUpperCase() + ": " + document.getElementById(f).value + "\n\n");
+            navigator.clipboard.writeText(report).then(() => alert("COPIED TO CLIPBOARD!"));
+        }
+    </script>
+</body>
+</html>

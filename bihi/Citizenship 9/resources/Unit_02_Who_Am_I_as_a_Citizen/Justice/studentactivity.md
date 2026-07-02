@@ -1,0 +1,97 @@
+# Two Paths: Liam's Journey — Student Activity Guide
+**Curriculum Integration: Mi'kmaw Studies 11 (Restorative Justice Unit)**
+
+This guide outlines structured learning activities, discussions, and roleplay simulations designed for students using the interactive graphic novel **"Two Paths: Liam's Journey."** These activities connect Liam’s story directly to history (residential schools, Donald Marshall Jr.), legislation (Gladue Rights, Bill C-5), and Mi'kmaw worldview (*Msit No'kmaq*).
+
+---
+
+## Activity 1: The Sentencing Circle Simulation (Experiential Learning)
+**Primary Goal:** Understand the mechanics, emotional weight, and restorative geometry of a Sentencing Circle compared to an adversarial court.
+
+### 👥 Roles (5–6 Students Per Circle)
+1. **Liam (The Offender):** Focuses on explaining his vulnerability (freezing cold, hunger), taking accountability for scaring the clerk and breaking the door window, and offering repair.
+2. **Mr. Thomas (The Store Owner / Victim):** Expresses the fear his clerk felt, the stress of repeated break-ins, and the economic impact on the community, while staying open to restoration.
+3. **Claire (MLSN Support Worker):** Presents Liam’s social history (Gladue factors), family connection to Sipeknekatik, and community support resources (housing, MLSN programs).
+4. **Community Elder:** Guides the circle, holds the talking piece (or eagle feather), offers cultural wisdom about intergenerational healing, and maintains a respectful circle.
+5. **The Judge:** Sits at the same level as the others. Listens to all parties to ratify a healing plan that is legally binding instead of sentencing Liam to jail.
+6. **Arresting Officer (Optional):** Represents the initial state entry, explaining the lack of officer discretion under standard guidelines but supporting a restorative outcome.
+
+### 🔄 The Circle Process
+* **Opening:** The Elder opens the circle (traditionally with a smudge, prayer, or moment of silent reflection). The Eagle Feather is placed in the center.
+* **First Round (The Harm):** The Elder passes the feather. Each person speaks about the break-in. Liam explains his choice; Mr. Thomas explains his loss and stress.
+* **Second Round (The Backstory):** Claire presents the Gladue history. The Elder speaks about historical trauma.
+* **Third Round (Accountability & Restoration):** Liam apologizes and proposes how to repair the storefront. Mr. Thomas responds.
+* **Fourth Round (The Agreement):** The Judge and circle members draft the agreement (40 hours of restoration work, MLSN housing placement, ongoing mentoring).
+
+---
+
+## Activity 2: Drafting Liam's "Mini-Gladue" Social Profile (Analytical Writing)
+**Primary Goal:** Apply the legal principle of Gladue Rights to analyze how history shapes a person’s presence in court.
+
+### 📝 Student Instructions
+Working in pairs, review the interactive pop-ups on **Page 3 (Actuarial Judgment)** and **Page 4 (Echoes of Shubenacadie)**. Draft a 1-page "Mini-Gladue Profile" for Liam’s lawyer to present to the judge. Your profile must answer:
+1. **Intergenerational Factors:** How did the grandfather’s experience at Shubenacadie Residential School affect the family's trust in institutions and language preservation? *(Connect this to your findings on school legacies in **[Sugar Falls](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/SugarFalls/Sugar_Falls_Assignment.html)**).*
+2. **Systemic Inequities:** What role did the Indian Act status rules play in his family losing reserve housing and being forced into town without support? *(Draw parallels to the family and kinship disruptions in **[Maya Paul's Case File](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/Maya-Paul/maya_assignment.html)**).*
+3. **Poverty vs. Intent:** Explain how his "High Risk of Re-offending" factors (no fixed address, unemployed) are actually symptoms of systemic poverty rather than criminal intent. *(Reference how the conflict between provincial rules and Mi'kmaw rights shapes legal standing in **[Leo's 1752 Treaty Case](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/leo/leo_1752.html)**).*
+4. **Proposed Community Alternative:** Why is sending Liam to jail likely to increase recidivism? Propose three specific community-based supports that would address his root challenges. *(You may also allude to the community solidarity and social responses seen in the **[Canadian Native Protests](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/protest/)** folder).*
+
+---
+
+
+## Activity 3: Risk vs. Poverty — Deconstructing Actuarial Bias (Critical Data Literacy)
+**Primary Goal:** Critique systemic bias in the legal system using modern statistics.
+
+### 📊 Discussion & Reflection Questions
+Analyze the statistics presented on **Page 3** and **Page 14** of the interactive reader:
+* **The Disparity:** *Indigenous adults represent 33% of federal custody (and 50% of federally incarcerated women) despite making up only 5% of Canada's population.* Where does this overrepresentation begin?
+* **Criminogenic Risk vs. Poverty:** Actuarial tools score individuals higher (meaning "more dangerous" or "less likely to be released") if they lack stable housing or jobs. How does this penalize poverty?
+* **Substantive Equality:** In your own words, explain why treating everyone *exactly the same* (formal equality) in court can lead to deeply unequal and unjust results for Indigenous people (substantive equality).
+
+---
+
+## Activity 4: Mapping "Msit No'kmaq" and the "Two Paths" (Visual & Conceptual Reflection)
+**Primary Goal:** Connect the graphic novel’s visual motifs to Mi'kmaw worldview.
+
+### 🎨 Creative Assignment
+Look closely at **Page 5 (Conveyor Belt)** and **Page 16 (The Sunset River)**. Write a reflective paragraph or create a visual concept map contrasting these two settings:
+* **The Cold Path (Page 5):** How does the conventional legal system dehumanize individuals? Identify the colors, geometry, and figures used to show this.
+* **The Warm Path (Page 15):** How does the concept of *Msit No'kmaq* (All My Relations) change the visual layout? Explain the significance of the circular sunset frame, the constellation of circle members, and the sweetgrass braid.
+* **Outcome Comparison:** Fill out the comparison table below as a study reference:
+
+| Feature | Conventional Court (The Cold Path) | Sentencing Circle (The Restorative Path) |
+| --- | --- | --- |
+| **Primary Goal** | Punishment / Isolation / Deterrence | Healing / Reconciliation / Restoration |
+| **Key Participants** | Attorneys, elevated Judge, courtroom police | Offender, victim, Elder, Judge, community |
+| **Focus of Inquiry** | What law was broken? Who did it? | What harm was done? How do we repair it? |
+| **Long-Term Outcome** | Record, isolation, high risk of return | Active repair, housing/status aid, reintegration |
+
+---
+
+## Activity 5: Google Apps Script (GAS) Webhook Integration (Digital Submission)
+**Primary Goal:** Enable students to type their inquiry responses directly into the browser and submit them to the teacher's Google Sheet using the same webhook architecture as the previous *Sixties Scoop* assignment.
+
+### ⚙️ How It Works (The Tech Setup)
+The school's existing Google Apps Script webhook can collect and organize student submissions for this assignment without setting up new forms or spreadsheets:
+1. **Endpoint Reusability:** The digital handout uses the exact same `API_URL` as the previous assignment:
+   `https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec`
+2. **Simulation Demarcation:** In the form payload, we set a new simulation identifier:
+   `const SIMULATION_NAME = "Restorative Justice — Liam's Journey";`
+3. **Student Identification:** Students login with their encoded PIN (stored in `localStorage` and verified via base64 decoding), matching their class block and name to keep data clean.
+
+### 💻 Proposed Integration Ideas
+To deploy this system, we can upgrade the student files in two ways:
+
+#### Option A: Upgrade the Handout Sheet (`student_assignment.html`)
+Transform the passive `div.question-blank` blocks in [student_assignment.html](file:///E:/Antigravity/simroom/Github%20Repos/projectimages/MM%20Studies/Justice/student_assignment.html) into active `<textarea>` input fields:
+* **The Interface:** Add a PIN login field at the top of the handout. When validated, it retrieves any previously saved progress from the cloud.
+* **Save/Submit Actions:** Add a floating toolbar at the bottom with:
+  * **"Save Progress"** (sends `status: "INCREMENTAL_SAVE"` so students can resume on Chromebooks).
+  * **"Submit Final Assignment"** (sends `status: "FINAL_SUBMISSION"` to lock in their answers).
+* **Feedback indicator:** Include a sync state tracker (`SYNC: READY`, `SYNC: UPLOADING...`, `SYNC: OFFLINE`) in the header matching the styling of the previous dashboard.
+
+#### Option B: Embedded Graphic Novel Notebook (`graphic_novel.html`)
+Integrate a collapsible "Reflection Notebook" panel directly inside the graphic novel reader:
+* **The Layout:** Add a split-screen or sliding sidebar on the right containing the student questions.
+* **Contextual Writing:** As students read Page 3 (Risk Assessment) or Page 10 (Sentencing Circle), they can type their responses right next to the artwork and save/submit to the Google Sheet immediately.
+* **Accessibility:** This keeps reading and critical writing in a single, focused classroom view.
+

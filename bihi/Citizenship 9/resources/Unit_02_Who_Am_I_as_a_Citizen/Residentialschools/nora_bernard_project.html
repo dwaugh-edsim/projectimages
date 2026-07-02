@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WORKSPACE: The Nora Bernard & Shubenacadie Legacy Project</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --bg-panel: rgba(18, 18, 18, 0.96);
+            --accent: #FFB300; /* Amber/Gold */
+            --accent-dim: rgba(255, 179, 0, 0.15);
+            --text-light: #8a8d90;
+            --text-dark: #e0e2e5;
+            --border: #2c2f33;
+            --white: #161719;
+            --light: #0d0e10;
+            --success: #2ecc71;
+            --error: #ff4d4d;
+            
+            --font-h: 'Special Elite', monospace;
+            --font-body: 'Courier Prime', monospace;
+            --font-ui: 'Courier Prime', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top header bar */
+        .workspace-top-bar {
+            background: #000000;
+            color: var(--text-dark);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--accent);
+            z-index: 10;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .top-left-title h1 {
+            font-family: var(--font-h);
+            font-size: 1.4rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .top-left-title p {
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .autosave-indicator {
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #aaa;
+            display: inline-block;
+        }
+
+        .indicator-dot.live-pulse {
+            background-color: var(--error);
+            animation: pulse-red 1.5s infinite;
+            box-shadow: 0 0 8px var(--error);
+        }
+
+        @keyframes pulse-red {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        /* Layout splitter */
+        .workspace-layout {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 75px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar navigation */
+        .workspace-sidebar {
+            width: 290px;
+            background: #0f1012;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 5;
+        }
+
+        .nav-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: #070809;
+        }
+
+        .nav-header h2 {
+            font-family: var(--font-h);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .student-profile-badge {
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .nav-slides-list {
+            list-style: none;
+            padding: 10px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: #17181c;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: #1c1d22;
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .nav-status-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .nav-item.completed .nav-status-icon {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000000;
+        }
+
+        .nav-item.completed .nav-status-icon::before {
+            content: '✓';
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: #070809;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #1c1d22;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--accent);
+            color: #000000;
+            border-color: var(--accent);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Workspace container */
+        .workspace-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--light);
+            padding: 40px;
+            position: relative;
+        }
+
+        /* Slide layout */
+        .slide-pane {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 45px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            display: none;
+            position: relative;
+        }
+
+        .slide-pane.active {
+            display: block;
+        }
+
+        .slide-header {
+            border-bottom: 2px double var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .slide-step-num {
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .slide-title {
+            font-family: var(--font-h);
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        .slide-directive {
+            font-family: var(--font-ui);
+            color: var(--error);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* Typography & general blocks */
+        h3 {
+            font-family: var(--font-h);
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin: 25px 0 15px 0;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+
+        strong {
+            color: var(--accent);
+        }
+
+        .callout-box {
+            background: #111215;
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 2px;
+        }
+
+        .callout-box h4 {
+            font-family: var(--font-h);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        /* Table stylings */
+        .table-scroll {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            margin: 20px 0;
+            border-radius: 4px;
+            background: #0d0e10;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #1c1d22;
+            color: var(--accent);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        tr:nth-child(even) {
+            background-color: #141518;
+        }
+
+        /* Question & form inputs */
+        .workspace-question-box {
+            background: #111215;
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-top: 35px;
+            border-radius: 4px;
+        }
+
+        .question-label {
+            font-family: var(--font-h);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .question-prompt {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            background: #070809;
+            color: #ffffff;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(255, 179, 0, 0.3);
+        }
+
+        /* Clickable Poem Layout */
+        .poem-split-workspace {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            height: 480px;
+        }
+
+        .poem-card-container {
+            flex: 1.2;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            background: #0d0e10;
+            padding: 25px;
+            border-radius: 4px;
+        }
+
+        .poem-stanza {
+            margin-bottom: 25px;
+            cursor: pointer;
+            padding: 12px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s;
+            background: #161719;
+        }
+
+        .poem-stanza:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 10px rgba(255, 179, 0, 0.15);
+            background: #1f2125;
+        }
+
+        .poem-stanza.selected {
+            border-color: var(--accent);
+            background: #232529;
+            box-shadow: 0 4px 12px rgba(255, 179, 0, 0.2);
+        }
+
+        .poem-line {
+            font-family: var(--font-body);
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        .poem-stanza-num {
+            font-family: var(--font-ui);
+            font-size: 0.7rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .poem-annotations-sidebar {
+            flex: 0.8;
+            border: 1px solid var(--border);
+            background: #161719;
+            padding: 25px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .annotation-title-box {
+            font-family: var(--font-h);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .annotation-body-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+            flex-grow: 1;
+        }
+
+        /* Pathway Form CSS */
+        .pathway-selector-group {
+            margin: 25px 0;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 600;
+            background-color: #070809;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .pathway-fields-area {
+            margin-top: 20px;
+        }
+
+        .pathway-field-group {
+            margin-bottom: 20px;
+        }
+
+        .pathway-field-group label {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* Review slide layout */
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .review-item {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            background: #111215;
+        }
+
+        .review-item h4 {
+            font-family: var(--font-h);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .review-value-box {
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            color: var(--text-dark);
+            line-height: 1.5;
+            background: #070809;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Login overlay styling */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 5, 5, 0.96);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-card {
+            background: #161719;
+            border: 2px solid var(--accent);
+            width: 480px;
+            border-radius: 4px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #161719 0%, var(--accent) 50%, #161719 100%);
+        }
+
+        .login-logo {
+            font-family: var(--font-h);
+            font-size: 2.2rem;
+            color: #ffffff;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .login-subtitle {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .login-field {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-field label {
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .login-select, .login-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            background: #0d0e10;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .login-select:focus, .login-input:focus {
+            border-color: var(--accent);
+            background: #111215;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000000;
+            border: none;
+            padding: 14px;
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.4);
+        }
+
+        .login-error {
+            color: var(--error);
+            font-family: var(--font-ui);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Success overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 5, 5, 0.97);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-card {
+            background: #161719;
+            border: 2px solid var(--accent);
+            width: 500px;
+            border-radius: 4px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
+            transform: scale(0.9);
+            transition: transform 0.5s;
+        }
+
+        .success-overlay.active .success-card {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            background: #0d0e10;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            border: 2px solid var(--accent);
+        }
+
+        .success-card h2 {
+            font-family: var(--font-h);
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .success-card p {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        /* Timeline and lists */
+        .timeline {
+            margin: 25px 0;
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid var(--border);
+        }
+
+        .timeline-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--white);
+        }
+
+        .timeline-year {
+            font-family: var(--font-ui);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .timeline-desc {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        /* HUD Gamified Elements */
+        .redacted {
+            background-color: #000000;
+            color: #000000;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+            user-select: none;
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .redacted:hover {
+            background-color: rgba(255, 179, 0, 0.15);
+            color: var(--accent);
+            text-shadow: 0 0 5px rgba(255, 179, 0, 0.5);
+            user-select: auto;
+        }
+
+        .classified-stamp {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            border: 3px double var(--error);
+            color: var(--error);
+            padding: 6px 14px;
+            font-family: var(--font-h);
+            font-weight: 800;
+            font-size: 0.95rem;
+            transform: rotate(8deg);
+            pointer-events: none;
+            letter-spacing: 3px;
+            background: rgba(10, 10, 10, 0.85);
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .mmiwg-framing-callout {
+            background: linear-gradient(135deg, #1a0a0a 0%, #111215 100%);
+            border-left: 4px solid #cc3333;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 2px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+
+        .mmiwg-framing-callout h4 {
+            font-family: var(--font-h);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #cc3333;
+            margin-bottom: 12px;
+        }
+
+        .comparative-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .case-card {
+            background: #0d0e10;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .case-card h5 {
+            font-family: var(--font-h);
+            font-size: 0.9rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .case-card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .support-banner {
+            background: #0a0a0a;
+            border-top: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+
+        .support-banner a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .support-banner strong {
+            color: #cc3333;
+        }
+
+        .creative-callout {
+            background: #111215;
+            border: 2px dashed var(--accent);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+
+        .creative-callout h4 {
+            font-family: var(--font-h);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Student Authentication Overlay -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">SHUBENACADIE</div>
+            <div class="login-subtitle">AN INVESTIGATION</div>
+            
+            <div class="login-field">
+                <label for="login-block">Select Block</label>
+                <select id="login-block" class="login-select" onchange="populateStudentDropdown(this.value)">
+                    <option value="">-- Choose Class Block --</option>
+                    <option value="A Block (Waugh)">Block A (Waugh)</option>
+                    <option value="C Block (Waugh)">Block C (Waugh)</option>
+                </select>
+            </div>
+
+            <div class="login-field">
+                <label for="login-student">Select Student Profile</label>
+                <select id="login-student" class="login-select" disabled>
+                    <option value="">-- Select Block First --</option>
+                </select>
+            </div>
+
+            <div class="login-field">
+                <label for="login-pin">Enter Student Security PIN</label>
+                <input type="password" id="login-pin" class="login-input" placeholder="XXXX" maxlength="4" disabled>
+            </div>
+
+            <button class="login-btn" onclick="verifyStudentPin()">Authorize Access</button>
+            <div class="login-error" id="login-error-msg">Invalid PIN. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- Mission Briefing Overlay -->
+    <div class="login-overlay" id="briefing-overlay" style="display: none; opacity: 0; backdrop-filter: blur(15px); z-index: 1100;">
+        <div class="login-card" style="max-width: 580px; border-color: var(--accent); padding: 35px; box-shadow: 0 0 35px rgba(255, 179, 0, 0.2);">
+            <div class="login-logo" style="font-size: 1.6rem; letter-spacing: 4px;">MISSION DEBRIEFING</div>
+            <div class="login-subtitle" style="color: var(--error); letter-spacing: 2px;">INQUIRY DIRECTIVE: CASE FILE #SIRS-1930</div>
+            
+            <div style="font-family: var(--font-body); color: var(--text-dark); font-size: 0.95rem; line-height: 1.6; margin: 25px 0; text-align: left; border-left: 2px solid var(--accent); padding-left: 15px;">
+                <p style="margin-top: 0;"><strong>ASSIGNED INVESTIGATOR:</strong> <span id="brief-student-name" style="color: var(--accent); font-family: var(--font-ui); font-weight: bold;">[STUDENT_NAME]</span></p>
+                <p><strong>MISSION DESCRIPTION:</strong> Nora Bernard was a strategist who changed Canadian law. Your mission begins with understanding how she fought back — and then investigating the systems that made her fight necessary.</p>
+                <p><strong>OPERATIONAL OBJECTIVE:</strong> Reconstruct Shubenacadie school records, document malnutrition/neglect, compile the casualty list, and analyze comparative resistance to prove systemic state neglect. Bypass redacted segments, record your findings, and submit the compiled Case File to the central archives.</p>
+                <p style="margin-bottom: 0; font-style: italic; color: var(--text-light); font-size: 0.85rem;">This investigation touches on difficult themes including residential school harm and the MMIWG crisis. Support resources are available in the sidebar at any time.</p>
+            </div>
+            
+            <button class="login-btn" onclick="startInvestigation()" style="margin-top: 15px;">Begin Investigation</button>
+        </div>
+    </div>
+
+    <!-- Main Workspace Top Bar -->
+    <header class="workspace-top-bar">
+        <div class="top-left-title">
+            <h1>SHUBENACADIE</h1>
+            <p>AN INVESTIGATION</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="autosave-indicator" style="background: rgba(255, 77, 77, 0.08); border-color: rgba(255, 77, 77, 0.25); color: var(--error);">
+                <span class="indicator-dot live-pulse"></span>
+                <span style="font-weight: 700; letter-spacing: 1px;">INQUIRY RECORDING: ACTIVE</span>
+            </div>
+            <div class="autosave-indicator">
+                <span class="indicator-dot" id="save-dot"></span>
+                <span id="save-status">System Connected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Split Pane Workspace Layout -->
+    <div class="workspace-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="workspace-sidebar">
+            <div class="nav-header">
+                <h2>CASE INVESTIGATOR</h2>
+                <div class="student-profile-badge" id="student-badge-name">UNAUTHORIZED</div>
+            </div>
+
+            <nav class="nav-slides-list">
+                <li class="nav-item active" id="nav-step-0" onclick="goToSlide(0)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 01: INCIDENT BRIEFING</span>
+                </li>
+                <li class="nav-item" id="nav-step-1" onclick="goToSlide(1)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 02: DEPRIVATION & NEGLECT</span>
+                </li>
+                <li class="nav-item" id="nav-step-2" onclick="goToSlide(2)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 03: LITIGATION & ACTIVISM</span>
+                </li>
+                <li class="nav-item" id="nav-step-3" onclick="goToSlide(3)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 04: TESTIMONY & RESILIENCE</span>
+                </li>
+                <li class="nav-item" id="nav-step-4" onclick="goToSlide(4)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 05: MMIWG CONNECTION</span>
+                </li>
+                <li class="nav-item" id="nav-step-5" onclick="goToSlide(5)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 06: INQUIRY PATHWAY</span>
+                </li>
+                <li class="nav-item" id="nav-step-6" onclick="goToSlide(6)">
+                    <span class="nav-status-icon"></span>
+                    <span>LOG 07: AUTHORIZE EVIDENCE</span>
+                </li>
+            </nav>
+
+            <div class="sidebar-footer" style="flex-direction: column; gap: 8px; align-items: stretch; width: 100%; box-sizing: border-box;">
+                <div id="lock-indicator" style="font-family: var(--font-ui); font-size: 0.7rem; text-align: center; margin-bottom: 2px; text-transform: uppercase;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <button class="nav-btn" id="prev-btn" onclick="navigateSlide(-1)" style="flex: 1; margin-right: 5px;" disabled>Back</button>
+                    <button class="nav-btn" id="next-btn" onclick="navigateSlide(1)" style="flex: 1; margin-left: 5px;">Next</button>
+                </div>
+                <button class="nav-btn" id="manual-save-btn" onclick="triggerManualSave()" style="width: 100%; margin-top: 5px; background: rgba(46, 196, 182, 0.15); border-color: var(--accent); color: var(--accent);">Save Evidence Progress</button>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);">
+                    <div style="font-family: var(--font-ui); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #cc3333; font-weight: 700; margin-bottom: 6px; text-align: center;">Support Resources</div>
+                    <div style="font-size: 0.7rem; line-height: 1.6; color: var(--text-light);">
+                        <div><strong style="color: var(--accent);">Mi'kmaq Crisis Line:</strong> 1-855-379-2099</div>
+                        <div><strong style="color: var(--accent);">MMIWG Support:</strong> 1-844-413-6649</div>
+                        <div><strong style="color: var(--accent);">NCTR Support:</strong> 1-877-534-1058</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Dynamic Content Workspace Area -->
+        <main class="workspace-content">
+            
+            <!-- Slide 1: Briefing & Context -->
+            <div class="slide-pane active" id="slide-pane-0">
+                <div class="classified-stamp">CONFIDENTIAL</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 1 of 7</span>
+                    <h2 class="slide-title">Incident Briefing: Historical Origins</h2>
+                    <div class="slide-directive">INQUIRY DEPT // BRIEFING directive: establish administrative oversight structures.</div>
+                </div>
+                <p>
+                    The <strong>Shubenacadie Indian Residential School (SIRS)</strong>, built in 1928–29 on a hill between Highway 2 and the Shubenacadie River (approximately seven kilometres from Sipekne’katik First Nation / Indian Brook in Nova Scotia), was the only federally run Indian residential school in the Maritime provinces. Operating from <span class="redacted" title="Hover to declassify">February 5, 1930</span>, until its closure on <span class="redacted" title="Hover to declassify">June 22, 1967</span>, it served as a primary tool for the Canadian government's colonial policy of forced assimilation of Indigenous children, particularly Mi’kmaq and Wolastoqiyik, across Nova Scotia, Prince Edward Island, New Brunswick, and parts of Quebec.
+                </p>
+                <p>
+                    The school operated under a dual structure of federal funding and religious administration, transitioning through distinct phases:
+                </p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li><strong>Sisters of Charity (1929–1956):</strong> Daily operations, maintenance, and instruction were run by the <span class="redacted" title="Hover to declassify">Sisters of Charity of Saint Vincent de Paul</span> of Halifax. High emphasis was placed on child labor, domestic chores, and strict religious compliance.</li>
+                    <li><strong>Oblates of Mary Immaculate (1956–1967):</strong> The <span class="redacted" title="Hover to declassify">Missionary Oblates of Mary Immaculate</span> took over the school administration, which was marked by severe overcrowding, deteriorating facilities, and systemic neglect.</li>
+                </ul>
+                
+                <div class="evidence-links-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 4px;">
+                        <h4 style="margin-top: 0; color: var(--accent); font-family: var(--font-header); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">Primary Visuals & Maps</h4>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 0.85rem; line-height: 1.4;">
+                            <li style="margin-bottom: 5px;"><a href="https://www.tfcg.ca/canadian-teacher-historic-images" target="_blank" style="color: var(--accent); text-decoration: underline;">Historical School Building Photos (c. 1929)</a></li>
+                            <li style="margin-bottom: 5px;"><a href="https://novascotia.ca/museum/mikmaq/?section=image&id=815" target="_blank" style="color: var(--accent); text-decoration: underline;">Elsie Charles Basque Student Photo (c. 1930s)</a></li>
+                            <li><a href="https://www.historicplaces.ca/en/rep-reg/place-lieu.aspx?id=23476" target="_blank" style="color: var(--accent); text-decoration: underline;">Site Boundaries & Historic Designation Plan</a></li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 4px;">
+                        <h4 style="margin-top: 0; color: var(--accent); font-family: var(--font-header); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">Archival Records & Registries</h4>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 0.85rem; line-height: 1.4;">
+                            <li style="margin-bottom: 5px;"><a href="https://nctr.ca/residential-schools/atlantic/shubenacadie-st-annes-convent/" target="_blank" style="color: var(--accent); text-decoration: underline;">NCTR Shubenacadie Memorial & Student Deaths Registry</a></li>
+                            <li style="margin-bottom: 5px;"><a href="https://parks.canada.ca/culture/designation/lieu-site/pensionnat-shubenacadie-residential-school" target="_blank" style="color: var(--accent); text-decoration: underline;">Parks Canada National Historic Site Register</a></li>
+                            <li><a href="https://www.mikmaweydebert.ca/sharing-our-stories/indian-residential-schools-legacy-project/research-and-archives/" target="_blank" style="color: var(--accent); text-decoration: underline;">Mi'kmawey Debert Legacy Project Research Archives</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout-box">
+                    <h4>Closure, Fire, and Historic Site Designation</h4>
+                    <p>
+                        After closing in 1967, the school building sat abandoned for nearly two decades until it was destroyed by fire in 1986; a factory was later built on its footprint. On September 1, 2020, the former school was designated a <span class="redacted" title="Hover to declassify">National Historic Site of Canada</span>. This designation, nominated by the co-chair of the Tripartite Culture and Heritage Working Committee of the Mi'kmaq-Nova Scotia-Canada Tripartite Forum on behalf of Survivors and their families, formally acknowledges the abuses, child labor, and cultural genocide that took place there, standing as a permanent public witness to their struggle.
+                    </p>
+                </div>
+
+                <div class="workspace-question-box">
+                    <label class="question-label" for="ans-q1">Case Inquiry Parameter 1</label>
+                    <p class="question-prompt">
+                        Analyze the administrative structure of the Shubenacadie school. How did the division of labor between federal authorities (funding/oversight) and religious congregations (daily management) lead to accountability gaps and safety hazards for children?
+                    </p>
+                    <textarea id="ans-q1" placeholder="Write your structured response here..." oninput="autosave()"></textarea>
+                </div>
+            </div>
+
+            <!-- Slide 2: Deprivation & Neglect -->
+            <div class="slide-pane" id="slide-pane-1">
+                <div class="classified-stamp">CONFIDENTIAL</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 2 of 7</span>
+                    <h2 class="slide-title">Evidence Log: Malnutrition & Medical Neglect</h2>
+                    <div class="slide-directive">INQUIRY DEPT // DEPRIVATION directive: document malnutrition & compile casualty list.</div>
+                </div>
+                <p>
+                    Daily life at Shubenacadie was defined by severe economic deprivation and structural neglect. Many children were compelled to attend through coercive threats from local officials who informed parents that child welfare authorities would seize the children into <span class="redacted" title="Hover to declassify">"protective custody"</span> if they did not sign consent forms.
+                </p>
+                <p>
+                    Federal funding was set at a fraction of the rate spent on non-Indigenous public schools. In <span class="redacted" title="Hover to declassify">1945</span> and <span class="redacted" title="Hover to declassify">1946</span>, external nutritional evaluations described the children's diet as "overwhelmingly poor" and "utterly disgusting." Starvation rations, thin starches, and rancid lard were common, while staff enjoyed high-quality meals. A prominent survivor recollection details children receiving only a single boiled egg on Easter Sunday as their entire meal.
+                </p>
+                <p>
+                    Crowded dormitories and poor sanitation made the school a vector for disease, including tuberculosis (TB), jaundice, chickenpox, measles, and diphtheria. Treatment was routinely withheld or delayed:
+                </p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li><strong>Alan Knockwood's appendix:</strong> Alan suffered a <span class="redacted" title="Hover to declassify">ruptured appendix</span> after staff dismissed his complaints of severe abdominal pain for days, accusing him of malingering.</li>
+                    <li><strong>Roger Lewis's admission:</strong> Roger was admitted to the school as a toddler at just <span class="redacted" title="Hover to declassify">3 years old</span>, highlighting the systematic targeting of very young children.</li>
+                    <li><strong>Sister Gilberta & Debbie (1961):</strong> Sister Gilberta Eleanor Keller took a young student named Debbie to the United States. This removal created a legal jurisdictional void that later complicated Debbie's attempts to seek compensation under Canadian court processes.</li>
+                </ul>
+
+                <div class="callout-box" style="border-left: 3px solid var(--accent); margin: 20px 0; background: rgba(255, 255, 255, 0.02);">
+                    <h4 style="margin-top: 0; color: var(--accent); font-family: var(--font-header); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;">Primary Source Testimony: Nora Bernard</h4>
+                    <p style="font-style: italic; font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                        "It was no place for a child… Once you entered those big doors in the front and they slammed behind you, it was just like going into prison."
+                    </p>
+                </div>
+
+                <h3>Documented Student Deaths at Shubenacadie</h3>
+                <p>The National Centre for Truth and Reconciliation (NCTR) has documented the following children known to have died while associated with the Shubenacadie school, illustrating the tragic human cost of the institution:</p>
+                
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Date/Year of Death</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Christina Pennell</td><td>1930</td></tr>
+                            <tr><td>Mary Gehue</td><td>1931</td></tr>
+                            <tr><td>Josephine Smith</td><td>1933</td></tr>
+                            <tr><td>Mary Elizabeth Knockwood</td><td>1934</td></tr>
+                            <tr><td>Mary Agnes Paul</td><td>1934</td></tr>
+                            <tr><td>Peter Paul</td><td>1934</td></tr>
+                            <tr><td>Mary Cecilia Bernard</td><td>1934</td></tr>
+                            <tr><td>Martha Paul</td><td>1935</td></tr>
+                            <tr><td>John Henry Julian</td><td>1936</td></tr>
+                            <tr><td>James Thomas</td><td>1936</td></tr>
+                            <tr><td>Benedict Paul</td><td>1936</td></tr>
+                            <tr><td>Joseph Julian</td><td>1936</td></tr>
+                            <tr><td>Mary Catherine Paul</td><td>1937</td></tr>
+                            <tr><td>Margaret Cecelia Paul</td><td>1938</td></tr>
+                            <tr><td>Mary Ellen Paul</td><td>1940</td></tr>
+                            <tr><td>Raymond Knockwood</td><td>1942</td></tr>
+                            <tr><td>Colin Bernard</td><td>October 19, 1943</td></tr>
+                            <tr><td>Theresa Agnes Cope</td><td>1944</td></tr>
+                            <tr><td>Joseph Michael MacDonald</td><td>1944</td></tr>
+                            <tr><td>Rita Catherine Cope</td><td>1944</td></tr>
+                            <tr><td>Sarah Knockwood</td><td>1944</td></tr>
+                            <tr><td>Frank Douglas</td><td>1945</td></tr>
+                            <tr><td>Annie Jane Paul</td><td>1946</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="workspace-question-box">
+                    <label class="question-label" for="ans-q2">Case Inquiry Parameter 2</label>
+                    <p class="question-prompt">
+                        Using the historical details of malnutrition, medical neglect (e.g., Alan Knockwood, Roger Lewis), and the record of 23 student deaths, describe the physical costs of the residential school system on students. How does this history refute the claim that these schools were meant to provide "education and care"?
+                    </p>
+                    <textarea id="ans-q2" placeholder="Write your structured response here..." oninput="autosave()"></textarea>
+                </div>
+            </div>
+            
+            <!-- Slide 3: Nora's Lawsuit & Life -->
+            <div class="slide-pane" id="slide-pane-2">
+                <div class="classified-stamp">CONFIDENTIAL</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 3 of 7</span>
+                    <h2 class="slide-title">Evidence Log: Litigation & Mobilization</h2>
+                    <div class="slide-directive">INQUIRY DEPT // LITIGATION directive: map grassroots organizing and class-action progress.</div>
+                </div>
+                <p>
+                    Mi'kmaw activist <strong>Nora Bernard ONS</strong> was born on <span class="redacted" title="Hover to declassify">September 22, 1935</span>, in Millbrook First Nation near Truro, Nova Scotia. As the second oldest of six children, she took on early caregiving responsibilities when her father left the family. In 1945, at age 9, she and her siblings were sent to Shubenacadie under coercive threats of <span class="redacted" title="Hover to declassify">child welfare seizure</span>. She stayed for five years, during which she frequently stood up to nuns who handled children roughly and snuck food from the kitchen for her youngest brother.
+                </p>
+                <p>
+                    In 1955, Nora married a <span class="redacted" title="Hover to declassify">non-Indigenous man</span>, which under the discriminatory "marrying out" provision of the federal <strong>Indian Act</strong> stripped her of her <span class="redacted" title="Hover to declassify">status and band membership</span>. She was banned from living in Millbrook. Although the 1985 <strong>Bill C-31</strong> amendment repealed this section, reinstatement was not automatic; Nora fought for decades to be recognized, only being voted back into Millbrook First Nation in 2006–2007, shortly before her death.
+                </p>
+                <p>
+                    Nora’s organizing began in <strong>1987 in her Truro kitchen</strong>, where she sat with Shubenacadie Survivors, listening to their experiences. Despite having no formal funding, she traveled county-to-county, gathering testimonies that grew into the <strong>Association of Residential School Survivors of Nova Scotia</strong>. By 1998, this grassroots association had grown to <strong>over 900 registered members</strong> across Canada and the United States, ultimately paving the way for the national class-action lawsuit.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                    <div class="callout-box" style="border-left: 3px solid var(--accent); margin: 0; background: rgba(255, 255, 255, 0.02); display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;">
+                        <h4 style="margin-top: 0; color: var(--accent); font-family: var(--font-header); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px;">Motivation for Justice</h4>
+                        <p style="font-style: italic; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                            "Justice. I just wanted justice for my First Nations people that attended residential schools – not only down here – throughout Canada."
+                        </p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 4px; display: flex; flex-direction: column; justify-content: center;">
+                        <h4 style="margin-top: 0; color: var(--accent); font-family: var(--font-header); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Multimedia Archives</h4>
+                        <ul style="margin: 0; padding-left: 18px; font-size: 0.85rem; line-height: 1.4;">
+                            <li style="margin-bottom: 5px;"><a href="https://www.youtube.com/watch?v=w9JFkSX7UtY" target="_blank" style="color: var(--accent); text-decoration: underline;">Heritage Day Tribute Video (3 mins)</a></li>
+                            <li style="margin-bottom: 5px;"><a href="https://www.aptnnews.ca/national-news/residential-schools-woman-started-road-justice-survivors/" target="_blank" style="color: var(--accent); text-decoration: underline;">APTN: Nora Bernard's Road to Justice</a></li>
+                            <li><a href="https://www.cbc.ca/listen/cbc-podcasts/1739-this-is-nova-scotia/episode/16128217-remembering-mikmaq-activist-nora-bernard-for-heritage-day" target="_blank" style="color: var(--accent); text-decoration: underline;">CBC Podcast Interview: Remembering Nora</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1995</span>
+                        <p class="timeline-desc">After being rejected by several lawyers, Nora secures Halifax lawyer John McKiggan to file a class-action lawsuit on behalf of Maritime survivors.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2005</span>
+                        <p class="timeline-desc">She testifies before the House of Commons of Canada, describing the physical, emotional, psychological, and cultural harms of Shubenacadie.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2006</span>
+                        <p class="timeline-desc">The Maritime class action merges with nationwide claims, leading to the <strong>Indian Residential Schools Settlement Agreement (IRSSA)</strong>—the largest class-action settlement in Canadian history, providing over $5 billion in compensation for 70,000–79,000 Survivors.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2007 (December 26 or 27)</span>
+                        <p class="timeline-desc">At age 72, Nora is <span class="redacted" title="Hover to declassify">murdered</span> in her Millbrook home by her grandson, James Douglas Gloade, during a <span class="redacted" title="Hover to declassify">drug-related dispute</span>, just as compensation checks were being distributed. Survivors' Christmas cards were still in her mailbox. Her death stands as a tragic testament to the intergenerational trauma, family breakdown, and substance abuse caused by the residential school system.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2008 / 2022</span>
+                        <p class="timeline-desc">Posthumously awarded the Order of Nova Scotia. In 2022, Cornwallis Street in Halifax is renamed Nora Bernard Street in her honor.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2004</span>
+                        <p class="timeline-desc">Native Women's Association of Canada launches <strong>Sisters in Spirit</strong> to document MMIWG cases.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2014</span>
+                        <p class="timeline-desc">NWAC releases report documenting <strong>582 cases</strong> of missing/murdered Indigenous women.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2016</span>
+                        <p class="timeline-desc">National Inquiry into MMIWG formally launched.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2019</span>
+                        <p class="timeline-desc">Final Report <strong>"Reclaiming Power and Place"</strong> released, calling the crisis a genocide; <strong>231 Calls for Justice</strong> issued.</p>
+                    </div>
+                </div>
+
+                <div class="workspace-question-box">
+                    <label class="question-label" for="ans-q3">Case Inquiry Parameter 3</label>
+                    <p class="question-prompt">
+                        Nora Bernard faced systemic discrimination (losing status under the Indian Act for marrying a non-Indigenous man) and personal tragedy (her murder in 2007 representing family breakdown and intergenerational trauma). How do these events illustrate the deep, ongoing, intergenerational impacts of the residential school system beyond Nora's own lifetime?
+                    </p>
+                    <textarea id="ans-q3" placeholder="Write your structured response here..." oninput="autosave()"></textarea>
+                </div>
+            </div>
+
+            <!-- Slide 4: Rita Joe's Poetics -->
+            <div class="slide-pane" id="slide-pane-3">
+                <div class="classified-stamp">CONFIDENTIAL</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 4 of 7</span>
+                    <h2 class="slide-title">Evidence Log: Cultural Testimony & Resilience</h2>
+                    <div class="slide-directive">INQUIRY DEPT // RESILIENCE directive: compare legal resistance with cultural resilience.</div>
+                </div>
+                <p>
+                    Rita Joe (1932–2007) was a <span class="redacted" title="Hover to declassify">Mi'kmaw poet</span> and survivor of <span class="redacted" title="Hover to declassify">Shubenacadie</span>. Known as the "Gentle Warrior," she wrote to heal and to teach. Her famous poem, <strong>"I Lost My Talk,"</strong> represents the struggle to reclaim identity and language.
+                </p>
+                <p style="font-style: italic; color: var(--text-light); font-size: 0.9rem; margin-bottom: 10px;">
+                    Click each stanza below to view the literary analysis and historical connection:
+                </p>
+
+                <!-- Interactive Poem split layout -->
+                <div class="poem-split-workspace">
+                    <div class="poem-card-container">
+                        <div class="poem-stanza" id="stanza-1" onclick="selectStanza(1)">
+                            <div class="poem-stanza-num">Stanza 1</div>
+                            <div class="poem-line">I lost my talk</div>
+                            <div class="poem-line">The talk you took away.</div>
+                            <div class="poem-line">When I was a little girl</div>
+                            <div class="poem-line">At Shubenacadie school.</div>
+                        </div>
+                        <div class="poem-stanza" id="stanza-2" onclick="selectStanza(2)">
+                            <div class="poem-stanza-num">Stanza 2</div>
+                            <div class="poem-line">You snatched it away.</div>
+                            <div class="poem-line">I speak like you</div>
+                            <div class="poem-line">I think like you</div>
+                            <div class="poem-line">I create like you</div>
+                            <div class="poem-line">The scrambled ballad, about my world.</div>
+                        </div>
+                        <div class="poem-stanza" id="stanza-3" onclick="selectStanza(3)">
+                            <div class="poem-stanza-num">Stanza 3</div>
+                            <div class="poem-line">Two ways I talk</div>
+                            <div class="poem-line">Both ways I say,</div>
+                            <div class="poem-line">Many things on my mind.</div>
+                            <div class="poem-line">But since I find more than you let me find,</div>
+                            <div class="poem-line">I depart from your way.</div>
+                        </div>
+                        <div class="poem-stanza" id="stanza-4" onclick="selectStanza(4)">
+                            <div class="poem-stanza-num">Stanza 4</div>
+                            <div class="poem-line">Let me find my talk</div>
+                            <div class="poem-line">So I can teach you about you.</div>
+                        </div>
+                    </div>
+
+                    <div class="poem-annotations-sidebar">
+                        <div class="annotation-title-box" id="anno-title">Select a Stanza</div>
+                        <div class="annotation-body-text" id="anno-text">
+                            Click any of the poem stanzas on the left to read its thematic analysis, linguistic breakdown, and historical connection to Shubenacadie.
+                        </div>
+                    </div>
+                </div>
+
+                <p>
+                    Rita Joe's writing (including <i>Poems of Rita Joe</i>, 1978 and <i>Song of Eskasoni</i>, 1988) inspired composer John Estacio's major <span class="redacted" title="Hover to declassify">four-movement orchestral adaptation</span>: <strong>I. The Lost Land</strong>, <strong>II. The School</strong>, <strong>III. Reclaiming Voice</strong>, and <strong>IV. Reconciliation</strong>. In response to her call, former Halifax Poet Laureate Rebecca Thomas published the book <i>I'm Finding My Talk</i>, detailing the contemporary path of reclamation.
+                </p>
+
+                <div class="creative-callout">
+                    <h4>CREATIVE RESPONSE: Two Ways I Talk</h4>
+                    <p style="font-size: 0.95rem; margin-bottom: 10px;">
+                        Inspired by Stanza 3 ("Two ways I talk"), create a dual-panel artwork: one side showing <strong>silencing</strong> (residential school/MMIWG erasure), the other showing <strong>reclamation</strong> (language, art, advocacy). Include a Mi'kmaw word or phrase.
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 0;">
+                        Reference the <a href="https://www.mikmaweydebert.ca/" target="_blank" style="color: var(--accent);">Mi'kmawey Debert Cultural Centre archives</a> for language and cultural guidance. This project can feed into Pathway H or stand alone as a creative extension.
+                    </p>
+                </div>
+
+                <div class="workspace-question-box">
+                    <label class="question-label" for="ans-q4">Case Inquiry Parameter 4: Comparative Resilience</label>
+                    <p class="question-prompt">
+                        In the graphic novel <i>Sugar Falls</i>, Betty Ross survives the residential school by holding onto her relationships, her language, and the words of her father ("remember who you are"). In contrast, Nora Bernard fought the system through class-action litigation and grassroots organizing.
+                        <br><br>
+                        Compare Nora Bernard’s legal resistance with Betty Ross’s cultural resilience. How are both methods essential to healing and justice, and how does Rita Joe’s poem "I Lost My Talk" bridge these two forms of survival?
+                    </p>
+                    <textarea id="ans-q4" placeholder="Write your structured response here..." oninput="autosave()"></textarea>
+                </div>
+            </div>
+
+            <!-- Slide 5: MMIWG Connection (NEW LOG 05) -->
+            <div class="slide-pane" id="slide-pane-new-mmiwg">
+                <div class="classified-stamp" style="border-color: #cc3333; color: #cc3333; box-shadow: 0 0 15px rgba(204, 51, 51, 0.3); transform: rotate(-3deg);">NATIONAL CRISIS</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 5 of 7</span>
+                    <h2 class="slide-title">Evidence Log: MMIWG Connection</h2>
+                    <div class="slide-directive">INQUIRY DEPT // MMIWG directive: connect Nora Bernard's story to the national crisis of Missing & Murdered Indigenous Women & Girls.</div>
+                </div>
+
+                <div class="mmiwg-framing-callout">
+                    <h4>Thematic Bridge</h4>
+                    <p style="margin-bottom: 0;">
+                        Nora Bernard isn't just a residential school story — she is a <strong>Mi'kmaw woman whose life and death embody the intersections</strong> of colonial policy, gender-based discrimination, intergenerational trauma, and resilient leadership that define the MMIWG crisis.
+                    </p>
+                </div>
+
+                <h3>Nora Bernard ↔ MMIWG: Thematic Connections</h3>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nora Bernard Project Element</th>
+                                <th>Connection to MMIWG</th>
+                                <th>Curriculum Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Nora's murder (2007)</strong>: Drug-related violence in her home, just as compensation checks arrived</td>
+                                <td>Illustrates how residential school trauma fuels ongoing vulnerability to violence against Indigenous women</td>
+                                <td><strong>G5</strong>: Evaluate adverse effects of discriminatory policies</td>
+                            </tr>
+                            <tr>
+                                <td><strong>"Marrying out" under Indian Act</strong>: Lost status, banned from Millbrook</td>
+                                <td>Shows how colonial legislation specifically targeted Indigenous women's identity, autonomy, and safety</td>
+                                <td><strong>G5, C1</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grassroots organizing</strong>: Kitchen-table testimonies → national class action</td>
+                                <td>Models how Indigenous women lead justice movements — direct parallel to MMIWG advocacy (NWAC, NSNWA)</td>
+                                <td><strong>Citizenship, G5</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Rita Joe's "I Lost My Talk"</strong>: Reclaiming voice after silencing</td>
+                                <td>Mirrors MMIWG families' call: "Their voices will guide us" — storytelling as resistance and healing</td>
+                                <td><strong>C2, C3, C4</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Shubenacadie neglect/deaths</strong>: 23 documented student deaths, medical dismissal</td>
+                                <td>Establishes the systemic devaluation of Indigenous life that underpins the MMIWG crisis</td>
+                                <td><strong>E2, G5</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Comparative Case Study</h3>
+                <p>Analyze the patterns of systemic failure and forms of resistance across these two Mi'kmaw women's stories:</p>
+
+                <div class="comparative-cards">
+                    <div class="case-card">
+                        <h5>Nora Bernard (1935–2007)</h5>
+                        <p>
+                            Sent to Shubenacadie at age 9. Lost Indian Act status for marrying a non-Indigenous man. Organized kitchen-table testimonies that grew into 900+ member association. Led the Maritime class-action lawsuit that became the IRSSA. Murdered in her home at 72, just as compensation was being distributed.
+                        </p>
+                        <p style="margin-top: 10px; color: var(--accent); font-weight: 700; font-size: 0.85rem;">
+                            Resistance: Legal strategy, grassroots organizing, national testimony collection
+                        </p>
+                    </div>
+                    <div class="case-card">
+                        <h5>Annie Mae Aquash (1945–1975)</h5>
+                        <p>
+                            Mi'kmaw activist from Nova Scotia who became a prominent member of the American Indian Movement (AIM). Advocated for Indigenous sovereignty and women's leadership. Found murdered in South Dakota under suspicious circumstances. Her case remained unsolved for decades, highlighting systemic failures in investigating violence against Indigenous women.
+                        </p>
+                        <p style="margin-top: 10px; color: var(--accent); font-weight: 700; font-size: 0.85rem;">
+                            Resistance: Cross-border activism, AIM leadership, women's sovereignty advocacy
+                        </p>
+                    </div>
+                </div>
+
+                <div class="callout-box">
+                    <h4>Guiding Question</h4>
+                    <p style="margin-bottom: 0;">
+                        <em>What patterns of systemic failure do we see? What forms of resistance emerge?</em>
+                    </p>
+                </div>
+
+                <h3>MMIWG Timeline Extension</h3>
+                <p>Key milestones in the national MMIWG movement, extending beyond Nora's story:</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1990s</span>
+                        <p class="timeline-desc">Survivor testimonies and grassroots organizing begin documenting cases of missing and murdered Indigenous women across Canada.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2004</span>
+                        <p class="timeline-desc">Native Women's Association of Canada (NWAC) launches <strong>Sisters in Spirit</strong> initiative to systematically document MMIWG cases and support families.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2014</span>
+                        <p class="timeline-desc">NWAC releases report documenting <strong>582 cases</strong> of missing/murdered Indigenous women, catalyzing public demand for a national inquiry.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2016</span>
+                        <p class="timeline-desc">National Inquiry into Missing and Murdered Indigenous Women and Girls formally launched by the Government of Canada.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">2019</span>
+                        <p class="timeline-desc">Final Report <strong>"Reclaiming Power and Place"</strong> released, calling the crisis a genocide. <strong>231 Calls for Justice</strong> issued across education, health, justice, and child welfare.</p>
+                    </div>
+                </div>
+
+                <div class="workspace-question-box">
+                    <label class="question-label" for="ans-q5">Case Inquiry Parameter 5: MMIWG Connection</label>
+                    <p class="question-prompt">
+                        How does Nora Bernard's life and murder connect to the broader MMIWG crisis? What does her story reveal about the intersection of colonial policy and gender-based violence against Indigenous women?
+                    </p>
+                    <textarea id="ans-q5" placeholder="Write your structured response here..." oninput="autosave()"></textarea>
+                </div>
+            </div>
+
+            <!-- Slide 6: Choose Pathway (now LOG 06) -->
+            <div class="slide-pane" id="slide-pane-4">
+                <div class="classified-stamp" style="border-color: var(--success); color: var(--success); box-shadow: 0 0 15px rgba(46, 204, 113, 0.3); transform: rotate(-5deg); top: 25px; right: 25px;">DECLASSIFIED</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 6 of 7</span>
+                    <h2 class="slide-title">Inquiry Pathway: Commemoration & Redress</h2>
+                    <div class="slide-directive">INQUIRY DEPT // COMMEMORATION directive: execute public redress pathway.</div>
+                </div>
+                <p>
+                    Select one of the eight commemorative or inquiry pathways below to apply your research. Your input fields will update dynamically based on your selection.
+                </p>
+
+                <div class="pathway-selector-group">
+                    <label for="pathway-select" class="question-label">Choose Your Pathway</label>
+                    <select id="pathway-select" class="form-select" onchange="renderPathwayFields(this.value)">
+                        <option value="">-- Choose Option --</option>
+                        <option value="A">Pathway A: Physical Commemorative Plaque</option>
+                        <option value="B">Pathway B: Telemetry Audio Interview Script</option>
+                        <option value="C">Pathway C: Museum Exhibition Display Card</option>
+                        <option value="D">Pathway D: Environmental Racism (Boat Harbour Case Study)</option>
+                        <option value="E">Pathway E: Reclaiming Public Space (Cornwallis vs Nora Bernard Street)</option>
+                        <option value="F">Pathway F: Expository Research Essay (Source Template)</option>
+                        <option value="G">Pathway G: Google Slides Presentation (Source Template)</option>
+                        <option value="H">Pathway H: MMIWG Calls for Justice Action</option>
+                    </select>
+                </div>
+
+                <div class="pathway-fields-area" id="pathway-fields-container">
+                    <div style="text-align: center; color: var(--text-light); padding: 40px;">
+                        Select a pathway above to begin entering your commemorative project details.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Review & Commit (now LOG 07) -->
+            <div class="slide-pane" id="slide-pane-5">
+                <div class="classified-stamp" style="border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px rgba(255, 179, 0, 0.3); transform: rotate(12deg); top: 25px; right: 25px;">FINAL AUDIT</div>
+                <div class="slide-header">
+                    <span class="slide-step-num">Evidence Log 7 of 7</span>
+                    <h2 class="slide-title">Case Archival & Submission</h2>
+                    <div class="slide-directive">INQUIRY DEPT // SUBMISSION directive: review compiled evidence and sign off.</div>
+                </div>
+                <p>
+                    Please review all of your responses below. If you need to make changes, navigate back to the appropriate slide. Once you are satisfied with your work, click the commit button at the bottom to sync your final Case File with the central classroom records.
+                </p>
+
+                <div class="review-grid">
+                    <div class="review-item">
+                        <h4>LOG 01: INCIDENT BRIEFING RESPONSE</h4>
+                        <div class="review-value-box" id="rev-q1">No response entered.</div>
+                    </div>
+                    <div class="review-item">
+                        <h4>LOG 02: MEDICAL & NUTRITIONAL ANALYSIS</h4>
+                        <div class="review-value-box" id="rev-q2">No response entered.</div>
+                    </div>
+                    <div class="review-item">
+                        <h4>LOG 03: LITIGATION & MOBILIZATION ENTRY</h4>
+                        <div class="review-value-box" id="rev-q3">No response entered.</div>
+                    </div>
+                    <div class="review-item">
+                        <h4>LOG 04: COMPARATIVE RESILIENCE ENTRY</h4>
+                        <div class="review-value-box" id="rev-q4">No response entered.</div>
+                    </div>
+                    <div class="review-item">
+                        <h4>LOG 05: MMIWG CONNECTION RESPONSE</h4>
+                        <div class="review-value-box" id="rev-q5">No response entered.</div>
+                    </div>
+                    <div class="review-item">
+                        <h4>LOG 06: INQUIRY PATHWAY ARTIFACT</h4>
+                        <div class="review-value-box" id="rev-q6">No pathway selected.</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <button class="login-btn" style="max-width: 380px; font-size: 1rem;" onclick="commitFinalDossier()">Submit Case File to Archive</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Success Screen Overlay -->
+    <div class="success-overlay" id="success-overlay">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h2>Evidence Log Committed Successfully</h2>
+            <p>
+                Your legacy research, literary reflections, and pathway deliverables have been securely committed to the central classroom database.
+            </p>
+            <button class="login-btn" style="max-width: 220px;" onclick="location.reload()">Return to Console</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyBPWdBC7xpPzE7nuZH1_P6GSJXAeKhlKFVVPW-QHAf7Gwr6Rxvc6uOjdw2CCLic4GB/exec";
+        const SIMULATION_KEY = "Nora Bernard & Shubenacadie Legacy Project";
+
+        const STUDENTS = [
+            {"B":"A Block (Waugh)","S":"Alexis (ABCD)"},
+            {"B":"A Block (Waugh)","S":"ANANYA M. (OKOK)"},
+            {"B":"A Block (Waugh)","S":"CALLUM (LLLL)"},
+            {"B":"A Block (Waugh)","S":"CONNOR (ABCD)"},
+            {"B":"A Block (Waugh)","S":"COVA (KIKI)"},
+            {"B":"A Block (Waugh)","S":"DAVE (ABBA)"},
+            {"B":"A Block (Waugh)","S":"Dmytro (BIBA)"},
+            {"B":"A Block (Waugh)","S":"ELLEE (ABCD)"},
+            {"B":"A Block (Waugh)","S":"Gala (NIVA)"},
+            {"B":"A Block (Waugh)","S":"GAVIN (AAAA)"},
+            {"B":"A Block (Waugh)","S":"HARRISON (YNPH)"},
+            {"B":"A Block (Waugh)","S":"JESSE (LOUP)"},
+            {"B":"A Block (Waugh)","S":"JOSH (JOSH)"},
+            {"B":"A Block (Waugh)","S":"Jon (DUDE)"},
+            {"B":"A Block (Waugh)","S":"Julianne (WASH)"},
+            {"B":"A Block (Waugh)","S":"Kevin (CHIG)"},
+            {"B":"A Block (Waugh)","S":"Lena (FOOD)"},
+            {"B":"A Block (Waugh)","S":"MAE (BALL)"},
+            {"B":"A Block (Waugh)","S":"MATEO (YOLO)"},
+            {"B":"A Block (Waugh)","S":"Michael (ABCD)"},
+            {"B":"A Block (Waugh)","S":"MRWAUGH (XOXO)"},
+            {"B":"A Block (Waugh)","S":"rose (ROSE)"},
+            {"B":"A Block (Waugh)","S":"Ruby (NECK)"},
+            {"B":"A Block (Waugh)","S":"Sonja (ROSE)"},
+            {"B":"A Block (Waugh)","S":"Sophie (QASW)"},
+            {"B":"A Block (Waugh)","S":"VITUSZ (XDXD)"},
+            {"B":"C Block (Waugh)","S":"Abdel (AAAW)"},
+            {"B":"C Block (Waugh)","S":"Abigail (ABIS)"},
+            {"B":"C Block (Waugh)","S":"AIDEN (KING)"},
+            {"B":"C Block (Waugh)","S":"Anthony (K00l)"},
+            {"B":"C Block (Waugh)","S":"BAASHIQ (NINE)"},
+            {"B":"C Block (Waugh)","S":"Caitlyn (ABCD)"},
+            {"B":"C Block (Waugh)","S":"Caleb (BALL)"},
+            {"B":"C Block (Waugh)","S":"CHRISTOPHER (CHIP)"},
+            {"B":"C Block (Waugh)","S":"Clara Jones (CLAR)"},
+            {"B":"C Block (Waugh)","S":"DAVE (ABBA)"},
+            {"B":"C Block (Waugh)","S":"HARJAS (COLD)"},
+            {"B":"C Block (Waugh)","S":"Isaac (ISLE)"},
+            {"B":"C Block (Waugh)","S":"Isabella Beck (BELL)"},
+            {"B":"C Block (Waugh)","S":"Jaiveer (WASD)"},
+            {"B":"C Block (Waugh)","S":"Julian (SPED)"},
+            {"B":"C Block (Waugh)","S":"Kaden (CHUD)"},
+            {"B":"C Block (Waugh)","S":"KOEN (LORI)"},
+            {"B":"C Block (Waugh)","S":"Kulay cruz (CRUZ)"},
+            {"B":"C Block (Waugh)","S":"Kyle Parsons (PUCK)"},
+            {"B":"C Block (Waugh)","S":"Kyra (ABCD)"},
+            {"B":"C Block (Waugh)","S":"Madina Mirza (INNA)"},
+            {"B":"C Block (Waugh)","S":"myles (QWER)"},
+            {"B":"C Block (Waugh)","S":"Noah Pinter (NOAH)"},
+            {"B":"C Block (Waugh)","S":"Raida (QAZK)"},
+            {"B":"C Block (Waugh)","S":"Reiley (NOAH)"},
+            {"B":"C Block (Waugh)","S":"River Thomas (DEWO)"},
+            {"B":"C Block (Waugh)","S":"Sam (WAVE)"},
+            {"B":"C Block (Waugh)","S":"Soulin Shehab (SOUL)"},
+            {"B":"C Block (Waugh)","S":"Sukhbir (NICE)"},
+            {"B":"C Block (Waugh)","S":"Zaid (ZAID)"},
+            {"B":"C Block (Waugh)","S":"ZAYDEN (ABCD)"}
+        ];
+
+        const POEM_ANNOTATIONS = {
+            1: `<strong>Stanza 1: METAPHOR OF LANGUAGE ERASURE</strong><br><br>
+                <ul>
+                    <li><em>"I lost my talk"</em>: A profound metaphor for the stripping away of native language (Mi'kmaw), representing the forced erasure of cultural identity.</li>
+                    <li><em>"The talk you took away"</em>: Attributes direct responsibility to the residential school system and the state's assimilation policies.</li>
+                    <li><em>"When I was a little girl / At Shubenacadie school"</em>: Focuses on the extreme vulnerability of children who were taken as young as 4 or 5 and placed in an alien institutional environment.</li>
+                </ul>`,
+            2: `<strong>Stanza 2: COLONIAL INFLICT & CONFORMITY</strong><br><br>
+                <ul>
+                    <li><em>"You snatched it away"</em>: The violent verb 'snatched' emphasizes the non-consensual and aggressive nature of language prohibition.</li>
+                    <li><em>"I speak like you / I think like you / I create like you"</em>: Highlights cognitive assimilation. Forced to acquire English at the cost of her native language, changing how she was forced to view the world.</li>
+                    <li><em>"The scrambled ballad, about my world"</em>: Describes the tension of trying to represent Indigenous realities through a Western colonial art form (the 'ballad').</li>
+                </ul>`,
+            3: `<strong>Stanza 3: RECLAMATION & DEVIATION</strong><br><br>
+                <ul>
+                    <li><em>"Two ways I talk"</em>: Navigating double consciousness—holding both the English forced upon her and the Mi'kmaw language she reclaimed.</li>
+                    <li><em>"But since I find more than you let me find"</em>: A statement of intellectual resilience. Finding ancestral knowledge and truth outside of the narrow, biased curriculum of the school.</li>
+                    <li><em>"I depart from your way"</em>: A powerful declaration of sovereignty and resistance, refusing total assimilation.</li>
+                </ul>`,
+            4: `<strong>Stanza 4: RECONCILIATORY TURN</strong><br><br>
+                <ul>
+                    <li><em>"Let me find my talk / So I can teach you about you"</em>: Reverses the traditional colonial teacher-student hierarchy. True reconciliation requires colonial society to listen to, and learn from, Indigenous voices to understand the consequences of its own history.</li>
+                </ul>`
+        };
+
+        let selectedBlock = "";
+        let selectedStudent = "";
+        let verifiedPIN = "";
+        let currentSlide = 0;
+        let autosaveTimeout = null;
+
+        // Login utilities
+        function populateStudentDropdown(block) {
+            selectedBlock = block;
+            const selectEl = document.getElementById('login-student');
+            const pinEl = document.getElementById('login-pin');
+            
+            selectEl.innerHTML = '<option value="">-- Choose Profile --</option>';
+            pinEl.value = "";
+            pinEl.disabled = true;
+            
+            if (!block) {
+                selectEl.disabled = true;
+                return;
+            }
+
+            const filtered = STUDENTS.filter(s => s.B === block);
+            filtered.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.S; // Format: "Name (PIN)"
+                opt.textContent = s.S.split(' (')[0];
+                selectEl.appendChild(opt);
+            });
+            selectEl.disabled = false;
+        }
+
+        document.getElementById('login-student').addEventListener('change', (e) => {
+            const pinEl = document.getElementById('login-pin');
+            if (e.target.value) {
+                pinEl.disabled = false;
+                pinEl.focus();
+            } else {
+                pinEl.disabled = true;
+                pinEl.value = "";
+            }
+        });
+
+        function verifyStudentPin() {
+            const studentVal = document.getElementById('login-student').value;
+            const inputPin = document.getElementById('login-pin').value.trim().toUpperCase();
+            const errorEl = document.getElementById('login-error-msg');
+            
+            if (!studentVal || !inputPin) return;
+
+            // Extract PIN from student signature e.g. "Julian (SPED)"
+            const pinMatch = studentVal.match(/\(([^)]+)\)/);
+            const actualPin = pinMatch ? pinMatch[1].trim().toUpperCase() : "";
+
+            if (inputPin === actualPin) {
+                selectedStudent = studentVal;
+                verifiedPIN = actualPin;
+                errorEl.style.display = 'none';
+                
+                document.getElementById('student-badge-name').textContent = studentVal.split(' (')[0];
+                document.getElementById('brief-student-name').textContent = studentVal.split(' (')[0];
+                
+                // Animate login away and show briefing overlay
+                gsap.to('#login-overlay', { opacity: 0, duration: 0.4, onComplete: () => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    
+                    const briefOverlay = document.getElementById('briefing-overlay');
+                    briefOverlay.style.display = 'flex';
+                    gsap.to(briefOverlay, { opacity: 1, duration: 0.4 });
+                }});
+            } else {
+                errorEl.style.display = 'block';
+                document.getElementById('login-pin').value = "";
+                document.getElementById('login-pin').focus();
+            }
+        }
+
+        function startInvestigation() {
+            gsap.to('#briefing-overlay', { opacity: 0, duration: 0.4, onComplete: () => {
+                document.getElementById('briefing-overlay').style.display = 'none';
+                loadStudentProgress();
+            }});
+        }
+
+        // Navigation
+        function getWordCount(text) {
+            if (!text) return 0;
+            const cleanText = text.trim().replace(/\s+/g, ' ');
+            if (cleanText === "") return 0;
+            return cleanText.split(' ').length;
+        }
+
+        function isCurrentSlideLocked() {
+            if (currentSlide === 6) return false;
+            
+            const minWords = 15;
+            let wordCount = 0;
+            
+            if (currentSlide === 0) {
+                wordCount = getWordCount(document.getElementById('ans-q1').value);
+                return wordCount < minWords;
+            } else if (currentSlide === 1) {
+                wordCount = getWordCount(document.getElementById('ans-q2').value);
+                return wordCount < minWords;
+            } else if (currentSlide === 2) {
+                wordCount = getWordCount(document.getElementById('ans-q3').value);
+                return wordCount < minWords;
+            } else if (currentSlide === 3) {
+                wordCount = getWordCount(document.getElementById('ans-q4').value);
+                return wordCount < minWords;
+            } else if (currentSlide === 4) {
+                wordCount = getWordCount(document.getElementById('ans-q5').value);
+                return wordCount < minWords;
+            } else if (currentSlide === 5) {
+                const pathway = document.getElementById('pathway-select').value;
+                if (!pathway) return true;
+                const textareas = document.querySelectorAll('#pathway-fields-container textarea');
+                let totalWords = 0;
+                textareas.forEach(ta => {
+                    totalWords += getWordCount(ta.value);
+                });
+                return totalWords < minWords;
+            }
+            return false;
+        }
+
+        function checkSlideLock() {
+            const nextBtn = document.getElementById('next-btn');
+            const lockIndicator = document.getElementById('lock-indicator');
+            if (!lockIndicator || !nextBtn) return;
+
+            if (currentSlide === 6) {
+                nextBtn.disabled = true;
+                lockIndicator.innerHTML = `<span style="color: var(--success); font-weight:700;">[LOG ENTRY SECURED]</span>`;
+                return;
+            }
+
+            const locked = isCurrentSlideLocked();
+            let wordCount = 0;
+            const minWords = 15;
+
+            if (currentSlide === 0) {
+                wordCount = getWordCount(document.getElementById('ans-q1').value);
+            } else if (currentSlide === 1) {
+                wordCount = getWordCount(document.getElementById('ans-q2').value);
+            } else if (currentSlide === 2) {
+                wordCount = getWordCount(document.getElementById('ans-q3').value);
+            } else if (currentSlide === 3) {
+                wordCount = getWordCount(document.getElementById('ans-q4').value);
+            } else if (currentSlide === 4) {
+                wordCount = getWordCount(document.getElementById('ans-q5').value);
+            } else if (currentSlide === 5) {
+                const pathway = document.getElementById('pathway-select').value;
+                if (pathway) {
+                    const textareas = document.querySelectorAll('#pathway-fields-container textarea');
+                    textareas.forEach(ta => {
+                        wordCount += getWordCount(ta.value);
+                    });
+                }
+            }
+
+            if (locked) {
+                nextBtn.disabled = true;
+                if (currentSlide === 5 && !document.getElementById('pathway-select').value) {
+                    lockIndicator.innerHTML = `<span style="color: var(--error); font-weight:700;">[SELECT PATHWAY TO UNLOCK]</span>`;
+                } else {
+                    lockIndicator.innerHTML = `<span style="color: var(--error); font-weight:700;">[LOCKED: ${wordCount}/${minWords} WORDS]</span>`;
+                }
+            } else {
+                nextBtn.disabled = false;
+                lockIndicator.innerHTML = `<span style="color: var(--success); font-weight:700;">[ENTRY UNLOCKED]</span>`;
+            }
+        }
+
+        function goToSlide(slideIdx) {
+            if (slideIdx < 0 || slideIdx > 6) return;
+            
+            // Prevent skipping forward if current slide is locked
+            if (slideIdx > currentSlide && isCurrentSlideLocked()) {
+                const indicator = document.getElementById('lock-indicator');
+                if (indicator) {
+                    gsap.fromTo(indicator, { scale: 1 }, { scale: 1.1, duration: 0.1, yoyo: true, repeat: 3 });
+                }
+                return;
+            }
+            
+            // Toggle active slide
+            document.querySelectorAll('.slide-pane').forEach((p, idx) => {
+                if (idx === slideIdx) {
+                    p.style.display = 'block';
+                    gsap.fromTo(p, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
+                } else {
+                    p.style.display = 'none';
+                }
+            });
+
+            // Toggle nav item
+            document.querySelectorAll('.nav-item').forEach((item, idx) => {
+                if (idx === slideIdx) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            currentSlide = slideIdx;
+            
+            // Adjust buttons
+            document.getElementById('prev-btn').disabled = (slideIdx === 0);
+            
+            checkSlideLock();
+            
+            if (slideIdx === 6) {
+                updateReviewSlide();
+            }
+        }
+
+        function navigateSlide(dir) {
+            goToSlide(currentSlide + dir);
+        }
+
+        // Poem Stanza Selection
+        function selectStanza(num) {
+            document.querySelectorAll('.poem-stanza').forEach(s => s.classList.remove('selected'));
+            document.getElementById(`stanza-${num}`).classList.add('selected');
+
+            const titleEl = document.getElementById('anno-title');
+            const textEl = document.getElementById('anno-text');
+
+            titleEl.textContent = `Stanza ${num} Analysis`;
+            textEl.innerHTML = POEM_ANNOTATIONS[num];
+
+            gsap.fromTo('.poem-annotations-sidebar', { x: 10, opacity: 0.8 }, { x: 0, opacity: 1, duration: 0.3 });
+        }
+
+        // Dynamic Pathway Fields
+        function renderPathwayFields(pathway) {
+            const container = document.getElementById('pathway-fields-container');
+            container.innerHTML = "";
+
+            if (!pathway) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-light); padding: 40px;">
+                        Select a pathway above to begin entering your commemorative project details.
+                    </div>
+                `;
+                return;
+            }
+
+            let fieldsHtml = "";
+
+            if (pathway === "A") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-a-layout">Mockup Physical Layout & Visual Symbol Description</label>
+                        <p class="question-prompt">Describe the visual physical design, shape, materials (wood, bronze), and specific Mi'kmaw artistic borders/symbols incorporated.</p>
+                        <textarea id="path-a-layout" placeholder="Describe the physical design..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-a-citation">Historical Commemorative Citation (150–200 words)</label>
+                        <p class="question-prompt">Write the exact historical dedication summarizing Nora Bernard's struggle and legacy. Make every word count.</p>
+                        <textarea id="path-a-citation" placeholder="Write your citation here..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-a-rationale">Design Rationale (200 words)</label>
+                        <p class="question-prompt">Explain why you selected these materials, symbolic artistic cues, and its proposed geographic placement location.</p>
+                        <textarea id="path-a-rationale" placeholder="Write your design rationale here..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "B") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-b-script">Audio Script Dialogue (Reporter & Historian/Contemporary)</label>
+                        <p class="question-prompt">Write the transcript for a 3-to-4 minute broadcast detailing the logistics Nora faced organizing the Maritime association.</p>
+                        <textarea id="path-b-script" placeholder="Enter podcast script dialogue here..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-b-details">Audio Recording Link & Production Notes</label>
+                        <p class="question-prompt">Provide a shared folder link (Google Drive) of the audio recording, and describe the background sound design cues used.</p>
+                        <textarea id="path-b-details" placeholder="Audio link and production notes..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "C") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-c-commentary">Exhibition Curator Commentary</label>
+                        <p class="question-prompt">Draft the formal educational plaque describing Nora's litigation strategy, Band unification, and the Order of Nova Scotia award.</p>
+                        <textarea id="path-c-commentary" placeholder="Write the curator commentary here..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-c-layout">Visual Exhibition Layout Plan</label>
+                        <p class="question-prompt">Detail which primary sources (archival photos of Shubenacadie, newspaper clippings, legal court quotes) are visually laid out and where.</p>
+                        <textarea id="path-c-layout" placeholder="Describe layout design and materials..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "D") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-d-boat-harbour">Boat Harbour Pollution Case Study</label>
+                        <p class="question-prompt">Map the historical pollution of Boat Harbour near Pictou Landing. How did the pulp mill pollution impact local Mi'kmaw communities?</p>
+                        <textarea id="path-d-boat-harbour" placeholder="Detail the case study findings..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-d-environmental-racism">Connection to Environmental Racism & Colonialism</label>
+                        <p class="question-prompt">How is the dumping of industrial waste in Indigenous territories an extension of historical land dispossession and marginalization?</p>
+                        <textarea id="path-d-environmental-racism" placeholder="Explain the structural connection..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "E") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-e-landmark">Landmark Rename Case Study: Cornwallis Street to Nora Bernard Street</label>
+                        <p class="question-prompt">Edward Cornwallis (who issued scalp bounties on Mi'kmaq in 1749) had his name on Cornwallis Street. In 2022, Halifax Regional Council voted to rename it Nora Bernard Street after a public consultation where her name received the highest vote (over 2,400 votes).</p>
+                        <p class="question-prompt">Analyze the renaming process. Why was this change significant for social/economic reconciliation, and how does renaming streets serve as a form of cultural redress?</p>
+                        <textarea id="path-e-landmark" placeholder="Analyze the street renaming and its significance..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-e-advocacy">Civic Advocacy Action Proposal</label>
+                        <p class="question-prompt">Draft a petition, letter to regional council, or community town hall pitch to rename another colonial landmark or monument in Nova Scotia. Who are the key stakeholders, and how would you build community support?</p>
+                        <textarea id="path-e-advocacy" placeholder="Outline your civic action and engagement strategy..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "F") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-f-essay">Expository Research Essay (300-500 words)</label>
+                        <p class="question-prompt">Draft your research essay tracing the history of Shubenacadie and Nora's legacy. Remember: you MUST use the source template (Intro, Background, Analysis, Conclusion, Sources).</p>
+                        <textarea id="path-f-essay" placeholder="Write your expository research essay here..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "G") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-g-link">Google Slides Presentation Share Link</label>
+                        <p class="question-prompt">Paste the active view/comment share link to your Google Slides presentation deck here.</p>
+                        <textarea id="path-g-link" placeholder="https://docs.google.com/presentation/d/..." oninput="autosave()" style="height: 50px;"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-g-outline">Presentation Outline & Speaker Notes Summary</label>
+                        <p class="question-prompt">List your slide layout structure, primary sources cited, and a summary of key points in your presenter notes.</p>
+                        <textarea id="path-g-outline" placeholder="Slide 1: Intro, Slide 2: ..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-g-desc">Mandatory Descriptive Overview (250 words)</label>
+                        <p class="question-prompt">Write the required 250-word descriptive summary of your project, utilizing the source template format to outline main themes and sources.</p>
+                        <textarea id="path-g-desc" placeholder="Write your 250-word description here..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            } else if (pathway === "H") {
+                fieldsHtml = `
+                    <div class="pathway-field-group">
+                        <label for="path-h-call">Choose One Call for Justice</label>
+                        <p class="question-prompt">Select one MMIWG Call for Justice to focus your action on.</p>
+                        <select id="path-h-call" class="form-select" oninput="autosave()">
+                            <option value="">-- Select Call --</option>
+                            <option value="education">Education & Awareness</option>
+                            <option value="memorialization">Memorialization & Commemoration</option>
+                            <option value="families">Supporting Families & Communities</option>
+                            <option value="police">Police & Government Accountability</option>
+                        </select>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-h-action">Design a Mi'kmaw-Centered School or Community Action</label>
+                        <p class="question-prompt">Propose a concrete action: Red Dress display, advocacy letter to MLA, NSNWA partnership proposal, or another community initiative.</p>
+                        <textarea id="path-h-action" placeholder="Describe your proposed action..." oninput="autosave()"></textarea>
+                    </div>
+                    <div class="pathway-field-group">
+                        <label for="path-h-rationale">Rationale Connecting Call to Nora's Story (200 words)</label>
+                        <p class="question-prompt">Write a 200-word rationale connecting your chosen Call for Justice to Nora Bernard's life, legacy, and the broader MMIWG crisis.</p>
+                        <textarea id="path-h-rationale" placeholder="Write your rationale here..." oninput="autosave()"></textarea>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = fieldsHtml;
+            restorePathwayData();
+            checkSlideLock();
+        }
+
+        // Autosave status indicator
+        function setSaveStatus(msg, color) {
+            const dot = document.getElementById('save-dot');
+            const txt = document.getElementById('save-status');
+            dot.style.backgroundColor = color;
+            txt.textContent = msg;
+        }
+
+        // Gather all inputs into a single state
+        function gatherState() {
+            const state = {
+                slide_1: document.getElementById('ans-q1').value,
+                slide_2: document.getElementById('ans-q2').value,
+                slide_3: document.getElementById('ans-q3').value,
+                slide_4: document.getElementById('ans-q4').value,
+                slide_5: document.getElementById('ans-q5').value,
+                pathway: document.getElementById('pathway-select').value,
+                pathway_inputs: {}
+            };
+
+            const path = state.pathway;
+            if (path === "A") {
+                state.pathway_inputs.layout = document.getElementById('path-a-layout')?.value || "";
+                state.pathway_inputs.citation = document.getElementById('path-a-citation')?.value || "";
+                state.pathway_inputs.rationale = document.getElementById('path-a-rationale')?.value || "";
+            } else if (path === "B") {
+                state.pathway_inputs.script = document.getElementById('path-b-script')?.value || "";
+                state.pathway_inputs.details = document.getElementById('path-b-details')?.value || "";
+            } else if (path === "C") {
+                state.pathway_inputs.commentary = document.getElementById('path-c-commentary')?.value || "";
+                state.pathway_inputs.layout = document.getElementById('path-c-layout')?.value || "";
+            } else if (path === "D") {
+                state.pathway_inputs.boatharbour = document.getElementById('path-d-boat-harbour')?.value || "";
+                state.pathway_inputs.environmental = document.getElementById('path-d-environmental-racism')?.value || "";
+            } else if (path === "E") {
+                state.pathway_inputs.landmark = document.getElementById('path-e-landmark')?.value || "";
+                state.pathway_inputs.advocacy = document.getElementById('path-e-advocacy')?.value || "";
+            } else if (path === "F") {
+                state.pathway_inputs.essay = document.getElementById('path-f-essay')?.value || "";
+            } else if (path === "G") {
+                state.pathway_inputs.link = document.getElementById('path-g-link')?.value || "";
+                state.pathway_inputs.outline = document.getElementById('path-g-outline')?.value || "";
+                state.pathway_inputs.desc = document.getElementById('path-g-desc')?.value || "";
+            } else if (path === "H") {
+                state.pathway_inputs.call = document.getElementById('path-h-call')?.value || "";
+                state.pathway_inputs.action = document.getElementById('path-h-action')?.value || "";
+                state.pathway_inputs.rationale = document.getElementById('path-h-rationale')?.value || "";
+            }
+
+            let slide6Text = "";
+            if (path) {
+                slide6Text = `[Pathway ${path}] `;
+                Object.keys(state.pathway_inputs).forEach(k => {
+                    slide6Text += `${k.toUpperCase()}: ${state.pathway_inputs[k]} | `;
+                });
+            }
+            state.slide_6 = slide6Text.trim();
+            
+            let slide7CompletedText = "";
+            if (state.slide_1 && state.slide_2 && state.slide_3 && state.slide_4 && state.slide_5 && state.slide_6) {
+                slide7CompletedText = "READY FOR COMMIT";
+            }
+            state.slide_7 = slide7CompletedText;
+
+            return state;
+        }
+
+        // Autosave logic
+        function autosave() {
+            setSaveStatus("Drafting...", "orange");
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(sendAutosave, 3000);
+            updateNavCompleteness();
+            checkSlideLock();
+        }
+
+        async function sendAutosave() {
+            if (!selectedStudent) return;
+            const state = gatherState();
+            const timestamp = new Date().toISOString();
+            
+            // Backup locally
+            localStorage.setItem(`draft_${selectedStudent}_legacy`, JSON.stringify(state));
+
+            try {
+                const saveUrl = `${API_URL}?action=save` +
+                    `&timestamp=${encodeURIComponent(timestamp)}` +
+                    `&block=${encodeURIComponent(selectedBlock)}` +
+                    `&student=${encodeURIComponent(selectedStudent)}` +
+                    `&subject=MIKMAW11` +
+                    `&simulation=${encodeURIComponent(SIMULATION_KEY)}` +
+                    `&status=INCREMENTAL_SAVE` +
+                    `&rationales=${encodeURIComponent(JSON.stringify(state))}`;
+
+                const res = await fetch(saveUrl);
+                const data = await res.json();
+                if (data.success) {
+                    setSaveStatus("Synced to Cloud", "#2ec4b6");
+                } else {
+                    throw new Error("Save returned unsuccessful");
+                }
+            } catch(e) {
+                console.error("Autosave failed:", e);
+                setSaveStatus("Connection Error - Local draft saved", "#ff1744");
+            }
+        }
+
+        // Load & Restore progress
+        async function loadStudentProgress() {
+            setSaveStatus("Connecting...", "orange");
+            
+            // Try loading from local storage first
+            const localDraft = localStorage.getItem(`draft_${selectedStudent}_legacy`);
+            if (localDraft) {
+                try {
+                    const state = JSON.parse(localDraft);
+                    restoreState(state);
+                    setSaveStatus("Local Draft Loaded", "orange");
+                } catch(e) {}
+            }
+
+            try {
+                const loadUrl = `${API_URL}?student=${encodeURIComponent(selectedStudent)}&simulation=${encodeURIComponent(SIMULATION_KEY)}`;
+                const res = await fetch(loadUrl);
+                const data = await res.json();
+                
+                if (data.rationales) {
+                    const state = JSON.parse(data.rationales);
+                    restoreState(state);
+                    // Backup locally
+                    localStorage.setItem(`draft_${selectedStudent}_legacy`, JSON.stringify(state));
+                    setSaveStatus("Synced to Cloud", "#2ec4b6");
+                } else if (!localDraft) {
+                    setSaveStatus("New Workspace Ready", "#9fa0a6");
+                }
+            } catch(e) {
+                console.error("Load cloud progress failed:", e);
+                if (!localDraft) {
+                    setSaveStatus("Connection Error - Offline mode active", "#ff1744");
+                }
+            }
+            updateNavCompleteness();
+            checkSlideLock();
+        }
+
+        function restoreState(state) {
+            if (state.slide_1) document.getElementById('ans-q1').value = state.slide_1;
+            if (state.slide_2) document.getElementById('ans-q2').value = state.slide_2;
+            if (state.slide_3) document.getElementById('ans-q3').value = state.slide_3;
+            if (state.slide_4) document.getElementById('ans-q4').value = state.slide_4;
+            if (state.slide_5) document.getElementById('ans-q5').value = state.slide_5;
+            
+            if (state.pathway) {
+                document.getElementById('pathway-select').value = state.pathway;
+                renderPathwayFields(state.pathway);
+                
+                window.tempPathwayInputs = state.pathway_inputs;
+                restorePathwayData();
+            }
+        }
+
+        function restorePathwayData() {
+            const inputs = window.tempPathwayInputs;
+            const path = document.getElementById('pathway-select').value;
+            if (!inputs || !path) return;
+
+            if (path === "A") {
+                if (inputs.layout) document.getElementById('path-a-layout').value = inputs.layout;
+                if (inputs.citation) document.getElementById('path-a-citation').value = inputs.citation;
+                if (inputs.rationale) document.getElementById('path-a-rationale').value = inputs.rationale;
+            } else if (path === "B") {
+                if (inputs.script) document.getElementById('path-b-script').value = inputs.script;
+                if (inputs.details) document.getElementById('path-b-details').value = inputs.details;
+            } else if (path === "C") {
+                if (inputs.commentary) document.getElementById('path-c-commentary').value = inputs.commentary;
+                if (inputs.layout) document.getElementById('path-c-layout').value = inputs.layout;
+            } else if (path === "D") {
+                if (inputs.boatharbour) document.getElementById('path-d-boat-harbour').value = inputs.boatharbour;
+                if (inputs.environmental) document.getElementById('path-d-environmental-racism').value = inputs.environmental;
+            } else if (path === "E") {
+                if (inputs.landmark) document.getElementById('path-e-landmark').value = inputs.landmark;
+                if (inputs.advocacy) document.getElementById('path-e-advocacy').value = inputs.advocacy;
+            } else if (path === "F") {
+                if (inputs.essay) document.getElementById('path-f-essay').value = inputs.essay;
+            } else if (path === "G") {
+                if (inputs.link) document.getElementById('path-g-link').value = inputs.link;
+                if (inputs.outline) document.getElementById('path-g-outline').value = inputs.outline;
+                if (inputs.desc) document.getElementById('path-g-desc').value = inputs.desc;
+            } else if (path === "H") {
+                if (inputs.call) document.getElementById('path-h-call').value = inputs.call;
+                if (inputs.action) document.getElementById('path-h-action').value = inputs.action;
+                if (inputs.rationale) document.getElementById('path-h-rationale').value = inputs.rationale;
+            }
+        }
+
+        function updateNavCompleteness() {
+            const state = gatherState();
+            const minWords = 15;
+            
+            const slide1Done = getWordCount(state.slide_1) >= minWords;
+            const slide2Done = getWordCount(state.slide_2) >= minWords;
+            const slide3Done = getWordCount(state.slide_3) >= minWords;
+            const slide4Done = getWordCount(state.slide_4) >= minWords;
+            const slide5Done = getWordCount(state.slide_5) >= minWords;
+            
+            let slide6Done = false;
+            if (state.pathway) {
+                const textareas = document.querySelectorAll('#pathway-fields-container textarea');
+                let totalWords = 0;
+                textareas.forEach(ta => {
+                    totalWords += getWordCount(ta.value);
+                });
+                slide6Done = totalWords >= minWords;
+            }
+            
+            const slide7Done = slide1Done && slide2Done && slide3Done && slide4Done && slide5Done && slide6Done;
+            
+            toggleNavCheckmark(0, slide1Done);
+            toggleNavCheckmark(1, slide2Done);
+            toggleNavCheckmark(2, slide3Done);
+            toggleNavCheckmark(3, slide4Done);
+            toggleNavCheckmark(4, slide5Done);
+            toggleNavCheckmark(5, slide6Done);
+            toggleNavCheckmark(6, slide7Done);
+        }
+
+        function toggleNavCheckmark(slideIdx, isDone) {
+            const item = document.getElementById(`nav-step-${slideIdx}`);
+            if (!item) return;
+            if (isDone) {
+                item.classList.add('completed');
+            } else {
+                item.classList.remove('completed');
+            }
+        }
+
+        // Review Slide renderer
+        function updateReviewSlide() {
+            const state = gatherState();
+            
+            document.getElementById('rev-q1').textContent = state.slide_1 || "No response entered.";
+            document.getElementById('rev-q2').textContent = state.slide_2 || "No response entered.";
+            document.getElementById('rev-q3').textContent = state.slide_3 || "No response entered.";
+            document.getElementById('rev-q4').textContent = state.slide_4 || "No response entered.";
+            document.getElementById('rev-q5').textContent = state.slide_5 || "No response entered.";
+            
+            let pathText = "No pathway selected.";
+            if (state.pathway) {
+                pathText = `Pathway ${state.pathway} Selected.\n\n`;
+                Object.keys(state.pathway_inputs).forEach(k => {
+                    pathText += `${k.toUpperCase()}:\n${state.pathway_inputs[k]}\n\n`;
+                });
+            }
+            document.getElementById('rev-q6').textContent = pathText.trim();
+        }
+
+        // Manual Save Trigger
+        function triggerManualSave() {
+            setSaveStatus("Saving Progress...", "orange");
+            sendAutosave();
+        }
+
+        // Final Commit
+        async function commitFinalDossier() {
+            const state = gatherState();
+            if (!state.slide_1 || !state.slide_2 || !state.slide_3 || !state.slide_4 || !state.slide_5 || !state.slide_6) {
+                alert("Please fill in all slides and select a pathway before submitting your final Case File.");
+                return;
+            }
+
+            setSaveStatus("Syncing final Case File...", "orange");
+            const timestamp = new Date().toISOString();
+
+            try {
+                const saveUrl = `${API_URL}?action=save` +
+                    `&timestamp=${encodeURIComponent(timestamp)}` +
+                    `&block=${encodeURIComponent(selectedBlock)}` +
+                    `&student=${encodeURIComponent(selectedStudent)}` +
+                    `&subject=MIKMAW11` +
+                    `&simulation=${encodeURIComponent(SIMULATION_KEY)}` +
+                    `&status=COMPLETED` +
+                    `&rationales=${encodeURIComponent(JSON.stringify(state))}`;
+
+                const res = await fetch(saveUrl);
+                const data = await res.json();
+                
+                if (data.success) {
+                    setSaveStatus("Case File Archived", "#2ec4b6");
+                    // Trigger success overlay
+                    document.getElementById('success-overlay').classList.add('active');
+                } else {
+                    throw new Error("Commit returned failed success");
+                }
+            } catch(e) {
+                console.error("Commit failed:", e);
+                alert("Commit failed. Please check your internet connection and try again.");
+                setSaveStatus("Commit Failed", "#ff1744");
+            }
+        }
+    </script>
+</body>
+</html>
