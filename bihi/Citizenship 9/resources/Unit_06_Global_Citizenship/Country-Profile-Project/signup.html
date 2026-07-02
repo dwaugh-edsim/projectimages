@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 - Country Profile Sign-Up</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #475569;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            font-size: 1.15rem;
+        }
+
+        .nav-header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .instructions-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions-card h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-top: 0;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .topic-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topic-card.claimed {
+            border-left: 5px solid var(--success);
+            opacity: 0.7;
+        }
+
+        .topic-card.available {
+            border-left: 5px solid var(--warning);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .topic-title {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .topic-issue {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            margin: 0.25rem 0 0 0;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-available {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-claimed {
+            background: #dcfce3;
+            color: #166534;
+        }
+
+        .student-picker {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .student-picker label {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .picker-container {
+            position: relative;
+            margin-bottom: 0.75rem;
+        }
+
+        .picker-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .picker-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .picker-input.has-value {
+            background: #e0f2fe;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .picker-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .picker-dropdown.show {
+            display: block;
+        }
+
+        .picker-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .picker-option:last-child {
+            border-bottom: none;
+        }
+
+        .picker-option:hover {
+            background: #e0f2fe;
+        }
+
+        .picker-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+
+        .picker-option .first-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .picker-option .full-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .claim-btn {
+            margin-top: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .claim-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .claim-btn:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .claimed-names {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: #dcfce3;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        .closed-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .closed-message h2 {
+            color: var(--danger);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .closed-message p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .backend-status {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .backend-status.online {
+            background: #dcfce3;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .backend-status.offline {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        /* Teacher Admin Styles */
+        .admin-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .admin-card h1 {
+            color: var(--danger);
+            font-size: 2rem;
+            margin-top: 0;
+            border-bottom: 3px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--danger);
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .switch-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .switch-status {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .admin-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .admin-btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .admin-btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .admin-btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .admin-btn-secondary:hover {
+            background-color: #334155;
+        }
+
+        .claimed-list {
+            margin-top: 2rem;
+        }
+
+        .claimed-list h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .claimed-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: #f1f5f9;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .claimed-entry .topic-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .claimed-entry .students {
+            color: var(--secondary);
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .remove-btn:hover {
+            background: #fee2e2;
+        }
+
+        .site-footer {
+            background-color: var(--card-bg);
+            border-top: 2px solid var(--border);
+            padding: 1rem 2rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-title {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .footer-list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+
+        /* Password Modal */
+        .password-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .password-overlay.show {
+            display: flex;
+        }
+
+        .password-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .password-card h2 {
+            color: var(--danger);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .password-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .password-card input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 4px;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        .password-card input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .password-card .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .password-card button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .password-card button:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="nav-header">
+        <button class="tab-btn active" onclick="switchTab('student-signup')">Student Sign-Up</button>
+        <button class="tab-btn" onclick="requestAdminAccess()">Teacher Admin</button>
+    </div>
+
+    <div class="container">
+        <!-- STUDENT SIGN-UP TAB -->
+        <div id="student-signup" class="tab-content active">
+            <div class="instructions-card">
+                <h1>Country Profile Project - Topic Sign-Up</h1>
+                <p style="color: var(--danger); font-weight: 700; font-size: 1.3rem; margin-bottom: 1rem;">FIRST COME, FIRST SERVED</p>
+                
+                <div id="backendStatus" class="backend-status offline">
+                    Connecting to server...
+                </div>
+
+                <p>Select a country/issue pair below and pick your name and your partner's name to claim your topic. Each topic can only be claimed by one pair.</p>
+
+                <div id="closedOverlay" class="closed-message" style="display: none;">
+                    <h2>Sign-Up Is Currently Closed</h2>
+                    <p>Please wait for your teacher to open sign-ups.</p>
+                </div>
+
+                <div id="topicGrid" class="topic-grid"></div>
+            </div>
+        </div>
+
+        <!-- TEACHER ADMIN TAB -->
+        <div id="teacher-admin" class="tab-content">
+            <div class="admin-card">
+                <h1>Teacher Admin Panel</h1>
+
+                <div id="adminBackendStatus" class="backend-status offline" style="margin-bottom: 1.5rem;">
+                    Connecting to server...
+                </div>
+
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" id="signUpToggle" onchange="toggleSignUp()">
+                        <span class="slider"></span>
+                    </label>
+                    <div>
+                        <div class="switch-label">Allow Student Sign-Ups</div>
+                        <div class="switch-status" id="switchStatus">Sign-ups are currently closed</div>
+                    </div>
+                </div>
+
+                <div class="admin-actions">
+                    <button class="admin-btn admin-btn-danger" onclick="clearAllClaims()">Clear All Claims</button>
+                    <button class="admin-btn admin-btn-secondary" onclick="exportClaims()">Export Claims</button>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #f1f5f9; border-radius: 8px;">
+                    <h3 style="margin-top: 0; color: var(--secondary);">Random Pair Generator</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Randomly pair up unassigned students for topics.</p>
+                    <button class="admin-btn admin-btn-secondary" onclick="generateRandomPairs()" style="margin-bottom: 1rem;">Generate Random Pairs</button>
+                    <div id="randomPairsResult"></div>
+                </div>
+
+                <div class="claimed-list" id="claimedList">
+                    <h3>Current Claims</h3>
+                    <div id="claimedEntries"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="password-overlay" id="passwordOverlay">
+        <div class="password-card">
+            <h2>Teacher Access</h2>
+            <p>Enter your password to access the admin panel.</p>
+            <div class="error-msg" id="passwordError">Incorrect password. Try again.</div>
+            <input type="password" id="adminPassword" placeholder="Password" maxlength="20" onkeydown="if(event.key==='Enter')verifyPassword()">
+            <button onclick="verifyPassword()">Unlock</button>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-title">Citizenship 9 - Country Profile Project</div>
+            <ul class="footer-list">
+                <li>6-8 slides required</li>
+                <li>2+ sources per slide</li>
+                <li>Compare to Canada</li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzYwRuGyNtAB-hyoDwWDVyneuhaBzRjDGd_ukpgNhar-y-67HvMp-9zf3eC4uvM_DfgMQ/exec";
+        const ADMIN_PASSWORD = "218888";
+
+        const students = [
+            { first: "Ali", full: "Abdelfattah, Ali Ahmed Ali Fathi" },
+            { first: "Abdul", full: "Aboukoura, Abdul Rahman" },
+            { first: "Joshua", full: "Abraham, Joshua" },
+            { first: "Fatima", full: "Al Hilal, Fatima Khaled" },
+            { first: "Jana", full: "Al Raslan, Jana" },
+            { first: "Mohammad", full: "Aljaffal, Mohammad" },
+            { first: "Laila", full: "Awad, Laila" },
+            { first: "Huda", full: "Bargoth, Huda Rami" },
+            { first: "Kendra", full: "Bell, Kendra Dawn Pearl" },
+            { first: "Delisha", full: "Devabattula, Delisha" },
+            { first: "Alia", full: "Doaia, Alia Ayman Saadeldin" },
+            { first: "Brody", full: "Downs, Brody Andrew" },
+            { first: "Leo", full: "Ewing, Leo Michael Andrew" },
+            { first: "Clark", full: "Feng, Clark" },
+            { first: "Natalia", full: "Filipovic, Natalia Joan" },
+            { first: "Nolan", full: "Hamilton, Nolan Glen" },
+            { first: "Madhavan", full: "Karia, Madhavan" },
+            { first: "Kai", full: "Kilgour, Kai David" },
+            { first: "Lachlan D.", full: "MacKay, Lachlan Douglas" },
+            { first: "Lachlan M.", full: "McMahon, Lachlan William Thomas" },
+            { first: "Yunho", full: "Park, Yunho" },
+            { first: "Remy", full: "Perks, Remy Patrick Jackson" },
+            { first: "Farhan", full: "Rahman, MD Farhan" },
+            { first: "Jessa", full: "Salasalan, Jessa Bacara" },
+            { first: "Elizabeth", full: "Sanyaolu, Elizabeth Oluwadunmininu" },
+            { first: "Rifa", full: "Shahul Mydeen Ali, Rifa" },
+            { first: "Josie", full: "Sullivan, Josie Marian" },
+            { first: "Sarah", full: "Tiga, Sarah Poni Karala" },
+            { first: "Zankia", full: "van der Walt, Zankia" },
+            { first: "Isaac", full: "Warner-Comeau, Isaac Edward" },
+            { first: "Evie", full: "Wilde-McDowell, Evie Margaret" }
+        ];
+
+        const topics = [
+            { id: 1, country: "Australia", issue: "Climate Change & Wildfires" },
+            { id: 2, country: "Brazil", issue: "Deforestation in the Amazon Rainforest" },
+            { id: 3, country: "India", issue: "Air Pollution and Public Health" },
+            { id: 4, country: "China", issue: "Surveillance and Human Rights (Uyghurs in Xinjiang)" },
+            { id: 5, country: "Ethiopia", issue: "Food Security and Famine Crisis" },
+            { id: 6, country: "Afghanistan", issue: "Women's Rights and Education" },
+            { id: 7, country: "Germany", issue: "Energy Transition & Renewable Energy" },
+            { id: 8, country: "South Africa", issue: "Income Inequality & Poverty" },
+            { id: 9, country: "Philippines", issue: "Natural Disasters & Climate Resilience" },
+            { id: 10, country: "United Kingdom", issue: "Refugee and Immigration Policies" },
+            { id: 11, country: "Haiti", issue: "Political Instability & Humanitarian Crisis" },
+            { id: 12, country: "Ukraine", issue: "Conflict and International Relations" },
+            { id: 13, country: "Russia", issue: "Freedom of Expression & Human Rights" },
+            { id: 14, country: "Myanmar", issue: "Rohingya Refugee Crisis & Human Rights" },
+            { id: 15, country: "Japan", issue: "Aging Population and Social Policy" },
+            { id: 16, country: "Bangladesh", issue: "Textile Industry & Labour Rights" },
+            { id: 17, country: "Somalia", issue: "Food Security & Drought" },
+            { id: 18, country: "Saudi Arabia", issue: "Women's Rights and Social Change" },
+            { id: 19, country: "Mexico", issue: "Drug Cartels & Public Safety" },
+            { id: 20, country: "Nigeria", issue: "Oil Production & Environmental Damage" },
+            { id: 21, country: "Yemen", issue: "Humanitarian Crisis & Conflict" },
+            { id: 22, country: "Pakistan", issue: "Flooding and Climate Change Impacts" },
+            { id: 23, country: "Turkey", issue: "Earthquake Preparedness & Disaster Response" },
+            { id: 24, country: "Indonesia", issue: "Palm Oil Production & Deforestation" },
+            { id: 25, country: "Kenya", issue: "Wildlife Conservation & Tourism Impacts" },
+            { id: 26, country: "Egypt", issue: "Water Security and the Nile River Dispute" },
+            { id: 28, country: "France", issue: "Social Protests & Economic Inequality" },
+            { id: 29, country: "New Zealand", issue: "Indigenous Rights and Reconciliation" },
+            { id: 30, country: "Venezuela", issue: "Economic Collapse and Migration Crisis" },
+            { id: 31, country: "Colombia", issue: "Drug Trade and Peace Process" },
+            { id: 32, country: "North Korea", issue: "Nuclear Weapons and Isolation" },
+            { id: 33, country: "Syria", issue: "Civil War and Refugee Crisis" },
+            { id: 34, country: "South Sudan", issue: "Civil Conflict and Food Insecurity" },
+            { id: 35, country: "Cuba", issue: "Political Freedom and Economic Sanctions" },
+            { id: 36, country: "Finland", issue: "Education System (PISA Scores & Play-Based Learning)" },
+            { id: 37, country: "Taiwan", issue: "Geopolitical Tensions & Semiconductor Industry" }
+        ];
+
+        let claimedTopics = { 1: "Sarah & Rifa", 2: "Evie", 3: "Madhavan & Leo", 6: "Josie & Laila", 7: "Delisha", 8: "Zankia & Kendra", 9: "Jessa", 10: "Remy", 15: "Yunho", 17: "Abdul & Isaac", 19: "Nolan & Josh", 23: "Jana", 26: "Ali & Kai", 28: "Elizabeth & Alia", 31: "Lachlan & Lachlan", 33: "Farhan", 34: "Huda", 36: "Natalia", 37: "Clark" };
+        let signUpOpen = false;
+        let adminAuthenticated = false;
+        let backendConnected = false;
+
+        function updateBackendStatus(connected) {
+            backendConnected = connected;
+            const statusEl = document.getElementById('backendStatus');
+            const adminStatusEl = document.getElementById('adminBackendStatus');
+            
+            if (connected) {
+                statusEl.className = 'backend-status online';
+                statusEl.textContent = 'Connected to server - claims are live';
+                if (adminStatusEl) {
+                    adminStatusEl.className = 'backend-status online';
+                    adminStatusEl.textContent = 'Connected to server';
+                }
+            } else {
+                statusEl.className = 'backend-status offline';
+                statusEl.textContent = 'Offline mode - claims saved locally only';
+                if (adminStatusEl) {
+                    adminStatusEl.className = 'backend-status offline';
+                    adminStatusEl.textContent = 'Offline mode - changes saved locally';
+                }
+            }
+        }
+
+        async function loadFromBackend() {
+            try {
+                const res = await fetch(`${API_URL}?action=getClaims`);
+                const data = await res.json();
+                if (data.claims) {
+                    claimedTopics = data.claims;
+                    localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                }
+                updateBackendStatus(true);
+            } catch (e) {
+                console.warn('Backend unavailable, using localStorage:', e);
+                const saved = localStorage.getItem('claimedTopics');
+                if (saved) {
+                    claimedTopics = JSON.parse(saved);
+                }
+                updateBackendStatus(false);
+            }
+
+            try {
+                const res = await fetch(`${API_URL}?action=getSignUpStatus`);
+                const data = await res.json();
+                if (typeof data.open === 'boolean') {
+                    signUpOpen = data.open;
+                    localStorage.setItem('signUpOpen', signUpOpen);
+                }
+            } catch (e) {
+                console.warn('Could not load sign-up status from backend');
+                const saved = localStorage.getItem('signUpOpen');
+                if (saved !== null) {
+                    signUpOpen = saved === 'true';
+                }
+            }
+        }
+
+        function createStudentPicker(topicId, pickerNum, selectedStudent) {
+            const container = document.createElement('div');
+            container.className = 'picker-container';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'picker-input' + (selectedStudent ? ' has-value' : '');
+            input.placeholder = 'Search for your name...';
+            input.value = selectedStudent || '';
+            input.readOnly = true;
+            input.dataset.topicId = topicId;
+            input.dataset.pickerNum = pickerNum;
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'picker-dropdown';
+            dropdown.id = `dropdown-${topicId}-${pickerNum}`;
+
+            students.forEach(student => {
+                const option = document.createElement('div');
+                option.className = 'picker-option';
+                option.innerHTML = `<span class="first-name">${student.first}</span> <span class="full-name">(${student.full})</span>`;
+                option.dataset.value = student.first;
+                option.onclick = () => selectStudent(topicId, pickerNum, student.first);
+                dropdown.appendChild(option);
+            });
+
+            input.onclick = () => {
+                const allDropdowns = document.querySelectorAll('.picker-dropdown');
+                allDropdowns.forEach(d => {
+                    if (d.id !== dropdown.id) d.classList.remove('show');
+                });
+                dropdown.classList.toggle('show');
+                filterDropdown(topicId, pickerNum, '');
+            };
+
+            input.oninput = (e) => {
+                filterDropdown(topicId, pickerNum, e.target.value);
+                dropdown.classList.add('show');
+            };
+
+            container.appendChild(input);
+            container.appendChild(dropdown);
+            return container;
+        }
+
+        function filterDropdown(topicId, pickerNum, query) {
+            const dropdown = document.getElementById(`dropdown-${topicId}-${pickerNum}`);
+            const options = dropdown.querySelectorAll('.picker-option');
+            const otherPicker = document.querySelector(`.picker-input[data-topic-id="${topicId}"][data-picker-num="${pickerNum === '1' ? '2' : '1'}"]`);
+            const otherValue = otherPicker ? otherPicker.value.toLowerCase() : '';
+
+            options.forEach(option => {
+                const firstName = option.dataset.value.toLowerCase();
+                const matchesQuery = firstName.includes(query.toLowerCase());
+                const isOtherStudent = firstName === otherValue && query === '';
+                option.style.display = matchesQuery ? 'block' : 'none';
+                option.className = isOtherStudent ? 'picker-option disabled' : 'picker-option';
+            });
+        }
+
+        function selectStudent(topicId, pickerNum, studentName) {
+            const input = document.querySelector(`.picker-input[data-topic-id="${topicId}"][data-picker-num="${pickerNum}"]`);
+            input.value = studentName;
+            input.classList.add('has-value');
+            document.getElementById(`dropdown-${topicId}-${pickerNum}`).classList.remove('show');
+        }
+
+        function renderTopics() {
+            const grid = document.getElementById('topicGrid');
+            const closedOverlay = document.getElementById('closedOverlay');
+            grid.innerHTML = '';
+
+            if (!signUpOpen) {
+                closedOverlay.style.display = 'block';
+                grid.style.display = 'none';
+                return;
+            }
+
+            closedOverlay.style.display = 'none';
+            grid.style.display = 'grid';
+
+            topics.forEach(topic => {
+                const claimed = claimedTopics[topic.id];
+                const card = document.createElement('div');
+                card.className = `topic-card ${claimed ? 'claimed' : 'available'}`;
+
+                if (claimed) {
+                    card.innerHTML = `
+                        <div class="topic-header">
+                            <div>
+                                <h3 class="topic-title">${topic.country}</h3>
+                                <p class="topic-issue">${topic.issue}</p>
+                            </div>
+                            <span class="status-badge status-claimed">Claimed</span>
+                        </div>
+                        <div class="claimed-names">
+                            ${claimed}
+                        </div>
+                    `;
+                } else {
+                    const picker1 = createStudentPicker(topic.id, '1', '');
+                    const picker2 = createStudentPicker(topic.id, '2', '');
+
+                    const studentPickerDiv = document.createElement('div');
+                    studentPickerDiv.className = 'student-picker';
+                    studentPickerDiv.innerHTML = '<label>Select Your Names:</label>';
+                    studentPickerDiv.appendChild(picker1);
+                    studentPickerDiv.appendChild(picker2);
+
+                    const btn = document.createElement('button');
+                    btn.className = 'claim-btn';
+                    btn.textContent = 'Claim This Topic';
+                    btn.onclick = () => claimTopic(topic.id);
+
+                    card.innerHTML = `
+                        <div class="topic-header">
+                            <div>
+                                <h3 class="topic-title">${topic.country}</h3>
+                                <p class="topic-issue">${topic.issue}</p>
+                            </div>
+                            <span class="status-badge status-available">Available</span>
+                        </div>
+                    `;
+                    card.appendChild(studentPickerDiv);
+                    card.appendChild(btn);
+                }
+                grid.appendChild(card);
+            });
+        }
+
+        async function claimTopic(id) {
+            const student1 = document.querySelector(`.picker-input[data-topic-id="${id}"][data-picker-num="1"]`).value.trim();
+            const student2 = document.querySelector(`.picker-input[data-topic-id="${id}"][data-picker-num="2"]`).value.trim();
+
+            if (!student1 || !student2) {
+                alert('Please select both your name and your partner\'s name.');
+                return;
+            }
+
+            if (student1 === student2) {
+                alert('Please select two different students.');
+                return;
+            }
+
+            const topic = topics.find(t => t.id === id);
+
+            if (backendConnected) {
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'claimTopic',
+                            topicId: id,
+                            topicName: `${topic.country} - ${topic.issue}`,
+                            students: `${student1} & ${student2}`
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        claimedTopics[id] = `${student1} & ${student2}`;
+                        localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                        renderTopics();
+                        renderAdminList();
+                    } else {
+                        alert(data.error || 'Failed to claim topic. It may have been taken.');
+                        loadFromBackend().then(renderTopics);
+                    }
+                } catch (e) {
+                    alert('Connection error. Saving locally instead.');
+                    claimedTopics[id] = `${student1} & ${student2}`;
+                    localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                    updateBackendStatus(false);
+                    renderTopics();
+                    renderAdminList();
+                }
+            } else {
+                claimedTopics[id] = `${student1} & ${student2}`;
+                localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                renderTopics();
+                renderAdminList();
+            }
+        }
+
+        async function toggleSignUp() {
+            const isOpen = document.getElementById('signUpToggle').checked;
+
+            if (backendConnected) {
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'setSignUpStatus',
+                            open: isOpen
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        signUpOpen = isOpen;
+                        localStorage.setItem('signUpOpen', signUpOpen);
+                        document.getElementById('switchStatus').textContent = signUpOpen
+                            ? 'Sign-ups are currently OPEN'
+                            : 'Sign-ups are currently closed';
+                        renderTopics();
+                    }
+                } catch (e) {
+                    alert('Failed to update sign-up status on server. Saving locally.');
+                    signUpOpen = isOpen;
+                    localStorage.setItem('signUpOpen', signUpOpen);
+                    updateBackendStatus(false);
+                    document.getElementById('switchStatus').textContent = signUpOpen
+                        ? 'Sign-ups are currently OPEN (local only)'
+                        : 'Sign-ups are currently closed (local only)';
+                    renderTopics();
+                }
+            } else {
+                signUpOpen = isOpen;
+                localStorage.setItem('signUpOpen', signUpOpen);
+                document.getElementById('switchStatus').textContent = signUpOpen
+                    ? 'Sign-ups are currently OPEN (local only)'
+                    : 'Sign-ups are currently closed (local only)';
+                renderTopics();
+            }
+        }
+
+        async function clearAllClaims() {
+            if (confirm('Are you sure you want to clear ALL topic claims? This cannot be undone.')) {
+                if (backendConnected) {
+                    try {
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'clearAllClaims' })
+                        });
+                        const data = await res.json();
+
+                        if (data.success) {
+                            claimedTopics = {};
+                            localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                            renderTopics();
+                            renderAdminList();
+                        }
+                    } catch (e) {
+                        alert('Failed to clear claims on server. Clearing locally.');
+                        claimedTopics = {};
+                        localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                        updateBackendStatus(false);
+                        renderTopics();
+                        renderAdminList();
+                    }
+                } else {
+                    claimedTopics = {};
+                    localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                    renderTopics();
+                    renderAdminList();
+                }
+            }
+        }
+
+        function exportClaims() {
+            let text = 'Country Profile Project - Topic Claims\n';
+            text += '='.repeat(50) + '\n\n';
+
+            topics.forEach(topic => {
+                const claimed = claimedTopics[topic.id];
+                text += `${topic.country} - ${topic.issue}\n`;
+                text += claimed ? `  Claimed by: ${claimed}` : '  Status: Available';
+                text += '\n\n';
+            });
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'topic-claims.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function generateRandomPairs() {
+            const claimedStudents = new Set();
+            Object.values(claimedTopics).forEach(pair => {
+                pair.split(' & ').forEach(name => claimedStudents.add(name.trim()));
+            });
+
+            const availableStudents = students.filter(s => !claimedStudents.has(s.first));
+            
+            const shuffled = [...availableStudents].sort(() => Math.random() - 0.5);
+            const pairs = [];
+            
+            for (let i = 0; i < shuffled.length - 1; i += 2) {
+                pairs.push(`${shuffled[i].first} & ${shuffled[i + 1].first}`);
+            }
+
+            const resultDiv = document.getElementById('randomPairsResult');
+            
+            if (pairs.length === 0) {
+                resultDiv.innerHTML = '<p style="color: var(--text-muted);">No available students to pair.</p>';
+                return;
+            }
+
+            let html = '<div style="display: grid; gap: 0.5rem;">';
+            pairs.forEach((pair, index) => {
+                html += `<div style="padding: 0.75rem 1rem; background: white; border-radius: 6px; border: 1px solid var(--border);">
+                    <strong>Pair ${index + 1}:</strong> ${pair}
+                </div>`;
+            });
+
+            if (shuffled.length % 2 === 1) {
+                html += `<div style="padding: 0.75rem 1rem; background: #fef3c7; border-radius: 6px; border: 1px solid #fcd34d; color: #92400e;">
+                    <strong>Unpaired:</strong> ${shuffled[shuffled.length - 1].first}
+                </div>`;
+            }
+
+            html += '</div>';
+            resultDiv.innerHTML = html;
+        }
+
+        function renderAdminList() {
+            const entries = document.getElementById('claimedEntries');
+            entries.innerHTML = '';
+
+            let hasClaims = false;
+            topics.forEach(topic => {
+                const claimed = claimedTopics[topic.id];
+                if (claimed) {
+                    hasClaims = true;
+                    const entry = document.createElement('div');
+                    entry.className = 'claimed-entry';
+                    entry.innerHTML = `
+                        <span class="topic-name">${topic.country}</span>
+                        <span class="students">${claimed}</span>
+                        <button class="remove-btn" onclick="removeClaim(${topic.id})" title="Remove claim">&times;</button>
+                    `;
+                    entries.appendChild(entry);
+                }
+            });
+
+            if (!hasClaims) {
+                entries.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No claims yet.</p>';
+            }
+        }
+
+        async function removeClaim(id) {
+            if (confirm('Remove this claim?')) {
+                if (backendConnected) {
+                    try {
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'removeClaim', topicId: id })
+                        });
+                        const data = await res.json();
+
+                        if (data.success) {
+                            delete claimedTopics[id];
+                            localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                            renderTopics();
+                            renderAdminList();
+                        }
+                    } catch (e) {
+                        alert('Failed to remove claim on server. Removing locally.');
+                        delete claimedTopics[id];
+                        localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                        updateBackendStatus(false);
+                        renderTopics();
+                        renderAdminList();
+                    }
+                } else {
+                    delete claimedTopics[id];
+                    localStorage.setItem('claimedTopics', JSON.stringify(claimedTopics));
+                    renderTopics();
+                    renderAdminList();
+                }
+            }
+        }
+
+        function requestAdminAccess() {
+            if (adminAuthenticated) {
+                switchTab('teacher-admin');
+                return;
+            }
+            document.getElementById('passwordOverlay').classList.add('show');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('adminPassword').value;
+            if (input === ADMIN_PASSWORD) {
+                adminAuthenticated = true;
+                document.getElementById('passwordOverlay').classList.remove('show');
+                switchTab('teacher-admin');
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.picker-container')) {
+                document.querySelectorAll('.picker-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        async function init() {
+            await loadFromBackend();
+            document.getElementById('signUpToggle').checked = signUpOpen;
+            document.getElementById('switchStatus').textContent = signUpOpen
+                ? 'Sign-ups are currently OPEN'
+                : 'Sign-ups are currently closed';
+            renderTopics();
+            renderAdminList();
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

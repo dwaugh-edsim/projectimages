@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engaged Citizenship: Service Learning Introduction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Outfit:wght@400;700;900&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-dim: #475569;
+            --accent: #0284c7;
+            --accent-glow: rgba(2, 132, 199, 0.1);
+            --danger: #e11d48;
+            --success: #059669;
+            --amber: #d97706;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .slides-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+            transform: scale(0.95);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+
+        .slide-content {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .section-header {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            border-left: 8px solid var(--accent);
+            padding-left: 20px;
+            color: var(--text);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-family: 'Roboto Mono', monospace;
+            margin-right: 8px;
+            margin-bottom: 10px;
+            color: var(--text-dim);
+        }
+
+        .question-box {
+            margin-top: 50px;
+            background: rgba(2, 132, 199, 0.05);
+            border: 1px solid var(--accent);
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        .question-box h4 {
+            color: var(--accent);
+            font-family: 'Roboto Mono', monospace;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .question-box ul {
+            list-style: none;
+        }
+
+        .question-box li {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        button {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        .slide-num {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            color: var(--text-dim);
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* Hero Image */
+        .hero-img {
+            width: 600px;
+            height: 337px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            background-image: url('service_learning_hero_1778760205408.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .deliverable-list {
+            margin-top: 15px;
+            list-style: none;
+        }
+
+        .deliverable-list li {
+            padding-left: 20px;
+            position: relative;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .deliverable-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .deliverables-summary {
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .deliverables-summary strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .options-comparison {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+        }
+
+        .option-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-num" id="slideNum">01 / 18</div>
+
+    <div class="slides-container" id="slides">
+        
+        <!-- Slide 1: The Outcome -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <span class="tag" style="background: var(--accent); color: white; padding: 10px 20px; font-size: 1rem;">OFFICIAL CURRICULUM OUTCOME</span>
+                </div>
+                <h1 class="hero-title" style="font-size: 3.5rem;">Engaged<br>Citizenship</h1>
+                <div class="card" style="border: 4px solid var(--accent); background: white; padding: 40px;">
+                    <h2 style="color: var(--accent); font-family: 'Roboto Mono', monospace; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Primary Goal:</h2>
+                    <p style="font-size: 2.2rem; font-weight: 700; line-height: 1.2; font-family: 'Outfit', sans-serif; color: var(--text);">
+                        "Learners will construct a <span style="color: var(--accent);">collaboratively-designed</span> service learning project which addresses a need in the school or larger community."
+                    </p>
+                </div>
+                <div class="grid" style="margin-top: 40px; grid-template-columns: repeat(3, 1fr);">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem;">📋</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text); margin-top: 10px;">EVALUATE MERIT</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem;">🛠️</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text); margin-top: 10px;">PLAN & IMPLEMENT</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem;">📈</div>
+                        <div style="font-size: 0.9rem; font-weight: 700; color: var(--text); margin-top: 10px;">EVALUATE GROWTH</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is Service Learning? -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">What is Service Learning?</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Research & Investigation</h3>
+                        <p>We don't just "do things." We investigate WHY they matter. We look at the data, the laws, and the global supply chains.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Direct Action</h3>
+                        <p>We solve real problems in our community. We measure the weight of the waste we divert or the litres of water we save.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Collaborative Design</h3>
+                        <p>This isn't a preset assignment. We are building this project TOGETHER based on your interests and skills.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Merit & Evaluation</h3>
+                        <p>We assess the merit of our choices. Does this project actually help? Is the impact sustainable?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Design Mission -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">The Design Mission</h2>
+                <p style="font-size: 1.5rem; margin-bottom: 40px;">We are not starting the 14-day challenge yet. Today, you are the <strong>Collaborative Designers</strong>. Your mission:</p>
+                <div class="question-box">
+                    <ul>
+                        <li>1. Selection: Pick **ONE** mission to focus on.</li>
+                        <li>2. Critique: Tell me what is "too hard" or "busy work."</li>
+                        <li>3. Innovation: Suggest "Better Ideas" to improve the mission.</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 30px; font-style: italic; color: var(--text-dim);">"Learners will construct a collaboratively-designed service learning project..."</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Option 1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-001: The Battery Scavenger</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 12</span> <span class="tag">E-Waste</span>
+                        <h3>The Diversion Lab</h3>
+                        <p>Old batteries sitting in drawers leach toxins into our soil. Recycling them reduces the demand for unethical mining in the DRC.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            Home Battery Audit, Multi-meter Voltage Logs, Supply Chain Map, 1-Page Diversion Report.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background-image: url('service_learning_hero_1778760205408.png'); height: 180px; border-radius: 8px; margin-bottom: 15px; background-size: cover; background-position: center;"></div>
+                        <h3>The Mission</h3>
+                        <p>Set up a classroom collection station. Tape terminals, sort chemistries, and deliver to a recycler.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Managing the "Thermal Runaway" fire risk of lithium-ion cells.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Option 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-002: The Tap Audit</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 06</span> <span class="tag">Indigenous Rights</span>
+                        <h3>Water Privilege</h3>
+                        <p>Measure the gap between municipal luxury in Halifax and the 25+ year boil-water advisories in First Nations communities.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            14-Day Water Usage Spreadsheet, Indigenous Community Profile, Water Privilege Infographic.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background-image: url('water_privilege_img_1778760781982.png'); height: 180px; border-radius: 8px; margin-bottom: 15px; background-size: cover; background-position: center;"></div>
+                        <h3>The Mission</h3>
+                        <p>Reduce your personal water footprint by 25% for 14 days. Time every shower, audit every drop.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Living with restricted access while researching systemic infrastructure gaps.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: COLLAB 1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">Collaborative Choice 01</h2>
+                <div class="options-comparison">
+                    <div class="card option-column">
+                        <h3>The Battery Scavenger</h3>
+                        <p>Hands-on e-waste sorting & global supply chain mapping.</p>
+                    </div>
+                    <div style="font-size: 3rem; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--accent); padding: 0 20px;">VS</div>
+                    <div class="card option-column">
+                        <h3>The Tap Audit</h3>
+                        <p>Data-driven conservation & Indigenous rights advocacy.</p>
+                    </div>
+                </div>
+                <div class="question-box">
+                    <h4>Discussion Point:</h4>
+                    <ul>
+                        <li>Which of these two would you be likely to pick?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Option 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-003: The Phantom Load</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 07</span> <span class="tag">Carbon Footprint</span>
+                        <h3>Energy Vampire Hunt</h3>
+                        <p>Unplugged devices draw 10% of your home's power. In NS, that power often comes from burning coal.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            Room-by-Room Phantom Audit, Cost/Carbon Spreadsheet, Before/After Power Photos.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background-image: url('energy_vampire_img_1778760799254.png'); height: 180px; border-radius: 8px; margin-bottom: 15px; background-size: cover; background-position: center;"></div>
+                        <h3>The Mission</h3>
+                        <p>Identify every "always-on" device. Unplug non-essentials every night for 14 nights to reclaim your footprint.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Negotiating energy habits with your family and measuring coal-based carbon waste.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Option 4 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-004: The Wardrobe Reset</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 12</span> <span class="tag">Labour Rights</span>
+                        <h3>The True Cost of $5</h3>
+                        <p>Fast fashion relies on unethical labour in the global south. A single pair of jeans takes 7,500L of water to make.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            Full Wardrobe Inventory, 10-Item Capsule Log, Rana Plaza Case Study & Supply Chain Map.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background-image: url('fast_fashion_img_1778760813769.png'); height: 180px; border-radius: 8px; margin-bottom: 15px; background-size: cover; background-position: center;"></div>
+                        <h3>The Mission</h3>
+                        <p>Select only 10 items of clothing. Wear ONLY those items for 14 days to protest disposable fashion.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Resisting the "need" for variety to understand the environmental cost of fashion.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: COLLAB 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">Collaborative Choice 02</h2>
+                <div class="options-comparison">
+                    <div class="card option-column">
+                        <h3>The Phantom Load</h3>
+                        <p>Energy auditing & carbon math at home.</p>
+                    </div>
+                    <div style="font-size: 3rem; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--accent); padding: 0 20px;">VS</div>
+                    <div class="card option-column">
+                        <h3>The Wardrobe Reset</h3>
+                        <p>Labour rights awareness & minimal consumption.</p>
+                    </div>
+                </div>
+                <div class="question-box">
+                    <h4>Discussion Point:</h4>
+                    <ul>
+                        <li>Which of these two would you be likely to pick?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Option 5 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-005: The Data Diet</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 16</span> <span class="tag">Digital Rights</span>
+                        <h3>Shadow Profiles</h3>
+                        <p>Data brokers track you even without accounts. Algorithms create echo chambers that distort democratic reality.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            App Privacy Audit, Tracker-Blocker Log, Under-16 Ban Debate Analysis, Data Diet Reflection.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background-image: url('digital_privacy_img_1778760826819.png'); height: 180px; border-radius: 8px; margin-bottom: 15px; background-size: cover; background-position: center;"></div>
+                        <h3>The Mission</h3>
+                        <p>Purge non-essential tracking. 24-hour social media notification fast. Reclaim your digital autonomy.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Breaking the "Phone-Reach" habit and understanding privacy law.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Option 6 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-006: The Zero-Waste Audit</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 13</span> <span class="tag">Global Ethics</span>
+                        <h3>Waste Colonialism</h3>
+                        <p>Only 9% of plastic is recycled. The rest is often shipped to developing nations as "Waste Colonialism."</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            Daily Plastic Pile Inventory, Zero-Plastic Substitution Log, Systemic Responsibility Analysis.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); height: 180px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🌊</div>
+                        <h3>The Mission</h3>
+                        <p>Go zero single-use plastic for 14 days. If you can't reuse it, refuse it. Audit the grocery store aisles.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Finding alternatives in a system designed for disposable convenience.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: COLLAB 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">Collaborative Choice 03</h2>
+                <div class="options-comparison">
+                    <div class="card option-column">
+                        <h3>The Data Diet</h3>
+                        <p>Digital privacy, law, and algorithmic autonomy.</p>
+                    </div>
+                    <div style="font-size: 3rem; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--accent); padding: 0 20px;">VS</div>
+                    <div class="card option-column">
+                        <h3>The Zero-Waste Audit</h3>
+                        <p>Plastic addiction & waste stream ethics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Option 7 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">CIT-007: The Ink Trap</h2>
+                <div class="grid">
+                    <div class="card">
+                        <span class="tag">SDG 12</span> <span class="tag">Economics</span>
+                        <h3>The Loss-Leader</h3>
+                        <p>Printers are sold cheap so companies can lock you into expensive, non-recyclable ink cartridges.</p>
+                        <div class="deliverables-summary">
+                            <strong>Deliverables:</strong>
+                            Hardware Audit, 3-Year 'True Cost' Projection, Cartridge Collection Log, Ink Trap Report.
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="option-img" style="background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); height: 180px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🖨️</div>
+                        <h3>The Mission</h3>
+                        <p>Divert ink from landfills. Audit the 'Razor and Blades' business model. Expose the smart chips that block refills.</p>
+                        <div class="deliverables-summary">
+                            <strong>Key Challenge:</strong>
+                            Finding certified recycling points and doing the long-term math.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Final Choice -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">The Final Mission List</h2>
+                <div class="grid" style="grid-template-columns: repeat(4, 1fr); font-size: 0.8rem;">
+                    <div class="card">1. Battery Scavenger</div>
+                    <div class="card">2. The Tap Audit</div>
+                    <div class="card">3. The Phantom Load</div>
+                    <div class="card">4. Wardrobe Reset</div>
+                    <div class="card">5. The Data Diet</div>
+                    <div class="card">6. Zero-Waste Audit</div>
+                    <div class="card" style="border: 2px solid var(--accent);">7. THE INK TRAP</div>
+                </div>
+                <div class="question-box">
+                    <h4>Discussion Point:</h4>
+                    <ul>
+                        <li>Which of these 7 missions addresses the most urgent need in HRM?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Deliverables Check -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">Assessment: Too much work?</h2>
+                <p style="margin-bottom: 20px;">We want this to be impact-heavy but not "busy work." Look at these 4 expected deliverables:</p>
+                <div class="grid">
+                    <div class="card">
+                        <h3>The Current List</h3>
+                        <ul class="deliverable-list">
+                            <li><strong>Supply Chain Map</strong>: Tracing raw materials to retail.</li>
+                            <li><strong>14-Day Action Log</strong>: Daily evidence/photos of your work.</li>
+                            <li><strong>Research Dossier</strong>: 4 deep-dive questions with citations.</li>
+                            <li><strong>Consequence Report</strong>: Final data-driven reflection.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="question-box" style="margin-top:0;">
+                            <h4>Student Assessment:</h4>
+                            <ul>
+                                <li>Which of these feels like "busy work"?</li>
+                                <li>How can we simplify these while keeping the impact?</li>
+                                <li>Is 14 days the right duration?</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Better Ideas? -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-header">Innovation: Better Ideas?</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Starter Ideas to Spark Your Brain:</h3>
+                        <ul class="deliverable-list">
+                            <li><strong>The Repair Protocol</strong>: Fix one thing instead of binning it.</li>
+                            <li><strong>The Food Miles Audit</strong>: Mapping the journey of your lunch.</li>
+                            <li><strong>The Digital Minimalism</strong>: 14 days of "Attention Autonomy."</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="question-box" style="margin-top:0;">
+                            <h4>Your Turn to Design:</h4>
+                            <ul>
+                                <li>What have we missed?</li>
+                                <li>What is a local problem YOU actually want to solve?</li>
+                                <li>How can we "collaboratively design" a new mission?</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Design Phase 01 -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1 class="hero-title">Design<br>Phase 01</h1>
+                <p class="hero-subtitle">Engaged Citizenship: Collaborative Task Design Workshop</p>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Pick Your Sector</h3>
+                        <p>Select the mission that most interests you. Which problem are you most ready to solve?</p>
+                    </div>
+                    <div class="card">
+                        <h3>Critique & Innovate</h3>
+                        <p>Open the <strong>Action Intelligence Report</strong>. Tell me what's too hard and what could be better.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Friday - The Deep Dive -->
+        <div class="slide">
+            <div class="slide-content">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <span class="tag" style="background: var(--amber); color: white;">UPCOMING: FRIDAY SESSION</span>
+                </div>
+                <h2 class="section-header">Friday: The Research Phase</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3 style="color: var(--amber);">Mission Foundation</h3>
+                        <p>Now that you've picked your project, it's time to build the intellectual foundation. No action happens without understanding.</p>
+                        <ul class="deliverable-list">
+                            <li>Complete the 4 <strong>Foundation Questions</strong> in your Response Form.</li>
+                            <li>Find at least <strong>two reliable sources</strong> (not just Wikipedia).</li>
+                            <li>Map the <strong>Supply Chain</strong> or <strong>Systemic Barrier</strong>.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Research Objectives</h3>
+                        <div class="question-box" style="margin-top:0; border-color: var(--amber); background: rgba(217, 119, 6, 0.05);">
+                            <h4 style="color: var(--amber);">DUE BY END OF FRIDAY:</h4>
+                            <ul>
+                                <li>✅ Mission Selected</li>
+                                <li>✅ Initial Research Dossier (Phase 4)</li>
+                                <li>✅ Sources Cited</li>
+                            </ul>
+                        </div>
+                        <p style="margin-top: 15px; font-size: 0.8rem; color: var(--text-dim);">"Good citizenship requires being informed before taking action."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-controls">
+        <button id="prevBtn">← PREV</button>
+        <button id="nextBtn">NEXT →</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progressBar');
+        const slideNum = document.getElementById('slideNum');
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            slideNum.innerText = `${String(currentSlide + 1).padStart(2, '0')} / ${slides.length}`;
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                if (currentSlide < slides.length - 1) {
+                    currentSlide++;
+                    updateSlide();
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    updateSlide();
+                }
+            }
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>

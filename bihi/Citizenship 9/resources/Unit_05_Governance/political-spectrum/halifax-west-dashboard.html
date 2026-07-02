@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALIFAX WEST 2026 | Simulation Dashboard</title>
+    <script src="data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
+</head>
+<body id="dashboard-view">
+
+    <div class="container">
+        <header class="animate" style="background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px);">
+            <div class="logo">HALIFAX WEST 2026</div>
+            <div class="hero-badge" style="margin-top: 0; background: rgba(99, 102, 241, 0.1); border-color: var(--primary); color: white;">SIMULATION COMMAND CENTER</div>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="card animate" style="padding: 1.5rem; text-align: center; border-left: 4px solid var(--primary);">
+                <div class="label" style="text-transform: uppercase; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px;">Registered Profiles</div>
+                <div id="profile-count" style="font-size: 3rem; font-weight: 800; color: white;">0</div>
+            </div>
+            <div class="card animate" style="padding: 1.5rem; text-align: center; border-left: 4px solid var(--accent); animation-delay: 0.1s;">
+                <div class="label" style="text-transform: uppercase; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px;">Official Parties</div>
+                <div id="party-count" style="font-size: 3rem; font-weight: 800; color: white;">0</div>
+            </div>
+            <div class="card animate" style="padding: 1.5rem; text-align: center; border-left: 4px solid #f59e0b; animation-delay: 0.2s;">
+                <div class="label" style="text-transform: uppercase; font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px;">Election Readiness</div>
+                <div id="status-percent" style="font-size: 3rem; font-weight: 800; color: white;">0%</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; margin-bottom: 3rem;">
+            <!-- Spectrum Chart -->
+            <div class="card animate" style="animation-delay: 0.3s;">
+                <h3 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%;"></span>
+                    Class Political Spectrum Orientation
+                </h3>
+                <div style="height: 350px;">
+                    <canvas id="spectrumChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Issue Priority -->
+            <div class="card animate" style="animation-delay: 0.4s;">
+                <h3 style="margin-bottom: 2rem;">Top Priority Issues</h3>
+                <div id="issue-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- Injected here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card animate" style="animation-delay: 0.5s;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3>Live Opinion Polls & Campaign Status</h3>
+                <a href="party-profiles.html" target="_blank" class="btn-primary" style="text-decoration: none; font-size: 0.75rem; padding: 0.6rem 1.2rem;">Open Big Screen Gallery</a>
+            </div>
+            <div id="party-list" class="party-grid" style="grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));">
+                <!-- Parties here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let spectrumChart = null;
+
+        async function updateDashboard() {
+            try {
+                const response = await fetch(scriptURL);
+                const data = await response.json();
+                
+                const filteredProfiles = data.profiles.filter(p => !p.name.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+                const rawParties = data.parties.filter(p => !p.partyname.toUpperCase().startsWith("TEST") && !p.pin.toUpperCase().startsWith("T"));
+                
+                const filteredParties = [];
+                rawParties.forEach(p => {
+                    const name = (p.partyname || p.name || "Unknown").trim();
+                    const slogan = (p.slogan || "").trim();
+                    const idx = filteredParties.findIndex(existing => {
+                        const exName = (existing.partyname || existing.name).trim();
+                        const exSlogan = (existing.slogan || "").trim();
+                        return (slogan.length > 5 && slogan === exSlogan) || 
+                               (name.toLowerCase().includes(exName.toLowerCase()) && slogan === exSlogan) ||
+                               (exName.toLowerCase().includes(name.toLowerCase()) && slogan === exSlogan);
+                    });
+                    if (idx > -1) filteredParties[idx] = p;
+                    else filteredParties.push(p);
+                });
+
+                document.getElementById('profile-count').innerText = filteredProfiles.length;
+                document.getElementById('party-count').innerText = filteredParties.length;
+                document.getElementById('status-percent').innerText = Math.min(100, Math.round(filteredParties.length / 8 * 100)) + '%';
+
+                updateCharts(filteredProfiles);
+                updateIssues(filteredProfiles);
+                
+                filteredParties.sort((a,b) => (parseFloat(b.approval) || 0) - (parseFloat(a.approval) || 0));
+                renderPartyList(filteredParties);
+
+            } catch (err) { console.error(err); }
+        }
+
+        function updateCharts(profiles) {
+            const counts = { 'left': 0, 'center': 0, 'right': 0 };
+            profiles.forEach(p => {
+                const orient = (p.orientation || p.politicalorientation || "").toLowerCase();
+                if(counts[orient] !== undefined) counts[orient]++;
+            });
+            const ctx = document.getElementById('spectrumChart').getContext('2d');
+            if (spectrumChart) spectrumChart.destroy();
+            spectrumChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Left (Progressive)', 'Center (Mixed)', 'Right (Conservative)'],
+                    datasets: [{
+                        label: 'Student Orientation',
+                        data: [counts.left, counts.center, counts.right],
+                        backgroundColor: ['#ef444499', '#f59e0b99', '#3b82f699'],
+                        borderColor: ['#ef4444', '#f59e0b', '#3b82f6'],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#f8fafc', font: { weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function updateIssues(profiles) {
+            const issues = {};
+            profiles.forEach(p => {
+                const issue = p.priorityissue || "Unknown";
+                issues[issue] = (issues[issue] || 0) + 1;
+            });
+            const sorted = Object.entries(issues).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            const list = document.getElementById('issue-list');
+            list.innerHTML = sorted.map(([name, count]) => `
+                <div style=\"display: flex; justify-content: space-between; align-items: center;\"><span>${name}</span><span style=\"background: rgba(255,255,255,0.1); padding: 0.2rem 0.6rem; border-radius: 4px;\">${count}</span></div>
+                <div style=\"width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px;\"><div style=\"width: ${(count/profiles.length*100)}%; height: 100%; background: var(--primary);\"></div></div>
+            `).join('');
+        }
+
+        function renderPartyList(parties) {
+            const list = document.getElementById('party-list');
+            list.innerHTML = parties.map((p, index) => {
+                const approval = Math.round(parseFloat(p.approval) || 50);
+                const barColor = approval >= 80 ? '#10b981' : (approval < 30 ? '#ef4444' : 'var(--primary)');
+                const pId = `strategy-${index}`;
+
+                // Status badges
+                let badge = "";
+                if (approval >= 90) badge = `<div class="tag" style="background: #fbbf24; color: black; font-weight: 900;">🏆 POLL LEADER</div>`;
+                else if (approval < 20) badge = `<div class="tag" style="background: #ef4444; color: white;">🚨 CAMPAIGN CRISIS</div>`;
+                else if (index === 0 && parties.length > 1) badge = `<div class="tag" style="background: rgba(99, 102, 241, 0.2); color: var(--primary);">#1 TRENDING</div>`;
+                
+                // Parse the role-based platform fields
+                const plat = p.platforms || "";
+                const commsMatch = plat.match(/COMMS: (.*?)(?=\nPOLICY:|$)/s);
+                const policyMatch = plat.match(/POLICY: (.*?)(?=\nFINANCE:|$)/s);
+                const financeMatch = plat.match(/FINANCE: (.*?)(?=$)/s);
+
+                const brandText = commsMatch ? commsMatch[1].trim() : "Pending...";
+                const policyText = policyMatch ? policyMatch[1].trim() : "Pending...";
+                const financeText = financeMatch ? financeMatch[1].trim() : "Pending...";
+
+                return `
+                <div class="card animate" style=\"padding: 1.5rem; position: relative; border: 1px solid ${approval < 20 ? '#ef444455' : 'var(--glass-border)'};\">
+                    <div class=\"party-accent\" style=\"background: ${p.color}; height: 4px; top: 0; left: 0; right: 0; position: absolute;\"></div>
+                    <div style=\"display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;\">
+                        <div>
+                            <div style=\"font-weight: 800; font-size: 1.1rem;\">${p.partyname}</div>
+                            <div style=\"font-size: 0.8rem; color: var(--text-muted);\">Lead: ${p.leader}</div>
+                        </div>
+                        <div style=\"text-align: right;\">
+                            <div style=\"font-family: monospace; font-size: 1.2rem; font-weight: 900; color: ${barColor};\">${approval}%</div>
+                            <div style=\"font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;\">Approval</div>
+                        </div>
+                    </div>
+                    
+                    <div style=\"width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; margin-bottom: 1rem; overflow: hidden;\">
+                        <div style=\"width: ${approval}%; height: 100%; background: ${barColor};\"></div>
+                    </div>
+
+                    <div style=\"display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;\">
+                        ${badge || "<span></span>"}
+                    </div>
+
+                    <button class=\"btn-primary\" onclick=\"toggleStrategy('${pId}')\" style=\"width: 100%; font-size: 0.7rem; padding: 0.5rem; background: rgba(255,255,255,0.05);\">View Campaign Strategy</button>
+                    
+                    <div id="${pId}" style=\"display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); font-size: 0.8rem;\">
+                        <div style=\"margin-bottom: 1rem;\">
+                            <div style=\"color: #f472b6; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">📣 Communications Director</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${brandText}</div>
+                        </div>
+                        <div style=\"margin-bottom: 1rem;\">
+                            <div style=\"color: #60a5fa; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">🛡️ Strategy Lead</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${policyText}</div>
+                        </div>
+                        <div>
+                            <div style=\"color: #34d399; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.3rem;\">💰 Financial Chief</div>
+                            <div style=\"background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 8px; line-height: 1.4;\">${financeText}</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleStrategy(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                el.classList.add('fade-in');
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        updateDashboard();
+        setInterval(updateDashboard, 60000);
+    </script>
+</body>
+</html>

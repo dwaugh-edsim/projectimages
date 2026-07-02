@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Learning Classroom Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --bg-primary: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            --indigo-600: #4f46e5;
+            --indigo-50: #e0e7ff;
+            --emerald-600: #059669;
+            --emerald-50: #d1fae5;
+            --amber-600: #d97706;
+            --amber-50: #fef3c7;
+            --rose-600: #dc2626;
+            --rose-50: #fee2e2;
+            --border-light: #e2e8f0;
+            --font-mono: 'Courier Prime', monospace;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-sizing: border-box;
+        }
+
+        header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .header-title h1 {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            color: var(--indigo-600);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-title p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .countdown-timer {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            color: var(--indigo-600);
+            font-weight: 600;
+            background: var(--indigo-50);
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .stat-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--indigo-600);
+        }
+
+        .stat-lbl {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+        }
+
+        /* Classroom Grid Layout divided by Groups */
+        .classroom-dashboard-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr 1fr 1fr;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .group-column {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .group-header {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-header.g1 {
+            color: var(--emerald-600);
+            border-bottom: 2px solid var(--emerald-50);
+        }
+        .group-header.g2 {
+            color: var(--indigo-600);
+            border-bottom: 2px solid var(--indigo-50);
+        }
+        .group-header.g3 {
+            color: var(--amber-600);
+            border-bottom: 2px solid var(--amber-50);
+        }
+
+        .group-badge {
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .group-badge.g1 { background: var(--emerald-50); color: var(--emerald-600); }
+        .group-badge.g2 { background: var(--indigo-50); color: var(--indigo-600); }
+        .group-badge.g3 { background: var(--amber-50); color: var(--amber-600); }
+
+        .group-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 2px;
+        }
+
+        .student-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        .student-card:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mission-tag {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            background: #f1f5f9;
+            padding: 1px 4px;
+            border-radius: 3px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .progress-steps-row {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .step-indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+        }
+
+        .step-indicator.done {
+            background: var(--emerald-50);
+            color: var(--emerald-600);
+            border: 1px solid rgba(5, 150, 105, 0.15);
+        }
+
+        .step-indicator.partial {
+            background: var(--amber-50);
+            color: var(--amber-600);
+            border: 1px solid rgba(217, 119, 6, 0.15);
+        }
+
+        .step-indicator.empty {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-light);
+            padding-top: 8px;
+            margin-top: 4px;
+        }
+
+        .upload-input-label {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-light);
+            font-weight: 600;
+        }
+
+        .upload-input-label:hover {
+            background: #f1f5f9;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-light); padding: 10px 20px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+        <div class="header-title">
+            <h1 style="font-size: 1.15rem; color: var(--indigo-600); text-transform: uppercase; font-family: var(--font-mono); font-weight: 800; margin-bottom: 2px;">Service Learning</h1>
+            <p style="font-size: 0.72rem; color: var(--text-secondary);">Grade 9 Citizenship · A Block · Live Classroom Projection Screen</p>
+        </div>
+        <div class="countdown-timer" id="syncMode" style="font-family: var(--font-sans); font-size: 0.78rem;">Connecting...</div>
+    </header>>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-val" id="statRoster">30</div>
+            <div class="stat-lbl">Class Roster</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statComplete" style="color:var(--emerald-500)">0</div>
+            <div class="stat-lbl">Completed (5/5)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statInProgress" style="color:var(--indigo-500)">0</div>
+            <div class="stat-lbl">In Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="statClassRate">0%</div>
+            <div class="stat-lbl">Completion Rate</div>
+        </div>
+    </div>
+
+    <!-- Classroom Grid Layout divided by Groups -->
+    <main class="classroom-dashboard-layout" id="dashboardLayout">
+        <!-- Interview Queue Column (Next 4) -->
+        <div class="group-column" style="border: 2px solid var(--indigo-600); background: #f8fafc; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);">
+            <h2 class="group-header" style="color: var(--indigo-600); border-bottom: 2px solid var(--indigo-50); padding-bottom: 8px; font-weight: 800; margin-bottom: 12px;">
+                <span>🗣️ Interview Queue</span>
+            </h2>
+            <div style="display: flex; flex-direction: column; gap: 16px; padding: 4px; justify-content: flex-start;">
+                <div style="display: flex; flex-direction: column; gap: 4px; background: #e0e7ff; color: #3730a3; padding: 16px 18px; border-radius: 8px; border: 1px solid rgba(79, 70, 229, 0.2); box-shadow: 0 2px 4px rgba(79, 70, 229, 0.05);">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; font-family: var(--font-sans); opacity: 0.9;">1st - Speaking Now</span>
+                    <span id="dashQName1" style="font-size: 1.45rem; font-weight: 800; font-family: var(--font-sans); text-transform: uppercase; line-height: 1.25; word-wrap: break-word;">--</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; background: white; color: #475569; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-light); box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; font-family: var(--font-sans); opacity: 0.8;">2nd - Up Next</span>
+                    <span id="dashQName2" style="font-size: 1.2rem; font-weight: 700; font-family: var(--font-sans); line-height: 1.25; word-wrap: break-word;">--</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; background: white; color: #64748b; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-light); box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; font-family: var(--font-sans); opacity: 0.8;">3rd - Prepare</span>
+                    <span id="dashQName3" style="font-size: 1.15rem; font-weight: 700; font-family: var(--font-sans); line-height: 1.25; word-wrap: break-word;">--</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; background: white; color: #94a3b8; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-light); box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; font-family: var(--font-sans); opacity: 0.8;">4th - On Deck</span>
+                    <span id="dashQName4" style="font-size: 1.05rem; font-weight: 700; font-family: var(--font-sans); line-height: 1.25; word-wrap: break-word;">--</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px; background: white; color: #cbd5e1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-light); box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <span style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; font-family: var(--font-sans); opacity: 0.8;">5th - Next Roster Slot</span>
+                    <span id="dashQName5" style="font-size: 1.0rem; font-weight: 700; font-family: var(--font-sans); line-height: 1.25; word-wrap: break-word;">--</span>
+                </div>
+            </div>
+        </div>
+        <!-- Group 1: Complete -->
+        <div class="group-column">
+            <h2 class="group-header g1">
+                <span><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--emerald-600); margin-right: 6px;"></span>Group 1: Complete</span>
+                <span id="countGroup1" class="group-badge g1">0</span>
+            </h2>
+            <div class="group-cards" id="groupComplete"></div>
+        </div>
+
+        <!-- Group 2: Almost Done -->
+        <div class="group-column">
+            <h2 class="group-header g2">
+                <span><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--indigo-600); margin-right: 6px;"></span>Group 2: Almost Done</span>
+                <span id="countGroup2" class="group-badge g2">0</span>
+            </h2>
+            <div class="group-cards" id="groupAlmost"></div>
+        </div>
+
+        <!-- Group 3: Far Behind / Idle -->
+        <div class="group-column">
+            <h2 class="group-header g3">
+                <span><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--amber-600); margin-right: 6px;"></span>Group 3: Needs Action</span>
+                <span id="countGroup3" class="group-badge g3">0</span>
+            </h2>
+            <div class="group-cards" id="groupBehind"></div>
+        </div>
+    </main>
+
+    <!-- Full-width checklist section -->
+    <div class="guidance-box" style="background: var(--indigo-50); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: var(--indigo-600); box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-shrink: 0; margin-top: 4px;">
+        <h3 style="font-family: var(--font-sans); font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; color: var(--indigo-600);">
+            Student Check-In Prep Checklist
+        </h3>
+        <ul style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding-left: 0; list-style-type: none; font-size: 0.72rem; color: var(--text-secondary); font-weight: 500;">
+            <li style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(79, 70, 229, 0.1);"><strong style="color: var(--text-primary); display: block; margin-bottom: 2px;">1. Disclose AI Use</strong>Clearly explain how you utilized any AI tools (translation, calculations, etc.). Disclosed AI use is fully supported!</li>
+            <li style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(79, 70, 229, 0.1);"><strong style="color: var(--text-primary); display: block; margin-bottom: 2px;">2. Explain Research</strong>Summarize your Step 2 answers in your own words.</li>
+            <li style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(79, 70, 229, 0.1);"><strong style="color: var(--text-primary); display: block; margin-bottom: 2px;">3. Walk Through Data</strong>Be ready to explain your Step 3 logs and Step 4 measurements.</li>
+            <li style="background: white; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(79, 70, 229, 0.1);"><strong style="color: var(--text-primary); display: block; margin-bottom: 2px;">4. Reflect Genuinely</strong>Ensure Step 5 is complete and written in your own words.</li>
+        </ul>
+    </div>
+
+    <footer class="dashboard-footer">
+        <div>
+            <span>Data Sync: </span>
+            <span id="syncMode" style="font-family:var(--font-mono); color:var(--amber-500)">Scanning...</span>
+        </div>
+        <div>
+            <input type="file" id="dashboardFilePicker" style="display:none;" accept=".json,.csv" onchange="loadCachedFile(event)">
+            <label for="dashboardFilePicker" class="upload-input-label">Load Offline Roster (JSON/CSV)</label>
+        </div>
+    </footer>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        
+        const ROSTER = [
+            'Farhan', 'Abdul', 'Joshua A', 'Clark', 'Madhavan', 'Remy', 'Yunho', 'Lachlan McM',
+            'Lachlan Mac', 'Nolan', 'Laila', 'Josie', 'Huda', 'Leo', 'Elizabeth',
+            'Fatima', 'Alia', 'Rifa', 'Sarah', 'Jessa', 'Delisha', 'Kendra', 'Zankia',
+            'Evie', 'Jana', 'Ali', 'Kai', 'Natalia', 'Isaac'
+        ];
+
+        let studentData = {};
+
+        // DMV Queue dynamic updates
+        function updateDashboardQueue() {
+            // 1. LocalStorage fallback
+            const qStr = localStorage.getItem('interview_queue');
+            if (qStr) {
+                try {
+                    const q = JSON.parse(qStr);
+                    setDashboardQueueNames(q);
+                } catch(e){}
+            }
+            
+            // 2. Fetch from Webhook
+            fetchQueueFromWebhook();
+        }
+
+        async function fetchQueueFromWebhook() {
+            try {
+                const res = await fetch(`${WEBHOOK_URL}?action=GET_QUEUE`);
+                const data = await res.json();
+                if (data && data.queue !== undefined) {
+                    const q = data.queue ? data.queue.split(',') : ["", "", "", "", ""];
+                    setDashboardQueueNames(q);
+                    localStorage.setItem('interview_queue', JSON.stringify(q));
+                }
+            } catch(e) {
+                console.log("No queue data from webhook or offline.");
+            }
+        }
+
+        function setDashboardQueueNames(q) {
+            document.getElementById('dashQName1').textContent = q[0] || '--';
+            document.getElementById('dashQName2').textContent = q[1] || '--';
+            document.getElementById('dashQName3').textContent = q[2] || '--';
+            document.getElementById('dashQName4').textContent = q[3] || '--';
+            document.getElementById('dashQName5').textContent = q[4] || '--';
+        }
+
+        function initDashboard() {
+            ROSTER.forEach(s => {
+                studentData[s] = {
+                    studentId: s,
+                    mission: "",
+                    data: {}
+                };
+            });
+
+            fetchData();
+            updateDashboardQueue();
+            setInterval(updateDashboardQueue, 5000);
+        }
+
+        async function fetchData() {
+            const syncEl = document.getElementById('syncMode');
+            try {
+                syncEl.textContent = 'Connecting cloud webhook...';
+                const res = await fetch(`${WEBHOOK_URL}?action=GET_ALL_PROGRESS`);
+                const raw = await res.json();
+                
+                const latestMap = {};
+                raw.forEach(r => {
+                    const sid = r.StudentId || r.studentId;
+                    if (!sid || sid === 'MKS-11-STUDENT') return;
+                    const ts = r.Timestamp || "";
+                    if (!latestMap[sid] || ts > latestMap[sid].Timestamp) {
+                        latestMap[sid] = r;
+                    }
+                });
+
+                Object.keys(latestMap).forEach(sid => {
+                    if (studentData[sid]) {
+                        const rec = latestMap[sid];
+                        let ref = {};
+                        if (rec.ReflectionJSON) {
+                            try { ref = JSON.parse(rec.ReflectionJSON); } catch(e){}
+                        } else if (rec.data) {
+                            ref = rec.data;
+                        }
+                        studentData[sid].mission = rec.MissionTitle || ref.topic || ref.missionSelect || "";
+                        studentData[sid].data = ref;
+                    }
+                });
+                syncEl.textContent = 'Live Synced';
+                syncEl.style.color = 'var(--emerald-500)';
+            } catch(e) {
+                console.error("Dashboard cloud sync failed, reading local json", e);
+                if (window.location.protocol === 'file:') {
+                    syncEl.textContent = 'Offline (Load File Below)';
+                    syncEl.style.color = 'var(--rose-500)';
+                    console.log("Local fetch skipped on file:// protocol due to browser security policies. Please use the Load Offline button.");
+                } else {
+                    try {
+                        const localRes = await fetch('live_student_data.json');
+                        const localData = await localRes.json();
+                        localData.forEach(item => {
+                            const sid = item.studentId;
+                            if (studentData[sid]) {
+                                studentData[sid].mission = item.mission || "";
+                                studentData[sid].data = item.data || {};
+                            }
+                        });
+                        syncEl.textContent = 'Cached JSON';
+                        syncEl.style.color = 'var(--indigo-500)';
+                    } catch(err) {
+                        syncEl.textContent = 'Offline (Upload File Below)';
+                        syncEl.style.color = 'var(--rose-500)';
+                    }
+                }
+            }
+
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const g1 = document.getElementById('groupComplete');
+            const g2 = document.getElementById('groupAlmost');
+            const g3 = document.getElementById('groupBehind');
+
+            g1.innerHTML = '';
+            g2.innerHTML = '';
+            g3.innerHTML = '';
+
+            let completedCount = 0;
+            let inProgressCount = 0;
+            let group1Count = 0;
+            let group2Count = 0;
+            let group3Count = 0;
+
+            ROSTER.forEach(sid => {
+                const s = studentData[sid];
+                const d = s.data;
+
+                const why = d.selectionWhy || "";
+                const q1 = d.q_1 || "";
+                const q2 = d.q_2 || "";
+                const log = d.recordLog || "";
+                const measure = d.measureData || "";
+                const reflect = d.reflectionText || "";
+
+                // Boolean completion checks
+                const step1Ok = why.length > 10;
+                const step2Ok = q1.length > 10 && q2.length > 10;
+                const step3Ok = log.length > 15;
+                const step4Ok = measure.length > 5;
+                const step5Ok = reflect.length > 20;
+
+                const s1Class = step1Ok ? 'done' : why.length > 0 ? 'partial' : 'empty';
+                const s2Class = step2Ok ? 'done' : (q1.length > 0 || q2.length > 0) ? 'partial' : 'empty';
+                const s3Class = step3Ok ? 'done' : log.length > 0 ? 'partial' : 'empty';
+                const s4Class = step4Ok ? 'done' : measure.length > 0 ? 'partial' : 'empty';
+                const s5Class = step5Ok ? 'done' : reflect.length > 0 ? 'partial' : 'empty';
+
+                const doneCount = [step1Ok, step2Ok, step3Ok, step4Ok, step5Ok].filter(Boolean).length;
+
+                let statusText = "Idle";
+                let statusClass = "status-idle";
+                let targetGroup = g3;
+
+                if (doneCount === 5) {
+                    statusText = "Complete";
+                    statusClass = "status-complete";
+                    completedCount++;
+                    targetGroup = g1;
+                    group1Count++;
+                } else if (doneCount >= 3) {
+                    statusText = "Almost Done";
+                    statusClass = "status-inprogress";
+                    inProgressCount++;
+                    targetGroup = g2;
+                    group2Count++;
+                } else {
+                    statusText = why.length > 0 ? "Started" : "Idle";
+                    statusClass = why.length > 0 ? "status-inprogress" : "status-idle";
+                    if (why.length > 0) inProgressCount++;
+                    targetGroup = g3;
+                    group3Count++;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'student-card';
+                card.innerHTML = `
+                    <div class="student-header">
+                        <span class="student-name" title="${sid}">${sid}</span>
+                    </div>
+                    <div class="progress-steps-row">
+                        <div class="step-indicator ${s1Class}" title="Step 1: Plan">P</div>
+                        <div class="step-indicator ${s2Class}" title="Step 2: Research">R</div>
+                        <div class="step-indicator ${s3Class}" title="Step 3: Action Log">L</div>
+                        <div class="step-indicator ${s4Class}" title="Step 4: Measure">M</div>
+                        <div class="step-indicator ${s5Class}" title="Step 5: Reflect">E</div>
+                    </div>
+                `;
+                targetGroup.appendChild(card);
+            });
+
+            document.getElementById('countGroup1').textContent = group1Count;
+            document.getElementById('countGroup2').textContent = group2Count;
+            document.getElementById('countGroup3').textContent = group3Count;
+
+            document.getElementById('statComplete').textContent = completedCount;
+            document.getElementById('statInProgress').textContent = inProgressCount;
+            document.getElementById('statRoster').textContent = ROSTER.length;
+            
+            const rate = Math.round((completedCount / ROSTER.length) * 100);
+            document.getElementById('statClassRate').textContent = `${rate}%`;
+        }
+
+        function loadCachedFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    json.forEach(item => {
+                        const sid = item.studentId || item.StudentId;
+                        if (studentData[sid]) {
+                            studentData[sid].mission = item.mission || item.MissionTitle || "";
+                            studentData[sid].data = item.data || JSON.parse(item.ReflectionJSON || '{}');
+                        }
+                    });
+                    document.getElementById('syncMode').textContent = 'Cache Loaded';
+                    document.getElementById('syncMode').style.color = 'var(--indigo-500)';
+                    renderGrid();
+                    alert("Dashboard roster updated from offline file!");
+                } catch(err) {
+                    alert("Failed to parse file. Make sure it's valid JSON.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

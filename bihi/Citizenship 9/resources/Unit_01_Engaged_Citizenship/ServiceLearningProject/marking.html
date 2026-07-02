@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Assessment Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --amber-500: #f59e0b;
+            --emerald-500: #10b981;
+            --rose-500: #ef4444;
+            --indigo-600: #4f46e5;
+            --border: #e2e8f0;
+            --font-mono: 'Courier Prime', monospace;
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* ── GATEWAY PIN SCREEN ── */
+        .pin-gate {
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid var(--slate-700);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(79, 70, 229, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .pin-gate h2 {
+            font-family: var(--font-mono);
+            font-size: 1.4rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: var(--amber-500);
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.8rem;
+            letter-spacing: 0.5em;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid var(--slate-600);
+            border-radius: 8px;
+            color: white;
+            font-family: var(--font-mono);
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        .pin-input:focus {
+            border-color: var(--indigo-600);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .pin-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--indigo-600) 0%, #7c3aed 100%);
+            border: none;
+            color: white;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: opacity 0.2s;
+        }
+
+        .pin-btn:hover {
+            opacity: 0.9;
+        }
+
+        .error-msg {
+            color: var(--rose-500);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* ── MAIN TOOL LAYOUT ── */
+        .app-container {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            grid-template-columns: 320px 1fr;
+            background: var(--slate-900);
+            color: #334155;
+        }
+
+        /* Sidebar Roster */
+        .sidebar {
+            background: var(--slate-800);
+            border-right: 2px solid var(--slate-700);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 2px solid var(--slate-700);
+            color: #f8fafc;
+        }
+
+        .sidebar-header h1 {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--amber-500);
+            margin-bottom: 8px;
+        }
+
+        .data-source-badge {
+            font-size: 0.75rem;
+            background: rgba(255,255,255,0.08);
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #94a3b8;
+            font-family: var(--font-mono);
+            display: inline-block;
+        }
+
+        .student-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .student-item {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--slate-700);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: white;
+        }
+
+        .student-item.active {
+            background: rgba(79, 70, 229, 0.15);
+            border-left: 4px solid var(--indigo-600);
+            color: white;
+            font-weight: 600;
+        }
+
+        .student-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .student-name-list {
+            font-size: 0.95rem;
+        }
+
+        .student-mission-list {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-family: var(--font-mono);
+        }
+
+        .status-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #475569;
+        }
+
+        .dot.ok { background: var(--emerald-500); }
+        .dot.partial { background: var(--amber-500); }
+        .dot.empty { background: #475569; }
+
+        .offline-section {
+            padding: 16px;
+            border-top: 1px solid var(--slate-700);
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .offline-btn {
+            width: 100%;
+            padding: 8px;
+            background: var(--slate-700);
+            color: white;
+            border: 1px solid var(--slate-600);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+
+        .offline-btn:hover {
+            background: var(--slate-600);
+        }
+
+        /* Main Workspace Details */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .workspace-header {
+            background: white;
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .active-student-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--slate-900);
+        }
+
+        .active-student-mission {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--indigo-600);
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .sync-badge {
+            background: #d1fae5;
+            color: #065f46;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .workspace-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            overflow: hidden;
+        }
+
+        /* Student Evidence Viewer */
+        .evidence-viewer {
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .evidence-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .evidence-card h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--slate-600);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--slate-100);
+            padding-bottom: 8px;
+            font-family: var(--font-mono);
+        }
+
+        .evidence-content {
+            font-size: 0.95rem;
+            color: var(--slate-800);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .evidence-content.empty-text {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .research-question-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .research-question-box .q-title {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--slate-800);
+            margin-bottom: 6px;
+        }
+
+        /* Grading and Feedback Panel */
+        .grading-panel {
+            background: white;
+            border-left: 1px solid var(--border);
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .grading-panel h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--slate-900);
+            border-bottom: 2px solid var(--slate-800);
+            padding-bottom: 8px;
+            font-family: var(--font-mono);
+        }
+
+        .grade-button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .grade-btn {
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .grade-btn.excellent:hover, .grade-btn.excellent.active {
+            background: #ecfdf5;
+            border-color: var(--emerald-500);
+            color: #065f46;
+        }
+
+        .grade-btn.adequate:hover, .grade-btn.adequate.active {
+            background: #fffbeb;
+            border-color: var(--amber-500);
+            color: #92400e;
+        }
+
+        .grade-btn.needs-work:hover, .grade-btn.needs-work.active {
+            background: #fee2e2;
+            border-color: var(--rose-500);
+            color: #991b1b;
+        }
+
+        .comment-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            resize: vertical;
+            font-family: var(--font-sans);
+            outline: none;
+        }
+
+        .comment-area:focus {
+            border-color: var(--indigo-600);
+        }
+
+        .publish-btn {
+            background: linear-gradient(135deg, var(--indigo-600) 0%, #7c3aed 100%);
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .publish-btn:hover {
+            opacity: 0.9;
+        }
+
+        .publish-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
+        .save-local-btn {
+            background: var(--slate-100);
+            color: var(--slate-700);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .save-local-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .no-student-selected {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #94a3b8;
+            gap: 12px;
+        }
+
+        .no-student-selected h2 {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── GATEWAY PIN SCREEN ── -->
+    <div class="pin-gate" id="pinGate">
+        <h2>Instructor Terminal</h2>
+        <input type="password" class="pin-input" id="pinField" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter') verifyPin()">
+        <button class="pin-btn" onclick="verifyPin()">Unlock Assessment Tool</button>
+        <div class="error-msg" id="pinError">Invalid Security Access PIN</div>
+    </div>
+
+    <!-- ── MAIN APP INTERFACE ── -->
+    <div class="app-container" id="appContainer">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Roster Audit</h1>
+                <span class="data-source-badge" id="sourceBadge">Offline Cache</span>
+            </div>
+            
+            <ul class="student-list" id="rosterList">
+                <!-- Loaded dynamically -->
+            </ul>
+
+            <div class="offline-section">
+                <input type="file" id="offlineFileInput" style="display:none;" accept=".json,.csv" onchange="handleOfflineUpload(event)">
+                <button class="offline-btn" onclick="document.getElementById('offlineFileInput').click()">Import JSON/CSV</button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace details -->
+        <main class="workspace">
+            <div id="noSelectionScreen" class="no-student-selected">
+                <h2>No Operative Selected</h2>
+                <p>Select a student from the left panel to audit their files.</p>
+            </div>
+
+            <div id="workspaceContent" style="display:none; height:100%; flex-direction:column; overflow:hidden;">
+                <div class="workspace-header">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div class="active-student-name" id="studentNameText">Elizabeth</div>
+                            <button class="save-local-btn" onclick="openRawJSON()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px;">🔍 View Raw JSON</button>
+                            <button class="save-local-btn" id="partnerToggleBtn" onclick="toggleToPartner()" style="display: none; padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px; background: var(--indigo-600); color: white; border-color: var(--indigo-600);">👥 Switch to Partner</button>
+                            <button class="save-local-btn" onclick="deferCurrentStudent()" style="padding: 4px 8px; font-size: 0.72rem; border-radius: 4px; margin-bottom: -4px; background: var(--rose-500); color: white; border-color: var(--rose-500);">⏳ Defer Partner/Solo</button>
+                        </div>
+                        <div class="active-student-mission" id="studentMissionText">CIT-002: THE TAP AUDIT</div>
+                    </div>
+                    <div class="sync-badge" id="syncStatusBadge">Ready</div>
+                </div>
+
+                <div class="workspace-body">
+                    <!-- Student Evidence Viewer -->
+                    <div class="evidence-viewer">
+                        
+                        <!-- Step 1: Plan -->
+                        <div class="evidence-card">
+                            <h3>Step 1: Choice & Commitment Plan</h3>
+                            <div class="evidence-content" id="viewPlanCommitment">Loading...</div>
+                            <div class="evidence-content" id="viewPlanRole" style="margin-top:12px; font-weight:500; border-top:1px dashed #f1f5f9; padding-top:12px;">Loading...</div>
+                        </div>
+
+                        <!-- Step 2: Research -->
+                        <div class="evidence-card">
+                            <h3>Step 2: Research Foundation</h3>
+                            <div id="viewResearchQBox">
+                                <!-- Loaded dynamically -->
+                            </div>
+                            <div style="margin-top:12px; font-size:0.85rem; color:var(--slate-600); border-top:1px dashed #f1f5f9; padding-top:12px;">
+                                <strong>Sources:</strong> <span id="viewResearchSources">None provided</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Log -->
+                        <div class="evidence-card">
+                            <h3>Step 3: Action Tracker Log</h3>
+                            <div class="evidence-content" id="viewActionLog">Loading...</div>
+                        </div>
+
+                        <!-- Step 4: Measure -->
+                        <div class="evidence-card">
+                            <h3>Step 4: Quantitative Impact</h3>
+                            <div class="evidence-content" id="viewMeasurements">Loading...</div>
+                        </div>
+
+                        <!-- Step 5: Reflection -->
+                        <div class="evidence-card">
+                            <h3>Step 5: Citizenship Reflection</h3>
+                            <div class="evidence-content" id="viewReflection">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Grading / Comments sidebar -->
+                    <div class="grading-panel">
+                        <h3>Assessment & Feedback</h3>
+                        
+                        <!-- DMV Queue Manager Widget -->
+                        <div style="background: #eef2f6; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; font-size: 0.82rem; color: #334155; margin-bottom: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                            <strong style="display:block; margin-bottom:6px; font-family:var(--font-mono); text-transform:uppercase; color:var(--indigo-600);">Next Up (DMV Queue)</strong>
+                            <div style="display: flex; gap: 4px; flex-direction: column; margin-bottom: 8px;">
+                                <div id="queue1" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">1. --</div>
+                                <div id="queue2" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">2. --</div>
+                                <div id="queue3" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">3. --</div>
+                                <div id="queue4" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">4. --</div>
+                                <div id="queue5" style="display:flex; justify-content:space-between; align-items:center; background:white; padding:4px 8px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">5. --</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;">
+                                <button onclick="assignQueue(1)" style="font-size:0.6rem; padding:6px 1px; cursor:pointer; background:#e0e7ff; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#3730a3;">Set 1st</button>
+                                <button onclick="assignQueue(2)" style="font-size:0.6rem; padding:6px 1px; cursor:pointer; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#475569;">Set 2nd</button>
+                                <button onclick="assignQueue(3)" style="font-size:0.6rem; padding:6px 1px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#64748b;">Set 3rd</button>
+                                <button onclick="assignQueue(4)" style="font-size:0.6rem; padding:6px 1px; cursor:pointer; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:4px; font-weight:700; color:#166534;">Set 4th</button>
+                                <button onclick="assignQueue(5)" style="font-size:0.6rem; padding:6px 1px; cursor:pointer; background:#fff7ed; border:1px solid #fed7aa; border-radius:4px; font-weight:700; color:#c2410c;">Set 5th</button>
+                            </div>
+                            <button onclick="advanceQueue()" style="width: 100%; margin-top: 8px; padding: 8px; background: var(--indigo-600); color: white; border: none; border-radius: 6px; font-weight: 800; font-size: 0.78rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.15);">🗣️ Advance Queue (Next)</button>
+                            <div style="display: flex; justify-content: space-between; margin-top: 8px; padding: 0 4px;">
+                                <button onclick="resetQueueToStart()" style="font-size:0.68rem; background:none; border:none; color:var(--indigo-600); cursor:pointer; text-decoration:underline; font-weight:700;">Reset to Start</button>
+                                <button onclick="clearQueue()" style="font-size:0.68rem; background:none; border:none; color:var(--rose-500); cursor:pointer; text-decoration:underline;">Clear Queue</button>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Student Cheat Sheet -->
+                        <div id="cheatSheetBox" style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:8px; font-size:0.82rem; color:#166534; margin-bottom:15px;">
+                            <strong style="display:block; margin-bottom:4px; font-family:var(--font-mono); text-transform:uppercase; color:#065f46;">Auditing Cheat Sheet</strong>
+                            <p id="cheatSheetText" style="white-space:pre-wrap; line-height:1.45;"></p>
+                        </div>
+                        
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase;">Curriculum Rating</label>
+                            <div class="grade-button-group">
+                                <button class="grade-btn excellent" id="btnRateExcellent" onclick="setRating('Excellent')">Excellent</button>
+                                <button class="grade-btn adequate" id="btnRateAdequate" onclick="setRating('Adequate')">Adequate</button>
+                                <button class="grade-btn needs-work" id="btnRateNeeds" onclick="setRating('Needs Work')">Needs Work</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase;">Feedback / Comments</label>
+                            <textarea class="comment-area" id="feedbackComment" placeholder="Write feedback details or remediation plan..."></textarea>
+                        </div>
+
+                        <button class="publish-btn" id="btnPublish" onclick="publishGrading()">
+                            Publish to Roster Sheet
+                        </button>
+
+                        <button class="save-local-btn" onclick="exportModifiedData()">
+                            Export All Data (JSON)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwwQekbSK1nU7vHMWoowMb49k-75aPQv5zrcAPbNFXC24Akk4jo2un-IYSDReC-JqQ0EA/exec';
+        
+        const STUDENT_PARTNERS = {
+            'Lachlan Mac': 'Lachlan McM', 'Lachlan McM': 'Lachlan Mac',
+            'Kendra': 'Zankia', 'Zankia': 'Kendra',
+            'Jessa': 'Delisha', 'Delisha': 'Jessa',
+            'Natalia': 'Rifa', 'Rifa': 'Natalia',
+            'Josie': 'Laila', 'Laila': 'Josie',
+            'Joshua A': 'Nolan', 'Nolan': 'Joshua A',
+            'Madhavan': 'Remy', 'Remy': 'Madhavan',
+            'Elizabeth': 'Alia', 'Alia': 'Elizabeth',
+            'Sarah': 'Yunho', 'Yunho': 'Sarah',
+            'Abdul': 'Farhan', 'Farhan': 'Abdul',
+            'Kai': 'Ali', 'Ali': 'Kai',
+            'Clark': 'Leo', 'Leo': 'Clark'
+        };
+
+        function toggleToPartner() {
+            if (selectedStudent && STUDENT_PARTNERS[selectedStudent]) {
+                selectStudent(STUDENT_PARTNERS[selectedStudent]);
+            }
+        }
+
+        function deferCurrentStudent() {
+            if (!selectedStudent) return;
+            
+            const partner = STUDENT_PARTNERS[selectedStudent];
+            const toMove = partner ? [selectedStudent, partner] : [selectedStudent];
+            
+            // Remove from active roster sequence and append to bottom
+            ROSTER_LIST = ROSTER_LIST.filter(name => !toMove.includes(name));
+            ROSTER_LIST.push(...toMove);
+            
+            // Save state to persist order across reloads
+            localStorage.setItem('roster_list_order', JSON.stringify(ROSTER_LIST));
+            
+            renderRosterList();
+            alert(`Moved ${toMove.join(' & ')} to the bottom of the roster sequence.`);
+        }
+        
+        let ROSTER_LIST = [
+            'Lachlan Mac', 'Lachlan McM',
+            'Kendra', 'Zankia',
+            'Evie',
+            'Jessa', 'Delisha',
+            'Natalia', 'Rifa',
+            'Josie', 'Laila',
+            'Joshua A', 'Nolan',
+            'Madhavan', 'Remy',
+            'Elizabeth', 'Alia',
+            'Jana',
+            'Sarah', 'Yunho',
+            'Abdul', 'Farhan',
+            'Kai', 'Ali',
+            'Clark', 'Leo',
+            'Isaac',
+            'Fatima',
+            'Huda'
+        ];
+
+        const STUDENT_CHEAT_SHEETS = {
+            'Alia': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: Alia has completed all stages. Her research is strong, citing Pockwock Lake and the Neskantaga boil water advisories. Her shower reduction is well-logged.\n• Quote: 'Every time I used to come [to relatives house], there was always a boil water advisory...'\n• Interview Suggestion:\n  Ask: 'Your relatives lived in an area with a boil-water advisory. How did that personal experience shape your perspective on our daily tap audit?'",
+            'Elizabeth': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: Solid 5/5. Highly reflective, connecting water saving to socio-economic privilege and systemic issues.\n• Quote: 'as a person of colour living in Canada... clean water was a privilege... I believe that individual actions like this can only affect the communities so little, and that if the community comes together...'\n• Interview Suggestion:\n  Ask: 'You wrote that individual actions only affect communities a little unless the community comes together. What collective steps do you think our school could take to tackle water waste?'",
+            'Farhan': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: Fully complete. Highly descriptive and socially conscious battery safety/human rights research.\n• Quote: 'Hey family, haven't heard the situation yet? There is an ongoing active human rights violation in the DRC...'\n• Interview Suggestion:\n  Ask: 'Your parent pitch was very direct about human rights violations in the DRC cobalt mines. How did your family react to that when you pitched it?'",
+            'Kai': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: Excellent 5/5. Kai reduced daily shower water use by 37% and did great research on remote Indigenous water security risks.\n• Quote: 'clean water is a nessesity for every living thing... small actions can help people around you. Cleaning and organizing parts of my life made me feel like I can make a difference.'\n• Interview Suggestion:\n  Ask: 'You mentioned that cleaning and organizing parts of your water use made you feel like you can make a difference. What did your family think of the 37% shower reduction?'",
+            'Laila': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: Completed all steps. Managed a massive shower reduction from 25 minutes down to 6 minutes.\n• Quote: 'raise awareness for the unequal access to having clean drinking water in lots of indegionous reserves...'\n• Interview Suggestion:\n  Ask: 'You made a massive reduction in shower time from 25 minutes to 6. How hard was that to stick to, and what did you learn about the Neskantaga First Nation?'",
+            'Madhavan': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-003 Phantom Load\n• Evaluation: 5/5 complete. Cited 'math by gemini' (approved). Logged an estimated 1124 kWh of energy reduction.\n• Quote: 'My individual actions impacted the community in the way of other people asking about what I was doing and me influencing...'\n• Interview Suggestion:\n  Ask: 'You calculated a reduction of 1124 kWh by unplugging 3 heavily used devices. Walk me through the devices you unplugged and how you did the math.'",
+            'Nolan': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-003 Phantom Load\n• Evaluation: Fully complete. Noted he used ChatGPT for the calculations, and source links are keyboard-mashed ('uih9 8 88 8 8'). Rationale and log are genuine.\n• Quote: 'Even tho I got ChatGPT to do it, it was still good.'\n• Interview Suggestion:\n  Ask: 'I noticed you mentioned using ChatGPT for the calculations. Walk me through how you actually set up the math for the standby wattage.'",
+            'Jessa': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: Fully complete (previously blocked by webhook outage, now synced). Diverted 20 AA batteries.\n• Quote: 'By recycling a few batteries, I helped prevent toxic chemicals from leaking into our soil...'\n• Interview Suggestion:\n  Ask: 'Great to see your data is fully synced. You diverted 20 AA batteries—where did you end up finding most of them around your house?'",
+            'Abdul': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-005 Data Diet\n• Evaluation: Now 5/5 complete (keyboard mashing from Step 5 replaced). Unplugged 8 phantom load devices and logged screen time limits.\n• Quote: 'it was not ez I wanted to go on but I stop myself... I have learned that we should go out side...'\n• Interview Suggestion:\n  Ask: 'You did both: unplugging devices and locking your phone in a box for 2 weeks! How did you survive giving the key to your mom?'",
+            'Joshua A': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-005 Data Diet\n• Evaluation: 5/5 complete. Disclosed Gemini use for translation (approved). Solid reflection on breaking digital algorithms.\n• Quote: 'The Data Diet carries high merit because it unites neighbourhoods to break algoorthms storing the data kept on you...'\n• Interview Suggestion:\n  Ask: 'You wrote that the data diet can break algorithms and keep neighbours from being influenced to spend money. Tell me more about that connection.'",
+            'Josie': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: 5/5 complete. Logged shower reduction from 180L to 63L. Good connection to Indigenous water issues.\n• Quote: 'having access to clean and safe water every day is something I should appreciate... Many Indigenous communities across Canada still face challenges...'\n• Interview Suggestion:\n  Ask: 'You reduced your shower water usage from 180L to 63L per shower. How did researching water challenges in Indigenous communities affect your own water saving habits?'",
+            'Delisha': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Diverted 9 batteries (approx 0.207 kg). Strong description of battery terminal taping safety.\n• Quote: 'taped both the ends of the batteries so it eliminates the risk of accidental short-circuiting...'\n• Interview Suggestion:\n  Ask: 'You collected 9 batteries and taped both ends. Why is taping the terminals so important for safety during storage and transport?'",
+            'Lachlan Mac': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-004 Wardrobe Reset\n• Evaluation: 5/5 complete. Wore only 10 clothing items. Excellent research on Rana Plaza and overconsumption.\n• Quote: 'For my mission, I decided to wear only 10 clothing items... because I wanted to make an impact on overconsumption...'\n• Interview Suggestion:\n  Ask: 'How did it feel wearing only 10 items of clothing for two weeks? Did it change your view on fast fashion and overconsumption?'",
+            'Lachlan McM': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-004 Wardrobe Reset\n• Evaluation: 5/5 complete. Audited fast fashion and Rana Plaza. Wore 10 clothing items instead of 14 outfits.\n• Quote: 'I wanted to see what its like to not have a lot of clothing options...'\n• Interview Suggestion:\n  Ask: 'You noted that you normally wear 14 different outfits. What did you notice about clothing waste or how people reacted to you wearing the same 10 items?'",
+            'Natalia': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Diverted 2 Duracell batteries. Good research on circular economy progress in Nova Scotia.\n• Quote: 'I chose to focus on reducing battery waste because I didn't realize how harmful batteries can be...'\n• Interview Suggestion:\n  Ask: 'You diverted 2 Duracell batteries. What did you learn about the Extended Producer Responsibility (EPR) policy in Nova Scotia during your research?'",
+            'Rifa': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Diverted 4 batteries (95 grams). Researched landfill fire risks and Congo cobalt mining.\n• Quote: 'Thermal Runaway in lithium ion batteries is a uncontrollable, self heating state...'\n• Interview Suggestion:\n  Ask: 'You researched how batteries in landfills cause active fires (like in Winnipeg). How did that connect to the human rights issues you found in lithium mining?'",
+            'Kendra': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Diverted 1 9V battery. Research focuses on cobalt mining in DRC and China refining.\n• Quote: 'A punctured battery is essentially a fire-bomb...'\n• Interview Suggestion:\n  Ask: 'You described a punctured lithium battery as a \"fire-bomb.\" How did your parents react when you explained the dangers of lithium battery disposal?'",
+            'Remy': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-002 Tap Audit\n• Evaluation: 5/5 complete. Reduced shower time by 50% and recycled glass water for plants.\n• Quote: 'water is very important and we should not waste too much...'\n• Interview Suggestion:\n  Ask: 'You reduced shower time by 50% and started giving leftover drinking water to plants. How did your family adapt to this?'",
+            'Yunho': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-003 Phantom Load\n• Evaluation: 5/5 complete. Solid research on NS Power coal generation and smart power strip usage.\n• Quote: 'we can't see how much we saved since the other day, but, if we calculate how much energy we save in year, it will show a lot of result...'\n• Interview Suggestion:\n  Ask: 'You made an excellent point that a small action becomes huge when lots of households do it. What device in your house did you find had the highest phantom load?'",
+            'Jana': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Reclaimed 18 batteries from regular domestic waste. Referenced Nova Scotia's EPR legislation.\n• Quote: 'Reclaimed 18 batteries that had been disposed of as regular domestic waste...'\n• Interview Suggestion:\n  Ask: 'You collected 18 batteries that were thrown in domestic trash! Where did you find them, and how did you convince people not to throw them in the regular garbage?'",
+            'Sarah': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-005 Data Diet\n• Evaluation: 5/5 complete. Stayed off social media for 2 weeks, saving 98 hours (7 hours/day). Researched shadow profiles and antitrust laws.\n• Quote: 'I felt like social media was taking too much of my time, both before sleeping and when waking up...'\n• Interview Suggestion:\n  Ask: 'You calculated that you saved 98 hours of screen time over two weeks! That's 7 hours a day. What did you do with all that extra time?'",
+            'Zankia': "• Status: COMPLETE (5/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: 5/5 complete. Diverted 8 AAA batteries, a laptop battery, and a phone battery. Stopped dad from throwing out old computer.\n• Quote: 'dad just got a new computer so he would Thor out his old one so I told him not to...'\n• Interview Suggestion:\n  Ask: 'You collected AAA batteries, an old phone battery, and stopped your dad from throwing out his old laptop battery! How did you explain the risk of chemical leaking to him?'",
+            'Ali': "• Status: IN PROGRESS (4/5)\n• Issue/Topic: CIT-004 Wardrobe Reset\n• Evaluation: Missing Step 5 (Reflect). Otherwise great data: sorted 42 pieces of clothing and set aside 8 to donate.\n• Quote: 'A shirt can cost $5 because a lot of those companies make products in countries where workers are paid very poorly...'\n• Interview Suggestion:\n  Ask: 'You sorted through 42 clothing pieces and donated 8! What is your final reflection on how fast fashion impacts workers' human rights?'",
+            'Clark': "• Status: IN PROGRESS (3/5)\n• Issue/Topic: CIT-005 Data Diet\n• Evaluation: Missing Step 4 (Measure) and Step 5 (Reflect). Solid research on Facebook shadow profiles and Australia's under-16 social media ban.\n• Quote: 'Whenever you use Facebook, even if you don't have an account yet, Facebook's parent company Meta is still able to collect...'\n• Interview Suggestion:\n  Ask: 'You explained shadow profiles very clearly in Step 2. What are your final thoughts on digital privacy, and did you try tracking your screen time for Step 4?'",
+            'Isaac': "• Status: IN PROGRESS (3/5)\n• Issue/Topic: CIT-003 Phantom Load\n• Evaluation: Missing Step 4 (Measure) and Step 5 (Reflect). Note: Isaac has a Grade 9 misunderstanding, stating Phantom 'helps reduce the complexity of digital currency' (thinking of Phantom crypto wallet).\n• Quote: 'Phantom helps reduce the complexity of digital currency for everyday users...'\n• Interview Suggestion:\n  Ask: 'You wrote that phantom loads relate to \"digital currency\" and blockchain. Let's look at that—did you mean standby power from household appliances like gaming consoles?'",
+            'Huda': "• Status: IN PROGRESS (2/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: Completed Step 1 and Step 2 research. Missing Step 3 (Log), Step 4 (Measure), and Step 5 (Reflect). Solid research on battery short circuits and DRC cobalt mining.\n• Quote: 'this is an issue no one really talks about... phone batteries need cobalt and some of the cobalt is from the DRC...'\n• Interview Suggestion:\n  Ask: 'You did great research on cobalt mining in the DRC. What are your plans for collecting batteries around your house for Steps 3 and 4?'",
+            'Leo': "• Status: IN PROGRESS (2/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: Completed Step 1 and Step 2 research. Missing Step 3 (Log), Step 4 (Measure), and Step 5 (Reflect). Q2 response is placeholder ('eeeeeeeeeeee'). Rationale is solid.\n• Quote: 'How this will help our local community is instead of putting it into garbage cans we can take it to the recycling center...'\n• Interview Suggestion:\n  Ask: 'You have a clear goal to prevent batteries from going into the trash. Let's plan how you'll set up your collection container at home.'",
+            'Evie': "• Status: IN PROGRESS (1/5)\n• Issue/Topic: CIT-001 Battery Scavenger\n• Evaluation: Missing Steps 2-5. Has selected topic and wrote a basic rationale on why battery recycling matters.\n• Quote: 'we have a lot of batteries that are not usable anymore but when we throw them away they have lots of bad stuff...'\n• Interview Suggestion:\n  Ask: 'You've got your topic and plan. Let's look up the answers to the first two research questions about battery recycling together.'",
+            'Fatima': "• Status: NO DATA (0/5)\n• Issue/Topic: None selected.\n• Evaluation: Student has not submitted any data to the database.\n• Interview Suggestion:\n  Ask: 'Which of the missions sounds most interesting to you? Let's get Step 1 completed on your screen today.'"
+        };
+
+        const clueQuestions = {
+            "CIT-001": [
+                "What is 'Thermal Runaway'?",
+                "The Cobalt Connection",
+                "The NS Law (EPR)",
+                "The Tax Debate"
+            ],
+            "CIT-002": [
+                "Where does your water come from?",
+                "The 25-Year Wait",
+                "The Markup",
+                "Human Right or Business?"
+            ],
+            "CIT-003": [
+                "The Vampire List",
+                "The NS Power Mix",
+                "The Monthly Cost",
+                "The Fix"
+            ],
+            "CIT-004": [
+                "The Rana Plaza Story",
+                "The Thirsty T-Shirt",
+                "The $5 Secret",
+                "The Solution"
+            ],
+            "CIT-005": [
+                "Shadow Profiles",
+                "The Under-16 Ban",
+                "The Echo Chamber",
+                "Breaking Up Big Tech"
+            ],
+            "CIT-006": [
+                "Where does the trash go?",
+                "Waste Colonialism",
+                "The 9% Reality",
+                "The Ban"
+            ],
+            "CIT-007": [
+                "What is a 'Loss-Leader'?",
+                "The HRM Cartridge Rule",
+                "The Smart Chip Secret",
+                "The Refill Revolution"
+            ]
+        };
+
+        let activeRosterData = {};
+        let selectedStudent = null;
+        let selectedRating = null;
+
+        // Verify Pin 9999
+        function verifyPin() {
+            const pin = document.getElementById('pinField').value;
+            if (pin === '9999') {
+                document.getElementById('pinGate').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'grid';
+                initApp();
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('pinField').value = '';
+            }
+        }
+
+        async function initApp() {
+            // Load saved custom roster order if exists
+            const savedOrder = localStorage.getItem('roster_list_order');
+            if (savedOrder) {
+                try {
+                    ROSTER_LIST = JSON.parse(savedOrder);
+                } catch(e) {}
+            }
+
+            // Load roster empty shells
+            ROSTER_LIST.forEach(s => {
+                activeRosterData[s] = {
+                    studentId: s,
+                    mission: "",
+                    data: {},
+                    rating: "Needs Work"
+                };
+            });
+
+            // 1. Try to fetch live
+            try {
+                document.getElementById('sourceBadge').textContent = 'Connecting...';
+                const res = await fetch(`${WEBHOOK_URL}?action=GET_ALL_PROGRESS`);
+                const rawRecords = await res.json();
+                
+                // Deduplicate chronologically
+                const latestMap = {};
+                rawRecords.forEach(r => {
+                    const sid = r.StudentId || r.studentId;
+                    if (!sid || sid === 'MKS-11-STUDENT') return;
+                    const ts = r.Timestamp || "";
+                    if (!latestMap[sid] || ts > latestMap[sid].Timestamp) {
+                        latestMap[sid] = r;
+                    }
+                });
+
+                Object.keys(latestMap).forEach(sid => {
+                    if (activeRosterData[sid]) {
+                        const rec = latestMap[sid];
+                        let ref = {};
+                        if (rec.ReflectionJSON) {
+                            try { ref = JSON.parse(rec.ReflectionJSON); } catch(e){}
+                        } else if (rec.data) {
+                            ref = rec.data;
+                        }
+                        activeRosterData[sid].mission = rec.MissionTitle || ref.topic || ref.missionSelect || "";
+                        activeRosterData[sid].data = ref;
+                        activeRosterData[sid].rating = ref.teacherQuality || "Adequate";
+                    }
+                });
+                document.getElementById('sourceBadge').textContent = 'Live Webhook';
+            } catch(e) {
+                console.error("Webhook read failed, trying local fallback", e);
+                // 2. Check if running on file:// protocol (CORS blocks local fetches)
+                if (window.location.protocol === 'file:') {
+                    document.getElementById('sourceBadge').textContent = 'Use Import Button';
+                    document.getElementById('sourceBadge').style.background = 'rgba(239, 68, 68, 0.2)';
+                    document.getElementById('sourceBadge').style.color = '#f87171';
+                    console.log("Local fetch skipped on file:// protocol due to browser security policies. Please use the Import button.");
+                } else {
+                    // Try to fetch local live_student_data.json if running on a local server
+                    try {
+                        const localRes = await fetch('live_student_data.json');
+                        const localData = await localRes.json();
+                        localData.forEach(item => {
+                            const sid = item.studentId;
+                            if (activeRosterData[sid]) {
+                                activeRosterData[sid].mission = item.mission || "";
+                                activeRosterData[sid].data = item.data || {};
+                                activeRosterData[sid].rating = item.data?.teacherQuality || "Adequate";
+                            }
+                        });
+                        document.getElementById('sourceBadge').textContent = 'Local File';
+                    } catch(err) {
+                        document.getElementById('sourceBadge').textContent = 'Empty Shell';
+                    }
+                }
+            }
+
+            renderRosterList();
+        }
+
+        function renderRosterList() {
+            const list = document.getElementById('rosterList');
+            list.innerHTML = '';
+            
+            ROSTER_LIST.forEach(sid => {
+                const s = activeRosterData[sid];
+                const item = document.createElement('li');
+                item.className = 'student-item';
+                if (selectedStudent === sid) item.classList.add('active');
+                item.onclick = () => selectStudent(sid);
+
+                // Compute completion dots
+                const why = s.data.selectionWhy || "";
+                const q1 = s.data.q_1 || "";
+                const q2 = s.data.q_2 || "";
+                const log = s.data.recordLog || "";
+                const measure = s.data.measureData || "";
+                const reflect = s.data.reflectionText || "";
+
+                const dot1 = why.length > 10 ? 'ok' : 'empty';
+                const dot2 = (q1.length > 10 && q2.length > 10) ? 'ok' : (q1.length > 2 || q2.length > 2) ? 'partial' : 'empty';
+                const dot3 = log.length > 15 ? 'ok' : 'empty';
+                const dot4 = measure.length > 5 ? 'ok' : 'empty';
+                const dot5 = reflect.length > 20 ? 'ok' : 'empty';
+
+                item.innerHTML = `
+                    <div class="student-info">
+                        <span class="student-name-list">${sid}</span>
+                        <span class="student-mission-list">${s.mission || 'No Mission'}</span>
+                    </div>
+                    <div class="status-dots">
+                        <div class="dot ${dot1}"></div>
+                        <div class="dot ${dot2}"></div>
+                        <div class="dot ${dot3}"></div>
+                        <div class="dot ${dot4}"></div>
+                        <div class="dot ${dot5}"></div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function selectStudent(sid) {
+            selectedStudent = sid;
+            renderRosterList();
+
+            document.getElementById('noSelectionScreen').style.display = 'none';
+            document.getElementById('workspaceContent').style.display = 'flex';
+
+            const s = activeRosterData[sid];
+            const data = s.data;
+
+            document.getElementById('studentNameText').textContent = sid;
+            document.getElementById('studentMissionText').textContent = s.mission || "NO MISSION SELECT";
+            
+            // Step 1
+            document.getElementById('viewPlanCommitment').innerHTML = data.selectionWhy ? `<strong style="display:block; margin-bottom:4px; font-size:0.75rem; color:var(--slate-600); text-transform:uppercase; font-family:var(--font-mono);">Rationale Quote:</strong><blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.selectionWhy}"</blockquote>` : "Plan Rationale: Empty";
+            document.getElementById('viewPlanRole').innerHTML = data.personalRole ? `<strong style="display:block; margin-bottom:4px; font-size:0.75rem; color:var(--slate-600); text-transform:uppercase; font-family:var(--font-mono);">Role Quote:</strong><blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.personalRole}"</blockquote>` : "Role Justification: Empty";
+
+            // Step 2 Clues
+            const mId = s.mission || data.topic || "";
+            const clues = clueQuestions[mId] || ["Clue Q1", "Clue Q2", "Clue Q3", "Clue Q4"];
+            
+            let researchHtml = '';
+            for (let i = 1; i <= 4; i++) {
+                const answer = data[`q_${i}`] || "";
+                researchHtml += `
+                    <div class="research-question-box">
+                        <div class="q-title">${i}. ${clues[i-1]}</div>
+                        <div class="evidence-content ${answer ? '' : 'empty-text'}">
+                            ${answer ? `<blockquote style="border-left: 3px solid var(--slate-400); padding-left: 8px; font-style: italic; color: var(--slate-700); margin: 4px 0; line-height: 1.5;">"${answer}"</blockquote>` : 'Unanswered'}
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('viewResearchQBox').innerHTML = researchHtml;
+            document.getElementById('viewResearchSources').textContent = (data.source1 || data.source2) ? `${data.source1 || ''} | ${data.source2 || ''}` : 'No sources provided';
+
+            // Step 3
+            document.getElementById('viewActionLog').innerHTML = data.recordLog ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.recordLog}"</blockquote>` : "No action logs entries.";
+            document.getElementById('viewActionLog').className = data.recordLog ? "evidence-content" : "evidence-content empty-text";
+
+            // Step 4
+            document.getElementById('viewMeasurements').innerHTML = data.measureData ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.measureData}"</blockquote>` : "No metric records provided.";
+            document.getElementById('viewMeasurements').className = data.measureData ? "evidence-content" : "evidence-content empty-text";
+
+            // Step 5
+            document.getElementById('viewReflection').innerHTML = data.reflectionText ? `<blockquote style="border-left: 3px solid var(--indigo-600); padding-left: 10px; font-style: italic; color: var(--slate-800); margin: 6px 0; line-height: 1.5;">"${data.reflectionText}"</blockquote>` : "No reflection text provided.";
+            document.getElementById('viewReflection').className = data.reflectionText ? "evidence-content" : "evidence-content empty-text";
+
+            // Feedback (with LocalStorage restore check)
+            const localComment = localStorage.getItem(`comment_${sid}`);
+            document.getElementById('feedbackComment').value = localComment !== null ? localComment : (data.teacherFeedback || "");
+            
+            // Cheat Sheet
+            const cheatSheet = STUDENT_CHEAT_SHEETS[sid] || "• No audit data available for this student.";
+            document.getElementById('cheatSheetText').textContent = cheatSheet;
+            
+            // Rating (with LocalStorage restore check)
+            const localRating = localStorage.getItem(`rating_${sid}`);
+            setRating(localRating !== null ? localRating : (data.teacherQuality || "Adequate"), false);
+
+            // Update partner button visibility
+            const partnerBtn = document.getElementById('partnerToggleBtn');
+            const partner = STUDENT_PARTNERS[sid];
+            if (partner) {
+                partnerBtn.textContent = `👥 Switch to ${partner}`;
+                partnerBtn.style.display = 'inline-block';
+            } else {
+                partnerBtn.style.display = 'none';
+            }
+        }
+
+        function setRating(rating, uiOnly = false) {
+            selectedRating = rating;
+            document.querySelectorAll('.grade-btn').forEach(btn => btn.classList.remove('active'));
+            if (rating === 'Excellent') document.getElementById('btnRateExcellent').classList.add('active');
+            else if (rating === 'Adequate') document.getElementById('btnRateAdequate').classList.add('active');
+            else if (rating === 'Needs Work') document.getElementById('btnRateNeeds').classList.add('active');
+
+            if (!uiOnly && selectedStudent) {
+                activeRosterData[selectedStudent].rating = rating;
+                localStorage.setItem(`rating_${selectedStudent}`, rating);
+            }
+        }
+
+        async function publishGrading() {
+            if (!selectedStudent) return;
+            const btn = document.getElementById('btnPublish');
+            const comment = document.getElementById('feedbackComment').value.trim();
+
+            btn.disabled = true;
+            btn.textContent = 'Publishing...';
+
+            const s = activeRosterData[selectedStudent];
+            const updatedReflection = Object.assign({}, s.data, {
+                teacherFeedback: comment,
+                teacherQuality: selectedRating
+            });
+
+            // Update cache
+            s.data = updatedReflection;
+
+            try {
+                const res = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        studentId: selectedStudent,
+                        missionTitle: s.mission || "CIT9_RESEARCH_INTEL",
+                        reflection: JSON.stringify(updatedReflection),
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                document.getElementById('syncStatusBadge').textContent = 'Synced';
+                document.getElementById('syncStatusBadge').style.background = '#d1fae5';
+                document.getElementById('syncStatusBadge').style.color = '#065f46';
+                alert(`Successfully published feedback for ${selectedStudent}!`);
+            } catch(e) {
+                console.error("Sync failed", e);
+                document.getElementById('syncStatusBadge').textContent = 'Saved Locally Only';
+                document.getElementById('syncStatusBadge').style.background = '#fef3c7';
+                document.getElementById('syncStatusBadge').style.color = '#d97706';
+                alert("Published failed to connect to cloud, saved locally only.");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Publish to Roster Sheet';
+            renderRosterList();
+        }
+
+        // Offline File Upload
+        function handleOfflineUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    json.forEach(item => {
+                        const sid = item.studentId || item.StudentId;
+                        if (activeRosterData[sid]) {
+                            activeRosterData[sid].mission = item.mission || item.MissionTitle || "";
+                            activeRosterData[sid].data = item.data || JSON.parse(item.ReflectionJSON || '{}');
+                            activeRosterData[sid].rating = activeRosterData[sid].data?.teacherQuality || "Adequate";
+                        }
+                    });
+                    document.getElementById('sourceBadge').textContent = 'Uploaded Cache';
+                    renderRosterList();
+                    alert("Roster data imported successfully!");
+                } catch(err) {
+                    alert("Error parsing file. Please verify it's a valid JSON payload.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Save local modified database backup
+        function exportModifiedData() {
+            const payload = Object.values(activeRosterData).map(s => ({
+                studentId: s.studentId,
+                mission: s.mission,
+                data: s.data
+            }));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `ServiceLearning_Grades_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // DMV Queue State Management
+        let interviewQueue = ["", "", "", "", ""];
+
+        function loadQueue() {
+            const q = localStorage.getItem('interview_queue');
+            if (q) {
+                try {
+                    interviewQueue = JSON.parse(q);
+                    // Force-reset if it contains stale values from the old queue order (like Clark or Remy)
+                    if (interviewQueue.includes("Clark") || interviewQueue.includes("Remy")) {
+                        interviewQueue = [
+                            "Lachlan Mac & Lachlan McM",
+                            "Kendra & Zankia",
+                            "Evie",
+                            "Jessa & Delisha",
+                            "Natalia & Rifa"
+                        ];
+                        saveQueue();
+                    }
+                } catch(e) {}
+            } else {
+                // Initial pre-population of first five sessions
+                interviewQueue = [
+                    "Lachlan Mac & Lachlan McM",
+                    "Kendra & Zankia",
+                    "Evie",
+                    "Jessa & Delisha",
+                    "Natalia & Rifa"
+                ];
+                saveQueue();
+            }
+            updateQueueUI();
+        }
+
+        function updateQueueUI() {
+            for (let i = 1; i <= 5; i++) {
+                const name = interviewQueue[i-1];
+                const el = document.getElementById(`queue${i}`);
+                if (el) {
+                    el.innerHTML = name 
+                        ? `<span>${i}. <strong>${name}</strong></span> <button onclick="removeFromQueue(${i-1})" style="background:none; border:none; color:var(--rose-500); cursor:pointer; font-size:0.65rem;">✕</button>` 
+                        : `<span>${i}. <em>Empty</em></span>`;
+                }
+            }
+        }
+
+        function assignQueue(spot) {
+            if (!selectedStudent) return;
+            
+            const partner = STUDENT_PARTNERS[selectedStudent];
+            const queueValue = partner ? `${selectedStudent} & ${partner}` : selectedStudent;
+            
+            // Remove student, partner, or combined pair from any other spot if already in queue
+            interviewQueue = interviewQueue.map(n => {
+                if (!n) return "";
+                if (n === queueValue || n === selectedStudent || n === partner || 
+                    n.includes(selectedStudent) || (partner && n.includes(partner))) {
+                    return "";
+                }
+                return n;
+            });
+            
+            interviewQueue[spot-1] = queueValue;
+            saveQueue();
+        }
+
+        function removeFromQueue(index) {
+            interviewQueue[index] = "";
+            saveQueue();
+        }
+
+        function clearQueue() {
+            interviewQueue = ["", "", "", "", ""];
+            saveQueue();
+        }
+
+        function resetQueueToStart() {
+            interviewQueue = [
+                "Lachlan Mac & Lachlan McM",
+                "Kendra & Zankia",
+                "Evie",
+                "Jessa & Delisha",
+                "Natalia & Rifa"
+            ];
+            saveQueue();
+        }
+
+        function advanceQueue() {
+            // Shift queue down by 1
+            interviewQueue = [
+                interviewQueue[1] || "",
+                interviewQueue[2] || "",
+                interviewQueue[3] || "",
+                interviewQueue[4] || "",
+                ""
+            ];
+            
+            // Find next unqueued pair/solo from current ROSTER_LIST order to fill 5th spot
+            let nextVal = "";
+            for (let i = 0; i < ROSTER_LIST.length; i++) {
+                const student = ROSTER_LIST[i];
+                const partner = STUDENT_PARTNERS[student];
+                const combinedVal = partner ? `${student} & ${partner}` : student;
+                
+                const alreadyQueued = interviewQueue.some(item => 
+                    item === combinedVal || 
+                    item === student || 
+                    item === partner || 
+                    item.includes(student) || 
+                    (partner && item.includes(partner))
+                );
+                
+                if (!alreadyQueued) {
+                    nextVal = combinedVal;
+                    break;
+                }
+            }
+            
+            interviewQueue[4] = nextVal;
+            saveQueue();
+            
+            // Auto-select the first student of the new 1st queue item in the workspace
+            if (interviewQueue[0]) {
+                const firstName = interviewQueue[0].split(' & ')[0];
+                selectStudent(firstName);
+            }
+        }
+
+        async function saveQueue() {
+            localStorage.setItem('interview_queue', JSON.stringify(interviewQueue));
+            updateQueueUI();
+            
+            // Sync to GAS webhook
+            try {
+                const queueStr = interviewQueue.join(',');
+                await fetch(`${WEBHOOK_URL}?action=SET_QUEUE&queue=${encodeURIComponent(queueStr)}`);
+            } catch(e) {
+                console.error("Failed to post queue to Google Sheets:", e);
+            }
+        }
+
+        // Open raw JSON data window
+        function openRawJSON() {
+            if (!selectedStudent) return;
+            const s = activeRosterData[selectedStudent];
+            const jsonStr = JSON.stringify(s.data, null, 2);
+            const blob = new Blob([jsonStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        }
+
+        // Initialize queue and comment autosave listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQueue();
+            
+            // Auto-save comments keyup listener
+            document.getElementById('feedbackComment').addEventListener('input', (e) => {
+                if (selectedStudent) {
+                    localStorage.setItem(`comment_${selectedStudent}`, e.target.value);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

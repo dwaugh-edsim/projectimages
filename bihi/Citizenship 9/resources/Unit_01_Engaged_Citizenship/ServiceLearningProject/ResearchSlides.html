@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Learning Project - Research Slides</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .presentation-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 80vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slide-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            background: white;
+        }
+        
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .slide-subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+        
+        .slide-content {
+            font-size: 1.1rem;
+            color: #34495e;
+            line-height: 1.6;
+            max-width: 800px;
+        }
+        
+        .slide-content ul {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        
+        .slide-content li {
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+        
+        .slide-navigation {
+            height: 60px;
+            background: #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .nav-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slide-counter {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .mission-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            width: 100%;
+        }
+        
+        .highlight-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .highlight-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #3498db);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .student-tag {
+            background: #e8f4fd;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #2980b9;
+            text-align: center;
+        }
+        
+        .next-steps {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .next-steps h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .slide-title.large {
+            font-size: 3rem;
+        }
+        
+        .slide-title.medium {
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-container">
+            <!-- Slide 1: Title -->
+            <div class="slide active">
+                <h1 class="slide-title large">Service Learning Project</h1>
+                <p class="slide-subtitle">Research & Mission Intelligence</p>
+                <div class="slide-content">
+                    <p>Tracking student progress and engagement in real-time</p>
+                    <div style="margin-top: 25px; font-size: 1.1rem; font-weight: 700; color: #e74c3c; background: #fadbd8; border: 2px solid #f5b7b1; padding: 10px 20px; border-radius: 30px; display: inline-block; font-family: 'Inter', sans-serif;">
+                        ⏰ Project Due Date: June 9, 2026 (<span id="slideCountdown">Loading countdown...</span>)
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 2: Overview -->
+            <div class="slide">
+                <h1 class="slide-title">Project Overview</h1>
+                <div class="slide-content">
+                    <p>We're monitoring the deployment of our Service Learning Missions:</p>
+                    <ul>
+                        <li><strong>7 Mission Types</strong> across different sectors</li>
+                        <li><strong>Real-time Tracking</strong> of student engagement</li>
+                        <li><strong>Cloud Sync</strong> for research and submissions</li>
+                        <li><strong>Progress Monitoring</strong> across all phases</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Slide 3: Mission Types -->
+            <div class="slide">
+                <h1 class="slide-title medium">Mission Types</h1>
+                <div class="mission-highlights">
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-001: The Battery Scavenger</div>
+                        <div>Environmental impact of e-waste</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-002: The Tap Audit</div>
+                        <div>Water rights and Indigenous communities</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-003: The Phantom Load</div>
+                        <div>Energy conservation in homes</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-004: The Wardrobe Reset</div>
+                        <div>Fast fashion and labor rights</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-005: The Data Diet</div>
+                        <div>Digital privacy and algorithmic bias</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-006: The Zero-Waste Audit</div>
+                        <div>Waste colonialism and recycling</div>
+                    </div>
+                    <div class="highlight-card">
+                        <div class="highlight-title">CIT-007: The Ink Trap</div>
+                        <div>Printer industry and planned obsolescence</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 4: Student Engagement Stats -->
+            <div class="slide">
+                <h1 class="slide-title">Student Engagement</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">29</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">22</div>
+                        <div class="stat-label">Active Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">18</div>
+                        <div class="stat-label">Missions Started</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">84%</div>
+                        <div class="stat-label">Participation Rate</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 84%;"></div>
+                </div>
+            </div>
+            
+            <!-- Slide 5: Active Students -->
+            <div class="slide">
+                <h1 class="slide-title">Active Students Today</h1>
+                <div class="student-grid">
+                    <div class="student-tag">Farhan</div>
+                    <div class="student-tag">Abdul</div>
+                    <div class="student-tag">Joshua A</div>
+                    <div class="student-tag">Clark</div>
+                    <div class="student-tag">Madhavan</div>
+                    <div class="student-tag">Remy</div>
+                    <div class="student-tag">Yunho</div>
+                    <div class="student-tag">Lachlan McM</div>
+                    <div class="student-tag">Lachlan Mac</div>
+                    <div class="student-tag">Nolan</div>
+                    <div class="student-tag">Laila</div>
+                    <div class="student-tag">Josie</div>
+                    <div class="student-tag">Huda</div>
+                    <div class="student-tag">Brody</div>
+                    <div class="student-tag">Leo</div>
+                    <div class="student-tag">Elizabeth</div>
+                    <div class="student-tag">Fatima</div>
+                    <div class="student-tag">Alia</div>
+                    <div class="student-tag">Rifa</div>
+                    <div class="student-tag">Sarah</div>
+                    <div class="student-tag">Jessa</div>
+                    <div class="student-tag">Delisha</div>
+                </div>
+            </div>
+            
+            <!-- Slide 6: Mission Distribution -->
+            <div class="slide">
+                <h1 class="slide-title">Mission Distribution</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">CIT-005</div>
+                        <div class="stat-label">Data Diet (3)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">CIT-004</div>
+                        <div class="stat-label">Wardrobe Reset (3)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">CIT-003</div>
+                        <div class="stat-label">Phantom Load (3)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">CIT-002</div>
+                        <div class="stat-label">Tap Audit (3)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">CIT-001</div>
+                        <div class="stat-label">Battery Scavenger (3)</div>
+                    </div>
+                </div>
+                <div class="slide-content">
+                    <p>Most popular missions: Data Diet, Wardrobe Reset, Phantom Load</p>
+                </div>
+            </div>
+            
+            <!-- Slide 7: Research Progress -->
+            <div class="slide">
+                <h1 class="slide-title">Research Progress</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Started Research</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Completed Q1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Completed Q2</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Submitted Sources</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 8: Key Insights -->
+            <div class="slide">
+                <h1 class="slide-title">Key Insights</h1>
+                <div class="slide-content">
+                    <ul>
+                        <li>High engagement with digital privacy and environmental missions</li>
+                        <li>Strong participation in foundational research questions</li>
+                        <li>Effective use of cloud sync for real-time updates</li>
+                        <li>Students connecting local issues to global implications</li>
+                        <li>Good integration of academic research with practical action</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Slide 9: Next Steps -->
+            <div class="slide">
+                <h1 class="slide-title">Next Steps</h1>
+                <div class="next-steps">
+                    <h3>Immediate Actions</h3>
+                    <ul>
+                        <li>Monitor 14-day action plan implementation</li>
+                        <li>Track role assignments and team formation</li>
+                        <li>Support research validation and source verification</li>
+                        <li>Prepare for collective impact report compilation</li>
+                    </ul>
+                </div>
+                <div class="next-steps">
+                    <h3>Long-term Goals</h3>
+                    <ul>
+                        <li>Measure actual behavioral change</li>
+                        <li>Quantify environmental/community impact</li>
+                        <li>Document citizenship skill development</li>
+                        <li>Scale successful interventions</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Slide 10: Thank You -->
+            <div class="slide">
+                <h1 class="slide-title large">Thank You</h1>
+                <p class="slide-subtitle">Engaged Citizenship in Action</p>
+                <div class="slide-content">
+                    <p>Tracking progress toward a more informed and active citizenry</p>
+                    <p style="margin-top: 30px; font-size: 1rem; color: #7f8c8d;">
+                        Service Learning Project<br>
+                        Real-time monitoring dashboard available at StatusPanel.html
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slide-navigation">
+            <button class="nav-button" id="prevBtn" disabled>Previous</button>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+            </div>
+            <button class="nav-button" id="nextBtn">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideEl = document.getElementById('currentSlide');
+        const totalSlidesEl = document.getElementById('totalSlides');
+        
+        totalSlidesEl.textContent = slides.length;
+        
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            currentSlideEl.textContent = index + 1;
+            
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === slides.length - 1;
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+        
+        // Initialize
+        showSlide(currentSlide);
+
+        function startDueCountdown() {
+            const targetDate = new Date("2026-06-09T23:59:59").getTime();
+            const el = document.getElementById("slideCountdown");
+            if (!el) return;
+            
+            function update() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+                if (diff < 0) {
+                    el.textContent = "OVERDUE!";
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                el.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s remaining`;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+        startDueCountdown();
+    </script>
+</body>
+</html>
