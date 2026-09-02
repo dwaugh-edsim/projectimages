@@ -1,0 +1,135 @@
+# My Interests
+
+Exploration of student passions, hobbies, and personal strengths.
+
+---
+
+## Assignments & Documents
+
+### Interests Assignment
+- **Downloads:** [`Interests_Assignment.pdf`](../files/Interests_Assignment.pdf) | [`Interests_Assignment.docx`](../files/Interests_Assignment.docx)
+
+#### Assignment Instructions / Content:
+```text
+﻿Interests Assignment
+
+
+For this assignment, we will be working on becoming more comfortable using Google Slides. To complete this assignment, you must create a Google slide show that reflects your interests. Follow the instructions in the chart below to complete this assignment.
+
+
+
+
+
+
+
+
+
+
+I Can
+	To complete this assignment please follow the “I can” statements listed below:
+
+
+* I can create a Google Slideshow that showcases my interests
+* I can include all of the required information
+* I can write one or two sentences about why I selected the interest I selected
+* I can submit it to our Google Classroom when it is complete
+	
+
+
+
+
+
+
+
+Required Information
+	When completing this assignment in google slides please make sure you include the following:
+
+
+* Title Slide
+   * Title of the assignment and your name on it.
+* 5 Interest slides
+   * 5 things you are interested in
+   * Each slide should include:
+      * Interest is clearly stated at the top of the slide
+      * A picture or video relating to your interest
+      * One to two sentences about the good you selected
+* Reflection Slide
+   * Answer this question: What are some factors that influence your interests?
+   * If you are doing this with a partner:
+      * What are some interests that you both have in common?
+
+
+NOTE:
+If you were a student of mine from last year and completed this project I still want you to complete it this year. Here are some things to help you complete it:
+Have any of your interests changed over the years?
+What new interests do you have? Or What are you no longer interested in?
+If there has been lots of change in your interests you can compare the changes.
+	
+
+Outcomes
+	Analyze ways in which peers, media, and social norms influence healthy decision-making.
+
+
+Competencies: Digital Fluency, Critical Thinking, Creativity
+	
+
+
+
+
+
+
+
+Interests Assignment Rubric
+
+
+Criteria
+	4 - Excellent
+	3 - Good
+	2 - Developing
+	1 - Beginning
+	
+
+Google Slideshow Creation
+	Created a complete slideshow with all required slides and smooth transitions
+	Created a slideshow with most required slides and some transitions
+	Created a basic slideshow with some required slides
+	Created an incomplete slideshow with few required slides
+	
+
+Required Information
+	Included all required information with extra details
+	Included all required information
+	Included most required information
+	Included some required information
+	
+
+Interest Descriptions
+	Wrote clear, detailed sentences about each interest
+	Wrote complete sentences about each interest
+	Wrote basic sentences about most interests
+	Wrote incomplete sentences about some interests
+	
+
+Visual Elements
+	Included high-quality, relevant pictures or videos for all interests
+	Included relevant pictures or videos for most interests
+	Included some pictures or videos, not all relevant
+	Included few or no pictures or videos
+	Reflection
+	Provided thoughtful answers to reflection questions with examples
+	Provided complete answers to reflection questions
+	Provided basic answers to reflection questions
+	Provided incomplete or unclear answers to reflection questions
+	
+
+Submission
+	Submitted on time to Google Classroom with correct formatting
+	Submitted on time to Google Classroom with minor formatting issues
+	Submitted late to Google Classroom or with major formatting issues
+	Did not submit to Google Classroom
+```
+
+---
+
+## Online Forms & External Resources
+- [How to Make a Copy Guide (Google Drive)](https://drive.google.com/file/d/15O1MPp4pyl2ShfxjN40PMxWOGj0bZREC/view?usp=sharing)

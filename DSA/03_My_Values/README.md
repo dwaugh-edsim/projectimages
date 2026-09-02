@@ -1,0 +1,143 @@
+# My Values
+
+Values badge assignment identifying core student ethics, priorities, and character strengths.
+
+---
+
+## Assignments & Documents
+
+### DSA Student Values Badge Assignment
+- **Downloads:** [`DSA_Student_Values_Badge_Assignment.pdf`](../files/DSA_Student_Values_Badge_Assignment.pdf) | [`DSA_Student_Values_Badge_Assignment.docx`](../files/DSA_Student_Values_Badge_Assignment.docx)
+
+#### Assignment Instructions / Content:
+```text
+﻿Values Badge or Coat of Arms Assignment
+Values Badge or Coat of Arms Assignment
+ This assignment you will design a badge or coat of arms that shows what values matter to you and our school community. This guide will give you all the information you need to complete your assignment and share your ideas in a creative way.
+
+
+
+
+I Can Statements
+	* I can list important personal values and school community values.
+* I can design symbols that represent the values I believe are important.
+* I can explain how my design connects to these values.
+* I can use my creative skills to share ideas visually.
+	
+
+
+
+
+
+
+
+Required Information
+	 Your project must include the following details:
+* Value List:
+   * Include at least three personal values (for example, honesty, kindness, respect).
+   * Include at least three community values (for example, inclusivity, cooperation, fairness).
+* Symbolism:
+   * Design symbols or images that represent each value.
+   * Consider what shapes, colors, or images best show the meaning behind each value.
+* Explanations:
+   * Write a brief explanation for each symbol or section of your design, telling us what value it represents and why it is important to you and our school.
+* Creativity:
+   * Use your personal style to make your badge or coat of arms unique and reflective of who you are.
+Tip: Reflect on the glossary of personal and community values we have learned. This will help you decide which values to represent and give you ideas for symbols and design elements.
+	Presentation
+	For this assignment, you will decide how to present your project. Here are some potential formats:
+* Google Docs (with images and text)
+* Google Slides (presenting your design on different slides)
+* WeVideo (a video explanation of your design)
+* CoSpaces, Minecraft, or another digital design tool
+* A physical drawing or collage that you photograph and shar                                                        
+	Outcomes
+	
+
+	
+
+
+
+
+
+
+
+
+
+
+
+Values Reading
+Understanding Personal and Community Values
+Values are the ideas and beliefs that help us decide what is important and how we act every day. They guide our choices and behaviors.
+What Are Personal Values?
+ Personal values are the things that you believe in and care about the most. They are unique to you and help you decide how to behave. For example:
+* honesty: Always telling the truth.
+* kindness: Being friendly and helping others.
+* respect: Treating people nicely and fairly.
+When you know your personal values, you can make good choices, even when things are challenging.
+What Are Community Values?
+ Community values are the shared beliefs and ideas that everyone in our school cares about. These values help our school become a friendly and safe place. For example, our school might value:
+* inclusivity: Making sure everyone feels welcome.
+* safety: Keeping everyone secure and protected.
+* collaboration: Working together as a team.
+These common values help guide how we treat one another and make our school a happy place to learn.
+How Do Personal and Community Values Work Together?
+ When your personal values match the values that our school shares, you help make our community stronger. Here’s how they connect:
+* If you value honesty and our school values being truthful, you build trust with your friends and teachers.
+* If you show kindness every day, you help make the school a more caring place for everyone.
+* By practicing respect, you make sure that everyone feels valued and included.
+When you use your personal values, you also support and improve the community values. In this way, your choices can make our school a better and safer place for all.
+
+
+Remember:
+* Your personal values help you make good decisions.
+* Community values help everyone work and learn together happily.
+* By sharing and practicing these values, you make our school a place where everyone can thrive.
+Think about your favorite values every day. Ask yourself, “Am I being honest? Am I showing kindness? Am I being respectful?” When you answer “yes,” you are helping to build a better community for all of us.
+
+
+Tab 3
+Values Badge or Coat of Arms Rubric
+
+
+Criteria
+	4 - Excellent
+	3 - Proficient
+	2 - Developing
+	1 - Beginning
+	Value Identification
+	Lists 4+ personal values and 4+ community values with clear understanding of their meaning
+	Lists 3 personal values and 3 community values with good understanding
+	Lists 2-3 personal or community values with some understanding
+	Lists fewer than 3 total values with limited understanding
+	Symbol Design
+	Creates highly creative and meaningful symbols that clearly represent each value with thoughtful use of colors, shapes, and images
+	Creates appropriate symbols that represent most values with good use of design elements
+	Creates basic symbols that represent some values with limited design elements
+	Creates unclear symbols with little connection to stated values
+	Explanations
+	Provides detailed, thoughtful explanations for each symbol that clearly connect to personal and school values
+	Provides clear explanations for most symbols that connect to values
+	Provides basic explanations for some symbols with weak connections to values
+	Provides unclear or missing explanations with no clear connections
+	Creativity and Personal Style
+	Demonstrates exceptional creativity with unique, personal touches that make the design stand out and reflect individual personality
+	Shows good creativity with personal elements that reflect individual style
+	Shows some creativity with limited personal elements
+	Shows little to no creativity or personal style
+	Visual Communication
+	Uses visual elements expertly to communicate ideas clearly and effectively to the audience
+	Uses visual elements well to communicate most ideas clearly
+	Uses some visual elements to communicate ideas with mixed effectiveness
+	Uses few or ineffective visual elements that do not communicate ideas clearly
+	Overall Quality
+	Project exceeds expectations with polished presentation, clear organization, and professional appearance
+	Project meets all expectations with good organization and neat presentation
+	Project meets most expectations with adequate organization and presentation
+	Project meets few expectations with poor organization and presentation
+```
+
+---
+
+## Online Forms & External Resources
+- [How to Make a Copy Guide (Google Drive)](https://drive.google.com/file/d/15O1MPp4pyl2ShfxjN40PMxWOGj0bZREC/view?usp=sharing)

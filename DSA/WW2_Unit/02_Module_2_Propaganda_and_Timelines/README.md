@@ -1,0 +1,116 @@
+# Module 2: Propaganda & WW2 Timelines
+
+Exploration of wartime propaganda techniques, timeline mapping, and creating an original wartime propaganda poster.
+
+---
+
+## Assignments & Documents
+
+### Propaganda Poster Assignment
+- **Downloads:** [`Propaganda_Poster_Assignment.pdf`](../files/Propaganda_Poster_Assignment.pdf) | [`Propaganda_Poster_Assignment.docx`](../files/Propaganda_Poster_Assignment.docx)
+
+#### Document Content Preview:
+```text
+﻿World War I/II Propaganda Poster
+
+
+
+
+For this assignment, you are tasked with creating a propaganda poster that relates back to the unit you are studying. Grade 7’s your poster will be on WWI and grade 8’s your poster will be on WW2. After you have created your poster, the final thing I need you to do is write a paragraph explaining the message behind your poster and what you were trying to show in your poster. 
+
+
+Helpful Resource
+Here is a link to the Canadian War Museum’s Canadian War-Time Propaganda exhibit. You will be able to find examples of real propaganda posters from throughout Canadian history.
+	
+
+
+
+
+
+I Can
+
+
+
+
+I Can
+	Create a poster
+	Color my Poster
+	Write a Paragraph about my poster
+	
+
+
+
+
+
+	Be sure to follow these I can statements when completing this assignment:
+
+
+I can create a poster that asks Canadians to go off and join the war effort, help contribute at home or promote Canada.
+
+
+I can complete the pre activity check in.
+
+
+I can use a phrase or slogan in my poster.
+
+
+I can select one of the 3 poster-type options available to me and use those themes in my poster.
+
+
+I can write one paragraph about my poster. You could address these questions in your paragraph:
+* What type of theme did you try and depict in your poster?
+* What message were you trying to get across to the viewer?
+* How does this poster relate back to the war effort? Why would it be important?
+
+
+I can color my poster.
+	Poster Types
+
+
+
+
+NOTE: Option 3 “demonizing the enemy” is just there to make you aware that it existed. PICK ONE OF THE OTHER 3 OPTIONS.
+
+
+
+
+
+
+
+
+
+
+
+
+	Potential themes that were common in Propaganda posters:
+
+
+1.        National Pride
+* Faith in Canada, attaining heroic fame
+* This type of poster highlights national pride
+
+
+2.        “The Cause” 
+* Reason men are needed to fight
+* Statement of need and solution 
+   * EX Canada needs men to defeat our foe
+3.        Demonizing the Enemy
+* Referring to the enemy in ways that make them seem eviler than they actually are
+
+
+4.        Homefront Contributions
+* What can people do in Canada to help our war effort - rationing, sending women to factories, buying war bonds to support the war financially
+	
+
+Outcomes
+	Outcome– I have demonstrated an understanding of Canada’s participation in WWI
+```
+
+---
+
+## Online Forms, Videos & External Resources
+- [Module 2 Quiz (Google Form)](https://forms.gle/9r2yg5F1r1H9uw4G8)
+- [Primary Source Quiz (Google Form)](https://forms.gle/xJXw1m3XAs5re3yt5)
+- [Primary Source VR Game (CoSpaces)](https://edu.cospaces.io/TMK-VVS)
+- [Poster ICA (Google Form)](https://forms.gle/tPBYqvs3BCaAR5ya9)
+- [Instructional Video: Propaganda Poster Assignment (Drive Video)](https://drive.google.com/file/d/1Jt8Lemspiq6ynZy0TKBEAWW4a5q8fpDe/preview?authuser=0)

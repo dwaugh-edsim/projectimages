@@ -1,0 +1,88 @@
+# My School Club Proposal
+
+Civic agency project where students draft, pitch, and organize a middle school club.
+
+---
+
+## Assignments & Documents
+
+### My School Club Proposal
+- **Downloads:** [`My_School_Club_Proposal.pdf`](../files/My_School_Club_Proposal.pdf) | [`My_School_Club_Proposal.docx`](../files/My_School_Club_Proposal.docx)
+
+#### Assignment Instructions / Content:
+```text
+﻿My School Club Assignment
+
+
+For this assignment you will be tasked with creating a presentation about starting a new potential school club. Remember the school club will have to keep in mind our school and community code and work to help bring the community together. See the instructions below to complete this assignment.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I Can 
+	Follow the “I can” statements below to ensure that you complete this assignment:
+
+
+I can come up with a potential school club to have at school.
+
+
+I can survey my peers to estimate the number of students who would be interested in joining the club
+
+
+I can create a presentation that displays the required information below.
+
+
+I can submit my presentation to our google classroom 
+	
+
+
+
+
+
+
+
+
+
+Required Information 
+	Your presentation about your proposed club should include the following information:
+
+
+* Name and one paragraph description about the club and what it is about
+* What would a potential club meeting look like?
+   * Different topics covered?
+   * What would a club meeting look like? (Time break down)
+* Impact on Community and Interest In Club
+   * How would this club have a potential positive impact on our school community?
+   * Results from your student interest survey
+* Last Impressions
+   * Final thoughts on why this club should exist at the school                        
+	
+
+
+
+Student Survey
+	Come with a general number or idea of students who would potentially be interested in joining your club if it became a reality. You could do this by creating a survey, posting a sign up sheet in class, etc… This information will be used in your presentation.
+	
+
+Presentation
+	You can decide on how you are going to go about presenting your information. You just need to ensure that it is submitted to our google classroom. Here are some potential formats to present your information: 
+* Google Slides or Canva
+* We Video Project (Movies, podcast, GIFS, Animation)
+```
+
+---
+
+## Online Forms & External Resources
+- [How to Make a Copy Guide (Google Drive)](https://drive.google.com/file/d/15O1MPp4pyl2ShfxjN40PMxWOGj0bZREC/view?usp=sharing)

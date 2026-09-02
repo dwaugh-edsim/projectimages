@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Healthy Living 9 — The Attention Economy & Personal Telemetry</title>
+  <style>
+    :root {
+      --bg: #0d121f;
+      --card-bg: #161e31;
+      --card-border: #222e49;
+      --text-main: #f0f4f8;
+      --text-muted: #94a3b8;
+      --accent-gold: #f59e0b;
+      --accent-teal: #06b6d4;
+      --accent-red: #ef4444;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1300px;
+      height: 100%;
+      max-height: 800px;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--accent-teal);
+      margin-bottom: 1rem;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      flex: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      flex: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .card.highlight-teal {
+      border-top: 4px solid var(--accent-teal);
+    }
+
+    .card.highlight-gold {
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.75rem;
+    }
+
+    .card-body {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .agenda-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .agenda-item {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .agenda-num {
+      font-weight: 800;
+      color: var(--accent-gold);
+      font-size: 1.3rem;
+      min-width: 2rem;
+    }
+
+    .agenda-text {
+      color: var(--text-main);
+    }
+
+    .agenda-sub {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+
+    .protocol-step {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .protocol-step:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .protocol-num {
+      font-weight: 700;
+      color: var(--accent-teal);
+      margin-bottom: 0.25rem;
+      font-size: 1.1rem;
+    }
+
+    .protocol-desc {
+      color: var(--text-main);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .quote-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--accent-gold);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin-top: 0.5rem;
+      font-style: italic;
+      color: var(--text-main);
+    }
+
+    /* Controls Bar */
+    .controls {
+      height: 60px;
+      background: #090d17;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--accent-gold);
+      color: #000;
+      border-color: var(--accent-gold);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-container">
+
+    <!-- SLIDE 1: Title & Agenda -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header">
+        <div class="tag">HEALTHY LIVING 9 · TERM 1 KICKOFF</div>
+        <h1>The Attention Economy & Personal Telemetry</h1>
+      </div>
+
+      <div class="card highlight-gold" style="flex: 1;">
+        <div class="card-title" style="color: var(--accent-gold); font-size: 1.35rem; margin-bottom: 1.5rem;">
+          TODAY'S CLASS RUN OF SHOW
+        </div>
+        <ul class="agenda-list">
+          <li class="agenda-item">
+            <span class="agenda-num">01</span>
+            <div>
+              <strong class="agenda-text">The 5 Dimensions of Health:</strong>
+              <span class="agenda-sub">Health is not just nutrition and fitness—it begins with what captures your consciousness.</span>
+            </div>
+          </li>
+          <li class="agenda-item">
+            <span class="agenda-num">02</span>
+            <div>
+              <strong class="agenda-text">Live Device Telemetry Pull:</strong>
+              <span class="agenda-sub">Extract 3 un-fakeable data points directly from your pocket device settings right now.</span>
+            </div>
+          </li>
+          <li class="agenda-item">
+            <span class="agenda-num">03</span>
+            <div>
+              <strong class="agenda-text">3-Minute Partner Interrogation:</strong>
+              <span class="agenda-sub">Live verbal peer interviews analyzing triggers, dopamine hooks, and recovery.</span>
+            </div>
+          </li>
+          <li class="agenda-item">
+            <span class="agenda-num">04</span>
+            <div>
+              <strong class="agenda-text">Room Attention Heatmap:</strong>
+              <span class="agenda-sub">Anonymous board tally mapping our room's daily screen baseline.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: The Core Concept -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="tag">CORE CONCEPT</div>
+        <h1>You Are Not Just the User. Your Attention is the Harvest.</h1>
+      </div>
+
+      <div class="card-grid">
+        <div class="card highlight-teal">
+          <div class="card-title">Cognitive Scarcity</div>
+          <div class="card-body">
+            Human focus is a finite biological resource. Every push notification is an engineered interruption designed to extract that resource for platform revenue.
+          </div>
+        </div>
+
+        <div class="card highlight-gold">
+          <div class="card-title">The 5 Dimensions</div>
+          <div class="card-body">
+            Screen habits directly impact all 5 health dimensions: <strong>Sleep architecture</strong> (Physical), <strong>anxiety spikes</strong> (Mental), <strong>validation loops</strong> (Emotional), <strong>isolation</strong> (Social), and <strong>reflection</strong> (Spiritual).
+          </div>
+        </div>
+
+        <div class="card highlight-teal">
+          <div class="card-title">Zero Fluff / Real Data</div>
+          <div class="card-body">
+            No generic essays. No AI prompts. Today we look at your actual hardware telemetry to understand the exact mechanics of your daily focus.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Sticky Instruction Slide (STAYS ON SCREEN) -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="tag">ACTIVE PROTOCOL · STAYS ON SCREEN</div>
+        <h1>Step 1: Pull Your Numbers  |  Step 2: Partner Interrogation</h1>
+      </div>
+
+      <div class="split-grid">
+        <!-- Step 1 Card -->
+        <div class="card highlight-teal">
+          <div class="card-title" style="color: var(--accent-teal);">STEP 1: UNLOCK YOUR STATS (2 MINS)</div>
+          
+          <div class="protocol-step">
+            <div class="protocol-num">Open Device Settings</div>
+            <div class="protocol-desc">iOS: <code>Settings &gt; Screen Time</code><br>Android: <code>Settings &gt; Digital Wellbeing</code></div>
+          </div>
+
+          <div class="protocol-step">
+            <div class="protocol-num">Record 3 Numbers (No Typing Essays)</div>
+            <div class="protocol-desc">
+              <strong>1. Screen Time Yesterday:</strong> Hours & Minutes<br>
+              <strong>2. Total Pickups Yesterday:</strong> Number of times unlocked<br>
+              <strong>3. First App Opened:</strong> Within 15 min of waking up
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 Card -->
+        <div class="card highlight-gold">
+          <div class="card-title" style="color: var(--accent-gold);">STEP 2: THE 3-MIN INTERROGATION</div>
+          
+          <div class="protocol-step">
+            <div class="protocol-num">Partner A Interviews Partner B (3 Min), Then Switch (3 Min):</div>
+            <div class="quote-box">
+              "What is your #1 pickup trigger, and what emotion drives it (boredom, habit, FOMO)?"
+            </div>
+            <div class="quote-box">
+              "If you regained 2 hours of that time daily, what physical or creative project would you build instead?"
+            </div>
+            <div class="quote-box">
+              "Rate your sleep quality this week from 1–10. How does your bedtime phone routine affect it?"
+            </div>
+          </div>
+
+          <div class="protocol-step">
+            <div class="protocol-num">Room Synthesis</div>
+            <div class="protocol-desc">Add an anonymous tally mark to the board for your pickup range (&lt;50, 50–100, 100–150, 150+).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="controls">
+    <div>Healthy Living 9 — Mr. Waugh</div>
+    <div id="slide-indicator">Slide 1 of 3</div>
+    <div class="btn-group">
+      <button onclick="prevSlide()">&#8592; Previous</button>
+      <button onclick="nextSlide()">Next &#8594;</button>
+    </div>
+  </div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 3;
+
+    function showSlide(index) {
+      document.querySelectorAll('.slide').forEach((s, i) => {
+        s.classList.toggle('active', i + 1 === index);
+      });
+      document.getElementById('slide-indicator').innerText = `Slide ${index} of ${totalSlides}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        showSlide(currentSlide);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        showSlide(currentSlide);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'Space') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+  </script>
+</body>
+</html>

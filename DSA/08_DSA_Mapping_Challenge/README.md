@@ -1,0 +1,141 @@
+# DSA Mapping Challenge (Minecraft & GIS)
+
+Spatial exploration project connecting school mapping to Minecraft Monday build challenges.
+
+---
+
+## Assignments & Documents
+
+### DSA Mapping Challenge Assignment
+- **Downloads:** [`DSA_Mapping_Challenge_Assignment.pdf`](../files/DSA_Mapping_Challenge_Assignment.pdf) | [`DSA_Mapping_Challenge_Assignment.docx`](../files/DSA_Mapping_Challenge_Assignment.docx)
+
+#### Assignment Instructions / Content:
+```text
+﻿DSA Mapping Challenge 
+
+
+
+
+
+
+
+
+Challenge 
+
+
+
+
+	
+
+
+
+To create a map of the DSA School property. Your map needs to highlight some of the key features of the school and property and help to educate the community about the layout of our school grounds.
+
+
+Submissions Due on October 4th 2021
+	
+
+
+
+
+
+How 
+
+
+to 
+
+
+Complete
+
+
+
+
+First DSA 
+Completed Project
+	Students can present their concept in a variety of ways:
+
+
+1. Complete the Pre Activity Check IN
+2. Pick a format:
+   1. Map - Drawn on paper, coloured, and clearly labeled
+   2. Photo or Video Submission - Students will create a photo or video submission that will highlight the different areas 
+   3. Digital Recreation - Students create their own version of DSA on Minecraft, CoSpaces, or any other program like that. You must be able to submit a screen recording or have a digital copy that you are able to submit to our google classroom.
+3. Get Started
+	
+
+
+
+Key 
+Features
+
+
+
+
+
+
+	Please ensure that your recreation includes the following:
+
+
+* The School building
+* Grade doors and other key information
+* Key features of the property
+   * Bus loop 
+   * Basketball courts, bus loop, parking lots, and soccer field, playground area, any other distinct property features
+	
+
+Outcomes and 
+Competencies 
+
+
+	Outcomes: Learners will formulate responses to change in Canadian Society.
+
+
+Competencies: Citizenship, Creativity and Innovation, Critical Thinking, Technological Fluency 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DSA Visuals:
+
+
+Here are some pictures of DSA that I took to help with this project:
+
+
+DSA 1
+
+
+DSA 2
+
+
+DSA 3
+
+
+DSA 4
+
+
+DSA 5
+
+
+DSA 6
+
+
+DSA 7
+```
+
+---
+
+## Online Forms & External Resources
+- [Pre-Activity Check-In (Google Form)](https://docs.google.com/forms/d/e/1FAIpQLSdQ7oQY2MUzLcwjZm8xtBaWNhwhmIFcP6ysP6MxbwSQxmZ2nQ/viewform)
+- [Past Projects Gallery (Google Site)](https://sites.google.com/gnspes.ca/buccisminecraftmonday/dsa-mapping-challenge?authuser=0)
