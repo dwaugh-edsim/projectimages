@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship 9 — Head-to-Toe Citizen Canvas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f9fafb;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+            --border-dark: #cbd5e1;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-subtle: #6b7280;
+            --primary: #1e40af;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .no-print-bar {
+            max-width: 980px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 6px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: 1px solid transparent;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { background-color: #1d4ed8; }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-dark);
+        }
+        .btn-secondary:hover { background-color: #f3f4f6; }
+
+        .sheet {
+            max-width: 980px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 32px 36px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 2px;
+        }
+
+        .meta-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 0.88rem;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-row span {
+            color: var(--text-subtle);
+            font-weight: 600;
+            width: 65px;
+        }
+
+        .meta-input {
+            flex: 1;
+            border: none;
+            border-bottom: 1px solid var(--border-dark);
+            background: transparent;
+            color: var(--text-main);
+            font-family: inherit;
+            padding: 2px 4px;
+            font-size: 0.88rem;
+        }
+
+        .intro-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 24px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .canvas-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .card-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-prompt {
+            font-size: 0.78rem;
+            color: var(--text-subtle);
+            margin-bottom: 8px;
+            line-height: 1.35;
+        }
+
+        .card-textarea {
+            width: 100%;
+            min-height: 60px;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-main);
+            padding: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            resize: vertical;
+        }
+
+        .card-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        /* Center Silhouette Column */
+        .center-figure {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .silhouette-svg {
+            width: 100%;
+            max-width: 260px;
+            height: auto;
+        }
+
+        .figure-caption {
+            font-size: 0.78rem;
+            color: var(--text-subtle);
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Bookend Box */
+        .bookend-box {
+            margin-top: 20px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .bookend-col h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .bookend-col p {
+            font-size: 0.78rem;
+            color: var(--text-subtle);
+            margin-bottom: 6px;
+        }
+
+        .bookend-col textarea {
+            width: 100%;
+            height: 55px;
+            background: #ffffff;
+            border: 1px solid var(--border-dark);
+            border-radius: 4px;
+            color: var(--text-main);
+            padding: 6px;
+            font-family: inherit;
+            font-size: 0.82rem;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-subtle);
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+        }
+
+        @media print {
+            body { background: #ffffff !important; padding: 0 !important; }
+            .no-print-bar { display: none !important; }
+            .sheet { border: none !important; box-shadow: none !important; padding: 0 !important; max-width: 100% !important; }
+            .intro-box { background: #f3f4f6 !important; border-left: 3px solid #000 !important; color: #111 !important; }
+            .card { border: 1px solid #ccc !important; }
+            .card-textarea { background: #fff !important; border: 1px solid #bbb !important; min-height: 55px !important; }
+            .bookend-box { background: #fafafa !important; border: 1px solid #ccc !important; }
+            .bookend-col textarea { border: 1px solid #aaa !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-bar">
+        <div style="font-weight: 600; font-size: 0.88rem; color: #111827;">
+            Citizenship 9 — Class 1 Handout
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="index.html" class="btn btn-secondary">&larr; Materials Hub</a>
+            <button class="btn" onclick="window.print()">Print Handout (8.5&times;11)</button>
+        </div>
+    </div>
+
+    <div class="sheet">
+        <div class="header-grid">
+            <div class="header-title">
+                <h1>Head-to-Toe Citizen Canvas</h1>
+                <p>Citizenship 9 &bull; Bicentennial Junior High School &bull; Unit 1: Engaged Citizenship</p>
+            </div>
+            <div class="meta-fields">
+                <div class="meta-row"><span>Student:</span><input type="text" class="meta-input" placeholder="Your Name"></div>
+                <div class="meta-row"><span>Section:</span><input type="text" class="meta-input" value="CIT 90_"></div>
+                <div class="meta-row"><span>Date:</span><input type="text" class="meta-input" value="Sept 3, 2026"></div>
+            </div>
+        </div>
+
+        <div class="intro-box">
+            <strong>Activity:</strong> What does an active, engaged citizen think, see, and do in daily life? Map your ideas onto the anatomical categories below. <em>This canvas will be kept in your class portfolio and returned in June during Class 90 to see how your thinking developed over the year.</em>
+        </div>
+
+        <div class="canvas-layout">
+            <!-- Left Column -->
+            <div class="column">
+                <div class="card">
+                    <div class="card-title"><span>HEAD / MIND</span></div>
+                    <div class="card-prompt">What critical questions does an informed citizen ask? What knowledge do they seek out?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Fact-checks sources, seeks multiple perspectives, understands rights..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>EYES / SIGHT</span></div>
+                    <div class="card-prompt">What community needs, systemic issues, or unfairness do they notice?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Notices food insecurity, physical accessibility barriers, student stress..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>EARS / LISTENING</span></div>
+                    <div class="card-prompt">Whose lived experiences and quieter perspectives do they make an effort to listen to?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Elders, youth, marginalized groups, peers with differing viewpoints..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>MOUTH / VOICE</span></div>
+                    <div class="card-prompt">How do they use their voice to educate, advocate, or speak up for others?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Asking constructive questions, writing petitions, speaking respectfully..."></textarea>
+                </div>
+            </div>
+
+            <!-- Center Column -->
+            <div class="center-figure">
+                <svg class="silhouette-svg" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Head -->
+                    <circle cx="100" cy="42" r="26" fill="#f1f5f9" stroke="#334155" stroke-width="2" />
+                    <!-- Neck -->
+                    <rect x="94" y="68" width="12" height="12" fill="#f1f5f9" stroke="#334155" stroke-width="1.5" />
+                    <!-- Torso -->
+                    <path d="M 64 80 Q 100 74 136 80 L 128 190 Q 100 198 72 190 Z" fill="#f8fafc" stroke="#334155" stroke-width="2" />
+                    <!-- Heart Outline -->
+                    <path d="M 100 110 C 100 102, 88 98, 88 110 C 88 120, 100 130, 100 130 C 100 130, 112 120, 112 110 C 112 98, 100 102, 100 110 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+                    <!-- Backbone Line -->
+                    <line x1="100" y1="80" x2="100" y2="190" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3" />
+                    <!-- Arms & Hands -->
+                    <path d="M 64 84 L 38 145 L 30 180" fill="none" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+                    <circle cx="30" cy="182" r="5" fill="#475569" />
+                    <path d="M 136 84 L 162 145 L 170 180" fill="none" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+                    <circle cx="170" cy="182" r="5" fill="#475569" />
+                    <!-- Legs & Feet -->
+                    <path d="M 80 190 L 72 285 L 68 360" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+                    <ellipse cx="62" cy="365" rx="12" ry="5" fill="#334155" />
+                    <path d="M 120 190 L 128 285 L 132 360" fill="none" stroke="#475569" stroke-width="5" stroke-linecap="round" />
+                    <ellipse cx="138" cy="365" rx="12" ry="5" fill="#334155" />
+                </svg>
+                <div class="figure-caption">
+                    "Every citizen is shaped by what they notice, believe, and choose to do."
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+                <div class="card">
+                    <div class="card-title"><span>HEART / EMPATHY</span></div>
+                    <div class="card-prompt">What core values and principles of fairness guide their actions?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Fairness, justice, caring for the vulnerable, environmental care..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>BACKBONE / COURAGE</span></div>
+                    <div class="card-prompt">How do they demonstrate moral courage when it is difficult or unpopular?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Standing up against peer pressure, speaking up for someone excluded..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>HANDS / ACTION</span></div>
+                    <div class="card-prompt">What practical service, community projects, or collective work do they create?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Volunteering, organizing cleanups, coordinating teams, building tools..."></textarea>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><span>FEET / SHOWING UP</span></div>
+                    <div class="card-prompt">Where do they stand, walk, or physically and digitally show up for their community?</div>
+                    <textarea class="card-textarea" placeholder="e.g., Attending meetings, supporting community events, showing up for friends..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookend Comparison Box -->
+        <div class="bookend-box">
+            <div class="bookend-col">
+                <h3>Day 1 Baseline (September)</h3>
+                <p>Which 1 or 2 qualities above do you already bring to our classroom?</p>
+                <textarea placeholder="Write 1–2 sentences about your existing strengths..."></textarea>
+            </div>
+            <div class="bookend-col">
+                <h3>Class 90 Bookend (June)</h3>
+                <p><em>[Leave blank for June]</em> How has your understanding of citizenship developed?</p>
+                <textarea disabled placeholder="Reserved for June reflection..."></textarea>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Citizenship 9 &bull; Nova Scotia Social Studies Curriculum &bull; Class 1 Baseline Activity
+        </div>
+    </div>
+
+</body>
+</html>
