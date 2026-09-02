@@ -1,0 +1,422 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>The "WHERE" Project: Teacher Slide Deck | Mr. Waugh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Roboto+Slab:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-slide: #e9e4dc;
+            --text-main: #1f2937;
+            --text-heading: #000000;
+            --text-muted: #4b5563;
+            --accent: #1e40af;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #1e293b;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1100px;
+            aspect-ratio: 16 / 9;
+            background-color: var(--bg-slide);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 36px 44px;
+        }
+
+        .slide-nav {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .nav-btn:hover { background: #f1f5f9; }
+
+        .slide-count {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        /* Slide Styles */
+        .slide { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .slide.active { display: flex; animation: slideFade 0.25s ease; }
+
+        @keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        /* Slide 1: Cover */
+        .cover-content {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 30px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .cover-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 4em;
+            font-weight: 900;
+            line-height: 1.05;
+            color: var(--text-heading);
+            letter-spacing: -0.02em;
+        }
+
+        .cover-sub {
+            font-size: 1.2em;
+            color: var(--text-muted);
+            margin-top: 16px;
+            font-weight: 600;
+        }
+
+        .cover-img-box {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 85%;
+        }
+
+        /* Slide 2: Table of Contents */
+        .toc-title {
+            font-family: 'Roboto Slab', serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            line-height: 0.95;
+            color: var(--text-heading);
+            margin-bottom: 24px;
+        }
+
+        .toc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dotted #9ca3af;
+            padding-bottom: 8px;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .toc-num { color: var(--accent); }
+
+        /* Slide 3-6: Content Layouts */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr 1fr;
+            gap: 16px;
+            height: calc(100% - 30px);
+        }
+
+        .col-map {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 0.8em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .col-text {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 16px 18px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .col-text strong { color: var(--text-heading); }
+
+        .col-photos {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .photo-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 6px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+
+        <!-- SLIDE 1: COVER -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-header">
+                <span>September 2026</span>
+                <span>Citizenship 9 / Room 8</span>
+            </div>
+            <div class="cover-content">
+                <div>
+                    <div class="cover-title">Mr.<br>Waugh<br><span style="font-size: 0.6em; color: var(--accent);">(sample)</span></div>
+                    <div class="cover-sub">The "WHERE" Project: 4-Places of Identity</div>
+                </div>
+                <div class="cover-img-box">
+                    <div style="font-size: 4em; margin-bottom: 8px;">🏛️ 🇰🇷 🇨🇦</div>
+                    <div style="font-weight: 700; font-size: 1.1em; color: var(--text-heading);">Mr. Waugh's 4-Places Model</div>
+                    <div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">Teacher Exemplar & Presentation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: TOC -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <span>Table of Contents</span>
+                <span>WHERE: 4 Places</span>
+            </div>
+            <div class="toc-title">TABLE OF<br>CONTENTS</div>
+            <div class="toc-list">
+                <div class="toc-item"><span><span class="toc-num">1</span> &nbsp; The Personal Place</span> <span>Family Roots & Cottage</span></div>
+                <div class="toc-item"><span><span class="toc-num">2</span> &nbsp; The Community Place</span> <span>The Dartmouth Bridges</span></div>
+                <div class="toc-item"><span><span class="toc-num">3</span> &nbsp; The Global Place</span> <span>Gwangju, South Korea</span></div>
+                <div class="toc-item"><span><span class="toc-num">4</span> &nbsp; The Aspirational Place</span> <span>Mauritius, Indian Ocean</span></div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: PERSONAL PLACE -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <span>1. The Personal Place</span>
+                <span>Wallace, Nova Scotia</span>
+            </div>
+            <div class="content-grid">
+                <div class="col-map">
+                    <div style="font-size: 2.5em; margin-bottom: 4px;">📍</div>
+                    <strong>Wallace, NS</strong>
+                    <div style="margin-top: 6px;">North Shore &bull; Northumberland Strait</div>
+                </div>
+                <div class="col-text">
+                    <div>
+                        <strong>Reflection:</strong> This place is my family's cottage. My parents bought the land next to the ocean from a farmer a few years before I was born. When I was a kid we used to spend the entire summer up there, swimming, fishing, picking berries and playing with the other kids, most of whom were from Halifax like me. We're all still friends.
+                    </div>
+                    <div>
+                        <strong>Personal Perspective:</strong> This is a very special place for me. My wife and I got married on the front porch of the cottage 25 years ago this month. Her family flew from Korea to attend the wedding. They loved the scenery, the fresh air, and the seals swimming around my dad's boat in the water. We come back every summer with our two children so they could be with their Canadian grandparents.
+                    </div>
+                </div>
+                <div class="col-photos">
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🌊 🌲</div>
+                        <div>Ocean Front & Shoreline</div>
+                    </div>
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">💒 🏡</div>
+                        <div>Front Porch Wedding (25 Yrs)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: COMMUNITY PLACE -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <span>2. The Community Place</span>
+                <span>Dartmouth Bridges</span>
+            </div>
+            <div class="content-grid">
+                <div class="col-map">
+                    <div style="font-size: 2.5em; margin-bottom: 4px;">🌉</div>
+                    <strong>Dartmouth & Halifax</strong>
+                    <div style="margin-top: 6px;">Macdonald & MacKay Bridges</div>
+                </div>
+                <div class="col-text">
+                    <div>
+                        <strong>Reflection:</strong> I'm a Dartmouth person, and all my life I've had intimate knowledge of the two bridges. Though the two bridges should be called the "big" bridge and the "small" bridge — the MacKay bridge is much wider than the Macdonald — everyone in the city calls the MacKay the "new" bridge and the other the "old". That's funny considering the "new" bridge is older (1969) than I am, and I'm old.
+                    </div>
+                    <div>
+                        <strong>People and the Land:</strong> The bridges are the beating heart of the city. Every day, 100,000 vehicles cross the bridges, likely the same ones at least twice in morning and afternoon commutes. The bridges opened up development in Dartmouth and Cole Harbour after the 1950s.
+                    </div>
+                </div>
+                <div class="col-photos">
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🚗 🌉</div>
+                        <div>100,000 Daily Commuters</div>
+                    </div>
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🏙️ ⚓</div>
+                        <div>The Beating Heart of Dartmouth</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: GLOBAL PLACE -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <span>3. The Global Place</span>
+                <span>Gwangju, South Korea</span>
+            </div>
+            <div class="content-grid">
+                <div class="col-map">
+                    <div style="font-size: 2.5em; margin-bottom: 4px;">🇰🇷 🌏</div>
+                    <strong>Gwangju, S. Korea</strong>
+                    <div style="margin-top: 6px;">Jeollanam-do Province</div>
+                </div>
+                <div class="col-text">
+                    <div>
+                        <strong>Reflection:</strong> Over 20 years ago my wife and I left Canada, first to Gwangju, South Korea. We had our first daughter there in 2003, a year before we left Korea. We go back to Gwangju sometimes: it's a strange place because it's a big city of over two million people, but it feels much smaller.
+                    </div>
+                    <div>
+                        <strong>Family Tie-in:</strong> This is my wife's family's region. Gwangju is especially famous for its kimchi, and there's even a giant Kimchi festival to celebrate the food. My mother-in-law is especially proud of her kimchi. Kimchi is eaten during breakfast, lunch, and dinner.
+                    </div>
+                    <div style="font-style: italic; color: #b91c1c;">
+                        Secret: I don't like kimchi. Please don't tell anyone.
+                    </div>
+                </div>
+                <div class="col-photos">
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🏮 🍜</div>
+                        <div>Night Market & Street Life</div>
+                    </div>
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🥬 🌶️</div>
+                        <div>Gwangju Kimchi Festival</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: ASPIRATIONAL PLACE -->
+        <div class="slide" id="slide-6">
+            <div class="slide-header">
+                <span>4. The Aspirational Place</span>
+                <span>Mauritius, Indian Ocean</span>
+            </div>
+            <div class="content-grid">
+                <div class="col-map">
+                    <div style="font-size: 2.5em; margin-bottom: 4px;">🏝️ 🇲🇺</div>
+                    <strong>Mauritius</strong>
+                    <div style="margin-top: 6px;">Indian Ocean &bull; East of Madagascar</div>
+                </div>
+                <div class="col-text">
+                    <div>
+                        <strong>Reflection:</strong> While studying at Saint Mary's I met someone from Mauritius. I had no idea where Mauritius was so I looked it up on a map. What an incredible location: out in the Indian Ocean off the coast of Africa. She described it like paradise: warm, tropical, friendly, safe — and French. 30 years later and I still haven't been... but I'll go someday.
+                    </div>
+                    <div>
+                        <strong>Personal Reflection:</strong> I've always wanted to experience a place that feels like a true blend of cultures. Mauritius, with its mix of African, Indian, French, and Chinese influences, seems like the perfect place. It shows me that a peaceful and beautiful future can be built from many different stories.
+                    </div>
+                </div>
+                <div class="col-photos">
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🏝️ 🐠</div>
+                        <div>Le Morne Lagoon & Reefs</div>
+                    </div>
+                    <div class="photo-card">
+                        <div style="font-size: 2.2em;">🌴 ☀️</div>
+                        <div>Blend of Global Cultures</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="slide-nav">
+        <button class="nav-btn" onclick="prevSlide()">&larr; Previous Slide</button>
+        <span class="slide-count" id="slideIndicator">Slide 1 of 6</span>
+        <button class="nav-btn" onclick="nextSlide()">Next Slide &rarr;</button>
+        <a href="09_WHERE_4_Places_Activity.html" class="nav-btn" style="background: var(--accent); color: #fff; text-decoration: none;">Open Student Handout &rarr;</a>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 6;
+
+        function showSlide(n) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.getElementById(`slide-${n}`).classList.add('active');
+            document.getElementById('slideIndicator').innerText = `Slide ${n} of ${totalSlides}`;
+            currentSlide = n;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) showSlide(currentSlide - 1);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>
