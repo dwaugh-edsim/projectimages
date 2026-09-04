@@ -846,7 +846,7 @@ PROPOSALS = [
             "summative": "Case-file rubric (evidence organisation, method rigour, citation of exhibits) plus a trial-performance rubric for use of evidence, courtroom register, and responsiveness."
         },
         "sharing": "The mock trial is the public product: an invited jury of adults hears the case, deliberates, and delivers a verdict, followed by a discussion with the jury about what persuaded them.",
-        "reflection": "the case must be written so that evidence is genuinely ambiguous — neither side should hold a slam-dunk. Teachers should recruit a guest with legal or policing experience for the trial day if possible, and plan the scene setup as a reusable kit so the unit can run annually with a new case narrative each year.",
+        "reflection": "The case must be written so that evidence is genuinely ambiguous — neither side should hold a slam-dunk. Teachers should recruit a guest with legal or policing experience for the trial day if possible, and plan the scene setup as a reusable kit so the unit can run annually with a new case narrative each year.",
         "toolkit": [
             "Staged evidence kit (fingerprint ink strips, 'ink' pens for chromatography, fibres, sealed evidence bags and labels)",
             "Case journals (duotangs) and photo documentation tools",
@@ -920,7 +920,7 @@ PROPOSALS = [
             "summative": "Season rubric covering narrative structure, interview quality, technical audio standard, and fit to the pitched premise."
         },
         "sharing": "The finished season is published to the school website (and a podcast platform where board policy permits), premiered at a listening party, and pitched to the community members who gave the interviews.",
-        "reflection": "budget one full session purely for retakes — first-time producers almost always under-record. Set a hard runtime cap per episode (5–7 minutes) to force editing discipline, and secure interview consent forms before recording begins so nothing usable has to be discarded at publish time.",
+        "reflection": "Budget one full session purely for retakes — first-time producers almost always under-record. Set a hard runtime cap per episode (5–7 minutes) to force editing discipline, and secure interview consent forms before recording begins so nothing usable has to be discarded at publish time.",
         "toolkit": [
             "Smartphones or school tablets with an external lav or USB microphone",
             "Free multitrack editor (Audacity, GarageBand, or Chrome-compatible audio tools)",
@@ -995,7 +995,7 @@ PROPOSALS = [
             "summative": "Design rubric covering curriculum alignment, puzzle-chain logic, build quality, and hosting professionalism, alongside the team's data-informed revision narrative."
         },
         "sharing": "Live hosting for real classes is the audience moment, capped by a data story in which each team presents what their players' behaviour revealed and how they responded.",
-        "reflection": "constrain rooms to one curriculum outcome each — teams that try to teach everything build rooms that teach nothing. Borrow locks from staff families rather than purchasing, and schedule host week with feeder elementary classes early, since a confirmed real audience is the project's strongest motivator.",
+        "reflection": "Constrain rooms to one curriculum outcome each — teams that try to teach everything build rooms that teach nothing. Borrow locks from staff families rather than purchasing, and schedule host week with feeder elementary classes early, since a confirmed real audience is the project's strongest motivator.",
         "toolkit": [
             "Combination and keyed padlocks, small lockable boxes and cash boxes",
             "UV pen and flashlight, envelopes, cardstock, and craft consumables",
@@ -1041,6 +1041,10 @@ PROPOSALS = [
         ],
         "scaffolding_lessons": [
             {
+                "title": "The Six Archetypes & the Remix Rule",
+                "desc": "Carnival games reduce to six mechanic families — toss, roll, launch, race, reaction, and reveal. Teams pick one archetype, copy its proven skeleton, then apply the remix rule: change exactly one variable (projectile, target, scoring, distance, or add a jackpot/bet) rather than inventing from zero. The Starter Idea Bank below seeds this lesson."
+            },
+            {
                 "title": "Prototype Sprint & Playtest Protocols",
                 "desc": "Rapid paper-prototyping of game mechanics, then structured playtesting: what to observe, how to record funnel data (plays, replays, quits), and why the second play matters most."
             },
@@ -1071,12 +1075,31 @@ PROPOSALS = [
             "summative": "Enterprise rubric covering game quality, economic reasoning in the ledger and pricing, marketing effectiveness, and the accuracy of the final data debrief."
         },
         "sharing": "The carnival itself is a public event with real customers, and the closing ledger presentations to an invited audience determine a real donation chosen by student vote.",
-        "reflection": "collect cardboard for two weeks before launch — volume matters. Cap token prices from below (not above) to keep the young-customer experience joyful, and pre-book the feeder elementary classes early since the confirmed date drives the whole build calendar.",
+        "reflection": "Collect cardboard for two weeks before launch — volume matters. Cap token prices from below (not above) to keep the young-customer experience joyful, and pre-book the feeder elementary classes early since the confirmed date drives the whole build calendar.",
         "toolkit": [
             "Recovered cardboard (boxes, tubes) collected in advance, plus cutting mats and safety knives",
             "Tape, hot glue, paints, and decoration consumables",
             "Class currency blanks or token-stamping materials",
             "Ledger and cost-sheet templates; donation decision framework"
+        ],
+        "idea_bank_intro": "Building a game people love from scrap is genuinely hard — so nobody starts from a blank table. Every classic carnival game runs on one of six mechanic skeletons; teams copy a skeleton, then remix one variable (new projectile, moving target, jackpot slot, head-to-head betting, or a timer). Each idea below lists what it is built from and the replay psychology that makes customers line up twice.",
+        "idea_bank": [
+            {"game": "Milk-Jug Ladder Toss", "mechanic": "Toss", "materials": "Beanbags sewn from old socks and rice; gallon jugs mounted at three depths on a cardboard back wall", "hook": "Visible scoring ladder — the deep jug is a 5-token near-miss machine"},
+            {"game": "Ring-a-Ding Bottles", "mechanic": "Toss", "materials": "Rings made from masking-tape-wrapped cardboard tubes; a crate of recovered glass or plastic bottles", "hook": "Classic one-more-try near miss; resets in seconds"},
+            {"game": "Capsule Cornhole", "mechanic": "Toss", "materials": "Scrap plywood or double-layer cardboard board with themed cut holes; sock-and-rice bags", "hook": "Hard mode: an operator wiggles the board on a hinge"},
+            {"game": "Gutter Bowling", "mechanic": "Roll", "materials": "Taped plastic-wrap ball; bottle or paper-cup pins; cardboard lane with one deliberate wobble bump", "hook": "The strike chase — near-strikes are more compelling than spares"},
+            {"game": "Plinko Paradise", "mechanic": "Roll", "materials": "Bottle-cap puck down a peg board (push pins or golf tees through cardboard); token-valued slots below", "hook": "Jackpot slot variance — players pay again to beat the odds"},
+            {"game": "Ramp Racers", "mechanic": "Race", "materials": "CD-wheel cars raced down parallel cardboard ramps; lanes sized for fair starts", "hook": "Players bet a token on their lane before every heat"},
+            {"game": "Catapult Alley", "mechanic": "Launch", "materials": "Spoon-and-rubber-band lever catapults firing pom-poms or cork pellets at bucket clusters", "hook": "Progressive distance tiers; players self-select their risk level"},
+            {"game": "Cup-Pyramid Blaster", "mechanic": "Launch", "materials": "Balloon-pouch slingshots on a cardboard frame firing wet sponges or paper balls at recovered-cup pyramids", "hook": "Demolition satisfaction; the reset itself is a mini-game"},
+            {"game": "Stomp Air Cannon", "mechanic": "Launch", "materials": "2L bottle + balloon-diaphragm stomp launcher firing air puffs at light towers", "hook": "The wow factor — invisible force knocking things over draws a crowd"},
+            {"game": "Marble Run Derby", "mechanic": "Race", "materials": "Marbles down towel-tube and box-lid tracks with parallel lanes", "hook": "Betting on lanes; the photo-finish argument is part of the fun"},
+            {"game": "Bottle Flip Rally", "mechanic": "Reaction", "materials": "Recovered bottles and tape-ring target zones of increasing size", "hook": "Progressive difficulty ladder; self-imposed 'one more flip' loop"},
+            {"game": "Whack-a-Cap", "mechanic": "Reaction", "materials": "Caps pushed up from behind through cardboard tubes by the operator; soft mallets (cardboard and tape)", "hook": "Head-to-head duel format — operator versus player, spectators referee"},
+            {"game": "Coin Slide Shuffleboard", "mechanic": "Roll", "materials": "Wooden disks or large buttons slid up a smooth board into taped scoring zones", "hook": "Risk ladder: push harder for the 5-token zone and risk sliding off"},
+            {"game": "Ladder Toss Classic", "mechanic": "Toss", "materials": "Bolos made from retired tennis balls and pantyhose; cardboard rung ladder", "hook": "Rung values (1/2/5) create instant trash-talk and rematches"},
+            {"game": "Mystery Feel-Boxes", "mechanic": "Reveal", "materials": "Boxes with fabric sleeve holes hiding odd recovered objects to identify by touch", "hook": "Curiosity plus gross-out; correct guesses pay out, wrong guesses become legend"},
+            {"game": "Fortune Cup Pyramid", "mechanic": "Reveal", "materials": "Cup pyramid with prize notes hidden under select cups", "hook": "Choice-under-uncertainty — players discuss 'reads' like it is strategy"}
         ]
     },
     {
@@ -1146,7 +1169,7 @@ PROPOSALS = [
             "summative": "Experiment report rubric (method, data quality, conclusion) plus the scale-up proposal's use of evidence and costing."
         },
         "sharing": "Harvest donations delivered in person to a community food organization with student-prepared recipe cards, and the vertical-farm scale-up proposal formally presented to school administration or the advisory council.",
-        "reflection": "microgreens forgive beginners, but water does not — assign named daily owners for the rota or trays will silently dry out on weekends. Price the scale-up proposal against real quotes so the pitch to administration is concrete, and start Cycle A immediately; the calendar should be driven by the 10–14 day crop cycle, not the reverse.",
+        "reflection": "Microgreens forgive beginners, but water does not — assign named daily owners for the rota or trays will silently dry out on weekends. Price the scale-up proposal against real quotes so the pitch to administration is concrete, and start Cycle A immediately; the calendar should be driven by the 10–14 day crop cycle, not the reverse.",
         "toolkit": [
             "Wire shelving unit, LED shop lights with timers, and trays with domes",
             "Microgreen seed (pea shoots, radish, sunflower), growing medium, and spray bottles",
@@ -1220,7 +1243,7 @@ PROPOSALS = [
             "summative": "Documentary rubric covering research grounding, interview quality, editorial fairness, and technical craft; individual reflection on what the student's thinking about the community changed."
         },
         "sharing": "A public premiere with interviewees as guests of honour, and formal donation of the finished documentaries to the local library or historical society with signed releases.",
-        "reflection": "recruit interviewees through a letter home — grandparents and parish halls fill a roster fast, and the personal connection raises the stakes. Build editing time generously; students consistently underestimate it, and the story only emerges in the cut. Confirm the archive partner before recording so release forms match their requirements.",
+        "reflection": "Recruit interviewees through a letter home — grandparents and parish halls fill a roster fast, and the personal connection raises the stakes. Build editing time generously; students consistently underestimate it, and the story only emerges in the cut. Confirm the archive partner before recording so release forms match their requirements.",
         "toolkit": [
             "Tablets or smartphones on tripods with an external clip-on microphone",
             "Free video editor (iMovie, Clipchamp, or CapCut where permitted)",
@@ -1295,7 +1318,7 @@ PROPOSALS = [
             "summative": "Game rubric covering curriculum alignment, rulebook clarity, balance evidence, and finish quality, plus the team's revision narrative linking feedback to changes."
         },
         "sharing": "The buddy-classroom arcade is the real-client showcase: younger students play the finished games, and designers close the loop by presenting what the playtests taught them.",
-        "reflection": "broker a specific ask from the buddy teacher (one outcome, one class period) before design begins — vague briefs produce vague games. Paper first, always: teams that start in Scratch spend their hours on sprites instead of systems. Keep game sessions to 15 minutes so the arcade fits a buddy class period.",
+        "reflection": "Broker a specific ask from the buddy teacher (one outcome, one class period) before design begins — vague briefs produce vague games. Paper first, always: teams that start in Scratch spend their hours on sprites instead of systems. Keep game sessions to 15 minutes so the arcade fits a buddy class period.",
         "toolkit": [
             "Cardstock, dice, meeples, and generic component bins for rapid tabletop prototyping",
             "Scratch or another block-based game environment for the digital pathway",
@@ -1371,7 +1394,7 @@ PROPOSALS = [
             "summative": "Runway rubric combining garment craft quality, resumé accuracy and research depth, and presentation delivery."
         },
         "sharing": "A public slow-fashion runway show for the school and families, with every garment presented alongside its resumé, capped by a school-wide repair-pledge campaign the students run themselves.",
-        "reflection": "source garments through a community donation drive two weeks ahead and check sewing-machine availability early — if the school has only a few machines, schedule machine time in stations while hand-menders work alongside. Rehearse the walk: nervous presenters settle quickly once the runway has been crossed once in an empty gym.",
+        "reflection": "Source garments through a community donation drive two weeks ahead and check sewing-machine availability early — if the school has only a few machines, schedule machine time in stations while hand-menders work alongside. Rehearse the walk: nervous presenters settle quickly once the runway has been crossed once in an empty gym.",
         "toolkit": [
             "Thrifted or donated garments sourced via a community drive",
             "Sewing kits (needles, thread, buttons), patches, and fabric markers; machines where available",
@@ -1448,7 +1471,7 @@ PROPOSALS = [
             "summative": "Project rubric covering survey data quality, map accuracy, interpretive sign craft, and BioBlitz leadership performance."
         },
         "sharing": "The Community BioBlitz is the public event: families and neighbours walk the student-designed trail, hear student station talks, and contribute species records, all uploaded to iNaturalist under the class project.",
-        "reflection": "secure landowner permission before any route is drawn, and build a bad-weather backup session for every outdoor one — a full term of 1-hour blocks gives only eight or nine viable field days in a Nova Scotia spring. Splitting the project across fall and spring (survey in fall, signs and BioBlitz in spring) matches the ecology and the calendar.",
+        "reflection": "Secure landowner permission before any route is drawn, and build a bad-weather backup session for every outdoor one — a full term of 1-hour blocks gives only eight or nine viable field days in a Nova Scotia spring. Splitting the project across fall and spring (survey in fall, signs and BioBlitz in spring) matches the ecology and the calendar.",
         "toolkit": [
             "iNaturalist (or Merlin Bird ID) on school or family devices",
             "Measuring wheels or trundle wheels, clipboards, and scaled mapping templates",
@@ -1524,7 +1547,7 @@ PROPOSALS = [
             "summative": "Portfolio rubric covering analytics briefs (data quality and reasoning), lab report rigour, broadcast communication, and the team's prediction-vs-outcome record."
         },
         "sharing": "Weekly student-produced broadcasts to the school and a championship-day analytics fair where desks present their season data, lab findings, and prediction records to an invited audience.",
-        "reflection": "use a live league (NHL, NBA, or a school-league simulation) so data updates without teacher effort — the recurring rhythm is the entire engine of the project. Insist that every broadcast prediction is falsifiable and scored, because being publicly accountable for predictions is what turns hot takes into hypothesis testing.",
+        "reflection": "Use a live league (NHL, NBA, or a school-league simulation) so data updates without teacher effort — the recurring rhythm is the entire engine of the project. Insist that every broadcast prediction is falsifiable and scored, because being publicly accountable for predictions is what turns hot takes into hypothesis testing.",
         "toolkit": [
             "Free league statistics sources and a shared spreadsheet league workbook (scoring formulas and standings pre-built)",
             "Phones with slow-motion video for the biomechanics lab, plus measuring tape and markers",
@@ -1941,6 +1964,39 @@ def build_detail_pages(items, kind="lesson"):
   <p>{html.escape(s["desc"])}</p>
 </div>''' for s in l["scaffolding_lessons"]])
 
+        # Optional starter idea bank (proposals that seed team brainstorming)
+        if l.get("idea_bank"):
+            bank_rows = "".join([f'''<tr>
+  <td><strong>{html.escape(i["game"])}</strong></td>
+  <td>{html.escape(i["mechanic"])}</td>
+  <td>{html.escape(i["materials"])}</td>
+  <td>{html.escape(i["hook"])}</td>
+</tr>''' for i in l["idea_bank"]])
+            idea_bank_html = f'''<!-- Starter Idea Bank -->
+									<h2>Starter Idea Bank: Remix, Don&rsquo;t Invent</h2>
+									<p>{html.escape(l["idea_bank_intro"])}</p>
+									<div class="table-wrapper">
+										<table>
+											<thead>
+												<tr>
+													<th>Game Idea</th>
+													<th>Mechanic</th>
+													<th>Made From</th>
+													<th>Why Kids Replay It</th>
+												</tr>
+											</thead>
+											<tbody>
+												{bank_rows}
+											</tbody>
+										</table>
+									</div>
+
+									<hr class="major" />
+
+'''
+        else:
+            idea_bank_html = ""
+
         # Pacing rows
         pacing_rows = "".join([f'''<tr>
   <td><strong>{html.escape(p["phase"])}</strong></td>
@@ -2076,6 +2132,7 @@ def build_detail_pages(items, kind="lesson"):
 
 									<hr class="major" />
 
+									{idea_bank_html}
 									<!-- Pacing Timeline -->
 									<h2>Structural Pacing & Phase Breakdown</h2>
 									<div class="table-wrapper">
