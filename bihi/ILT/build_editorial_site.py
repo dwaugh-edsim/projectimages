@@ -846,7 +846,7 @@ PROPOSALS = [
             "summative": "Case-file rubric (evidence organisation, method rigour, citation of exhibits) plus a trial-performance rubric for use of evidence, courtroom register, and responsiveness."
         },
         "sharing": "The mock trial is the public product: an invited jury of adults hears the case, deliberates, and delivers a verdict, followed by a discussion with the jury about what persuaded them.",
-        "reflection": "The case must be written so that evidence is genuinely ambiguous — neither side should hold a slam-dunk. Teachers should recruit a guest with legal or policing experience for the trial day if possible, and plan the scene setup as a reusable kit so the unit can run annually with a new case narrative each year.",
+        "reflection": "The case must be written so that evidence is genuinely ambiguous — neither side should hold a slam-dunk. Teachers should recruit a guest with legal or policing experience for the trial day if possible, and plan the scene setup as a reusable kit  Full-class check (28 students): run four forensic lab squads of four; each squad certifies its exhibits and delegates one member as the trial witness, while the remaining twelve students form two prosecution and two defence counsel teams of three. Every student owns named exhibits or a speaking role.",
         "toolkit": [
             "Staged evidence kit (fingerprint ink strips, 'ink' pens for chromatography, fibres, sealed evidence bags and labels)",
             "Case journals (duotangs) and photo documentation tools",
@@ -920,7 +920,7 @@ PROPOSALS = [
             "summative": "Season rubric covering narrative structure, interview quality, technical audio standard, and fit to the pitched premise."
         },
         "sharing": "The finished season is published to the school website (and a podcast platform where board policy permits), premiered at a listening party, and pitched to the community members who gave the interviews.",
-        "reflection": "Budget one full session purely for retakes — first-time producers almost always under-record. Set a hard runtime cap per episode (5–7 minutes) to force editing discipline, and secure interview consent forms before recording begins so nothing usable has to be discarded at publish time.",
+        "reflection": "Budget one full session purely for retakes — first-time producers almost always under-record. Set a hard runtime cap per episode (5–7 minutes) to force editing discipline, and secure interview consent forms before recording begins  Full-class check (28 students): seven production crews of four each own one episode across the season, rotating the writer, host, editor, and sound-designer roles internally, so every student holds a named credit in the published catalogue.",
         "toolkit": [
             "Smartphones or school tablets with an external lav or USB microphone",
             "Free multitrack editor (Audacity, GarageBand, or Chrome-compatible audio tools)",
@@ -995,7 +995,7 @@ PROPOSALS = [
             "summative": "Design rubric covering curriculum alignment, puzzle-chain logic, build quality, and hosting professionalism, alongside the team's data-informed revision narrative."
         },
         "sharing": "Live hosting for real classes is the audience moment, capped by a data story in which each team presents what their players' behaviour revealed and how they responded.",
-        "reflection": "Constrain rooms to one curriculum outcome each — teams that try to teach everything build rooms that teach nothing. Borrow locks from staff families rather than purchasing, and schedule host week with feeder elementary classes early, since a confirmed real audience is the project's strongest motivator.",
+        "reflection": "Constrain rooms to one curriculum outcome each — teams that try to teach everything build rooms that teach nothing. Borrow locks from staff families rather than purchasing, and schedule host week with feeder elementary classes early,  Full-class check (28 students): seven puzzle teams of four each build one section of a single connected room (or seven mini-rooms), while a rotating games-master bench and a two-person data crew staff host week — no designer watches from the sidelines.",
         "toolkit": [
             "Combination and keyed padlocks, small lockable boxes and cash boxes",
             "UV pen and flashlight, envelopes, cardstock, and craft consumables",
@@ -1100,6 +1100,14 @@ PROPOSALS = [
             {"game": "Ladder Toss Classic", "mechanic": "Toss", "materials": "Bolos made from retired tennis balls and pantyhose; cardboard rung ladder", "hook": "Rung values (1/2/5) create instant trash-talk and rematches"},
             {"game": "Mystery Feel-Boxes", "mechanic": "Reveal", "materials": "Boxes with fabric sleeve holes hiding odd recovered objects to identify by touch", "hook": "Curiosity plus gross-out; correct guesses pay out, wrong guesses become legend"},
             {"game": "Fortune Cup Pyramid", "mechanic": "Reveal", "materials": "Cup pyramid with prize notes hidden under select cups", "hook": "Choice-under-uncertainty — players discuss 'reads' like it is strategy"}
+        ],
+        "class_scaling_intro": "A class of 28 is not an obstacle for this project — it is the minimum viable carnival. The design assumes seven teams of exactly four, which is also the free-rider ceiling: below five members, every contribution stays visible. The levers below keep all 28 students legitimately busy from prototype week to the ledger debrief.",
+        "class_scaling_levers": [
+            {"lever": "Team Grid: 7 × 4", "how": "28 divides into seven teams of four with no remainder. Each team drafts a different mechanic archetype (toss, roll, launch, race, reaction, reveal, plus one designer's-choice hybrid), which guarantees carnival variety and prevents four clones of ring toss."},
+            {"lever": "Role Cards with Rubric Teeth", "how": "Each team carries four named roles: Build Lead (fabrication and durability), Ledger Keeper (cost sheets, pricing, token math), Brand Lead (name, poster, barker pitch), and Game-Master (operations plan, staffing, queue design). Each role's deliverable is assessed individually — accountability lives in the role, not the group grade."},
+            {"lever": "Workshop Logistics", "how": "Seven simultaneous builds hit tool bottlenecks fast: run two or three numbered glue/cutting stations with a checkout system, a materials depot staffed by a rotating storekeeper crew, and intra-team parallel work streams (build, cost math, marketing draft, playtest) so no student ever waits idle on a glue gun."},
+            {"lever": "Throughput Rules for Carnival Day", "how": "Target sub-60-second play cycles — a booth with a three-minute cycle and a queue is where engagement dies. Run two booth shifts plus a floater crew; stage head-to-head booths so the queue becomes the audience; and give launch games backstops and lane spacing for a room of 60 kids."},
+            {"lever": "Data at Scale", "how": "Every class playtest session yields 28 tester data points per round — enough for real play-per-token, revenue-per-booth, and queue-time statistics in the Phase 5 debrief. The economics analysis is stronger because the class is bigger, not despite it."}
         ]
     },
     {
@@ -1169,7 +1177,7 @@ PROPOSALS = [
             "summative": "Experiment report rubric (method, data quality, conclusion) plus the scale-up proposal's use of evidence and costing."
         },
         "sharing": "Harvest donations delivered in person to a community food organization with student-prepared recipe cards, and the vertical-farm scale-up proposal formally presented to school administration or the advisory council.",
-        "reflection": "Microgreens forgive beginners, but water does not — assign named daily owners for the rota or trays will silently dry out on weekends. Price the scale-up proposal against real quotes so the pitch to administration is concrete, and start Cycle A immediately; the calendar should be driven by the 10–14 day crop cycle, not the reverse.",
+        "reflection": "Microgreens forgive beginners, but water does not — assign named daily owners for the rota or trays will silently dry out on weekends. Price the scale-up proposal against real quotes so the pitch to administration is concrete, and start Cycle A immediately;  Full-class check (28 students): seven grow teams of four each run replicate trays for the Cycle B experiment, the daily rota gives every student a named tray duty, and the harvest market staffs seven stations so nobody spectates at the donation.",
         "toolkit": [
             "Wire shelving unit, LED shop lights with timers, and trays with domes",
             "Microgreen seed (pea shoots, radish, sunflower), growing medium, and spray bottles",
@@ -1243,7 +1251,7 @@ PROPOSALS = [
             "summative": "Documentary rubric covering research grounding, interview quality, editorial fairness, and technical craft; individual reflection on what the student's thinking about the community changed."
         },
         "sharing": "A public premiere with interviewees as guests of honour, and formal donation of the finished documentaries to the local library or historical society with signed releases.",
-        "reflection": "Recruit interviewees through a letter home — grandparents and parish halls fill a roster fast, and the personal connection raises the stakes. Build editing time generously; students consistently underestimate it, and the story only emerges in the cut. Confirm the archive partner before recording so release forms match their requirements.",
+        "reflection": "Recruit interviewees through a letter home — grandparents and parish halls fill a roster fast, and the personal connection raises the stakes. Build editing time generously; students consistently underestimate it, and the story only emerges in the cut.  Full-class check (28 students): seven film crews of four — director, interviewer, camera, editor — cover fourteen community voices across themed strands, and the premiere is run by a student production team so every crew takes a bow.",
         "toolkit": [
             "Tablets or smartphones on tripods with an external clip-on microphone",
             "Free video editor (iMovie, Clipchamp, or CapCut where permitted)",
@@ -1318,7 +1326,7 @@ PROPOSALS = [
             "summative": "Game rubric covering curriculum alignment, rulebook clarity, balance evidence, and finish quality, plus the team's revision narrative linking feedback to changes."
         },
         "sharing": "The buddy-classroom arcade is the real-client showcase: younger students play the finished games, and designers close the loop by presenting what the playtests taught them.",
-        "reflection": "Broker a specific ask from the buddy teacher (one outcome, one class period) before design begins — vague briefs produce vague games. Paper first, always: teams that start in Scratch spend their hours on sprites instead of systems. Keep game sessions to 15 minutes so the arcade fits a buddy class period.",
+        "reflection": "Broker a specific ask from the buddy teacher (one outcome, one class period) before design begins — vague briefs produce vague games. Paper first, always: teams that start in Scratch spend their hours on sprites instead of systems.  Full-class check (28 students): seven design studios of four each ship one game to the buddy arcade, splitting designer, rules-writer, component-maker, and playtest-lead roles, and the arcade floor plan guarantees every student a hosting shift.",
         "toolkit": [
             "Cardstock, dice, meeples, and generic component bins for rapid tabletop prototyping",
             "Scratch or another block-based game environment for the digital pathway",
@@ -1394,7 +1402,7 @@ PROPOSALS = [
             "summative": "Runway rubric combining garment craft quality, resumé accuracy and research depth, and presentation delivery."
         },
         "sharing": "A public slow-fashion runway show for the school and families, with every garment presented alongside its resumé, capped by a school-wide repair-pledge campaign the students run themselves.",
-        "reflection": "Source garments through a community donation drive two weeks ahead and check sewing-machine availability early — if the school has only a few machines, schedule machine time in stations while hand-menders work alongside. Rehearse the walk: nervous presenters settle quickly once the runway has been crossed once in an empty gym.",
+        "reflection": "Source garments through a community donation drive two weeks ahead and check sewing-machine availability early — if the school has only a few machines, schedule machine time in stations while hand-menders work alongside. Rehearse the walk:  Full-class check (28 students): craft pairs rotate through stations (machine time, hand-mending, decoration, resumé research) so machines are never a bottleneck, and the runway runs entirely on student crews — staging, emcee, music, photography.",
         "toolkit": [
             "Thrifted or donated garments sourced via a community drive",
             "Sewing kits (needles, thread, buttons), patches, and fabric markers; machines where available",
@@ -1471,7 +1479,7 @@ PROPOSALS = [
             "summative": "Project rubric covering survey data quality, map accuracy, interpretive sign craft, and BioBlitz leadership performance."
         },
         "sharing": "The Community BioBlitz is the public event: families and neighbours walk the student-designed trail, hear student station talks, and contribute species records, all uploaded to iNaturalist under the class project.",
-        "reflection": "Secure landowner permission before any route is drawn, and build a bad-weather backup session for every outdoor one — a full term of 1-hour blocks gives only eight or nine viable field days in a Nova Scotia spring. Splitting the project across fall and spring (survey in fall, signs and BioBlitz in spring) matches the ecology and the calendar.",
+        "reflection": "Secure landowner permission before any route is drawn, and build a bad-weather backup session for every outdoor one — a full term of 1-hour blocks gives only eight or nine viable field days in a Nova Scotia spring. Splitting the project across fall and spring  Full-class check (28 students): seven field squads of four rotate the navigator, recorder, photographer, and ID-lead roles across survey routes; sign crews of four own individual stations, and the BioBlitz gives every student a guided-walk leadership post.",
         "toolkit": [
             "iNaturalist (or Merlin Bird ID) on school or family devices",
             "Measuring wheels or trundle wheels, clipboards, and scaled mapping templates",
@@ -1547,7 +1555,7 @@ PROPOSALS = [
             "summative": "Portfolio rubric covering analytics briefs (data quality and reasoning), lab report rigour, broadcast communication, and the team's prediction-vs-outcome record."
         },
         "sharing": "Weekly student-produced broadcasts to the school and a championship-day analytics fair where desks present their season data, lab findings, and prediction records to an invited audience.",
-        "reflection": "Use a live league (NHL, NBA, or a school-league simulation) so data updates without teacher effort — the recurring rhythm is the entire engine of the project. Insist that every broadcast prediction is falsifiable and scored, because being publicly accountable for predictions is what turns hot takes into hypothesis testing.",
+        "reflection": "Use a live league (NHL, NBA, or a school-league simulation) so data updates without teacher effort — the recurring rhythm is the entire engine of the project. Insist that every broadcast prediction is falsifiable and scored, because  Full-class check (28 students): seven desk franchises of four — analyst, trader, broadcaster, stats-keeper — run the league, with commissioner and technical-crew roles rotating weekly so every desk publishes every cycle.",
         "toolkit": [
             "Free league statistics sources and a shared spreadsheet league workbook (scoring formulas and standings pre-built)",
             "Phones with slow-motion video for the biomechanics lab, plus measuring tape and markers",
@@ -1997,6 +2005,35 @@ def build_detail_pages(items, kind="lesson"):
         else:
             idea_bank_html = ""
 
+        # Optional full-class scaling section (proposals planning for ~28 students)
+        if l.get("class_scaling_levers"):
+            lever_rows = "".join([f'''<tr>
+  <td><strong>{html.escape(x["lever"])}</strong></td>
+  <td>{html.escape(x["how"])}</td>
+</tr>''' for x in l["class_scaling_levers"]])
+            class_scaling_html = f'''<!-- Class Scaling -->
+									<h2>Scaling to a Full Class: 28 Students, Everyone On</h2>
+									<p>{html.escape(l["class_scaling_intro"])}</p>
+									<div class="table-wrapper">
+										<table>
+											<thead>
+												<tr>
+													<th>Design Lever</th>
+													<th>How It Works</th>
+												</tr>
+											</thead>
+											<tbody>
+												{lever_rows}
+											</tbody>
+										</table>
+									</div>
+
+									<hr class="major" />
+
+'''
+        else:
+            class_scaling_html = ""
+
         # Pacing rows
         pacing_rows = "".join([f'''<tr>
   <td><strong>{html.escape(p["phase"])}</strong></td>
@@ -2133,6 +2170,7 @@ def build_detail_pages(items, kind="lesson"):
 									<hr class="major" />
 
 									{idea_bank_html}
+									{class_scaling_html}
 									<!-- Pacing Timeline -->
 									<h2>Structural Pacing & Phase Breakdown</h2>
 									<div class="table-wrapper">
