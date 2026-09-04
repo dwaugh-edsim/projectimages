@@ -2,8 +2,9 @@ import os
 import json
 import html
 
-OUTPUT_DIR = r"Z:\simroom\Github Repos\projectimages\bihi\ILT"
+OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 
 LESSONS = [
     {
@@ -468,6 +469,10 @@ LESSONS = [
         ],
         "scaffolding_lessons": [
             {
+                "title": "Silent Debate Gallery Protocol & Argument Toolkit",
+                "desc": "Facilitating a 7-station silent debate gallery (Grades, School Start Time, AI Tools, Video Games as Sports, Voting Age, Social Media, Homework Ban) using the 4-part toolkit (Claim, Reason, Evidence, Example) and structured rebuttal formula ('They say..., but... because...')."
+            },
+            {
                 "title": "Parliamentary Debate Structure & Refutation Protocols",
                 "desc": "Teaching the anatomy of an argument (Claim, Evidence, Warrant, Impact) and polite refutation etiquette ('While my opponent claims X, the empirical data demonstrates Y')."
             },
@@ -481,28 +486,31 @@ LESSONS = [
             }
         ],
         "pacing": [
-            {"phase": "Phase 1: Norms & Small-Group Logic", "duration": "4–5 Hours", "details": "Low-stakes logic puzzles, group cooperative games, and establishing psychological safety in teams."},
+            {"phase": "Phase 1: Norms & Silent Debate Protocol", "duration": "3–4 Hours", "details": "Establishing silent debate rules, practicing Claim-Reason-Evidence-Example chains, and running 7-station rotation rounds using the interactive timer."},
             {"phase": "Phase 2: Parliamentary Debate Tournament", "duration": "5–6 Hours", "details": "Researching controversial contemporary topics, drafting argument briefs, and holding timed tournament rounds."},
             {"phase": "Phase 3: Beaver Computational Challenge", "duration": "4–5 Hours", "details": "Collaborative problem-solving rounds on computer science concepts, pattern recognition, and optimization."},
             {"phase": "Phase 4: Synthesis & Grade-Level Finals", "duration": "3 Hours", "details": "School-wide showcase debates held in the auditorium and grade-wide mathematics relays."}
         ],
         "engagement": {
-            "cognitive": "Synthesizing research under time limits, rapid verbal rebuttal, and algorithmic pattern deconstruction.",
-            "social": "Partner reliance during formal debate rounds; mutual accountability in problem-solving teams.",
-            "physical": "Scheduled gym movement breaks integrated directly into the middle of ILT periods to release tension and refresh focus."
+            "cognitive": "Synthesizing research under time limits, rapid written and verbal rebuttal, and algorithmic pattern deconstruction.",
+            "social": "Silent station rotations with multi-colored written responses; partner reliance during formal debate rounds.",
+            "physical": "Gallery movement around station sheets with scheduled gym movement breaks integrated to release tension and refresh focus."
         },
         "assessment": {
-            "formative": "Self-assessment rubrics, Google Forms exit slips, and teacher coaching during debate preparation.",
-            "peer": "Peer scoring ballots evaluating debate delivery, evidence reliability, and respectful refutation.",
-            "summative": "Graduation competency tracking rubrics measuring growth in collaborative resilience and verbal articulation."
+            "formative": "Self-assessment rubrics, Google Forms exit slips, station sheet argument tracking, and teacher coaching during debate preparation.",
+            "peer": "Peer scoring ballots evaluating debate delivery, written rebuttal strength, evidence reliability, and respectful refutation.",
+            "summative": "Graduation competency tracking rubrics measuring growth in collaborative resilience and verbal/written articulation."
         },
         "sharing": "Students presented formal debate rounds before entire grade-level assemblies in the auditorium, defending policy positions with peer judges and faculty adjudicators.",
-        "reflection": "The structured debate framework combined with intentional physical gym breaks transformed the school's collaborative culture. Students who previously refused to speak in groups developed confidence in structured debate roles.",
+        "reflection": "The structured silent debate protocol and parliamentary framework combined with intentional physical gym breaks transformed the school's collaborative culture. Students who previously refused to speak in groups developed confidence through silent written iterations before stepping into spoken debate roles.",
         "toolkit": [
-            "Debate timer apps, parliamentary bell, podiums",
-            "Beaver Computing Challenge past competition archives",
-            "Gymnasium equipment for structured movement intervals (dodgeball, circuit training, cooperative games)",
-            "Google Slides & paper reflection rubrics"
+            '<a href="timer.html" target="_blank" style="font-weight: 700; color: #f56a6a;">Interactive 7-Station Rotation Timer (timer.html)</a> — Full-screen timer with 3-minute round countdowns, round counter, audio chimes, keyboard shortcuts (Space, R, M, F), and rotation overlays.',
+            '<a href="silent-debate-ilt.pptx" style="font-weight: 700; color: #f56a6a;">Silent Debate 16:9 Presentation Deck (silent-debate-ilt.pptx)</a> — 17-slide master deck including station cards (Stations 1–7 plus Spares A–C), argument toolkit rules, rebuttal formula, and exit reflection prompts.',
+            'Rendered Station Cards & Slide Preview Gallery (<code>render/slide01.png</code> through <code>render/slide17.png</code>) for quick printing or digital projection.',
+            'Debate timer apps, parliamentary bell, podiums',
+            'Beaver Computing Challenge past competition archives',
+            'Gymnasium equipment for structured movement intervals (dodgeball, circuit training, cooperative games)',
+            'Google Slides & paper reflection rubrics'
         ]
     },
     {
@@ -2051,7 +2059,8 @@ def build_detail_pages(items, kind="lesson"):
         cross_list = ", ".join(l["cross_curricular"])
 
         # Toolkit items
-        toolkit_items = "".join([f'<li>{html.escape(t)}</li>' for t in l["toolkit"]])
+        toolkit_items = "".join([f'<li>{t if ("<a " in t or "<code>" in t) else html.escape(t)}</li>' for t in l["toolkit"]])
+
 
         # Prev / Next actions
         nav_actions = []
